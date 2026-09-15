@@ -82,11 +82,6 @@ const Dashboard = () => {
       <>
         <MobileNotificationBridgeBanner />
         {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
-        {resolvedRole === "participant" && (
-          <div className="w-full px-4 pt-4 sm:px-6 lg:px-8">
-            <RoleJobFirstGuide role="participant" />
-          </div>
-        )}
         <Suspense fallback={dashboardFallback}>
           <PeopleHome />
         </Suspense>
