@@ -5,12 +5,11 @@ Migration branch: `andre/ui-v2-foundation`
 
 ## Current status
 
-### Phase 0 — Foundation: implemented, runtime validation pending
+### Phase 0 — Foundation: implemented; runtime proof still required
 
 Implemented:
 
-- V2 semantic token layer;
-- dark authenticated canvas tokens;
+- V2 semantic token layer and dark authenticated canvas;
 - semantic role accents;
 - spacing/radius/type hierarchy;
 - reduced-motion baseline;
@@ -20,237 +19,162 @@ Implemented:
 - `ConsequenceReceipt`;
 - `PromoCardV2`;
 - canonical `OpportunityCard`;
-- semantic component tests;
-- validated local start-page preference and tests.
+- role-valid local start-page preference;
+- focused tests for V2 semantics and outcome resolvers.
 
-### Phase 1 — Participant shell canary: implemented, runtime validation pending
+### Phase 1 — Participant shell canary: implemented
 
-`AppLayout.tsx` uses `PromorangAppShell.tsx` only when the active role is `participant`.
+`AppLayout.tsx` uses `PromorangAppShell.tsx` only for the Participant role.
 
-Merchant, Creator, Host, Brand, Agency and Admin remain on the legacy `DashboardLayout.tsx` until each role has been migrated and checked in a real runtime.
+Merchant, Creator, Host, Brand, Agency and Admin continue using the proven `DashboardLayout.tsx` until browser/runtime validation supports a shell cutover.
 
-This is deliberate risk containment. The legacy shell remains intact as a rollback path.
+Local Participant shell comparison:
 
-Local comparison override:
+- `?ui=v1` persists legacy Participant chrome on that device;
+- `?ui=v2` clears the override and restores V2 Participant chrome.
 
-- `?ui=v1` persists the legacy Participant shell on that device;
-- `?ui=v2` clears the override and restores the V2 Participant shell.
+The legacy shell remains intact as a rollback path.
 
-### Phase 2 — Participant Home: implemented, runtime validation pending
+### Phase 2 — Participant Home: implemented
 
-`PeopleHome.tsx` now follows:
+`PeopleHome.tsx` follows:
 
 **Next move + PromoCard → Outcome progress → Proof/Value → Consequence Receipt → Around you**
 
-The former parallel teaching/playbook/tool layers were removed from the primary presentation without deleting their underlying routes or capabilities.
+The redundant `RoleJobFirstGuide` has been removed from the Participant path so the home itself owns the next-move hierarchy.
 
 ### Phase 3 — Signature objects: full PromoCard presentation migrated
 
-`PromoCardV2` renders the existing shared PromoCard face model. It does not invent another card state machine.
-
-Authoritative face states remain:
-
-- empty;
-- nearby;
-- ready;
-- returned;
-- used;
-- expired.
-
-The full `/card` route has been reorganized around:
+The full `/card` route now follows:
 
 **Card → Use now → What you have → Available to add → What comes next → Proof/value**
 
-Existing fulfilment and redemption behavior remains wired through current helpers/components, including code/merchant validation, QR, manual/automatic/shipping issuance, expiry, code copy/focus return, card aim, nearby benefits, points/keys, memberships, world/community context, and expired history.
+Existing fulfilment/redemption behavior remains wired through current helpers/components, including:
 
-`ConsequenceReceipt` remains the canonical persistent proof/value artifact.
+- code / merchant validation;
+- QR issuance;
+- manual, automatic and shipping flows;
+- expiry and recorded-use states;
+- copy-code dialog and focus return;
+- card aim/filtering;
+- nearby/next benefits;
+- points/keys;
+- memberships and community/world context;
+- expired history.
 
-### Phase 4 — Discover / Opportunity grammar: started incrementally
+### Phase 4 — Discover / Opportunity grammar: incremental migration started
 
-`OpportunityCard` defines the canonical opportunity anatomy:
+`LivePerkCard` renders through canonical `OpportunityCard` while preserving destination resolution and benefit-presentation helpers.
 
-- context/status;
-- title/description;
-- optional media;
-- value;
-- proof requirement/context;
-- one primary action.
-
-`LivePerkCard` now renders through `OpportunityCard` while preserving `livePerkHref`, localized benefit presentation, claim/share routing, drop/offer routing and return-to-card behavior.
-
-Discover itself has **not** been wholesale rewritten. Search, tabs, filters, map, polls, Moments and acquisition flows remain authoritative.
+Search, tabs, filters, map, polls, Moments and acquisition flows remain on the existing implementation.
 
 ### Phase 5 — Merchant commercial reference: Home canary implemented
 
-Merchant continues using the legacy authenticated shell.
+Only `/dashboard?tab=home` is canaried to `MerchantOutcomeHomeV2`.
 
-Only `/dashboard?tab=home` is canaried to `MerchantOutcomeHomeV2`. Promotions, Customers, Sales & Results and Business still render through the existing `MerchantDashboardV2` implementation.
-
-Merchant Home now follows:
+Journey:
 
 **Business context → Next move → Business goal → Success trail → Proof/value → Live promotions**
 
-The next-move logic is isolated in `merchant-outcome.ts` and tested. It may advance through setup, launch, verification and repeat recommendation from available facts, but it intentionally does **not** mark repeat customer or positive economics complete merely from redemption counts.
-
-Current merchant success trail:
+Success trail:
 
 **Business ready → Promotion live → First verified customer → Business value → Repeat customer → Positive economics**
 
-`Attributed sales` remains unavailable (`—`) until transaction value is actually captured and attributable.
+`merchant-outcome.ts` is a pure resolver with tests. Repeat-customer and positive-economics stages are never inferred from redemption counts alone. Attributed sales remain unavailable until transaction value is captured and attributable.
 
-### Phase 6 — Creator workstream: presentation migrated, truthfulness conservative
+Existing Promotions, Customers, Sales & Results and Business tabs remain authoritative.
 
-`CreatorDashboardV2` no longer presents six equally weighted toolbox cards.
+### Phase 6 — Creator workstream: presentation migrated conservatively
 
-Primary journey is now:
+Journey:
 
 **Choose useful work → Create/get approved → Cause verified action → Settle value → Earn stronger repeat work**
 
-Because the current dashboard wrapper does not have authoritative facts for approval, attribution, settlement or repeat work, only the first stage is shown as current. No later outcome is fabricated.
+The wrapper does not currently have authoritative approval/attribution/settlement/repeat facts, so no later stage is fabricated. Existing Creator consoles remain accessible as compact secondary tabs.
 
-Operational tabs remain available as compact secondary navigation:
+### Phase 7 — Host lifecycle: presentation migrated conservatively
 
-- Opportunities;
-- Current work;
-- Results;
-- Earnings;
-- Audience demand;
-- Reputation.
-
-### Phase 7 — Host lifecycle: presentation migrated, truthfulness conservative
-
-`HostDashboardV2` now follows:
+Journey:
 
 **Create Moment → Fill it → Run it → Verify attendance → Bring people back → Prove value to partners**
 
-The existing hosted-Moment count is the only fact used to advance the lifecycle. If at least one hosted Moment exists, `Create Moment` may be marked complete and `Fill it` current. Attendance, operating state, repeat behavior and partner proof are not inferred.
+Hosted-Moment existence is the only fact used to advance the lifecycle. Attendance, live-operation success, repeat behavior and partner proof are not inferred.
 
-Operational tabs remain available as compact secondary navigation:
+### Phase 8 — Brand decision platform: Home canary implemented
 
-- Moments;
-- Live arrivals;
-- Proof review;
-- Results;
-- Audience demand;
-- Partners.
+Brand Home now uses `BrandOutcomeHomeV2` when no deeper Brand tab is requested.
 
-### Phase 8 — Brand: intentionally held for runtime-backed migration
+Decision spine:
 
-Brand currently combines new-workspace onboarding, campaign operations, client/agency context, budget, attribution, intelligence and gamification. It is not being wholesale rewritten on source inspection alone.
+**Customer outcome → Funded/fulfillable supply → Activation live → Attributed action → Incremental value → Scale/modify/stop**
 
-Target spine remains:
+Truthfulness rules:
 
-**Define outcome → Fund → Launch → Attribute → Determine value → Decide**
+- a recorded budget does **not** prove funds or inventory are secured;
+- redemptions can support attributable-action evidence but do **not** prove sales or incrementality;
+- incremental value remains unavailable until approved transaction, margin, lift or other value evidence exists.
 
-### Phase 9 — Admin: intentionally held for runtime-backed migration
+`brand-outcome.ts` contains the pure decision resolver and has focused tests.
 
-Admin already has a stronger Command Center path. Do not perform a cosmetic rewrite before the queue-first operating model can be runtime-validated.
+A legacy demo metric in `useBrandStats()` that calculated `attributedSales = totalRedemptions * 42` has been removed. `attributedSales` is now explicitly unavailable without transaction-value evidence.
 
-Target spine remains:
+Existing Brand tabs and consoles remain authoritative for campaigns, opportunities, creators/distribution, attribution/proof and intelligence/economics.
 
-**What needs attention → Resolve → Verify resolved → Next priority**
+### Phase 9 — Admin queue-first Command Center: presentation migrated
 
-## Validation status
+`AdminCommandCenter.tsx` retains existing access checks, query sources, routes and refresh behavior, but now presents:
 
-Build/lint/test and rendered browser proof remain pending.
+**Highest-priority work → Remaining operating queue → Responsibilities → Platform evidence**
 
-Current Vercel checks are blocked by the connected account build-rate limit rather than a reported application compile failure. No successful CI/local runtime proof has yet been recorded for the branch.
+One priority queue dominates instead of every administrative capability receiving an equal dashboard card. Platform totals are explicitly contextual evidence rather than targets or success claims.
 
-Tests have been added for semantic primitives, start-page validation, live-perk destination rules and Merchant outcome-state resolution, but their successful execution has not been proven in this environment.
+Admin remains on the proven authenticated shell.
 
-**Do not merge or deploy the V2 branch based on source inspection alone.**
+## Build / deployment validation
 
-## Runtime acceptance — Participant shell and Home
+The web Vercel project exposed a repository-level install failure before Vite loaded application code:
 
-Verify:
+`@esbuild/linux-x64` required by `apps/web/node_modules/esbuild@0.21.5` was absent from the installed workspace dependencies.
 
-- Participant login and post-login routing;
-- saved start-page precedence;
-- `?ui=v1` / `?ui=v2` shell comparison;
-- role switching away from and back to Participant;
-- mobile drawer and bottom nav;
-- desktop navigation;
-- global search/location/language/theme/profile/sign-out controls;
-- deep links;
-- keyboard/focus order;
-- PWA prompt placement;
-- empty/new account;
-- nearby benefit;
-- claimed/ready PromoCard;
-- verified used benefit;
-- returned and expired states;
-- Moment feed empty/error/loading;
-- multi-role account.
+The same failure occurred on `andre/local-working-state`, so it was not introduced by UI V2.
 
-## Runtime acceptance — Full PromoCard
+A minimal repair has been committed by adding this web-workspace optional dependency:
 
-Verify representative real fulfilment states:
+```json
+"optionalDependencies": {
+  "@esbuild/linux-x64": "0.21.5"
+}
+```
 
-1. code / merchant validation;
-2. QR issuance;
-3. manual fulfilment;
-4. automatic fulfilment;
-5. shipping state;
-6. expired benefit;
-7. recorded use;
-8. clipboard success/failure;
-9. dialog close and focus return;
-10. aim/filter persistence;
-11. nearby and next-benefit flows.
+The API Vercel project has produced a successful check. The web repair is still awaiting a completed preview build at the time of this document update.
 
-## Runtime acceptance — Discover
+**Do not merge or deploy the V2 branch until the web preview build succeeds and browser/runtime review is complete.**
 
-Verify:
+## Runtime acceptance order
 
-- live perk claim destinations;
-- share destinations;
-- used/credential-bearing return to PromoCard;
-- drop/offer links;
-- tabs/search/filter/map unchanged;
-- discovery polls/acquisition unchanged;
-- empty/loading/error states.
+1. Participant `/dashboard?ui=v2` versus `/dashboard?ui=v1`;
+2. full `/card` fulfilment states;
+3. `/discover?tab=perks` routing and Opportunity presentation;
+4. Merchant `/dashboard?tab=home` and links into existing Merchant tabs;
+5. Creator default and query-param tabs;
+6. Host zero-Moment and hosted-Moment states;
+7. Brand Home and deeper Brand tabs;
+8. Admin `/admin?tab=command` across access levels;
+9. desktop 1440×1024;
+10. mobile 390×844;
+11. keyboard, focus, reduced-motion and recovery-state checks.
 
-## Runtime acceptance — Merchant Home
+## Proof/data integrity gate
 
-Verify:
+PROMORANG UI must distinguish:
 
-- no-location state → Business;
-- location but no offers → Promotions;
-- live offer with no redemption → verification/business tools;
-- verified redemption → repeat recommendation;
-- no revenue claim without captured transaction value;
-- links back into the existing Merchant tabs;
-- active-offer and redemption counts against real data;
-- mobile and desktop layout.
+- verified fact;
+- calculated fact;
+- attributed fact;
+- estimate/inference;
+- unavailable metric.
 
-## Runtime acceptance — Creator
-
-Verify:
-
-- default Opportunity tab;
-- all six existing tool surfaces still reachable;
-- query-param tab deep links;
-- no false completion of approval, attribution, earnings or repeat work;
-- mobile horizontal tab usability.
-
-## Runtime acceptance — Host
-
-Verify:
-
-- zero-Moment state;
-- hosted-Moment state;
-- create-Moment route;
-- all existing Host consoles still reachable;
-- query-param tab deep links;
-- no inferred attendance/repeat/partner success;
-- mobile horizontal tab usability.
-
-## Visual checkpoints
-
-Canonical design QA viewports:
-
-- desktop 1440×1024;
-- mobile 390×844.
+Never visually celebrate a proxy as a verified stakeholder outcome. Do not manufacture revenue, incremental value, repeat behavior, funding certainty, attendance or economic success from adjacent activity metrics.
 
 ## Legacy cleanup
 
