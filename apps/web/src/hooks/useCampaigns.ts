@@ -78,6 +78,7 @@ export function useCreateCampaign() {
           organization_id: activeOrgId,
           title: campaign.title!,
           description: campaign.description,
+          terms: undefined,
           budget: campaign.budget,
           reward_type: (campaign.reward_type || "discount") as RewardType,
           reward_value: campaign.reward_value,
@@ -128,8 +129,6 @@ export function useCreateCampaign() {
           source: "promopilot",
         });
 
-        // The campaign retains the complete plan in compiler_metadata, so a
-        // projection failure must not lose the merchant's saved work.
         if (planError) console.warn("Demand plan projection could not be saved", planError.message);
       }
 
@@ -179,7 +178,8 @@ export function useBrandStats() {
         totalImpressions,
         totalRedemptions,
         totalBudget,
-        attributedSales: totalRedemptions * 42, // Mock ROI multiplier for demo/V1
+        attributedSales: null as number | null,
+        attributedSalesStatus: "unavailable_without_transaction_value" as const,
       };
     },
     enabled: !!user,
