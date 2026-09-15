@@ -12,7 +12,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
 import {
@@ -22,6 +21,7 @@ import {
   OutcomeProgress,
   OutcomeSurface,
   PageLead,
+  PromoCardV2,
 } from "@/components/promorang-v2";
 
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
@@ -164,7 +164,7 @@ export default function PeopleHome() {
             }
             aside={
               <Link to={to("/card")} aria-label={t("people.openCardAria")} className="pr-v2-focusable block rounded-[var(--pr-v2-radius-object)]">
-                <PromoCardFace className="max-w-none" interactive={false} model={cardModel} />
+                <PromoCardV2 model={cardModel} compact />
                 <span className="mt-3 flex min-h-11 items-center justify-between text-sm font-semibold text-[hsl(var(--pr-v2-text-2))]">
                   Open PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </span>
