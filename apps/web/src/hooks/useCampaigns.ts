@@ -78,7 +78,6 @@ export function useCreateCampaign() {
           organization_id: activeOrgId,
           title: campaign.title!,
           description: campaign.description,
-          terms: undefined,
           budget: campaign.budget,
           reward_type: (campaign.reward_type || "discount") as RewardType,
           reward_value: campaign.reward_value,
