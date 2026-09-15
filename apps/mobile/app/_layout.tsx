@@ -6,20 +6,21 @@ import {
   ThemeProvider,
 } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { StripeProvider } from '@/lib/stripe';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { buildMobileInternalDestination } from '@promorang/shared/mobile-navigation-intent';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { TourProvider } from '@/context/TourContext';
-import { useRouter, useSegments } from 'expo-router';
 import { commerceApi } from '@/lib/api';
 import { OnboardingProvider, useOnboarding } from '@/context/OnboardingContext';
 import { NotificationNavigationObserver } from '@/components/NotificationNavigationObserver';
+import { rememberPendingNavigation, resumePendingNavigation } from '@/lib/pendingNavigation';
 
 export {
   ErrorBoundary,
@@ -89,6 +90,9 @@ function InitialLayout() {
   const { session, activeRole, isLoading } = useAuth();
   const { completed: onboardingCompleted, loading: onboardingLoading } = useOnboarding();
   const segments = useSegments();
+  const pathname = usePathname();
+  const globalSearchParams = useGlobalSearchParams();
+  const serializedSearchParams = JSON.stringify(globalSearchParams);
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -99,18 +103,56 @@ function InitialLayout() {
   useEffect(() => {
     if (isLoading || onboardingLoading || !isMounted) return;
 
-    const inAuthGroup = segments[0] === 'auth';
-    const inOnboarding = segments[0] === 'onboarding';
-    const roleLanding = activeRole && activeRole !== 'participant' ? '/(tabs)/dashboard' : '/(tabs)';
+    let cancelled = false;
+    const enforceGate = async () => {
+      const inAuthGroup = segments[0] === 'auth';
+      const inOnboarding = segments[0] === 'onboarding';
+      const roleLanding = activeRole && activeRole !== 'participant' ? '/(tabs)/dashboard' : '/(tabs)';
 
-    if (session && !onboardingCompleted && !inOnboarding) {
-      router.replace('/onboarding');
-    } else if (session && onboardingCompleted && (inAuthGroup || inOnboarding)) {
-      router.replace(roleLanding as any);
-    } else if (!session && !inAuthGroup) {
-      router.replace('/auth/login');
-    }
-  }, [session, activeRole, isLoading, onboardingCompleted, onboardingLoading, segments, isMounted]);
+      let params: Record<string, string | string[] | undefined> = {};
+      try {
+        params = JSON.parse(serializedSearchParams || '{}');
+      } catch {
+        params = {};
+      }
+      const currentDestination = buildMobileInternalDestination(pathname, params);
+
+      if (!session && !inAuthGroup) {
+        if (currentDestination) await rememberPendingNavigation(currentDestination);
+        if (!cancelled) router.replace('/auth/login');
+        return;
+      }
+
+      if (session && !onboardingCompleted && !inOnboarding) {
+        if (currentDestination) await rememberPendingNavigation(currentDestination);
+        if (!cancelled) router.replace('/onboarding');
+        return;
+      }
+
+      if (session && onboardingCompleted && (inAuthGroup || inOnboarding)) {
+        const resumed = await resumePendingNavigation((destination) => {
+          if (!cancelled) router.replace(destination as any);
+        });
+        if (!resumed && !cancelled) router.replace(roleLanding as any);
+      }
+    };
+
+    void enforceGate();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    session,
+    activeRole,
+    isLoading,
+    onboardingCompleted,
+    onboardingLoading,
+    segments,
+    pathname,
+    serializedSearchParams,
+    isMounted,
+    router,
+  ]);
 
   return <><NotificationNavigationObserver /><RootLayoutNav /></>;
 }
