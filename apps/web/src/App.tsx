@@ -104,7 +104,6 @@ const Marketplace = lazy(() => import("./pages/Marketplace"));
 const CommerceDetail = lazy(() => import("./pages/CommerceDetail"));
 const CommerceReceiptDetail = lazy(() => import("./pages/CommerceReceiptDetail"));
 const MerchantStorefront = lazy(() => import("./pages/MerchantStorefront"));
-const OfferDetail = lazy(() => import("./pages/OfferDetail"));
 const PublicValueReceipt = lazy(() => import("./pages/PublicValueReceipt"));
 const ActivatePage = lazy(() => import("./pages/Activate"));
 const MomentDetail = lazy(() => import("./pages/MomentDetail"));
@@ -128,6 +127,9 @@ const Guilds = lazy(() => import("./pages/Guilds"));
 const DropClaim = lazy(() => import("./pages/DropClaim"));
 const StartCommunity = lazy(() => import("./pages/StartCommunity"));
 const CommunityPortal = lazy(() => import("./pages/CommunityPortal"));
+const CommunityAdmin = lazy(() => import("./pages/CommunityAdmin"));
+const CommunityNetwork = lazy(() => import("./pages/CommunityNetwork"));
+const CommunityEngine = lazy(() => import("./pages/CommunityEngine"));
 const PutInventoryUp = lazy(() => import("./pages/PutInventoryUp"));
 const Participants = lazy(() => import("./pages/Participants"));
 const Activity = lazy(() => import("./pages/Activity"));
@@ -337,6 +339,9 @@ const App = () => (
                     <Route path="/happened" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
                     <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
                     <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
+                    <Route path="/community/admin" element={<ProtectedRoute><CommunityAdmin /></ProtectedRoute>} />
+                    <Route path="/community/network" element={<ProtectedRoute><CommunityNetwork /></ProtectedRoute>} />
+                    <Route path="/community/engine" element={<ProtectedRoute><CommunityEngine /></ProtectedRoute>} />
                     <Route path="/community/:tab?" element={<ProtectedRoute><CommunityPortal /></ProtectedRoute>} />
                     <Route path="/crews" element={<ProtectedRoute><Crews /></ProtectedRoute>} />
                     <Route path="/guilds" element={<ProtectedRoute><Guilds /></ProtectedRoute>} />

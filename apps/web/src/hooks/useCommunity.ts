@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { API_BASE_URL } from '@/lib/api';
-import type { CommunityMembership, CommunityWorkspaceData } from '@/types/community';
+import type { CommunityAdminData, CommunityEngineData, CommunityMembership, CommunityNetworkData, CommunityWorkspaceData } from '@/types/community';
 
 export class CommunityError extends Error {
   constructor(message: string, public status: number) { super(message); }
@@ -24,7 +24,7 @@ export function useCommunityAccess() {
   return useQuery({
     queryKey: ['community-access', user?.id], enabled: Boolean(user), retry: false, staleTime: 0, gcTime: 0,
     refetchOnWindowFocus: 'always', refetchInterval: 30000,
-    queryFn: ({ signal }) => request<{ membership: CommunityMembership | null; canBootstrap: boolean; paths: string[] }>('/access', signal),
+    queryFn: ({ signal }) => request<{ membership: CommunityMembership | null; canBootstrap: boolean; isPlatformAdmin: boolean; participantAccessEnabled: boolean; paths: string[] }>('/access', signal),
   });
 }
 export function useCommunityWorkspace(enabled: boolean) {
@@ -40,8 +40,51 @@ export function useCommunityAction() {
   return useMutation({
     mutationFn: ({ action, data }: { action: string; data: Record<string, unknown> }) => request(`/actions/${encodeURIComponent(action)}`, undefined, data),
     onSettled: async () => {
-      await Promise.all(['community-access', 'community-workspace', 'experience-card', 'experience-home', 'wallet'].map(key =>
+      await Promise.all(['community-access', 'community-workspace', 'community-network', 'community-engine', 'community-admin', 'experience-card', 'experience-home', 'wallet'].map(key =>
         cache.invalidateQueries({ queryKey: [key] })));
     },
+  });
+}
+
+export function useCommunityNetwork(enabled = true) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['community-network', user?.id], enabled: enabled && Boolean(user), retry: false, staleTime: 0, gcTime: 0,
+    refetchOnWindowFocus: 'always', refetchInterval: 30000,
+    queryFn: ({ signal }) => request<CommunityNetworkData>('/network', signal),
+  });
+}
+
+export function useCommunityEngine(enabled = true) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['community-engine', user?.id], enabled: enabled && Boolean(user), retry: false, staleTime: 0, gcTime: 0,
+    refetchOnWindowFocus: 'always', refetchInterval: 30000,
+    queryFn: ({ signal }) => request<CommunityEngineData>('/engine', signal),
+  });
+}
+
+export function useCommunityEngineAction() {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: ({ action, data }: { action: string; data: Record<string, unknown> }) => request(`/actions/${encodeURIComponent(action)}`, undefined, data),
+    onSettled: async () => { await cache.invalidateQueries({ queryKey: ['community-engine'] }); await cache.invalidateQueries({ queryKey: ['community-network'] }); },
+  });
+}
+
+export function useCommunityAdmin(enabled = true) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['community-admin', user?.id], enabled: enabled && Boolean(user), retry: false, staleTime: 0, gcTime: 0,
+    refetchOnWindowFocus: 'always', refetchInterval: 30000,
+    queryFn: ({ signal }) => request<CommunityAdminData>('/admin', signal),
+  });
+}
+
+export function useCommunityAdminAction() {
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: ({ action, data }: { action: string; data: Record<string, unknown> }) => request(`/admin/actions/${encodeURIComponent(action)}`, undefined, data),
+    onSettled: async () => { await Promise.all(['community-admin', 'community-access', 'community-workspace', 'community-network', 'community-engine'].map(key => cache.invalidateQueries({ queryKey: [key] }))); },
   });
 }
