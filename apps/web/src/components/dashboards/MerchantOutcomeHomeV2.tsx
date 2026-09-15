@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, CalendarClock, CheckCircle2, Repeat2, ShoppingBag, Store, Users } from "lucide-react";
+import { ArrowRight, BarChart3, CalendarClock, Repeat2, ShoppingBag, Store, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +11,7 @@ import {
   OutcomeSurface,
   PageLead,
 } from "@/components/promorang-v2";
+import { resolveMerchantNextMove, resolveMerchantOutcomeStages } from "@/lib/merchant-outcome";
 
 type MerchantGoal = {
   title: string;
@@ -53,6 +54,25 @@ const isActiveOffer = (offer: Offer) => {
   return Number.isNaN(end) || end >= Date.now();
 };
 
+const nextMoveCopy = {
+  setup: {
+    description: "Once the business location is ready, PROMORANG can connect promotions to verified in-person activity.",
+    label: "Set up business",
+  },
+  launch: {
+    description: "Start with the business result. Advanced channels, proof rules and fulfilment mechanics stay behind the promotion workflow.",
+    label: "Create promotion",
+  },
+  verify: {
+    description: "Your next proof point is the first verified redemption. Make sure staff can validate the promotion when a customer arrives.",
+    label: "Open verification tools",
+  },
+  repeat: {
+    description: "You already have proof of customer activity. The next meaningful step is a second verified customer action, not another dashboard metric.",
+    label: "Bring customers back",
+  },
+} as const;
+
 export default function MerchantOutcomeHomeV2() {
   const { user, organizations, activeOrgId } = useAuth();
   const ownerOffers = useOwnerOffers();
@@ -70,45 +90,17 @@ export default function MerchantOutcomeHomeV2() {
   );
 
   const venueCount = venues?.length || 0;
+  const facts = {
+    venueCount,
+    offerCount: offers.length,
+    activeOfferCount: activeOffers.length,
+    totalRedemptions,
+  };
+  const resolvedNextMove = resolveMerchantNextMove(facts);
+  const nextMove = { ...resolvedNextMove, ...nextMoveCopy[resolvedNextMove.id] };
+  const stages = resolveMerchantOutcomeStages(facts);
   const activeOrg = organizations.find((org) => org.id === activeOrgId);
   const businessName = activeOrg?.name || user?.user_metadata?.company_name || user?.user_metadata?.full_name || "Your business";
-
-  const nextMove = venueCount === 0
-    ? {
-        title: "Add the place where customers will redeem promotions.",
-        description: "Once the business location is ready, PROMORANG can connect promotions to verified in-person activity.",
-        label: "Set up business",
-        href: "/dashboard?tab=business",
-      }
-    : offers.length === 0
-      ? {
-          title: "Launch your first customer promotion.",
-          description: "Start with the business result. Advanced channels, proof rules and fulfilment mechanics stay behind the promotion workflow.",
-          label: "Create promotion",
-          href: "/dashboard?tab=promotions",
-        }
-      : totalRedemptions === 0
-        ? {
-            title: "Get the live promotion in front of customers.",
-            description: "Your next proof point is the first verified redemption. Make sure staff can validate the promotion when a customer arrives.",
-            label: "Open verification tools",
-            href: "/dashboard?tab=business",
-          }
-        : {
-            title: "Give verified customers a reason to return.",
-            description: "You already have proof of customer activity. The next meaningful step is a second verified customer action, not another dashboard metric.",
-            label: "Bring customers back",
-            href: "/dashboard?tab=promotions",
-          };
-
-  const stages = [
-    { id: "ready", label: "Business ready", status: venueCount > 0 ? "complete" as const : "current" as const },
-    { id: "live", label: "Promotion live", status: activeOffers.length > 0 ? "complete" as const : venueCount > 0 ? "current" as const : "upcoming" as const },
-    { id: "customer", label: "First verified customer", status: totalRedemptions > 0 ? "complete" as const : activeOffers.length > 0 ? "current" as const : "upcoming" as const },
-    { id: "value", label: "Business value", status: totalRedemptions > 0 ? "current" as const : "upcoming" as const },
-    { id: "repeat", label: "Repeat customer", status: "upcoming" as const },
-    { id: "economics", label: "Positive economics", status: "upcoming" as const },
-  ];
 
   return (
     <div className="pr-v2-role-accent pr-v2-canvas rounded-[var(--pr-v2-radius-module)]" data-role="merchant">
