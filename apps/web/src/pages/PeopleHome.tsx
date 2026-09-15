@@ -3,10 +3,8 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
   getStakeholderLens,
-  presentWorldRunTitle,
   resolvePromoCardFace,
   resolveStakeholderHomeMove,
-  resolveWorldInvitation,
 } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizeLens, localizedGreeting } from "@/i18n/localize";
@@ -14,44 +12,37 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
-import { StakeholderLoopTrail, StakeholderPutInPass, StakeholderSetupPlaybook } from "@/components/people/StakeholderLoop";
-import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
-import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
-import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
-import { resolveDemandRole } from "@/lib/discovery-demand";
-import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
-import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
-import { useContentDrops } from "@/hooks/useContentDistribution";
-import { seededContentDrops } from "@/data/seeded-content-drops";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
+import {
+  ConsequenceReceipt,
+  EvidencePair,
+  NextMove,
+  OutcomeProgress,
+  OutcomeSurface,
+  PageLead,
+  PromoCardV2,
+} from "@/components/promorang-v2";
+
+const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
 
 const money = (value: number) => {
   if (!value) return "J$0";
   return `J$${Math.round(value).toLocaleString()}`;
 };
 
-const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
-
 export default function PeopleHome() {
   const { t } = useI18n();
   const { user, profile, activeRole, roles } = useAuth();
-  const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
   const home = useExperienceHome();
   const momentFeed = useCanonicalMomentFeed();
-  const contentDrops = useContentDrops("active");
-  const releaseDrops = contentDrops.data?.length ? contentDrops.data : seededContentDrops;
   const to = useExperiencePath();
   const location = useLocation();
   const [params] = useSearchParams();
+
   const previewRole = params.get("role");
   const data = home.data;
   const world = data?.world;
-  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
-    identityLine: world?.identity?.line,
-    hasLiveMoment: Boolean(world?.currentMove?.href && String(world.currentMove.href).includes("/moments/")),
-    nextHref: world?.currentMove?.href || "/discover",
-  });
   const givenName = firstGivenName({
     displayName: data?.givenName || data?.name,
     fullName: profile?.full_name || profile?.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name,
@@ -59,6 +50,7 @@ export default function PeopleHome() {
     email: user?.email,
     fallback: "there",
   });
+
   const role = data?.role || (["creator", "host", "promoter", "merchant", "brand"].includes(String(activeRole)) ? "contributor" : "member");
   const lensRole = previewRole || activeRole || role;
   const lens = localizeLens(getStakeholderLens(lensRole), t);
@@ -67,28 +59,40 @@ export default function PeopleHome() {
   const greeting = localizedGreeting(givenName, t);
   const description = lens.promise;
   const perksGiven = Number(data?.outcomes?.ledger?.perksGiven || 0);
+  const cardPerks = Number(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0);
+  const claimed = Number(data?.happened?.buckets?.claimed || data?.outcomes?.ledger?.perksClaimed || 0);
+  const used = Number(data?.happened?.buckets?.used || 0);
+  const earned = Number(data?.earned || 0);
+  const communities = Number(data?.communities?.length || 0);
+  const workspaceRoles = (roles || []).filter((item) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(item));
+
   const nextMove = resolveStakeholderHomeMove(lensRole, {
     perksGiven,
-    communities: data?.communities?.length || 0,
-    cardPerks: Number(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0),
+    communities,
+    cardPerks,
     hasInventory: Boolean(data?.outcomes?.suppliesInventory),
   });
-  const hasMovement = Boolean(
-    Number(data?.people || 0) ||
-    Number(data?.happening || 0) ||
-    Number(data?.earned || 0) ||
-    perksGiven ||
-    Number(data?.outcomes?.ledger?.perksClaimed || 0),
-  );
-  const ticker = role === "operator" && Number(data?.happening || 0)
-      ? t(Number(data?.happening || 0) === 1 ? "people.showedWeekOne" : "people.showedWeekMany", { count: data?.happening || 0 })
-      : Number(data?.peopleThisMonth || 0)
-        ? t("people.peopleThisMonth", { count: data.peopleThisMonth })
-        : lens.ticker;
+
+  const hasMovement = Boolean(cardPerks || claimed || used || Number(data?.people || 0) || earned || perksGiven);
+  const participantHasSelected = Boolean(cardPerks || claimed || used);
+  const participantHasCommitted = Boolean(claimed || cardPerks || used);
+  const participantHasUsed = Boolean(used);
+  const outcomeStages = isMemberWorkspace
+    ? [
+        { id: "find", label: "Find something worthwhile", status: participantHasSelected ? "complete" as const : "current" as const },
+        { id: "keep", label: "Put it on your card", status: participantHasCommitted ? "complete" as const : participantHasSelected ? "current" as const : "upcoming" as const },
+        { id: "use", label: "Use it", status: participantHasUsed ? "complete" as const : participantHasCommitted ? "current" as const : "upcoming" as const },
+        { id: "return", label: "Come back for what fits you", status: participantHasUsed ? "current" as const : "upcoming" as const },
+      ]
+    : [
+        { id: "put-in", label: lens.putIn.label, status: perksGiven || earned ? "complete" as const : "current" as const },
+        { id: "movement", label: "Cause a verified action", status: earned || Number(data?.happening || 0) ? "complete" as const : "current" as const },
+        { id: "proof", label: "Read the result", status: earned ? "current" as const : "upcoming" as const },
+      ];
 
   if (home.isLoading) {
     return (
-      <ExperienceShell title={greeting} seoTitle={t("people.homeSeo")} description={description}>
+      <ExperienceShell title={greeting} seoTitle={t("people.homeSeo")} description={description} className="pr-v2-canvas">
         <ExperienceLoading label={t("people.homeLoad")} />
       </ExperienceShell>
     );
@@ -96,7 +100,7 @@ export default function PeopleHome() {
 
   if (!data && home.isError) {
     return (
-      <ExperienceShell title={t("people.homeFallbackTitle")} eyebrow="PROMORANG">
+      <ExperienceShell title={t("people.homeFallbackTitle")} eyebrow="PROMORANG" className="pr-v2-canvas">
         <QuietEmpty
           title={t("people.homeErrorTitle")}
           copy={t("people.homeErrorCopy")}
@@ -115,300 +119,184 @@ export default function PeopleHome() {
     );
   }
 
+  const cardModel = resolvePromoCardFace({
+    holder: givenName === "there" ? t("people.yourCard") : givenName,
+    useThis: data?.card?.useThis,
+    nearbyCount: data?.card?.nearby?.length || 0,
+    nextBenefitTitle: data?.card?.nextBenefit?.title,
+    latestReturn: world?.latestReturn?.heading,
+    latestReturnAt: world?.latestMemory?.issuedAt
+      ? new Date(world.latestMemory.issuedAt).toLocaleDateString()
+      : undefined,
+    sceneMark: world?.promoCard?.sceneMark,
+    crewMark: world?.promoCard?.crewMark,
+    recordedUse: Boolean(data?.card?.useThis?.redemption?.recorded),
+  });
+
+  const liveMoments = momentFeed.data?.moments?.filter((moment) => moment.lifecycle !== "recently_ended").slice(0, 3) || [];
+
   return (
     <ExperienceShell
       title={greeting}
       seoTitle={t("people.homeSeo")}
       description={description}
+      className="pr-v2-canvas"
       hero={(
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/50 px-5 pb-5 pt-6 shadow-[0_0_40px_rgba(255,85,0,0.16)] backdrop-blur-xl">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_0%,rgba(255,85,0,.24),transparent_46%)]" />
-          <div className="relative">
-            <p className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-              {ticker}
-            </p>
-            <h1 className="mt-4 font-serif text-[2.55rem] font-bold leading-[0.9] tracking-tight sm:text-5xl">{greeting}</h1>
-            <p className="mt-3 max-w-md text-sm leading-6 text-white/60">{description}</p>
-            <Link to={to("/card")} aria-label={t("people.openCardAria")} className="experience-interactive group mx-auto mt-6 block max-w-md rounded-[22px]">
-              <PromoCardFace
-                className="max-w-none"
-                interactive={false}
-                model={resolvePromoCardFace({
-                  holder: givenName === "there" ? t("people.yourCard") : givenName,
-                  useThis: data?.card?.useThis,
-                  nearbyCount: data?.card?.nearby?.length || 0,
-                  nextBenefitTitle: data?.card?.nextBenefit?.title,
-                  latestReturn: world?.latestReturn?.heading,
-                  latestReturnAt: world?.latestMemory?.issuedAt
-                    ? new Date(world.latestMemory.issuedAt).toLocaleDateString()
-                    : undefined,
-                  sceneMark: world?.promoCard?.sceneMark,
-                  crewMark: world?.promoCard?.crewMark,
-                  recordedUse: Boolean(data?.card?.useThis?.redemption?.recorded),
-                })}
-              />
-              <span className="mt-3 flex min-h-11 items-center justify-between px-1 text-sm font-semibold text-amber-200">
-                {t("people.openCard")} <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-              <p className="mt-2 px-1 text-xs leading-5 text-white/45">{lens.promoCard.meaning}</p>
-            </Link>
-            <Link
-              to={to(nextMove.href)}
-              className="experience-interactive mt-5 flex min-h-12 items-center justify-center rounded-full bg-primary px-5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,85,0,0.28)]"
-            >
-              {nextMove.label}
-            </Link>
-          </div>
-        </section>
+        <div className="space-y-6 py-3">
+          <PageLead
+            eyebrow="PROMORANG · Today"
+            title={greeting}
+            description={isMemberWorkspace ? "One useful move at a time. Keep what matters on your card, use it in the real world, then let PROMORANG learn from what actually worked." : description}
+          />
+
+          <NextMove
+            title={nextMove.label}
+            description={isMemberWorkspace ? "This is the most useful next action PROMORANG can identify from what is currently on your card and around you." : description}
+            reason={isMemberWorkspace ? "Your home now prioritizes one move instead of asking you to learn the whole platform." : undefined}
+            action={
+              <Link
+                to={to(nextMove.href)}
+                className="pr-v2-focusable inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role))] px-5 text-sm font-bold text-black"
+              >
+                {nextMove.label}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            }
+            aside={
+              <Link to={to("/card")} aria-label={t("people.openCardAria")} className="pr-v2-focusable block rounded-[var(--pr-v2-radius-object)]">
+                <PromoCardV2 model={cardModel} compact />
+                <span className="mt-3 flex min-h-11 items-center justify-between text-sm font-semibold text-[hsl(var(--pr-v2-text-2))]">
+                  Open PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                </span>
+              </Link>
+            }
+          />
+        </div>
       )}
     >
-      {isPreview ? (
-        <nav aria-label={t("people.previewRoles")} className="flex flex-wrap gap-2">
-          {PREVIEW_ROLES.map((item) => (
-            <Link
-              key={item}
-              to={`/app-preview?role=${item}`}
-              className={`rounded-full border px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] ${
-                lens.role === item ? "border-primary bg-primary text-black" : "border-white/15 text-white/60"
-              }`}
-            >
-              {item}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
-      <StakeholderLoopTrail role={lensRole} />
-      <StakeholderSetupPlaybook role={lensRole} />
-      <section className="space-y-3" aria-labelledby="happening-now-title">
-        <div className="flex items-end justify-between gap-3">
-          <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Verified calendar</p><h2 id="happening-now-title" className="font-serif text-2xl font-bold">Now & next</h2></div>
-          <Link to="/discover/moments" className="text-sm font-bold text-primary">See calendar</Link>
-        </div>
-        {momentFeed.isLoading ? <div className="h-36 animate-pulse rounded-[1.6rem] border border-white/10 bg-white/[0.03]" /> : momentFeed.isError ? (
-          <div role="status" className="rounded-[1.6rem] border border-amber-400/20 bg-amber-400/5 px-5 py-5"><p className="font-serif text-xl font-bold">Live timing unavailable</p><p className="mt-1 text-sm text-white/50">We are not showing unconfirmed listings in its place.</p></div>
-        ) : momentFeed.data.moments.length ? (
-          <div className="grid gap-3">{momentFeed.data.moments.filter((moment) => moment.lifecycle !== "recently_ended").slice(0, 3).map((moment) => (
-            <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="group grid grid-cols-[72px_1fr] gap-4 rounded-[1.6rem] border border-white/10 bg-white/[0.04] p-3">
-              <div className="relative h-[72px] overflow-hidden rounded-2xl bg-primary/10">{moment.image_url ? <img src={moment.image_url} alt="" className="h-full w-full object-cover" /> : <Radio className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 text-primary" />}</div>
-              <div className="min-w-0 self-center"><p className={`text-[10px] font-black uppercase tracking-[0.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-primary"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><p className="mt-1 truncate font-serif text-xl font-bold group-hover:text-primary">{moment.title}</p><div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3 w-3" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1 truncate"><MapPin className="h-3 w-3" />{moment.venue_name || moment.location}</span></div></div>
-            </Link>
-          ))}</div>
-        ) : <QuietEmpty title="Nothing confirmed right now" copy="New moments appear here only when their time and place can be verified." />}
-      </section>
-      {hasMovement ? (
-        <PaperReceipt
-          heading={t("people.inPlay")}
-          lines={
-            isMemberWorkspace
-              ? [
-                  { label: t("people.onYourCard"), value: String(data?.outcomes?.ledger?.cardPerks || data?.card?.perks?.length || 0) },
-                  { label: t("people.rooms"), value: String(data?.communities?.length || 0) },
-                  { label: t("people.claimed"), value: String(data?.happened?.buckets?.claimed || 0) },
-                  { label: t("common.used"), value: String(data?.happened?.buckets?.used || 0), strong: true },
-                ]
-              : [
-                  { label: t("people.people"), value: String(data?.people || 0) },
-                  { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) },
-                  { label: t("people.given"), value: String(perksGiven) },
-                  { label: t("people.onCardsNow"), value: String(data?.outcomes?.ledger?.perksClaimed || 0), strong: true },
-                ]
-          }
-          footer={role === "operator"
-            ? t(Number(data?.happening || 0) === 1 ? "people.showedWeekOne" : "people.showedWeekMany", { count: data?.happening || 0 })
-            : t("people.numbersQuiet")}
-        />
-      ) : null}
-
-      {workspaceRoles.length ? (
-        <section className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{t("people.alsoOperate")}</p>
-          <h2 className="mt-2 font-serif text-2xl font-bold">{t("people.memberHomeNotDesk")}</h2>
-          <p className="mt-2 text-sm leading-6 text-white/60">
-            {t("people.memberHomeCopy")}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link to="/dashboard?view=studio" className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-black text-black">
-              {activeRole === "admin" ? t("people.openStudio") : t("people.openWorkspace", { role: String(activeRole) })}
-            </Link>
-            {workspaceRoles.includes("admin") ? (
-              <Link to="/admin?tab=command" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
-                {t("people.adminCommand")}
+      <div className="space-y-10 pb-8">
+        {isPreview ? (
+          <nav aria-label={t("people.previewRoles")} className="flex flex-wrap gap-2">
+            {PREVIEW_ROLES.map((item) => (
+              <Link
+                key={item}
+                to={`/app-preview?role=${item}`}
+                className={`min-h-11 rounded-full border px-4 py-2.5 text-xs font-bold ${lens.role === item ? "border-[hsl(var(--pr-v2-active-role))] bg-[hsl(var(--pr-v2-active-role))] text-black" : "border-white/10 text-white/60"}`}
+              >
+                {item}
               </Link>
-            ) : null}
-            <Link to="/propose/new?from=home&role=host" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white">
-              {t("people.continueActivation")}
-            </Link>
+            ))}
+          </nav>
+        ) : null}
+
+        <OutcomeProgress stages={outcomeStages} />
+
+        <EvidencePair
+          proof={{
+            value: isMemberWorkspace ? used : Number(data?.happening || 0),
+            label: isMemberWorkspace ? "Verified uses" : "Verified activity",
+            description: isMemberWorkspace ? "PROMORANG counts use only when the underlying action has been recorded." : "This is activity PROMORANG can point to, not a vanity impression count.",
+          }}
+          value={{
+            value: isMemberWorkspace ? cardPerks : money(earned),
+            label: isMemberWorkspace ? "Useful things on your card" : "Recorded value",
+            description: isMemberWorkspace ? "Access, perks and benefits you can actually use." : "Value currently recorded against your activity.",
+          }}
+        />
+
+        {hasMovement ? (
+          <section aria-labelledby="recent-proof-title" className="space-y-4">
+            <div>
+              <p className="pr-v2-eyebrow">Proof</p>
+              <h2 id="recent-proof-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">What happened</h2>
+            </div>
+            <ConsequenceReceipt
+              event={isMemberWorkspace ? "Your recent PROMORANG activity" : "Your recent stakeholder activity"}
+              occurredAt={world?.latestMemory?.issuedAt ? new Date(world.latestMemory.issuedAt).toLocaleString("en-JM", { timeZone: "America/Jamaica", dateStyle: "medium", timeStyle: "short" }) : undefined}
+              lines={isMemberWorkspace
+                ? [
+                    { label: "On your card", value: cardPerks },
+                    { label: "Claimed", value: claimed },
+                    { label: "Verified uses", value: used, emphasis: true },
+                  ]
+                : [
+                    { label: "People", value: Number(data?.people || 0) },
+                    { label: "Given", value: perksGiven },
+                    { label: "Recorded value", value: money(earned), emphasis: true },
+                  ]}
+              next={<Link to={to(nextMove.href)} className="font-bold text-black underline decoration-black/30 underline-offset-4">{nextMove.label}</Link>}
+            />
+          </section>
+        ) : null}
+
+        <section aria-labelledby="around-you-title" className="space-y-4">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="pr-v2-eyebrow">Around you</p>
+              <h2 id="around-you-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">Worth knowing about now</h2>
+            </div>
+            <Link to="/discover/moments" className="pr-v2-focusable min-h-11 py-3 text-sm font-bold text-[hsl(var(--pr-v2-active-role))]">See all</Link>
           </div>
-        </section>
-      ) : null}
 
-      <LiveLoopActions role={String(activeRole || role)} title={t("people.makeLive")} />
-      {isMemberWorkspace ? <LiveReleaseSignal drops={releaseDrops} /> : null}
-
-      {!isMemberWorkspace ? (
-        <section className="grid gap-3">
-          <StakeholderPutInPass role={lensRole} />
-          <Link to={to(lens.world.href)} className="block">
-            <TicketPass kicker={t("people.theWorld")} title={t("people.seeScene")} detail={lens.world.meaning} stub="WORLD" stubLabel={t("common.open")} />
-          </Link>
-          <Link to={to(lens.activity.href)} className="block">
-            <TicketPass kicker={t("people.activity")} title={lens.activity.href === "/happened" ? t("people.whatHappened") : t("people.recentActivity")} detail={lens.activity.meaning} stub="DID" stubLabel={t("common.open")} />
-          </Link>
-        </section>
-      ) : (
-        <section className="space-y-3">
-          <h2 className="font-serif text-2xl font-bold">{t("people.forYou")}</h2>
-          {world?.currentMove ? (
-            <Link to={to(world.currentMove.href || invitation?.nextHref || "/discover")} className="block">
-              <TicketPass
-                kicker={world.currentMove.eyebrow || t("common.tonight")}
-                title={world.currentMove.title}
-                detail={
-                  world.identity?.line
-                    ? [world.identity.line, world.currentMove.why || world.slice?.currentLine].filter(Boolean).join(" · ")
-                    : [
-                        invitation?.why,
-                        invitation?.benefit,
-                        world.currentMove.why || world.slice?.currentLine,
-                      ].filter(Boolean).join(" ")
-                }
-                stub="GO"
-                stubLabel={t("common.live")}
-                imageUrl={world.currentMove.imageUrl}
-                imageAlt={world.currentMove.imageAlt || world.currentMove.title}
-              />
-            </Link>
-          ) : (
-            <Link to="/discover?tab=perks" className="block">
-              <TicketPass
-                kicker={t("people.whatsHappening")}
-                title={t("people.browsePerks")}
-                detail={
-                  world?.identity?.line
-                    ? t("people.browsePerksCopy")
-                    : `${invitation.benefit} ${t("people.browsePerksCopy")}`
-                }
-                stub="GO"
-                stubLabel={t("common.live")}
-              />
-            </Link>
-          )}
-          {world?.crew ? (
-            <Link to={to("/crews")} className="block">
-              <TicketPass
-                kicker={t("people.whoYouMoveWith")}
-                title={world.crew.name}
-                detail={t("people.peopleCount", { count: world.crew.size, run: presentWorldRunTitle(world.crew.runTitle) })}
-                stub="CREW"
-                stubLabel={t("common.open")}
-              />
-            </Link>
-          ) : null}
-          {world?.crew && world?.guild ? (
-            <Link to={to("/guilds")} className="block">
-              <TicketPass
-                kicker={t("people.whoCoordinates")}
-                title={world.guild.name}
-                detail={t("people.crewCount", { count: world.guild.crewCount, line: world.guild.line || t("people.sceneFederation") })}
-                stub="GUILD"
-                stubLabel={t("common.open")}
-              />
-            </Link>
-          ) : null}
-        </section>
-      )}
-
-      {isMemberWorkspace && world?.latestReturn ? (
-        <section className="space-y-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("people.latestReturn")}</p>
-          <ConsequenceReceipt receipt={world.latestReturn} />
-        </section>
-      ) : null}
-
-      {!isMemberWorkspace && lens.putIn.href !== "/stock" && (data?.outcomes?.suppliesInventory || ["merchant", "brand"].includes(String(activeRole))) ? (
-        <Link to={to("/stock")} className="block">
-          <TicketPass
-            kicker={t("people.inventory")}
-            title={t("people.putSomethingUp")}
-            detail={t("people.putSomethingUpCopy")}
-            stub="STOCK"
-            stubLabel={t("common.open")}
-          />
-        </Link>
-      ) : null}
-
-      {!isMemberWorkspace ? (
-        <section className="space-y-3">
-            <h2 className="font-serif text-2xl font-bold">{t("people.whatTheyAsked")}</h2>
-          <DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" />
-          <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">{t("people.perksYouCanGive")}</h2>
-            <Link to={to("/give")} className="text-sm text-primary">{t("common.seeAll")}</Link>
-          </div>
-          {data?.perks?.length ? (
-            <div className="grid gap-3">
-              {data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => (
-                <Link key={perk.id} to={to("/give")} className="block">
-                  <TicketPass
-                    kicker={perk.source === "yours" ? t("people.yours") : t("people.available")}
-                    title={perk.title}
-                    detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")}
-                    stub="DROP"
-                    stubLabel="Perk"
-                  />
+          {momentFeed.isLoading ? (
+            <div role="status" aria-label="Loading confirmed moments" className="h-36 animate-pulse rounded-[var(--pr-v2-radius-module)] border border-white/10 bg-white/[0.03]" />
+          ) : momentFeed.isError ? (
+            <OutcomeSurface>
+              <p className="font-semibold text-[hsl(var(--pr-v2-text-1))]">Live timing unavailable</p>
+              <p className="mt-2 text-sm text-[hsl(var(--pr-v2-text-2))]">PROMORANG is not substituting unconfirmed listings for verified timing.</p>
+            </OutcomeSurface>
+          ) : liveMoments.length ? (
+            <div className="divide-y divide-white/10 border-y border-white/10">
+              {liveMoments.map((moment) => (
+                <Link
+                  key={moment.id}
+                  to={`/moments/${moment.slug || moment.id}`}
+                  className="pr-v2-focusable grid min-h-[104px] grid-cols-[88px_minmax(0,1fr)_auto] items-center gap-4 py-4"
+                >
+                  <div className="relative h-[76px] overflow-hidden rounded-[var(--pr-v2-radius-control)] bg-white/[0.04]">
+                    {moment.image_url ? (
+                      <img src={moment.image_url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Radio className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 text-[hsl(var(--pr-v2-active-role))]" aria-hidden="true" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[hsl(var(--pr-v2-active-role))]">{momentLifecycleLabel(moment.lifecycle)}</p>
+                    <p className="mt-1 truncate text-lg font-semibold tracking-[-0.02em] text-[hsl(var(--pr-v2-text-1))]">{moment.title}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[hsl(var(--pr-v2-text-3))]">
+                      <span className="inline-flex items-center gap-1"><CalendarDays className="h-3 w-3" aria-hidden="true" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span>
+                      <span className="inline-flex min-w-0 items-center gap-1 truncate"><MapPin className="h-3 w-3" aria-hidden="true" />{moment.venue_name || moment.location}</span>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-[hsl(var(--pr-v2-text-3))]" aria-hidden="true" />
                 </Link>
               ))}
             </div>
           ) : (
-            <QuietEmpty title={t("people.nothingToGive")} copy={t("people.nothingToGiveCopy")} action={<Link to={to("/give")} className="text-sm font-bold text-primary">{t("people.makeAPerk")}</Link>} />
+            <QuietEmpty title="Nothing confirmed right now" copy="New moments appear here only when their time and place can be verified." />
           )}
         </section>
-      ) : null}
 
-      {data?.opportunityItems?.length ? (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">{t("people.opportunities")}</h2>
-            <Link to={to("/earn")} className="text-sm text-primary">{t("common.earn")}</Link>
-          </div>
-          {data.opportunityItems.slice(0, 2).map((item: { id: string; title: string; youEarn?: string }) => (
-            <Link key={item.id} to={to("/earn")} className="block">
-              <TicketPass kicker={t("common.earn")} title={item.title} detail={item.youEarn} stub="TAKE" stubLabel={t("common.open")} />
-            </Link>
-          ))}
-        </section>
-      ) : null}
-
-      {!data?.communities?.length ? (
-        isMemberWorkspace ? null : (
-        <Link to={to("/start")} className="block">
-          <TicketPass
-            kicker={t("people.firstRoom")}
-            title={t("people.bringPeople")}
-            detail={t("people.bringPeopleCopy")}
-            stub="ROOM"
-            stubLabel={t("common.open")}
-          />
-        </Link>
-        )
-      ) : (
-        <Link to={`/scenes/${data.communities[0].slug}`} className="block">
-          <TicketPass
-            kicker={t("people.yourCommunity")}
-            title={data.communities[0].title}
-            detail={t("people.yourCommunityCopy")}
-            stub="IN"
-            stubLabel="Room"
-          />
-        </Link>
-      )}
-
-      {!isMemberWorkspace ? (
-        <Link to="/dashboard?view=studio" className="block text-center text-xs text-white/30">
-          {t("people.olderStudio")}
-        </Link>
-      ) : null}
+        {workspaceRoles.length ? (
+          <section className="border-t border-white/10 pt-7">
+            <p className="pr-v2-eyebrow">Your other workspaces</p>
+            <h2 className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">Personal stays personal</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">
+              Your Participant home is for what you can discover, carry and use. Open your operating workspace when you need creator, merchant, host, brand or admin tools.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link to="/dashboard?view=studio" className="pr-v2-focusable inline-flex min-h-11 items-center rounded-[var(--pr-v2-radius-control)] border border-white/15 px-4 text-sm font-bold text-white">
+                Open operating workspace
+              </Link>
+              {workspaceRoles.includes("admin") ? (
+                <Link to="/admin?tab=command" className="pr-v2-focusable inline-flex min-h-11 items-center rounded-[var(--pr-v2-radius-control)] border border-white/15 px-4 text-sm font-bold text-white">
+                  Admin Command Center
+                </Link>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+      </div>
     </ExperienceShell>
   );
 }

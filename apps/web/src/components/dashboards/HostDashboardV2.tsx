@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Calendar, Handshake, Radio, ShieldCheck, BarChart3, Vote, Plus } from "lucide-react";
+import { Calendar, Handshake, Radio, ShieldCheck, BarChart3, Vote, Plus, ArrowRight } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { useHostedMoments } from "@/hooks/useMoments";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import {
+  NextMove,
+  OutcomeProgress,
+  PageLead,
+} from "@/components/promorang-v2";
 
 import HostMomentsStagingConsole from "@/components/host/HostMomentsStagingConsole";
 import HostLivePulseConsole from "@/components/host/HostLivePulseConsole";
@@ -34,86 +38,98 @@ export function HostDashboardV2() {
 
   const momentCount = hostedMoments?.length || 0;
   const tabs = [
-    { id: "demand", label: "Audience demand", hint: "What people want to do", icon: Vote, count: "Listen" },
-    {
-      id: "moments",
-      label: "Moments",
-      hint: "Create and manage experiences",
-      icon: Calendar,
-      count: momentsLoading ? "Checking" : `${momentCount} ${momentCount === 1 ? "Moment" : "Moments"}`,
-    },
-    { id: "pulse", label: "Live arrivals", hint: "What is happening now", icon: Radio, count: "Operate" },
-    { id: "review", label: "Proof review", hint: "Verify participation", icon: ShieldCheck, count: "Review" },
-    { id: "sponsorships", label: "Sponsors", hint: "Brand support for Moments", icon: Handshake, count: "Manage" },
-    { id: "impact", label: "Results", hint: "Attendance and return", icon: BarChart3, count: "Learn" },
+    { id: "moments", label: "Moments", hint: "Create and manage experiences", icon: Calendar },
+    { id: "pulse", label: "Live arrivals", hint: "Operate what is happening now", icon: Radio },
+    { id: "review", label: "Proof review", hint: "Verify participation", icon: ShieldCheck },
+    { id: "impact", label: "Results", hint: "Attendance and return", icon: BarChart3 },
+    { id: "demand", label: "Audience demand", hint: "What people want to do", icon: Vote },
+    { id: "sponsorships", label: "Partners", hint: "Brand support after proof", icon: Handshake },
+  ];
+
+  const stages = [
+    { id: "create", label: "Create Moment", status: momentCount > 0 ? "complete" as const : "current" as const },
+    { id: "fill", label: "Fill it", status: momentCount > 0 ? "current" as const : "upcoming" as const },
+    { id: "operate", label: "Run it", status: "upcoming" as const },
+    { id: "verify", label: "Verify attendance", status: "upcoming" as const },
+    { id: "return", label: "Bring people back", status: "upcoming" as const },
+    { id: "partner", label: "Prove value to partners", status: "upcoming" as const },
   ];
 
   return (
-    <div className="space-y-6 pb-16 text-white animate-in fade-in-50 duration-300">
-      <section className="rounded-3xl border border-amber-500/20 bg-amber-950/15 p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Host tools</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Fill it. Run it. Prove who came.</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-              Use these tools after choosing the current move above. Build a Moment, bring the right people in, verify participation, then use the evidence to improve the next one.
-            </p>
-          </div>
-          <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
-            <Link to="/create/moment">
-              <Plus className="mr-2 h-4 w-4" />
-              Create a Moment
-            </Link>
-          </Button>
-        </div>
-      </section>
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => handleTabChange(tab.id)}
-              className={`flex min-h-[112px] flex-col justify-between rounded-3xl border p-4 text-left transition ${
-                isActive
-                  ? "border-amber-400 bg-amber-950/35 ring-1 ring-amber-400/40"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05]"
-              }`}
+    <div className="pr-v2-role-accent pr-v2-canvas rounded-[var(--pr-v2-radius-module)] pb-16" data-role="host">
+      <div className="pr-v2-page space-y-8 py-2 sm:py-4">
+        <PageLead
+          eyebrow="Host · Home"
+          title="Fill it. Run it. Prove who came."
+          description="The Host workspace should follow the Moment lifecycle rather than present every operations tool with equal weight."
+          action={
+            <Link
+              to="/create/moment"
+              className="pr-v2-focusable inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role))] px-5 text-sm font-bold text-black"
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className={`rounded-2xl p-2 ${isActive ? "bg-amber-400 text-black" : "bg-white/5 text-amber-400"}`}>
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/50">{tab.count}</span>
-              </div>
-              <div>
-                <h3 className="text-xs font-black text-white">{tab.label}</h3>
-                <p className="mt-0.5 text-[10px] text-white/50">{tab.hint}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+              <Plus className="h-4 w-4" aria-hidden="true" /> Create Moment
+            </Link>
+          }
+        />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="sr-only">
-          <TabsTrigger value="demand">Demand</TabsTrigger>
-          <TabsTrigger value="moments">Moments</TabsTrigger>
-          <TabsTrigger value="pulse">Live arrivals</TabsTrigger>
-          <TabsTrigger value="review">Proof review</TabsTrigger>
-          <TabsTrigger value="sponsorships">Sponsors</TabsTrigger>
-          <TabsTrigger value="impact">Results</TabsTrigger>
-        </TabsList>
-        <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="host" /></TabsContent>
-        <TabsContent value="moments" className="mt-0"><HostMomentsStagingConsole /></TabsContent>
-        <TabsContent value="pulse" className="mt-0"><HostLivePulseConsole /></TabsContent>
-        <TabsContent value="review" className="mt-0"><HostProofReviewConsole /></TabsContent>
-        <TabsContent value="sponsorships" className="mt-0"><HostSponsorshipConsole /></TabsContent>
-        <TabsContent value="impact" className="mt-0"><HostImpactYieldConsole /></TabsContent>
-      </Tabs>
+        <NextMove
+          title={momentCount > 0 ? "Open the Moment that needs you now." : "Create your first Moment."}
+          description={momentCount > 0
+            ? "A hosted Moment exists, so the next safe assumption is to return to your Moment list. PROMORANG will not claim attendance, fill rate or repeat behavior until those facts are actually available."
+            : "Start with one real experience. Audience, arrival, proof and partner tools become useful only after there is a Moment to operate."}
+          reason={momentsLoading ? "Checking your hosted Moments…" : `${momentCount} hosted ${momentCount === 1 ? "Moment" : "Moments"} found.`}
+          action={
+            momentCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => handleTabChange("moments")}
+                className="pr-v2-focusable inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role))] px-5 text-sm font-bold text-black"
+              >
+                Open Moments <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            ) : (
+              <Link
+                to="/create/moment"
+                className="pr-v2-focusable inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role))] px-5 text-sm font-bold text-black"
+              >
+                Create Moment <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            )
+          }
+        />
+
+        <OutcomeProgress stages={stages} />
+
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+          <TabsList className="flex h-auto w-full gap-1 overflow-x-auto rounded-[var(--pr-v2-radius-surface)] border border-white/10 bg-white/[0.02] p-1.5">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="min-h-11 shrink-0 gap-2 rounded-[var(--pr-v2-radius-control)] px-3 text-xs text-[hsl(var(--pr-v2-text-2))] data-[state=active]:bg-[hsl(var(--pr-v2-active-role)/0.14)] data-[state=active]:text-[hsl(var(--pr-v2-text-1))]"
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  {tab.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+
+          <div className="border-t border-white/10 pt-5">
+            <p className="mb-4 text-xs text-[hsl(var(--pr-v2-text-3))]">
+              {tabs.find((tab) => tab.id === activeTab)?.hint}
+            </p>
+            <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="host" /></TabsContent>
+            <TabsContent value="moments" className="mt-0"><HostMomentsStagingConsole /></TabsContent>
+            <TabsContent value="pulse" className="mt-0"><HostLivePulseConsole /></TabsContent>
+            <TabsContent value="review" className="mt-0"><HostProofReviewConsole /></TabsContent>
+            <TabsContent value="sponsorships" className="mt-0"><HostSponsorshipConsole /></TabsContent>
+            <TabsContent value="impact" className="mt-0"><HostImpactYieldConsole /></TabsContent>
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 }

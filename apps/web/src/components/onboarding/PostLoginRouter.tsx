@@ -10,10 +10,12 @@ import { AFTRHRS_PATHS } from "@promorang/shared";
 import { hasAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
 import { consumePostAuthNext, peekPostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
+import { readWorkspaceStartPage } from "@/lib/workspace-start-page";
 
 /**
  * Post-Login Router
- * Intelligently routes users based on role + completion state
+ * Intelligently routes users based on explicit intent, role, saved start page,
+ * and onboarding completion.
  */
 export function PostLoginRouter() {
   const { user, activeRole, roles, setActiveRole, loading, applyIntendedRole } = useAuth();
@@ -34,6 +36,8 @@ export function PostLoginRouter() {
         readIntendedStakeholderRole(sessionStorage) ||
         roleFromNext(requestedNext);
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
+
+      // Explicit deep-link intent always wins over a saved start-page preference.
       if (requestedNext) {
         const aimed = promoCardAimFromNext(requestedNext);
         if (aimed) writePromoCardAim(aimed);
@@ -43,6 +47,7 @@ export function PostLoginRouter() {
         navigate(requestedNext, { replace: true });
         return;
       }
+
       const demoSession = readDemoSession();
       if (demoSession) {
         navigate(getDemoLandingPath(demoSession.role), { replace: true });
@@ -50,7 +55,7 @@ export function PostLoginRouter() {
       }
 
       if (appliedRole === "admin" || (roles.includes("admin") && !isConsumerPostAuthNext(requestedNext))) {
-        navigate("/admin?tab=command", { replace: true });
+        navigate(readWorkspaceStartPage(user.id, "admin") || "/admin?tab=command", { replace: true });
         return;
       }
 
@@ -62,9 +67,15 @@ export function PostLoginRouter() {
         .eq("user_id", user.id)
         .maybeSingle();
 
-      navigate(resolvePostAuthPath({
-        role: appliedRole || activeRole,
-        onboardingCompleted: error ? true : Boolean(data?.onboarding_completed),
+      const role = appliedRole || activeRole;
+      const onboardingCompleted = error ? true : Boolean(data?.onboarding_completed);
+      const savedStartPage = onboardingCompleted
+        ? readWorkspaceStartPage(user.id, role)
+        : null;
+
+      navigate(savedStartPage || resolvePostAuthPath({
+        role,
+        onboardingCompleted,
       }), { replace: true });
     };
 

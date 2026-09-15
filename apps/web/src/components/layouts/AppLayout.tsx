@@ -2,6 +2,7 @@ import { useLocation, Outlet as RouterOutlet } from "react-router-dom";
 const Outlet = RouterOutlet as any;
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
+import PromorangAppShell from "@/components/promorang-v2/shell/PromorangAppShell";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
@@ -12,12 +13,28 @@ interface AppLayoutProps {
     children?: React.ReactNode;
 }
 
+const PARTICIPANT_SHELL_OVERRIDE_KEY = "promorang:participant-shell";
+
 const AppLayout = ({ children }: AppLayoutProps) => {
-    const { user, roles, activeRole, loading, profile } = useAuth();
+    const { user, activeRole, loading, profile } = useAuth();
     const location = useLocation();
 
     const [showRankCelebration, setShowRankCelebration] = useState(false);
     const [currentRank, setCurrentRank] = useState<number | null>(null);
+
+    const uiOverride = new URLSearchParams(location.search).get("ui");
+    const storedShellOverride = typeof window === "undefined"
+        ? null
+        : localStorage.getItem(PARTICIPANT_SHELL_OVERRIDE_KEY);
+    const forceLegacyParticipantShell = uiOverride === "v1" || (uiOverride !== "v2" && storedShellOverride === "v1");
+
+    useEffect(() => {
+        if (uiOverride === "v1") {
+            localStorage.setItem(PARTICIPANT_SHELL_OVERRIDE_KEY, "v1");
+        } else if (uiOverride === "v2") {
+            localStorage.removeItem(PARTICIPANT_SHELL_OVERRIDE_KEY);
+        }
+    }, [uiOverride]);
 
     useEffect(() => {
         if (profile?.maturity_state !== undefined) {
@@ -44,8 +61,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname === path || location.pathname.startsWith(path + "/")
     ) || ["/growth", "/organizer"].includes(location.pathname);
 
-    // Consumer preview routes provide their own canonical participant shell and
-    // must not inherit DashboardLayout or the marketing header/footer.
     const previewMode = new URLSearchParams(location.search).get("preview");
     const isConsumerPreview =
         location.pathname === "/app-preview" ||
@@ -81,17 +96,36 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground animate-pulse">
-                Initializing...
+            <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--pr-v2-canvas))] text-[hsl(var(--pr-v2-text-2))]">
+                <div role="status" aria-live="polite" className="flex items-center gap-3 text-sm">
+                    <span className="h-2 w-2 rounded-full bg-primary motion-safe:animate-pulse" />
+                    Preparing PROMORANG…
+                </div>
             </div>
         );
     }
 
     if (user && !isCleanPage) {
-        return (
-            <DashboardLayout currentRole={(activeRole || "participant") as any}>
+        const content = (
+            <>
                 {children || <Outlet />}
                 <PWAInstallPrompt />
+            </>
+        );
+
+        // Canary V2 on Participant first. `?ui=v1` persists a local rollback;
+        // `?ui=v2` clears it. Commercial/admin roles remain on the proven shell.
+        if ((activeRole || "participant") === "participant" && !forceLegacyParticipantShell) {
+            return (
+                <PromorangAppShell currentRole="participant">
+                    {content}
+                </PromorangAppShell>
+            );
+        }
+
+        return (
+            <DashboardLayout currentRole={(activeRole || "participant") as any}>
+                {content}
             </DashboardLayout>
         );
     }

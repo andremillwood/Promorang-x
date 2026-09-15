@@ -14,6 +14,7 @@ const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDas
 const HostDashboardV2 = lazy(() => import("@/components/dashboards/HostDashboardV2"));
 const BrandDashboardV2 = lazy(() => import("@/components/dashboards/BrandDashboardV2"));
 const MerchantDashboardV2 = lazy(() => import("@/components/dashboards/MerchantDashboardV2"));
+const MerchantOutcomeHomeV2 = lazy(() => import("@/components/dashboards/MerchantOutcomeHomeV2"));
 const AgencyDashboard = lazy(() => import("@/components/dashboards/AgencyDashboard"));
 
 const dashboardFallback = (
@@ -71,6 +72,7 @@ const Dashboard = () => {
 
   const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
   const showStudio = studioView || (!peopleView && commercialStudio);
+  const merchantHomeCanary = showStudio && resolvedRole === "merchant" && params.get("tab") === "home";
   const ResolvedDashboard = showStudio
     ? (dashboardByRole[resolvedRole] || ParticipantDashboardV2)
     : PeopleHome;
@@ -99,7 +101,7 @@ const Dashboard = () => {
       <MobileNotificationBridgeBanner />
       {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
       <Suspense fallback={dashboardFallback}>
-        <ResolvedDashboard />
+        {merchantHomeCanary ? <MerchantOutcomeHomeV2 /> : <ResolvedDashboard />}
       </Suspense>
     </div>
   );

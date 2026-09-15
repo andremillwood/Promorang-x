@@ -1,0 +1,168 @@
+/* PROMORANG UI V2 — Outcome OS foundation
+   Semantic product tokens layered above the legacy theme.
+   New V2 components should use these variables instead of one-off colors/effects.
+*/
+
+:root {
+  --pr-v2-canvas: 220 29% 4%;
+  --pr-v2-surface-1: 218 29% 7%;
+  --pr-v2-surface-2: 216 29% 10%;
+  --pr-v2-surface-3: 216 24% 13%;
+
+  --pr-v2-text-1: 210 20% 97%;
+  --pr-v2-text-2: 216 14% 69%;
+  --pr-v2-text-3: 216 11% 48%;
+
+  --pr-v2-stroke-soft: 0 0% 100% / 0.08;
+  --pr-v2-stroke-strong: 0 0% 100% / 0.14;
+
+  --pr-v2-brand: 13 100% 60%;
+  --pr-v2-positive: 157 68% 46%;
+  --pr-v2-warning: 38 92% 58%;
+  --pr-v2-danger: 2 78% 58%;
+
+  --pr-v2-role-participant: var(--pr-v2-brand);
+  --pr-v2-role-creator: 265 82% 67%;
+  --pr-v2-role-host: 39 91% 58%;
+  --pr-v2-role-merchant: 158 67% 46%;
+  --pr-v2-role-brand: 13 100% 60%;
+  --pr-v2-role-agency: 201 80% 58%;
+  --pr-v2-role-admin: 199 86% 61%;
+
+  --pr-v2-radius-control: 0.625rem;
+  --pr-v2-radius-surface: 0.875rem;
+  --pr-v2-radius-module: 1rem;
+  --pr-v2-radius-object: 1.375rem;
+
+  --pr-v2-space-1: 0.25rem;
+  --pr-v2-space-2: 0.5rem;
+  --pr-v2-space-3: 0.75rem;
+  --pr-v2-space-4: 1rem;
+  --pr-v2-space-5: 1.5rem;
+  --pr-v2-space-6: 2rem;
+  --pr-v2-space-7: 3rem;
+  --pr-v2-space-8: 4rem;
+  --pr-v2-space-9: 6rem;
+
+  --pr-v2-shadow-float: 0 18px 48px rgb(0 0 0 / 0.28);
+  --pr-v2-shadow-object: 0 24px 64px rgb(0 0 0 / 0.34);
+}
+
+.pr-v2-canvas {
+  min-height: 100%;
+  color: hsl(var(--pr-v2-text-1));
+  background:
+    radial-gradient(1200px 700px at 85% -10%, hsl(var(--pr-v2-brand) / 0.07), transparent 62%),
+    hsl(var(--pr-v2-canvas));
+}
+
+.pr-v2-page {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.pr-v2-page-stack {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+
+.pr-v2-surface {
+  border: 1px solid hsl(var(--pr-v2-stroke-soft));
+  border-radius: var(--pr-v2-radius-surface);
+  background: hsl(var(--pr-v2-surface-1));
+}
+
+.pr-v2-surface-elevated {
+  border: 1px solid hsl(var(--pr-v2-stroke-strong));
+  border-radius: var(--pr-v2-radius-module);
+  background: hsl(var(--pr-v2-surface-2));
+  box-shadow: var(--pr-v2-shadow-float);
+}
+
+.pr-v2-eyebrow {
+  color: hsl(var(--pr-v2-text-3));
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pr-v2-display,
+.pr-v2-title,
+.pr-v2-heading {
+  font-family: "Promorang Space", "DM Sans", system-ui, sans-serif;
+  font-synthesis: none;
+  letter-spacing: -0.03em;
+}
+
+.pr-v2-display {
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  line-height: 0.98;
+  font-weight: 700;
+}
+
+.pr-v2-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.05;
+  font-weight: 700;
+}
+
+.pr-v2-heading {
+  font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.pr-v2-body {
+  color: hsl(var(--pr-v2-text-2));
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.pr-v2-muted {
+  color: hsl(var(--pr-v2-text-3));
+}
+
+.pr-v2-divider {
+  height: 1px;
+  background: hsl(var(--pr-v2-stroke-soft));
+}
+
+.pr-v2-role-accent {
+  --pr-v2-active-role: var(--pr-v2-brand);
+}
+
+.pr-v2-role-accent[data-role="creator"] { --pr-v2-active-role: var(--pr-v2-role-creator); }
+.pr-v2-role-accent[data-role="host"] { --pr-v2-active-role: var(--pr-v2-role-host); }
+.pr-v2-role-accent[data-role="merchant"] { --pr-v2-active-role: var(--pr-v2-role-merchant); }
+.pr-v2-role-accent[data-role="brand"] { --pr-v2-active-role: var(--pr-v2-role-brand); }
+.pr-v2-role-accent[data-role="agency"] { --pr-v2-active-role: var(--pr-v2-role-agency); }
+.pr-v2-role-accent[data-role="admin"] { --pr-v2-active-role: var(--pr-v2-role-admin); }
+
+.pr-v2-accent-text { color: hsl(var(--pr-v2-active-role)); }
+.pr-v2-accent-bg { background: hsl(var(--pr-v2-active-role)); }
+.pr-v2-accent-border { border-color: hsl(var(--pr-v2-active-role) / 0.42); }
+
+.pr-v2-focusable:focus-visible {
+  outline: 2px solid hsl(var(--pr-v2-active-role, var(--pr-v2-brand)));
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .pr-v2-page {
+    padding-inline: max(1rem, env(safe-area-inset-left));
+    padding-bottom: max(5.5rem, calc(4.5rem + env(safe-area-inset-bottom)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-v2-canvas *,
+  .pr-v2-canvas *::before,
+  .pr-v2-canvas *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
