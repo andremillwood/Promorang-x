@@ -1,7 +1,7 @@
 import { useLocation, Outlet as RouterOutlet } from "react-router-dom";
 const Outlet = RouterOutlet as any;
 import { useAuth } from "@/contexts/AuthContext";
-import DashboardLayout from "@/components/DashboardLayout";
+import PromorangAppShell from "@/components/promorang-v2/shell/PromorangAppShell";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
@@ -13,7 +13,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-    const { user, roles, activeRole, loading, profile } = useAuth();
+    const { user, activeRole, loading, profile } = useAuth();
     const location = useLocation();
 
     const [showRankCelebration, setShowRankCelebration] = useState(false);
@@ -45,7 +45,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     ) || ["/growth", "/organizer"].includes(location.pathname);
 
     // Consumer preview routes provide their own canonical participant shell and
-    // must not inherit DashboardLayout or the marketing header/footer.
+    // must not inherit the authenticated application shell or marketing chrome.
     const previewMode = new URLSearchParams(location.search).get("preview");
     const isConsumerPreview =
         location.pathname === "/app-preview" ||
@@ -81,18 +81,21 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground animate-pulse">
-                Initializing...
+            <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--pr-v2-canvas))] text-[hsl(var(--pr-v2-text-2))]">
+                <div role="status" aria-live="polite" className="flex items-center gap-3 text-sm">
+                    <span className="h-2 w-2 rounded-full bg-primary motion-safe:animate-pulse" />
+                    Preparing PROMORANG…
+                </div>
             </div>
         );
     }
 
     if (user && !isCleanPage) {
         return (
-            <DashboardLayout currentRole={(activeRole || "participant") as any}>
+            <PromorangAppShell currentRole={(activeRole || "participant") as any}>
                 {children || <Outlet />}
                 <PWAInstallPrompt />
-            </DashboardLayout>
+            </PromorangAppShell>
         );
     }
 
