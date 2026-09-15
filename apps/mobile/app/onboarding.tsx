@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BorderRadius, Colors, Spacing } from '@/constants/DesignTokens';
 import { useAuth, UserRole } from '@/context/AuthContext';
 import { useOnboarding } from '@/context/OnboardingContext';
+import { resumePendingNavigation } from '@/lib/pendingNavigation';
 import { supabase } from '@/lib/supabase';
 
 const ROLES: Array<{ id: Exclude<UserRole, 'admin'>; title: string; detail: string; icon: React.ComponentProps<typeof Ionicons>['name'] }> = [
@@ -47,6 +48,13 @@ export default function OnboardingScreen() {
 
   const toggleInterest = (id: string) => {
     setInterests((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  };
+
+  const resumeOrLand = async (selectedRole: Exclude<UserRole, 'admin'>) => {
+    const resumed = await resumePendingNavigation((destination) => router.replace(destination as any));
+    if (!resumed) {
+      router.replace((selectedRole === 'participant' ? '/(tabs)' : '/(tabs)/dashboard') as any);
+    }
   };
 
   const finish = async () => {
@@ -92,7 +100,7 @@ export default function OnboardingScreen() {
       }
 
       await markCompleted();
-      router.replace((role === 'participant' ? '/(tabs)' : '/(tabs)/dashboard') as any);
+      await resumeOrLand(role);
     } catch (error) {
       Alert.alert('Could not finish setup', error instanceof Error ? error.message : 'Please try again.');
     } finally {
@@ -154,7 +162,7 @@ export default function OnboardingScreen() {
             accessibilityLabel="Skip onboarding"
             onPress={async () => {
               await markCompleted();
-              router.replace('/(tabs)');
+              await resumeOrLand(role);
             }}
             style={styles.skip}
           >
