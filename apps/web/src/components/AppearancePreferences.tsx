@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Check, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme, type Theme } from "@/contexts/ThemeContext";
 import { useI18n } from "@/i18n/I18nContext";
@@ -21,14 +22,17 @@ export const AppearancePreferences = ({ className }: { className?: string }) => 
   const { theme, setTheme } = useTheme();
   const { user, activeRole } = useAuth();
   const startPageOptions = getStartPageOptions(activeRole);
-  const savedStartPage = user ? readWorkspaceStartPage(user.id, activeRole) : null;
+  const [savedStartPage, setSavedStartPage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSavedStartPage(user ? readWorkspaceStartPage(user.id, activeRole) : null);
+  }, [user, activeRole]);
 
   const setStartPage = (route: string) => {
     if (!user) return;
-    writeWorkspaceStartPage(user.id, activeRole, route);
-    // The preference is intentionally device-local in this first safe release.
-    // Force a small local re-render without introducing a second state source.
-    window.dispatchEvent(new Event("promorang:start-page-changed"));
+    if (writeWorkspaceStartPage(user.id, activeRole, route)) {
+      setSavedStartPage(route);
+    }
   };
 
   return (
@@ -102,7 +106,7 @@ export const AppearancePreferences = ({ className }: { className?: string }) => 
               Choose the default page for your current {activeRole || "participant"} workspace. Links you intentionally open still take priority.
             </p>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3" key={`${activeRole}:${savedStartPage || "default"}`}>
+          <div className="grid gap-2 sm:grid-cols-3">
             {startPageOptions.map((option, index) => {
               const active = savedStartPage ? savedStartPage === option.route : index === 0;
               return (
