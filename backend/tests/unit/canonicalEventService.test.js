@@ -4,6 +4,8 @@ const {
   offerRedemptionEvent,
   proofSubmissionEvent,
   proofReviewEvent,
+  settlementQueuedEvent,
+  settlementPaidEvent,
 } = require('../../services/canonicalEventService');
 
 describe('Canonical event contract', () => {
@@ -81,5 +83,56 @@ describe('Canonical event contract', () => {
     expect(approved).toMatchObject({ event_name: 'proof.review.verified', truth_class: 'verified' });
     expect(rejected).toMatchObject({ event_name: 'proof.review.rejected', truth_class: 'administrative' });
     expect(approved.idempotency_key).not.toBe(rejected.idempotency_key);
+  });
+
+  test('queued settlement is administrative state, not proof of payment', () => {
+    const event = settlementQueuedEvent({
+      queueItem: {
+        id: 'queue-1',
+        proof_submission_id: 'proof-1',
+        moment_id: 'moment-1',
+        user_id: 'creator-1',
+        ledger_id: 'ledger-1',
+        amount_jmd: 5000,
+        status: 'queued',
+      },
+      actorUserId: 'host-1',
+    });
+
+    expect(event).toMatchObject({
+      event_name: 'settlement.payout.queued',
+      truth_class: 'administrative',
+      subject_user_id: 'creator-1',
+      aggregate_type: 'proof_submission',
+      aggregate_id: 'proof-1',
+    });
+    expect(event.event_name).not.toContain('paid');
+  });
+
+  test('paid settlement becomes verified only after the payout record is actually paid', () => {
+    const event = settlementPaidEvent({
+      adminId: 'admin-1',
+      queueItem: {
+        id: 'queue-1',
+        proof_submission_id: 'proof-1',
+        moment_id: 'moment-1',
+        user_id: 'creator-1',
+        ledger_id: 'ledger-1',
+        amount_jmd: 5000,
+        status: 'paid',
+        paid_at: '2026-09-16T16:00:00.000Z',
+        payment_reference: 'bank-transfer-reference',
+      },
+    });
+
+    expect(event).toMatchObject({
+      event_name: 'settlement.payout.paid',
+      truth_class: 'verified',
+      actor_user_id: 'admin-1',
+      subject_user_id: 'creator-1',
+      occurred_at: '2026-09-16T16:00:00.000Z',
+      metadata: { payment_reference_present: true },
+    });
+    expect(JSON.stringify(event)).not.toContain('bank-transfer-reference');
   });
 });
