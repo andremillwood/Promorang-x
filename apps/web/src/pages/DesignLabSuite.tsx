@@ -10,6 +10,7 @@ import { PromorangEconomyLab } from "@/design-system/economy/PromorangEconomyLab
 import { PromorangEconomyLabV2 } from "@/design-system/economy/PromorangEconomyLabV2";
 import { PromorangEconomyLabV3 } from "@/design-system/economy/PromorangEconomyLabV3";
 import { PromorangEconomyLabV4 } from "@/design-system/economy/PromorangEconomyLabV4";
+import { PromorangMarketplaceOpsV4 } from "@/design-system/economy/PromorangMarketplaceOpsV4";
 import { StakeholderExperienceLab } from "@/design-system/stakeholders/StakeholderExperienceLab";
 
 export default function DesignLabSuite() {
@@ -74,6 +75,7 @@ export default function DesignLabSuite() {
               <div className="border-l border-primary/35 pl-5"><p className="font-serif text-2xl font-bold text-[#f6d48a]">Identify → authenticate → time → record → transform</p><p className="mt-3 text-sm leading-6 text-white/45">V4 replaces theory rows with operating evidence: responders, serials, validation stamps, transfer residue, ticket locks, custody records and ledgers.</p></div>
             </div>
             <PromorangEconomyLabV4 />
+            <div className="mt-32"><PromorangMarketplaceOpsV4 /></div>
           </div>
 
           <div className="mt-40 border-t border-white/10 pt-24">
