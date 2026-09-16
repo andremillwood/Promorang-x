@@ -13,6 +13,15 @@ function compact(value) {
   return value;
 }
 
+function validateBuiltEvent(event = {}) {
+  if (!event.event_name) throw new Error('Canonical event name is required');
+  if (!event.object_type || !event.object_id) throw new Error('Canonical event object type and id are required');
+  if (!event.source) throw new Error('Canonical event source is required');
+  if (!event.idempotency_key) throw new Error('Canonical event idempotency key is required');
+  if (!TRUTH_CLASSES.has(event.truth_class || 'observed')) throw new Error(`Unsupported canonical truth class: ${event.truth_class}`);
+  return compact({ ...event, truth_class: event.truth_class || 'observed' });
+}
+
 function buildCanonicalEvent(input = {}) {
   if (!input.eventName) throw new Error('Canonical event name is required');
   if (!input.objectType || !input.objectId) throw new Error('Canonical event object type and id are required');
@@ -47,9 +56,13 @@ function buildCanonicalEvent(input = {}) {
   });
 }
 
+function normalizeForWrite(input = {}) {
+  return input.event_name ? validateBuiltEvent(input) : buildCanonicalEvent(input);
+}
+
 async function recordEvent(input) {
   if (!supabase) throw new Error('Database not available');
-  const event = buildCanonicalEvent(input);
+  const event = normalizeForWrite(input);
   const { data, error } = await supabase
     .from('canonical_events')
     .upsert(event, { onConflict: 'idempotency_key', ignoreDuplicates: true })
@@ -68,17 +81,18 @@ async function recordEvent(input) {
 }
 
 async function recordBestEffort(input) {
+  const event = normalizeForWrite(input);
   try {
-    return await recordEvent(input);
+    return await recordEvent(event);
   } catch (error) {
     // Canonical journaling is additive during convergence. It must not roll back
     // an already-committed domain write if the journal has not been migrated yet.
     if (['42P01', 'PGRST205'].includes(error?.code) || /canonical_events/i.test(error?.message || '')) {
       console.warn('[Canonical Event] journal unavailable:', error.message);
-      return { event: buildCanonicalEvent(input), idempotent: false, recorded: false };
+      return { event, idempotent: false, recorded: false };
     }
     console.error('[Canonical Event] write failed:', error);
-    return { event: buildCanonicalEvent(input), idempotent: false, recorded: false, error: error.message };
+    return { event, idempotent: false, recorded: false, error: error.message };
   }
 }
 
@@ -159,6 +173,7 @@ function proofReviewEvent({ submission, reviewerId, action, result }) {
 module.exports = {
   TRUTH_CLASSES,
   buildCanonicalEvent,
+  normalizeForWrite,
   recordEvent,
   recordBestEffort,
   offerRedemptionEvent,
