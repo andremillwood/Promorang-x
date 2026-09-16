@@ -5,6 +5,7 @@ import { CrossDomainStressTest } from "@/design-system/consumer/CrossDomainStres
 import { WorldClassConsumerStudy } from "@/design-system/consumer/WorldClassConsumerStudy";
 import { WorldClassConsumerStudyV2 } from "@/design-system/consumer/WorldClassConsumerStudyV2";
 import { PromorangBrandGrammarStudyV2 } from "@/design-system/consumer/PromorangBrandGrammarStudyV2";
+import { PromorangBrandGrammarFinal } from "@/design-system/consumer/PromorangBrandGrammarFinal";
 
 export default function DesignLabSuite() {
   return (
@@ -37,21 +38,11 @@ export default function DesignLabSuite() {
           <CanonicalYouScreen />
         </div>
 
-        <div className="mt-20">
-          <CrossDomainStressTest />
-        </div>
-
-        <div className="mt-20">
-          <WorldClassConsumerStudy />
-        </div>
-
-        <div className="mt-20">
-          <WorldClassConsumerStudyV2 />
-        </div>
-
-        <div className="mt-20">
-          <PromorangBrandGrammarStudyV2 />
-        </div>
+        <div className="mt-20"><CrossDomainStressTest /></div>
+        <div className="mt-20"><WorldClassConsumerStudy /></div>
+        <div className="mt-20"><WorldClassConsumerStudyV2 /></div>
+        <div className="mt-20"><PromorangBrandGrammarStudyV2 /></div>
+        <div className="mt-20"><PromorangBrandGrammarFinal /></div>
       </section>
     </div>
   );
