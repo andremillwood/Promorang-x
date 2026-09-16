@@ -261,7 +261,7 @@ export default function ParticipantMomentReview() {
               ["At the door", "PRESENTED", "The venue checks that access."],
               ["You made it", "ARRIVED", "Your presence can now be recorded."],
             ].map(([title, label, detail], index) => {
-              const reached = stageIndex >= Math.min(index, 2);
+              const reached = stageIndex >= index;
               return (
                 <div key={label} className={`relative border-t pt-5 ${reached ? "border-[#f6c453]/45" : "border-white/10"}`}>
                   <span className={`absolute -top-1.5 left-0 h-3 w-3 rounded-full ${reached ? "bg-[#f6c453]" : "border border-white/20 bg-[#080809]"}`} />
