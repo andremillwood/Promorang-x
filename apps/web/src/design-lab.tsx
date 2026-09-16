@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import DesignLab from "./pages/DesignLab";
+import DesignLabSuite from "./pages/DesignLabSuite";
 
 const root = document.getElementById("design-lab-root");
 
@@ -11,6 +11,6 @@ if (!root) {
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <DesignLab />
+    <DesignLabSuite />
   </React.StrictMode>,
 );
