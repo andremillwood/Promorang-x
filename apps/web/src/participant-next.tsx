@@ -12,6 +12,7 @@ import { PromorangMark } from "@/components/promorang/PromorangMark";
 import ParticipantExperienceV1 from "@/pages/participant/ParticipantExperienceV1";
 import ParticipantCompleteReviewV2 from "@/pages/participant/ParticipantCompleteReviewV2";
 import ParticipantMomentReview from "@/pages/participant/ParticipantMomentReview";
+import ParticipantCommercialChainReview from "@/pages/participant/ParticipantCommercialChainReview";
 import "./index.css";
 import "./participant-next.css";
 
@@ -69,7 +70,7 @@ function LiveGate() {
 }
 
 function ReviewRoutes() {
-  return <Routes><Route path="/moment/:slug" element={<ParticipantMomentReview />} /><Route path="/*" element={<ParticipantCompleteReviewV2 />} /></Routes>;
+  return <Routes><Route path="/moment/:slug" element={<ParticipantMomentReview />} /><Route path="/commercial/:slug" element={<ParticipantCommercialChainReview />} /><Route path="/*" element={<ParticipantCompleteReviewV2 />} /></Routes>;
 }
 
 function DesktopReviewNav() {
