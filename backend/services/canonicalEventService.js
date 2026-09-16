@@ -85,8 +85,6 @@ async function recordBestEffort(input) {
   try {
     return await recordEvent(event);
   } catch (error) {
-    // Canonical journaling is additive during convergence. It must not roll back
-    // an already-committed domain write if the journal has not been migrated yet.
     if (['42P01', 'PGRST205'].includes(error?.code) || /canonical_events/i.test(error?.message || '')) {
       console.warn('[Canonical Event] journal unavailable:', error.message);
       return { event, idempotent: false, recorded: false };
@@ -94,6 +92,64 @@ async function recordBestEffort(input) {
     console.error('[Canonical Event] write failed:', error);
     return { event, idempotent: false, recorded: false, error: error.message };
   }
+}
+
+async function getObjectEvents({ objectType, objectId, aggregateType = null, aggregateId = null, limit = 100 }) {
+  if (!supabase) throw new Error('Database not available');
+  const safeLimit = Math.min(Math.max(Number(limit) || 100, 1), 250);
+  let query = supabase
+    .from('canonical_events')
+    .select('*')
+    .order('occurred_at', { ascending: true })
+    .limit(safeLimit);
+
+  if (objectType && objectId) query = query.eq('object_type', objectType).eq('object_id', String(objectId));
+  else if (aggregateType && aggregateId) query = query.eq('aggregate_type', aggregateType).eq('aggregate_id', String(aggregateId));
+  else throw new Error('Canonical lineage query needs an object or aggregate identity');
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+}
+
+async function getObjectEventsBestEffort(input) {
+  try {
+    return await getObjectEvents(input);
+  } catch (error) {
+    if (['42P01', 'PGRST205'].includes(error?.code) || /canonical_events/i.test(error?.message || '')) return [];
+    console.warn('[Canonical Event] lineage read failed:', error.message);
+    return [];
+  }
+}
+
+function correctionEvent({ priorEvent, actorUserId, reason, eventName = 'truth.correction.recorded', resultingTruthClass = 'administrative' }) {
+  if (!priorEvent?.id) throw new Error('Canonical correction requires the prior event id');
+  if (!reason) throw new Error('Canonical correction requires a reason');
+  return buildCanonicalEvent({
+    eventName,
+    actorUserId,
+    actorRole: 'admin_correction_operator',
+    subjectUserId: priorEvent.subject_user_id || null,
+    objectType: priorEvent.object_type,
+    objectId: priorEvent.object_id,
+    aggregateType: priorEvent.aggregate_type || null,
+    aggregateId: priorEvent.aggregate_id || null,
+    placeId: priorEvent.place_id || null,
+    campaignId: priorEvent.campaign_id || null,
+    experienceId: priorEvent.experience_id || null,
+    source: 'canonical.correction',
+    sourceEventId: `correction:${priorEvent.id}`,
+    causationEventId: priorEvent.id,
+    correlationId: priorEvent.correlation_id || null,
+    idempotencyKey: `canonical:correction:${priorEvent.id}:${eventName}`,
+    truthClass: resultingTruthClass,
+    reversalOfEventId: priorEvent.id,
+    metadata: {
+      reason,
+      prior_event_name: priorEvent.event_name,
+      prior_truth_class: priorEvent.truth_class,
+    },
+  });
 }
 
 function offerRedemptionEvent({ actorUserId, issuance, venueId }) {
@@ -165,6 +221,7 @@ function proofReviewEvent({ submission, reviewerId, action, result }) {
     metadata: {
       action,
       resulting_state: result?.submission?.submission_state || (approved ? 'verified' : 'rejected'),
+      source_mission_id: submission?.proof_bundle?.source_mission_id || submission?.proof_bundle?.mission_id || null,
       domain_record: 'proof_submissions',
     },
   });
@@ -234,6 +291,9 @@ module.exports = {
   normalizeForWrite,
   recordEvent,
   recordBestEffort,
+  getObjectEvents,
+  getObjectEventsBestEffort,
+  correctionEvent,
   offerRedemptionEvent,
   proofSubmissionEvent,
   proofReviewEvent,
