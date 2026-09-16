@@ -3,6 +3,7 @@ const router = express.Router();
 const { requireAuth, getUserRoles } = require('../middleware/auth');
 const momentEconomyService = require('../services/momentEconomyService');
 const proofService = require('../services/proofService');
+const canonicalEvents = require('../services/canonicalEventService');
 
 async function hydrateAdminRole(user) {
   if (proofService.isAdminReviewer(user)) return user;
@@ -184,6 +185,10 @@ router.post('/admin/payouts/:id/paid', requireAuth, async (req, res) => {
       notes: req.body?.notes,
     });
 
+    await canonicalEvents.recordBestEffort(
+      canonicalEvents.settlementPaidEvent({ queueItem: payout, adminId: req.user.id })
+    );
+
     res.json({ success: true, payout });
   } catch (error) {
     console.error('[Moment Economy] mark payout paid error:', error);
@@ -201,6 +206,12 @@ router.post('/admin/payouts/:id/attempt-automated', requireAuth, async (req, res
       queueId: req.params.id,
       adminId: req.user.id,
     });
+
+    if (result?.paid && result?.queue_item?.id) {
+      await canonicalEvents.recordBestEffort(
+        canonicalEvents.settlementPaidEvent({ queueItem: result.queue_item, adminId: req.user.id })
+      );
+    }
 
     res.json({ success: true, ...result });
   } catch (error) {
@@ -223,6 +234,21 @@ router.post('/admin/moments/:id/settlements', requireAuth, async (req, res) => {
       reviewerId: req.user.id,
       reason: req.body?.reason || 'manual_judged_or_leaderboard_settlement',
     });
+
+    if (result?.queue_item?.id) {
+      await canonicalEvents.recordBestEffort(
+        canonicalEvents.settlementQueuedEvent({
+          queueItem: result.queue_item,
+          ledger: result.ledger,
+          proofSubmission: {
+            id: req.body?.proof_submission_id || null,
+            moment_id: req.params.id,
+            user_id: req.body?.user_id || null,
+          },
+          actorUserId: req.user.id,
+        })
+      );
+    }
 
     res.status(201).json({ success: true, ...result });
   } catch (error) {
