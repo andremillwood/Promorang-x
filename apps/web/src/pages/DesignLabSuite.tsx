@@ -17,6 +17,7 @@ import { StakeholderWorkflowProofLab } from "@/design-system/stakeholders/Stakeh
 import { CrossRoleProofChainLab } from "@/design-system/stakeholders/CrossRoleProofChainLab";
 import { StakeholderResilienceLab } from "@/design-system/stakeholders/StakeholderResilienceLab";
 import { CanonicalEventGraphLab } from "@/design-system/stakeholders/CanonicalEventGraphLab";
+import { PlatformOperatingSystemsLab } from "@/design-system/stakeholders/PlatformOperatingSystemsLab";
 
 export default function DesignLabSuite() {
   return (
@@ -79,6 +80,7 @@ export default function DesignLabSuite() {
           <div className="mt-40 border-t border-white/10 pt-24"><CrossRoleProofChainLab /></div>
           <div className="mt-40 border-t border-white/10 pt-24"><StakeholderResilienceLab /></div>
           <div className="mt-40 border-t border-white/10 pt-24"><CanonicalEventGraphLab /></div>
+          <div className="mt-40 border-t border-white/10 pt-24"><PlatformOperatingSystemsLab /></div>
         </div>
       </section>
     </div>
