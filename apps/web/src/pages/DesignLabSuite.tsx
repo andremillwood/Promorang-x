@@ -13,6 +13,7 @@ import { PromorangEconomyLabV4 } from "@/design-system/economy/PromorangEconomyL
 import { PromorangMarketplaceOpsV4 } from "@/design-system/economy/PromorangMarketplaceOpsV4";
 import { StakeholderExperienceLab } from "@/design-system/stakeholders/StakeholderExperienceLab";
 import { StakeholderLifecycleLab } from "@/design-system/stakeholders/StakeholderLifecycleLab";
+import { StakeholderWorkflowProofLab } from "@/design-system/stakeholders/StakeholderWorkflowProofLab";
 
 export default function DesignLabSuite() {
   return (
@@ -85,6 +86,10 @@ export default function DesignLabSuite() {
 
           <div className="mt-40 border-t border-white/10 pt-24">
             <StakeholderLifecycleLab />
+          </div>
+
+          <div className="mt-40 border-t border-white/10 pt-24">
+            <StakeholderWorkflowProofLab />
           </div>
         </div>
       </section>
