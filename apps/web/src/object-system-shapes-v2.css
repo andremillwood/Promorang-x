@@ -17,7 +17,6 @@
   left: 18px;
 }
 
-/* Shared: keep interaction/layout geometry stable while visual objects break the box. */
 .cos-moment,
 .cos-key,
 .cos-draw,
@@ -35,8 +34,7 @@
   max-width: 100%;
 }
 
-/* 01 — MOMENT
-   Poster/pass hybrid: a world-facing event object, not a dashboard panel. */
+/* 01 — MOMENT · poster/pass hybrid */
 .cos-root:has(.cos-object-nav button:nth-of-type(1).active) .cos-moment {
   width: min(760px, 92%);
   height: 350px;
@@ -56,12 +54,9 @@
   letter-spacing: .22em;
   color: rgba(255,255,255,.48);
 }
-.cos-root:has(.cos-object-nav button:nth-of-type(1).active) .cos-paper {
-  border-left: 1px dashed rgba(26,18,12,.32);
-}
+.cos-root:has(.cos-object-nav button:nth-of-type(1).active) .cos-paper { border-left: 1px dashed rgba(26,18,12,.32); }
 
-/* 02 — SCENE
-   A spatial field / constellation. No visible card boundary. */
+/* 02 — SCENE · spatial field / constellation */
 .cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene {
   width: min(660px, 88%);
   min-height: 360px;
@@ -83,17 +78,10 @@
   border-radius: 50%;
   pointer-events: none;
 }
-.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::before {
-  inset: 34px 86px 58px 42px;
-  transform: rotate(-8deg);
-}
-.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::after {
-  inset: 90px 28px 28px 120px;
-  transform: rotate(14deg);
-}
+.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::before { inset: 34px 86px 58px 42px; transform: rotate(-8deg); }
+.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::after { inset: 90px 28px 28px 120px; transform: rotate(14deg); }
 
-/* 03 — DISCOVERY
-   Signal field rather than content card. */
+/* 03 — DISCOVERY · signal field */
 .cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-discovery {
   width: min(720px, 92%);
   min-height: 330px;
@@ -118,11 +106,7 @@
   letter-spacing: .16em;
   color: rgba(255,255,255,.34);
 }
-.cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-progress {
-  height: 2px;
-  overflow: visible;
-  position: relative;
-}
+.cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-progress { height: 2px; overflow: visible; position: relative; }
 .cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-progress span::after {
   content: "";
   position: absolute;
@@ -135,8 +119,7 @@
   background: #0b0b0c;
 }
 
-/* 04 — PERK
-   Benefit token/chip. The thing received, not the offer or access key. */
+/* 04 — PERK · benefit token/chip */
 .cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key {
   width: 330px;
   height: 330px;
@@ -160,18 +143,10 @@
   color: var(--cos-gold);
 }
 .cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key h3 { font-size: 34px; }
-.cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key footer {
-  justify-content: center;
-  gap: 12px;
-  border-top: 0;
-  border-radius: 999px;
-  background: rgba(255,255,255,.04);
-  padding: 9px 14px;
-}
+.cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key footer { justify-content: center; gap: 12px; border-top: 0; border-radius: 999px; background: rgba(255,255,255,.04); padding: 9px 14px; }
 .cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key-notch { display:none; }
 
-/* 05 — OFFER
-   Commercial instrument: long, ruled, inventory-bearing, visibly editable. */
+/* 05 — OFFER · long ruled commercial instrument */
 .cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key {
   width: min(760px, 94%);
   height: 300px;
@@ -196,8 +171,7 @@
 .cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key footer { max-width: 64%; }
 .cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key-notch { top:auto; bottom:36px; }
 
-/* 06 — PROMOKEY
-   Entitlement key/fob. Tall and carried, with a real handle hole. */
+/* 06 — PROMOKEY · carried entitlement fob */
 .cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key {
   width: 360px;
   height: 390px;
@@ -232,21 +206,11 @@
 .cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key h3 { font-size: 38px; }
 .cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key-notch { display:none; }
 
-/* 07 — PASS / TICKET
-   Keep the strong ticket silhouette, exaggerate the detachable stub. */
-.cos-root:has(.cos-object-nav button:nth-of-type(7).active) .pr-ticket {
-  width: min(760px, 94%);
-  min-height: 260px;
-  transform: rotate(-1deg);
-  box-shadow: 0 28px 70px rgba(0,0,0,.32);
-}
-.cos-root:has(.cos-object-nav button:nth-of-type(7).active) .pr-ticket-stub {
-  min-width: 92px;
-  border-left-style: dashed;
-}
+/* 07 — PASS / TICKET · detachable stub */
+.cos-root:has(.cos-object-nav button:nth-of-type(7).active) .pr-ticket { width: min(760px, 94%); min-height: 260px; transform: rotate(-1deg); box-shadow: 0 28px 70px rgba(0,0,0,.32); }
+.cos-root:has(.cos-object-nav button:nth-of-type(7).active) .pr-ticket-stub { min-width: 92px; border-left-style: dashed; }
 
-/* 08 — OPPORTUNITY / MISSION
-   Commission folder / brief with tab and layered previous sheet. */
+/* 08 — OPPORTUNITY / MISSION · commission folder */
 .cos-root:has(.cos-object-nav button:nth-of-type(8).active) .cos-brief {
   width: min(760px, 94%);
   min-height: 340px;
@@ -265,8 +229,7 @@
   color:#7a2e17;
 }
 
-/* 09 — PROOF
-   Evidence boundary/seal, distinct from a receipt. */
+/* 09 — PROOF · clipped evidence certificate/seal */
 .cos-root:has(.cos-object-nav button:nth-of-type(9).active) .pr-receipt {
   width: min(620px, 88%);
   min-height: 330px;
@@ -292,14 +255,8 @@
   color:rgba(122,46,23,.72);
 }
 
-/* 10 — RECEIPT
-   Narrow paper roll / durable residue. */
-.cos-root:has(.cos-object-nav button:nth-of-type(10).active) .pr-receipt {
-  width: 340px;
-  min-height: 390px;
-  transform: rotate(-1.2deg);
-  box-shadow: 0 24px 60px rgba(0,0,0,.3);
-}
+/* 10 — RECEIPT · narrow paper roll */
+.cos-root:has(.cos-object-nav button:nth-of-type(10).active) .pr-receipt { width: 340px; min-height: 390px; transform: rotate(-1.2deg); box-shadow: 0 24px 60px rgba(0,0,0,.3); }
 .cos-root:has(.cos-object-nav button:nth-of-type(10).active) .pr-receipt::after {
   content:"";
   position:absolute;
@@ -310,8 +267,7 @@
   background:linear-gradient(135deg,transparent 50%,#eadcc6 51%) 0 0/12px 12px repeat-x;
 }
 
-/* 11 — PIECE
-   Collectible / relic: compact framed artifact, not document geometry. */
+/* 11 — PIECE · framed collectible/relic */
 .cos-root:has(.cos-object-nav button:nth-of-type(11).active) .pr-relic {
   width: 350px;
   min-height: 350px;
@@ -335,8 +291,7 @@
   color:rgba(220,198,255,.72);
 }
 
-/* 12 — PROMOSHARE
-   Ticket family / fan, not a campaign card. */
+/* 12 — PROMOSHARE · serialized ticket family/fan */
 .cos-root:has(.cos-object-nav button:nth-of-type(12).active) .cos-draw {
   width: min(650px, 86%);
   min-height: 310px;
@@ -356,17 +311,9 @@
   letter-spacing:.16em;
   color:var(--cos-gold);
 }
-.cos-root:has(.cos-object-nav button:nth-of-type(12).active) .cos-draw::after {
-  content:"";
-  position:absolute;
-  top:0;
-  bottom:0;
-  right:112px;
-  border-left:1px dashed rgba(255,255,255,.14);
-}
+.cos-root:has(.cos-object-nav button:nth-of-type(12).active) .cos-draw::after { content:""; position:absolute; top:0; bottom:0; right:112px; border-left:1px dashed rgba(255,255,255,.14); }
 
-/* 13 — SAVE & WIN
-   Protected reserve / vault pod. */
+/* 13 — SAVE & WIN · protected reserve/vault pod */
 .cos-root:has(.cos-object-nav button:nth-of-type(13).active) .cos-vault {
   width: 390px;
   min-height: 390px;
@@ -390,96 +337,30 @@
 }
 .cos-root:has(.cos-object-nav button:nth-of-type(13).active) .cos-vault strong { margin-top:34px; }
 
-/* 14 — VALUE SPECIES
-   Three different species, three silhouettes. */
-.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value {
-  width:min(740px,92%);
-  height:330px;
-  gap:34px;
-  align-items:center;
-}
-.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div {
-  min-height:220px;
-  border:0;
-  justify-content:center;
-  text-align:center;
-  box-shadow:0 24px 60px rgba(0,0,0,.24);
-}
-.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(1) {
-  aspect-ratio:1;
-  transform:rotate(45deg);
-  background:linear-gradient(145deg,rgba(76,198,240,.16),#0d1112);
-  border:1px solid rgba(76,198,240,.28);
-}
+/* 14 — VALUE SPECIES · deliberately different silhouettes */
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value { width:min(740px,92%); height:330px; gap:34px; align-items:center; }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div { min-height:220px; border:0; justify-content:center; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.24); }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(1) { aspect-ratio:1; transform:rotate(45deg); background:linear-gradient(145deg,rgba(76,198,240,.16),#0d1112); border:1px solid rgba(76,198,240,.28); }
 .cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(1) > * { transform:rotate(-45deg); }
-.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(2) {
-  aspect-ratio:1;
-  border-radius:50%;
-  background:radial-gradient(circle,rgba(246,196,83,.12),#0d0d0e 70%);
-  border:1px solid rgba(246,196,83,.25);
-}
-.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(3) {
-  min-height:190px;
-  clip-path:polygon(0 0,100% 0,100% 40%,94% 50%,100% 60%,100% 100%,0 100%,0 60%,6% 50%,0 40%);
-  background:#111;
-  border-top:1px solid rgba(181,140,255,.28);
-  border-bottom:1px solid rgba(181,140,255,.28);
-}
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(2) { aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,rgba(246,196,83,.12),#0d0d0e 70%); border:1px solid rgba(246,196,83,.25); }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(3) { min-height:190px; clip-path:polygon(0 0,100% 0,100% 40%,94% 50%,100% 60%,100% 100%,0 100%,0 60%,6% 50%,0 40%); background:#111; border-top:1px solid rgba(181,140,255,.28); border-bottom:1px solid rgba(181,140,255,.28); }
 
 /* Lifecycle becomes a connected journey instead of five rectangular cells. */
-.cos-lifecycle {
-  position:relative;
-  border:0;
-  gap:0;
-  padding-top:30px;
-}
-.cos-lifecycle::before {
-  content:"";
-  position:absolute;
-  left:10%;
-  right:10%;
-  top:48px;
-  height:1px;
-  background:linear-gradient(90deg,rgba(255,106,0,.25),rgba(246,196,83,.6),rgba(181,140,255,.26));
-}
-.cos-life-step {
-  position:relative;
-  min-height:170px;
-  border:0;
-  padding:18px 22px;
-  background:transparent;
-}
-.cos-life-step > div {
-  position:relative;
-  z-index:2;
-  width:max-content;
-  gap:8px;
-  padding-right:8px;
-  background:var(--cos-bg);
-}
+.cos-lifecycle { position:relative; border:0; gap:0; padding-top:30px; }
+.cos-lifecycle::before { content:""; position:absolute; left:10%; right:10%; top:48px; height:1px; background:linear-gradient(90deg,rgba(255,106,0,.25),rgba(246,196,83,.6),rgba(181,140,255,.26)); }
+.cos-life-step { position:relative; min-height:170px; border:0; padding:18px 22px; background:transparent; }
+.cos-life-step > div { position:relative; z-index:2; width:max-content; gap:8px; padding-right:8px; background:var(--cos-bg); }
 .cos-life-step > b { margin-top:18px; }
 
-/* Role lens: retain rectangular information architecture, reduce card-within-card feeling. */
-.cos-role-card {
-  border:0;
-  border-top:1px solid rgba(246,196,83,.18);
-  border-bottom:1px solid rgba(246,196,83,.18);
-  background:linear-gradient(90deg,rgba(122,46,23,.06),transparent 38%);
-}
+/* Role lens: preserve information structure, remove card-within-card visual noise. */
+.cos-role-card { border:0; border-top:1px solid rgba(246,196,83,.18); border-bottom:1px solid rgba(246,196,83,.18); background:linear-gradient(90deg,rgba(122,46,23,.06),transparent 38%); }
 .cos-role-title { border-right:0; }
 .cos-role-fields > div { border-right:0; border-left:1px solid var(--cos-line); }
 
-/* Cross-role contract becomes a continuous ledger strip rather than seven cards. */
-.cos-cross-grid {
-  border-top:1px solid var(--cos-line);
-  border-bottom:1px solid var(--cos-line);
-}
+/* Cross-role contract becomes a continuous ledger strip. */
+.cos-cross-grid { border-top:1px solid var(--cos-line); border-bottom:1px solid var(--cos-line); }
 .cos-cross-grid article,
-.cos-cross-grid article:last-child {
-  border:0;
-  border-right:1px solid var(--cos-line);
-  background:transparent;
-}
+.cos-cross-grid article:last-child { border:0; border-right:1px solid var(--cos-line); background:transparent; }
 .cos-cross-grid article:last-child { border-right:0; }
 
 @media (max-width: 1100px) {
