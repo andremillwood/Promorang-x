@@ -4,6 +4,7 @@ import { CanonicalYouScreen } from "@/design-system/consumer/CanonicalYouScreen"
 import { CrossDomainStressTest } from "@/design-system/consumer/CrossDomainStressTest";
 import { WorldClassConsumerStudy } from "@/design-system/consumer/WorldClassConsumerStudy";
 import { WorldClassConsumerStudyV2 } from "@/design-system/consumer/WorldClassConsumerStudyV2";
+import { PromorangBrandGrammarStudy } from "@/design-system/consumer/PromorangBrandGrammarStudy";
 
 export default function DesignLabSuite() {
   return (
@@ -46,6 +47,10 @@ export default function DesignLabSuite() {
 
         <div className="mt-20">
           <WorldClassConsumerStudyV2 />
+        </div>
+
+        <div className="mt-20">
+          <PromorangBrandGrammarStudy />
         </div>
       </section>
     </div>
