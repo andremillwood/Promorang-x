@@ -170,6 +170,64 @@ function proofReviewEvent({ submission, reviewerId, action, result }) {
   });
 }
 
+function settlementQueuedEvent({ queueItem, ledger, proofSubmission, actorUserId = null }) {
+  const proofSubmissionId = queueItem?.proof_submission_id || proofSubmission?.id || null;
+  const momentId = queueItem?.moment_id || proofSubmission?.moment_id || ledger?.moment_id || null;
+  const subjectUserId = queueItem?.user_id || proofSubmission?.user_id || ledger?.user_id || null;
+  return buildCanonicalEvent({
+    eventName: 'settlement.payout.queued',
+    actorUserId,
+    actorRole: actorUserId ? 'host_or_admin_reviewer' : 'system',
+    subjectUserId,
+    objectType: 'manual_payout_queue',
+    objectId: queueItem?.id,
+    aggregateType: 'proof_submission',
+    aggregateId: proofSubmissionId,
+    experienceId: momentId,
+    source: 'momentEconomy.executePayoutForProof',
+    sourceEventId: `manual_payout_queue:${queueItem?.id}:queued`,
+    correlationId: proofSubmissionId ? `proof:${proofSubmissionId}:settlement` : `payout:${queueItem?.id}`,
+    idempotencyKey: `canonical:settlement-queued:${queueItem?.id}`,
+    truthClass: 'administrative',
+    occurredAt: queueItem?.created_at || ledger?.created_at || new Date().toISOString(),
+    metadata: {
+      proof_submission_id: proofSubmissionId,
+      ledger_id: queueItem?.ledger_id || ledger?.id || null,
+      amount_jmd: queueItem?.amount_jmd ?? ledger?.amount_jmd ?? null,
+      status: queueItem?.status || 'queued',
+      domain_record: 'manual_payout_queue',
+    },
+  });
+}
+
+function settlementPaidEvent({ queueItem, adminId }) {
+  return buildCanonicalEvent({
+    eventName: 'settlement.payout.paid',
+    actorUserId: adminId || queueItem?.paid_by || null,
+    actorRole: 'admin_settlement_operator',
+    subjectUserId: queueItem?.user_id || null,
+    objectType: 'manual_payout_queue',
+    objectId: queueItem?.id,
+    aggregateType: 'proof_submission',
+    aggregateId: queueItem?.proof_submission_id || null,
+    experienceId: queueItem?.moment_id || null,
+    source: 'momentEconomy.markManualPayoutPaid',
+    sourceEventId: `manual_payout_queue:${queueItem?.id}:paid`,
+    correlationId: queueItem?.proof_submission_id ? `proof:${queueItem.proof_submission_id}:settlement` : `payout:${queueItem?.id}`,
+    idempotencyKey: `canonical:settlement-paid:${queueItem?.id}`,
+    truthClass: 'verified',
+    occurredAt: queueItem?.paid_at || new Date().toISOString(),
+    metadata: {
+      proof_submission_id: queueItem?.proof_submission_id || null,
+      ledger_id: queueItem?.ledger_id || null,
+      amount_jmd: queueItem?.amount_jmd ?? null,
+      status: queueItem?.status || 'paid',
+      payment_reference_present: Boolean(queueItem?.payment_reference),
+      domain_record: 'manual_payout_queue',
+    },
+  });
+}
+
 module.exports = {
   TRUTH_CLASSES,
   buildCanonicalEvent,
@@ -179,4 +237,6 @@ module.exports = {
   offerRedemptionEvent,
   proofSubmissionEvent,
   proofReviewEvent,
+  settlementQueuedEvent,
+  settlementPaidEvent,
 };
