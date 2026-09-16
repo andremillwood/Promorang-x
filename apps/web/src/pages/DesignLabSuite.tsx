@@ -6,6 +6,7 @@ import { WorldClassConsumerStudy } from "@/design-system/consumer/WorldClassCons
 import { WorldClassConsumerStudyV2 } from "@/design-system/consumer/WorldClassConsumerStudyV2";
 import { PromorangBrandGrammarStudyV2 } from "@/design-system/consumer/PromorangBrandGrammarStudyV2";
 import { PromorangBrandGrammarFinal } from "@/design-system/consumer/PromorangBrandGrammarFinal";
+import { PromorangEconomyLab } from "@/design-system/economy/PromorangEconomyLab";
 
 export default function DesignLabSuite() {
   return (
@@ -43,6 +44,20 @@ export default function DesignLabSuite() {
         <div className="mt-20"><WorldClassConsumerStudyV2 /></div>
         <div className="mt-20"><PromorangBrandGrammarStudyV2 /></div>
         <div className="mt-20"><PromorangBrandGrammarFinal /></div>
+
+        <div className="mt-24">
+          <div className="mb-16 grid gap-6 border-t border-white/10 pt-20 lg:grid-cols-[1fr_.52fr] lg:items-end">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">PROMORANG economy · dedicated system design</p>
+              <h2 className="mt-4 max-w-5xl font-serif text-5xl font-bold leading-[0.9] tracking-[-0.055em] text-white md:text-7xl">The shell is not the product.</h2>
+            </div>
+            <div className="border-l border-primary/35 pl-5">
+              <p className="font-serif text-2xl font-bold text-[#f6d48a]">Objects → states → trust → economics → return</p>
+              <p className="mt-3 text-sm leading-6 text-white/45">The five persistent destinations stay simple. The systems underneath them get their own product and interaction language before any production-route convergence.</p>
+            </div>
+          </div>
+          <PromorangEconomyLab />
+        </div>
       </section>
     </div>
   );
