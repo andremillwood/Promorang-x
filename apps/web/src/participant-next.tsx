@@ -16,6 +16,85 @@ if (!rootElement) throw new Error("Missing #participant-next-root");
 const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(rootElement);
 
+function LocalPreviewSignIn() {
+  const { signIn } = useAuth();
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState<string | null>(null);
+  const [submitting, setSubmitting] = React.useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      const result = await signIn(email.trim(), password);
+      if (result.error) setError(result.error.message);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not sign in locally.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[#080809] px-6 py-12 text-white sm:py-16">
+      <div className="mx-auto max-w-md rounded-[1.8rem] border border-white/10 bg-white/[0.025] p-6 sm:p-7">
+        <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#ff6a00]">PROMORANG · PARTICIPANT NEXT</p>
+        <h1 className="mt-3 font-serif text-4xl font-bold leading-[.95]">Sign in here. Stay local.</h1>
+        <p className="mt-4 text-sm leading-6 text-white/55">
+          This review surface uses your real PROMORANG account data, but authentication happens directly on localhost so you are not sent back to promorang.co.
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+          <label className="block">
+            <span className="mb-2 block text-xs font-bold uppercase tracking-[.14em] text-white/45">Email</span>
+            <input
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="min-h-12 w-full rounded-xl border border-white/12 bg-black/35 px-4 text-base text-white outline-none transition focus:border-[#ff6a00]/70"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-xs font-bold uppercase tracking-[.14em] text-white/45">Password</span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="min-h-12 w-full rounded-xl border border-white/12 bg-black/35 px-4 text-base text-white outline-none transition focus:border-[#ff6a00]/70"
+            />
+          </label>
+
+          {error ? (
+            <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/8 px-4 py-3 text-sm leading-5 text-red-100">
+              {error}
+            </p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex min-h-12 w-full items-center justify-center rounded-full bg-[#f6c453] px-5 text-sm font-black text-black disabled:opacity-55"
+          >
+            {submitting ? "Signing in…" : "Open my Participant Next"}
+          </button>
+        </form>
+
+        <div className="mt-6 border-t border-white/10 pt-5">
+          <p className="text-xs leading-5 text-white/42">
+            Google sign-in is intentionally not used for this localhost review. OAuth can fall back to the production Site URL when localhost is not on the Supabase redirect allow-list. Production authentication has not been changed.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Gate() {
   const { user, loading } = useAuth();
 
@@ -23,18 +102,7 @@ function Gate() {
     return <div className="grid min-h-screen place-items-center bg-[#080809] text-sm font-bold text-white/45">Loading your PROMORANG…</div>;
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[#080809] px-6 py-16 text-white">
-        <div className="mx-auto max-w-md rounded-[1.8rem] border border-white/10 bg-white/[0.025] p-6">
-          <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#ff6a00]">PROMORANG · PARTICIPANT NEXT</p>
-          <h1 className="mt-3 font-serif text-4xl font-bold leading-[.95]">Sign in first.</h1>
-          <p className="mt-4 text-sm leading-6 text-white/52">This preview uses your real participant data. Sign in through the main PROMORANG app, then reopen this local preview.</p>
-          <a href="/auth" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-[#f6c453] px-5 text-sm font-black text-black">Open sign in</a>
-        </div>
-      </div>
-    );
-  }
+  if (!user) return <LocalPreviewSignIn />;
 
   return (
     <Routes>
