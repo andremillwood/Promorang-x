@@ -89,6 +89,17 @@ router.post('/submissions/:id/review', requireAuth, async (req, res) => {
       canonicalEvents.proofReviewEvent({ submission, reviewerId: req.user.id, action, result })
     );
 
+    if (result?.payout?.queued && result?.payout?.queue_item?.id) {
+      await canonicalEvents.recordBestEffort(
+        canonicalEvents.settlementQueuedEvent({
+          queueItem: result.payout.queue_item,
+          ledger: result.payout.ledger,
+          proofSubmission: result.submission,
+          actorUserId: req.user.id,
+        })
+      );
+    }
+
     res.json({ success: true, ...result });
   } catch (error) {
     console.error('[Proof API] review error:', error);
