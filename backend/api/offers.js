@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const offerService = require('../services/offerService');
+const canonicalEvents = require('../services/canonicalEventService');
 
 const ok = (res, data, status = 200) => res.status(status).json({ success: true, data });
 const fail = (res, error, status = 400) => res.status(status).json({ success: false, error: error.message || String(error) });
@@ -57,7 +58,11 @@ router.post('/issuances/:id/fulfill', async (req, res) => {
 router.post('/redeem', async (req, res) => {
   try {
     if (!req.body.code) throw new Error('Redemption code is required');
-    return ok(res, await offerService.redeemByCode(req.user.id, req.body.code, req.body.venue_id, req.body.notes));
+    const issuance = await offerService.redeemByCode(req.user.id, req.body.code, req.body.venue_id, req.body.notes);
+    await canonicalEvents.recordBestEffort(
+      canonicalEvents.offerRedemptionEvent({ actorUserId: req.user.id, issuance, venueId: req.body.venue_id })
+    );
+    return ok(res, issuance);
   } catch (error) { return fail(res, error); }
 });
 
