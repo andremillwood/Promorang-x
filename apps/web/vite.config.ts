@@ -39,6 +39,7 @@ export default defineConfig(({ mode }) => {
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@promorang/shared/stakeholder-success": path.resolve(__dirname, "../../packages/shared/src/stakeholder-success.ts"),
       "@promorang/shared": path.resolve(__dirname, "../../packages/shared/src/index.ts"),
       "react": resolvePackagePath("react"),
       "react-dom": resolvePackagePath("react-dom"),
