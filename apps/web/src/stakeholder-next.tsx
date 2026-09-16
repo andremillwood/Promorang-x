@@ -8,10 +8,43 @@ import "./stakeholder-next-v2-fixes.css";
 const rootElement = document.getElementById("stakeholder-next-root");
 if (!rootElement) throw new Error("Missing #stakeholder-next-root");
 
+const roleKeys = ["creator", "host", "merchant", "brand", "agency", "admin"];
 const bareRole = window.location.hash.replace(/^#\/?/, "");
-if (["creator", "host", "merchant", "brand", "agency", "admin"].includes(bareRole)) {
+if (roleKeys.includes(bareRole)) {
   window.location.hash = `#/${bareRole}/today`;
 }
+
+function currentRoleFromHash() {
+  const role = window.location.hash.replace(/^#\/?/, "").split("/")[0];
+  return roleKeys.includes(role) ? role : "creator";
+}
+
+const compareLink = document.createElement("a");
+compareLink.textContent = "Compare current product ↗";
+compareLink.setAttribute("aria-label", "Open the current production stakeholder interface for comparison");
+Object.assign(compareLink.style, {
+  position: "fixed",
+  right: "16px",
+  bottom: "84px",
+  zIndex: "9999",
+  border: "1px solid rgba(255,106,0,.35)",
+  borderRadius: "999px",
+  background: "rgba(8,8,9,.92)",
+  color: "#ff9a4d",
+  padding: "10px 14px",
+  fontFamily: "system-ui, sans-serif",
+  fontSize: "12px",
+  fontWeight: "800",
+  textDecoration: "none",
+  boxShadow: "0 10px 30px rgba(0,0,0,.24)",
+  backdropFilter: "blur(14px)",
+});
+function syncCompareLink() {
+  compareLink.href = `/stakeholder-current.html#/${currentRoleFromHash()}`;
+}
+syncCompareLink();
+window.addEventListener("hashchange", syncCompareLink);
+document.body.appendChild(compareLink);
 
 const root = ReactDOM.createRoot(rootElement);
 
