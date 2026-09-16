@@ -4,246 +4,191 @@
 
 Participant Next is the quality benchmark for the wider PROMORANG product. Stakeholder Next should reach the same level of clarity, world coherence, object identity and interaction discipline without cloning Participant layouts.
 
-This gate exists to prevent two opposite mistakes:
+This gate prevents two opposite mistakes:
 
-1. preserving old dashboard UI merely because it already exists;
-2. rebuilding underlying capability merely because the old UI is weak.
+1. preserving old dashboard UI merely because it exists;
+2. rebuilding capability merely because one presentation of it is weak.
 
-The operating rule is:
+> **Reuse capability. Redesign the interface when the current presentation belongs to the old dashboard model.**
 
-> Reuse capability. Redesign interface whenever the current presentation belongs to the old dashboard model.
-
-Use the review pair:
+Use the paired review surfaces:
 
 - `/stakeholder-next.html#/creator/today` — redesigned illustrative Next experience
-- `/stakeholder-current.html#/creator` — authenticated current product reference
+- `/stakeholder-current.html#/creator` — authenticated current-product reference
 
 Repeat for creator, host, merchant, brand, agency and admin.
 
 ## Classification vocabulary
 
-- **KEEP** — current component already meets the new standard and can be reused with little change.
-- **REFINE** — current structure is sound; improve hierarchy, language, states or responsive behavior.
-- **RECOMPOSE** — useful capabilities/data exist, but multiple existing components must become a new work-object flow.
-- **REPLACE UI** — retain hooks/services/mutations, replace the interface because the component model itself belongs to the old dashboard era.
-- **PRODUCT GAP** — the user job cannot be completed truthfully with existing capability. Only this classification permits new product/backend scope.
+- **KEEP** — already meets the new standard with little change.
+- **REFINE** — sound structure/capability; improve hierarchy, language, states or responsive behavior.
+- **RECOMPOSE** — useful capability exists across one or more surfaces but needs a new work-object flow.
+- **REPLACE UI** — retain hooks/services/mutations and replace the interface model.
+- **RETIRE SURFACE** — another existing surface already represents the capability more truthfully; remove the weaker duplicate from the role experience.
+- **PRODUCT GAP** — the stakeholder job genuinely cannot be completed with existing capability.
 
-## Cross-role review gates
+## Migration gates
 
-A surface cannot migrate merely because the Next version looks better. It must pass all of these:
-
-1. **Job clarity** — a first-time stakeholder can tell what they should do next without understanding PROMORANG internals.
-2. **Object identity** — the main work object is immediately recognizable and distinct from other stakeholder objects.
-3. **Functional parity** — no useful production capability disappears during redesign.
-4. **Truth parity or improvement** — the Next UI must not strengthen claims beyond source data.
-5. **State completeness** — loading, empty, blocked, failure, revision, success and historical residue are accounted for.
-6. **Responsive fit** — mobile operating context is designed, not shrunk desktop.
-7. **Accessibility** — keyboard focus, semantic controls, non-color state cues, readable metadata and reduced motion.
-8. **Context ownership** — actor, client, organization, venue or Moment context is explicit where actions could affect another stakeholder.
-9. **Action consequence** — irreversible or consequential actions explain what changes.
-10. **PROMORANG coherence** — it belongs to the same product world as Participant Next without becoming a cosmetic clone.
+A Next surface must pass job clarity, object identity, functional parity, truth parity, loading/empty/error/blocked states, responsive fit, accessibility, context ownership and action-consequence review before replacing a production route.
 
 ## Creator
 
-### Today
-Current source: `CreatorDashboardV2` summary + mission/studio/attribution/economics signals.
-Next object: current brief + attention queue.
-Treatment: **RECOMPOSE**.
-Migration proof: attention items must come from actual submission/opportunity/economic states rather than illustrative counters.
+### Today — RECOMPOSE
+Use real submission, opportunity, attribution and value states to create the current Brief + attention queue. No illustrative counters in production.
 
-### Work
-Current source: `CreatorMissionsHub`, sponsored content/Moment links, mission attribution and creator revenue-share rules.
-Next object: Opportunity Desk + Creator Brief.
-Treatment: **REPLACE UI / partial PRODUCT GAP**.
-Reason: current mission board is hard-coded illustrative bounty data. Underlying mission/attribution structures exist, but a reliable real opportunity projection is not yet the source of the current board.
-Migration proof: real opportunity feed, eligibility, reward terms, proof requirements, deadline and acceptance state.
+### Work — REPLACE UI / partial projection gap
+`CreatorMissionsHub` is hard-coded illustrative bounty data. Sponsored content↔Moment links, mission attribution and creator revenue-share structures do exist, so the product does not need a second mission ontology. What is missing is a reliable opportunity projection that turns those records into eligibility, terms, proof requirements, deadline and acceptance state.
 
-### Create
-Current source: `CreatorStudioConsole` and existing content/proof submission paths.
-Next object: Production Room + Submission Folder.
-Treatment: **REPLACE UI**.
-Migration proof: drafts, deliverables, links, requirements, revision requests, resubmission and upload failure all map to existing writes.
+Next object: **Opportunity Desk + Creator Brief**.
 
-### Proof
-Current source: `CreatorAttributionMap`, mission attribution, proof review and O2O analytics.
-Next object: Proof Dossier.
-Treatment: **RECOMPOSE**.
-Migration proof: observed → attributed → verified states remain separate; approval does not imply settlement.
+### Create — REPLACE UI
+`CreatorStudioConsole` is also hard-coded: story titles, views, conversions/“footfalls” and bounty values are illustrative. Preserve the real content/proof submission paths and rebuild the interface as a **Production Room + Submission Folder**.
 
-### Value
-Current source: `CreatorEarningsVault`, `CreatorReputationDeck`, creator earnings ledger.
-Next object: Value Ledger + reputation residue.
-Treatment: **RECOMPOSE**.
-Migration proof: pending/attributed/approved/settled language must match the real economic state. Never display paid unless the payment boundary exists.
+### Proof — RECOMPOSE
+Reuse mission attribution, proof review and O2O analytics. Preserve observed → attributed → verified. Approval does not imply settlement.
+
+### Value — RECOMPOSE
+Reuse creator earnings/reputation records. Never display “paid” unless an actual payment boundary exists.
 
 ## Host
 
-### Today
-Current source: hosted Moments, live arrival state, proof queue and sponsorship obligations.
-Next object: Run Sheet + operational attention.
-Treatment: **RECOMPOSE**.
+### Today — RECOMPOSE
+Use hosted Moments, proof queue, arrival state and sponsor obligations to produce a real Run Sheet + attention queue.
 
-### Moments
-Current source: `HostMomentsStagingConsole`, Moment create/edit routes.
-Next object: Moment Files + Run Sheet.
-Treatment: **REFINE / RECOMPOSE**.
+### Moments — REFINE / RECOMPOSE
+Reuse Moment create/edit/staging capability and present it as **Moment Files + Run Sheet**.
 
-### Live
-Current source: `HostLivePulseConsole`, `moment_participants.checked_in_at`, guest RSVP/check-in routes, hosted Moments.
-Next object: Door Board + Arrival/Exception instrument.
-Treatment: **REPLACE UI**.
-Reason: authoritative arrival data exists, while the old component still renders hard-coded attendees/occupancy/vibe values.
-Migration proof: selected Moment, RSVP intent, checked-in rows, guest check-ins, duplicate/mismatch handling, offline state and operator identity.
+### Live — RETIRE SURFACE + REFINE EXISTING CAPABILITY
+Do **not** build another host arrival system.
 
-### Proof
-Current source: `HostProofReviewConsole` and real proof review APIs.
-Next object: Proof Close.
-Treatment: **REFINE / RECOMPOSE**.
-Migration proof: pending/rejected/approved decisions, reason capture, per-record write state and history.
+The current dashboard `HostLivePulseConsole` should be retired from the primary role experience because it renders hard-coded attendee names, occupancy and “vibe” values.
 
-### Results
-Current source: `HostImpactYieldConsole`, checked-in participation and return calculations.
-Next object: Attendance Close + Next Decision.
-Treatment: **RECOMPOSE**.
-Migration proof: RSVP demand, verified attendance and return audience remain distinct.
+However, `HostGuestOperations` already owns the important real capability:
+
+- real Moment context;
+- reservation summary;
+- pass-code check-in mutation;
+- already-checked-in feedback;
+- searchable guest manifest;
+- delivery failure visibility/retry;
+- loading/error states;
+- 30-second refresh.
+
+Next object: **Door Board / Arrival Control Room**.
+
+Treatment of `HostGuestOperations`: **REFINE / PROMOTE INTO HOST NEXT**.
+
+Needed refinement: align its visual hierarchy/object language with Host Next, expose operator identity/offline state where available, and reconcile registered participant arrivals with guest-pass operations without collapsing RSVP into attendance.
+
+### Proof — REFINE / RECOMPOSE
+Reuse the real proof review APIs. Preserve pending/rejected/approved states, required reasons and per-record write state.
+
+### Results — RECOMPOSE
+Keep RSVP demand, verified attendance and returning audience distinct.
 
 ## Merchant / Venue
 
-### Today
-Current source: offers, scanner/validation state, orders, venue context.
-Next object: Counter Brief.
-Treatment: **RECOMPOSE**.
+### Today — RECOMPOSE
+Compose offers, validation, orders and place context into a Counter Brief.
 
-### Offers
-Current source: `MerchantStorefrontConsole` and product/offer management.
-Next object: Offer Stock / commercial object.
-Treatment: **RECOMPOSE**.
+### Offers — RECOMPOSE
+Reuse current product/offer management and redesign the commercial object presentation.
 
-### Verify
-Current source: `MerchantScannerStation` and redemption mutation.
-Next object: Validation Device + Validation Slip.
-Treatment: **REPLACE UI**.
-Migration proof: code/manual entry, checking, invalid, duplicate, confirmed receipt and offline behavior; validation must not imply purchase.
+### Verify — REFINE / RECOMPOSE
+Do **not** replace `MerchantScannerStation` wholesale. It already uses:
 
-### Orders
-Current source: `MerchantOrdersHub`, commerce orders/receipts.
-Next object: Order Board.
-Treatment: **RECOMPOSE**.
-Migration proof: payment, fulfillment, refund and cancellation remain separate.
+- the real redemption mutation;
+- QR scanning;
+- manual code entry;
+- pending/error handling;
+- a durable `PromorangValidReceipt`;
+- fulfillment queue linkage.
 
-### Places
-Current source: `MerchantVenueStudio`, venue records, hosted Moments and activity.
-Next object: Place Record.
-Treatment: **RECOMPOSE**.
+Next object: **Validation Device + Validation Slip**.
+
+Refinement needs: stronger instrument framing, last-confirmed receipt persistence, duplicate/invalid/offline treatment and explicit language that validation ≠ purchase.
+
+### Orders — RECOMPOSE
+Reuse commerce orders/receipts. Payment, fulfillment, refund and cancellation remain separate.
+
+### Places — RECOMPOSE
+Reuse venue records, Moments and place activity; redesign as a Place Record.
 
 ## Brand
 
-### Today
-Current source: brand campaign state, demand, approvals and evidence summaries.
-Next object: Activation Dossier + attention.
-Treatment: **RECOMPOSE**.
+### Today — RECOMPOSE
+Activation Dossier + attention using real campaign/evidence state.
 
-### Activations
-Current source: `BrandCampaignFlightDeck`, campaign creation and campaign data.
-Next object: Activation Dossier.
-Treatment: **RECOMPOSE / REPLACE UI** depending on final interaction audit.
+### Activations — RECOMPOSE
+Reuse campaign creation/data; reorganize around outcome → execution rather than dashboard tabs.
 
-### People
-Current source: `BrandCreatorBureau`, Moment/venue relationships and creator links.
-Next object: Delivery Network.
-Treatment: **RECOMPOSE**.
+### People — RECOMPOSE
+Reuse creator/host/place relationships and present them as a Delivery Network.
 
-### Evidence
-Current source: `BrandCorrelationMap`, `BrandIntelligenceConsole`, campaign results.
-Next object: Evidence Pack.
-Treatment: **RECOMPOSE**.
-Migration proof: observed/attributed/verified/unresolved are not collapsed into one success metric.
+### Evidence — RECOMPOSE
+Bring correlation/intelligence/results into an **Evidence Pack**. Observed, attributed, verified and unresolved must remain visibly different.
 
-### Decisions
-Current source: currently distributed across campaign controls and analytics.
-Next object: Stop / Change / Scale decision record.
-Treatment: **PRODUCT/UX GAP candidate**.
-Migration proof: determine whether a durable decision object/state already exists before adding backend scope.
+### Decisions — UX/PRODUCT GAP CANDIDATE
+Stop / Change / Scale is the desired Next object. Confirm whether a durable decision record already exists before creating backend scope.
 
 ## Agency
 
-### Today
-Current source: relationship requests, client campaigns and impact readiness.
-Next object: Portfolio Attention.
-Treatment: **REFINE / RECOMPOSE**.
+### Today — REFINE / RECOMPOSE
+Portfolio attention from real relationship, client-work and proof-readiness states.
 
-### Clients
-Current source: `AgencyDashboard`, agency relationships, active organization context.
-Next object: Client Ledger.
-Treatment: **RECOMPOSE**.
-Migration proof: client ownership, agency operator context and permission boundary remain explicit.
+### Clients — RECOMPOSE
+Reuse agency relationships and active organization context. Client ownership and agency operator context remain explicit.
 
-### Work
-Current source: client workspace switching + activation controls.
-Next object: Managed Work Board.
-Treatment: **RECOMPOSE**.
+### Work — RECOMPOSE
+Reuse client workspace switching and activation controls as Managed Work.
 
-### Proof
-Current source: `BrandImpactDashboard` and client campaign results.
-Next object: Managed Result Pack.
-Treatment: **RECOMPOSE**.
+### Proof — RECOMPOSE
+Reuse client impact/results as a Managed Result Pack.
 
-### Growth
-Current source: no single canonical expansion workflow found in the current dashboard.
-Next object: Expansion Brief.
-Treatment: **UX GAP candidate**; do not create backend scope until existing proposal/follow-up capability is fully checked.
+### Growth — UX GAP CANDIDATE
+Confirm existing proposal/follow-up capability before adding product scope for Expansion Briefs.
 
 ## Admin
 
-### Today
-Current source: existing Admin dashboard and subsystem queues.
-Next object: Priority Queue.
-Treatment: **RECOMPOSE**.
+### Today — RECOMPOSE
+Priority Queue from existing subsystem queues.
 
-### Cases
-Current source: support, proof, KYC, moderation, payout and subsystem-specific admin records.
-Next object: Exception Case + Resolution Record.
-Treatment: **RECOMPOSE**.
-Migration proof: case UI may aggregate existing records but must not invent a generic mutation path that bypasses authoritative domain state.
+### Cases — RECOMPOSE
+Aggregate existing support/proof/KYC/moderation/payout records into Exception Cases without creating a generic mutation path that bypasses domain truth.
 
-### Review
-Current source: proof, KYC and moderation admin surfaces.
-Next object: Review Desks.
-Treatment: **RECOMPOSE**.
+### Review — RECOMPOSE
+Reuse proof, KYC and moderation surfaces as role-specific Review Desks.
 
-### Economy
-Current source: payouts, queues, commerce and dispute/admin tools.
-Next object: Settlement Exception Ledger.
-Treatment: **RECOMPOSE**.
+### Economy — RECOMPOSE
+Reuse payouts/commerce/dispute tools as a Settlement Exception Ledger.
 
-### Health
-Current source: diagnostics/audit/admin monitoring surfaces.
-Next object: Operational Health + audit trace.
-Treatment: **REFINE / RECOMPOSE**.
+### Health — REFINE / RECOMPOSE
+Reuse diagnostics/audit surfaces as operational health and traceability.
 
-## Recommended migration sequence
+## Updated migration sequence
 
-Do not migrate all role homes first. Prove the most operational objects first:
+1. **Host Live:** promote/refine `HostGuestOperations`; retire `HostLivePulseConsole` from the primary Host experience.
+2. **Merchant Verify:** refine/recompose `MerchantScannerStation`; do not rebuild its scanner/mutation/receipt logic.
+3. **Creator Create:** replace the hard-coded `CreatorStudioConsole` with a real Production Room using existing content/proof writes.
+4. **Creator Work:** replace the hard-coded bounty board with a real opportunity projection over existing mission/content/Moment structures.
+5. **Host Proof:** refine/recompose proof close.
+6. **Creator Proof/Value:** Proof Dossier + Value Ledger.
+7. **Merchant Orders:** Order Board.
+8. **Brand Evidence:** Evidence Pack.
+9. **Agency Clients/Proof:** Client Ledger + Managed Result Pack.
+10. **Admin Cases/Economy:** Exception Case + Settlement Exception Ledger.
+11. Recompose role Today/home surfaces only after their core work objects are proven.
 
-1. Host Live → Door Board
-2. Merchant Verify → Validation Device + Slip
-3. Creator Create → Production Room + Submission Folder
-4. Host Proof → Proof Close
-5. Creator Proof/Value → Proof Dossier + Value Ledger
-6. Merchant Orders → Order Board
-7. Brand Evidence → Evidence Pack
-8. Agency Clients/Proof → Client Ledger + Managed Result Pack
-9. Admin Cases/Economy → Exception Case + Settlement Exception Ledger
-10. Only then recompose each role Today/home around proven objects.
+## Review outcome vocabulary
 
-## Review outcome
-
-For each destination, record one of:
+For every destination record one of:
 
 - Approved for live adapter
+- Existing capability should be promoted/refined
+- Existing surface should be retired
 - Needs visual revision
 - Needs interaction/state revision
 - Existing capability not yet mapped
 - Product gap confirmed
 
-A production route should not be replaced until the destination has an explicit review outcome and passes the gates above.
+A production route should not be replaced until the destination has an explicit outcome and passes the migration gates above.
