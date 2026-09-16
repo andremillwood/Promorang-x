@@ -2,9 +2,9 @@
 
 ## Source visual truth
 
-Selected Product Design ideation result: **option 3 — Marks / collectible ritual**.
+Selected Product Design direction: **option 3 — Marks / collectible ritual**.
 
-Reference used for comparison:
+Reference board:
 
 `/mnt/data/wide_dark_presentation_brand_concept_spread_in_a_m.png`
 
@@ -12,144 +12,156 @@ Reference pixels: **1536 × 1024**.
 
 Core visual truth:
 - PROMORANG P as identity anchor
-- asymmetric boomerang / Return Arc as a proprietary movement mark
+- asymmetric movement / return arc
 - dotted Tracks as journey / connection language
-- circular Marks as proof / kept language
+- distinct marks for movement / proof / retained value
 - earth / ochre / sand / gold material palette
 - image-led Today and Discover
-- tactile PromoCard / ticket / receipt / relic object family
-- brand character appears through repeated behavior and material, not generic icons
+- tactile PromoCard / Ticket / Receipt / Relic family
+- brand character through repeated product behavior, not generic utility icons
 
-## Implementation target
+## Implementation targets
 
-Design Lab section:
+Iteration 1:
+`apps/web/src/design-system/consumer/PromorangBrandGrammarStudy.tsx`
 
-`10 · PROMORANG brand grammar`
-
-Current refined implementation:
-
+Iteration 2:
 `apps/web/src/design-system/consumer/PromorangBrandGrammarStudyV2.tsx`
+
+Final discipline pass:
+`apps/web/src/design-system/consumer/PromorangBrandGrammarFinal.tsx`
 
 ## Rendered evidence — iteration 1
 
-User-provided desktop captures:
+User-provided captures:
+- `/mnt/data/Screenshot 2026-09-16 at 1.43.43 AM.png`
+- `/mnt/data/Screenshot 2026-09-16 at 1.44.07 AM.png`
+- `/mnt/data/Screenshot 2026-09-16 at 1.44.21 AM.png`
+- `/mnt/data/Screenshot 2026-09-16 at 1.44.33 AM.png`
 
-- `/mnt/data/Screenshot 2026-09-16 at 1.43.43 AM.png` — 2048 × 1181
-- `/mnt/data/Screenshot 2026-09-16 at 1.44.07 AM.png` — 2048 × 1428
-- `/mnt/data/Screenshot 2026-09-16 at 1.44.21 AM.png` — 2048 × 1423
-- `/mnt/data/Screenshot 2026-09-16 at 1.44.33 AM.png` — 2048 × 364
+Iteration 1 comparison found major P1/P2 brand-fidelity drift: generic Undo icon, Lucide mark vocabulary, insufficient PromoCard materiality, under-integrated Tracks / Arc, generic World treatment.
 
-Combined normalized comparison generated at:
+## Rendered evidence — iteration 2
 
-`/mnt/data/promorang_brand_qa_comparison.jpg`
+User-provided captures:
+- `/mnt/data/Screenshot 2026-09-16 at 1.52.48 AM.png`
+- `/mnt/data/Screenshot 2026-09-16 at 1.53.06 AM.png`
+- `/mnt/data/Screenshot 2026-09-16 at 1.53.19 AM.png`
+- `/mnt/data/Screenshot 2026-09-16 at 1.53.27 AM.png`
 
-The source and implementation are not one identical viewport because the implementation section is taller than the source concept board. For full-view comparison, both were normalized to the same review width and the implementation captures were stacked in document order. This is sufficient for composition / brand-fidelity review but not for pixel-perfect 1:1 phone-state comparison.
+Full-review montage:
+`/mnt/data/brand_qa_full_montage.jpg`
 
-## Build validation
+Iteration 2 resolved the largest identity failure: PROMORANG now reads as a coherent brand system rather than premium black/orange UI with labels.
 
-The pre-refinement brand implementation passed GitHub Actions `Web Build`.
+## Findings — iteration 2
 
-The refined implementation is independently validated by the same workflow before handoff.
+- [P1] **Move / Return are still too visually similar**
+  - Location: brand-mark selector, Discover rows, bottom grammar strip.
+  - Evidence: both are derived from the same brush arc form and differ mainly through labels / context.
+  - Impact: the mark system is not yet learnable without text.
+  - Fix implemented in final pass: five distinct proprietary vector meanings. Move is outward/open; Explore is dotted waypoint motion; Return reverses direction; Proof is concentric/resolved; Kept is contained/closed.
 
-## Primary interactions
+- [P1] **Proof / Kept are insufficiently differentiated**
+  - Location: PromoCard proof cue, Kept grammar mark, PromoKey / collectible contexts.
+  - Evidence: both rely on the same ring asset.
+  - Impact: verification and retention collapse into one visual meaning.
+  - Fix implemented in final pass: Proof is a concentric stamp with confirmed center; Kept is a closed rounded container with nested retained center.
 
-Implemented:
-- brand-mark selector
-- PromoCard Ready / Showing / Validating / Used state selector
-- state-advance CTA
-- Today / Discover navigation specimens
-- object family specimens
+- [P2] **Return Arc is repeated too literally**
+  - Location: Today header / recommendation, Discover hero / rows, PromoCard, World treatment.
+  - Evidence: iteration 2 uses the arc often enough that it begins to behave like decorative wallpaper rather than semantic product language.
+  - Impact: premium restraint is reduced and meaning weakens through repetition.
+  - Fix implemented in final pass: one major proprietary gesture per viewport. Today keeps Return only where provenance is explained; Discover uses semantic marks per opportunity; PromoCard uses a subtle single Return state watermark; World uses Explore rather than another Return Arc.
 
-Browser interaction and console verification remain dependent on the user's local rendered surface because Vercel Hobby preview generation is rate-limited.
+- [P1] **World imagery contradicts Kingston context**
+  - Location: World treatment.
+  - Evidence: rendered placeholder visibly depicts Rio / Christ the Redeemer while the section claims a Kingston / PROMORANG world.
+  - Impact: breaks location trust immediately.
+  - Fix implemented in final pass: replacement image is a free Unsplash photograph taken on Red Hills Road, Kingston, Jamaica.
 
-## Findings — iteration 1
+- [P2] **Object family still needs stronger material differentiation**
+  - Location: PromoCard / Ticket / Receipt / Relic / PromoKey.
+  - Evidence: iteration 2 has stronger marks but PromoCard remains primarily dark-panel UI while Ticket / Receipt / Relic are not yet governed by one explicit material contract.
+  - Impact: object semantics are visible, but not yet as tactile or memorable as the source direction.
+  - Fix implemented in final pass:
+    - PromoCard: durable credential, dark layered surface, clay/gold light, restrained linear texture
+    - Ticket: warm sand paper + tear/perforation logic
+    - Receipt: thermal/lined paper + mono proof data + Proof mark
+    - Relic: dark/violet retained object + Kept mark
+    - PromoKey: compact dark access object
 
-- [P1] **Return Arc reads as a generic undo icon**
-  - Location: Brand Elements, Today return cue, social context, PromoCard.
-  - Evidence: selected source uses a proprietary asymmetric boomerang-like brush arc; iteration 1 used Lucide `Undo2` inside circles.
-  - Impact: the most important PROMORANG brand behavior looked like standard utility UI rather than an ownable signature.
-  - Fix applied: extracted the actual selected Return Arc from the source board into a real raster brand asset and replaced generic return-icon usage in the refined study.
+## What iteration 2 proved
 
-- [P1] **Brand marks are generic icon-library semantics rather than a coherent mark family**
-  - Location: Move / Explore / Return / Proof / Kept selector and bottom grammar strip.
-  - Evidence: source uses arc, dotted track and concentric mark forms; iteration 1 used Footprints / Route / Undo / Stamp / Archive icons.
-  - Impact: labels carried the concept but the visual system did not become recognizably PROMORANG.
-  - Fix applied: refined study uses source-derived Return Arc, Tracks and Ring assets as the visible brand glyph family; utility icons remain only where they are utility.
+The selected direction works.
 
-- [P1] **PromoCard lacks source materiality and integrated movement marks**
-  - Location: Object Family / PromoCard credential.
-  - Evidence: source integrates warm earth/gold material, arc/track detail and an emblematic mark into the card body; iteration 1 is predominantly flat black with metadata columns.
-  - Impact: the card is legible but not as ownable or collectible as the selected visual target.
-  - Fix applied: refined PromoCard adds clay/earth illumination, source-derived Return Arc watermark, Tracks embedded into the card surface and a source-derived proof ring while preserving credential state logic.
+PROMORANG now has a recognizable grammar across:
+- P identity anchor
+- movement / return language
+- Tracks
+- object system
+- earth / signal palette
+- Today / Discover consumer surfaces
 
-- [P2] **Brand Elements panel is too diagrammatic / clinical**
-  - Location: opening brand grammar region.
-  - Evidence: source feels like a living brand world; iteration 1 presents a P beside a standard icon and separate chips.
-  - Impact: brand personality is explained more than experienced.
-  - Fix applied: refined panel physically pairs P + Return Arc, integrates Tracks into the surface, and makes each selectable mark display a visual brand glyph rather than an icon-library symbol.
+The remaining issue is discipline, not direction selection.
 
-- [P2] **Today / Discover carry the new copy but not enough of the selected visual grammar**
-  - Location: both phone specimens.
-  - Evidence: content hierarchy matches the mature consumer direction, but option 3 contains visible movement paths / return marks embedded into the content world.
-  - Impact: product still risks reading as premium black/orange marketplace UI with PROMORANG labels.
-  - Fix applied: refined screens use actual Tracks / Return Arc overlays in restrained positions and replace text-only mark tags with the brand glyph family.
+## Final discipline pass
 
-- [P2] **World treatment is cinematic but generic**
-  - Location: full-width world-treatment banner.
-  - Evidence: source combines real place imagery with a distinctive return/track intervention; iteration 1 is mostly landscape + headline.
-  - Impact: world imagery does not yet demonstrate how PROMORANG marks a place without becoming a decorative theme.
-  - Fix applied: refined world surface overlays source-derived Return Arc and Tracks with controlled opacity and keeps the photography dominant.
+Implemented in `PromorangBrandGrammarFinal.tsx` and governed by `docs/design/promorang-brand-grammar-v2.md`.
 
-## Fidelity surfaces
+Changes:
+1. Five unique semantic marks.
+2. One-major-brand-gesture-per-viewport rule.
+3. Kingston-specific World photography.
+4. Stronger material differentiation.
+5. Utility icons remain conventional; proprietary marks are reserved for brand meaning.
+6. Motion grammar is locked as:
+
+```text
+MOVE → EXPLORE → RETURN → PROOF → KEPT
+```
+
+7. Brand marks must communicate product state / consequence, not decoration.
+
+## Required fidelity surfaces
 
 ### Fonts / typography
-Iteration 1: generally aligned with source — Fraunces editorial + quiet sans utility. No P1 typography mismatch. Some Design Lab micro-labels remain smaller than the recommended production floor and are acceptable only as specification labels, not production body copy.
+Fraunces editorial + sans utility remains strong. Production body / metadata must stay above the accessibility floor established in the consumer maturity spec.
 
 ### Spacing / layout rhythm
-Iteration 1: hierarchy and large-section rhythm are strong. The implementation is intentionally taller and more explanatory than the concept board because it is a review surface. This is acceptable; production screens remain compact.
+Iteration 2 is strong. Final pass reduces brand clutter rather than changing the underlying mature consumer hierarchy.
 
 ### Colors / tokens
-Iteration 1: palette is aligned with the selected direction. Refined version increases Clay / Sand / Gold material presence so black + orange do not carry the entire identity.
+Obsidian / Clay / Ochre / Sand / Gold / Water / Leaf remain approved. Clay / Sand / Gold are used to prevent black + orange from carrying the entire identity.
 
 ### Image quality / asset fidelity
-Iteration 1: stock photography is adequate for placeholder evaluation. Major brand-asset fidelity failed because arc/tracks/marks were approximated with icon components. Refined version uses actual source-derived raster brand assets.
+Iteration 2 resolved the generic-icon fidelity problem. Final pass replaces contradictory world media with Kingston-specific placeholder photography and treats media truth as a production rule.
 
 ### Copy / content
-Iteration 1: product copy is strong and aligned with movement / return semantics. Refined version reduces explanation where the new marks can communicate visually.
+Movement / return language is now concise enough to support the visual grammar. Production still requires real data for ratings, availability, verified uses, proximity, and recommendation provenance.
 
 ## Comparison history
 
-### Iteration 1
-Rendered implementation captured by user and compared against source option 3.
+### Iteration 1 — blocked
+Major P1/P2 brand-asset mismatch.
 
-Actionable P1/P2 issues:
-- generic undo-arrow return mark
-- generic icon-library mark family
-- insufficient PromoCard materiality
-- under-branded Today / Discover world layer
-- generic world-treatment banner
+### Iteration 2 — blocked, but direction validated
+Identity became recognizable. Remaining blockers: mark differentiation, arc repetition, wrong-city imagery, object material discipline.
 
-### Iteration 2 fixes
-Implemented in `PromorangBrandGrammarStudyV2.tsx`:
-- actual source-derived Return Arc asset
-- actual source-derived dotted Tracks asset
-- actual source-derived Ring / proof mark
-- brand glyphs replace generic icons in brand grammar contexts
-- P + Return Arc pairing
-- embedded Tracks / Arc in Today, Discover, PromoCard and World
-- warmer clay / gold credential material treatment
-- existing utility icons preserved only for utility jobs
+### Iteration 3 — implementation complete, render pending
+Final discipline pass addresses all remaining iteration-2 P1/P2 findings at source level.
 
 ## Remaining verification
 
-A revised local screenshot is required after pulling the refined study. Compare:
-1. Brand Elements / P + Return Arc.
-2. Today / Discover at readable phone scale.
-3. PromoCard / object family.
-4. World treatment and bottom mark strip.
-5. PromoCard state progression.
-6. Local browser console for runtime errors.
+A local screenshot of **section 11 · PROMORANG brand grammar · final discipline pass** is required to verify:
+1. Five marks are visually distinguishable without labels.
+2. Today / Discover feel less branded-on-top than iteration 2.
+3. Kingston World imagery renders correctly.
+4. PromoCard texture remains subtle and legible.
+5. Ticket / Receipt / Relic / PromoKey read as different materials.
+6. PromoCard state progression still works.
+7. Browser console has no new runtime errors.
 
-If the refined render removes the P1/P2 mismatches above without introducing new P1/P2 issues, QA can move to `passed` with only P3 polish remaining.
+If section 11 introduces no new P0/P1/P2 issues, final result can move to `passed` with only P3 polish remaining.
 
 final result: blocked
