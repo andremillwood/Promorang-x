@@ -9,6 +9,7 @@ import { MarketProvider } from "@/contexts/MarketContext";
 import { I18nProvider } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import ParticipantExperienceV1 from "@/pages/participant/ParticipantExperienceV1";
+import ParticipantExperienceReviewV1 from "@/pages/participant/ParticipantExperienceReviewV1";
 import "./index.css";
 
 const rootElement = document.getElementById("participant-next-root");
@@ -16,6 +17,17 @@ if (!rootElement) throw new Error("Missing #participant-next-root");
 
 const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(rootElement);
+const liveMode = new URLSearchParams(window.location.search).get("live") === "1";
+
+function ReviewRoutes() {
+  return (
+    <Routes>
+      <Route path="/:surface" element={<ParticipantExperienceReviewV1 />} />
+      <Route path="/" element={<Navigate to="/today" replace />} />
+      <Route path="*" element={<Navigate to="/today" replace />} />
+    </Routes>
+  );
+}
 
 function LocalPreviewSignIn() {
   const [error, setError] = React.useState<string | null>(null);
@@ -25,12 +37,10 @@ function LocalPreviewSignIn() {
     setSubmitting(true);
     setError(null);
     try {
-      const redirectTo = `${window.location.origin}/participant-next.html`;
+      const redirectTo = `${window.location.origin}/participant-next.html?live=1`;
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo,
-        },
+        options: { redirectTo },
       });
       if (oauthError) setError(oauthError.message);
     } catch (caught) {
@@ -42,16 +52,14 @@ function LocalPreviewSignIn() {
   return (
     <div className="min-h-screen bg-[#080809] px-6 py-12 text-white sm:py-16">
       <div className="mx-auto max-w-md rounded-[1.8rem] border border-white/10 bg-white/[0.025] p-6 sm:p-7">
-        <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#ff6a00]">PROMORANG · PARTICIPANT NEXT</p>
+        <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#ff6a00]">PROMORANG · PARTICIPANT NEXT · LIVE MODE</p>
         <h1 className="mt-3 font-serif text-4xl font-bold leading-[.95]">Continue with Google.</h1>
         <p className="mt-4 text-sm leading-6 text-white/55">
-          Use the same Google account you normally use for PROMORANG. After authentication, Supabase should return you directly to this local participant preview.
+          Live mode uses your real PROMORANG account. Normal review mode does not require authentication.
         </p>
 
         {error ? (
-          <p role="alert" className="mt-6 rounded-xl border border-red-400/20 bg-red-400/8 px-4 py-3 text-sm leading-5 text-red-100">
-            {error}
-          </p>
+          <p role="alert" className="mt-6 rounded-xl border border-red-400/20 bg-red-400/8 px-4 py-3 text-sm leading-5 text-red-100">{error}</p>
         ) : null}
 
         <button
@@ -64,17 +72,15 @@ function LocalPreviewSignIn() {
           {submitting ? "Opening Google…" : "Continue with Google"}
         </button>
 
-        <div className="mt-6 border-t border-white/10 pt-5">
-          <p className="text-xs leading-5 text-white/42">
-            Local OAuth requires <code className="text-white/65">http://localhost:8080/**</code> in Supabase Authentication → URL Configuration → Redirect URLs. If that URL is not allow-listed, Supabase falls back to the production Site URL and sends you to promorang.co.
-          </p>
-        </div>
+        <a href="/participant-next.html#/today" className="mt-4 flex min-h-12 w-full items-center justify-center rounded-full border border-white/12 px-5 text-sm font-black text-white/72">
+          Back to no-login review
+        </a>
       </div>
     </div>
   );
 }
 
-function Gate() {
+function LiveGate() {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -114,13 +120,17 @@ try {
         <I18nProvider>
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
-              <AuthProvider>
-                <HashRouter>
-                  <MarketProvider>
-                    <Gate />
-                  </MarketProvider>
-                </HashRouter>
-              </AuthProvider>
+              <HashRouter>
+                {liveMode ? (
+                  <AuthProvider>
+                    <MarketProvider>
+                      <LiveGate />
+                    </MarketProvider>
+                  </AuthProvider>
+                ) : (
+                  <ReviewRoutes />
+                )}
+              </HashRouter>
             </ThemeProvider>
           </QueryClientProvider>
         </I18nProvider>
