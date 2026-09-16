@@ -11,7 +11,11 @@ SET search_path = ''
 AS $$
 BEGIN
   IF NEW.checked_in_at IS NOT NULL
-     AND (OLD.checked_in_at IS NULL OR OLD.checked_in_at IS DISTINCT FROM NEW.checked_in_at) THEN
+     AND (
+       TG_OP = 'INSERT'
+       OR OLD.checked_in_at IS NULL
+       OR OLD.checked_in_at IS DISTINCT FROM NEW.checked_in_at
+     ) THEN
     INSERT INTO public.canonical_events (
       event_name,
       event_version,
@@ -61,7 +65,7 @@ $$;
 
 DROP TRIGGER IF EXISTS trg_journal_moment_participant_checkin ON public.moment_participants;
 CREATE TRIGGER trg_journal_moment_participant_checkin
-AFTER UPDATE OF checked_in_at ON public.moment_participants
+AFTER INSERT OR UPDATE OF checked_in_at ON public.moment_participants
 FOR EACH ROW
 EXECUTE FUNCTION public.journal_moment_participant_checkin();
 
