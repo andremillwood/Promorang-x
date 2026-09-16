@@ -4,6 +4,7 @@ import { Camera, MapPin, Ticket, ReceiptText, Layers3, FileText, ShieldCheck, Us
 import StakeholderNextV4 from "@/pages/stakeholder-next/StakeholderNextV4";
 import { PromorangSemanticMark, type PromorangSemanticMarkKind } from "@/components/promorang/PromorangSemanticMark";
 import "@/stakeholder-next-v5.css";
+import "@/stakeholder-next-v5-responsive.css";
 
 type RoleKey = "creator" | "host" | "merchant" | "brand" | "agency" | "admin";
 
