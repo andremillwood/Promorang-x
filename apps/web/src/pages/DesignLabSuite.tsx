@@ -2,6 +2,7 @@ import DesignLab from "@/pages/DesignLab";
 import { CanonicalConsumerScreensV2 } from "@/design-system/consumer/CanonicalConsumerScreensV2";
 import { CanonicalYouScreen } from "@/design-system/consumer/CanonicalYouScreen";
 import { CrossDomainStressTest } from "@/design-system/consumer/CrossDomainStressTest";
+import { WorldClassConsumerStudy } from "@/design-system/consumer/WorldClassConsumerStudy";
 
 export default function DesignLabSuite() {
   return (
@@ -36,6 +37,10 @@ export default function DesignLabSuite() {
 
         <div className="mt-20">
           <CrossDomainStressTest />
+        </div>
+
+        <div className="mt-20">
+          <WorldClassConsumerStudy />
         </div>
       </section>
     </div>
