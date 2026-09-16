@@ -7,10 +7,8 @@ import { resolvePlaceGeo } from "@/lib/jamaica-geo";
 export interface UserPreferences {
   id: string;
   user_id: string;
-  // Demographics
   age_range: string | null;
   gender: string | null;
-  // Geographics
   city: string | null;
   state: string | null;
   country: string;
@@ -18,9 +16,7 @@ export interface UserPreferences {
   longitude: number | null;
   location_radius_km: number;
   location_sharing_enabled: boolean;
-  // Psychographics
   lifestyle_tags: string[];
-  // Preferences
   preferred_categories: string[];
   preferred_times: string[];
   notification_enabled: boolean;
@@ -67,13 +63,31 @@ export function useUserPreferences() {
   });
 }
 
+/**
+ * Onboarding completion is an account lifecycle state, not a proxy derived
+ * from optional discovery preferences. Agencies and other commercial users
+ * can legitimately complete onboarding without choosing consumer categories.
+ */
 export function useHasCompletedOnboarding() {
-  const { data: preferences, isLoading } = useUserPreferences();
+  const { user } = useAuth();
+  const query = useQuery({
+    queryKey: ["onboarding-completed", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      // Generated Supabase types do not yet include the legacy public.users
+      // table; use the same compatibility pattern as AuthContext.
+      const { data, error } = await (supabase as any)
+        .from("users")
+        .select("onboarding_completed")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return Boolean(data?.onboarding_completed);
+    },
+    enabled: !!user,
+  });
 
-  // User has completed onboarding if they have preferences with at least one category selected
-  const hasCompleted = !isLoading && preferences && preferences.preferred_categories?.length > 0;
-
-  return { hasCompleted, isLoading };
+  return { hasCompleted: Boolean(query.data), isLoading: query.isLoading };
 }
 
 export function useCreateUserPreferences() {
@@ -85,8 +99,6 @@ export function useCreateUserPreferences() {
     mutationFn: async (preferences: UserPreferencesInput) => {
       if (!user) throw new Error("Not authenticated");
 
-      // Call a SECURITY DEFINER RPC that atomically ensures the profile
-      // exists and upserts preferences — avoids FK and RLS issues.
       const geo = resolvePlaceGeo({
         city: preferences.city,
         location: preferences.city,
@@ -179,7 +191,6 @@ export function useUpdateUserPreferences() {
   });
 }
 
-// Utility for geolocation
 export function useRequestLocation() {
   const updatePreferences = useUpdateUserPreferences();
 

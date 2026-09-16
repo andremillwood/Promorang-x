@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
 import {
     Briefcase,
     TrendingUp,
@@ -18,6 +17,7 @@ import { PromoCardEconomyExplainer } from "@/components/promocard";
 
 const ForAgencies = () => {
     const { t } = useI18n();
+    const agencySignupPath = "/auth?mode=signup&role=agency";
 
     const features: Array<{ icon: typeof Briefcase; titleKey: TranslationKey; descKey: TranslationKey }> = [
         {
@@ -59,7 +59,6 @@ const ForAgencies = () => {
                 description={t("forAgencies.seoDescription")}
             />
             <div className="marketing-refined min-h-screen bg-background">
-            {/* Hero Section */}
             <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-gradient-brand">
                 <div className="container px-6">
                     <div className="max-w-4xl mx-auto text-center">
@@ -79,7 +78,7 @@ const ForAgencies = () => {
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
                             <Button variant="secondary" size="xl" className="font-bold shadow-xl" asChild>
-                                <Link to="/auth?role=brand">
+                                <Link to={agencySignupPath}>
                                     {t("forAgencies.startManaging")}
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>
@@ -91,9 +90,26 @@ const ForAgencies = () => {
 
             <PromoCardEconomyExplainer audience="agency" />
 
-            <LeadMagnetGateway audience="brand" />
+            <section className="border-y border-border bg-secondary/25 py-14 md:py-20">
+                <div className="container px-6">
+                    <div className="mx-auto grid max-w-5xl gap-6 rounded-[2rem] border border-border bg-card p-6 md:grid-cols-[1fr_auto] md:items-center md:p-8">
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Agency starting point</p>
+                            <h2 className="mt-2 font-serif text-3xl font-bold tracking-tight">Connect one client before you launch anything.</h2>
+                            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+                                Agency work stays legible when the client account is established first. Then campaigns, activity and proof remain attached to the correct brand or venue instead of falling into a generic workspace.
+                            </p>
+                        </div>
+                        <Button variant="hero" size="lg" asChild>
+                            <Link to={agencySignupPath}>
+                                Open Agency workspace
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+            </section>
 
-            {/* Features Section */}
             <section className="py-20 md:py-32">
                 <div className="container px-6">
                     <div className="max-w-2xl mx-auto text-center mb-16">
@@ -124,7 +140,6 @@ const ForAgencies = () => {
                 </div>
             </section>
 
-            {/* CTA Section */}
             <section className="py-20 md:py-32 bg-charcoal text-cream relative overflow-hidden">
                 <div className="absolute inset-0 bg-primary/10"></div>
                 <div className="container px-6 relative z-10">
@@ -139,7 +154,7 @@ const ForAgencies = () => {
                             {t("forAgencies.ctaCopy")}
                         </p>
                         <Button variant="hero" size="xl" asChild>
-                            <Link to="/auth?role=brand">
+                            <Link to={agencySignupPath}>
                                 {t("forAgencies.openAccount")}
                                 <ArrowRight className="w-5 h-5 ml-2" />
                             </Link>

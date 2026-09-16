@@ -27,7 +27,7 @@ import {
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
 
-type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
+type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency";
 
 const roleInfo: Record<UserRole, { icon: typeof Users; title: string; description: string }> = {
   participant: {
@@ -54,6 +54,11 @@ const roleInfo: Record<UserRole, { icon: typeof Users; title: string; descriptio
     icon: Store,
     title: "For Venues",
     description: "Welcome moments to your location",
+  },
+  agency: {
+    icon: Briefcase,
+    title: "For Agencies",
+    description: "Manage client accounts and prove outcomes",
   },
 };
 
@@ -104,6 +109,7 @@ const AuthPage = () => {
     host: { title: t("auth.host"), description: t("persona.mayorDesc") },
     brand: { title: t("auth.brand"), description: t("persona.brandDesc") },
     merchant: { title: t("auth.merchant"), description: t("persona.merchantDesc") },
+    agency: { title: t("auth.agency"), description: t("persona.agencyDesc") },
   };
 
   useEffect(() => {
@@ -130,7 +136,7 @@ const AuthPage = () => {
     if (searchParams.get("mode") === "login") setMode("login");
     const requestedRole = intendedRole || roleFromNext(nextPath);
     if (!requestedRole || requestedRole === "admin") return;
-    if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
+    if (["participant", "creator", "host", "brand", "merchant", "agency"].includes(requestedRole)) {
       persistPreferredRole(requestedRole as UserRole);
       setSelectedRole(requestedRole as UserRole);
       setShowRolePicker(requestedRole !== "participant");

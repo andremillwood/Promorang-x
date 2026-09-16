@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { isPlaceholderDisplayName, readIntendedStakeholderRole, rememberIntendedStakeholder } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,24 @@ import {
 } from "@/lib/auth-roles";
 
 type UserRole = WorkspaceRole;
+
+type Organization = {
+  id: string;
+  name: string;
+  slug?: string | null;
+  type?: string | null;
+  avatar_url?: string | null;
+  user_role?: string;
+};
+
+type AgencyClient = Organization & {
+  relationship_type?: string;
+  managing_agency_id: string;
+};
+
+const ACTIVE_ROLE_KEY = "promorang_active_role";
+const ACTIVE_ORG_KEY = "promorang_active_org_id";
+const MANAGING_AGENCY_KEY = "promorang_managing_agency_org_id";
 
 const MASTER_ADMIN_WORKSPACE_ROLES: UserRole[] = [
   "admin",
@@ -40,10 +58,11 @@ interface AuthContextType {
   applyIntendedRole: (userId: string, role?: string | null) => Promise<UserRole | null>;
   signOut: () => Promise<void>;
   demoSignIn: (role: UserRole, demoEmailRecipient?: string) => Promise<{ error: Error | null }>;
-  organizations: any[];
+  organizations: Organization[];
   activeOrgId: string | null;
+  managingAgencyOrgId: string | null;
   setActiveOrgId: (id: string | null) => void;
-  agencyClients: any[];
+  agencyClients: AgencyClient[];
   profile: any | null;
   refreshWorkspaceContext: () => Promise<void>;
 }
@@ -67,11 +86,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [activeRole, setActiveRoleState] = useState<UserRole | null>(null);
-  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [activeOrgId, setActiveOrgIdState] = useState<string | null>(null);
-  const [agencyClients, setAgencyClients] = useState<any[]>([]);
+  const [agencyClients, setAgencyClients] = useState<AgencyClient[]>([]);
+  const [managingAgencyOrgId, setManagingAgencyOrgId] = useState<string | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const managedClientSelectionRef = useRef<string | null>(null);
 
   const mapRole = (role: string): UserRole => mapWorkspaceRole(role);
 
@@ -82,68 +103,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     return resolvePreferredWorkspaceRole(availableRoles, {
       demoRole: readDemoSession()?.role,
-      savedRole: localStorage.getItem("promorang_active_role"),
+      savedRole: localStorage.getItem(ACTIVE_ROLE_KEY),
     });
   };
 
-  // Sync activeRole with storage-backed preference whenever the available role
-  // set changes.
-  useEffect(() => {
-    if (roles.length > 0) {
-      const preferredRole = resolvePreferredRole(roles);
-      if (preferredRole && preferredRole !== activeRole) {
-        setActiveRoleState(preferredRole);
-      }
-    }
-  }, [roles, activeRole]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const setActiveRole = (role: UserRole) => {
-    setActiveRoleState(role);
-    localStorage.setItem("promorang_active_role", role);
-
-    if (organizations.length > 0) {
-      const currentOrg = organizations.find((org) => org.id === activeOrgId);
-      const desiredType = roleToOrgType[role];
-      if (desiredType && currentOrg?.type !== desiredType) {
-        const matchingOrg = organizations.find((org) => org.type === desiredType);
-        if (matchingOrg) {
-          setActiveOrgIdState(matchingOrg.id);
-          localStorage.setItem("promorang_active_org_id", matchingOrg.id);
-          if (matchingOrg.type === "agency") {
-            fetchAgencyClients(matchingOrg.id);
-          } else {
-            setAgencyClients([]);
-          }
-        }
-      }
-    }
-  };
-
-  const setActiveOrgId = (id: string | null) => {
-    setActiveOrgIdState(id);
-    if (id) {
-      localStorage.setItem("promorang_active_org_id", id);
-      const org = organizations.find(o => o.id === id);
-      const roleForOrg = org?.type ? orgTypeToRole[org.type] : null;
-      if (roleForOrg && roles.includes(roleForOrg) && roleForOrg !== activeRole) {
-        setActiveRoleState(roleForOrg);
-        localStorage.setItem("promorang_active_role", roleForOrg);
-      }
-
-      if (org?.type === 'agency') {
-        fetchAgencyClients(id);
-      } else {
-        setAgencyClients([]);
-      }
-    } else {
-      localStorage.removeItem("promorang_active_org_id");
-      setAgencyClients([]);
-    }
-  };
-
-  const fetchAgencyClients = async (agencyId: string) => {
+  const loadAgencyClients = async (agencyId: string): Promise<AgencyClient[]> => {
     const { data, error } = await supabase
-      .from('agency_clients')
+      .from("agency_clients")
       .select(`
         client_id,
         relationship_type,
@@ -155,21 +121,138 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           avatar_url
         )
       `)
-      .eq('agency_id', agencyId)
-      .eq('status', 'active');
+      .eq("agency_id", agencyId)
+      .eq("status", "active");
 
     if (error) {
       console.error("Error fetching agency clients:", error);
       return [];
     }
 
-    const clients = data.map((d: any) => ({
+    return (data || []).map((d: any) => ({
       ...d.organizations,
-      relationship_type: d.relationship_type
+      relationship_type: d.relationship_type,
+      managing_agency_id: agencyId,
     }));
+  };
 
+  const fetchAgencyClients = async (agencyId: string) => {
+    const clients = await loadAgencyClients(agencyId);
     setAgencyClients(clients);
+    setManagingAgencyOrgId(agencyId);
+    localStorage.setItem(MANAGING_AGENCY_KEY, agencyId);
     return clients;
+  };
+
+  const activateDirectOrg = (org: Organization, syncRole = true) => {
+    managedClientSelectionRef.current = null;
+    setActiveOrgIdState(org.id);
+    localStorage.setItem(ACTIVE_ORG_KEY, org.id);
+
+    const roleForOrg = org.type ? orgTypeToRole[org.type] : null;
+    if (syncRole && roleForOrg) {
+      setActiveRoleState(roleForOrg);
+      localStorage.setItem(ACTIVE_ROLE_KEY, roleForOrg);
+    }
+
+    if (org.type === "agency") {
+      void fetchAgencyClients(org.id);
+    } else {
+      setAgencyClients([]);
+      setManagingAgencyOrgId(null);
+      localStorage.removeItem(MANAGING_AGENCY_KEY);
+    }
+  };
+
+  const activateManagedClient = (client: AgencyClient) => {
+    managedClientSelectionRef.current = client.id;
+    setActiveOrgIdState(client.id);
+    localStorage.setItem(ACTIVE_ORG_KEY, client.id);
+    setManagingAgencyOrgId(client.managing_agency_id);
+    localStorage.setItem(MANAGING_AGENCY_KEY, client.managing_agency_id);
+
+    const roleForOrg = client.type ? orgTypeToRole[client.type] : null;
+    if (roleForOrg === "brand" || roleForOrg === "merchant") {
+      setActiveRoleState(roleForOrg);
+      localStorage.setItem(ACTIVE_ROLE_KEY, roleForOrg);
+    }
+  };
+
+  useEffect(() => {
+    if (roles.length === 0) return;
+
+    const activeManagedClient = agencyClients.find((client) => client.id === activeOrgId);
+    const managedRole = activeManagedClient?.type ? orgTypeToRole[activeManagedClient.type] : null;
+    if (activeManagedClient && managedRole === activeRole) return;
+
+    const preferredRole = resolvePreferredRole(roles);
+    if (preferredRole && preferredRole !== activeRole) {
+      setActiveRoleState(preferredRole);
+    }
+  }, [roles, activeRole, activeOrgId, agencyClients]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const setActiveRole = (role: UserRole) => {
+    setActiveRoleState(role);
+    localStorage.setItem(ACTIVE_ROLE_KEY, role);
+
+    const selectedManagedId = managedClientSelectionRef.current || activeOrgId;
+    const activeManagedClient = agencyClients.find((client) => client.id === selectedManagedId);
+    const currentDirectOrg = organizations.find((org) => org.id === activeOrgId);
+
+    if (role === "agency") {
+      const recordedAgency = managingAgencyOrgId
+        ? organizations.find((org) => org.id === managingAgencyOrgId && org.type === "agency")
+        : null;
+      const agencies = organizations.filter((org) => org.type === "agency");
+      const agency = recordedAgency || (agencies.length === 1 ? agencies[0] : null);
+      if (agency) activateDirectOrg(agency, true);
+      return;
+    }
+
+    if ((role === "brand" || role === "merchant") && activeManagedClient?.type === role) return;
+    if (currentDirectOrg?.type === role) return;
+
+    const desiredType = roleToOrgType[role];
+    if (desiredType) {
+      const matchingOrg = organizations.find((org) => org.type === desiredType);
+      if (matchingOrg) activateDirectOrg(matchingOrg, true);
+    }
+  };
+
+  const setActiveOrgId = (id: string | null) => {
+    if (!id) {
+      managedClientSelectionRef.current = null;
+      setActiveOrgIdState(null);
+      localStorage.removeItem(ACTIVE_ORG_KEY);
+      setAgencyClients([]);
+      setManagingAgencyOrgId(null);
+      localStorage.removeItem(MANAGING_AGENCY_KEY);
+      return;
+    }
+
+    const directOrg = organizations.find((org) => org.id === id);
+    if (directOrg) {
+      activateDirectOrg(directOrg, true);
+      return;
+    }
+
+    const managedClient = agencyClients.find((client) => client.id === id);
+    if (managedClient) {
+      managedClientSelectionRef.current = managedClient.id;
+      activateManagedClient(managedClient);
+      return;
+    }
+
+    const recordedAgency = managingAgencyOrgId
+      ? organizations.find((org) => org.id === managingAgencyOrgId && org.type === "agency")
+      : null;
+    if (recordedAgency) {
+      activateDirectOrg(recordedAgency, true);
+    } else {
+      managedClientSelectionRef.current = null;
+      setActiveOrgIdState(null);
+      localStorage.removeItem(ACTIVE_ORG_KEY);
+    }
   };
 
   const fetchUserOrganizations = async (userId: string, preferredRole?: UserRole | null) => {
@@ -193,40 +276,107 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return [];
     }
 
-    const orgs = data.map((m: any) => ({
+    const orgs: Organization[] = (data || []).map((m: any) => ({
       ...m.organizations,
-      user_role: m.role
+      user_role: m.role,
     }));
-
     setOrganizations(orgs);
 
-    const savedOrgId = localStorage.getItem("promorang_active_org_id");
-    const savedOrg = savedOrgId ? orgs.find((org) => org.id === savedOrgId) : null;
+    const savedOrgId = localStorage.getItem(ACTIVE_ORG_KEY);
+    const savedManagingAgencyId = localStorage.getItem(MANAGING_AGENCY_KEY);
+    const directSavedOrg = savedOrgId ? orgs.find((org) => org.id === savedOrgId) : null;
+    const agencyOrgs = orgs.filter((org) => org.type === "agency");
     const effectiveRole = preferredRole || resolvePreferredRole(roles);
     const desiredOrgType = effectiveRole ? roleToOrgType[effectiveRole] : null;
+
+    if (directSavedOrg) {
+      if (desiredOrgType && directSavedOrg.type !== desiredOrgType) {
+        const matchingDirect = orgs.find((org) => org.type === desiredOrgType);
+        if (matchingDirect) activateDirectOrg(matchingDirect, true);
+        else activateDirectOrg(directSavedOrg, false);
+      } else {
+        activateDirectOrg(directSavedOrg, Boolean(desiredOrgType));
+      }
+      return orgs;
+    }
+
+    if (savedOrgId) {
+      const preferredAgency = savedManagingAgencyId
+        ? agencyOrgs.find((org) => org.id === savedManagingAgencyId)
+        : null;
+
+      if (preferredAgency) {
+        const clients = await loadAgencyClients(preferredAgency.id);
+        const savedClient = clients.find((client) => client.id === savedOrgId);
+        if (savedClient) {
+          setAgencyClients(clients);
+          activateManagedClient(savedClient);
+          return orgs;
+        }
+
+        setAgencyClients(clients);
+        activateDirectOrg(preferredAgency, true);
+        return orgs;
+      }
+
+      const matches: Array<{ agency: Organization; clients: AgencyClient[]; client: AgencyClient }> = [];
+      for (const agency of agencyOrgs) {
+        const clients = await loadAgencyClients(agency.id);
+        const client = clients.find((candidate) => candidate.id === savedOrgId);
+        if (client) matches.push({ agency, clients, client });
+      }
+
+      if (matches.length === 1) {
+        setAgencyClients(matches[0].clients);
+        activateManagedClient(matches[0].client);
+        return orgs;
+      }
+
+      if (agencyOrgs.length > 0) {
+        if (agencyOrgs.length === 1) {
+          activateDirectOrg(agencyOrgs[0], true);
+        } else {
+          managedClientSelectionRef.current = null;
+          setActiveRoleState("agency");
+          localStorage.setItem(ACTIVE_ROLE_KEY, "agency");
+          setActiveOrgIdState(null);
+          localStorage.removeItem(ACTIVE_ORG_KEY);
+          setAgencyClients([]);
+          setManagingAgencyOrgId(null);
+          localStorage.removeItem(MANAGING_AGENCY_KEY);
+        }
+        return orgs;
+      }
+    }
+
+    if (desiredOrgType === "agency") {
+      if (agencyOrgs.length === 1) {
+        activateDirectOrg(agencyOrgs[0], true);
+      } else if (agencyOrgs.length > 1) {
+        managedClientSelectionRef.current = null;
+        setActiveRoleState("agency");
+        localStorage.setItem(ACTIVE_ROLE_KEY, "agency");
+        setActiveOrgIdState(null);
+        localStorage.removeItem(ACTIVE_ORG_KEY);
+        setAgencyClients([]);
+      }
+      return orgs;
+    }
+
     const matchingOrg = desiredOrgType
       ? orgs.find((org) => org.type === desiredOrgType)
       : null;
-
-    const nextActiveOrg =
-      (savedOrg && (!desiredOrgType || savedOrg.type === desiredOrgType) ? savedOrg : null) ||
-      matchingOrg ||
-      savedOrg ||
-      orgs[0] ||
-      null;
+    const nextActiveOrg = matchingOrg || orgs[0] || null;
 
     if (nextActiveOrg) {
-      setActiveOrgIdState(nextActiveOrg.id);
-      localStorage.setItem("promorang_active_org_id", nextActiveOrg.id);
-      if (nextActiveOrg.type === 'agency') {
-        fetchAgencyClients(nextActiveOrg.id);
-      } else {
-        setAgencyClients([]);
-      }
+      activateDirectOrg(nextActiveOrg, Boolean(desiredOrgType));
     } else {
+      managedClientSelectionRef.current = null;
       setActiveOrgIdState(null);
-      localStorage.removeItem("promorang_active_org_id");
+      localStorage.removeItem(ACTIVE_ORG_KEY);
       setAgencyClients([]);
+      setManagingAgencyOrgId(null);
+      localStorage.removeItem(MANAGING_AGENCY_KEY);
     }
 
     return orgs;
@@ -234,15 +384,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshWorkspaceContext = async () => {
     if (!user) return;
-
     const preferredRole = activeRole || resolvePreferredRole(roles);
-    const refreshedOrganizations = await fetchUserOrganizations(user.id, preferredRole);
-
-    const effectiveOrgId = localStorage.getItem("promorang_active_org_id") || activeOrgId;
-    const currentOrg = refreshedOrganizations.find((org) => org.id === effectiveOrgId);
-    if (currentOrg?.type === "agency" && effectiveOrgId) {
-      await fetchAgencyClients(effectiveOrgId);
-    }
+    await fetchUserOrganizations(user.id, preferredRole);
   };
 
   const fetchUserProfile = async (sessionUser: User) => {
@@ -297,18 +440,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase.from("moments").select("id", { count: "exact", head: true }).eq("host_id", userId),
       ]);
 
-      if (error) {
-        console.warn(`[AuthContext] Get user roles failed:`, error.message);
-      }
-      if (hostedMomentError) {
-        console.warn(`[AuthContext] Host role inference failed:`, hostedMomentError.message);
-      }
+      if (error) console.warn("[AuthContext] Get user roles failed:", error.message);
+      if (hostedMomentError) console.warn("[AuthContext] Host role inference failed:", hostedMomentError.message);
 
       const inferredRole = mapRole(
         (sessionUser?.user_metadata as any)?.role ||
         (sessionUser?.user_metadata as any)?.user_type ||
         (sessionUser?.app_metadata as any)?.role ||
-        ""
+        "",
       );
 
       const rawRoles = (data || [])
@@ -318,48 +457,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (
         isFullOperatorIdentity({
           rawRoles,
-          metadataRole:
-            String((sessionUser?.app_metadata as any)?.role || (sessionUser?.user_metadata as any)?.role || ""),
+          metadataRole: String((sessionUser?.app_metadata as any)?.role || (sessionUser?.user_metadata as any)?.role || ""),
           email: sessionUser?.email,
         })
       ) {
         return MASTER_ADMIN_WORKSPACE_ROLES;
       }
 
-      // Map roles and filter out duplicates
-      const mappedRoles = rawRoles.map((role) => mapRole(role));
-      const uniqueRoles = Array.from(new Set(mappedRoles));
-
-      if (inferredRole && !uniqueRoles.includes(inferredRole)) {
-        uniqueRoles.push(inferredRole);
-      }
-
-      // Ownership is authoritative capability evidence. A user who owns a real
-      // Moment must be able to enter the Host workspace even if a legacy role
-      // grant was never written when that Moment was created.
-      if ((hostedMomentCount || 0) > 0 && !uniqueRoles.includes("host")) {
-        uniqueRoles.push("host");
-      }
-
-      // CORE RULE: Every user is at least a participant.
-      if (!uniqueRoles.includes('participant')) {
-        uniqueRoles.push('participant');
-      }
+      const uniqueRoles = Array.from(new Set(rawRoles.map((role) => mapRole(role))));
+      if (inferredRole && !uniqueRoles.includes(inferredRole)) uniqueRoles.push(inferredRole);
+      if ((hostedMomentCount || 0) > 0 && !uniqueRoles.includes("host")) uniqueRoles.push("host");
+      if (!uniqueRoles.includes("participant")) uniqueRoles.push("participant");
 
       const intendedRole = readIntendedStakeholderRole(typeof sessionStorage === "undefined" ? null : sessionStorage);
       if (intendedRole && intendedRole !== "admin" && !uniqueRoles.includes(intendedRole as UserRole)) {
         uniqueRoles.push(intendedRole as UserRole);
       }
-      
+
       return uniqueRoles;
     } catch (e) {
-      console.error(`[AuthContext] Exception in fetchUserRoles:`, e);
-      return ['participant'];
+      console.error("[AuthContext] Exception in fetchUserRoles:", e);
+      return ["participant"];
     }
   };
 
-  // The auth listener should be registered once; the inner sync function reads
-  // the current session user and explicitly reconciles role + org state.
   useEffect(() => {
     const syncSessionContext = async (sessionUser: User, event?: string) => {
       const [fetchedRoles] = await Promise.all([
@@ -368,9 +489,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ]);
 
       setRoles(fetchedRoles);
-      // Fresh login: operators land in admin unless they asked for a consumer
-      // destination such as Get PromoCard → /card. Page refresh still honors
-      // an explicit role switch.
       const consumerNext = isConsumerPostAuthNext(
         sessionStorage.getItem("promorang_post_auth_next") || localStorage.getItem("promorang_post_auth_next"),
       );
@@ -378,47 +496,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         event === "SIGNED_IN" && fetchedRoles.includes("admin") && !consumerNext
           ? "admin"
           : resolvePreferredRole(fetchedRoles);
+
       if (preferredRole) {
         setActiveRoleState(preferredRole);
-        localStorage.setItem("promorang_active_role", preferredRole);
+        localStorage.setItem(ACTIVE_ROLE_KEY, preferredRole);
       }
       await fetchUserOrganizations(sessionUser.id, preferredRole);
     };
 
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
 
-        // Defer role fetching with setTimeout
-        if (session?.user) {
-          setTimeout(() => {
-            syncSessionContext(session.user, event).catch((error) => {
-              console.error("[AuthContext] Failed to sync session context:", error);
-            });
-          }, 0);
-        } else {
-          setRoles([]);
-          setOrganizations([]);
-          setActiveOrgIdState(null);
-          setProfile(null);
-        }
+      if (nextSession?.user) {
+        setTimeout(() => {
+          syncSessionContext(nextSession.user, event).catch((error) => {
+            console.error("[AuthContext] Failed to sync session context:", error);
+          });
+        }, 0);
+      } else {
+        managedClientSelectionRef.current = null;
+        setRoles([]);
+        setOrganizations([]);
+        setActiveOrgIdState(null);
+        setAgencyClients([]);
+        setManagingAgencyOrgId(null);
+        setProfile(null);
       }
-    );
+    });
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      setUser(existingSession?.user ?? null);
 
-      if (session?.user) {
-        syncSessionContext(session.user).then(() => {
-          setLoading(false);
-        }).catch((error) => {
-          console.error("[AuthContext] Failed to hydrate session context:", error);
-          setLoading(false);
-        });
+      if (existingSession?.user) {
+        syncSessionContext(existingSession.user)
+          .then(() => setLoading(false))
+          .catch((error) => {
+            console.error("[AuthContext] Failed to hydrate session context:", error);
+            setLoading(false);
+          });
       } else {
         setLoading(false);
       }
@@ -448,21 +565,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    if (error) {
-      return { error };
-    }
+    if (error) return { error };
 
-    // Add role after signup
     if (data.user) {
       const { error: roleError } = await supabase
         .from("user_roles")
         .insert({ user_id: data.user.id, role: role as any });
+      if (roleError) console.error("Error adding role:", roleError);
 
-      if (roleError) {
-        console.error("Error adding role:", roleError);
-      }
-
-      localStorage.setItem("promorang_active_role", role);
+      localStorage.setItem(ACTIVE_ROLE_KEY, role);
       setActiveRoleState(role);
 
       fetch(`${import.meta.env.VITE_API_URL || "https://api.promorang.co"}/api/email/welcome`, {
@@ -484,17 +595,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     clearDemoSession();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    managedClientSelectionRef.current = null;
     setRoles([]);
+    setOrganizations([]);
+    setAgencyClients([]);
+    setManagingAgencyOrgId(null);
+    setActiveRoleState(null);
+    setActiveOrgIdState(null);
+    localStorage.removeItem(ACTIVE_ROLE_KEY);
+    localStorage.removeItem(ACTIVE_ORG_KEY);
+    localStorage.removeItem(MANAGING_AGENCY_KEY);
     clearDemoSession();
   };
 
@@ -506,9 +622,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const prepResponse = await fetch(`${apiBaseUrl}/auth/demo/${role}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          demo_email: normalizedDemoRecipient,
-        }),
+        body: JSON.stringify({ demo_email: normalizedDemoRecipient }),
       });
 
       const prepPayload = await prepResponse.json().catch(() => null);
@@ -518,37 +632,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const targetEmail = prepPayload?.email;
       const targetPassword = prepPayload?.password;
-      if (!targetEmail || !targetPassword) {
-        throw new Error("Demo account response was missing credentials");
-      }
+      if (!targetEmail || !targetPassword) throw new Error("Demo account response was missing credentials");
 
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: targetEmail,
         password: targetPassword,
       });
-
       if (signInError) throw signInError;
 
-      // Store the visitor email used for demo email simulations.
       if (normalizedDemoRecipient) {
         const { data: authUser } = await supabase.auth.getUser();
         if (authUser.user?.id) {
-          const { error: updateError } = await supabase
+          const { error: updateError } = await (supabase as any)
             .from("users")
             .update({ demo_email_recipient: normalizedDemoRecipient })
             .eq("id", authUser.user.id);
-
           if (updateError) {
             console.warn("[AuthContext] Failed to store demo email recipient:", updateError.message);
           }
         }
-
         localStorage.setItem("promorang_demo_email_recipient", normalizedDemoRecipient);
       } else {
         localStorage.removeItem("promorang_demo_email_recipient");
       }
 
-      // Success
       if (normalizedDemoRecipient) {
         writeDemoSession({
           role: role as DemoRole,
@@ -557,7 +664,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           source: "auth-demo",
         });
       }
-      localStorage.setItem("promorang_active_role", role);
+      localStorage.setItem(ACTIVE_ROLE_KEY, role);
       setActiveRole(role);
       return { error: null };
     } catch (err: any) {
@@ -623,6 +730,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         demoSignIn,
         organizations,
         activeOrgId,
+        managingAgencyOrgId,
         setActiveOrgId,
         agencyClients,
         profile,
@@ -636,8 +744,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 }

@@ -28,7 +28,7 @@ export default function TodayScreen() {
   const data = home.data;
   const name = data?.name || user?.user_metadata?.full_name?.split(' ')[0] || 'You';
   const cardView = presentPromoCard(data?.card, name);
-  const role = data?.role || (['creator', 'host', 'promoter', 'merchant', 'brand'].includes(String(activeRole)) ? 'contributor' : 'member');
+  const role = data?.role || (['creator', 'host', 'promoter', 'merchant', 'brand', 'agency'].includes(String(activeRole)) ? 'contributor' : 'member');
   const communityName = data?.communities?.[0]?.title || name;
   const currentMove = getCurrentMove({
     hasDiscovered: Boolean(data?.communities?.length || data?.opportunityItems?.length),
@@ -276,7 +276,7 @@ export default function TodayScreen() {
 
         {role !== 'member' ? (
           <Pressable onPress={() => router.push('/dashboard')}>
-            <Text style={styles.studioLink}>Open the older studio tools</Text>
+            <Text style={styles.studioLink}>Open role workspace</Text>
           </Pressable>
         ) : null}
         <View style={{ height: 120 }} />

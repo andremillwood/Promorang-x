@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Award, Coins, Film, Link2, Target, Vote } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
@@ -10,23 +9,19 @@ import CreatorAttributionMap from "@/components/creator/CreatorAttributionMap";
 import CreatorEarningsVault from "@/components/creator/CreatorEarningsVault";
 import CreatorReputationDeck from "@/components/creator/CreatorReputationDeck";
 
+const CREATOR_TABS = new Set(["demand", "missions", "studio", "attribution", "earnings", "reputation"]);
+
 export function CreatorDashboardV2() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "missions";
-  const [activeTab, setActiveTab] = useState(defaultTab);
-
-  useEffect(() => {
-    const requestedTab = searchParams.get("tab");
-    if (requestedTab) setActiveTab(requestedTab);
-  }, [searchParams]);
+  const requestedTab = searchParams.get("tab");
+  const activeTab = requestedTab && CREATOR_TABS.has(requestedTab) ? requestedTab : "missions";
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-      next.set("tab", value);
-      return next;
-    });
+    if (!CREATOR_TABS.has(value)) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("view", "studio");
+    next.set("tab", value);
+    setSearchParams(next);
   };
 
   const tabs = [

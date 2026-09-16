@@ -16,7 +16,7 @@ import {
   Store,
   TrendingUp,
 } from "lucide-react";
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
@@ -34,6 +34,8 @@ const roleTone = {
   },
 } as const;
 
+const AGENCY_TABS = new Set(["clients", "activations", "impact"]);
+
 type ClientCampaign = {
   id: string;
   title: string;
@@ -45,7 +47,17 @@ type ClientCampaign = {
 
 const AgencyDashboard = () => {
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState("clients");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab = requestedTab && AGENCY_TABS.has(requestedTab) ? requestedTab : "clients";
+  const setActiveTab = (tab: string) => {
+    if (!AGENCY_TABS.has(tab)) return;
+    const next = new URLSearchParams(searchParams);
+    next.set("view", "studio");
+    next.set("tab", tab);
+    setSearchParams(next);
+  };
+
   const { agencyClients, organizations, activeOrgId, setActiveOrgId, setActiveRole, refreshWorkspaceContext } = useAuth();
   const { toast } = useToast();
   const activeOrg = organizations.find((org) => org.id === activeOrgId);
@@ -152,34 +164,34 @@ const AgencyDashboard = () => {
 
       <div className={`${activeTab === "activations" ? "scroll-mt-28" : "hidden"} grid gap-6`}>
         <div className="min-w-0">
-      <RoleActivationPanel
-        eyebrow="Agency Today"
-        title="Prove one client outcome end to end."
-        description="Agencies win when they make the first managed result undeniable: add a client account, launch a campaign, then show the attributed movement back to that client."
-        items={[
-          {
-            title: "Add first client",
-            description: "Connect the first brand or venue account you will manage.",
-            status: agencyClients.length > 0 ? "done" : "current",
-            ctaLabel: "Add client",
-            onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }),
-          },
-          {
-            title: "Launch first activation",
-            description: "Open the client account first so ownership, budget, and results stay attached to the correct workspace.",
-            status: "todo",
-            onClick: () => setActiveTab("clients"),
-            ctaLabel: "Choose client",
-          },
-          {
-            title: "Export first result",
-            description: "Use the impact layer as the proof artifact for your client relationship.",
-            status: "todo",
-            href: "#agency-impact",
-            ctaLabel: "Review impact",
-          },
-        ]}
-      />
+          <RoleActivationPanel
+            eyebrow="Agency Today"
+            title="Prove one client outcome end to end."
+            description="Agencies win when they make the first managed result undeniable: add a client account, launch a campaign, then show the attributed movement back to that client."
+            items={[
+              {
+                title: "Add first client",
+                description: "Connect the first brand or venue account you will manage.",
+                status: agencyClients.length > 0 ? "done" : "current",
+                ctaLabel: "Add client",
+                onClick: () => setActiveTab("clients"),
+              },
+              {
+                title: "Launch first activation",
+                description: "Open the client account first so ownership, budget, and results stay attached to the correct workspace.",
+                status: clientCampaigns.length > 0 ? "done" : agencyClients.length > 0 ? "current" : "todo",
+                onClick: () => setActiveTab("clients"),
+                ctaLabel: "Choose client",
+              },
+              {
+                title: "Export first result",
+                description: "Use the impact layer as the proof artifact for your client relationship.",
+                status: provenClientCampaigns.length > 0 ? "done" : clientCampaigns.length > 0 ? "current" : "todo",
+                onClick: () => setActiveTab("impact"),
+                ctaLabel: "Review impact",
+              },
+            ]}
+          />
         </div>
       </div>
 
@@ -273,7 +285,6 @@ const AgencyDashboard = () => {
             )}
           </div>
         </div>
-
       </div>
 
       <div id="agency-impact" className={activeTab === "impact" ? "scroll-mt-28" : "hidden"}>

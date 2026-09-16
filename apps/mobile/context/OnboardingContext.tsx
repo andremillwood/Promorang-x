@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 import { useAuth } from '@/context/AuthContext';
+import { apiRequest } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 
 type OnboardingContextValue = {
@@ -30,19 +31,26 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     setLoading(true);
     try {
       const localComplete = await AsyncStorage.getItem(storageKey(user.id));
-      if (localComplete === 'true') setCompleted(true);
-
       const { data, error } = await supabase
-        .from('user_preferences')
-        .select('preferred_categories')
-        .eq('user_id', user.id)
+        .from('users')
+        .select('onboarding_completed')
+        .eq('id', user.id)
         .maybeSingle();
 
       if (!error) {
-        const serverComplete = Boolean(data?.preferred_categories?.length);
+        const serverComplete = Boolean(data?.onboarding_completed);
         setCompleted(serverComplete);
-        if (serverComplete) await AsyncStorage.setItem(storageKey(user.id), 'true');
+        if (serverComplete) {
+          await AsyncStorage.setItem(storageKey(user.id), 'true');
+        } else {
+          await AsyncStorage.removeItem(storageKey(user.id));
+        }
+        return;
       }
+
+      // The device cache is only an offline/error fallback. It never overrides
+      // an authoritative server response when the account state is reachable.
+      setCompleted(localComplete === 'true');
     } finally {
       setLoading(false);
     }
@@ -53,7 +61,14 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   }, [refresh]);
 
   const markCompleted = useCallback(async () => {
-    if (user) await AsyncStorage.setItem(storageKey(user.id), 'true');
+    if (!user) return;
+
+    await apiRequest<{ success: boolean }>('/api/users/onboarding/complete', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+
+    await AsyncStorage.setItem(storageKey(user.id), 'true');
     setCompleted(true);
     setLoading(false);
   }, [user]);

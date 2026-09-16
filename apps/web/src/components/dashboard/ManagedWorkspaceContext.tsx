@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export function ManagedWorkspaceContext() {
   const {
     activeOrgId,
+    managingAgencyOrgId,
     organizations,
     agencyClients,
     setActiveOrgId,
@@ -12,7 +13,9 @@ export function ManagedWorkspaceContext() {
   } = useAuth();
 
   const activeClient = agencyClients.find((client) => client.id === activeOrgId);
-  const managingAgency = organizations.find((organization) => organization.type === "agency");
+  const managingAgency = managingAgencyOrgId
+    ? organizations.find((organization) => organization.id === managingAgencyOrgId && organization.type === "agency")
+    : null;
 
   if (!activeClient || !managingAgency || activeClient.id === managingAgency.id) return null;
 
