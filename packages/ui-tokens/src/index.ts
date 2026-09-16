@@ -59,10 +59,14 @@ export const promorangPrimitives = {
     paper300: '#D8C8AA',
     signal500: '#FF5500',
     signal400: '#FF7A33',
+    ochre: '#FF6A00',
+    clay: '#7A2E17',
+    sand: '#EADCC6',
+    gold: '#F6C453',
     amber: '#F6D48A',
     violet: '#B5A2FF',
-    cyan: '#64D8E8',
-    green: '#70D7A0',
+    cyan: '#4CC6F0',
+    green: '#22C55E',
     white: '#FFFFFF'
   },
   space: {
@@ -102,7 +106,8 @@ export const promorangSemantic = {
     canvas: promorangPrimitives.color.ink950,
     raised: promorangPrimitives.color.ink800,
     soft: promorangPrimitives.color.ink900,
-    objectPaper: promorangPrimitives.color.paper100
+    objectPaper: promorangPrimitives.color.paper100,
+    earth: promorangPrimitives.color.clay
   },
   text: {
     primary: promorangPrimitives.color.white,
@@ -111,20 +116,24 @@ export const promorangSemantic = {
     onPaper: '#1A120C'
   },
   action: {
-    primary: promorangPrimitives.color.signal500,
+    primary: promorangPrimitives.color.ochre,
     primaryText: '#050505',
     secondary: 'rgba(255,255,255,0.08)'
   },
   signal: {
     live: promorangPrimitives.color.green,
-    reward: promorangPrimitives.color.amber,
+    reward: promorangPrimitives.color.gold,
     collectible: promorangPrimitives.color.violet,
-    info: promorangPrimitives.color.cyan
+    info: promorangPrimitives.color.cyan,
+    movement: promorangPrimitives.color.ochre,
+    warmth: promorangPrimitives.color.clay,
+    proof: promorangPrimitives.color.sand
   },
   border: {
     quiet: 'rgba(255,255,255,0.10)',
-    active: 'rgba(255,85,0,0.40)',
-    paper: 'rgba(26,18,12,0.14)'
+    active: 'rgba(255,106,0,0.40)',
+    paper: 'rgba(26,18,12,0.14)',
+    object: 'rgba(246,196,83,0.34)'
   },
   layout: {
     pageGutter: promorangPrimitives.space[20],
@@ -135,6 +144,31 @@ export const promorangSemantic = {
     object: promorangPrimitives.radius[24],
     card: promorangPrimitives.radius[20],
     control: 999
+  }
+} as const;
+
+/**
+ * PROMORANG brand grammar is behavioral, not decorative.
+ * Marks may be rendered with the closest available iconography until custom
+ * brand assets are finalized; these meanings must remain stable.
+ */
+export const promorangBrandGrammar = {
+  thesis: 'movement-that-returns-with-value',
+  marks: {
+    move: 'opportunity-enters-path',
+    explore: 'discover-cross-act',
+    return: 'value-comes-back',
+    proof: 'verified-what-happened',
+    kept: 'retained-value-or-meaning'
+  },
+  palette: {
+    obsidian: promorangPrimitives.color.ink950,
+    clay: promorangPrimitives.color.clay,
+    ochre: promorangPrimitives.color.ochre,
+    sand: promorangPrimitives.color.sand,
+    gold: promorangPrimitives.color.gold,
+    water: promorangPrimitives.color.cyan,
+    leaf: promorangPrimitives.color.green
   }
 } as const;
 
@@ -167,7 +201,8 @@ export const promorangDesignLaws = [
   'one-move',
   'objects-over-cards',
   'world-over-dashboard',
-  'utility-is-quiet'
+  'utility-is-quiet',
+  'movement-returns-with-value'
 ] as const;
 
 export type PromorangDesignLaw = (typeof promorangDesignLaws)[number];
