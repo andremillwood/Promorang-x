@@ -205,9 +205,38 @@ Roles:
 - Agency
 - Admin
 
+## Living-object rule
+
+Canonical objects should not remain visually static while their real-world state changes.
+
+For participant-facing objects especially, the same canonical object should transform as meaningful boundaries are crossed. A Moment can move through:
+
+`Before → Ready → Arriving → Attended → Kept`
+
+Those are not five separate product concepts. They are five expressions of the same Moment.
+
+The interface may change:
+- dominant media;
+- CTA;
+- attached Pass/PromoKey/Receipt/Piece;
+- proof and retained residue;
+- emphasis;
+- motion;
+- material treatment.
+
+But it must not silently rewrite identity or confirmed history.
+
+> **State should transform the object, not replace it with another dashboard.**
+
+The same principle will later apply to PromoKeys, Offers, Opportunities, Proof and Pieces.
+
 ## Participant requirement
 
 Participant Next remains a primary quality and personality reference. Shared objects must preserve the participant's tangible object language—tickets, receipts, keys, Pieces, access, world context, semantic marks—while receiving complementary operator views rather than unrelated dashboard representations.
+
+Participant language should translate canonical truth into human consequences rather than teach internal architecture. For example, `RSVP intent ≠ attendance` remains a system truth, while the participant can simply be told:
+
+> **Your pass gets you to the door. You become attended when you arrive.**
 
 ## Operator requirement
 
@@ -236,6 +265,12 @@ The atlas provides:
 - role lens
 - cross-role contract
 - shape grammar review
+
+Participant Moment convergence is reviewed at:
+
+`/participant-next.html#/moment/aftrhrs`
+
+The Moment review includes a review-only state switcher for `Before / Ready / Arriving / Attended / Kept` so the living-object transformation can be judged directly. Production should derive these states from real records rather than expose the switcher.
 
 This is an illustrative design benchmark. It does not claim that every underlying production object or transition is already fully implemented.
 
