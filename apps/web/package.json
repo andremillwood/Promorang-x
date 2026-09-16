@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:design": "vite --open /design-lab.html",
+    "dev:participant": "vite --open /participant-next.html#/today",
     "build": "vite build && node scripts/generate-public-seo.mjs",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
