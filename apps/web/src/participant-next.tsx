@@ -13,6 +13,7 @@ import ParticipantExperienceV1 from "@/pages/participant/ParticipantExperienceV1
 import ParticipantCompleteReviewV2 from "@/pages/participant/ParticipantCompleteReviewV2";
 import ParticipantMomentReview from "@/pages/participant/ParticipantMomentReview";
 import ParticipantCommercialChainReview from "@/pages/participant/ParticipantCommercialChainReview";
+import ParticipantProofReceiptReview from "@/pages/participant/ParticipantProofReceiptReview";
 import "./index.css";
 import "./participant-next.css";
 import "./participant-moment-polish.css";
@@ -71,7 +72,7 @@ function LiveGate() {
 }
 
 function ReviewRoutes() {
-  return <Routes><Route path="/moment/:slug" element={<ParticipantMomentReview />} /><Route path="/commercial/:slug" element={<ParticipantCommercialChainReview />} /><Route path="/*" element={<ParticipantCompleteReviewV2 />} /></Routes>;
+  return <Routes><Route path="/moment/:slug" element={<ParticipantMomentReview />} /><Route path="/commercial/:slug" element={<ParticipantCommercialChainReview />} /><Route path="/proof/:slug" element={<ParticipantProofReceiptReview />} /><Route path="/*" element={<ParticipantCompleteReviewV2 />} /></Routes>;
 }
 
 function DesktopReviewNav() {
