@@ -3,9 +3,15 @@ import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import StakeholderNextV2 from "@/pages/stakeholder-next/StakeholderNextV2";
 import "./index.css";
+import "./stakeholder-next-v2-fixes.css";
 
 const rootElement = document.getElementById("stakeholder-next-root");
 if (!rootElement) throw new Error("Missing #stakeholder-next-root");
+
+const bareRole = window.location.hash.replace(/^#\/?/, "");
+if (["creator", "host", "merchant", "brand", "agency", "admin"].includes(bareRole)) {
+  window.location.hash = `#/${bareRole}/today`;
+}
 
 const root = ReactDOM.createRoot(rootElement);
 
