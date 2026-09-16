@@ -4,8 +4,7 @@ import { Award, Coins, Film, Link2, Target, Vote } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import CreatorStudioConsole from "@/components/creator/CreatorStudioConsole";
-import CreatorMissionsHub from "@/components/creator/CreatorMissionsHub";
+import CreatorReleaseWorkspaceBridge from "@/components/creator/CreatorReleaseWorkspaceBridge";
 import CreatorAttributionMap from "@/components/creator/CreatorAttributionMap";
 import CreatorEarningsVault from "@/components/creator/CreatorEarningsVault";
 import CreatorReputationDeck from "@/components/creator/CreatorReputationDeck";
@@ -31,8 +30,8 @@ export function CreatorDashboardV2() {
 
   const tabs = [
     { id: "demand", label: "Audience demand", hint: "What people are asking for", icon: Vote, count: "Listen" },
-    { id: "missions", label: "Opportunities", hint: "Work worth taking", icon: Target, count: "Choose" },
-    { id: "studio", label: "Create & submit", hint: "Your content and deliverables", icon: Film, count: "Create" },
+    { id: "missions", label: "Opportunities", hint: "Real release work", icon: Target, count: "Choose" },
+    { id: "studio", label: "Create & submit", hint: "Publish through the release workspace", icon: Film, count: "Create" },
     { id: "attribution", label: "Attributed actions", hint: "What your work caused", icon: Link2, count: "Prove" },
     { id: "earnings", label: "Earnings", hint: "Approved rewards and value", icon: Coins, count: "Review" },
     { id: "reputation", label: "Reputation", hint: "What your proven work unlocks", icon: Award, count: "Build" },
@@ -42,9 +41,9 @@ export function CreatorDashboardV2() {
     <div className="space-y-6 pb-16 text-white animate-in fade-in-50 duration-300">
       <section className="rounded-3xl border border-purple-500/20 bg-purple-950/15 p-5 sm:p-6">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300">Creator tools</p>
-        <h2 className="mt-2 text-2xl font-black text-white">Choose useful work, cause an action, prove the result.</h2>
+        <h2 className="mt-2 text-2xl font-black text-white">Choose useful work, publish through the real workspace, prove the result.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-          Promorang should help you earn because your creative work or distribution produced something verifiable — not because you learned a complicated creator dashboard. Start with the opportunity, then use the tools only when they are relevant.
+          PROMORANG should help you find real work and operate it clearly. The primary Creator path now uses live release records instead of sample bounty and portfolio data.
         </p>
       </section>
 
@@ -88,8 +87,8 @@ export function CreatorDashboardV2() {
           <TabsTrigger value="reputation">Reputation</TabsTrigger>
         </TabsList>
         <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="creator" /></TabsContent>
-        <TabsContent value="missions" className="mt-0"><CreatorMissionsHub /></TabsContent>
-        <TabsContent value="studio" className="mt-0"><CreatorStudioConsole /></TabsContent>
+        <TabsContent value="missions" className="mt-0"><CreatorReleaseWorkspaceBridge mode="work" /></TabsContent>
+        <TabsContent value="studio" className="mt-0"><CreatorReleaseWorkspaceBridge mode="create" /></TabsContent>
         <TabsContent value="attribution" className="mt-0"><CreatorAttributionMap /></TabsContent>
         <TabsContent value="earnings" className="mt-0"><CreatorEarningsVault /></TabsContent>
         <TabsContent value="reputation" className="mt-0"><CreatorReputationDeck /></TabsContent>
