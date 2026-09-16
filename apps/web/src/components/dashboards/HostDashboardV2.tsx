@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
 import HostMomentsStagingConsole from "@/components/host/HostMomentsStagingConsole";
-import HostLivePulseConsole from "@/components/host/HostLivePulseConsole";
+import HostDoorBoardLauncher from "@/components/host/HostDoorBoardLauncher";
 import HostProofReviewConsole from "@/components/host/HostProofReviewConsole";
 import HostSponsorshipConsole from "@/components/host/HostSponsorshipConsole";
 import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
@@ -42,7 +42,7 @@ export function HostDashboardV2() {
       icon: Calendar,
       count: momentsLoading ? "Checking" : `${momentCount} ${momentCount === 1 ? "Moment" : "Moments"}`,
     },
-    { id: "pulse", label: "Live arrivals", hint: "What is happening now", icon: Radio, count: "Operate" },
+    { id: "pulse", label: "Live arrivals", hint: "Open the Door Board", icon: Radio, count: "Operate" },
     { id: "review", label: "Proof review", hint: "Verify participation", icon: ShieldCheck, count: "Review" },
     { id: "sponsorships", label: "Sponsors", hint: "Brand support for Moments", icon: Handshake, count: "Manage" },
     { id: "impact", label: "Results", hint: "Attendance and return", icon: BarChart3, count: "Learn" },
@@ -56,7 +56,7 @@ export function HostDashboardV2() {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Host tools</p>
             <h2 className="mt-2 text-2xl font-black text-white">Fill it. Run it. Prove who came.</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-              Use these tools after choosing the current move above. Build a Moment, bring the right people in, verify participation, then use the evidence to improve the next one.
+              Build a Moment, bring the right people in, operate arrivals from the real Door Board, verify participation, then use the evidence to improve the next one.
             </p>
           </div>
           <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
@@ -109,7 +109,7 @@ export function HostDashboardV2() {
         </TabsList>
         <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="host" /></TabsContent>
         <TabsContent value="moments" className="mt-0"><HostMomentsStagingConsole /></TabsContent>
-        <TabsContent value="pulse" className="mt-0"><HostLivePulseConsole /></TabsContent>
+        <TabsContent value="pulse" className="mt-0"><HostDoorBoardLauncher /></TabsContent>
         <TabsContent value="review" className="mt-0"><HostProofReviewConsole /></TabsContent>
         <TabsContent value="sponsorships" className="mt-0"><HostSponsorshipConsole /></TabsContent>
         <TabsContent value="impact" className="mt-0"><HostImpactYieldConsole /></TabsContent>
