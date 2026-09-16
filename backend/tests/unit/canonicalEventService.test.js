@@ -1,6 +1,7 @@
 const {
   buildCanonicalEvent,
   normalizeForWrite,
+  correctionEvent,
   offerRedemptionEvent,
   proofSubmissionEvent,
   proofReviewEvent,
@@ -76,11 +77,20 @@ describe('Canonical event contract', () => {
   });
 
   test('approval and rejection remain different canonical events', () => {
-    const submission = { id: 'proof-1', moment_id: 'moment-1', user_id: 'participant-1' };
+    const submission = {
+      id: 'proof-1',
+      moment_id: 'moment-1',
+      user_id: 'participant-1',
+      proof_bundle: { source_mission_id: 'mission-1' },
+    };
     const approved = proofReviewEvent({ submission, reviewerId: 'host-1', action: 'approve', result: { submission: { submission_state: 'verified' } } });
     const rejected = proofReviewEvent({ submission, reviewerId: 'host-1', action: 'reject', result: { submission: { submission_state: 'rejected' } } });
 
-    expect(approved).toMatchObject({ event_name: 'proof.review.verified', truth_class: 'verified' });
+    expect(approved).toMatchObject({
+      event_name: 'proof.review.verified',
+      truth_class: 'verified',
+      metadata: { source_mission_id: 'mission-1' },
+    });
     expect(rejected).toMatchObject({ event_name: 'proof.review.rejected', truth_class: 'administrative' });
     expect(approved.idempotency_key).not.toBe(rejected.idempotency_key);
   });
@@ -134,5 +144,35 @@ describe('Canonical event contract', () => {
       metadata: { payment_reference_present: true },
     });
     expect(JSON.stringify(event)).not.toContain('bank-transfer-reference');
+  });
+
+  test('a correction appends lineage to the prior event instead of rewriting it', () => {
+    const prior = {
+      id: 'event-1',
+      event_name: 'offer.redemption.verified',
+      truth_class: 'verified',
+      subject_user_id: 'participant-1',
+      object_type: 'offer_issuance',
+      object_id: 'issuance-1',
+      aggregate_type: 'offer',
+      aggregate_id: 'offer-1',
+      correlation_id: 'offer:offer-1:issuance:issuance-1',
+    };
+    const correction = correctionEvent({
+      priorEvent: prior,
+      actorUserId: 'admin-1',
+      reason: 'Merchant confirmed duplicate scan caused an invalid redemption record',
+      eventName: 'offer.redemption.reversed',
+    });
+
+    expect(correction).toMatchObject({
+      event_name: 'offer.redemption.reversed',
+      truth_class: 'administrative',
+      reversal_of_event_id: 'event-1',
+      causation_event_id: 'event-1',
+      object_id: 'issuance-1',
+      actor_user_id: 'admin-1',
+    });
+    expect(prior.truth_class).toBe('verified');
   });
 });
