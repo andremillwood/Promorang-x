@@ -12,6 +12,22 @@ The chain is canonical. The interface is not.
 
 Participant, Merchant, Host, Creator, Brand, Agency and Admin must not share one generic evidence dashboard. Each role receives the artifact that matches its job, density and authority.
 
+## Production convergence status
+
+The family has moved beyond review-only expression into production adoption while preserving existing data sources and mutations.
+
+| Lens | Live production expression | Truth source / status |
+| --- | --- | --- |
+| Participant | Vault → **Kept proof** rendered as `PaperReceipt` | Authenticated `/api/vault` memories only. Demo-memory fallback removed. |
+| Merchant | `MerchantScannerStation` → **validation boundary + validation slip** | Existing `useRedeemOffer` mutation, QR/manual validation and fulfillment queue retained. |
+| Host | `HostProofReviewPanel` → **proof-close ledger** | Existing pending/history APIs, approve/reject mutation, rejection reason and audit trail retained. |
+| Creator | `CreatorProofDossier` in `CreatorDashboardV2` | Composes existing release records, attribution map and earnings ledger; no new evidence backend. |
+| Brand | Existing `BrandEvidencePack` | Already connected to authenticated O2O analytics and source-aware evidence. |
+| Agency | Existing `AgencyManagedResultPack` | Already connected to client workspaces, campaigns and recorded redemptions. |
+| Admin | `AdminAuditTab` → **forensic archive** | Reads the real master-admin audit stream. It deliberately does **not** claim a unified cross-object proof-correction ledger where none exists. |
+
+The review routes remain useful as a design comparison harness. They are not a substitute for the production components above.
+
 ## Family expressions
 
 ### Participant — receipt / kept proof
@@ -22,6 +38,12 @@ Primary artifact: `PaperReceipt`
 
 Participant does not need reviewer queues, evidence-strength taxonomies or operator controls. The receipt can record a Moment, place, Scene, arrival and separately validated benefit. It must not infer purchase, spend, fulfillment or value without those records.
 
+Production anchor:
+
+`apps/web/src/pages/Vault.tsx`
+
+The production Vault now renders kept proof only from authenticated retained-memory data. An empty retained history remains empty rather than being populated with illustrative/demo memories.
+
 Review route:
 
 `/participant-next.html#/proof/aftrhrs`
@@ -30,7 +52,7 @@ Review route:
 
 Merchant proof begins at a successful redemption/validation write.
 
-Primary artifact: narrow thermal validation slip tied to OfferIssuance and place.
+Primary artifact: narrow thermal validation slip tied to the real validation write.
 
 Truth boundary:
 
@@ -40,7 +62,7 @@ Production anchor:
 
 `apps/web/src/components/merchant/MerchantScannerStation.tsx`
 
-The existing scanner uses the real redemption mutation. The review should converge onto that capability rather than introduce a replacement validation backend.
+The scanner preserves the real redemption mutation, QR/manual validation, duplicate/error non-write behavior and separate fulfillment queue. Successful validation now resolves into a merchant-native validation slip while explicitly leaving purchase and fulfillment unresolved unless separately recorded.
 
 Review route:
 
@@ -48,7 +70,7 @@ Review route:
 
 ### Host — proof close
 
-Host sees a close ledger for submitted proof, verified arrivals, rejected claims and open exceptions.
+Host sees a close ledger for submitted proof, verified decisions, rejected claims and open exceptions.
 
 Primary artifact: run-close sheet / proof-close ledger.
 
@@ -56,7 +78,7 @@ Production anchor:
 
 `apps/web/src/components/host/HostProofReviewPanel.tsx`
 
-Existing behavior includes pending/history proof retrieval and review mutation. Approval and rejection remain explicit decisions. Rejection reasons stay in history; arrival truth is not erased by later proof decisions.
+Existing behavior remains authoritative: pending/history proof retrieval, review mutation, rejection reason and audit trail. Approval is a verification decision. Any memory, reward, Piece or queued payout created downstream remains its own state; queued is not paid.
 
 Review route:
 
@@ -72,11 +94,15 @@ Canonical stages:
 
 `OBSERVED → ATTRIBUTED → VERIFIED → VALUE`
 
-Production anchor:
+Production anchors:
 
-`apps/web/src/components/creator/CreatorReleaseWorkspaceBridge.tsx`
+- `apps/web/src/components/creator/CreatorProofDossier.tsx`
+- `apps/web/src/components/creator/CreatorReleaseWorkspaceBridge.tsx`
+- `apps/web/src/components/creator/CreatorAttributionMap.tsx`
+- `apps/web/src/components/creator/CreatorEarningsVault.tsx`
+- `apps/web/src/components/dashboards/CreatorDashboardV2.tsx`
 
-Publishing proves a release exists. It does not prove attribution, approval or settlement. An approved proof state must never be presented as paid unless a settlement record exists.
+The live dossier composes those existing capabilities rather than creating a synthetic performance model. Publishing proves a release exists. It does not prove attribution, verification, approval or settlement. Pending, approved, settled and reversed earnings remain distinct.
 
 Review route:
 
@@ -116,13 +142,21 @@ Review route:
 
 ### Admin — source / correction archive
 
-Admin needs the authoritative source record, dispute evidence and any correction to remain separately inspectable.
+Admin needs authoritative source history and corrections to remain separately inspectable.
 
-Primary artifact: forensic source file + appended correction record.
+Primary artifact: forensic archive.
 
 Canonical rule:
 
 **Corrections append. Originals remain.**
+
+Production anchors:
+
+- `apps/web/src/components/admin/AdminAuditTab.tsx`
+- `GET /api/admin/audit`
+- `public.admin_audit_log`
+
+The current production source is a real immutable administrative audit stream containing actor, action, target, reason, metadata and timestamp. Object-specific systems can retain richer review/reversal history separately. PROMORANG does not yet have one canonical cross-object correction source spanning all proof families, so the Admin artifact explicitly states that boundary instead of manufacturing parity.
 
 Review route:
 
@@ -152,20 +186,31 @@ Shared semantics must not create visual sameness.
 - Creator: layered studio dossier
 - Brand: fieldbook / evidence binder
 - Agency: client folio / recommendation insert
-- Admin: forensic archive / correction slip
+- Admin: forensic archive / correction record
 
 The persistent PROMORANG operator shell provides continuity. Artifact geometry, material, density and authority provide role personality.
 
-## Production migration sequence
+## Production adoption sequence
 
-1. Review all seven family expressions together.
-2. Preserve the canonical truth gates and approved artifact language.
-3. Migrate Merchant treatment into the real `MerchantScannerStation` and fulfillment surfaces.
-4. Migrate Host treatment into `HostProofReviewPanel` without changing its real review API semantics.
-5. Recompose Creator proof around real release/O2O/earnings data; do not revive mock Studio metrics.
-6. Refine the existing Brand `BrandEvidencePack` and Agency `AgencyManagedResultPack` rather than replacing their data sources.
-7. Connect Participant kept proof into Moment/Vault history using real receipt/proof records.
-8. Recompose Admin case/review/archive surfaces around existing source records and append-only correction truth.
+Completed or already present:
+
+1. Reviewed all seven family expressions together.
+2. Preserved the canonical truth gates and role-specific artifact language.
+3. Migrated Merchant treatment into real validation/fulfillment surfaces.
+4. Migrated Host treatment into the real proof review flow without changing API semantics.
+5. Recomposed Creator proof around real release, attribution and earnings capability.
+6. Confirmed Brand and Agency already use real evidence/result components and retained their data sources.
+7. Connected Participant kept proof to authenticated Vault history and removed illustrative fallback memories.
+8. Recomposed Admin audit history into a forensic archive while explicitly preserving the current source limitation.
+
+Remaining family-level backend/product gap:
+
+- A unified append-only correction/dispute source spanning every canonical proof family does not yet exist. Do not invent one merely for visual parity. Introduce it only when a concrete correction workflow cannot be represented by the existing authoritative sources.
+
+Next design/product family after this production slice is accepted:
+
+- Discovery + Scene market-construction convergence
+- then Piece + Vault + PromoShare + Save & Win + retained value/history
 
 ## Backend rule
 
