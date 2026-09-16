@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { I18nProvider } from "@/i18n/I18nContext";
 import StakeholderNextV6 from "@/pages/stakeholder-next/StakeholderNextV6";
 import "./index.css";
 import "./stakeholder-next-v2-fixes.css";
@@ -64,9 +66,13 @@ function renderBootError(error: unknown) {
 try {
   root.render(
     <React.StrictMode>
-      <HashRouter>
-        <StakeholderNextV6 />
-      </HashRouter>
+      <HelmetProvider>
+        <I18nProvider>
+          <HashRouter>
+            <StakeholderNextV6 />
+          </HashRouter>
+        </I18nProvider>
+      </HelmetProvider>
     </React.StrictMode>,
   );
 } catch (error) {
