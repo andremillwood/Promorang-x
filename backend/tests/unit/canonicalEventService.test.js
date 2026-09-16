@@ -1,5 +1,6 @@
 const {
   buildCanonicalEvent,
+  normalizeForWrite,
   offerRedemptionEvent,
   proofSubmissionEvent,
   proofReviewEvent,
@@ -15,6 +16,18 @@ describe('Canonical event contract', () => {
       idempotencyKey: 'test:1',
       truthClass: 'successful',
     })).toThrow('Unsupported canonical truth class');
+  });
+
+  test('accepts an already-normalized envelope for the write path', () => {
+    const built = buildCanonicalEvent({
+      eventName: 'test.event',
+      objectType: 'test',
+      objectId: '1',
+      source: 'test',
+      idempotencyKey: 'test:1',
+      truthClass: 'observed',
+    });
+    expect(normalizeForWrite(built)).toEqual(built);
   });
 
   test('maps merchant redemption to verified truth without copying the redemption code', () => {
