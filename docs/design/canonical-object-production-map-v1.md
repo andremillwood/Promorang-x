@@ -62,7 +62,7 @@ Participant should experience the Moment as a world-facing object, not as an ope
 
 Core participant journey:
 
-`DISCOVER → ACCESS / RSVP → READY → ARRIVE → PARTICIPATE → PROOF → KEPT`
+`DISCOVER → ACCESS → ARRIVE → PROVE → KEEP`
 
 The page must answer:
 1. What is happening?
@@ -74,6 +74,32 @@ The page must answer:
 7. What proof/history stays with me afterward?
 
 It should not expose Host/admin operational density.
+
+### Living Moment state contract
+
+The same participant-facing Moment must materially change as real boundaries are crossed. The review surface now exposes five illustrative states:
+
+`BEFORE → READY → ARRIVING → ATTENDED → KEPT`
+
+These are not five different pages. They are five expressions of one canonical Moment.
+
+- **Before** — atmosphere, place, Scene and access decision dominate.
+- **Ready** — the Pass and PromoKey become carried objects with distinct jobs.
+- **Arriving** — the access boundary becomes the focus; the participant is not yet treated as attended.
+- **Attended** — valid arrival can return as a human-readable receipt/proof object.
+- **Kept** — the live-event page recedes; retained history, Scene context and possible Piece/provenance become primary.
+
+The review-only state switcher exists to test this transformation. Production should derive these states from real Moment/access/arrival/proof records rather than exposing a manual switcher.
+
+### Participant language rule
+
+Canonical truth should be experienced, not taught as architecture.
+
+For example, the product rule `RSVP intent ≠ attendance` remains authoritative, but participant-facing language should explain the consequence naturally:
+
+> Your pass gets you to the door. You become attended when you arrive.
+
+Likewise, Participant should see a Pass, PromoKey, Perk, Receipt and Piece as different tangible things with different purposes rather than reading taxonomy documentation.
 
 ## Moment role lenses
 
