@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarDays, MapPin, Radio } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, Radio, Sparkles } from "lucide-react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
@@ -16,11 +16,8 @@ import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
 import {
   ConsequenceReceipt,
-  EvidencePair,
-  NextMove,
   OutcomeProgress,
   OutcomeSurface,
-  PageLead,
   PromoCardV2,
 } from "@/components/promorang-v2";
 
@@ -30,6 +27,14 @@ const money = (value: number) => {
   if (!value) return "J$0";
   return `J$${Math.round(value).toLocaleString()}`;
 };
+
+function participantHeroTitle(state: string) {
+  if (state === "ready") return "One thing on your card is ready.";
+  if (state === "nearby") return "Something nearby is worth your attention.";
+  if (state === "used") return "You showed up. Something changed.";
+  if (state === "returned") return "You came back. PROMORANG noticed.";
+  return "Your city has a next move.";
+}
 
 export default function PeopleHome() {
   const { t } = useI18n();
@@ -134,6 +139,8 @@ export default function PeopleHome() {
   });
 
   const liveMoments = momentFeed.data?.moments?.filter((moment) => moment.lifecycle !== "recently_ended").slice(0, 3) || [];
+  const readyTitle = data?.card?.useThis?.title || data?.card?.nextBenefit?.title || nextMove.label;
+  const readyIssuer = data?.card?.useThis?.issuer?.name || "PROMORANG partner";
 
   return (
     <ExperienceShell
@@ -142,36 +149,46 @@ export default function PeopleHome() {
       description={description}
       className="pr-v2-canvas"
       hero={(
-        <div className="space-y-6 py-3">
-          <PageLead
-            eyebrow="PROMORANG · Today"
-            title={greeting}
-            description={isMemberWorkspace ? "One useful move at a time. Keep what matters on your card, use it in the real world, then let PROMORANG learn from what actually worked." : description}
-          />
+        <section className="pr-v2-cinematic-hero px-5 py-7 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,.9fr)_minmax(330px,.72fr)] lg:items-center">
+            <div className="min-w-0">
+              <p className="pr-v2-kicker">PROMORANG · TODAY</p>
+              <h1 className="pr-v2-editorial-title mt-4 text-white">{isMemberWorkspace ? participantHeroTitle(cardModel.state) : greeting}</h1>
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/62">
+                {isMemberWorkspace ? "Real access, useful places and moments that actually lead somewhere." : description}
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Link to={to(nextMove.href)} className="pr-v2-focusable pr-v2-primary-cta inline-flex items-center justify-center gap-2 px-6">
+                  {cardModel.state === "ready" ? "Use this now" : nextMove.label}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+                <Link to={to("/card")} className="pr-v2-focusable inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-5 text-sm font-bold text-white/82">
+                  My PromoCard <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
 
-          <NextMove
-            title={nextMove.label}
-            description={isMemberWorkspace ? "This is the most useful next action PROMORANG can identify from what is currently on your card and around you." : description}
-            reason={isMemberWorkspace ? "Your home now prioritizes one move instead of asking you to learn the whole platform." : undefined}
-            action={
-              <Link
-                to={to(nextMove.href)}
-                className="pr-v2-focusable inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role))] px-5 text-sm font-bold text-black"
-              >
-                {nextMove.label}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <Link to={to("/card")} aria-label={t("people.openCardAria")} className="pr-v2-focusable block rounded-[var(--pr-v2-radius-object)]">
+              <PromoCardV2 model={cardModel} />
+            </Link>
+          </div>
+
+          {isMemberWorkspace ? (
+            <div className="mt-8 grid gap-4 border-t border-white/10 pt-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-[#f0bd72]" aria-hidden="true" />
+                  <p className="pr-v2-kicker">{cardModel.state === "ready" ? "Ready now" : "Worth knowing"}</p>
+                </div>
+                <p className="mt-2 font-serif text-2xl font-semibold tracking-[-.035em] text-white">{readyTitle}</p>
+                <p className="mt-1 text-sm text-white/48">{readyIssuer} · {cardModel.places}</p>
+              </div>
+              <Link to={to(nextMove.href)} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 text-sm font-black text-[#ff7847]">
+                {cardModel.state === "ready" ? "Use this" : nextMove.label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-            }
-            aside={
-              <Link to={to("/card")} aria-label={t("people.openCardAria")} className="pr-v2-focusable block rounded-[var(--pr-v2-radius-object)]">
-                <PromoCardV2 model={cardModel} compact />
-                <span className="mt-3 flex min-h-11 items-center justify-between text-sm font-semibold text-[hsl(var(--pr-v2-text-2))]">
-                  Open PromoCard <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </span>
-              </Link>
-            }
-          />
-        </div>
+            </div>
+          ) : null}
+        </section>
       )}
     >
       <div className="space-y-10 pb-8">
@@ -181,7 +198,7 @@ export default function PeopleHome() {
               <Link
                 key={item}
                 to={`/app-preview?role=${item}`}
-                className={`min-h-11 rounded-full border px-4 py-2.5 text-xs font-bold ${lens.role === item ? "border-[hsl(var(--pr-v2-active-role))] bg-[hsl(var(--pr-v2-active-role))] text-black" : "border-white/10 text-white/60"}`}
+                className={`min-h-11 rounded-full border px-4 py-2.5 text-xs font-bold ${lens.role === item ? "border-[#ff6b35]/55 bg-[#ff6b35]/12 text-[#ff895e]" : "border-white/10 text-white/55"}`}
               >
                 {item}
               </Link>
@@ -189,38 +206,34 @@ export default function PeopleHome() {
           </nav>
         ) : null}
 
-        <OutcomeProgress stages={outcomeStages} />
-
-        <EvidencePair
-          proof={{
-            value: isMemberWorkspace ? used : Number(data?.happening || 0),
-            label: isMemberWorkspace ? "Verified uses" : "Verified activity",
-            description: isMemberWorkspace ? "PROMORANG counts use only when the underlying action has been recorded." : "This is activity PROMORANG can point to, not a vanity impression count.",
-          }}
-          value={{
-            value: isMemberWorkspace ? cardPerks : money(earned),
-            label: isMemberWorkspace ? "Useful things on your card" : "Recorded value",
-            description: isMemberWorkspace ? "Access, perks and benefits you can actually use." : "Value currently recorded against your activity.",
-          }}
-        />
+        <section className="space-y-5">
+          <div>
+            <p className="pr-v2-kicker">Your rhythm</p>
+            <h2 className="pr-v2-editorial-heading mt-2 text-white">Where you are right now</h2>
+          </div>
+          <OutcomeProgress stages={outcomeStages} label="" />
+        </section>
 
         {hasMovement ? (
           <section aria-labelledby="recent-proof-title" className="space-y-4">
-            <div>
-              <p className="pr-v2-eyebrow">Proof</p>
-              <h2 id="recent-proof-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">What happened</h2>
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="pr-v2-kicker">Real actions</p>
+                <h2 id="recent-proof-title" className="pr-v2-editorial-heading mt-2 text-white">What changed</h2>
+              </div>
+              <Link to={to("/happened")} className="pr-v2-focusable min-h-11 py-3 text-xs font-black uppercase tracking-[.16em] text-[#d6ad69]">See all</Link>
             </div>
             <ConsequenceReceipt
               event={isMemberWorkspace ? "Your recent PROMORANG activity" : "Your recent stakeholder activity"}
               occurredAt={world?.latestMemory?.issuedAt ? new Date(world.latestMemory.issuedAt).toLocaleString("en-JM", { timeZone: "America/Jamaica", dateStyle: "medium", timeStyle: "short" }) : undefined}
               lines={isMemberWorkspace
                 ? [
+                    { label: "Entry / use verified", value: used || "Recorded" },
                     { label: "On your card", value: cardPerks },
-                    { label: "Claimed", value: claimed },
-                    { label: "Verified uses", value: used, emphasis: true },
+                    { label: "Claimed", value: claimed, emphasis: true },
                   ]
                 : [
-                    { label: "People", value: Number(data?.people || 0) },
+                    { label: "People moved", value: Number(data?.people || 0) },
                     { label: "Given", value: perksGiven },
                     { label: "Recorded value", value: money(earned), emphasis: true },
                   ]}
@@ -229,46 +242,44 @@ export default function PeopleHome() {
           </section>
         ) : null}
 
-        <section aria-labelledby="around-you-title" className="space-y-4">
+        <section aria-labelledby="around-you-title" className="space-y-5">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="pr-v2-eyebrow">Around you</p>
-              <h2 id="around-you-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">Worth knowing about now</h2>
+              <p className="pr-v2-kicker">People · places · possibilities</p>
+              <h2 id="around-you-title" className="pr-v2-editorial-heading mt-2 text-white">Around you</h2>
             </div>
-            <Link to="/discover/moments" className="pr-v2-focusable min-h-11 py-3 text-sm font-bold text-[hsl(var(--pr-v2-active-role))]">See all</Link>
+            <Link to={to("/discover/moments")} className="pr-v2-focusable min-h-11 py-3 text-xs font-black uppercase tracking-[.16em] text-[#d6ad69]">See all</Link>
           </div>
 
           {momentFeed.isLoading ? (
-            <div role="status" aria-label="Loading confirmed moments" className="h-36 animate-pulse rounded-[var(--pr-v2-radius-module)] border border-white/10 bg-white/[0.03]" />
+            <div role="status" aria-label="Loading confirmed moments" className="h-44 animate-pulse rounded-[var(--pr-v2-radius-module)] border border-white/10 bg-white/[0.03]" />
           ) : momentFeed.isError ? (
             <OutcomeSurface>
               <p className="font-semibold text-[hsl(var(--pr-v2-text-1))]">Live timing unavailable</p>
               <p className="mt-2 text-sm text-[hsl(var(--pr-v2-text-2))]">PROMORANG is not substituting unconfirmed listings for verified timing.</p>
             </OutcomeSurface>
           ) : liveMoments.length ? (
-            <div className="divide-y divide-white/10 border-y border-white/10">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {liveMoments.map((moment) => (
-                <Link
-                  key={moment.id}
-                  to={`/moments/${moment.slug || moment.id}`}
-                  className="pr-v2-focusable grid min-h-[104px] grid-cols-[88px_minmax(0,1fr)_auto] items-center gap-4 py-4"
-                >
-                  <div className="relative h-[76px] overflow-hidden rounded-[var(--pr-v2-radius-control)] bg-white/[0.04]">
+                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="pr-v2-focusable pr-v2-world-card group min-w-0">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-white/[0.04]">
                     {moment.image_url ? (
-                      <img src={moment.image_url} alt="" className="h-full w-full object-cover" />
+                      <img src={moment.image_url} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
                     ) : (
-                      <Radio className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 text-[hsl(var(--pr-v2-active-role))]" aria-hidden="true" />
+                      <Radio className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 text-[#ff6b35]" aria-hidden="true" />
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" aria-hidden="true" />
+                    <span className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#f0bd72] backdrop-blur">
+                      {momentLifecycleLabel(moment.lifecycle)}
+                    </span>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[hsl(var(--pr-v2-active-role))]">{momentLifecycleLabel(moment.lifecycle)}</p>
-                    <p className="mt-1 truncate text-lg font-semibold tracking-[-0.02em] text-[hsl(var(--pr-v2-text-1))]">{moment.title}</p>
-                    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[hsl(var(--pr-v2-text-3))]">
-                      <span className="inline-flex items-center gap-1"><CalendarDays className="h-3 w-3" aria-hidden="true" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span>
-                      <span className="inline-flex min-w-0 items-center gap-1 truncate"><MapPin className="h-3 w-3" aria-hidden="true" />{moment.venue_name || moment.location}</span>
+                  <div className="p-4">
+                    <p className="truncate font-serif text-xl font-semibold tracking-[-.03em] text-white">{moment.title}</p>
+                    <div className="mt-3 space-y-1.5 text-xs text-white/45">
+                      <span className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span>
+                      <span className="flex min-w-0 items-center gap-1.5 truncate"><MapPin className="h-3.5 w-3.5" aria-hidden="true" />{moment.venue_name || moment.location}</span>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-[hsl(var(--pr-v2-text-3))]" aria-hidden="true" />
                 </Link>
               ))}
             </div>
@@ -278,18 +289,18 @@ export default function PeopleHome() {
         </section>
 
         {workspaceRoles.length ? (
-          <section className="border-t border-white/10 pt-7">
-            <p className="pr-v2-eyebrow">Your other workspaces</p>
-            <h2 className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">Personal stays personal</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">
+          <section className="pr-v2-section-rule">
+            <p className="pr-v2-kicker">Your other workspaces</p>
+            <h2 className="pr-v2-editorial-heading mt-2 text-white">Personal stays personal</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-white/52">
               Your Participant home is for what you can discover, carry and use. Open your operating workspace when you need creator, merchant, host, brand or admin tools.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Link to="/dashboard?view=studio" className="pr-v2-focusable inline-flex min-h-11 items-center rounded-[var(--pr-v2-radius-control)] border border-white/15 px-4 text-sm font-bold text-white">
+              <Link to="/dashboard?view=studio" className="pr-v2-focusable inline-flex min-h-11 items-center rounded-full border border-white/15 px-5 text-sm font-bold text-white">
                 Open operating workspace
               </Link>
               {workspaceRoles.includes("admin") ? (
-                <Link to="/admin?tab=command" className="pr-v2-focusable inline-flex min-h-11 items-center rounded-[var(--pr-v2-radius-control)] border border-white/15 px-4 text-sm font-bold text-white">
+                <Link to="/admin?tab=command" className="pr-v2-focusable inline-flex min-h-11 items-center rounded-full border border-white/15 px-5 text-sm font-bold text-white">
                   Admin Command Center
                 </Link>
               ) : null}
