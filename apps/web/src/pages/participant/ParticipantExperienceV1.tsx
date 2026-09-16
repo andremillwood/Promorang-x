@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Bookmark,
   CalendarDays,
-  CheckCircle2,
   Compass,
   CreditCard,
   Home,
@@ -12,7 +11,6 @@ import {
   MapPin,
   Navigation,
   Search,
-  ShieldCheck,
   UserRound,
 } from "lucide-react";
 import { firstGivenName, resolvePromoCardFace } from "@promorang/shared";
@@ -49,7 +47,7 @@ function ParticipantNav({ active }: { active: Surface }) {
       {navItems.map(([key, Icon, label]) => (
         <Link
           key={key}
-          to={`/next/${key}`}
+          to={`/${key}`}
           className={`flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active === key ? "text-[#ff6a00]" : "text-white/55"}`}
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
@@ -90,7 +88,9 @@ function imageFor(value: any) {
 }
 
 function hrefForBenefit(value: any) {
-  return value?.href || value?.dropSlug ? (value?.href || `/drop/${value.dropSlug}`) : "/card";
+  if (value?.href) return value.href;
+  if (value?.dropSlug) return `/drop/${value.dropSlug}`;
+  return "/card";
 }
 
 function formatJamaicaDate(value: string | null | undefined) {
@@ -157,7 +157,7 @@ function TodaySurface({ model }: { model: ReturnType<typeof useParticipantModel>
               <p className="mt-1 text-xs text-white/58">For {givenName === "there" ? "you" : givenName}</p>
             </div>
           </div>
-          <Link to="/next/you" className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-black/25 backdrop-blur" aria-label="Open profile"><UserRound className="h-4 w-4" /></Link>
+          <Link to="/you" className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-black/25 backdrop-blur" aria-label="Open profile"><UserRound className="h-4 w-4" /></Link>
         </div>
 
         <div className="absolute inset-x-0 bottom-0 p-5 pb-6">
@@ -169,9 +169,9 @@ function TodaySurface({ model }: { model: ReturnType<typeof useParticipantModel>
             {timeLine ? <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{timeLine}</span> : null}
             {placeLine ? <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{placeLine}</span> : null}
           </div>
-          <Link to={heroHref} className="mt-5 flex min-h-12 w-full items-center justify-between rounded-full bg-[#f6c453] px-5 text-sm font-black text-black">
+          <a href={heroHref} className="mt-5 flex min-h-12 w-full items-center justify-between rounded-full bg-[#f6c453] px-5 text-sm font-black text-black">
             <span>{currentMove?.label || "Open this"}</span><ArrowRight className="h-4 w-4" />
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -189,8 +189,8 @@ function TodaySurface({ model }: { model: ReturnType<typeof useParticipantModel>
       ) : null}
 
       <section className="space-y-4 px-5 py-6">
-        <div className="flex items-end justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/38">Your access</p><h2 className="mt-1 font-serif text-2xl font-bold">PromoCard</h2></div><Link to="/next/card" className="text-xs font-black text-[#ff9a4d]">Open card</Link></div>
-        {card.isLoading ? <LoadingBlock className="h-56" /> : card.data ? <PromoCardFace model={cardFace} interactive={false} /> : <QuietState title="Your PromoCard is ready to be filled" copy="Discover something useful and take it onto your card." action={<Link to="/next/discover" className="text-sm font-black text-[#ff9a4d]">Explore opportunities →</Link>} />}
+        <div className="flex items-end justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/38">Your access</p><h2 className="mt-1 font-serif text-2xl font-bold">PromoCard</h2></div><Link to="/card" className="text-xs font-black text-[#ff9a4d]">Open card</Link></div>
+        {card.isLoading ? <LoadingBlock className="h-56" /> : card.data ? <PromoCardFace model={cardFace} interactive={false} /> : <QuietState title="Your PromoCard is ready to be filled" copy="Discover something useful and take it onto your card." action={<Link to="/discover" className="text-sm font-black text-[#ff9a4d]">Explore opportunities →</Link>} />}
       </section>
     </Shell>
   );
@@ -210,17 +210,17 @@ function DiscoverSurface({ model }: { model: ReturnType<typeof useParticipantMod
       <SurfaceHeader
         kicker={`For you · ${cityName}`}
         title="Real opportunities. Near you."
-        action={<Link to="/search" className="grid h-10 w-10 place-items-center rounded-full border border-white/12" aria-label="Search"><Search className="h-4 w-4" /></Link>}
+        action={<a href="/search" className="grid h-10 w-10 place-items-center rounded-full border border-white/12" aria-label="Search"><Search className="h-4 w-4" /></a>}
       />
       <div className="flex gap-2 overflow-x-auto px-5 pb-5 [scrollbar-width:none]">
         <span className="shrink-0 rounded-full bg-[#eadcc6] px-3.5 py-2 text-xs font-bold text-black">For you</span>
-        <Link to="/discover?tab=perks" className="shrink-0 rounded-full border border-white/12 px-3.5 py-2 text-xs font-bold text-white/65">Nearby</Link>
-        <Link to="/discover/moments" className="shrink-0 rounded-full border border-white/12 px-3.5 py-2 text-xs font-bold text-white/65">Moments</Link>
-        <Link to="/saved" className="shrink-0 rounded-full border border-white/12 px-3.5 py-2 text-xs font-bold text-white/65">Saved</Link>
+        <a href="/discover?tab=perks" className="shrink-0 rounded-full border border-white/12 px-3.5 py-2 text-xs font-bold text-white/65">Nearby</a>
+        <a href="/discover/moments" className="shrink-0 rounded-full border border-white/12 px-3.5 py-2 text-xs font-bold text-white/65">Moments</a>
+        <a href="/saved" className="shrink-0 rounded-full border border-white/12 px-3.5 py-2 text-xs font-bold text-white/65">Saved</a>
       </div>
 
       {nearby.isLoading ? <div className="px-5"><LoadingBlock className="h-[360px]" /></div> : lead ? (
-        <Link to={hrefForBenefit(lead)} className="relative block min-h-[360px] overflow-hidden border-y border-white/10">
+        <a href={hrefForBenefit(lead)} className="relative block min-h-[360px] overflow-hidden border-y border-white/10">
           {leadImage ? <img src={leadImage} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
           <div className={`absolute inset-0 ${leadImage ? "bg-gradient-to-t from-black via-black/45 to-black/15" : "bg-[radial-gradient(circle_at_80%_20%,rgba(122,46,23,.35),transparent_35%),#111112]"}`} />
           <div className="absolute inset-x-0 bottom-0 p-5">
@@ -234,26 +234,26 @@ function DiscoverSurface({ model }: { model: ReturnType<typeof useParticipantMod
               {lead.availability ? <span>{String(lead.availability)}</span> : null}
             </div>
           </div>
-        </Link>
-      ) : <div className="px-5"><QuietState title="Nothing nearby is verified yet" copy="PROMORANG will not invent availability. Open the wider discovery surface to browse moments, places and other live opportunities." action={<Link to="/discover" className="text-sm font-black text-[#ff9a4d]">Open full Discover →</Link>} /></div>}
+        </a>
+      ) : <div className="px-5"><QuietState title="Nothing nearby is verified yet" copy="PROMORANG will not invent availability. Open the wider discovery surface to browse moments, places and other live opportunities." action={<a href="/discover" className="text-sm font-black text-[#ff9a4d]">Open full Discover →</a>} /></div>}
 
       <section className="px-5 py-5">
         <p className="text-[10px] font-black uppercase tracking-[.16em] text-white/38">Tracks near you</p>
         <div className="mt-2 divide-y divide-white/10">
           {rest.map((benefit: any, index: number) => (
-            <Link key={benefit.id || benefit.title || index} to={hrefForBenefit(benefit)} className="grid grid-cols-[72px_1fr_auto] items-center gap-3 py-4">
+            <a key={benefit.id || benefit.title || index} href={hrefForBenefit(benefit)} className="grid grid-cols-[72px_1fr_auto] items-center gap-3 py-4">
               <div className="h-[62px] w-[72px] overflow-hidden rounded-xl bg-white/[0.04]">{imageFor(benefit) ? <img src={imageFor(benefit)} alt="" className="h-full w-full object-cover" /> : null}</div>
               <div className="min-w-0"><p className="text-xs font-bold text-white/48">{benefit.issuer?.name || benefit.issuer_name || "PROMORANG partner"}</p><p className="mt-1 truncate text-sm font-bold">{benefit.title}</p><p className="mt-1 truncate text-xs text-white/42">{benefit.detail || benefit.availability || "Open opportunity"}</p></div>
               <PromorangSemanticMark kind="explore" size={28} />
-            </Link>
+            </a>
           ))}
         </div>
       </section>
 
       {moments.length ? (
         <section className="border-t border-white/10 px-5 py-5">
-          <div className="flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-white/38">Now & next</p><h2 className="mt-1 font-serif text-2xl font-bold">Moments</h2></div><Link to="/discover/moments" className="text-xs font-black text-[#ff9a4d]">See all</Link></div>
-          <div className="mt-3 space-y-3">{moments.slice(0, 3).map((moment: any) => <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="grid grid-cols-[74px_1fr] gap-3 rounded-[1.25rem] border border-white/10 p-3"><div className="h-[68px] overflow-hidden rounded-xl bg-white/[0.04]">{imageFor(moment) ? <img src={imageFor(moment)} alt="" className="h-full w-full object-cover" /> : null}</div><div className="min-w-0 self-center"><p className="truncate font-bold">{moment.title}</p><p className="mt-1 truncate text-xs text-white/46">{moment.venue_name || moment.location || formatJamaicaDate(moment.starts_at)}</p></div></Link>)}</div>
+          <div className="flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-white/38">Now & next</p><h2 className="mt-1 font-serif text-2xl font-bold">Moments</h2></div><a href="/discover/moments" className="text-xs font-black text-[#ff9a4d]">See all</a></div>
+          <div className="mt-3 space-y-3">{moments.slice(0, 3).map((moment: any) => <a key={moment.id} href={`/moments/${moment.slug || moment.id}`} className="grid grid-cols-[74px_1fr] gap-3 rounded-[1.25rem] border border-white/10 p-3"><div className="h-[68px] overflow-hidden rounded-xl bg-white/[0.04]">{imageFor(moment) ? <img src={imageFor(moment)} alt="" className="h-full w-full object-cover" /> : null}</div><div className="min-w-0 self-center"><p className="truncate font-bold">{moment.title}</p><p className="mt-1 truncate text-xs text-white/46">{moment.venue_name || moment.location || formatJamaicaDate(moment.starts_at)}</p></div></a>)}</div>
         </section>
       ) : null}
     </Shell>
@@ -270,18 +270,18 @@ function CardSurface({ model }: { model: ReturnType<typeof useParticipantModel> 
       <SEO title="PromoCard — PROMORANG" description="Your live PROMORANG credential." />
       <SurfaceHeader kicker="Your access" title="PromoCard." />
       <div className="space-y-5 px-5 pb-7">
-        {card.isLoading ? <LoadingBlock className="h-60" /> : card.data ? <PromoCardFace model={cardFace} /> : <QuietState title="Your card could not load" copy="Try the existing card flow while this new participant surface remains in preview." action={<Link to="/card" className="text-sm font-black text-[#ff9a4d]">Open current PromoCard →</Link>} />}
+        {card.isLoading ? <LoadingBlock className="h-60" /> : card.data ? <PromoCardFace model={cardFace} /> : <QuietState title="Your card could not load" copy="Try the existing card flow while this new participant surface remains in preview." action={<a href="/card" className="text-sm font-black text-[#ff9a4d]">Open current PromoCard →</a>} />}
 
         {useThis ? (
           <section className="rounded-[1.7rem] border border-[#d49a35]/25 bg-[radial-gradient(circle_at_100%_0%,rgba(122,46,23,.2),transparent_40%),#0d0d0e] p-5">
             <div className="flex items-start justify-between gap-3"><div><MarkLabel kind="move">Use now</MarkLabel><h2 className="mt-3 font-serif text-2xl font-bold">{useThis.title}</h2></div><PromorangSemanticMark kind={useThis.redemption?.recorded ? "proof" : "move"} size={38} /></div>
             {useThis.detail ? <p className="mt-2 text-sm leading-6 text-white/55">{useThis.detail}</p> : null}
             <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-white/10 pt-4 text-xs"><div><dt className="text-white/35">ISSUER</dt><dd className="mt-1 font-bold">{useThis.issuer?.name || "PROMORANG partner"}</dd></div><div><dt className="text-white/35">STATUS</dt><dd className="mt-1 font-bold">{useThis.redemption?.recorded ? "Used · proof kept" : useThis.status || "Ready"}</dd></div><div><dt className="text-white/35">VALID</dt><dd className="mt-1 font-bold">{useThis.expiresAt ? `Until ${new Date(useThis.expiresAt).toLocaleDateString("en-JM")}` : "While available"}</dd></div><div><dt className="text-white/35">USES</dt><dd className="mt-1 font-bold">{useThis.availableQuantity == null ? "See terms" : `${useThis.availableQuantity} available`}</dd></div></dl>
-            <Link to="/card" className="mt-5 flex min-h-12 items-center justify-between rounded-full bg-[#eadcc6] px-5 text-sm font-black text-black"><span>{useThis.redemption?.recorded ? "View proof" : "Show / use credential"}</span><ArrowRight className="h-4 w-4" /></Link>
+            <a href="/card" className="mt-5 flex min-h-12 items-center justify-between rounded-full bg-[#eadcc6] px-5 text-sm font-black text-black"><span>{useThis.redemption?.recorded ? "View proof" : "Show / use credential"}</span><ArrowRight className="h-4 w-4" /></a>
           </section>
         ) : null}
 
-        {nearby.length ? <section><div className="flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-white/38">Near your card</p><h2 className="mt-1 font-serif text-2xl font-bold">Useful next</h2></div><Link to="/next/discover" className="text-xs font-black text-[#ff9a4d]">Discover</Link></div><div className="mt-3 divide-y divide-white/10">{nearby.slice(0, 3).map((benefit: any, index: number) => <Link to={hrefForBenefit(benefit)} key={benefit.id || index} className="flex items-center justify-between gap-3 py-4"><div><p className="text-sm font-bold">{benefit.title}</p><p className="mt-1 text-xs text-white/44">{benefit.issuer?.name || benefit.detail || "Available nearby"}</p></div><ArrowRight className="h-4 w-4 text-white/35" /></Link>)}</div></section> : null}
+        {nearby.length ? <section><div className="flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-white/38">Near your card</p><h2 className="mt-1 font-serif text-2xl font-bold">Useful next</h2></div><Link to="/discover" className="text-xs font-black text-[#ff9a4d]">Discover</Link></div><div className="mt-3 divide-y divide-white/10">{nearby.slice(0, 3).map((benefit: any, index: number) => <a href={hrefForBenefit(benefit)} key={benefit.id || index} className="flex items-center justify-between gap-3 py-4"><div><p className="text-sm font-bold">{benefit.title}</p><p className="mt-1 text-xs text-white/44">{benefit.issuer?.name || benefit.detail || "Available nearby"}</p></div><ArrowRight className="h-4 w-4 text-white/35" /></a>)}</div></section> : null}
       </div>
     </Shell>
   );
@@ -317,7 +317,7 @@ function VaultSurface({ model }: { model: ReturnType<typeof useParticipantModel>
         <section>
           <div className="flex items-center gap-2"><PromorangSemanticMark kind="return" size={30} /><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-[#ff9a4d]">Value</p><p className="text-sm text-white/45">Usable balances and possibility.</p></div></div>
           <div className="mt-4 grid grid-cols-3 gap-2"><div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-white/38">Points</p><p className="mt-2 text-xl font-black text-[#ff9a4d]">{balances.promoPoints}</p></div><div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-white/38">Tickets</p><p className="mt-2 text-xl font-black text-[#f6c453]">{balances.promoShareTickets}</p></div><div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-white/38">Gems</p><p className="mt-2 text-xl font-black text-[#4cc6f0]">{balances.gems}</p></div></div>
-          <Link to="/vault" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-black text-[#ff9a4d]">Open full Vault economics <ArrowRight className="h-4 w-4" /></Link>
+          <a href="/vault" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-black text-[#ff9a4d]">Open full Vault economics <ArrowRight className="h-4 w-4" /></a>
         </section>
       </div>
     </Shell>
@@ -336,7 +336,7 @@ function YouSurface({ model }: { model: ReturnType<typeof useParticipantModel> }
     <Shell active="you">
       <SEO title="You — PROMORANG" description="Your identity, belonging and proof on PROMORANG." />
       <div className="px-5 pb-7 pt-8">
-        <div className="flex items-start justify-between gap-4"><div className="flex items-center gap-4"><div className="grid h-16 w-16 place-items-center rounded-2xl border border-[#d49a35]/30 bg-[radial-gradient(circle_at_80%_20%,rgba(122,46,23,.35),transparent_60%),#0d0d0e]"><PromorangMark size={46} className="h-11 w-11" /></div><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-[#ff9a4d]">Your PROMORANG</p><h1 className="mt-1 font-serif text-3xl font-bold">{givenName}</h1><p className="mt-1 text-xs text-white/45">{profile?.username ? `@${profile.username}` : profile?.display_name || profile?.full_name || "Participant"}</p></div></div><Link to="/dashboard/settings" className="text-xs font-black text-white/45">Settings</Link></div>
+        <div className="flex items-start justify-between gap-4"><div className="flex items-center gap-4"><div className="grid h-16 w-16 place-items-center rounded-2xl border border-[#d49a35]/30 bg-[radial-gradient(circle_at_80%_20%,rgba(122,46,23,.35),transparent_60%),#0d0d0e]"><PromorangMark size={46} className="h-11 w-11" /></div><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-[#ff9a4d]">Your PROMORANG</p><h1 className="mt-1 font-serif text-3xl font-bold">{givenName}</h1><p className="mt-1 text-xs text-white/45">{profile?.username ? `@${profile.username}` : profile?.display_name || profile?.full_name || "Participant"}</p></div></div><a href="/dashboard/settings" className="text-xs font-black text-white/45">Settings</a></div>
 
         {world?.identity?.line ? <div className="mt-7 border-l border-[#ff6a00]/35 pl-4"><p className="text-[10px] font-black uppercase tracking-[.16em] text-[#ff9a4d]">Identity</p><p className="mt-2 font-serif text-2xl font-bold">{world.identity.line}</p></div> : null}
 
@@ -347,7 +347,7 @@ function YouSurface({ model }: { model: ReturnType<typeof useParticipantModel> }
         {latestReturn ? <section className="mt-8 rounded-[1.6rem] border border-[#7a2e17]/45 bg-[#7a2e17]/10 p-5"><MarkLabel kind="return">Latest return</MarkLabel><p className="mt-3 font-serif text-2xl font-bold">{latestReturn}</p></section> : null}
 
         {happened.isError ? <p className="mt-6 text-xs text-white/35">Detailed participation history is temporarily unavailable; no substitute data is shown.</p> : null}
-        <div className="mt-8 grid gap-2"><Link to="/profile" className="flex min-h-12 items-center justify-between border-t border-white/10 text-sm font-bold">Open public profile <ArrowRight className="h-4 w-4 text-white/35" /></Link><Link to="/dashboard/following" className="flex min-h-12 items-center justify-between border-t border-white/10 text-sm font-bold">Following <ArrowRight className="h-4 w-4 text-white/35" /></Link><Link to="/dashboard/saved" className="flex min-h-12 items-center justify-between border-y border-white/10 text-sm font-bold">Saved <Bookmark className="h-4 w-4 text-white/35" /></Link></div>
+        <div className="mt-8 grid gap-2"><a href="/profile" className="flex min-h-12 items-center justify-between border-t border-white/10 text-sm font-bold">Open public profile <ArrowRight className="h-4 w-4 text-white/35" /></a><a href="/dashboard/following" className="flex min-h-12 items-center justify-between border-t border-white/10 text-sm font-bold">Following <ArrowRight className="h-4 w-4 text-white/35" /></a><a href="/dashboard/saved" className="flex min-h-12 items-center justify-between border-y border-white/10 text-sm font-bold">Saved <Bookmark className="h-4 w-4 text-white/35" /></a></div>
       </div>
     </Shell>
   );
@@ -403,7 +403,7 @@ export default function ParticipantExperienceV1() {
   const surface = String(params.surface || "today").toLowerCase() as Surface;
   const model = useParticipantModel();
 
-  if (!surfaces.includes(surface)) return <Navigate to="/next/today" replace />;
+  if (!surfaces.includes(surface)) return <Navigate to="/today" replace />;
 
   if (surface === "today") return <TodaySurface model={model} />;
   if (surface === "discover") return <DiscoverSurface model={model} />;
