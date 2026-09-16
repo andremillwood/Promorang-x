@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import MerchantScannerStation from "@/components/merchant/MerchantScannerStation";
 import MerchantStorefrontConsole from "@/components/merchant/MerchantStorefrontConsole";
-import MerchantOrdersHub from "@/components/merchant/MerchantOrdersHub";
+import { MerchantCommerceConsole } from "@/components/merchant/MerchantCommerceConsole";
 import MerchantVenueStudio from "@/components/merchant/MerchantVenueStudio";
 import MerchantYieldAnalytics from "@/components/merchant/MerchantYieldAnalytics";
 
@@ -36,7 +36,7 @@ export function MerchantDashboardV2() {
     { id: "demand", label: "Customer demand", hint: "What people are asking for", icon: Vote, count: "Listen" },
     { id: "storefront", label: "Offers & products", hint: "What customers can act on", icon: Store, count: "Manage" },
     { id: "redemptions", label: "Verify actions", hint: "Claims and redemptions", icon: QrCode, count: "Verify" },
-    { id: "commerce", label: "Orders", hint: "Paid orders and fulfillment", icon: ShoppingBag, count: "Review" },
+    { id: "commerce", label: "Orders", hint: "Payment, receipts and fulfillment", icon: ShoppingBag, count: "Operate" },
     {
       id: "venues",
       label: "Places",
@@ -52,9 +52,7 @@ export function MerchantDashboardV2() {
       <section className="rounded-3xl border border-emerald-500/20 bg-emerald-950/15 p-5 sm:p-6">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Merchant tools</p>
         <h2 className="mt-2 text-2xl font-black text-white">Operate the customer path.</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-          Use these tools after choosing the current job above. Publish something worth acting on, verify what customers actually do, then use the result to decide what to repeat or improve.
-        </p>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">Publish something worth acting on, validate what happened, then keep payment, fulfillment, refunds and repeat behavior distinct.</p>
       </section>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
@@ -62,26 +60,9 @@ export function MerchantDashboardV2() {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => handleTabChange(tab.id)}
-              className={`flex min-h-[112px] flex-col justify-between rounded-3xl border p-4 text-left transition ${
-                isActive
-                  ? "border-emerald-500 bg-emerald-950/35 ring-1 ring-emerald-500/40"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05]"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className={`rounded-2xl p-2 ${isActive ? "bg-emerald-500 text-black" : "bg-white/5 text-emerald-400"}`}>
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/50">{tab.count}</span>
-              </div>
-              <div>
-                <h3 className="text-xs font-black text-white">{tab.label}</h3>
-                <p className="mt-0.5 text-[10px] text-white/50">{tab.hint}</p>
-              </div>
+            <button key={tab.id} type="button" onClick={() => handleTabChange(tab.id)} className={`flex min-h-[112px] flex-col justify-between rounded-3xl border p-4 text-left transition ${isActive ? "border-emerald-500 bg-emerald-950/35 ring-1 ring-emerald-500/40" : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05]"}`}>
+              <div className="flex items-center justify-between gap-2"><span className={`rounded-2xl p-2 ${isActive ? "bg-emerald-500 text-black" : "bg-white/5 text-emerald-400"}`}><Icon className="h-4 w-4" /></span><span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/50">{tab.count}</span></div>
+              <div><h3 className="text-xs font-black text-white">{tab.label}</h3><p className="mt-0.5 text-[10px] text-white/50">{tab.hint}</p></div>
             </button>
           );
         })}
@@ -89,35 +70,14 @@ export function MerchantDashboardV2() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="sr-only">
-          <TabsTrigger value="demand">Demand</TabsTrigger>
-          <TabsTrigger value="storefront">Offers</TabsTrigger>
-          <TabsTrigger value="redemptions">Verification</TabsTrigger>
-          <TabsTrigger value="commerce">Orders</TabsTrigger>
-          <TabsTrigger value="venues">Places</TabsTrigger>
-          <TabsTrigger value="analytics">Results</TabsTrigger>
+          <TabsTrigger value="demand">Demand</TabsTrigger><TabsTrigger value="storefront">Offers</TabsTrigger><TabsTrigger value="redemptions">Verification</TabsTrigger><TabsTrigger value="commerce">Orders</TabsTrigger><TabsTrigger value="venues">Places</TabsTrigger><TabsTrigger value="analytics">Results</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="demand" className="mt-0">
-          <DiscoveryDemandInbox role="merchant" />
-        </TabsContent>
-        <TabsContent value="storefront" className="mt-0">
-          <MerchantStorefrontConsole
-            onOpenProducts={() => handleTabChange("storefront")}
-            onOpenScanner={() => handleTabChange("redemptions")}
-          />
-        </TabsContent>
-        <TabsContent value="redemptions" className="mt-0">
-          <MerchantScannerStation />
-        </TabsContent>
-        <TabsContent value="commerce" className="mt-0">
-          <MerchantOrdersHub onOpenScanner={() => handleTabChange("redemptions")} />
-        </TabsContent>
-        <TabsContent value="venues" className="mt-0">
-          <MerchantVenueStudio onOpenMoments={() => handleTabChange("venues")} />
-        </TabsContent>
-        <TabsContent value="analytics" className="mt-0">
-          <MerchantYieldAnalytics />
-        </TabsContent>
+        <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="merchant" /></TabsContent>
+        <TabsContent value="storefront" className="mt-0"><MerchantStorefrontConsole onOpenProducts={() => handleTabChange("storefront")} onOpenScanner={() => handleTabChange("redemptions")} /></TabsContent>
+        <TabsContent value="redemptions" className="mt-0"><MerchantScannerStation /></TabsContent>
+        <TabsContent value="commerce" className="mt-0"><MerchantCommerceConsole onOpenProducts={() => handleTabChange("storefront")} onOpenValidation={() => handleTabChange("redemptions")} /></TabsContent>
+        <TabsContent value="venues" className="mt-0"><MerchantVenueStudio onOpenMoments={() => handleTabChange("venues")} /></TabsContent>
+        <TabsContent value="analytics" className="mt-0"><MerchantYieldAnalytics /></TabsContent>
       </Tabs>
     </div>
   );
