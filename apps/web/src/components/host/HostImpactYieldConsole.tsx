@@ -9,7 +9,7 @@ export function HostImpactYieldConsole() {
   const moments = momentsQuery.data || [];
   const progress = progressQuery.data;
   const verifiedParticipants = progress?.current || 0;
-  const target = progress?.target || 50;
+  const outcomeStage = progress?.successStage;
 
   return (
     <div className="space-y-6">
@@ -41,8 +41,17 @@ export function HostImpactYieldConsole() {
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <Users className="h-4 w-4 text-cyan-300" />
-          <p className="mt-3 text-3xl font-black text-white">{progressQuery.isLoading ? "—" : `${verifiedParticipants.toLocaleString()} / ${target.toLocaleString()}`}</p>
-          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Current proof target</p>
+          <p className="mt-3 text-3xl font-black text-white">
+            {progressQuery.isLoading
+              ? "—"
+              : outcomeStage?.complete
+                ? "Complete"
+                : outcomeStage
+                  ? `${outcomeStage.current} / ${outcomeStage.total}`
+                  : "—"}
+          </p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Outcome stage</p>
+          {outcomeStage?.label ? <p className="mt-2 text-xs text-white/50">{outcomeStage.label}</p> : null}
         </div>
       </div>
 

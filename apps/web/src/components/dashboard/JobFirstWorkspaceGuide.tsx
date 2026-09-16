@@ -84,11 +84,26 @@ export function JobFirstWorkspaceGuide({
         <div className="flex flex-col items-start gap-2 lg:items-end">
           {progress && (
             <div className="rounded-2xl border border-border/70 bg-background/60 px-4 py-3 text-left lg:text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Verified progress</p>
-              <p className="mt-1 text-lg font-black text-foreground">
-                {progress.current.toLocaleString()} / {progress.target.toLocaleString()}
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
+                {progress.successStage ? "Outcome progress" : "Verified activity"}
               </p>
-              <p className="text-xs text-muted-foreground">{progress.unit}</p>
+              {progress.successStage ? (
+                <>
+                  <p className="mt-1 text-lg font-black text-foreground">
+                    {progress.successStage.complete
+                      ? "Outcome loop complete"
+                      : `Stage ${progress.successStage.current} / ${progress.successStage.total}`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{progress.successStage.label}</p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 text-lg font-black text-foreground">
+                    {progress.current.toLocaleString()} / {progress.target.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{progress.unit}</p>
+                </>
+              )}
             </div>
           )}
 

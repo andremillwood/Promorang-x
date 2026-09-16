@@ -1,5 +1,6 @@
 import {
   Activity,
+  BarChart3,
   Briefcase,
   Compass,
   CreditCard,
@@ -66,7 +67,21 @@ const EXTRA_ICONS: Record<string, LucideIcon> = {
   "/content-drops": Radio,
 };
 
+const MERCHANT_NAV: StakeholderNavItem[] = [
+  { icon: Home, label: "Home", href: "/dashboard?tab=home", group: "primary" },
+  { icon: Gift, label: "Promotions", href: "/dashboard?tab=promotions", group: "primary", accent: true },
+  { icon: Users, label: "Customers", href: "/dashboard?tab=customers", group: "primary" },
+  { icon: BarChart3, label: "Sales & Results", href: "/dashboard?tab=results", group: "primary" },
+  { icon: Store, label: "Business", href: "/dashboard?tab=business", group: "primary" },
+  { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+];
+
 export function stakeholderNavItems(role: StakeholderNavRole): StakeholderNavItem[] {
+  // Merchants need a business operating model, not the internal Promorang object model.
+  // The merchant workspace still uses the same offer, redemption, storefront, and analytics
+  // infrastructure underneath these outcome-oriented destinations.
+  if (role === "merchant") return MERCHANT_NAV;
+
   const lens = getStakeholderLens(role);
   const primary = lens.destinations.map((item) => ({
     icon: item.id === "putIn" ? PUT_IN_ICONS[lens.role] || Plus : OBJECT_ICONS[item.id],

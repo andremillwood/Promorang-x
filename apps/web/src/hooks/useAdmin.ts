@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { resolveAdminAccessProfile } from "@/lib/admin-access";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -64,7 +65,6 @@ export interface PlatformStats {
 
 export interface MomentForApproval {
   id: string;
-  slug?: string | null;
   title: string;
   description: string | null;
   category: string;
@@ -139,12 +139,43 @@ export interface ModerationOverview {
 export function useIsAdmin() {
   const { roles } = useAuth();
   return (roles as string[]).some((role) =>
-    ["admin", "administrator", "master_admin", "moderator"].includes(role)
+    ["admin", "administrator", "platform_admin", "master_admin", "moderator", "support", "support_agent"].includes(role)
   );
 }
 
+// Resolve the current compatibility role from the server-owned user_roles table.
+// This personalizes the admin shell only; API and database authorization remain
+// authoritative for every privileged operation.
+export function useAdminAccessProfile() {
+  const { user, session, roles } = useAuth();
+
+  return useQuery({
+    queryKey: ["admin-access-profile", user?.id],
+    enabled: Boolean(user?.id && session?.access_token),
+    queryFn: async () => {
+      const trustedClaim = String((user?.app_metadata as Record<string, unknown> | undefined)?.role || "");
+      try {
+        const response = await fetch(`${API_URL}/api/admin/access/me`, {
+          headers: { Authorization: `Bearer ${session!.access_token}` },
+        });
+        if (!response.ok) throw new Error("Unable to load admin access");
+        const payload = await response.json();
+        return resolveAdminAccessProfile(payload.roles || [], payload.capabilities || [])
+          ?? resolveAdminAccessProfile([trustedClaim]);
+      } catch {
+        // A failed compatibility lookup must fail closed. Existing AuthContext
+        // roles collapse all admin variants to `admin`, so the least privileged
+        // admin workspace is the only safe fallback.
+        return resolveAdminAccessProfile([trustedClaim])
+          ?? ((roles as string[]).includes("admin") ? resolveAdminAccessProfile(["moderator"]) : null);
+      }
+    },
+    staleTime: 60_000,
+  });
+}
+
 // Fetch platform-wide stats
-export function usePlatformStats() {
+export function usePlatformStats(enabled = true) {
   const { user } = useAuth();
   
   return useQuery({
@@ -232,12 +263,12 @@ export function usePlatformStats() {
         userGrowth,
       } as PlatformStats;
     },
-    enabled: !!user,
+    enabled: !!user && enabled,
   });
 }
 
 // Fetch all users with profiles and roles
-export function useAllUsers() {
+export function useAllUsers(enabled = true) {
   const { session, user } = useAuth();
 
   return useQuery({
@@ -256,7 +287,7 @@ export function useAllUsers() {
 
       return (payload.users || []) as UserWithProfile[];
     },
-    enabled: !!user && !!session?.access_token,
+    enabled: !!user && !!session?.access_token && enabled,
   });
 }
 
@@ -344,7 +375,7 @@ export function useUpdateMomentStatus() {
   });
 }
 
-export function useModerationOverview() {
+export function useModerationOverview(enabled = true) {
   const { session, user } = useAuth();
 
   return useQuery({
@@ -367,7 +398,7 @@ export function useModerationOverview() {
         content: payload.content || [],
       } as ModerationOverview;
     },
-    enabled: !!user && !!session?.access_token,
+    enabled: !!user && !!session?.access_token && enabled,
   });
 }
 

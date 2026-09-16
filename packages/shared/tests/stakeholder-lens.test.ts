@@ -29,20 +29,22 @@ describe("stakeholder lens", () => {
 
     expect(participant.putIn.href).toBe("/discover?tab=perks");
     expect(host.putIn.href).toBe("/create/moment");
-    expect(merchant.putIn.href).toBe("/stock");
+    expect(merchant.putIn.href).toBe("/dashboard?tab=promotions");
     expect(brand.putIn.href).toBe("/stock");
 
     expect(host.activity.href).toBe("/happened");
-    expect(merchant.activity.label).toBe("Used");
+    expect(merchant.activity.label).toBe("Results");
+    expect(merchant.activity.href).toBe("/dashboard?tab=results");
     expect(brand.promise).toMatch(/recorded use/i);
-    expect(merchant.promoCard.meaning).toMatch(/counter/i);
+    expect(merchant.promise).toMatch(/customers/i);
+    expect(merchant.promoCard.meaning).toMatch(/promotion/i);
     expect(participant.promoCard.meaning).not.toBe(merchant.promoCard.meaning);
   });
 
   it("does not send hosts or merchants to the same first move as members", () => {
     expect(resolveStakeholderHomeMove("participant", { cardPerks: 0 }).href).toBe("/discover?tab=perks");
     expect(resolveStakeholderHomeMove("host", { communities: 0 }).href).toBe("/create/moment");
-    expect(resolveStakeholderHomeMove("merchant", { hasInventory: false }).href).toBe("/stock");
+    expect(resolveStakeholderHomeMove("merchant", { hasInventory: false }).href).toBe("/dashboard?tab=promotions");
     expect(resolveStakeholderHomeMove("brand", { perksGiven: 0 }).href).toBe("/stock");
   });
 
@@ -61,9 +63,17 @@ describe("stakeholder lens", () => {
     );
   });
 
-  it("surfaces merchant redeem and brand campaigns as extras, not a second product", () => {
-    expect(getStakeholderLens("merchant").extras.map((item) => item.href)).toContain("/staff/scanner");
-    expect(getStakeholderLens("merchant").extras.map((item) => item.href)).toContain("/dashboard/venues/add");
+  it("keeps merchant mechanics inside the consolidated workspace", () => {
+    const merchant = getStakeholderLens("merchant");
+    expect(merchant.putIn.label).toBe("Create promotion");
+    expect(merchant.world.label).toBe("Customers");
+    expect(merchant.world.href).toBe("/dashboard?tab=customers");
+    expect(merchant.extras.map((item) => item.href)).not.toContain("/staff/scanner");
+    expect(merchant.extras.map((item) => item.href)).not.toContain("/dashboard/venues/add");
+    expect(merchant.extras.map((item) => item.href)).toContain("/dashboard/settings");
+  });
+
+  it("keeps specialist extras for the other commercial roles", () => {
     expect(getStakeholderLens("brand").extras.map((item) => item.label)).toContain("Campaigns");
     expect(getStakeholderLens("brand").extras.map((item) => item.href)).toContain("/create/campaign");
     expect(getStakeholderLens("creator").extras.map((item) => item.href)).toContain("/content-drops");

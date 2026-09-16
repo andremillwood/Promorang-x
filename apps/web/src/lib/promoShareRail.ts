@@ -35,12 +35,16 @@ export function getUserReferralCode(fallbackId?: string): string {
   try {
     const stored = localStorage.getItem(USER_REFERRAL_CODE_KEY);
     if (stored) return stored;
-  } catch {}
+  } catch {
+    // Storage may be unavailable in privacy-restricted browser contexts.
+  }
 
   const code = fallbackId ? `PROMO-${fallbackId.slice(0, 5).toUpperCase()}` : 'PROMO-VIP876';
   try {
     localStorage.setItem(USER_REFERRAL_CODE_KEY, code);
-  } catch {}
+  } catch {
+    // Referral codes still work for the active session without persistence.
+  }
   return code;
 }
 

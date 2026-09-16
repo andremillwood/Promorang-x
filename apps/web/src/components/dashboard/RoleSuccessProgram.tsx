@@ -1,39 +1,38 @@
 import { ArrowRight, BadgeCheck, Circle, Crown, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getStakeholderSuccessContract } from "@promorang/shared/stakeholder-success";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRoleSuccessProgress } from "@/hooks/useRoleSuccessProgress";
 import { useI18n } from "@/i18n/I18nContext";
 
-type SuccessProgram = {
-  name: string;
-  promise: string;
-  metric: string;
-  action: string;
-  href: string;
-};
-
-const programs: Record<string, SuccessProgram> = {
-  participant: { name: "First 5", promise: "Complete five verified moves and establish a reputation that unlocks more valuable opportunities.", metric: "5 verified moves", action: "Find a move", href: "/discover" },
-  creator: { name: "Creator 25", promise: "Activate 25 verified supporters around your next content drop, Moment, or creative project.", metric: "25 verified supporters", action: "Build momentum", href: "/momentum" },
-  host: { name: "Full House", promise: "Fill a Moment, verify attendance, and retain a community you can reactivate next time.", metric: "Attendance + retention", action: "Create a Moment", href: "/create/moment" },
-  merchant: { name: "Customer 50", promise: "Turn an offer or quiet period into verified visits, redemptions, content, and repeat customers.", metric: "50 customer actions", action: "Create an activation", href: "/create/moment" },
-  brand: { name: "Promorang 100", promise: "Generate 100 verified customer actions within a defined budget, proof standard, and timeframe.", metric: "100 verified actions", action: "Create an activation", href: "/create/campaign" },
-  promoter: { name: "Champion 10", promise: "Help ten people achieve a first verified success and make your downstream contribution visible.", metric: "10 people activated", action: "Open promoter tools", href: "/promopush/promoter" },
-  marketing: { name: "Campaign 100", promise: "Turn distribution into 100 attributable actions with transparent contribution and return.", metric: "100 attributed actions", action: "Open PromoPush", href: "/promopush" },
-  agency: { name: "Client Growth 3", promise: "Produce a repeatable verified-action result across three client campaigns.", metric: "3 proven campaigns", action: "Create an activation", href: "/create/campaign" },
-  admin: { name: "Market Health", promise: "Keep participation, proof, reward delivery, Pieces, and commercial return working as one trusted system.", metric: "Healthy value loops", action: "Open command center", href: "/admin" },
+const ROLE_TITLES: Record<string, string> = {
+  participant: "Your outcome loop",
+  creator: "Creator outcome loop",
+  host: "Host outcome loop",
+  merchant: "Customer outcome loop",
+  brand: "Brand outcome loop",
+  agency: "Client outcome loop",
 };
 
 export function RoleSuccessProgram({ role }: { role: string }) {
   const { t } = useI18n();
-  const program = programs[role] || programs.participant;
+  const contract = getStakeholderSuccessContract(role);
   const { data: progress, isLoading } = useRoleSuccessProgress(role);
-  const nextAction = progress?.nextAction || { label: program.action, href: program.href };
+
+  if (!contract) return null;
+
+  const nextAction = progress?.nextAction || {
+    label: contract.steps[0]?.label || "Start",
+    href: contract.steps[0]?.nextHref || "/dashboard",
+  };
   const completed = progress?.milestones?.filter((milestone) => milestone.complete) || [];
   const waiting = progress?.milestones?.filter((milestone) => !milestone.complete) || [];
   const latestChange = completed.at(-1)?.label;
   const attention = waiting[0]?.label;
+  const metric = progress?.successStage
+    ? `Stage ${progress.successStage.current} of ${progress.successStage.total}`
+    : contract.northStarMetric;
 
   return (
     <section className="mb-8 overflow-hidden rounded-[2rem] border border-primary/30 bg-gradient-to-br from-[#1F140E] via-[#0D0D0E] to-[#120B07] text-white shadow-2xl">
@@ -43,23 +42,26 @@ export function RoleSuccessProgram({ role }: { role: string }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="border-primary/40 bg-primary/20 text-primary hover:bg-primary/20 font-bold px-3 py-1">
-                <Crown className="mr-1.5 h-3.5 w-3.5" /> {t("roleSuccess.perksJourney")}
+                <Crown className="mr-1.5 h-3.5 w-3.5" /> Outcome progression
               </Badge>
             </div>
-            <h2 className="mt-4 font-sans text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">{program.name}</h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/75">{program.promise}</p>
+            <h2 className="mt-4 font-sans text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">
+              {ROLE_TITLES[contract.role] || "Outcome loop"}
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/75">{contract.purpose}</p>
+            <p className="mt-3 max-w-xl text-xs leading-relaxed text-white/50">North star: {contract.northStarMetric}</p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="rounded-full bg-primary font-black text-white hover:bg-primary/90 shadow-[0_12px_35px_rgba(255,85,0,0.35)] px-6">
-                <Link to={nextAction.href}>{nextAction.label} 🚀<ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link to={nextAction.href}>{nextAction.label}<ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
           </div>
 
           <div className="grid border-t border-white/10 sm:grid-cols-3 lg:border-l lg:border-t-0">
             {[
-              { eyebrow: t("roleSuccess.completedPerks"), title: latestChange || t("roleSuccess.firstWinAwaits"), detail: progress?.sourceLabel || t("roleSuccess.activePerksMoves"), state: "done" },
-              { eyebrow: t("roleSuccess.nextPerkGoal"), title: attention || t("roleSuccess.grabNextPerk"), detail: waiting.length ? t("roleSuccess.nextPerkWaiting") : t("roleSuccess.readyForNext"), state: "waiting" },
-              { eyebrow: t("roleSuccess.yourMove"), title: nextAction.label, detail: t("roleSuccess.unlockMilestone", { metric: program.metric.toLowerCase() }), state: "next" },
+              { eyebrow: "Proven", title: latestChange || "First verified outcome awaits", detail: progress?.sourceLabel || "No verified activity yet.", state: "done" },
+              { eyebrow: "Current stage", title: attention || contract.nextIfWorks, detail: metric, state: "waiting" },
+              { eyebrow: t("roleSuccess.yourMove"), title: nextAction.label, detail: `Success means: ${contract.outcome}`, state: "next" },
             ].map((item) => (
               <div key={item.eyebrow} className="min-h-48 border-b border-white/10 px-5 py-6 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 lg:px-6">
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">

@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { supabase, admin } = require('../lib/supabase');
-const { requireAuth, requireAdmin, requirePlatformAdmin, requireMasterAdmin } = require('../middleware/auth');
+const {
+    ADMIN_CAPABILITIES: C,
+    requireAuth,
+    requireAdmin,
+    requireCapability,
+    getTrustedRequestCapabilities,
+    getTrustedRequestRoles,
+} = require('../middleware/auth');
 const { getUserProfile } = require('./mockStore');
 const { sendSupportTicketResponseEmail } = require('../services/resendService');
 const simpleKYCService = require('../services/simpleKYCService');
@@ -10,7 +17,113 @@ const experienceAutomationService = require('../services/experienceAutomationSer
 router.use(requireAuth);
 router.use(requireAdmin);
 
-router.get('/audit', requireMasterAdmin, async (req, res) => {
+router.get('/access/me', async (req, res) => {
+    try {
+        const roles = await getTrustedRequestRoles(req);
+        const capabilities = Array.from(await getTrustedRequestCapabilities(req)).sort();
+        res.json({ roles, capabilities });
+    } catch (error) {
+        console.error('Admin access summary error:', error.message);
+        res.status(500).json({ error: 'Unable to load your admin access' });
+    }
+});
+
+const ADMIN_TEAM_ROLES = ['support', 'moderator', 'admin', 'master_admin'];
+
+router.get('/admin-team', requireCapability(C.ADMIN_ACCESS_MANAGE), async (req, res) => {
+    try {
+        const { data: roleRows, error: roleError } = await supabase.from('user_roles')
+            .select('user_id, role, created_at').in('role', ADMIN_TEAM_ROLES);
+        if (roleError) throw roleError;
+        const userIds = [...new Set((roleRows || []).map((row) => row.user_id))];
+        if (!userIds.length) return res.json({ members: [], capabilities: [] });
+
+        const [{ data: users, error: userError }, { data: profiles }, { data: grants, error: grantError }, { data: capabilities, error: capabilityError }] = await Promise.all([
+            supabase.from('users').select('id, email, username, display_name').in('id', userIds),
+            supabase.from('profiles').select('id, full_name, display_name, username, avatar_url').in('id', userIds),
+            supabase.from('admin_user_capability_grants').select('id, user_id, capability, reason, granted_at, expires_at, revoked_at').in('user_id', userIds).is('revoked_at', null),
+            supabase.from('admin_capabilities').select('capability, display_name, description, risk_level').order('risk_level').order('display_name'),
+        ]);
+        if (userError) throw userError;
+        if (grantError) throw grantError;
+        if (capabilityError) throw capabilityError;
+        const userById = new Map((users || []).map((user) => [user.id, user]));
+        const profileById = new Map((profiles || []).map((profile) => [profile.id, profile]));
+        const grantsByUser = new Map();
+        for (const grant of grants || []) grantsByUser.set(grant.user_id, [...(grantsByUser.get(grant.user_id) || []), grant]);
+        const members = (roleRows || []).map((row) => {
+            const user = userById.get(row.user_id) || {};
+            const profile = profileById.get(row.user_id) || {};
+            return {
+                id: row.user_id,
+                email: user.email || null,
+                name: profile.full_name || profile.display_name || user.display_name || user.username || 'Unnamed person',
+                username: profile.username || user.username || null,
+                avatar_url: profile.avatar_url || null,
+                role: String(row.role),
+                role_granted_at: row.created_at,
+                capability_grants: grantsByUser.get(row.user_id) || [],
+                is_current_user: row.user_id === req.user.id,
+            };
+        }).sort((a, b) => a.name.localeCompare(b.name));
+        res.json({ members, capabilities: capabilities || [] });
+    } catch (error) {
+        console.error('Admin team roster error:', error.message);
+        res.status(500).json({ error: 'Unable to load the admin team' });
+    }
+});
+
+router.post('/admin-team/:userId/role', requireCapability(C.ADMIN_ACCESS_MANAGE), async (req, res) => {
+    try {
+        const role = String(req.body?.role || '').toLowerCase().trim();
+        const reason = String(req.body?.reason || '').trim();
+        if (![...ADMIN_TEAM_ROLES, 'none'].includes(role)) return res.status(400).json({ error: 'Choose a supported admin role' });
+        if (reason.length < 3) return res.status(400).json({ error: 'Explain why this access is changing' });
+        const { data, error } = await supabase.rpc('set_platform_admin_role', {
+            p_actor_id: req.user.id, p_user_id: req.params.userId, p_role: role, p_reason: reason,
+        });
+        if (error) throw error;
+        res.json({ success: true, assignment: data });
+    } catch (error) {
+        const safetyConflict = /final Platform Owner|Platform Owner access required/i.test(error.message || '');
+        res.status(safetyConflict ? 409 : 400).json({ error: error.message || 'Unable to change admin access' });
+    }
+});
+
+router.post('/admin-team/:userId/capability-grants', requireCapability(C.ADMIN_ACCESS_MANAGE), async (req, res) => {
+    try {
+        const capability = String(req.body?.capability || '').trim();
+        const reason = String(req.body?.reason || '').trim();
+        const expiresAt = req.body?.expiresAt ? new Date(req.body.expiresAt) : null;
+        if (!Object.values(C).includes(capability)) return res.status(400).json({ error: 'Choose a supported capability' });
+        if (reason.length < 3) return res.status(400).json({ error: 'Explain why this temporary access is needed' });
+        if (!expiresAt || Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() <= Date.now()) return res.status(400).json({ error: 'Choose a future expiry for temporary access' });
+        const { data, error } = await supabase.rpc('grant_admin_capability', {
+            p_actor_id: req.user.id, p_user_id: req.params.userId, p_capability: capability,
+            p_reason: reason, p_expires_at: expiresAt.toISOString(),
+        });
+        if (error) throw error;
+        res.status(201).json({ success: true, grantId: data });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Unable to grant temporary access' });
+    }
+});
+
+router.delete('/admin-team/capability-grants/:grantId', requireCapability(C.ADMIN_ACCESS_MANAGE), async (req, res) => {
+    try {
+        const reason = String(req.body?.reason || '').trim();
+        if (reason.length < 3) return res.status(400).json({ error: 'Explain why this temporary access is being revoked' });
+        const { error } = await supabase.rpc('revoke_admin_capability', {
+            p_actor_id: req.user.id, p_grant_id: req.params.grantId, p_reason: reason,
+        });
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Unable to revoke temporary access' });
+    }
+});
+
+router.get('/audit', requireCapability(C.AUDIT_READ), async (req, res) => {
     try {
         const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200);
         const { data, error } = await supabase
@@ -113,7 +226,7 @@ router.post('/pioneer-seasons/:id/freeze', async (req,res) => {
     } catch(error){ res.status(400).json({error:error.message||'Freeze failed'}); }
 });
 
-router.post('/pioneer-seasons/:id/allocate', requireMasterAdmin, async (req,res) => {
+router.post('/pioneer-seasons/:id/allocate', requireCapability(C.ECONOMY_MANAGE), async (req,res) => {
     try {
         const {data,error}=await supabase.rpc('allocate_pioneer_season',{p_season_id:req.params.id});
         if(error) throw error; res.json({allocations:data});
@@ -856,7 +969,7 @@ router.get('/users/roster', async (req, res) => {
  * POST /api/admin/users/role
  * Update user role (Protected: Master Admin only)
  */
-router.post('/users/role', requireMasterAdmin, async (req, res) => {
+router.post('/users/role', requireCapability(C.ADMIN_ACCESS_MANAGE), async (req, res) => {
     try {
         const { userId, newRole } = req.body;
 
@@ -1433,7 +1546,7 @@ router.get('/catalog/:type', async (req, res) => {
  * POST /api/admin/catalog/:type
  * Platform-admin creation for managed catalog objects.
  */
-router.post('/catalog/:type', requirePlatformAdmin, async (req, res) => {
+router.post('/catalog/:type', requireCapability(C.CATALOG_MANAGE), async (req, res) => {
     try {
         const { type } = req.params;
         const config = CATALOG_CONFIG[type];
@@ -1465,7 +1578,7 @@ router.post('/catalog/:type', requirePlatformAdmin, async (req, res) => {
  * PATCH /api/admin/catalog/:type/:id
  * Admin update for venues, merchant products, and offers.
  */
-router.patch('/catalog/:type/:id', requirePlatformAdmin, async (req, res) => {
+router.patch('/catalog/:type/:id', requireCapability(C.CATALOG_MANAGE), async (req, res) => {
     try {
         const { type, id } = req.params;
         const config = CATALOG_CONFIG[type];
@@ -1561,7 +1674,7 @@ router.patch('/catalog/:type/:id/moderate', async (req, res) => {
  * Recoverable admin deletion. Records are archived/disabled so audit and
  * relationship history remain intact.
  */
-router.delete('/catalog/:type/:id', requirePlatformAdmin, async (req, res) => {
+router.delete('/catalog/:type/:id', requireCapability(C.CATALOG_MANAGE), async (req, res) => {
     try {
         const { type, id } = req.params;
         const config = CATALOG_CONFIG[type];
