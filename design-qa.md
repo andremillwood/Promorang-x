@@ -138,7 +138,7 @@ Obsidian / Clay / Ochre / Sand / Gold / Water / Leaf remain approved. Clay / San
 Iteration 2 resolved the generic-icon fidelity problem. Final pass replaces contradictory world media with Kingston-specific placeholder photography and treats media truth as a production rule.
 
 ### Copy / content
-Movement / return language is now concise enough to support the visual grammar. Production still requires real data for ratings, availability, verified uses, proximity, and recommendation provenance.
+Movement / return language is concise enough to support the visual grammar. Production still requires real data for ratings, availability, verified uses, proximity, and recommendation provenance.
 
 ## Comparison history
 
@@ -148,20 +148,31 @@ Major P1/P2 brand-asset mismatch.
 ### Iteration 2 — blocked, but direction validated
 Identity became recognizable. Remaining blockers: mark differentiation, arc repetition, wrong-city imagery, object material discipline.
 
-### Iteration 3 — implementation complete, render pending
-Final discipline pass addresses all remaining iteration-2 P1/P2 findings at source level.
+### Iteration 3 — passed
+User-provided section 11 captures verified the final discipline pass at desktop review scale.
 
-## Remaining verification
+Verified:
+1. **Five marks are visually distinguishable.** Move is outward, Explore is waypoint-based, Return reverses direction, Proof resolves concentrically, Kept is contained.
+2. **Today / Discover are restrained.** Brand meaning appears at semantic moments rather than as repeated decoration.
+3. **World treatment is contextually Jamaican / Kingston-oriented** and no longer contradicts the product copy with a foreign landmark.
+4. **PromoCard material stays subtle enough for credential legibility.**
+5. **Ticket / Receipt / Relic / PromoKey read as distinct object materials** while remaining one recognizable family.
+6. No new P0/P1/P2 visual issue was visible in the supplied final captures.
 
-A local screenshot of **section 11 · PROMORANG brand grammar · final discipline pass** is required to verify:
-1. Five marks are visually distinguishable without labels.
-2. Today / Discover feel less branded-on-top than iteration 2.
-3. Kingston World imagery renders correctly.
-4. PromoCard texture remains subtle and legible.
-5. Ticket / Receipt / Relic / PromoKey read as different materials.
-6. PromoCard state progression still works.
-7. Browser console has no new runtime errors.
+Remaining P3 polish:
+- continue real-device checks for small metadata / contrast
+- replace placeholder merchant / world media with owned or verified production media when available
+- validate motion timing and reduced-motion behavior when the interaction grammar is implemented
+- verify every production trust / proximity / availability signal is backed by real data or omitted
 
-If section 11 introduces no new P0/P1/P2 issues, final result can move to `passed` with only P3 polish remaining.
+## Locked direction
 
-final result: blocked
+The visual direction is now considered locked for participant convergence.
+
+The production migration rule remains:
+
+> **The opportunity is the interface. Movement and return provide the brand grammar.**
+
+No additional visual-direction exploration is required before participant implementation.
+
+final result: passed
