@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Check, Copy, MapPin, RefreshCw, Ticket } from "lucide-react";
+import { ArrowRight, Check, Copy, RefreshCw, Sparkles } from "lucide-react";
 import {
   discoverHrefForAim,
   firstGivenName,
@@ -10,7 +10,6 @@ import {
   ownedBenefitKicker,
   ownedBenefitStatus,
   fillCardCopy,
-  ownedCardCopy,
   PROMOCARD_AIMS,
   resolvePromoCardAim,
   resolvePromoCardFace,
@@ -29,7 +28,6 @@ import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/peo
 import { PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { StakeholderPutInPass } from "@/components/people/StakeholderLoop";
-import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 import { CommunityCardLink } from "@/components/community/CommunityCardLink";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import type { OfferIssuance } from "@/hooks/useOffers";
@@ -56,11 +54,9 @@ type CardPerk = {
   dropSlug?: string;
   href?: string;
   issuance?: PromoCardPerk["issuance"];
-  fromDiscover?: boolean;
 };
 
-const primaryActionClass =
-  "pr-v2-focusable inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-active-role))] px-5 text-sm font-bold text-black disabled:opacity-50";
+const primaryActionClass = "pr-v2-focusable pr-v2-primary-cta inline-flex items-center justify-center gap-2 px-5";
 
 function perkCode(perk: CardPerk | null | undefined) {
   return perk?.redemptionCode || perk?.redemption?.code || null;
@@ -75,7 +71,7 @@ function isExpired(perk: CardPerk) {
 function canShowCode(perk: CardPerk | null | undefined) {
   if (!perk || isExpired(perk) || perk.redemption?.recorded) return false;
   const type = perk.fulfillmentType || perk.issuance?.offers?.fulfillment_type || "merchant_validation";
-  if (type === "qr" || type === "shipping" || type === "manual" || type === "automatic") return false;
+  if (["qr", "shipping", "manual", "automatic"].includes(type)) return false;
   return perk.fulfillmentState === "claimed" && Boolean(perkCode(perk));
 }
 
@@ -91,37 +87,23 @@ function journeyIssuance(perk: CardPerk) {
   return issuance;
 }
 
-function BenefitTicket({ perk, aim, onShowCode }: {
-  perk: CardPerk;
-  aim?: PromoCardAim | null;
-  onShowCode?: (perk: CardPerk, trigger: HTMLButtonElement) => void;
-}) {
+function BenefitRow({ perk, aim, onShowCode }: { perk: CardPerk; aim?: PromoCardAim | null; onShowCode?: (perk: CardPerk, trigger: HTMLButtonElement) => void }) {
   const { t } = useI18n();
-  const usable = canShowCode(perk);
-  const status = ownedBenefitStatus(perk as PromoCardPerk);
   const issuer = perk.issuer?.name || "PROMORANG partner";
-
+  const status = ownedBenefitStatus(perk as PromoCardPerk);
   return (
-    <article className="border-t border-[hsl(var(--pr-v2-stroke-soft))] py-5 first:border-t-0">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[hsl(var(--pr-v2-active-role))]">{ownedBenefitKicker(perk, aim)}</p>
-          <h3 className="mt-1 text-xl font-bold tracking-[-0.025em] text-[hsl(var(--pr-v2-text-1))]">{perk.title}</h3>
-          {perk.detail ? <p className="mt-2 max-w-2xl text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{perk.detail}</p> : null}
-          <p className="mt-2 text-xs text-[hsl(var(--pr-v2-text-3))]">{issuer}{perk.sharedBy?.name ? ` · ${t("card.sharedBy", { name: perk.sharedBy.name })}` : ""}</p>
+    <article className="grid gap-4 border-t border-white/10 py-5 first:border-t-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="pr-v2-kicker">{ownedBenefitKicker(perk, aim)}</p>
+          <span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white/45">{status}</span>
         </div>
-        <span className="shrink-0 rounded-full border border-[hsl(var(--pr-v2-stroke-strong))] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[hsl(var(--pr-v2-text-2))]">{status}</span>
+        <h3 className="mt-2 font-serif text-xl font-semibold tracking-[-.03em] text-white">{perk.title}</h3>
+        <p className="mt-1 text-sm text-white/48">{issuer}{perk.sharedBy?.name ? ` · ${t("card.sharedBy", { name: perk.sharedBy.name })}` : ""}</p>
       </div>
-
-      <dl className="mt-4 grid gap-x-5 gap-y-3 border-t border-[hsl(var(--pr-v2-stroke-soft))] pt-4 text-xs sm:grid-cols-3">
-        <div><dt className="text-[hsl(var(--pr-v2-text-3))]">Eligibility</dt><dd className="mt-1 font-semibold text-[hsl(var(--pr-v2-text-1))]">{perk.eligibility?.who || t("card.claimedMembers")}</dd></div>
-        <div><dt className="text-[hsl(var(--pr-v2-text-3))]">Availability</dt><dd className="mt-1 font-semibold text-[hsl(var(--pr-v2-text-1))]">{perk.availableQuantity == null ? t("card.openQty") : `${perk.availableQuantity} remaining`}</dd></div>
-        <div><dt className="text-[hsl(var(--pr-v2-text-3))]">Expires</dt><dd className="mt-1 font-semibold text-[hsl(var(--pr-v2-text-1))]">{perk.expiresAt ? new Date(perk.expiresAt).toLocaleDateString() : t("card.whileSupplies")}</dd></div>
-      </dl>
-
-      {usable ? (
-        <button type="button" onClick={(event) => onShowCode?.(perk, event.currentTarget)} className="pr-v2-focusable mt-4 inline-flex min-h-11 items-center gap-2 rounded-[var(--pr-v2-radius-control)] border border-[hsl(var(--pr-v2-stroke-strong))] px-4 text-sm font-bold text-[hsl(var(--pr-v2-text-1))]">
-          Show redemption code <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      {canShowCode(perk) ? (
+        <button type="button" onClick={(event) => onShowCode?.(perk, event.currentTarget)} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 text-sm font-black text-[#ff7847]">
+          Use now <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
       ) : null}
     </article>
@@ -155,11 +137,9 @@ export default function MyPromoCard() {
     fallback: "there",
   });
   const perks: CardPerk[] = data?.perks || [];
-  const useThis = selectOwnedUseThis({
-    aim,
-    useThis: data?.useThis || null,
-    benefits: (data?.benefits || perks || []) as PromoCardPerk[],
-  }) || [...(data?.benefits || []), ...perks].find((item: CardPerk) => canShowCode(item)) || null;
+  const useThis = selectOwnedUseThis({ aim, useThis: data?.useThis || null, benefits: (data?.benefits || perks || []) as PromoCardPerk[] })
+    || [...(data?.benefits || []), ...perks].find((item: CardPerk) => canShowCode(item))
+    || null;
   const nearby = sortBenefitsByAim(data?.nearby || [], aim);
   const nextBenefit = data?.nextBenefit || nearby[0] || null;
   const qrPass = perks.map(issuanceForPerk).find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
@@ -179,7 +159,6 @@ export default function MyPromoCard() {
     recordedUse: Boolean(useThis?.redemption?.recorded),
     expiredOnly: !useThis && livePerks.length === 0 && expiredPerks.length > 0,
   });
-  const copy = ownedCardCopy({ aim, owned: Boolean(useThis), holder });
   const empty = fillCardCopy(aim);
 
   useEffect(() => {
@@ -187,9 +166,10 @@ export default function MyPromoCard() {
   }, [face.credential]);
 
   async function copyCode() {
-    if (!selectedCode) return;
+    const code = selectedCode || face.credential;
+    if (!code) return;
     try {
-      await navigator.clipboard.writeText(selectedCode);
+      await navigator.clipboard.writeText(code);
       setCopyState("copied");
     } catch {
       setCopyState("failed");
@@ -204,14 +184,14 @@ export default function MyPromoCard() {
 
   return (
     <ExperienceShell
-      eyebrow="PROMOCARD"
-      title={copy.title}
-      description="Everything here should be usable, provable, or clearly on its way."
+      eyebrow="YOUR PROMOCARD"
+      title="Culture moves with you."
+      description="What you can use, where it works, and what opened because you showed up."
       backTo="/dashboard"
       className="pr-v2-canvas"
       actions={data ? (
-        <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 rounded-[var(--pr-v2-radius-control)] border border-[hsl(var(--pr-v2-stroke-strong))] px-4 text-sm font-semibold text-[hsl(var(--pr-v2-text-2))] disabled:opacity-50">
-          <RefreshCw aria-hidden="true" className={`h-4 w-4 ${card.isFetching ? "motion-safe:animate-spin" : ""}`} /> {t("common.refresh")}
+        <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-sm font-semibold text-white/55 disabled:opacity-50">
+          <RefreshCw aria-hidden="true" className={`h-4 w-4 ${card.isFetching ? "motion-safe:animate-spin" : ""}`} /> Refresh
         </button>
       ) : undefined}
     >
@@ -223,120 +203,111 @@ export default function MyPromoCard() {
         <div className="space-y-12 pb-8">
           {card.isError ? <p role="status" className="border-y border-amber-200/20 bg-amber-200/5 px-4 py-3 text-sm text-amber-100">We couldn’t refresh your card. These are your last loaded details.</p> : null}
 
-          <section aria-labelledby="promocard-object-title" className="grid gap-7 xl:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.1fr)] xl:items-start">
-            <div>
-              <h2 id="promocard-object-title" className="sr-only">Your PromoCard</h2>
-              <PromoCardV2 model={face} />
-              {face.credential ? (
-                <button type="button" onClick={() => setFlipped(true)} className="pr-v2-focusable mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[hsl(var(--pr-v2-active-role))]">
-                  Open credential <ArrowRight className="h-4 w-4" />
-                </button>
-              ) : null}
-            </div>
-
-            <div className="space-y-6">
+          <section className="pr-v2-cinematic-hero relative overflow-hidden p-5 sm:p-7 lg:p-9">
+            <div className="grid gap-6 lg:grid-cols-[minmax(320px,.9fr)_minmax(0,1fr)] lg:items-center">
               <div>
-                <p className="pr-v2-eyebrow">Right now</p>
-                <h2 className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">{useThis ? "One thing is ready to use" : "Put one useful thing on your card"}</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{useThis ? "PROMORANG keeps the usable benefit and its proof path together so you do not have to decode the wider platform." : empty.description}</p>
+                <PromoCardV2 model={face} />
+                {face.credential ? <button type="button" onClick={() => setFlipped(true)} className="pr-v2-focusable mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-black text-[#ff7847]">Open credential <ArrowRight className="h-4 w-4" /></button> : null}
               </div>
-              <PromoCardActions useThis={useThis} nearbyCount={nearby.length} nextBenefit={nextBenefit} aim={aim} onUseThis={face.canFlip ? () => setFlipped(true) : undefined} />
-            </div>
-          </section>
 
-          <section id="use-this" aria-labelledby="use-this-title" className="space-y-4">
-            <div>
-              <p className="pr-v2-eyebrow">Use now</p>
-              <h2 id="use-this-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">{useThis ? "Ready on your card" : "Nothing usable yet"}</h2>
-            </div>
-            {useThis ? (
-              <OutcomeSurface><BenefitTicket perk={useThis} aim={aim} onShowCode={openPerk} /></OutcomeSurface>
-            ) : qrPass ? (
-              <OfferIssuancePass issuance={qrPass as OfferIssuance} />
-            ) : (
-              <div className="space-y-4">
-                <QuietEmpty title={empty.title} copy={empty.description} action={<Link to={discoverHrefForAim(aim)} className={primaryActionClass}>{aim ? `Browse ${aim.label} perks` : "Browse live perks"} <ArrowRight className="h-4 w-4" /></Link>} />
-                <FillCardMoves aim={aim} authenticated={Boolean(user)} />
+              <div className="rounded-[1.25rem] border border-white/10 bg-black/35 p-5 backdrop-blur-md sm:p-6">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-[#f0bd72]" aria-hidden="true" />
+                  <p className="pr-v2-kicker">{useThis ? "Ready now" : "Your next opening"}</p>
+                </div>
+                <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-.04em] text-white sm:text-4xl">{useThis?.title || empty.title}</h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-white/58">{useThis?.detail || empty.description}</p>
+                {useThis?.issuer?.name ? <p className="mt-3 text-xs font-bold uppercase tracking-[.13em] text-white/38">{useThis.issuer.name}</p> : null}
+                <div className="mt-6">
+                  {useThis && face.canFlip ? (
+                    <button type="button" onClick={() => setFlipped(true)} className={primaryActionClass}>Use this now <ArrowRight className="h-4 w-4" /></button>
+                  ) : qrPass ? (
+                    <OfferIssuancePass issuance={qrPass as OfferIssuance} />
+                  ) : (
+                    <Link to={discoverHrefForAim(aim)} className={primaryActionClass}>{aim ? `Find ${aim.label}` : "Find something useful"} <ArrowRight className="h-4 w-4" /></Link>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </section>
 
           <section aria-labelledby="owned-benefits-title" className="space-y-4">
             <div className="flex items-end justify-between gap-4">
-              <div><p className="pr-v2-eyebrow">What you have</p><h2 id="owned-benefits-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">On the card</h2></div>
-              <span className="text-sm text-[hsl(var(--pr-v2-text-3))]">{livePerks.length} active</span>
+              <div><p className="pr-v2-kicker">In your possession</p><h2 id="owned-benefits-title" className="pr-v2-editorial-heading mt-2 text-white">On your card</h2></div>
+              <span className="text-sm text-white/38">{livePerks.length} active</span>
             </div>
             {livePerks.length ? (
-              <OutcomeSurface className="py-0">
+              <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.025] px-5">
                 {livePerks.map((perk) => {
                   const journey = journeyIssuance(perk);
-                  return journey ? <div key={perk.id} className="py-5"><OfferIssuancePass issuance={journey as OfferIssuance} /></div> : <BenefitTicket key={perk.id} perk={perk} aim={aim} onShowCode={openPerk} />;
+                  return journey ? <div key={perk.id} className="py-5"><OfferIssuancePass issuance={journey as OfferIssuance} /></div> : <BenefitRow key={perk.id} perk={perk} aim={aim} onShowCode={openPerk} />;
                 })}
-              </OutcomeSurface>
-            ) : <QuietEmpty title="Nothing on the card yet" copy={aim ? `${aim.watchingLine} Unlocking puts it here.` : "When you unlock a benefit, it lands here."} />}
+              </div>
+            ) : (
+              <QuietEmpty title="Nothing on the card yet" copy="When you unlock something useful, it lands here." />
+            )}
           </section>
 
-          <section aria-labelledby="nearby-title" className="space-y-4">
+          <section aria-labelledby="nearby-title" className="space-y-5">
             <div className="flex items-end justify-between gap-4">
-              <div><p className="pr-v2-eyebrow">Nearby</p><h2 id="nearby-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">Available to add</h2></div>
-              <Link to={discoverHrefForAim(aim)} className="pr-v2-focusable min-h-11 py-3 text-sm font-bold text-[hsl(var(--pr-v2-active-role))]">See more</Link>
+              <div><p className="pr-v2-kicker">Close enough to use</p><h2 id="nearby-title" className="pr-v2-editorial-heading mt-2 text-white">Available nearby</h2></div>
+              <Link to={discoverHrefForAim(aim)} className="pr-v2-focusable min-h-11 py-3 text-xs font-black uppercase tracking-[.16em] text-[#d6ad69]">See more</Link>
             </div>
             {nearby.length ? (
               <div className="grid gap-4 lg:grid-cols-2">
                 {nearby.slice(0, 4).map((perk: CardPerk) => (
-                  <OpportunityCard key={perk.id} context={perk.issuer?.name || "PROMORANG partner"} status={perk.availableQuantity == null ? "Available" : `${perk.availableQuantity} left`} title={perk.title} description={perk.detail} proof="Merchant validates use" action={<Link to={perk.dropSlug ? `/drop/${perk.dropSlug}` : perk.href || "/discover"} className={primaryActionClass}>View benefit</Link>} />
+                  <OpportunityCard
+                    key={perk.id}
+                    eyebrow={perk.issuer?.name || "PROMORANG partner"}
+                    status={perk.availableQuantity == null ? "Available" : `${perk.availableQuantity} left`}
+                    title={perk.title}
+                    description={perk.detail}
+                    proof="Verified when used"
+                    actionLabel="View benefit"
+                    action={<Link to={perk.dropSlug ? `/drop/${perk.dropSlug}` : perk.href || "/discover"} className="font-bold">View benefit</Link>}
+                  />
                 ))}
               </div>
-            ) : <OutcomeSurface><p className="text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{useThis ? "Nothing else live nearby right now." : aim ? `Nothing live for ${aim.label} right now. You can still fill the card.` : "No participating businesses are sharing a live benefit right now."}</p><Link to={discoverHrefForAim(aim)} className="pr-v2-focusable mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[hsl(var(--pr-v2-active-role))]">{aim ? `Find ${aim.label}` : "Open Discover"} <ArrowRight className="h-4 w-4" /></Link></OutcomeSurface>}
+            ) : (
+              <OutcomeSurface><p className="text-sm leading-6 text-white/55">Nothing else live nearby right now.</p><Link to={discoverHrefForAim(aim)} className="pr-v2-focusable mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[#ff7847]">Open Discover <ArrowRight className="h-4 w-4" /></Link></OutcomeSurface>
+            )}
           </section>
 
-          <section aria-labelledby="next-benefit-title" className="space-y-4">
-            <div><p className="pr-v2-eyebrow">Repeat</p><h2 id="next-benefit-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">What comes next</h2></div>
-            {nextBenefit ? (
-              <OpportunityCard context={nextBenefit.issuer?.name || "Next visit"} status="Next" title={nextBenefit.title} description="Use what is already on your card first. The next benefit is a reason to return." proof="Appears when the qualifying action is recorded" action={<Link to={discoverHrefForAim(aim)} className={primaryActionClass}>Find it nearby</Link>} />
-            ) : <p className="text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{useThis ? "Use the one on your card. The next benefit appears after the qualifying action is recorded." : "Nothing is queued next until something lands on the card."}</p>}
-          </section>
-
-          {data?.repeatUse || Number(data?.points || 0) || Number(data?.keys || 0) ? (
+          {(data?.repeatUse || Number(data?.points || 0) || Number(data?.keys || 0) || world?.latestReturn) ? (
             <section aria-labelledby="card-proof-title" className="space-y-4">
-              <div><p className="pr-v2-eyebrow">Proof & value</p><h2 id="card-proof-title" className="pr-v2-heading mt-2 text-[hsl(var(--pr-v2-text-1))]">What the card has recorded</h2></div>
+              <div><p className="pr-v2-kicker">What changed</p><h2 id="card-proof-title" className="pr-v2-editorial-heading mt-2 text-white">Your card remembers</h2></div>
               <ConsequenceReceipt event="PromoCard history" lines={[
                 { label: "PromoPoints", value: Number(data?.points || 0).toLocaleString() },
                 { label: "PromoKeys", value: Number(data?.keys || 0) },
                 ...(data?.repeatUse ? [
-                  { label: "First redemptions", value: data.repeatUse.firstRedemptions },
-                  { label: "Second uses", value: data.repeatUse.secondUses, emphasis: true },
+                  { label: "First uses", value: data.repeatUse.firstRedemptions },
+                  { label: "Returns", value: data.repeatUse.secondUses, emphasis: true },
                 ] : []),
-              ]} next={nextBenefit ? <Link to={discoverHrefForAim(aim)} className="font-bold text-black underline decoration-black/30 underline-offset-4">Find the next useful thing</Link> : undefined} />
+              ]} next={nextBenefit ? <Link to={discoverHrefForAim(aim)} className="font-bold text-black underline decoration-black/30 underline-offset-4">See what opened next</Link> : undefined} />
             </section>
           ) : null}
 
-          <details className="border-y border-[hsl(var(--pr-v2-stroke-soft))] py-4">
-            <summary className="pr-v2-focusable min-h-11 cursor-pointer py-3 text-sm font-bold text-[hsl(var(--pr-v2-text-1))]">Tune what this card looks for</summary>
-            <div className="pb-3 pt-2">
-              <p className="text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{aim ? aim.watchingLine : "Optional. Filter Discover toward food, tonight, or a neighbourhood; the card still works without an aim."}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {PROMOCARD_AIMS.map((item) => {
-                  const active = aim?.id === item.id;
-                  return <button key={item.id} type="button" aria-pressed={active} onClick={() => chooseAim(item)} className={`pr-v2-focusable min-h-11 rounded-full border px-4 text-sm font-bold ${active ? "border-[hsl(var(--pr-v2-active-role))] bg-[hsl(var(--pr-v2-active-role))] text-black" : "border-[hsl(var(--pr-v2-stroke-strong))] text-[hsl(var(--pr-v2-text-2))]"}`}>{item.label}</button>;
-                })}
+          <details className="rounded-[1rem] border border-white/10 bg-white/[0.02] px-5 py-2">
+            <summary className="pr-v2-focusable min-h-11 cursor-pointer py-3 text-sm font-bold text-white/70">More from your card</summary>
+            <div className="space-y-6 border-t border-white/8 pb-4 pt-5">
+              <div>
+                <p className="text-sm leading-6 text-white/50">{aim ? aim.watchingLine : "Optionally tell PROMORANG what you want the card to notice more often."}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {PROMOCARD_AIMS.map((item) => {
+                    const active = aim?.id === item.id;
+                    return <button key={item.id} type="button" aria-pressed={active} onClick={() => chooseAim(item)} className={`pr-v2-focusable min-h-11 rounded-full border px-4 text-sm font-bold ${active ? "border-[#ff6b35]/55 bg-[#ff6b35]/12 text-[#ff895e]" : "border-white/10 text-white/52"}`}>{item.label}</button>;
+                  })}
+                </div>
               </div>
-            </div>
-          </details>
-
-          <details className="border-b border-[hsl(var(--pr-v2-stroke-soft))] pb-4">
-            <summary className="pr-v2-focusable min-h-11 cursor-pointer py-3 text-sm font-bold text-[hsl(var(--pr-v2-text-1))]">Community & world context</summary>
-            <div className="space-y-4 pt-2">
               <CommunityCardLink />
               {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
               <PromoCardWorldContext scene={data?.memberships?.[0]?.title || null} season={data?.memberships?.length ? world?.slice?.seasonTitle : null} crew={world?.crew?.name} run={world?.crew?.runTitle ? `${world.crew.runTitle} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 0}` : null} pathCue={world?.path?.cue} identityLine={world?.identity?.line} formingLine={invitation.formingLine} latestReturn={world?.latestReturn?.heading} nearestUnlock={world?.promoCard?.nearestUnlock} latestPiece={world?.latestMemory?.title} />
-              {data?.memberships?.length ? <div className="space-y-2">{data.memberships.map((item: { id: string; slug?: string; title: string; role: string }) => <Link key={item.id} to={item.slug ? `/scenes/${item.slug}` : "/scenes"} className="block border-t border-[hsl(var(--pr-v2-stroke-soft))] py-3 text-sm font-semibold text-[hsl(var(--pr-v2-text-1))]">{item.title}<span className="ml-2 text-xs font-normal uppercase tracking-wider text-[hsl(var(--pr-v2-text-3))]">{item.role}</span></Link>)}</div> : <Link to="/scenes" className="inline-flex min-h-11 items-center text-sm font-bold text-[hsl(var(--pr-v2-active-role))]">Find a community</Link>}
+              {expiredPerks.length ? <p className="text-xs text-white/38">{expiredPerks.length} expired benefit{expiredPerks.length === 1 ? "" : "s"} kept in history.</p> : null}
             </div>
           </details>
 
-          {expiredPerks.length ? <details className="border-b border-[hsl(var(--pr-v2-stroke-soft))] pb-4"><summary className="pr-v2-focusable min-h-11 cursor-pointer py-3 text-sm font-bold text-[hsl(var(--pr-v2-text-2))]">Expired benefits ({expiredPerks.length})</summary><ul className="divide-y divide-[hsl(var(--pr-v2-stroke-soft))]">{expiredPerks.map((perk) => <li key={perk.id} className="py-3 text-sm text-[hsl(var(--pr-v2-text-2))]">{perk.title}<span className="ml-2 text-xs text-[hsl(var(--pr-v2-text-3))]">Expired</span></li>)}</ul></details> : null}
-
-          <Link to={to("/dashboard")} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[hsl(var(--pr-v2-text-2))]">Back to Today <ArrowRight className="h-4 w-4" /></Link>
+          {!useThis && !qrPass ? <FillCardMoves aim={aim} authenticated={Boolean(user)} /> : null}
+          <Link to={to("/dashboard")} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white/52">Back to Today <ArrowRight className="h-4 w-4" /></Link>
         </div>
       )}
 
@@ -347,23 +318,20 @@ export default function MyPromoCard() {
           setCopyState("idle");
         }
       }}>
-        <DialogContent onCloseAutoFocus={(event) => { event.preventDefault(); triggerRef.current?.focus(); }} className="max-h-[90dvh] overflow-y-auto rounded-[var(--pr-v2-radius-object)] border-[hsl(var(--pr-v2-stroke-strong))] bg-[hsl(var(--pr-v2-surface-1))] text-[hsl(var(--pr-v2-text-1))] sm:max-w-md">
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[hsl(var(--pr-v2-active-role))]">On your PromoCard</p>
-          <DialogTitle className="break-words pr-5 text-2xl font-bold tracking-[-0.03em]">{selected?.title || face.headline}</DialogTitle>
-          <DialogDescription className="text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{selected?.detail || face.detail || "Show this only when you are ready to use it."}</DialogDescription>
+        <DialogContent onCloseAutoFocus={(event) => { event.preventDefault(); triggerRef.current?.focus(); }} className="max-h-[90dvh] overflow-y-auto rounded-[var(--pr-v2-radius-object)] border-white/12 bg-[#0a0d11] text-white sm:max-w-md">
+          <p className="pr-v2-kicker">On your PromoCard</p>
+          <DialogTitle className="break-words pr-5 font-serif text-3xl font-semibold tracking-[-0.04em]">{selected?.title || face.headline}</DialogTitle>
+          <DialogDescription className="text-sm leading-6 text-white/55">{selected?.detail || face.detail || "Show this only when you are ready to use it."}</DialogDescription>
           {(selectedCode && selected && !selectedExpired && canShowCode(selected)) || (!selected && face.credential) ? (
-            <div className="mt-2 rounded-[var(--pr-v2-radius-module)] border border-[hsl(var(--pr-v2-active-role)/0.3)] bg-[hsl(var(--pr-v2-active-role)/0.08)] p-5 text-center">
-              <p className="text-sm text-[hsl(var(--pr-v2-text-2))]">Show this code to redeem</p>
+            <div className="mt-2 rounded-[1.1rem] border border-[#d99a4e]/25 bg-[#d99a4e]/8 p-5 text-center">
+              <p className="text-sm text-white/50">Show this code to redeem</p>
               <code className="my-5 block select-all break-all font-mono text-3xl font-bold tracking-wider">{selectedCode || face.credential}</code>
-              <button type="button" onClick={() => {
-                if (selected) void copyCode();
-                else if (face.credential) void navigator.clipboard.writeText(face.credential).then(() => setCopyState("copied"), () => setCopyState("failed"));
-              }} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 rounded-[var(--pr-v2-radius-control)] border border-[hsl(var(--pr-v2-stroke-strong))] px-4 text-sm font-semibold">
+              <button type="button" onClick={() => void copyCode()} className="pr-v2-focusable inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-sm font-semibold">
                 {copyState === "copied" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} {copyState === "copied" ? "Copied" : "Copy code"}
               </button>
-              <p role="status" className="mt-2 text-xs text-[hsl(var(--pr-v2-text-3))]">{copyState === "failed" ? "Couldn’t copy. You can select the code or show this screen." : copyState === "copied" ? "Code copied to clipboard." : "Only share this code when redeeming your benefit."}</p>
+              <p role="status" className="mt-2 text-xs text-white/38">{copyState === "failed" ? "Couldn’t copy. You can select the code or show this screen." : copyState === "copied" ? "Code copied to clipboard." : "Only share this code when redeeming your benefit."}</p>
             </div>
-          ) : selected ? <p className="rounded-[var(--pr-v2-radius-control)] bg-[hsl(var(--pr-v2-surface-3))] p-4 text-sm leading-6 text-[hsl(var(--pr-v2-text-2))]">{selectedExpired ? "This benefit has expired. Explore Discover for something new." : "This benefit has no usable code yet. Follow its fulfilment instructions instead."}</p> : null}
+          ) : selected ? <p className="rounded-xl bg-white/[0.04] p-4 text-sm leading-6 text-white/55">{selectedExpired ? "This benefit has expired. Explore Discover for something new." : "This benefit has no usable code yet. Follow its fulfilment instructions instead."}</p> : null}
         </DialogContent>
       </Dialog>
     </ExperienceShell>
