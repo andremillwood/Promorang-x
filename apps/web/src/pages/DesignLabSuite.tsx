@@ -15,6 +15,7 @@ import { StakeholderExperienceLab } from "@/design-system/stakeholders/Stakehold
 import { StakeholderLifecycleLab } from "@/design-system/stakeholders/StakeholderLifecycleLab";
 import { StakeholderWorkflowProofLab } from "@/design-system/stakeholders/StakeholderWorkflowProofLab";
 import { CrossRoleProofChainLab } from "@/design-system/stakeholders/CrossRoleProofChainLab";
+import { StakeholderResilienceLab } from "@/design-system/stakeholders/StakeholderResilienceLab";
 
 export default function DesignLabSuite() {
   return (
@@ -61,41 +62,21 @@ export default function DesignLabSuite() {
             </div>
           </div>
           <PromorangEconomyLab />
-
           <div className="mt-32 border-t border-white/10 pt-24"><PromorangEconomyLabV2 /></div>
-
           <div className="mt-32 border-t border-white/10 pt-24">
-            <div className="mb-16 grid gap-6 lg:grid-cols-[1fr_.52fr] lg:items-end">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">PROMORANG economy · material & artifact depth</p><h2 className="mt-4 max-w-5xl font-serif text-5xl font-bold leading-[0.9] tracking-[-0.055em] text-white md:text-7xl">Believable instruments, not beautiful panels.</h2></div>
-              <div className="border-l border-primary/35 pl-5"><p className="font-serif text-2xl font-bold text-[#f6d48a]">Material → edge → residue → consequence</p><p className="mt-3 text-sm leading-6 text-white/45">The receipt is the benchmark: every object should feel produced by a process, carry evidence of its state, and retain a believable trace of what happened.</p></div>
-            </div>
+            <div className="mb-16 grid gap-6 lg:grid-cols-[1fr_.52fr] lg:items-end"><div><p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">PROMORANG economy · material & artifact depth</p><h2 className="mt-4 max-w-5xl font-serif text-5xl font-bold leading-[0.9] tracking-[-0.055em] text-white md:text-7xl">Believable instruments, not beautiful panels.</h2></div><div className="border-l border-primary/35 pl-5"><p className="font-serif text-2xl font-bold text-[#f6d48a]">Material → edge → residue → consequence</p><p className="mt-3 text-sm leading-6 text-white/45">The receipt is the benchmark: every object should feel produced by a process, carry evidence of its state, and retain a believable trace of what happened.</p></div></div>
             <PromorangEconomyLabV3 />
           </div>
-
           <div className="mt-32 border-t border-white/10 pt-24">
-            <div className="mb-16 grid gap-6 lg:grid-cols-[1fr_.52fr] lg:items-end">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">PROMORANG economy · operational artifacts</p><h2 className="mt-4 max-w-5xl font-serif text-5xl font-bold leading-[0.9] tracking-[-0.055em] text-white md:text-7xl">Every mark should prove something happened.</h2></div>
-              <div className="border-l border-primary/35 pl-5"><p className="font-serif text-2xl font-bold text-[#f6d48a]">Identify → authenticate → time → record → transform</p><p className="mt-3 text-sm leading-6 text-white/45">V4 replaces theory rows with operating evidence: responders, serials, validation stamps, transfer residue, ticket locks, custody records and ledgers.</p></div>
-            </div>
+            <div className="mb-16 grid gap-6 lg:grid-cols-[1fr_.52fr] lg:items-end"><div><p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">PROMORANG economy · operational artifacts</p><h2 className="mt-4 max-w-5xl font-serif text-5xl font-bold leading-[0.9] tracking-[-0.055em] text-white md:text-7xl">Every mark should prove something happened.</h2></div><div className="border-l border-primary/35 pl-5"><p className="font-serif text-2xl font-bold text-[#f6d48a]">Identify → authenticate → time → record → transform</p><p className="mt-3 text-sm leading-6 text-white/45">V4 replaces theory rows with operating evidence: responders, serials, validation stamps, transfer residue, ticket locks, custody records and ledgers.</p></div></div>
             <PromorangEconomyLabV4 />
             <div className="mt-32"><PromorangMarketplaceOpsV4 /></div>
           </div>
-
-          <div className="mt-40 border-t border-white/10 pt-24">
-            <StakeholderExperienceLab />
-          </div>
-
-          <div className="mt-40 border-t border-white/10 pt-24">
-            <StakeholderLifecycleLab />
-          </div>
-
-          <div className="mt-40 border-t border-white/10 pt-24">
-            <StakeholderWorkflowProofLab />
-          </div>
-
-          <div className="mt-40 border-t border-white/10 pt-24">
-            <CrossRoleProofChainLab />
-          </div>
+          <div className="mt-40 border-t border-white/10 pt-24"><StakeholderExperienceLab /></div>
+          <div className="mt-40 border-t border-white/10 pt-24"><StakeholderLifecycleLab /></div>
+          <div className="mt-40 border-t border-white/10 pt-24"><StakeholderWorkflowProofLab /></div>
+          <div className="mt-40 border-t border-white/10 pt-24"><CrossRoleProofChainLab /></div>
+          <div className="mt-40 border-t border-white/10 pt-24"><StakeholderResilienceLab /></div>
         </div>
       </section>
     </div>
