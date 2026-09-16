@@ -117,8 +117,12 @@ router.get('/submissions/:id/audit', requireAuth, async (req, res) => {
       return res.status(403).json({ success: false, error: 'Host or admin access required' });
     }
 
-    const audit = await proofService.getProofSubmissionAudit(req.params.id);
-    res.json({ success: true, audit });
+    const [audit, canonicalLineage] = await Promise.all([
+      proofService.getProofSubmissionAudit(req.params.id),
+      canonicalEvents.getObjectEventsBestEffort({ objectType: 'proof_submission', objectId: req.params.id, limit: 100 }),
+    ]);
+
+    res.json({ success: true, audit: { ...audit, canonical_lineage: canonicalLineage } });
   } catch (error) {
     console.error('[Proof API] audit error:', error);
     res.status(500).json({ success: false, error: error.message });
