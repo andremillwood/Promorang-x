@@ -49,6 +49,7 @@ export default defineConfig(({ mode }) => {
       input: {
         app: path.resolve(__dirname, "index.html"),
         designLab: path.resolve(__dirname, "design-lab.html"),
+        participantNext: path.resolve(__dirname, "participant-next.html"),
       },
       output: {
         manualChunks: {
