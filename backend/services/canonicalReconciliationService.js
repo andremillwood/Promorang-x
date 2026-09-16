@@ -28,6 +28,8 @@ async function domainCount(spec, since) {
       return countQuery(supabase.from('guest_attendance_receipts').select('*', { count: 'exact', head: true }).in('status', ['verified', 'claimed']).gte('verified_at', since));
     case 'commerce_purchase':
       return countQuery(supabase.from('commerce_receipts').select('*', { count: 'exact', head: true }).eq('receipt_type', 'purchase').eq('status', 'fulfilled').gte('occurred_at', since));
+    case 'creator_value':
+      return countQuery(supabase.from('creator_earnings_ledger').select('*', { count: 'exact', head: true }).gte('created_at', since));
     default:
       throw new Error(`Unsupported reconciliation key: ${spec.key}`);
   }
@@ -49,6 +51,7 @@ const RECONCILIATION_SPECS = Object.freeze([
   { key: 'guest_rsvp', event: 'attendance.rsvp.observed' },
   { key: 'guest_attendance', event: 'attendance.guest.verified' },
   { key: 'commerce_purchase', event: 'commerce.purchase.fulfilled' },
+  { key: 'creator_value', event: 'creator.value.attributed' },
 ]);
 
 function evaluateRow(spec, sourceCount, eventCount) {
