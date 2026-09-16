@@ -1,0 +1,167 @@
+const { supabase: serviceSupabase } = require('../lib/supabase');
+
+const supabase = global.supabase || serviceSupabase || null;
+const TRUTH_CLASSES = new Set(['observed', 'attributed', 'verified', 'incremental', 'administrative']);
+
+function compact(value) {
+  if (Array.isArray(value)) return value.map(compact);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value)
+      .filter(([, item]) => item !== undefined)
+      .map(([key, item]) => [key, compact(item)]));
+  }
+  return value;
+}
+
+function buildCanonicalEvent(input = {}) {
+  if (!input.eventName) throw new Error('Canonical event name is required');
+  if (!input.objectType || !input.objectId) throw new Error('Canonical event object type and id are required');
+  if (!input.source) throw new Error('Canonical event source is required');
+  if (!input.idempotencyKey) throw new Error('Canonical event idempotency key is required');
+  const truthClass = input.truthClass || 'observed';
+  if (!TRUTH_CLASSES.has(truthClass)) throw new Error(`Unsupported canonical truth class: ${truthClass}`);
+
+  return compact({
+    event_name: input.eventName,
+    event_version: input.eventVersion || 1,
+    occurred_at: input.occurredAt || new Date().toISOString(),
+    actor_user_id: input.actorUserId || null,
+    actor_organization_id: input.actorOrganizationId || null,
+    actor_role: input.actorRole || null,
+    subject_user_id: input.subjectUserId || null,
+    object_type: input.objectType,
+    object_id: String(input.objectId),
+    aggregate_type: input.aggregateType || null,
+    aggregate_id: input.aggregateId ? String(input.aggregateId) : null,
+    place_id: input.placeId ? String(input.placeId) : null,
+    campaign_id: input.campaignId ? String(input.campaignId) : null,
+    experience_id: input.experienceId ? String(input.experienceId) : null,
+    source: input.source,
+    source_event_id: input.sourceEventId || null,
+    causation_event_id: input.causationEventId || null,
+    correlation_id: input.correlationId || null,
+    idempotency_key: input.idempotencyKey,
+    truth_class: truthClass,
+    reversal_of_event_id: input.reversalOfEventId || null,
+    metadata: input.metadata || {},
+  });
+}
+
+async function recordEvent(input) {
+  if (!supabase) throw new Error('Database not available');
+  const event = buildCanonicalEvent(input);
+  const { data, error } = await supabase
+    .from('canonical_events')
+    .upsert(event, { onConflict: 'idempotency_key', ignoreDuplicates: true })
+    .select()
+    .maybeSingle();
+  if (error) throw error;
+  if (data) return { event: data, idempotent: false };
+
+  const { data: existing, error: existingError } = await supabase
+    .from('canonical_events')
+    .select('*')
+    .eq('idempotency_key', event.idempotency_key)
+    .maybeSingle();
+  if (existingError) throw existingError;
+  return { event: existing || event, idempotent: true };
+}
+
+async function recordBestEffort(input) {
+  try {
+    return await recordEvent(input);
+  } catch (error) {
+    // Canonical journaling is additive during convergence. It must not roll back
+    // an already-committed domain write if the journal has not been migrated yet.
+    if (['42P01', 'PGRST205'].includes(error?.code) || /canonical_events/i.test(error?.message || '')) {
+      console.warn('[Canonical Event] journal unavailable:', error.message);
+      return { event: buildCanonicalEvent(input), idempotent: false, recorded: false };
+    }
+    console.error('[Canonical Event] write failed:', error);
+    return { event: buildCanonicalEvent(input), idempotent: false, recorded: false, error: error.message };
+  }
+}
+
+function offerRedemptionEvent({ actorUserId, issuance, venueId }) {
+  const offer = issuance?.offers || issuance?.offer || {};
+  return buildCanonicalEvent({
+    eventName: 'offer.redemption.verified',
+    actorUserId,
+    actorRole: 'merchant_operator',
+    subjectUserId: issuance?.user_id || null,
+    objectType: 'offer_issuance',
+    objectId: issuance?.id,
+    aggregateType: 'offer',
+    aggregateId: issuance?.offer_id,
+    placeId: venueId || offer.venue_id || null,
+    source: 'api.offers.redeem',
+    sourceEventId: `offer_redemption:${issuance?.id}:redeemed`,
+    correlationId: `offer:${issuance?.offer_id}:issuance:${issuance?.id}`,
+    idempotencyKey: `canonical:offer-redemption:${issuance?.id}`,
+    truthClass: 'verified',
+    occurredAt: issuance?.redeemed_at || new Date().toISOString(),
+    metadata: {
+      offer_id: issuance?.offer_id || null,
+      fulfillment_type: offer.fulfillment_type || null,
+      reward_type: offer.reward_type || null,
+      domain_record: 'offer_redemption_events',
+    },
+  });
+}
+
+function proofSubmissionEvent({ submission, momentId, userId }) {
+  return buildCanonicalEvent({
+    eventName: 'proof.submission.observed',
+    actorUserId: userId,
+    actorRole: 'participant',
+    subjectUserId: userId,
+    objectType: 'proof_submission',
+    objectId: submission?.id,
+    aggregateType: 'experience',
+    aggregateId: momentId,
+    experienceId: momentId,
+    source: 'api.proof.submit',
+    sourceEventId: `proof_submission:${submission?.id}`,
+    correlationId: `experience:${momentId}:participant:${userId}`,
+    idempotencyKey: `canonical:proof-submission:${submission?.id}`,
+    truthClass: 'observed',
+    occurredAt: submission?.created_at || new Date().toISOString(),
+    metadata: { domain_record: 'proof_submissions' },
+  });
+}
+
+function proofReviewEvent({ submission, reviewerId, action, result }) {
+  const approved = action === 'approve';
+  return buildCanonicalEvent({
+    eventName: approved ? 'proof.review.verified' : 'proof.review.rejected',
+    actorUserId: reviewerId,
+    actorRole: 'host_or_admin_reviewer',
+    subjectUserId: submission?.user_id || null,
+    objectType: 'proof_submission',
+    objectId: submission?.id,
+    aggregateType: 'experience',
+    aggregateId: submission?.moment_id,
+    experienceId: submission?.moment_id,
+    source: 'api.proof.review',
+    sourceEventId: `proof_review:${submission?.id}:${action}`,
+    correlationId: `experience:${submission?.moment_id}:participant:${submission?.user_id}`,
+    idempotencyKey: `canonical:proof-review:${submission?.id}:${action}`,
+    truthClass: approved ? 'verified' : 'administrative',
+    occurredAt: result?.submission?.reviewed_at || new Date().toISOString(),
+    metadata: {
+      action,
+      resulting_state: result?.submission?.submission_state || (approved ? 'verified' : 'rejected'),
+      domain_record: 'proof_submissions',
+    },
+  });
+}
+
+module.exports = {
+  TRUTH_CLASSES,
+  buildCanonicalEvent,
+  recordEvent,
+  recordBestEffort,
+  offerRedemptionEvent,
+  proofSubmissionEvent,
+  proofReviewEvent,
+};
