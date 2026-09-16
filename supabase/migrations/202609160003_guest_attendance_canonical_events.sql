@@ -96,7 +96,7 @@ BEGIN
       truth_class, reversal_of_event_id, metadata
     ) VALUES (
       'attendance.guest.reversed', 1, COALESCE(NEW.updated_at, now()),
-      NEW.verified_by, 'admin_or_host_correction', NEW.user_id,
+      NULL, 'domain_state_correction', NEW.user_id,
       'guest_attendance_receipt', NEW.id::text,
       'guest_rsvp', NEW.rsvp_id::text, NEW.moment_id::text,
       'db.guest_attendance_receipts', 'guest_attendance_receipt:' || NEW.id::text || ':reversed',
@@ -107,7 +107,8 @@ BEGIN
       v_prior_event_id,
       jsonb_build_object(
         'receipt_status', NEW.status,
-        'domain_record', 'guest_attendance_receipts'
+        'domain_record', 'guest_attendance_receipts',
+        'actor_unknown_from_domain_row', true
       )
     )
     ON CONFLICT (idempotency_key) DO NOTHING;
@@ -126,6 +127,6 @@ EXECUTE FUNCTION public.journal_guest_attendance_receipt();
 COMMENT ON FUNCTION public.journal_guest_rsvp_observed() IS
   'Records guest reservation intent without implying attendance.';
 COMMENT ON FUNCTION public.journal_guest_attendance_receipt() IS
-  'Records verified guest attendance and append-only reversals from the authoritative receipt state.';
+  'Records verified guest attendance and append-only reversals from the authoritative receipt state. Reversal actor is intentionally unset until the domain stores it.';
 
 NOTIFY pgrst, 'reload schema';
