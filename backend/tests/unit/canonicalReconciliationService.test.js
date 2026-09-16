@@ -11,7 +11,9 @@ describe('Canonical reconciliation semantics', () => {
       'settlement.payout.paid',
       'attendance.rsvp.observed',
       'attendance.guest.verified',
+      'commerce.purchase.recorded',
       'commerce.purchase.fulfilled',
+      'creator.value.attributed',
     ]));
   });
 
@@ -32,7 +34,7 @@ describe('Canonical reconciliation semantics', () => {
   });
 
   test('marks canonical surplus as extra events rather than hiding it', () => {
-    expect(evaluateRow({ key: 'commerce_purchase', event: 'commerce.purchase.fulfilled' }, 2, 3)).toMatchObject({
+    expect(evaluateRow({ key: 'commerce_purchase_fulfilled', event: 'commerce.purchase.fulfilled' }, 2, 3)).toMatchObject({
       status: 'extra_events',
       delta: 1,
       coverage: 1,
