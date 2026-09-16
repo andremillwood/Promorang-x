@@ -10,7 +10,7 @@ import { I18nProvider } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PromorangMark } from "@/components/promorang/PromorangMark";
 import ParticipantExperienceV1 from "@/pages/participant/ParticipantExperienceV1";
-import ParticipantExperienceReviewV1 from "@/pages/participant/ParticipantExperienceReviewV1";
+import ParticipantCompleteReviewV1 from "@/pages/participant/ParticipantCompleteReviewV1";
 import "./index.css";
 import "./participant-next.css";
 
@@ -68,34 +68,30 @@ function LiveGate() {
 }
 
 function ReviewRoutes() {
-  return <Routes><Route path="/:surface" element={<ParticipantExperienceReviewV1 />} /><Route path="/" element={<Navigate to="/today" replace />} /><Route path="*" element={<Navigate to="/today" replace />} /></Routes>;
+  return <Routes><Route path="/*" element={<ParticipantCompleteReviewV1 />} /></Routes>;
 }
 
 function DesktopReviewNav() {
   return (
-    <header className="participant-desktop-header hidden border-b border-white/[0.06] bg-[#080809]/92 text-white backdrop-blur-xl lg:block">
-      <div className="mx-auto flex h-[74px] max-w-[1320px] items-center gap-8 px-6">
-        <div className="flex min-w-[220px] items-center gap-3">
+    <header className="participant-desktop-header hidden border-b border-white/[0.06] bg-[#080809] text-white lg:block">
+      <div className="mx-auto flex h-[78px] max-w-[1540px] items-center gap-8 px-7">
+        <div className="flex min-w-[250px] items-center gap-3">
           <PromorangMark size={34} />
           <div>
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#ff6a00]">PROMORANG</p>
-            <p className="text-xs font-semibold text-white/40">Move. Return. Keep.</p>
+            <p className="text-xs font-semibold text-white/45">Move. Return. Keep.</p>
           </div>
         </div>
         <nav className="flex flex-1 items-center justify-center gap-1" aria-label="Participant navigation">
           {desktopNav.map(([key, label]) => (
-            <NavLink
-              key={key}
-              to={`/${key}`}
-              className={({ isActive }) => `rounded-full px-4 py-2.5 text-sm font-bold transition ${isActive ? "bg-[#eadcc6] text-black" : "text-white/48 hover:bg-white/[0.05] hover:text-white"}`}
-            >
+            <NavLink key={key} to={`/${key}`} className={({ isActive }) => `rounded-full px-4 py-2.5 text-sm font-bold transition ${isActive ? "bg-[#eadcc6] text-black" : "text-white/60 hover:bg-white/[0.06] hover:text-white"}`}>
               {label}
             </NavLink>
           ))}
         </nav>
-        <div className="min-w-[220px] text-right">
-          <p className="text-[10px] font-black uppercase tracking-[.16em] text-white/30">World</p>
-          <p className="mt-1 text-sm font-bold text-white/70">Kingston</p>
+        <div className="flex min-w-[250px] items-center justify-end gap-5">
+          <div className="text-right"><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/30">World</p><p className="mt-1 text-sm font-bold text-white/75">Kingston</p></div>
+          <span className="rounded-full border border-[#ff6a00]/30 bg-[#ff6a00]/[.06] px-3 py-2 text-[9px] font-black uppercase tracking-[.14em] text-[#ff9a4d]">Review data · illustrative</span>
         </div>
       </div>
     </header>
@@ -105,12 +101,7 @@ function DesktopReviewNav() {
 function ReviewFrame() {
   const location = useLocation();
   const surface = (location.pathname.split("/").filter(Boolean)[0] || "today").toLowerCase();
-  return (
-    <div className="participant-review-frame" data-surface={surface}>
-      <DesktopReviewNav />
-      <ReviewRoutes />
-    </div>
-  );
+  return <div className="participant-review-frame" data-surface={surface}><DesktopReviewNav /><ReviewRoutes /></div>;
 }
 
 function renderBootError(error: unknown) {
