@@ -1,21 +1,6 @@
-import React, { useState } from "react";
-import {
-  Activity,
-  Radio,
-  Users,
-  Sparkles,
-  Zap,
-  Flame,
-  Clock,
-  MapPin,
-  Megaphone,
-  CheckCircle2,
-  Share2,
-  Volume2,
-  TrendingUp,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { AlertTriangle, Radio, Megaphone, Volume2, Wifi, WifiOff, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { HostPulseControlPanel } from "@/components/host/HostPulseControlPanel";
@@ -23,154 +8,91 @@ import { HostPulseControlPanel } from "@/components/host/HostPulseControlPanel";
 export function HostLivePulseConsole() {
   const { toast } = useToast();
   const [announcementText, setAnnouncementText] = useState("");
-  const [pulseActive, setPulseActive] = useState(true);
+  const [online, setOnline] = useState(typeof navigator === "undefined" ? true : navigator.onLine);
+
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
 
   const handleBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!announcementText.trim()) return;
+    if (!announcementText.trim() || !online) return;
     toast({
-      title: "Stage Announcement Pushed! 📢",
-      description: `Broadcast to 68 attendees in the room: "${announcementText}"`,
+      title: "Announcement queued",
+      description: "The message was submitted to the live Moment broadcast workflow.",
     });
     setAnnouncementText("");
   };
 
-  const sampleAttendees = [
-    { name: "Andre M.", tier: "Scout L2", time: "3 mins ago", avatar: "☕" },
-    { name: "Camille Watson", tier: "Explorer", time: "8 mins ago", avatar: "✨" },
-    { name: "Marcus Chen", tier: "Scout L1", time: "14 mins ago", avatar: "🎨" },
-    { name: "Sherise Bell", tier: "Creator Vanguard", time: "22 mins ago", avatar: "🔥" },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* 1. Header & Live Room Pulse */}
-      <div className="p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-black font-black shadow-lg shadow-amber-500/20 shrink-0">
-            <Radio className="h-7 w-7 text-black" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Live On-Site Pulse & Stage Transmitter</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse inline-block mr-1" />
-                Beacon Live
-              </span>
+      <section className="overflow-hidden rounded-3xl border border-amber-500/25 bg-[#0b0b0c] text-white shadow-xl">
+        <div className="flex flex-col gap-4 border-b border-white/10 bg-[radial-gradient(circle_at_10%_0%,rgba(251,191,36,.14),transparent_30%)] p-5 sm:p-7 md:flex-row md:items-start md:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-400 text-black"><Radio className="h-6 w-6" aria-hidden="true" /></div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.18em] text-amber-300">Host live operation</p>
+              <h2 className="mt-1 text-2xl font-black">Operate the room. Preserve attendance truth.</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">RSVP records intent. A check-in or explicit walk-in record is required before someone becomes verified attendance.</p>
             </div>
-            <p className="text-xs text-white/60 mt-1">
-              Real-time room occupancy, live attendee reception, and micro-broadcast push notifications.
-            </p>
+          </div>
+          <div className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black ${online?"border-emerald-400/30 bg-emerald-950/25 text-emerald-300":"border-amber-400/30 bg-amber-950/25 text-amber-200"}`} role="status" aria-live="polite">
+            {online?<Wifi className="h-4 w-4" aria-hidden="true"/>:<WifiOff className="h-4 w-4" aria-hidden="true"/>}
+            {online?"Online · writes available":"Offline · writes held"}
           </div>
         </div>
 
-        {/* Live Attendance Pills */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-          <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Checked In Now</p>
-            <p className="text-base font-black text-amber-400">68 Guests</p>
+        {!online ? (
+          <div className="flex gap-3 border-b border-amber-400/20 bg-amber-950/20 p-4" role="alert">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" aria-hidden="true" />
+            <div><p className="font-bold text-amber-100">Connection lost</p><p className="mt-1 text-sm leading-5 text-amber-100/70">Do not treat local intent as a confirmed check-in or broadcast. The last server-confirmed attendance state remains canonical until reconnection.</p></div>
           </div>
-          <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-            <p className="text-[10px] uppercase font-bold text-white/50">Vibe Level</p>
-            <p className="text-base font-black text-emerald-400">98% High</p>
-          </div>
-        </div>
-      </div>
+        ) : null}
 
-      {/* 2. Main Pulse Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Stage Broadcast Transmitter (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-5 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Megaphone className="h-5 w-5 text-amber-400" />
-                <h3 className="font-bold text-base text-white">Instant In-Room Stage Broadcast</h3>
-              </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold uppercase">
-                Push Beacon
-              </span>
+        <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.05fr_.95fr]">
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+              <div className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-amber-400" aria-hidden="true"/><h3 className="font-bold">Moment announcement</h3></div>
+              <p className="mt-2 text-xs leading-5 text-white/55">Send a live operational announcement through the configured Moment channel. Audience delivery counts should only be shown when the backend provides them.</p>
+              <form onSubmit={handleBroadcast} className="mt-4 space-y-3">
+                <label htmlFor="host-live-announcement" className="block text-[10px] font-black uppercase tracking-[.14em] text-white/50">Announcement text</label>
+                <Input id="host-live-announcement" value={announcementText} onChange={(e)=>setAnnouncementText(e.target.value)} placeholder="e.g. RSVP arrival window closes at 11:30 PM" className="h-12 rounded-2xl border-white/15 bg-white/5 text-white focus-visible:ring-2 focus-visible:ring-amber-300"/>
+                <div className="flex flex-wrap gap-2">{["Arrival window reminder","Next set","Venue update"].map((tag)=><button key={tag} type="button" onClick={()=>setAnnouncementText(`${tag}: `)} className="min-h-11 rounded-xl border border-white/12 bg-white/[0.03] px-3 py-2 text-xs font-semibold text-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">{tag}</button>)}</div>
+                <Button type="submit" disabled={!announcementText.trim() || !online} className="min-h-11 w-full rounded-xl bg-amber-400 font-extrabold text-black hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-black"><Volume2 className="mr-2 h-4 w-4" aria-hidden="true"/>Send announcement</Button>
+              </form>
             </div>
 
-            <p className="text-xs text-white/60">
-              Sends an instant high-priority vibrating notification to all checked-in attendees inside your venue.
-            </p>
-
-            <form onSubmit={handleBroadcast} className="space-y-3">
-              <Input
-                value={announcementText}
-                onChange={(e) => setAnnouncementText(e.target.value)}
-                placeholder="e.g. Free Rum Punch Tasting starting at the main bar in 5 mins! 🍹"
-                className="h-12 rounded-2xl border-white/15 bg-white/5 text-white text-xs focus:border-amber-400"
-              />
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                <div className="flex gap-2">
-                  {["🍹 Flash Tasting", "🎵 Next Set", "📸 Photo Drop"].map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setAnnouncementText(`${tag}: Announcement to all guests!`)}
-                      className="px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white text-[11px] font-semibold transition"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={!announcementText.trim()}
-                  className="h-10 px-5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-black font-extrabold text-xs shadow-md"
-                >
-                  <Volume2 className="h-4 w-4 mr-1.5" />
-                  Push to Room
-                </Button>
-              </div>
-            </form>
-          </div>
-
-          {/* Deep Pulse Controls */}
-          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4 shadow-xl">
-            <HostPulseControlPanel moments={[]} />
-          </div>
-        </div>
-
-        {/* Right: Live Room Feed (5 cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-amber-400" />
-                <h3 className="font-bold text-sm text-white">Live In-Venue Attendees</h3>
-              </div>
-              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
-                Sync Active
-              </span>
-            </div>
-
-            <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-              {sampleAttendees.map((att, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-amber-400/30 transition flex items-center justify-between gap-3"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="h-9 w-9 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-sm">
-                      {att.avatar}
-                    </span>
-                    <div>
-                      <p className="font-bold text-xs text-white">{att.name}</p>
-                      <p className="text-[10px] text-amber-300 font-medium">{att.tier}</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-white/40">{att.time}</span>
-                </div>
-              ))}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+              <HostPulseControlPanel moments={[]} />
             </div>
           </div>
+
+          <aside className="space-y-4">
+            <div className="rounded-2xl border border-amber-400/20 bg-amber-950/10 p-5">
+              <div className="flex items-center gap-2"><Users className="h-4 w-4 text-amber-300" aria-hidden="true"/><p className="text-[10px] font-black uppercase tracking-[.15em] text-amber-300">Arrival truth</p></div>
+              <dl className="mt-5 space-y-3 text-sm">
+                <div className="flex justify-between border-b border-white/8 pb-3"><dt className="text-white/45">RSVP</dt><dd className="font-bold">Intent record</dd></div>
+                <div className="flex justify-between border-b border-white/8 pb-3"><dt className="text-white/45">Check-in</dt><dd className="font-bold">Verified arrival</dd></div>
+                <div className="flex justify-between border-b border-white/8 pb-3"><dt className="text-white/45">Walk-in</dt><dd className="font-bold">Explicit attendance record</dd></div>
+                <div className="flex justify-between"><dt className="text-white/45">Mismatch</dt><dd className="font-bold">Exception until resolved</dd></div>
+              </dl>
+            </div>
+
+            <div className="rounded-2xl border border-sky-400/20 bg-sky-950/10 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[.15em] text-sky-300">Live attendance feed</p>
+              <h3 className="mt-2 font-serif text-2xl font-bold">Connect real arrivals before showing people or counts.</h3>
+              <p className="mt-3 text-sm leading-6 text-white/55">This surface no longer renders sample attendee names, fabricated room occupancy, or a “vibe score” as production truth. When a canonical attendance source is connected, this panel should render its timestamped records and exceptions.</p>
+            </div>
+          </aside>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

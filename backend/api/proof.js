@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const proofService = require('../services/proofService');
+const canonicalEvents = require('../services/canonicalEventService');
 const { requireAuth } = require('../middleware/auth');
 
 router.get('/submissions/pending', requireAuth, async (req, res) => {
@@ -48,6 +49,11 @@ router.post('/moments/:id/submissions', requireAuth, async (req, res) => {
       },
       momentMoveId: req.body?.moment_move_id || null,
     });
+
+    await canonicalEvents.recordBestEffort(
+      canonicalEvents.proofSubmissionEvent({ submission, momentId: req.params.id, userId: req.user.id })
+    );
+
     res.status(201).json({ success: true, submission });
   } catch (error) {
     console.error('[Proof API] submission error:', error);
@@ -79,6 +85,21 @@ router.post('/submissions/:id/review', requireAuth, async (req, res) => {
       reviewReason: review_reason,
     });
 
+    await canonicalEvents.recordBestEffort(
+      canonicalEvents.proofReviewEvent({ submission, reviewerId: req.user.id, action, result })
+    );
+
+    if (result?.payout?.queued && result?.payout?.queue_item?.id) {
+      await canonicalEvents.recordBestEffort(
+        canonicalEvents.settlementQueuedEvent({
+          queueItem: result.payout.queue_item,
+          ledger: result.payout.ledger,
+          proofSubmission: result.submission,
+          actorUserId: req.user.id,
+        })
+      );
+    }
+
     res.json({ success: true, ...result });
   } catch (error) {
     console.error('[Proof API] review error:', error);
@@ -96,8 +117,12 @@ router.get('/submissions/:id/audit', requireAuth, async (req, res) => {
       return res.status(403).json({ success: false, error: 'Host or admin access required' });
     }
 
-    const audit = await proofService.getProofSubmissionAudit(req.params.id);
-    res.json({ success: true, audit });
+    const [audit, canonicalLineage] = await Promise.all([
+      proofService.getProofSubmissionAudit(req.params.id),
+      canonicalEvents.getObjectEventsBestEffort({ objectType: 'proof_submission', objectId: req.params.id, limit: 100 }),
+    ]);
+
+    res.json({ success: true, audit: { ...audit, canonical_lineage: canonicalLineage } });
   } catch (error) {
     console.error('[Proof API] audit error:', error);
     res.status(500).json({ success: false, error: error.message });
