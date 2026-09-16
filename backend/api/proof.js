@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const proofService = require('../services/proofService');
+const canonicalEvents = require('../services/canonicalEventService');
 const { requireAuth } = require('../middleware/auth');
 
 router.get('/submissions/pending', requireAuth, async (req, res) => {
@@ -48,6 +49,11 @@ router.post('/moments/:id/submissions', requireAuth, async (req, res) => {
       },
       momentMoveId: req.body?.moment_move_id || null,
     });
+
+    await canonicalEvents.recordBestEffort(
+      canonicalEvents.proofSubmissionEvent({ submission, momentId: req.params.id, userId: req.user.id })
+    );
+
     res.status(201).json({ success: true, submission });
   } catch (error) {
     console.error('[Proof API] submission error:', error);
@@ -78,6 +84,10 @@ router.post('/submissions/:id/review', requireAuth, async (req, res) => {
       action,
       reviewReason: review_reason,
     });
+
+    await canonicalEvents.recordBestEffort(
+      canonicalEvents.proofReviewEvent({ submission, reviewerId: req.user.id, action, result })
+    );
 
     res.json({ success: true, ...result });
   } catch (error) {
