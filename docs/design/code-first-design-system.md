@@ -11,6 +11,8 @@ PROMORANG should not discover its visual design page-by-page inside production c
 
 The Design Lab is the immediate dependency-free review surface. Storybook becomes the long-term component workshop once initialized locally so the repository lockfile is updated by npm rather than hand-edited remotely.
 
+The consumer quality bar is extended by `docs/design/consumer-maturity-v1.md`, which defines editorial restraint, trust, content-format diversity, accessibility floor, media treatment, and PromoCard credential maturity before production convergence.
+
 ## 2. Product design thesis
 
 > **The city is the interface.**
@@ -117,6 +119,8 @@ Preferred groupings:
 - Worth crossing town for
 - People are moving toward
 
+Discovery should use varied content formats rather than repeating one card template. See `consumer-maturity-v1.md`.
+
 ### Card
 
 The PromoCard is the dominant physical object.
@@ -126,6 +130,8 @@ Supporting hierarchy:
 - Near you
 - Recently used
 - What changed
+
+PromoCard should mature as a credential: issuer, state, validity and use conditions become legible without exposing protected redemption mechanics unnecessarily.
 
 ### Vault
 
@@ -188,10 +194,12 @@ Do not introduce new raw hex values into canonical components when an existing s
 ### Editorial — Fraunces
 
 Use for:
-- moment names
+- one primary editorial statement per viewport
+- moment names when they are the main content
 - object names
-- primary screen statements
 - cultural/editorial hierarchy
+
+Do not give every discovery result a display-serif headline. Secondary opportunities use quieter sans-serif hierarchy.
 
 ### Utility — DM Sans
 
@@ -202,6 +210,8 @@ Use for:
 - metadata
 - forms
 - compact supporting copy
+- secondary discovery results
+- trust and transactional information
 
 ### Mono
 
@@ -242,7 +252,7 @@ npm create storybook@latest
 
 Choose/retain the React + Vite framework. Commit the resulting package and lockfile changes together.
 
-Current Storybook requirements should be checked before initialization. At the time this design constitution was created, official Storybook documentation requires Node 20+, npm 10+, TypeScript 4.9+, Vite 5+, and supports React + Vite directly.
+Current Storybook requirements should be checked before initialization.
 
 After initialization, organize stories using this structure:
 
@@ -300,6 +310,8 @@ A production UI change that creates a new canonical pattern should answer all of
 6. If it introduces a new reusable pattern, is that pattern visible in the Design Lab / Storybook?
 7. Does the consumer-facing copy use user language rather than internal architecture jargon?
 8. Does the screen remain understandable at mobile width?
+9. Are trust / issuer / availability claims backed by real data rather than invented presentation copy?
+10. Does the hierarchy satisfy the consumer maturity rules?
 
 ## 11. Expansion order
 
@@ -324,4 +336,4 @@ The design system is working when a new screen can be designed without asking wh
 
 The question should instead become:
 
-> What is happening in the world, what object matters, and what is the user's next move?
+> What is happening in the world, what object matters, why should this user trust it, and what is the user's next move?
