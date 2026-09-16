@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { MarketProvider } from "@/contexts/MarketContext";
 import { I18nProvider } from "@/i18n/I18nContext";
+import { supabase } from "@/integrations/supabase/client";
 import ParticipantExperienceV1 from "@/pages/participant/ParticipantExperienceV1";
 import "./index.css";
 
@@ -17,22 +18,23 @@ const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(rootElement);
 
 function LocalPreviewSignIn() {
-  const { signIn } = useAuth();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleGoogleSignIn() {
     setSubmitting(true);
     setError(null);
     try {
-      const result = await signIn(email.trim(), password);
-      if (result.error) setError(result.error.message);
+      const redirectTo = `${window.location.origin}/participant-next.html`;
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+        },
+      });
+      if (oauthError) setError(oauthError.message);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not sign in locally.");
-    } finally {
+      setError(caught instanceof Error ? caught.message : "Could not start Google sign-in.");
       setSubmitting(false);
     }
   }
@@ -41,53 +43,30 @@ function LocalPreviewSignIn() {
     <div className="min-h-screen bg-[#080809] px-6 py-12 text-white sm:py-16">
       <div className="mx-auto max-w-md rounded-[1.8rem] border border-white/10 bg-white/[0.025] p-6 sm:p-7">
         <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#ff6a00]">PROMORANG · PARTICIPANT NEXT</p>
-        <h1 className="mt-3 font-serif text-4xl font-bold leading-[.95]">Sign in here. Stay local.</h1>
+        <h1 className="mt-3 font-serif text-4xl font-bold leading-[.95]">Continue with Google.</h1>
         <p className="mt-4 text-sm leading-6 text-white/55">
-          This review surface uses your real PROMORANG account data, but authentication happens directly on localhost so you are not sent back to promorang.co.
+          Use the same Google account you normally use for PROMORANG. After authentication, Supabase should return you directly to this local participant preview.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
-          <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-[.14em] text-white/45">Email</span>
-            <input
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="min-h-12 w-full rounded-xl border border-white/12 bg-black/35 px-4 text-base text-white outline-none transition focus:border-[#ff6a00]/70"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-[.14em] text-white/45">Password</span>
-            <input
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="min-h-12 w-full rounded-xl border border-white/12 bg-black/35 px-4 text-base text-white outline-none transition focus:border-[#ff6a00]/70"
-            />
-          </label>
+        {error ? (
+          <p role="alert" className="mt-6 rounded-xl border border-red-400/20 bg-red-400/8 px-4 py-3 text-sm leading-5 text-red-100">
+            {error}
+          </p>
+        ) : null}
 
-          {error ? (
-            <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/8 px-4 py-3 text-sm leading-5 text-red-100">
-              {error}
-            </p>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex min-h-12 w-full items-center justify-center rounded-full bg-[#f6c453] px-5 text-sm font-black text-black disabled:opacity-55"
-          >
-            {submitting ? "Signing in…" : "Open my Participant Next"}
-          </button>
-        </form>
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={submitting}
+          className="mt-7 flex min-h-12 w-full items-center justify-center gap-3 rounded-full bg-white px-5 text-sm font-black text-black disabled:opacity-55"
+        >
+          <span className="grid h-6 w-6 place-items-center rounded-full border border-black/10 text-xs font-black">G</span>
+          {submitting ? "Opening Google…" : "Continue with Google"}
+        </button>
 
         <div className="mt-6 border-t border-white/10 pt-5">
           <p className="text-xs leading-5 text-white/42">
-            Google sign-in is intentionally not used for this localhost review. OAuth can fall back to the production Site URL when localhost is not on the Supabase redirect allow-list. Production authentication has not been changed.
+            Local OAuth requires <code className="text-white/65">http://localhost:8080/**</code> in Supabase Authentication → URL Configuration → Redirect URLs. If that URL is not allow-listed, Supabase falls back to the production Site URL and sends you to promorang.co.
           </p>
         </div>
       </div>
