@@ -28,7 +28,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Canonical event contract tests
-        run: npm exec --workspace backend -- jest tests/unit/canonicalEventService.test.js tests/unit/canonicalEventPersistence.test.js tests/unit/offerAtomicBoundaries.test.js --runInBand
+        run: npm exec --workspace backend -- jest tests/unit/canonicalEventService.test.js tests/unit/canonicalEventPersistence.test.js tests/unit/canonicalReconciliationService.test.js tests/unit/offerAtomicBoundaries.test.js --runInBand
 
       - name: Build web
         run: npm run build --workspace apps/web
