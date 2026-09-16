@@ -5,7 +5,7 @@ Migration branch: `andre/ui-v2-foundation`
 
 ## Current status
 
-### Phase 0 — Foundation: implemented; runtime proof still required
+### Phase 0 — Foundation: implemented; runtime proof now available
 
 Implemented:
 
@@ -19,14 +19,14 @@ Implemented:
 - `ConsequenceReceipt`;
 - `PromoCardV2`;
 - canonical `OpportunityCard`;
-- role-valid local start-page preference;
+- account-level validated landing-page preference;
 - focused tests for V2 semantics and outcome resolvers.
 
 ### Phase 1 — Participant shell canary: implemented
 
 `AppLayout.tsx` uses `PromorangAppShell.tsx` only for the Participant role.
 
-Merchant, Creator, Host, Brand, Agency and Admin continue using the proven `DashboardLayout.tsx` until browser/runtime validation supports a shell cutover.
+Merchant, Creator, Host, Brand, Agency and Admin continue using the proven `DashboardLayout.tsx` until authenticated browser review supports a shell cutover.
 
 Local Participant shell comparison:
 
@@ -120,7 +120,15 @@ A legacy demo metric in `useBrandStats()` that calculated `attributedSales = tot
 
 Existing Brand tabs and consoles remain authoritative for campaigns, opportunities, creators/distribution, attribution/proof and intelligence/economics.
 
-### Phase 9 — Admin queue-first Command Center: presentation migrated
+### Phase 9 — Agency client-outcome workflow: presentation migrated
+
+Agency follows:
+
+**Client connected → Activation live → Verified client outcome → Proof packaged → Repeat client work**
+
+Existing client switching, relationship removal, Quick Add Client and impact reporting remain intact. Recorded campaign redemptions are treated as attributable actions, not automatically client revenue or business lift.
+
+### Phase 10 — Admin queue-first Command Center: presentation migrated
 
 `AdminCommandCenter.tsx` retains existing access checks, query sources, routes and refresh behavior, but now presents:
 
@@ -132,23 +140,29 @@ Admin remains on the proven authenticated shell.
 
 ## Build / deployment validation
 
-The web Vercel project exposed a repository-level install failure before Vite loaded application code:
+The web Vercel project originally exposed repository-level native dependency/install failures before Vite loaded application code:
 
-`@esbuild/linux-x64` required by `apps/web/node_modules/esbuild@0.21.5` was absent from the installed workspace dependencies.
+1. missing `@esbuild/linux-x64` for `esbuild@0.21.5`;
+2. missing SWC Linux native binding for `@vitejs/plugin-react-swc`;
+3. a bad deep import resolution for `@promorang/shared/stakeholder-success` caused by the base alias pointing directly to `packages/shared/src/index.ts`.
 
-The same failure occurred on `andre/local-working-state`, so it was not introduced by UI V2.
+Repairs committed:
 
-A minimal repair has been committed by adding this web-workspace optional dependency:
+- explicit `@esbuild/linux-x64@0.21.5` optional dependency;
+- explicit `@swc/core-linux-x64-gnu@1.15.11` optional dependency;
+- explicit Vite alias for `@promorang/shared/stakeholder-success` before the base shared alias.
 
-```json
-"optionalDependencies": {
-  "@esbuild/linux-x64": "0.21.5"
-}
-```
+### Current result
 
-The API Vercel project has produced a successful check. The web repair is still awaiting a completed preview build at the time of this document update.
+Vercel preview deployment `dpl_5fFLWbv8XMLn9AWmnYZc4Ac6s149` for commit `12fd6f6e8692cd58f564c7e7dce97022497aad83` completed successfully with state **READY**.
 
-**Do not merge or deploy the V2 branch until the web preview build succeeds and browser/runtime review is complete.**
+The deployed preview is:
+
+`https://promorang-dkkyyxwbu-andre-millwoods-projects.vercel.app`
+
+The root route and `/join` both return the deployed SPA successfully over HTTP.
+
+**The build gate is now passed. Authenticated browser/visual QA remains required before merge or production rollout.**
 
 ## Runtime acceptance order
 
@@ -159,10 +173,11 @@ The API Vercel project has produced a successful check. The web repair is still 
 5. Creator default and query-param tabs;
 6. Host zero-Moment and hosted-Moment states;
 7. Brand Home and deeper Brand tabs;
-8. Admin `/admin?tab=command` across access levels;
-9. desktop 1440×1024;
-10. mobile 390×844;
-11. keyboard, focus, reduced-motion and recovery-state checks.
+8. Agency client switching/removal and impact views;
+9. Admin `/admin?tab=command` across access levels;
+10. desktop 1440×1024;
+11. mobile 390×844;
+12. keyboard, focus, reduced-motion and recovery-state checks.
 
 ## Proof/data integrity gate
 
