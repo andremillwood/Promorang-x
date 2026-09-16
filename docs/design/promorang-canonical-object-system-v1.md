@@ -20,6 +20,64 @@ PROMORANG's semantic marks describe transformation, not decoration:
 
 Not every object uses every mark in the same order, but every lifecycle must make its boundaries explicit.
 
+## Shape grammar
+
+PROMORANG uses a rectangular layout grid for legibility, responsiveness and reliable interaction targets. The visible product objects do **not** all inherit that rectangle.
+
+> **Rectangles define layout. Objects define personality.**
+
+A canonical object should remain recognizable by silhouette, aspect ratio, layering and material treatment even if copy and color are removed.
+
+### Silhouette families
+
+- **Moment** — poster/pass hybrid with a cut edge and world-facing media.
+- **Scene** — spatial field / constellation rather than a card.
+- **Discovery** — open signal field with distributed nodes and threshold path.
+- **Perk** — compact benefit token/chip.
+- **Offer** — long ruled commercial instrument with inventory/rules geometry.
+- **PromoKey** — carried entitlement fob/key with a handle/opening.
+- **Pass / Ticket** — horizontal ticket with detachable/perforated stub.
+- **Opportunity / Mission** — commission folder / layered brief.
+- **Proof** — clipped evidence certificate/seal.
+- **Receipt** — narrow paper roll with durable write residue.
+- **Piece** — compact framed collectible/relic.
+- **PromoShare** — serialized ticket family / fan.
+- **Save & Win** — protected reserve/vault pod.
+- **Value species** — Gems, Points and Tickets deliberately use different silhouettes.
+
+### Semantic shape cues
+
+The shared lifecycle may influence geometry without forcing one universal shape:
+
+- **Move** — directional/open edge, notch, issue or launch cue.
+- **Explore** — distributed path, orbit, dots or expanding field.
+- **Proof** — seal, stamp, clipped edge, boundary crossing.
+- **Return** — fold-back, receipt residue, loop/return cue.
+- **Kept** — contained, framed, archival or collectible treatment.
+
+### Layering rule
+
+PROMORANG may use controlled overlap where the relationship is meaningful:
+
+- ticket tucked behind a Moment;
+- evidence attached to a dossier;
+- receipt left by a validation;
+- earlier draft visible beneath current draft;
+- detached pass stub after use;
+- proof seal crossing an evidence boundary;
+- Piece emerging from retained history;
+- amendment slip attached to an Admin case.
+
+This is not decorative skeuomorphism. The layer must communicate state, provenance, dependency or consequence.
+
+### Shape quality gate
+
+For the signature form of a canonical object:
+
+> **If copy and color are removed, can a reviewer still distinguish Moment, PromoKey, Pass, Receipt, Piece, Proof and Case/Evidence objects by silhouette and composition?**
+
+If not, the object is still relying too heavily on generic container styling.
+
 ## Canonical objects
 
 ### 1. Moment
@@ -121,7 +179,7 @@ Distinct value species.
 - **Points** — participation/progression record.
 - **Tickets** — serialized eligibility belonging to named draws.
 
-They must not collapse into one ambiguous balance.
+They must not collapse into one ambiguous balance or one visual token.
 
 ## Role-lens rule
 
@@ -171,6 +229,7 @@ The atlas provides:
 - lifecycle
 - role lens
 - cross-role contract
+- shape grammar review
 
 This is an illustrative design benchmark. It does not claim that every underlying production object or transition is already fully implemented.
 
