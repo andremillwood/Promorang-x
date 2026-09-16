@@ -1,0 +1,28 @@
+@media (min-width: 1024px) {
+  .participant-review-frame > .min-h-screen > .mx-auto {
+    max-width: 1320px !important;
+    grid-template-columns: minmax(0, 720px) 380px !important;
+    gap: 32px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  .participant-review-frame nav.sticky.bottom-0 {
+    display: none !important;
+  }
+
+  .participant-review-frame[data-surface="discover"] aside > div.mt-5 {
+    display: none;
+  }
+
+  .participant-review-frame[data-surface="discover"] aside > div.mt-6 {
+    margin-top: 20px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .participant-review-frame > .min-h-screen > .mx-auto {
+    grid-template-columns: minmax(0, 760px) 400px !important;
+    gap: 36px !important;
+  }
+}
