@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
-import StakeholderNextV3 from "@/pages/stakeholder-next/StakeholderNextV3";
+import StakeholderNextV4 from "@/pages/stakeholder-next/StakeholderNextV4";
 import "./index.css";
 import "./stakeholder-next-v2-fixes.css";
 
@@ -65,7 +65,7 @@ try {
   root.render(
     <React.StrictMode>
       <HashRouter>
-        <StakeholderNextV3 />
+        <StakeholderNextV4 />
       </HashRouter>
     </React.StrictMode>,
   );
