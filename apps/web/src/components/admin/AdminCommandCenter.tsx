@@ -1,14 +1,24 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarClock, LifeBuoy, RefreshCw, ShieldCheck, Users, WalletCards } from "lucide-react";
+import {
+  Activity,
+  CalendarClock,
+  CircleDollarSign,
+  HeartPulse,
+  LifeBuoy,
+  RefreshCw,
+  Scale,
+  ShieldCheck,
+  Users,
+  WalletCards,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAllUsers, useModerationOverview, usePlatformStats } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { JobFirstWorkspaceGuide } from "@/components/dashboard/JobFirstWorkspaceGuide";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
@@ -71,7 +81,7 @@ export function AdminCommandCenter() {
         detail: `${Number(op?.support.high_priority_open || 0)} high priority · oldest ${Math.round(Number(op?.support.oldest_open_hours || 0))}h`,
         count: Number(op?.support.open_escalations || 0),
         href: "/admin?tab=support",
-        closeWhen: "Resolve or route every open escalation with an auditable owner.",
+        closeWhen: "Every open escalation has an owner, resolution, or explicit next step.",
         icon: LifeBuoy,
       },
       {
@@ -80,7 +90,7 @@ export function AdminCommandCenter() {
         detail: `${pendingProof} proofs · ${pendingContent} content items · ${flaggedUsers} flagged users`,
         count: pendingProof + pendingContent + flaggedUsers,
         href: "/admin?tab=verification-hub",
-        closeWhen: "Every item has a verification or moderation decision.",
+        closeWhen: "Every item has a recorded verification or moderation decision.",
         icon: ShieldCheck,
       },
       {
@@ -98,60 +108,94 @@ export function AdminCommandCenter() {
         detail: `${weeklyMoments} Moments created this week across ${hostSupply} host accounts`,
         count: Math.max(0, 10 - weeklyMoments),
         href: "/admin?tab=applications",
-        closeWhen: "Reach or deliberately revise the current weekly supply target of 10 Moments.",
+        closeWhen: "Current supply is sufficient or the operating target has been deliberately revised.",
         icon: CalendarClock,
       },
     ];
   }, [moderation.data, operations.data, stats.data, users.data]);
 
   const highestPriority = [...work].sort((a, b) => b.count - a.count)[0];
+  const openExceptions = work.reduce((sum, item) => sum + item.count, 0);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await Promise.all([
-      stats.refetch?.(),
-      users.refetch?.(),
-      moderation.refetch?.(),
-      operations.refetch?.(),
-    ]);
+    await Promise.all([stats.refetch?.(), users.refetch?.(), moderation.refetch?.(), operations.refetch?.()]);
     setIsRefreshing(false);
     toast({ title: "Operations refreshed", description: "Current queues and platform counts were reloaded." });
   };
+
+  const operatorDestinations = [
+    {
+      label: "Today",
+      icon: Activity,
+      href: highestPriority?.href || "/admin?tab=operations",
+      title: highestPriority ? highestPriority.title : "No urgent exception",
+      copy: highestPriority ? `${highestPriority.count} item${highestPriority.count === 1 ? "" : "s"} currently need attention.` : "Use live operations to monitor current platform work.",
+    },
+    {
+      label: "Cases",
+      icon: LifeBuoy,
+      href: "/admin?tab=support",
+      title: "Resolve exceptions",
+      copy: "Support, disputes, blocked journeys and operator-owned follow-up belong here.",
+    },
+    {
+      label: "Review",
+      icon: ShieldCheck,
+      href: "/admin?tab=verification-hub",
+      title: "Decide what counts",
+      copy: "Proof, identity, host applications, content and evidence should end in an auditable decision.",
+    },
+    {
+      label: "Economy",
+      icon: CircleDollarSign,
+      href: "/admin?tab=payouts",
+      title: "Protect value movement",
+      copy: "Payouts, KYC, Gems, access and commerce exceptions stay separate from general support.",
+    },
+    {
+      label: "Health",
+      icon: HeartPulse,
+      href: "/admin?tab=audit",
+      title: "Inspect system integrity",
+      copy: "Use analytics, audit and configuration tools when the question is platform health rather than one user case.",
+    },
+  ];
 
   const metrics = [
     { label: "Users", value: stats.data?.totalUsers, helper: `${formatNumber(stats.data?.activeUsersThisWeek)} participations this week`, icon: Users },
     { label: "Moments", value: stats.data?.totalMoments, helper: `${formatNumber(stats.data?.momentsThisWeek)} created this week`, icon: CalendarClock },
     { label: "Verified check-ins", value: stats.data?.totalCheckIns, helper: `${formatNumber(stats.data?.totalParticipations)} total participation records`, icon: ShieldCheck },
-    { label: "Open exceptions", value: work.reduce((sum, item) => sum + item.count, 0), helper: "Items that currently require an admin decision", icon: LifeBuoy },
+    { label: "Open exceptions", value: openExceptions, helper: "Items currently requiring an admin decision", icon: Scale },
   ];
 
   const isLoading = stats.isLoading || users.isLoading || moderation.isLoading || operations.isLoading;
 
   return (
     <div className="space-y-6 text-white animate-in fade-in-50 duration-300">
-      <JobFirstWorkspaceGuide
-        role="admin"
-        context="Platform administration"
-        purpose="Keep Promorang trustworthy and moving by resolving the highest-value exception, failure, dispute, verification decision, or operational blocker first."
-        outcome="Restore healthy operation where the system currently needs intervention."
-        proof="A closed queue item, recorded verification or moderation decision, released or explained payout, resolved support case, or auditable operational record."
-        nextIfWorks="Move to the next highest-priority exception, then use recurring patterns to improve the system so the same problem happens less often."
-        primaryAction={highestPriority ? { label: `Open ${highestPriority.title}`, href: highestPriority.href } : undefined}
-      />
-
-      <section className="rounded-3xl border border-cyan-500/20 bg-cyan-950/15 p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <section className="rounded-[2rem] border border-cyan-500/20 bg-gradient-to-br from-cyan-950/30 via-[#0e1218] to-[#090b0f] p-5 sm:p-7">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">What needs attention</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Work the exceptions, not the dashboard.</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-              Counts below come from the current platform queries. Zero is allowed; no synthetic live status or placeholder telemetry is used here.
-            </p>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-300">Admin · Today</p>
+            <h1 className="mt-3 max-w-3xl font-serif text-3xl font-semibold tracking-tight sm:text-4xl">What needs intervention?</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">Start with the job, not PROMORANG's subsystem map. The specialist tools still exist underneath; this layer tells you why you are opening them.</p>
           </div>
           <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing} className="rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10">
-            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-            Refresh
+            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />Refresh
           </Button>
+        </div>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-5">
+          {operatorDestinations.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.label} to={item.href} className="group rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-cyan-400/35 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">
+                <div className="flex items-center justify-between gap-2"><span className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">{item.label}</span><Icon className="h-4 w-4 text-cyan-300" /></div>
+                <p className="mt-5 text-sm font-black text-white">{item.title}</p>
+                <p className="mt-2 text-xs leading-5 text-white/50">{item.copy}</p>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -161,10 +205,7 @@ export function AdminCommandCenter() {
           return (
             <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/45">{metric.label}</p>
-                  {isLoading ? <Skeleton className="mt-2 h-8 w-20 bg-white/10" /> : <p className="mt-2 text-3xl font-black text-white">{formatNumber(metric.value)}</p>}
-                </div>
+                <div><p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/45">{metric.label}</p>{isLoading ? <Skeleton className="mt-2 h-8 w-20 bg-white/10" /> : <p className="mt-2 text-3xl font-black text-white">{formatNumber(metric.value)}</p>}</div>
                 <Icon className="h-5 w-5 text-cyan-300" />
               </div>
               <p className="mt-2 text-xs leading-5 text-white/50">{metric.helper}</p>
@@ -174,26 +215,18 @@ export function AdminCommandCenter() {
       </div>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Decision queue</p>
-            <h2 className="mt-2 text-xl font-black text-white">Resolve what is blocking trust or movement.</h2>
-          </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Attention queue</p>
+          <h2 className="mt-2 text-xl font-black text-white">Resolve what is blocking trust or movement.</h2>
+          <p className="mt-2 text-xs leading-5 text-white/45">Counts come from current platform queries. Zero is valid; this surface does not substitute demo telemetry.</p>
         </div>
-
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
           {work.map((item) => {
             const Icon = item.icon;
             return (
               <Link key={item.id} to={item.href} className="group rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-cyan-400/30 hover:bg-white/[0.04]">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-xl bg-cyan-500/10 p-2 text-cyan-300"><Icon className="h-4 w-4" /></div>
-                    <div>
-                      <h3 className="text-sm font-black text-white">{item.title}</h3>
-                      <p className="mt-1 text-xs leading-5 text-white/50">{item.detail}</p>
-                    </div>
-                  </div>
+                  <div className="flex items-start gap-3"><div className="rounded-xl bg-cyan-500/10 p-2 text-cyan-300"><Icon className="h-4 w-4" /></div><div><h3 className="text-sm font-black text-white">{item.title}</h3><p className="mt-1 text-xs leading-5 text-white/50">{item.detail}</p></div></div>
                   <span className="text-2xl font-black text-cyan-300">{item.count}</span>
                 </div>
                 <p className="mt-3 border-t border-white/5 pt-3 text-[11px] leading-5 text-white/45">Done when: {item.closeWhen}</p>
