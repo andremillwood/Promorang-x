@@ -15,6 +15,7 @@ import ParticipantMomentReview from "@/pages/participant/ParticipantMomentReview
 import ParticipantCommercialChainReview from "@/pages/participant/ParticipantCommercialChainReview";
 import "./index.css";
 import "./participant-next.css";
+import "./participant-moment-polish.css";
 
 const rootElement = document.getElementById("participant-next-root");
 if (!rootElement) throw new Error("Missing #participant-next-root");
