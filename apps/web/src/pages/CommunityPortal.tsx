@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Link, NavLink, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, LockKeyhole, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, LockKeyhole, ShieldCheck, Users } from 'lucide-react';
 import SEO from '@/components/SEO';
 import { PromoCardFace } from '@/components/promorang/PromoCardObject';
 import { useCommunityAccess, useCommunityAction, useCommunityWorkspace } from '@/hooks/useCommunity';
@@ -9,14 +9,14 @@ import { buttonClass, CommunityFormDialog, Field, inputClass, secondaryClass, ty
 import { ActionButton, dateLabel, GoalTrail, MoveBoard, proofForm, Rhythm, Roles, Rooms, SectionHeading, Wins } from '@/components/community/CommunitySections';
 import type { CommunityAction, CommunityWorkspaceData } from '@/types/community';
 
-function CommunityShell({ children }: { children: ReactNode }) {
+export function CommunityShell({ children }: { children: ReactNode }) {
   return <div className="experience-shell min-h-screen bg-[#0D0D0E] text-white selection:bg-orange-400/30">
     <SEO title="Community" description="A private place for Promorang members to create, contribute, and grow together." noindex />
     <a href="#community-content" className="sr-only z-50 focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:rounded-lg focus:bg-orange-300 focus:p-3 focus:text-black">Skip to community content</a>
     {children}
   </div>;
 }
-function Waiting({ title, children }: { title: string; children: ReactNode }) {
+export function Waiting({ title, children }: { title: string; children: ReactNode }) {
   return <CommunityShell><main id="community-content" className="mx-auto max-w-xl px-5 py-14 sm:py-24"><Link to="/card" className="mb-12 inline-flex min-h-11 items-center gap-2 text-sm text-white/65"><ArrowLeft className="h-4 w-4" /> My PromoCard</Link>
     <LockKeyhole className="mb-6 h-9 w-9 text-orange-300" /><p className="text-xs font-semibold uppercase tracking-[.22em] text-orange-300">Promorang Community</p><h1 className="mt-4 font-serif text-4xl font-bold">{title}</h1><div className="mt-6 space-y-6 text-sm leading-7 text-white/75">{children}</div></main></CommunityShell>;
 }
@@ -26,19 +26,46 @@ export default function CommunityPortal() {
   const workspace = useCommunityWorkspace(access.data?.membership?.status === 'active' && !access.isError);
   const mutation = useCommunityAction();
   const [applicationError, setApplicationError] = useState('');
+  const [joinError, setJoinError] = useState('');
   const onAction: CommunityAction = (action, data) => mutation.mutateAsync({ action, data });
   async function apply(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setApplicationError('');
     try { await onAction('apply', Object.fromEntries(new FormData(event.currentTarget))); }
     catch (e) { setApplicationError(e instanceof Error ? e.message : 'Your request could not be sent.'); }
   }
+  async function join(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setJoinError('');
+    try { await onAction('join', Object.fromEntries(new FormData(event.currentTarget))); }
+    catch (e) { setJoinError(e instanceof Error ? e.message : 'We could not open your community place.'); }
+  }
   if (access.isLoading) return <Waiting title="Finding your place…"><p role="status">Checking your community membership.</p></Waiting>;
   if (access.isError) return <Waiting title="We couldn’t check your membership."><p role="alert">{access.error.message}</p><button onClick={() => void access.refetch()} className={buttonClass}>Try again</button></Waiting>;
   const member = access.data?.membership;
   if (!member || member.status !== 'active') return <Waiting title={member?.status === 'pending' ? 'Your introduction is with the team.' : member ? 'Your community access is on hold.' : 'A place to make things happen.'}>
-    {member ? <p>{member.status === 'pending' ? 'A lead will review your request. Once approved, you can enter the rooms, take a move, and build your place in the community.' : 'A community lead can review your membership. Your PromoCard and previously earned value stay with your account.'}</p> : <><p>Build your skills, grow an audience, help someone move forward, and take on useful work. Entry is for approved community members, connected to your existing PromoCard.</p>
-      <form className="space-y-5" onSubmit={apply}><Field label="Where do you want to grow?"><select name="career_path" className={inputClass} required>{access.data?.paths.map(p => <option key={p}>{p}</option>)}</select></Field><Field label="What would make joining worthwhile for you?"><textarea name="personal_goal" required minLength={10} maxLength={1000} rows={3} className={inputClass} placeholder="I want to… and I can help with…" /></Field>{applicationError && <p role="alert" className="text-red-200">{applicationError}</p>}<button disabled={mutation.isPending} className={buttonClass}>{mutation.isPending ? 'Sending…' : 'Introduce yourself'}<ArrowRight className="h-4 w-4" /></button></form></>}
-    {access.data?.canBootstrap && <div className="border-t border-white/20 pt-6"><p className="mb-4 text-sm">Your platform administrator role can open the community’s lead workspace.</p><ActionButton action="bootstrap" values={{}} onAction={onAction}>Open the lead workspace</ActionButton></div>}
+    {member ? <p>{member.status === 'pending' ? 'A lead will review your Business Builder request. You can still use the general community once a participant place is opened for you.' : 'A community lead can review your membership. Your PromoCard and previously earned value stay with your account.'}</p> : <>
+      <p>There are two ways in. Join as a community participant to benefit from the General Room, shared rhythm, public activities, and Moments. Or put your name forward for the Business Builder track and a role that carries real work.</p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <form className="rounded-2xl border border-orange-300/35 bg-orange-400/[.06] p-5" onSubmit={join}>
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-orange-200"><Users className="h-4 w-4" /> General community</p>
+          <h2 className="mt-3 font-serif text-2xl font-bold">Join as a participant</h2>
+          <p className="mt-2 text-sm leading-6 text-white/65">No role or business-builder commitment. Come to the activities, meet people, discover useful work, and keep your PromoCard connected.</p>
+          <Field label="Your direction"><select name="career_path" className={inputClass} required>{access.data?.paths.map(p => <option key={p}>{p}</option>)}</select></Field>
+          <Field label="What would make the community useful to you?"><textarea name="personal_goal" required minLength={3} maxLength={1000} rows={3} defaultValue="Explore the community, join useful activities, and find my first win." className={inputClass} /></Field>
+          {joinError && <p role="alert" className="mt-3 text-sm text-red-200">{joinError}</p>}
+          <button disabled={mutation.isPending || access.data?.participantAccessEnabled === false} className={`${buttonClass} mt-5`}>{mutation.isPending ? 'Opening…' : access.data?.participantAccessEnabled === false ? 'Participant access is paused' : 'Join the community'}<ArrowRight className="h-4 w-4" /></button>
+        </form>
+        <form className="rounded-2xl border border-white/15 bg-white/[.025] p-5" onSubmit={apply}>
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-orange-200"><BriefcaseBusiness className="h-4 w-4" /> Business Builder track</p>
+          <h2 className="mt-3 font-serif text-2xl font-bold">Apply to build</h2>
+          <p className="mt-2 text-sm leading-6 text-white/65">For people who want to hold a role, take funded moves, use the Business Engine, and be considered for the optional network pilot.</p>
+          <Field label="Where do you want to grow?"><select name="career_path" className={inputClass} required>{access.data?.paths.map(p => <option key={p}>{p}</option>)}</select></Field>
+          <Field label="What would you bring to the community?"><textarea name="personal_goal" required minLength={10} maxLength={1000} rows={3} className={inputClass} placeholder="I want to… and I can help with…" /></Field>
+          {applicationError && <p role="alert" className="mt-3 text-sm text-red-200">{applicationError}</p>}
+          <button disabled={mutation.isPending} className={`${secondaryClass} mt-5`}>{mutation.isPending ? 'Sending…' : 'Apply for Builder review'}<ArrowRight className="h-4 w-4" /></button>
+        </form>
+      </div>
+    </>}
+    {access.data?.canBootstrap && <div className="border-t border-white/20 pt-6"><p className="mb-4 text-sm">Your platform administrator role can open the community’s lead workspace or manage the full control room.</p><div className="flex flex-wrap gap-3"><ActionButton action="bootstrap" values={{}} onAction={onAction}>Open the lead workspace</ActionButton><Link to="/community/admin" className={secondaryClass}><ShieldCheck className="h-4 w-4" /> Open control room</Link></div></div>}
   </Waiting>;
   if (workspace.isLoading || !workspace.data && !workspace.isError) return <Waiting title="Welcome back."><p role="status">Loading your community, moves, and progress.</p></Waiting>;
   // Fail closed on membership or network errors. Never render a stale private workspace.
@@ -69,8 +96,8 @@ export function CommunityWorkspace({ data, tab = 'today', onAction }: { data: Co
   }
   return <CommunityShell>
     <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0D0D0E]/95 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8"><Link to="/community" className="flex min-h-11 items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 text-black"><Users className="h-5 w-5" /></span><span className="text-sm font-bold tracking-wide">PROMORANG <span className="ml-1 font-normal text-white/55">/ community</span></span></Link><Link to="/card" className="inline-flex min-h-11 items-center gap-2 text-sm text-white/80">My PromoCard <ArrowRight className="h-4 w-4" /></Link></div>
-      <nav aria-label="Community" className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-5 sm:px-8">{[['today', 'Today'], ['board', 'Move board'], ['rhythm', 'Rhythm'], ['roles', 'My place'], ['rooms', 'Rooms'], ['wins', 'My wins'], ...(data.lead ? [['lead', 'Lead room']] : [])].map(([id, label]) => <NavLink key={id} to={id === 'today' ? '/community' : `/community/${id}`} end className={`flex min-h-12 shrink-0 items-center border-b-2 text-sm font-medium ${current === id ? 'border-orange-400 text-orange-200' : 'border-transparent text-white/65 hover:text-white'}`}>{label}</NavLink>)}</nav>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8"><Link to="/community" className="flex min-h-11 items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 text-black"><Users className="h-5 w-5" /></span><span className="text-sm font-bold tracking-wide">PROMORANG <span className="ml-1 font-normal text-white/55">/ community</span></span></Link><div className="flex items-center gap-3"><Link to="/card" className="inline-flex min-h-11 items-center gap-2 text-sm text-white/80">My PromoCard <ArrowRight className="h-4 w-4" /></Link>{data.isPlatformAdmin && <Link aria-label="Community admin" to="/community/admin" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-orange-300/40 px-3 text-sm text-orange-200"><ShieldCheck className="h-4 w-4" /> Admin</Link>}</div></div>
+      <nav aria-label="Community" className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-5 sm:px-8">{[['today', 'Today'], ['board', 'Move board'], ['rhythm', 'Rhythm'], ['roles', 'My place'], ['rooms', 'Rooms'], ['wins', 'My wins'], ...(data.network ? [['network', 'Network']] : []), ...(data.engine?.enabled ? [['engine', 'Business Engine']] : []), ...(data.lead ? [['lead', 'Lead room']] : [])].map(([id, label]) => <NavLink key={id} to={id === 'today' ? '/community' : `/community/${id}`} end className={`flex min-h-12 shrink-0 items-center border-b-2 text-sm font-medium ${current === id ? 'border-orange-400 text-orange-200' : 'border-transparent text-white/65 hover:text-white'}`}>{label}</NavLink>)}</nav>
     </header>
     <main id="community-content" className="mx-auto max-w-7xl px-5 pb-20 pt-8 sm:px-8 sm:pt-12">
       {notice && <div role="status" className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-300/25 bg-emerald-400/5 p-4 text-sm text-emerald-100"><span>{notice}</span><button aria-label="Dismiss update" onClick={() => setNotice('')} className="min-h-6 min-w-6">×</button></div>}
