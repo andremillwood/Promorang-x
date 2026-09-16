@@ -70,6 +70,10 @@ PROMORANG may use controlled overlap where the relationship is meaningful:
 
 This is not decorative skeuomorphism. The layer must communicate state, provenance, dependency or consequence.
 
+### Interaction rule
+
+The visible silhouette can be irregular while the accessible interaction target remains predictable and generous. Shape expression must not make click/tap targets smaller, hide focus states, or compromise mobile responsiveness.
+
 ### Shape quality gate
 
 For the signature form of a canonical object:
@@ -77,6 +81,8 @@ For the signature form of a canonical object:
 > **If copy and color are removed, can a reviewer still distinguish Moment, PromoKey, Pass, Receipt, Piece, Proof and Case/Evidence objects by silhouette and composition?**
 
 If not, the object is still relying too heavily on generic container styling.
+
+The same gate applies to value species: Gems, Points and Tickets should not collapse into the same visual token.
 
 ## Canonical objects
 
