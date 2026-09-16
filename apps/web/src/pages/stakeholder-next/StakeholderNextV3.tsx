@@ -1,7 +1,6 @@
 import React from "react";
 import { NavLink, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import {
-  Activity,
   AlertTriangle,
   ArrowRight,
   BadgeCheck,
@@ -19,7 +18,6 @@ import {
   MapPin,
   Megaphone,
   MessageSquare,
-  PackageCheck,
   Paperclip,
   QrCode,
   Radio,
