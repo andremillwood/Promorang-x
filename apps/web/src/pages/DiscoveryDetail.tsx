@@ -60,7 +60,7 @@ import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 
 export default function DiscoveryDetail() {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -92,14 +92,14 @@ export default function DiscoveryDetail() {
       author: "Maya R.",
       text: "Discovered this spot through Promorang last week! The vibe is incredible and atmosphere is unmatched.",
       rating: 5,
-      date: "2 days ago",
+      date: t("discovery.daysAgo", { count: 2 }),
     },
     {
       id: "2",
       author: "Marcus T.",
       text: "Hidden gem for sure. Perfect spot to bring friends or connect with local scene members.",
       rating: 5,
-      date: "5 days ago",
+      date: t("discovery.daysAgo", { count: 5 }),
     },
   ]);
   const [newReviewText, setNewReviewText] = useState("");
@@ -128,9 +128,9 @@ export default function DiscoveryDetail() {
     const redeemable = pollHasRedeemablePerk(poll);
     const whatsappShareText = userVotedOptionId 
       ? redeemable
-        ? `I just backed "${selectedOptionObj?.text}" on Promorang. Vote with the squad to open ${poll.targetUnlockPerk} 👉 ${shareUrl}`
-        : `I just picked "${selectedOptionObj?.text}" on Promorang. This is a city vote, not a discount. Add yours 👉 ${shareUrl}`
-      : `Vote on Promorang: "${poll.question}" — mapped spots, no invented checkout pass 👉 ${shareUrl}`;
+        ? t("discovery.waBacked", { choice: selectedOptionObj?.text || "", perk: poll.targetUnlockPerk, url: shareUrl })
+        : t("discovery.waPicked", { choice: selectedOptionObj?.text || "", url: shareUrl })
+      : t("discovery.waVote", { question: poll.question, url: shareUrl });
 
     const handleVoteOnPoll = (optionId: string) => {
       if (userVotedOptionId) return;
@@ -159,9 +159,9 @@ export default function DiscoveryDetail() {
       const newCount = squadInvites + 1;
       setSquadInvites(newCount);
       if (newCount >= targetSquadInvites) {
-        toast.success(`🎉 SQUAD GOAL ACHIEVED! You unlocked early access to: ${poll.squadGoal?.instantPerkUnlockTitle || 'VIP Tasting Pass'}`);
+        toast.success(t("discovery.squadAchieved", { perk: poll.squadGoal?.instantPerkUnlockTitle || t("discovery.vipPass") }));
       } else {
-        toast.info(`Squad invite counted! ${targetSquadInvites - newCount} more needed for instant early unlock.`);
+        toast.info(t("discovery.squadCounted", { count: formatNumber(targetSquadInvites - newCount) }));
       }
     };
 
@@ -188,7 +188,7 @@ export default function DiscoveryDetail() {
       setSelectedOptionForComment(newOpt.text);
       setNewOptionText("");
       setShowAddOption(false);
-      toast.success("Your nominated candidate was added to the official ballot!");
+      toast.success(t("discovery.nominated"));
     };
 
     const handleAddComment = (e: React.FormEvent) => {
@@ -197,17 +197,17 @@ export default function DiscoveryDetail() {
 
       const newC: DiscoveryComment = {
         id: `c-${Date.now()}`,
-        author: user?.user_metadata?.full_name || user?.email?.split("@")[0] || "You",
-        badge: "Community Voter",
+        author: user?.user_metadata?.full_name || user?.email?.split("@")[0] || t("discovery.you"),
+        badge: t("discovery.communityVoter"),
         optionSupported: selectedOptionForComment || (userVotedOptionId ? poll.options.find(o => o.id === userVotedOptionId)?.text : undefined),
         text: commentText.trim(),
         likes: 1,
-        timeAgo: "Just now",
+        timeAgo: t("discovery.justNow"),
       };
 
       setComments([newC, ...comments]);
       setCommentText("");
-      toast.success("Your debate argument was posted!");
+      toast.success(t("discovery.posted"));
     };
 
     const handleToggleCommentLike = (commentId: string) => {
@@ -225,7 +225,7 @@ export default function DiscoveryDetail() {
     return (
       <main className="min-h-screen bg-[#07090e] pb-32 sm:pb-28 text-white selection:bg-orange-500 selection:text-white">
         <SEO
-          title={`${poll.question} — Promorang Community Vote`}
+          title={t("discovery.seoPoll", { question: poll.question })}
           description={poll.description}
           url={getSiteUrl(`/discoveries/${poll.slug}`)}
         />
@@ -248,8 +248,8 @@ export default function DiscoveryDetail() {
                     className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80 transition hover:border-white/30 hover:bg-white/10 hover:text-white shrink-0"
                   >
                     <ArrowLeft className="h-3.5 w-3.5 text-orange-400" />
-                    <span className="hidden xs:inline">Back</span>
-                    <span className="hidden sm:inline">to Discoveries</span>
+                    <span className="hidden xs:inline">{t("common.back")}</span>
+                    <span className="hidden sm:inline">{t("discovery.backDiscoveries")}</span>
                   </Link>
 
                   <Link
@@ -257,7 +257,7 @@ export default function DiscoveryDetail() {
                     className="hidden md:inline-flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-orange-400 transition truncate"
                   >
                     <Compass className="h-3.5 w-3.5" />
-                    Opportunity Radar
+                    {t("discovery.radarLink")}
                   </Link>
                 </div>
 
@@ -265,13 +265,13 @@ export default function DiscoveryDetail() {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(shareUrl);
-                      toast.success("Tracked referral link copied to clipboard! 📋");
+                      toast.success(t("discovery.copiedRef"));
                     }}
                     className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-white/80 hover:bg-white/10 transition"
-                    title="Copy Referral Link"
+                    title={t("discovery.copyReferral")}
                   >
                     <Copy className="h-3.5 w-3.5 text-purple-400" />
-                    <span className="hidden sm:inline">Copy Link</span>
+                    <span className="hidden sm:inline">{t("discovery.copyLink")}</span>
                   </button>
 
                   <button
@@ -281,13 +281,13 @@ export default function DiscoveryDetail() {
                     className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/25 transition shadow-sm"
                   >
                     <Share2 className="h-3.5 w-3.5" />
-                    <span className="hidden xs:inline">WhatsApp</span>
+                    <span className="hidden xs:inline">{t("discovery.whatsapp")}</span>
                   </button>
 
                   <button
                     onClick={() => {
                       setIsSavedPoll(!isSavedPoll);
-                      toast.success(isSavedPoll ? "Removed from Saved" : "Saved to your Vault! 🌟");
+                      toast.success(isSavedPoll ? t("discovery.removedSaved") : t("discovery.savedVault"));
                     }}
                     className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
                       isSavedPoll
@@ -296,7 +296,7 @@ export default function DiscoveryDetail() {
                     }`}
                   >
                     <Bookmark className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{isSavedPoll ? "Saved" : "Save"}</span>
+                    <span className="hidden sm:inline">{isSavedPoll ? t("discovery.saved") : t("discovery.save")}</span>
                   </button>
                 </div>
               </div>
@@ -315,17 +315,17 @@ export default function DiscoveryDetail() {
 
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] sm:text-xs font-bold">
                   <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-400 animate-ping" />
-                  Live Community Poll
+                  {t("discovery.livePoll")}
                 </span>
 
                 <span className="text-[11px] sm:text-xs font-black text-amber-300 bg-amber-950/60 border border-amber-800/40 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
                   <Gift className="w-3.5 h-3.5 text-amber-400" />
-                  +{poll.pointsReward} Pts Loot
+                  {t("discovery.ptsLoot", { count: formatNumber(poll.pointsReward) })}
                 </span>
 
                 <span className="hidden sm:inline-flex items-center gap-1 text-xs text-white/50 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                   <Users className="w-3 h-3 text-orange-400" />
-                  {totalVotes} Kingston votes
+                  {t("discovery.kingstonVotes", { count: formatNumber(totalVotes) })}
                 </span>
               </div>
 
@@ -365,7 +365,7 @@ export default function DiscoveryDetail() {
                     to={`/scenes/${poll.connectedScene.slug}`}
                     className="inline-flex items-center justify-between sm:justify-start gap-2 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/25 px-3.5 py-1.5 sm:py-2 rounded-xl transition hover:bg-orange-500/20 shadow-sm w-fit"
                   >
-                    <span>Scene: {poll.connectedScene.title}</span>
+                    <span>{t("discovery.scene", { title: poll.connectedScene.title })}</span>
                     <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                   </Link>
                 )}
@@ -388,18 +388,18 @@ export default function DiscoveryDetail() {
                     <div>
                       <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 text-amber-400" />
-                        {redeemable ? "COMMUNITY UNLOCK BATTERY" : "CITY VOTE"}
+                        {redeemable ? t("discovery.unlockBattery") : t("discovery.cityVote")}
                       </span>
                       <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mt-0.5">
-                        <span>{redeemable ? "City Hype Meter" : "Shortlist meter"}</span>
+                        <span>{redeemable ? t("discovery.hypeMeter") : t("discovery.shortlistMeter")}</span>
                       </h3>
                     </div>
                     <div className="text-left sm:text-right">
                       <span className="text-xl sm:text-2xl font-black text-orange-400">
-                        {totalVotes} <span className="text-xs sm:text-sm font-normal text-white/50">/ {poll.thresholdForMoment} votes</span>
+                        {t("discovery.votesOf", { current: formatNumber(totalVotes), needed: formatNumber(poll.thresholdForMoment) })}
                       </span>
                       <p className="text-[10px] sm:text-[11px] text-white/50 font-medium">
-                        {redeemable ? `${progressPercentage}% charged toward drop` : `${progressPercentage}% of the way to a firm shortlist`}
+                        {redeemable ? t("discovery.chargedDrop", { pct: formatNumber(progressPercentage) }) : t("discovery.shortlistPct", { pct: formatNumber(progressPercentage) })}
                       </p>
                     </div>
                   </div>
@@ -419,22 +419,22 @@ export default function DiscoveryDetail() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-400">
-                        {redeemable ? "THE HOUSE PASS TO OPEN" : "WHAT THIS VOTE DOES"}
+                        {redeemable ? t("discovery.housePassOpen") : t("discovery.whatVoteDoes")}
                       </p>
                       <p className="text-xs sm:text-sm font-bold text-white mt-0.5 break-words">{poll.targetUnlockPerk}</p>
                       {redeemable && isThresholdMet ? (
                         <p className="text-[11px] sm:text-xs text-emerald-400 font-bold mt-1 flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5 shrink-0" /> A house pass is live for voters.
+                          <Sparkles className="h-3.5 w-3.5 shrink-0" /> {t("radar.housePassLive")}
                         </p>
                       ) : redeemable ? (
                         <p className="text-[11px] sm:text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
                           <Flame className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-                          <span>Only {votesRemaining} more votes needed to open that house pass.</span>
+                          <span>{t("discovery.votesToOpen", { count: formatNumber(votesRemaining) })}</span>
                         </p>
                       ) : (
                         <p className="text-[11px] sm:text-xs text-orange-300/90 font-semibold mt-1 flex items-center gap-1">
                           <Flame className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-                          <span>This is a city vote. It does not mint a checkout discount.</span>
+                          <span>{t("discovery.cityVoteNote")}</span>
                         </p>
                       )}
                     </div>
@@ -447,19 +447,19 @@ export default function DiscoveryDetail() {
                     <div>
                       <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                         <Vote className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
-                        <span>Cast Your Vote</span>
+                        <span>{t("discovery.castVote")}</span>
                       </h2>
                       <p className="text-[11px] sm:text-xs text-white/60 mt-0.5">
                         {userVotedOptionId 
                           ? redeemable
-                            ? "Choice locked in. If a house pass is live, it is below."
-                            : "Choice locked in. This is a city vote — see the mapped place below, not a discount."
-                          : "Pick the mapped spot you stand behind. This is not a checkout pass."}
+                            ? t("discovery.lockedHouse")
+                            : t("discovery.lockedCity")
+                          : t("discovery.pickSpot")}
                       </p>
                     </div>
 
                     <span className="text-[11px] sm:text-xs font-black text-orange-400/90 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 shrink-0">
-                      {poll.options.length} Choices
+                      {t("discovery.choices", { count: formatNumber(poll.options.length) })}
                     </span>
                   </div>
 
@@ -515,7 +515,7 @@ export default function DiscoveryDetail() {
                                 </span>
                                 {isLeading && (
                                   <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black text-amber-400 mt-0.5">
-                                    <Sparkles className="w-2.5 h-2.5" /> Leading Choice ({votePercentage}%)
+                                    <Sparkles className="w-2.5 h-2.5" /> {t("discovery.leading", { pct: formatNumber(votePercentage) })}
                                   </span>
                                 )}
                               </div>
@@ -527,7 +527,9 @@ export default function DiscoveryDetail() {
                                   {votePercentage}%
                                 </span>
                                 <span className="text-[10px] sm:text-[11px] text-white/50">
-                                  {option.votes} {option.votes === 1 ? "vote" : "votes"}
+                                  {option.votes === 1
+                                    ? t("discovery.voteOne", { count: formatNumber(option.votes) })
+                                    : t("discovery.voteMany", { count: formatNumber(option.votes) })}
                                 </span>
                               </div>
                             )}
@@ -545,20 +547,20 @@ export default function DiscoveryDetail() {
                         className="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1.5 transition"
                       >
                         <Plus className="w-4 h-4" />
-                        <span>Nominate another choice or spot 📍</span>
+                        <span>{t("discovery.nominateAnother")}</span>
                       </button>
                     </div>
                   )}
 
                   {showAddOption && (
                     <form onSubmit={handleAddOption} className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10 space-y-3">
-                      <p className="text-xs font-bold text-white">Nominate Your Choice</p>
+                      <p className="text-xs font-bold text-white">{t("discovery.nominateTitle")}</p>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           value={newOptionText}
                           onChange={(e) => setNewOptionText(e.target.value)}
-                          placeholder="Type your candidate choice or price point..."
+                          placeholder={t("discovery.nominatePlaceholder")}
                           className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-orange-500"
                         />
                         <Button
@@ -566,7 +568,7 @@ export default function DiscoveryDetail() {
                           size="sm"
                           className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4 h-10 sm:h-auto"
                         >
-                          Nominate & Vote
+                          {t("radar.nominateVote")}
                         </Button>
                       </div>
                     </form>
@@ -585,14 +587,14 @@ export default function DiscoveryDetail() {
                         <div>
                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 flex items-center gap-1">
                             <Target className="w-3.5 h-3.5" />
-                            {redeemable ? "DYNAMIC RECOMMENDATIONS" : "MAPPED PLACE"}
+                            {redeemable ? t("discovery.dynamicRecs") : t("discovery.mappedPlace")}
                           </span>
                           <h3 className="text-lg sm:text-xl font-bold text-white mt-0.5">
-                            {redeemable ? "Curated Drops Matched to Your Choice" : "The place you picked — no invented deal"}
+                            {redeemable ? t("discovery.curatedDrops") : t("discovery.placePicked")}
                           </h3>
                         </div>
                         <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 text-[11px] sm:text-xs w-fit max-w-full truncate">
-                          🎯 Pick: {selectedOptionObj?.text.split('(')[0].trim()}
+                          {t("discovery.pick", { choice: selectedOptionObj?.text.split('(')[0].trim() || "" })}
                         </Badge>
                       </div>
 
@@ -647,7 +649,7 @@ export default function DiscoveryDetail() {
                         </div>
                       ) : (
                         <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-white/70">
-                          Your taste signal has been added to our Opportunity Radar. Matching food & shopping partner drops in Kingston will appear in your feed.
+                          {t("discovery.tasteSignal")}
                         </div>
                       )}
 
@@ -655,7 +657,7 @@ export default function DiscoveryDetail() {
                       {poll.recommendedMissions && poll.recommendedMissions.length > 0 && (
                         <div className="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-white/10 space-y-2.5 sm:space-y-3">
                           <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-white/50">
-                            UNLOCKED COMPANION MISSIONS
+                            {t("discovery.companionMissions")}
                           </p>
                           <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
                             {poll.recommendedMissions.map((ms) => (
@@ -688,23 +690,27 @@ export default function DiscoveryDetail() {
                         <div className="flex-1 w-full min-w-0">
                           <div className="flex flex-wrap items-center gap-2 justify-between">
                             <h4 className="text-sm sm:text-base font-black text-white">
-                              Squad Unlock Accelerator 🚀
+                              {t("discovery.squadTitle")}
                             </h4>
                             <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] sm:text-xs font-bold border border-emerald-500/40">
-                              +{poll.squadGoal?.bonusPointsPerInvite || 25} Pts / Friend
+                              {t("discovery.ptsFriend", { count: formatNumber(poll.squadGoal?.bonusPointsPerInvite || 25) })}
                             </span>
                           </div>
 
                           <p className="text-xs text-white/80 mt-1.5 leading-relaxed">
-                            Don't want to wait for the {poll.thresholdForMoment} votes? Invite <strong>{targetSquadInvites} friends</strong> to vote and unlock your <strong>{poll.squadGoal?.instantPerkUnlockTitle || 'VIP Tasting Pass Key'}</strong> instantly!
+                            {t("discovery.squadCopy", {
+                              votes: formatNumber(poll.thresholdForMoment),
+                              friends: formatNumber(targetSquadInvites),
+                              perk: poll.squadGoal?.instantPerkUnlockTitle || t("discovery.vipPass"),
+                            })}
                           </p>
 
                           {/* Live Squad Progress Indicator */}
                           <div className="mt-3.5 sm:mt-4 p-3 sm:p-3.5 rounded-2xl bg-black/50 border border-white/10">
                             <div className="flex items-center justify-between text-xs font-bold">
-                              <span className="text-white/70">Squad Invitations Verified</span>
+                              <span className="text-white/70">{t("discovery.squadVerified")}</span>
                               <span className={isSquadUnlocked ? "text-emerald-400" : "text-amber-400"}>
-                                {squadInvites} / {targetSquadInvites} Joined
+                                {t("discovery.joined", { current: formatNumber(squadInvites), needed: formatNumber(targetSquadInvites) })}
                               </span>
                             </div>
                             <div className="mt-2 h-2 w-full rounded-full bg-white/10 overflow-hidden">
@@ -715,7 +721,7 @@ export default function DiscoveryDetail() {
                             </div>
                             {isSquadUnlocked && (
                               <p className="text-xs text-emerald-400 font-bold mt-2 flex items-center gap-1">
-                                <CheckCircle2 className="w-4 h-4" /> VIP Early Access Key added to your Vault!
+                                <CheckCircle2 className="w-4 h-4" /> {t("discovery.vipVault")}
                               </p>
                             )}
                           </div>
@@ -730,19 +736,19 @@ export default function DiscoveryDetail() {
                               className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
                             >
                               <Share2 className="w-4 h-4" />
-                              <span>Challenge WhatsApp Squad</span>
+                              <span>{t("discovery.challengeSquad")}</span>
                             </button>
 
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(shareUrl);
-                                toast.success("Tracked referral link copied to clipboard!");
+                                toast.success(t("discovery.copiedRef"));
                                 handleSimulateInvite();
                               }}
                               className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
                             >
                               <Copy className="w-3.5 h-3.5" />
-                              <span>Copy Squad Link</span>
+                              <span>{t("discovery.copySquad")}</span>
                             </button>
                           </div>
                         </div>
@@ -756,9 +762,9 @@ export default function DiscoveryDetail() {
                 {/* Scout Context & Deep Dive */}
                 <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-8 backdrop-blur-md space-y-3 sm:space-y-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">🔥 THE STORY & WHY IT MATTERS</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">🔥 {t("discovery.storyWhy")}</span>
                   </div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">Behind The Community Vote</h3>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">{t("discovery.behindVote")}</h3>
                   <p className="text-xs sm:text-base leading-relaxed text-white/80">
                     {poll.description}
                   </p>
@@ -766,7 +772,7 @@ export default function DiscoveryDetail() {
                   {poll.contextNotes && (
                     <div className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20">
                       <p className="text-xs font-bold text-orange-300 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" /> {redeemable ? "What opens next" : "How to read this"}
+                        <Sparkles className="w-3.5 h-3.5" /> {redeemable ? t("discovery.whatOpens") : t("discovery.howRead")}
                       </p>
                       <p className="text-xs text-white/80 mt-1 leading-relaxed">
                         {poll.contextNotes}
@@ -793,24 +799,24 @@ export default function DiscoveryDetail() {
                     <div>
                       <h3 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
                         <Flame className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
-                        <span>🥊 Live Arena & Hot Takes</span>
+                        <span>🥊 {t("discovery.arena")}</span>
                       </h3>
-                      <p className="text-[11px] sm:text-xs text-white/50">{comments.length} community takes logged</p>
+                      <p className="text-[11px] sm:text-xs text-white/50">{t("discovery.takesLogged", { count: formatNumber(comments.length) })}</p>
                     </div>
                   </div>
 
                   {/* Add Argument Form */}
                   <form onSubmit={handleAddComment} className="space-y-3 border-b border-white/10 pb-4 sm:pb-6">
-                    <p className="text-xs font-bold text-white/90">Drop your hot take: Why does your choice make sense?</p>
+                    <p className="text-xs font-bold text-white/90">{t("discovery.hotTakePrompt")}</p>
                     <textarea
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Back your choice with real notes, kitchen tests, or flavor notes..."
+                      placeholder={t("discovery.takePlaceholder")}
                       rows={3}
                       className="w-full rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-3.5 text-xs text-white placeholder:text-white/40 focus:border-orange-500 focus:outline-none leading-relaxed"
                     />
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] sm:text-[11px] text-white/40 truncate">Real scout notes only.</span>
+                      <span className="text-[10px] sm:text-[11px] text-white/40 truncate">{t("discovery.scoutNotes")}</span>
                       <Button
                         type="submit"
                         disabled={!commentText.trim()}
@@ -818,7 +824,7 @@ export default function DiscoveryDetail() {
                         className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl flex items-center gap-1.5 px-3.5 shrink-0"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span>Post Take</span>
+                        <span>{t("discovery.postTake")}</span>
                       </Button>
                     </div>
                   </form>
@@ -845,7 +851,7 @@ export default function DiscoveryDetail() {
 
                           {c.optionSupported && (
                             <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-[10px] font-black text-orange-400 max-w-full truncate">
-                              <span className="truncate">🔥 Backing: {c.optionSupported}</span>
+                              <span className="truncate">🔥 {t("discovery.backing", { choice: c.optionSupported })}</span>
                             </div>
                           )}
 
@@ -877,11 +883,11 @@ export default function DiscoveryDetail() {
                 <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4 sm:p-6 backdrop-blur-xl space-y-3 sm:space-y-4 shadow-xl">
                   <span className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400 flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-orange-400" />
-                    THE PEOPLE'S GREENLIGHT
+                    {t("discovery.greenlight")}
                   </span>
-                  <h3 className="font-serif text-lg sm:text-xl font-bold text-white">How We Unlock The City</h3>
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-white">{t("discovery.unlockCity")}</h3>
                   <p className="text-xs text-white/70 leading-relaxed">
-                    Instead of waiting for sponsors to guess what you want, our community votes together to force venues and brands to drop subsidized perks and secret moments.
+                    {t("discovery.unlockCityCopy")}
                   </p>
 
                   <div className="space-y-2.5 sm:space-y-3 pt-2 border-t border-white/10 text-xs">
@@ -889,21 +895,21 @@ export default function DiscoveryDetail() {
                       <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         1
                       </div>
-                      <p className="text-white/80"><strong>Vote Your Tier:</strong> Cast your benchmark vote.</p>
+                      <p className="text-white/80"><strong>{t("discovery.step1")}</strong> {t("discovery.step1Copy")}</p>
                     </div>
 
                     <div className="flex items-start gap-2.5">
                       <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         2
                       </div>
-                      <p className="text-white/80"><strong>Unlock Matched Deals:</strong> Instantly get partner recommendations.</p>
+                      <p className="text-white/80"><strong>{t("discovery.step2")}</strong> {t("discovery.step2Copy")}</p>
                     </div>
 
                     <div className="flex items-start gap-2.5">
                       <div className="h-5 w-5 rounded-full bg-orange-500 text-black font-black flex items-center justify-center shrink-0 text-[10px]">
                         3
                       </div>
-                      <p className="text-white/80"><strong>Rally Your Squad:</strong> Get friends to vote for instant VIP early unlock.</p>
+                      <p className="text-white/80"><strong>{t("discovery.step3")}</strong> {t("discovery.step3Copy")}</p>
                     </div>
                   </div>
 
@@ -915,7 +921,7 @@ export default function DiscoveryDetail() {
                       className="w-full h-11 rounded-2xl bg-orange-500 hover:bg-orange-400 text-black font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
                     >
                       <Share2 className="w-4 h-4" />
-                      <span>Rally Friends on WhatsApp</span>
+                      <span>{t("discovery.rallyWhatsapp")}</span>
                     </Button>
                   </div>
                 </div>
@@ -924,7 +930,7 @@ export default function DiscoveryDetail() {
                 {otherPolls.length > 0 && (
                   <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 backdrop-blur-xl space-y-3 sm:space-y-4 shadow-xl">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">
-                      MORE ACTIVE DEBATES
+                      {t("discovery.moreDebates")}
                     </span>
                     
                     <div className="space-y-2.5 sm:space-y-3">
@@ -941,9 +947,9 @@ export default function DiscoveryDetail() {
                             {op.question}
                           </h4>
                           <div className="flex items-center justify-between text-[10px] text-white/50 mt-2">
-                            <span>{op.totalVotes} / {op.thresholdForMoment} votes</span>
+                            <span>{t("discovery.votesOf", { current: formatNumber(op.totalVotes), needed: formatNumber(op.thresholdForMoment) })}</span>
                             <span className="text-orange-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center">
-                              Vote →
+                              {t("radar.voteArrow")}
                             </span>
                           </div>
                         </Link>
@@ -962,10 +968,10 @@ export default function DiscoveryDetail() {
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] text-white/60 font-bold uppercase truncate">
-                  {userVotedOptionId ? "Loot Claimed 🎯" : "Community Vote"}
+                  {userVotedOptionId ? t("discovery.lootClaimed") : t("discovery.communityVote")}
                 </p>
                 <p className="text-xs font-bold text-orange-400 truncate">
-                  {totalVotes}/{poll.thresholdForMoment} Power Units ({progressPercentage}%)
+                  {t("discovery.powerUnits", { current: formatNumber(totalVotes), needed: formatNumber(poll.thresholdForMoment), pct: formatNumber(progressPercentage) })}
                 </p>
               </div>
               <Button
@@ -982,7 +988,7 @@ export default function DiscoveryDetail() {
                 size="sm"
                 className="bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl px-4 h-10 shrink-0 shadow-lg shadow-orange-500/20"
               >
-                {userVotedOptionId ? "Rally Squad 🚀" : "Cast Vote 🗳️"}
+                {userVotedOptionId ? t("discovery.rallySquad") : t("discovery.castVoteCta")}
               </Button>
             </div>
           </div>
@@ -1008,11 +1014,11 @@ export default function DiscoveryDetail() {
       <main className="grid min-h-screen place-items-center bg-black px-6 text-center text-white">
         <div>
           <Compass className="mx-auto h-12 w-12 text-primary" />
-          <h1 className="mt-5 font-serif text-4xl font-bold">This Discovery is not available.</h1>
-          <p className="mt-3 text-white/50">It may have been removed or the link might be incorrect.</p>
+          <h1 className="mt-5 font-serif text-4xl font-bold">{t("discovery.unavailable")}</h1>
+          <p className="mt-3 text-white/50">{t("discovery.unavailableCopy")}</p>
           <Link to="/discover" className="mt-6 inline-flex items-center gap-2 text-primary hover:underline">
             <ArrowLeft className="h-4 w-4" />
-            Explore Discoveries & Polls
+            {t("discovery.explorePolls")}
           </Link>
         </div>
       </main>
@@ -1028,19 +1034,19 @@ export default function DiscoveryDetail() {
     ...(Array.isArray(discovery.gallery)
       ? discovery.gallery.map((g: any, i: number) => ({
           url: typeof g === "string" ? g : g.url || discovery.cover_image || "",
-          alt: `${discovery.title} photo ${i + 1}`,
+          alt: t("discovery.photoN", { title: discovery.title, n: String(i + 1) }),
           caption: typeof g === "object" ? g.caption : undefined,
         }))
       : []),
     {
       url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&auto=format&fit=crop",
-      alt: "Atmosphere",
-      caption: "Vibe & Atmosphere",
+      alt: t("discovery.atmosphere"),
+      caption: t("discovery.vibeCaption"),
     },
     {
       url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&auto=format&fit=crop",
-      alt: "Gathering",
-      caption: "Community Spot",
+      alt: t("discovery.gathering"),
+      caption: t("discovery.communitySpot"),
     },
   ];
 
@@ -1052,10 +1058,10 @@ export default function DiscoveryDetail() {
     try {
       await saveMutation.mutateAsync();
       setSaved(!saved);
-      uiToast({ title: saved ? "Removed from Saved" : "Saved to Vault! 🌟", description: "You can access saved discoveries in your Vault." });
+      uiToast({ title: saved ? t("discovery.removedSaved") : t("discovery.savedVault"), description: t("discovery.savedDesc") });
     } catch {
       setSaved(true);
-      uiToast({ title: "Saved!", description: "Discovery added to your saved collection." });
+      uiToast({ title: t("discovery.saved"), description: t("discovery.savedFallback") });
     }
   };
 
@@ -1065,7 +1071,7 @@ export default function DiscoveryDetail() {
       return;
     }
     setCheckins(currentCheckins + 1);
-    uiToast({ title: "Checked in! 📍", description: "You logged your visit to this Discovery and earned 50 PromoPoints!" });
+    uiToast({ title: t("discovery.checkedIn"), description: t("discovery.checkedInDesc") });
   };
 
   const handleAddReview = (e: React.FormEvent) => {
@@ -1076,24 +1082,24 @@ export default function DiscoveryDetail() {
       setReviews([
         {
           id: String(Date.now()),
-          author: user?.user_metadata?.full_name || "You",
+          author: user?.user_metadata?.full_name || t("discovery.you"),
           text: newReviewText,
           rating: newRating,
-          date: "Just now",
+          date: t("discovery.justNow"),
         },
         ...reviews,
       ]);
       setNewReviewText("");
       setSubmittingReview(false);
-      uiToast({ title: "Review added! ⭐", description: "Thank you for rating this Scout Discovery." });
+      uiToast({ title: t("discovery.reviewAdded"), description: t("discovery.reviewAddedDesc") });
     }, 400);
   };
 
   return (
     <main className="min-h-screen bg-black pb-24 text-white">
       <SEO
-        title={`${discovery.title} — Promorang Discovery`}
-        description={discovery.description || `Explore ${discovery.title} on Promorang.`}
+        title={t("discovery.seoPlace", { title: discovery.title })}
+        description={discovery.description || t("discovery.seoExplore", { title: discovery.title })}
         image={discovery.cover_image || undefined}
         url={getSiteUrl(`/discoveries/${discovery.slug}`)}
         schema={generateDiscoverySchema(discovery)}
@@ -1109,7 +1115,7 @@ export default function DiscoveryDetail() {
               className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/60 transition hover:text-white"
             >
               <ArrowLeft className="h-4 w-4 text-primary" />
-              Back to Discoveries
+              {t("discovery.backTo")}
             </Link>
 
             <div className="flex items-center gap-2">
@@ -1140,7 +1146,7 @@ export default function DiscoveryDetail() {
               )}
               <span className="flex items-center gap-1 text-xs font-bold text-amber-400">
                 <Star className="h-3.5 w-3.5 fill-amber-400" />
-                4.9 (12 reviews)
+                4.9 ({t("discovery.reviewsCount", { count: formatNumber(12) })})
               </span>
             </div>
 
@@ -1160,20 +1166,26 @@ export default function DiscoveryDetail() {
             <div className="space-y-10">
               {/* Description & Overview */}
               <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md">
-                <h2 className="font-serif text-2xl font-bold text-white">About this Spot</h2>
+                <h2 className="font-serif text-2xl font-bold text-white">{t("discovery.aboutSpot")}</h2>
                 {discovery.description ? (
                   <p className="mt-4 text-base leading-relaxed text-white/70 sm:text-lg">
                     {discovery.description}
                   </p>
                 ) : (
                   <p className="mt-4 text-sm text-white/50">
-                    A recommended cultural find verified by the Promorang Scout network.
+                    {t("discovery.recommendedFind")}
                   </p>
                 )}
 
                 {/* Highlights / Vibe Tags */}
                 <div className="mt-6 flex flex-wrap gap-2 border-t border-white/10 pt-6">
-                  {["Vibe & Ambience", "Local Favorite", "Photo Spot", "Walkable", "Recommended"].map((tag) => (
+                  {[
+                    t("discovery.tagVibe"),
+                    t("discovery.tagLocal"),
+                    t("discovery.tagPhoto"),
+                    t("discovery.tagWalkable"),
+                    t("discovery.tagRecommended"),
+                  ].map((tag) => (
                     <span key={tag} className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/80">
                       ✨ {tag}
                     </span>
@@ -1197,12 +1209,12 @@ export default function DiscoveryDetail() {
                   )}
 
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">Discovered & Recommended by</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("discovery.foundBy")}</span>
                     <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      {discovery.creator_profile?.display_name || discovery.creator_profile?.username || "Culture Scout"}
+                      {discovery.creator_profile?.display_name || discovery.creator_profile?.username || t("discovery.cultureScout")}
                       <CheckCircle2 className="h-4 w-4 text-primary" />
                     </h3>
-                    <p className="text-xs text-white/50">Level 3 Scout · Top 5% Local Explorer</p>
+                    <p className="text-xs text-white/50">{t("discovery.scoutLevel")}</p>
                   </div>
                 </div>
               </div>
@@ -1212,17 +1224,17 @@ export default function DiscoveryDetail() {
                 <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-primary/10 via-black to-black p-6 sm:p-8">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">CONNECTED SCENE RITUAL</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("discovery.connectedRitual")}</span>
                       <h3 className="mt-1 font-serif text-3xl font-bold">{discovery.scene.title}</h3>
                       <p className="mt-2 text-xs text-white/60">
-                        This discovery is linked to the {discovery.scene.title} community.
+                        {t("discovery.linkedScene", { title: discovery.scene.title })}
                       </p>
                     </div>
                     <Link
                       to={`/scenes/${discovery.scene.slug}`}
                       className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-black transition hover:bg-orange-400"
                     >
-                      Explore Scene <ArrowLeft className="h-4 w-4 rotate-180" />
+                      {t("discovery.exploreScene")} <ArrowLeft className="h-4 w-4 rotate-180" />
                     </Link>
                   </div>
                 </div>
@@ -1232,9 +1244,9 @@ export default function DiscoveryDetail() {
               <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">LOCATION & DIRECTIONS</span>
-                    <h3 className="font-serif text-2xl font-bold">{discovery.city || "Local Destination"}</h3>
-                    <p className="text-xs text-white/60">{discovery.location_address || "Address available upon check-in."}</p>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("discovery.locationDirections")}</span>
+                    <h3 className="font-serif text-2xl font-bold">{discovery.city || t("discovery.localDestination")}</h3>
+                    <p className="text-xs text-white/60">{discovery.location_address || t("discovery.addressCheckin")}</p>
                   </div>
                   {discovery.location_address && (
                     <a
@@ -1243,7 +1255,7 @@ export default function DiscoveryDetail() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
                     >
-                      Google Maps <ExternalLink className="h-3.5 w-3.5" />
+                      {t("discovery.googleMaps")} <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   )}
                 </div>
@@ -1254,7 +1266,7 @@ export default function DiscoveryDetail() {
                       {
                         id: String(discovery.id),
                         title: discovery.title,
-                        location: discovery.location_address || discovery.city || "Spot",
+                        location: discovery.location_address || discovery.city || t("discovery.spot"),
                         latitude: discovery.latitude || 17.9714,
                         longitude: discovery.longitude || -76.7936,
                       },
@@ -1267,8 +1279,8 @@ export default function DiscoveryDetail() {
               <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
                   <div>
-                    <h3 className="font-serif text-2xl font-bold">Scout Reviews & Ratings</h3>
-                    <p className="text-xs text-white/50">{reviews.length} community reviews</p>
+                    <h3 className="font-serif text-2xl font-bold">{t("discovery.scoutReviews")}</h3>
+                    <p className="text-xs text-white/50">{t("discovery.communityReviews", { count: formatNumber(reviews.length) })}</p>
                   </div>
                   <div className="flex items-center gap-1 text-amber-400 font-bold">
                     <Star className="h-5 w-5 fill-amber-400" />
@@ -1278,7 +1290,7 @@ export default function DiscoveryDetail() {
 
                 {/* Add Review Form */}
                 <form onSubmit={handleAddReview} className="mt-6 border-b border-white/10 pb-6">
-                  <p className="text-xs font-bold text-white/80">Have you visited this Discovery?</p>
+                  <p className="text-xs font-bold text-white/80">{t("discovery.visitedPrompt")}</p>
                   <div className="mt-2 flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -1294,7 +1306,7 @@ export default function DiscoveryDetail() {
                   <textarea
                     value={newReviewText}
                     onChange={(e) => setNewReviewText(e.target.value)}
-                    placeholder="Share what makes this spot worth discovering..."
+                    placeholder={t("discovery.reviewPlaceholder")}
                     rows={2}
                     className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white placeholder:text-white/30 focus:border-primary focus:outline-none"
                   />
@@ -1304,7 +1316,7 @@ export default function DiscoveryDetail() {
                     size="sm"
                     className="mt-3 bg-primary font-bold text-black hover:bg-orange-400"
                   >
-                    Submit Review
+                    {t("discovery.submitReview")}
                   </Button>
                 </form>
 
@@ -1331,20 +1343,20 @@ export default function DiscoveryDetail() {
             {/* Right Action Sidebar Card */}
             <aside className="sticky top-24 space-y-6">
               <div className="rounded-3xl border border-white/15 bg-white/[0.04] p-6 backdrop-blur-xl">
-                <span className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">LOG & VERIFY</span>
-                <h2 className="mt-2 font-serif text-2xl font-bold">Have You Been Here?</h2>
+                <span className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("discovery.logVerify")}</span>
+                <h2 className="mt-2 font-serif text-2xl font-bold">{t("discovery.beenHere")}</h2>
                 <p className="mt-2 text-xs leading-relaxed text-white/60">
-                  Log your visit to this Discovery to earn **+50 PromoPoints** and build your Scout reputation.
+                  {t("discovery.logVisitCopy")}
                 </p>
 
                 <div className="mt-6 grid grid-cols-2 gap-4 border-y border-white/10 py-4">
                   <div>
                     <p className="text-3xl font-bold text-white">{currentCheckins}</p>
-                    <p className="text-[11px] font-medium text-white/50">Community Visits</p>
+                    <p className="text-[11px] font-medium text-white/50">{t("discovery.communityVisits")}</p>
                   </div>
                   <div>
                     <p className="text-3xl font-bold text-white">{discovery.save_count || 0}</p>
-                    <p className="text-[11px] font-medium text-white/50">Times Saved</p>
+                    <p className="text-[11px] font-medium text-white/50">{t("discovery.timesSaved")}</p>
                   </div>
                 </div>
 
@@ -1354,7 +1366,7 @@ export default function DiscoveryDetail() {
                     className="h-12 w-full gap-2 rounded-full bg-primary font-black text-black hover:bg-orange-400"
                   >
                     <MapPin className="h-4 w-4" />
-                    Log Visit / Check In (+50 Pts)
+                    {t("discovery.logVisit")}
                   </Button>
 
                   <Button
@@ -1365,7 +1377,7 @@ export default function DiscoveryDetail() {
                     }`}
                   >
                     <Bookmark className="h-4 w-4" />
-                    {saved ? "Saved to Vault" : "Save to Vault"}
+                    {saved ? t("discovery.savedToVault") : t("discovery.saveToVault")}
                   </Button>
                 </div>
               </div>
