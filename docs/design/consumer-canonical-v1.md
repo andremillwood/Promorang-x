@@ -4,6 +4,8 @@ Status: design reference on `design/promorang-design-lab`
 
 This document defines the canonical hierarchy for the first four consumer destinations. It does **not** remove product capability. It establishes what receives visual authority, what is progressively disclosed, and which production concepts should stop competing for first-screen attention.
 
+It should now be read together with `docs/design/consumer-maturity-v1.md`, which adds the quality bar for editorial restraint, trust, content-format diversity, accessibility, imagery and PromoCard credential maturity.
+
 ## Governing model
 
 PROMORANG consumer UI uses three visual families:
@@ -41,6 +43,10 @@ Primary navigation must not expose internal product taxonomy such as demand syst
 5. Latest meaningful consequence/proof only when useful.
 6. Consumer navigation.
 
+### Maturity addition
+
+For the participant experience, the dominant move should also be capable of showing real issuer, trust, value, availability, distance and timing information before action when those data exist. Personalization may explain `why this, why now` quietly, but production must never invent recommendation reasons or social proof.
+
 ### Keep from production
 
 - current-move resolution
@@ -77,6 +83,10 @@ A new user should understand the single best next action within five seconds wit
 4. `Near you` — a short list of additional live opportunities.
 5. `What changed` — latest unlock, return mark, or next consequence.
 6. Progressive disclosure for the complete card inventory and configuration.
+
+### Maturity addition
+
+The PromoCard front should mature as a credible credential. Where backed by real data, it should be able to express issuer identity, issuer verification, state, serial/reference, validity, remaining uses and merchant-validation context without exposing protected redemption mechanics merely for visual interest.
 
 ### Keep from production
 
@@ -162,6 +172,10 @@ A screenshot of the Vault with labels removed should still visually imply `thing
 6. Supporting search, categories and map controls.
 7. Creator/distributor tools only when the user is operating in that role or explicitly switches context.
 
+### Maturity addition
+
+Discover should not repeat one visual card template for every result. It should support materially different content formats such as one hero opportunity, compact opportunity rows, live signals, map/place doorways, social-context signals, saved/expiring state and trusted issuer strips. Secondary results should normally use quieter sans-serif hierarchy rather than competing display-serif headlines.
+
 ### Keep from production
 
 - city hubs
@@ -185,6 +199,27 @@ A screenshot of the Vault with labels removed should still visually imply `thing
 ### Acceptance criteria
 
 Discover should feel like an editorial guide to a living city/market. Search and map should help users navigate desire, not substitute for it.
+
+## Trust and honesty rule
+
+Design Lab studies may use illustrative ratings, counts, distance, inventory, verification and personalization copy to test hierarchy. Production must never fabricate any of these.
+
+When real data is unavailable:
+- omit the signal rather than inventing it
+- use an explicit unavailable/unknown state only when the user needs it to understand the action
+- never fabricate ratings, social proof, availability, proximity, issuer verification or recommendation reasons
+
+## Accessibility floor
+
+Before a canonical pattern converges into production:
+- essential mobile copy should not rely on ultra-small 9–10 px text
+- supporting text needs usable contrast against photography
+- image overlays must preserve legibility
+- icon-only actions need accessible labels
+- touch targets should remain practical on mobile
+- color must not be the only carrier of state
+
+Actual accessibility compliance still requires implementation and assistive-technology testing.
 
 ## State requirements
 
@@ -210,14 +245,15 @@ Mobile is the canonical consumer composition. Desktop should expand the composit
 
 ## Production convergence order
 
-1. Approve Design Lab visual hierarchy.
+1. Approve Design Lab visual hierarchy and maturity bar.
 2. Refactor `PeopleHome` toward Today hierarchy using existing data/hooks.
 3. Refactor `MyPromoCard` toward Card hierarchy while preserving redemption behavior.
 4. Refactor `Vault` around Access / Proof / Kept / Value.
 5. Refactor `Discover` toward editorial hierarchy while preserving map/search/data logic.
-6. Add component states to Storybook after local Storybook initialization updates the npm lockfile safely.
-7. Run visual QA at mobile and desktop widths.
-8. Only then merge the design-system PR or split production migrations into follow-up PRs.
+6. Converge `You` around identity, belonging, proof and quiet account utility.
+7. Add component states to Storybook after local Storybook initialization updates the npm lockfile safely.
+8. Run visual QA at mobile and desktop widths.
+9. Only then merge the design-system PR or split production migrations into follow-up PRs.
 
 ## Non-goals for v1
 
@@ -228,4 +264,4 @@ Mobile is the canonical consumer composition. Desktop should expand the composit
 - introduce a new UI framework
 - force Figma parity
 
-The purpose of v1 is to make four consumer surfaces unmistakably PROMORANG and establish a system the rest of the platform can inherit.
+The purpose of v1 is to make the consumer surfaces unmistakably PROMORANG and establish a system the rest of the platform can inherit.
