@@ -26,7 +26,9 @@ async function domainCount(spec, since) {
       return countQuery(supabase.from('guest_moment_rsvps').select('*', { count: 'exact', head: true }).gte('created_at', since));
     case 'guest_attendance':
       return countQuery(supabase.from('guest_attendance_receipts').select('*', { count: 'exact', head: true }).in('status', ['verified', 'claimed']).gte('verified_at', since));
-    case 'commerce_purchase':
+    case 'commerce_purchase_recorded':
+      return countQuery(supabase.from('commerce_receipts').select('*', { count: 'exact', head: true }).eq('receipt_type', 'purchase').gte('occurred_at', since));
+    case 'commerce_purchase_fulfilled':
       return countQuery(supabase.from('commerce_receipts').select('*', { count: 'exact', head: true }).eq('receipt_type', 'purchase').eq('status', 'fulfilled').gte('occurred_at', since));
     case 'creator_value':
       return countQuery(supabase.from('creator_earnings_ledger').select('*', { count: 'exact', head: true }).gte('created_at', since));
@@ -50,7 +52,8 @@ const RECONCILIATION_SPECS = Object.freeze([
   { key: 'payout_paid', event: 'settlement.payout.paid' },
   { key: 'guest_rsvp', event: 'attendance.rsvp.observed' },
   { key: 'guest_attendance', event: 'attendance.guest.verified' },
-  { key: 'commerce_purchase', event: 'commerce.purchase.fulfilled' },
+  { key: 'commerce_purchase_recorded', event: 'commerce.purchase.recorded' },
+  { key: 'commerce_purchase_fulfilled', event: 'commerce.purchase.fulfilled' },
   { key: 'creator_value', event: 'creator.value.attributed' },
 ]);
 
