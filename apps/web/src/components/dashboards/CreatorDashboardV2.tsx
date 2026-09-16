@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Award, Coins, Film, Link2, Target, Vote } from "lucide-react";
+import { Award, Coins, FileCheck2, Film, Link2, Target, Vote } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -8,6 +8,7 @@ import CreatorReleaseWorkspaceBridge from "@/components/creator/CreatorReleaseWo
 import CreatorAttributionMap from "@/components/creator/CreatorAttributionMap";
 import CreatorEarningsVault from "@/components/creator/CreatorEarningsVault";
 import CreatorReputationDeck from "@/components/creator/CreatorReputationDeck";
+import CreatorProofDossier from "@/components/creator/CreatorProofDossier";
 
 export function CreatorDashboardV2() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,8 +33,9 @@ export function CreatorDashboardV2() {
     { id: "demand", label: "Audience demand", hint: "What people are asking for", icon: Vote, count: "Listen" },
     { id: "missions", label: "Opportunities", hint: "Real release work", icon: Target, count: "Choose" },
     { id: "studio", label: "Create & submit", hint: "Publish through the release workspace", icon: Film, count: "Create" },
+    { id: "proof", label: "Proof dossier", hint: "Release → attribution → value", icon: FileCheck2, count: "Defend" },
     { id: "attribution", label: "Attributed actions", hint: "What your work caused", icon: Link2, count: "Prove" },
-    { id: "earnings", label: "Earnings", hint: "Approved rewards and value", icon: Coins, count: "Review" },
+    { id: "earnings", label: "Earnings", hint: "Approved and settled value", icon: Coins, count: "Review" },
     { id: "reputation", label: "Reputation", hint: "What your proven work unlocks", icon: Award, count: "Build" },
   ];
 
@@ -43,11 +45,11 @@ export function CreatorDashboardV2() {
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300">Creator tools</p>
         <h2 className="mt-2 text-2xl font-black text-white">Choose useful work, publish through the real workspace, prove the result.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-          PROMORANG should help you find real work and operate it clearly. The primary Creator path now uses live release records instead of sample bounty and portfolio data.
+          PROMORANG should help you find real work and operate it clearly. Release records, attributable action and earnings now meet in one Proof Dossier without collapsing their distinct states.
         </p>
       </section>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -82,6 +84,7 @@ export function CreatorDashboardV2() {
           <TabsTrigger value="demand">Demand</TabsTrigger>
           <TabsTrigger value="missions">Opportunities</TabsTrigger>
           <TabsTrigger value="studio">Create</TabsTrigger>
+          <TabsTrigger value="proof">Proof dossier</TabsTrigger>
           <TabsTrigger value="attribution">Attribution</TabsTrigger>
           <TabsTrigger value="earnings">Earnings</TabsTrigger>
           <TabsTrigger value="reputation">Reputation</TabsTrigger>
@@ -89,6 +92,7 @@ export function CreatorDashboardV2() {
         <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="creator" /></TabsContent>
         <TabsContent value="missions" className="mt-0"><CreatorReleaseWorkspaceBridge mode="work" /></TabsContent>
         <TabsContent value="studio" className="mt-0"><CreatorReleaseWorkspaceBridge mode="create" /></TabsContent>
+        <TabsContent value="proof" className="mt-0"><CreatorProofDossier /></TabsContent>
         <TabsContent value="attribution" className="mt-0"><CreatorAttributionMap /></TabsContent>
         <TabsContent value="earnings" className="mt-0"><CreatorEarningsVault /></TabsContent>
         <TabsContent value="reputation" className="mt-0"><CreatorReputationDeck /></TabsContent>
