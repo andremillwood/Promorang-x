@@ -1,0 +1,30 @@
+name: Web Build
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - "packages/shared/**"
+      - "packages/ui-tokens/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/web-build.yml"
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm install --legacy-peer-deps
+
+      - name: Build web
+        run: npm run build --workspace apps/web
