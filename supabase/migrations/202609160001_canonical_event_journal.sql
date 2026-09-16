@@ -56,7 +56,7 @@ ALTER TABLE public.canonical_events ENABLE ROW LEVEL SECURITY;
 -- No browser/client policy is intentionally created here. Canonical truth is written
 -- by trusted backend/service-role paths during the first convergence phase.
 REVOKE ALL ON TABLE public.canonical_events FROM anon, authenticated;
-GRANT SELECT, INSERT, UPDATE ON TABLE public.canonical_events TO service_role;
+GRANT SELECT, INSERT ON TABLE public.canonical_events TO service_role;
 
 COMMENT ON TABLE public.canonical_events IS
   'Append-oriented cross-domain journal. Stakeholder projections may differ; underlying event identity and truth class may not.';
