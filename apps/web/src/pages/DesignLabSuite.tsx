@@ -8,6 +8,7 @@ import { PromorangBrandGrammarStudyV2 } from "@/design-system/consumer/Promorang
 import { PromorangBrandGrammarFinal } from "@/design-system/consumer/PromorangBrandGrammarFinal";
 import { PromorangEconomyLab } from "@/design-system/economy/PromorangEconomyLab";
 import { PromorangEconomyLabV2 } from "@/design-system/economy/PromorangEconomyLabV2";
+import { PromorangEconomyLabV3 } from "@/design-system/economy/PromorangEconomyLabV3";
 
 export default function DesignLabSuite() {
   return (
@@ -61,6 +62,20 @@ export default function DesignLabSuite() {
 
           <div className="mt-32 border-t border-white/10 pt-24">
             <PromorangEconomyLabV2 />
+          </div>
+
+          <div className="mt-32 border-t border-white/10 pt-24">
+            <div className="mb-16 grid gap-6 lg:grid-cols-[1fr_.52fr] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">PROMORANG economy · material & artifact depth</p>
+                <h2 className="mt-4 max-w-5xl font-serif text-5xl font-bold leading-[0.9] tracking-[-0.055em] text-white md:text-7xl">Believable instruments, not beautiful panels.</h2>
+              </div>
+              <div className="border-l border-primary/35 pl-5">
+                <p className="font-serif text-2xl font-bold text-[#f6d48a]">Material → edge → residue → consequence</p>
+                <p className="mt-3 text-sm leading-6 text-white/45">The receipt is the benchmark: every object should feel produced by a process, carry evidence of its state, and retain a believable trace of what happened.</p>
+              </div>
+            </div>
+            <PromorangEconomyLabV3 />
           </div>
         </div>
       </section>
