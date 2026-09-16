@@ -7,6 +7,7 @@ import { WorldClassConsumerStudyV2 } from "@/design-system/consumer/WorldClassCo
 import { PromorangBrandGrammarStudyV2 } from "@/design-system/consumer/PromorangBrandGrammarStudyV2";
 import { PromorangBrandGrammarFinal } from "@/design-system/consumer/PromorangBrandGrammarFinal";
 import { PromorangEconomyLab } from "@/design-system/economy/PromorangEconomyLab";
+import { PromorangEconomyLabV2 } from "@/design-system/economy/PromorangEconomyLabV2";
 
 export default function DesignLabSuite() {
   return (
@@ -57,6 +58,10 @@ export default function DesignLabSuite() {
             </div>
           </div>
           <PromorangEconomyLab />
+
+          <div className="mt-32 border-t border-white/10 pt-24">
+            <PromorangEconomyLabV2 />
+          </div>
         </div>
       </section>
     </div>
