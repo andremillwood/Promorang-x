@@ -10,6 +10,33 @@ import { useDiscoveries } from "@/hooks/useDiscoveries";
 import { useMarket } from "@/contexts/MarketContext";
 import { discoveryHref } from "@/lib/discovery-path";
 
+const STOP_WORDS = new Set([
+  "and", "are", "for", "from", "have", "here", "into", "like", "looking", "need", "place", "see", "some", "something", "somewhere", "that", "the", "this", "want", "with", "would", "your",
+]);
+
+function normalizedText(value?: string | null) {
+  return (value || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function meaningfulTokens(value?: string | null) {
+  return normalizedText(value)
+    .split(" ")
+    .filter((token) => token.length > 2 && !STOP_WORDS.has(token));
+}
+
+function relevance(query: string, candidate: string) {
+  const normalizedQuery = normalizedText(query);
+  const normalizedCandidate = normalizedText(candidate);
+  if (!normalizedQuery || !normalizedCandidate) return 0;
+  if (normalizedCandidate.includes(normalizedQuery)) return 3;
+
+  const queryTokens = meaningfulTokens(query);
+  if (!queryTokens.length) return 0;
+  const candidateTokens = new Set(meaningfulTokens(candidate));
+  const overlap = queryTokens.filter((token) => candidateTokens.has(token)).length;
+  return overlap / queryTokens.length;
+}
+
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
   if (votesRemaining === 0) return "threshold_met" as const;
   if (closeness === "unlocking") return "near_threshold" as const;
@@ -25,27 +52,80 @@ export default function PublicMarketHome() {
   );
   const { data: discoveries = [], isLoading: discoveriesLoading } = useDiscoveries({
     city: city.id === "all-jamaica" ? undefined : city.name,
-    limit: 3,
+    limit: 18,
   });
   const [ask, setAsk] = useState("");
   const [askResult, setAskResult] = useState<{ query: string; recorded: boolean } | null>(null);
+  const [resolution, setResolution] = useState<{ query: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const liveSignals = useMemo(() => inbox.questions.slice(0, 4), [inbox.questions]);
   const leadSignal = liveSignals[0];
+  const featuredDiscoveries = discoveries.slice(0, 3);
+
+  const relatedDiscoveries = useMemo(() => {
+    if (!resolution) return [];
+    return discoveries
+      .map((item) => ({
+        item,
+        score: relevance(
+          resolution.query,
+          [item.title, item.description, item.category, item.city, item.country].filter(Boolean).join(" "),
+        ),
+      }))
+      .filter(({ score }) => score >= 0.5)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(({ item }) => item);
+  }, [discoveries, resolution]);
+
+  const relatedSignals = useMemo(() => {
+    if (!resolution) return [];
+    return inbox.questions
+      .map((signal) => ({
+        signal,
+        score: relevance(
+          resolution.query,
+          [signal.poll.question, signal.poll.contextNotes, ...signal.poll.options.map((option) => option.text)].filter(Boolean).join(" "),
+        ),
+      }))
+      .filter(({ score }) => score >= 0.5)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2)
+      .map(({ signal }) => signal);
+  }, [inbox.questions, resolution]);
+
+  function findRelated(query: string) {
+    const discoveryMatches = discoveries.some((item) => relevance(query, [item.title, item.description, item.category, item.city, item.country].filter(Boolean).join(" ")) >= 0.5);
+    const signalMatches = inbox.questions.some((signal) => relevance(query, [signal.poll.question, signal.poll.contextNotes, ...signal.poll.options.map((option) => option.text)].filter(Boolean).join(" ")) >= 0.5);
+    return discoveryMatches || signalMatches;
+  }
+
+  async function recordAskNow(query: string) {
+    if (!query.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      const recorded = await recordAsk(query.trim());
+      setAskResult({ query: query.trim(), recorded });
+      setResolution(null);
+      if (recorded) setAsk("");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   async function submitAsk(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const next = ask.trim();
     if (!next || submitting) return;
-    setSubmitting(true);
-    try {
-      const recorded = await recordAsk(next);
-      setAskResult({ query: next, recorded });
-      if (recorded) setAsk("");
-    } finally {
-      setSubmitting(false);
+
+    setAskResult(null);
+    if (findRelated(next)) {
+      setResolution({ query: next });
+      return;
     }
+
+    await recordAskNow(next);
   }
 
   const marketName = city.name === "All Jamaica" ? "Jamaica" : city.name;
@@ -111,9 +191,9 @@ export default function PublicMarketHome() {
 
             {discoveriesLoading ? (
               <div className="grid gap-4 sm:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="h-64 animate-pulse rounded-[1.6rem] bg-white/[0.04]" />)}</div>
-            ) : discoveries.length ? (
+            ) : featuredDiscoveries.length ? (
               <div className="grid gap-4 sm:grid-cols-3">
-                {discoveries.map((item) => (
+                {featuredDiscoveries.map((item) => (
                   <Link key={item.id} to={`/discoveries/${item.slug}`} className="group overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.025] transition hover:border-orange-400/45">
                     <div className="relative h-36 bg-white/[0.04]">
                       {item.cover_image ? <img src={item.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid h-full place-items-center"><Compass className="h-8 w-8 text-white/15" /></div>}
@@ -138,8 +218,8 @@ export default function PublicMarketHome() {
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_.8fr] lg:items-start">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Know what is missing?</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Put it into the market.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Tell PROMORANG what you would like to find, try, attend, buy or experience. A recorded ask is interest—not attendance, inventory or a guaranteed response.</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Check the market first.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Tell PROMORANG what you would like to find, try, attend, buy or experience. We first look for related approved Discoveries and recorded demand. If none fit, you can put your ask into the market.</p>
 
             <form onSubmit={submitAsk} className="mt-7 max-w-2xl">
               <label htmlFor="public-ask" className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-white/40">
@@ -148,14 +228,71 @@ export default function PublicMarketHome() {
               <div className="flex flex-col gap-2 rounded-[1.35rem] border border-white/12 bg-white/[0.055] p-2 sm:flex-row">
                 <div className="flex min-w-0 flex-1 items-center gap-3 px-3">
                   <Search className="h-4 w-4 shrink-0 text-orange-400" />
-                  <input id="public-ask" value={ask} onChange={(event) => setAsk(event.target.value)} placeholder="A late-night cafe, a product drop, somewhere to dance…" className="min-h-12 w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30" />
+                  <input
+                    id="public-ask"
+                    value={ask}
+                    onChange={(event) => {
+                      setAsk(event.target.value);
+                      setResolution(null);
+                      setAskResult(null);
+                    }}
+                    placeholder="A late-night cafe, a product drop, somewhere to dance…"
+                    className="min-h-12 w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+                  />
                 </div>
                 <button type="submit" disabled={!ask.trim() || submitting} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[1rem] bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.12em] text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40">
-                  {submitting ? "Recording…" : "Put it up"}<ArrowRight className="h-4 w-4" />
+                  {submitting ? "Recording…" : "Check the market"}<ArrowRight className="h-4 w-4" />
                 </button>
               </div>
+
+              {resolution ? (
+                <div className="mt-4 rounded-[1.35rem] border border-orange-300/20 bg-orange-300/[0.06] p-4 sm:p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">We found related market objects</p>
+                  <p className="mt-2 text-sm leading-6 text-white/62">These look related to “{resolution.query}”. They are not being claimed as exact matches. Open one first, or tell PROMORANG none of them is what you meant.</p>
+
+                  {relatedDiscoveries.length ? (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">Approved Discoveries</p>
+                      {relatedDiscoveries.map((item) => (
+                        <Link key={item.id} to={`/discoveries/${item.slug}`} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
+                          <span>
+                            <span className="block text-sm font-bold text-white">{item.title}</span>
+                            <span className="mt-1 block text-[11px] text-white/40">{formatDiscoveryCategory(item.category)} · {discoveryLocation(item)}</span>
+                          </span>
+                          <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {relatedSignals.length ? (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">Recorded demand</p>
+                      {relatedSignals.map((signal) => (
+                        <Link key={signal.poll.id} to={discoveryHref(signal.poll)} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
+                          <span>
+                            <span className="block text-sm font-bold text-white">{signal.poll.question}</span>
+                            <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} recorded vote{signal.poll.totalVotes === 1 ? "" : "s"}</span>
+                          </span>
+                          <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <div className="mt-5 flex flex-wrap gap-3 border-t border-white/10 pt-4">
+                    <button type="button" disabled={submitting} onClick={() => recordAskNow(resolution.query)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-xs font-black text-black transition hover:bg-orange-100 disabled:opacity-50">
+                      None of these — record my ask
+                    </button>
+                    <button type="button" onClick={() => setResolution(null)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-bold text-white/65 transition hover:text-white">
+                      Edit my ask
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
               {askResult?.recorded ? (
-                <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300"><CheckCircle2 className="h-4 w-4" /> “{askResult.query}” was recorded.</p>
+                <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300"><CheckCircle2 className="h-4 w-4" /> “{askResult.query}” was recorded as interest. It is not being presented as attendance, inventory or guaranteed supply.</p>
               ) : askResult ? (
                 <p className="mt-3 inline-flex items-start gap-2 text-sm font-semibold text-amber-300"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> We could not confirm that “{askResult.query}” reached the market. It is not being presented as recorded public demand.</p>
               ) : null}
@@ -195,15 +332,15 @@ export default function PublicMarketHome() {
 
       <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          <NightTrail eyebrow="One human loop" title="See → want → join → respond → prove" steps={[
+          <NightTrail eyebrow="One human loop" title="See → want → join → respond" steps={[
             { label: "See", title: "Encounter something worth noticing.", text: "An approved Discovery can surface a place, product, experience or possibility you did not know to ask for." },
             { label: "Want", title: "Recognize or express interest.", text: "You can react to what you discover or put something missing into the market yourself." },
             { label: "Join", title: "Shared interest becomes legible.", text: "Recorded demand shows when other people feel the same way without pretending interest is a purchase." },
-            { label: "Respond", title: "Someone can put real supply behind it.", text: "A merchant, creator, host or brand decides whether and how to respond with a distinct offer or Moment." },
+            { label: "Respond", title: "Someone can put real supply behind it.", text: "A merchant, creator, host or brand decides whether and how to respond with a distinct offer or Moment. Proof comes later from recorded action." },
           ]} />
 
           <PaperReceipt heading={`${inbox.city} market truth`} lines={[
-            { label: "Approved Discoveries", value: discoveries.length.toLocaleString(), strong: true },
+            { label: "Discovery source", value: "Approved records", strong: true },
             { label: "Demand questions", value: inbox.questions.length.toLocaleString(), strong: true },
             { label: "Recorded votes", value: inbox.liveVoteCount.toLocaleString(), strong: true },
             { label: "Truth gate", value: "Interest ≠ supply", strong: true },
