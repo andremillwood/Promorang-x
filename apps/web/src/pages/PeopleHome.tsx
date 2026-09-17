@@ -99,7 +99,7 @@ export default function PeopleHome() {
   });
 
   if (isMemberWorkspace) {
-    const liveMoments = momentFeed.data?.moments?.filter((moment) => moment.lifecycle !== "recently_ended").slice(0, 3) || [];
+    const liveMoments = momentFeed.data?.moments?.filter((moment) => moment.lifecycle !== "recently_ended").slice(0, 2) || [];
     const firstScene = data?.communities?.[0];
 
     return (
@@ -138,7 +138,7 @@ export default function PeopleHome() {
               </div>
 
               <Link to={to("/card")} aria-label={t("people.openCardAria")} className="group block w-full max-w-[420px] lg:justify-self-end">
-                <PromoCardFace className="max-w-full" interactive={false} model={cardFace} />
+                <PromoCardFace className="max-w-full" interactive={false} model={cardFace} compact />
                 <div className="mt-4 flex items-center justify-between gap-3 px-1"><div><p className="text-xs font-black text-[#f4c66c]">{t("people.openCard")}</p><p className="mt-1 text-[11px] leading-5 text-white/35">Access you can actually present.</p></div><ArrowRight className="h-4 w-4 text-[#f4c66c] transition-transform group-hover:translate-x-1" /></div>
               </Link>
             </div>

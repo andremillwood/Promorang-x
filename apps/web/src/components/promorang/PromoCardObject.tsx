@@ -22,6 +22,7 @@ type PromoCardFaceProps = {
   onCopy?: () => void;
   copyState?: "idle" | "copied" | "failed";
   lastLoaded?: boolean;
+  compact?: boolean;
 };
 
 function stamps(model: PromoCardFaceModel) {
@@ -57,6 +58,7 @@ export function PromoCardFace({
   onCopy,
   copyState = "idle",
   lastLoaded,
+  compact = false,
 }: PromoCardFaceProps) {
   const [localFlip, setLocalFlip] = useState(false);
   const looksLikeMoney = /\$|pts|J\$/i.test(`${available || ""} ${limit || ""}`);
@@ -88,17 +90,17 @@ export function PromoCardFace({
   return (
     <div className={cn("pr-card-stage w-full max-w-xl", className)}>
       <div className={cn("pr-card-flip", isFlipped && "is-flipped")}>
-        <article className={cn("pr-plastic-card pr-card-side min-h-[320px] overflow-hidden p-6 sm:min-h-[360px] sm:p-7", `pr-plastic-card--${face.state}`)} aria-label="PromoCard">
+        <article className={cn("pr-plastic-card pr-card-side overflow-hidden", compact ? "min-h-[300px] p-5" : "min-h-[320px] p-6 sm:min-h-[360px] sm:p-7", `pr-plastic-card--${face.state}`)} aria-label="PromoCard">
           <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: "linear-gradient(120deg, transparent 0 42%, rgba(244,198,108,.08) 42.2% 42.8%, transparent 43% 100%)" }} />
           <div className="relative z-10 flex h-full flex-col justify-between">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#f4c66c]/30 bg-black/70 shadow-inner">
-                  <PromorangMark size={40} className="h-10 w-10" />
+                <span className={cn("grid shrink-0 place-items-center rounded-2xl border border-[#f4c66c]/30 bg-black/70 shadow-inner", compact ? "h-10 w-10" : "h-12 w-12")}>
+                  <PromorangMark size={compact ? 32 : 40} className={compact ? "h-8 w-8" : "h-10 w-10"} />
                 </span>
                 <div>
                   <p className="text-[9px] font-black tracking-[0.28em] text-[#f4c66c]">PROMORANG</p>
-                  <h3 className="mt-1 font-serif text-[1.9rem] font-bold leading-none tracking-[-.04em] text-white">PromoCard</h3>
+                  <h3 className={cn("mt-1 font-serif font-bold leading-none tracking-[-.04em] text-white", compact ? "text-[1.55rem]" : "text-[1.9rem]")}>PromoCard</h3>
                   {tier ? <p className="mt-2 text-[9px] font-black uppercase tracking-[0.18em] text-white/45">{tier} tier</p> : null}
                 </div>
               </div>
@@ -108,10 +110,10 @@ export function PromoCardFace({
               </div>
             </div>
 
-            <div className="py-7 sm:py-9">
+            <div className={compact ? "py-5" : "py-7 sm:py-9"}>
               <p className="text-[10px] font-black uppercase tracking-[.2em] text-white/38">{face.action}</p>
-              <p className="mt-2 max-w-[90%] font-serif text-[2.45rem] font-bold leading-[.92] tracking-[-.055em] text-[#f4c66c] sm:text-[3.25rem]">{face.headline}</p>
-              <p className="mt-3 max-w-[82%] text-sm leading-6 text-white/56">{face.detail}</p>
+              <p className={cn("mt-2 max-w-[90%] font-serif font-bold leading-[.92] tracking-[-.055em] text-[#f4c66c]", compact ? "text-[2.15rem]" : "text-[2.45rem] sm:text-[3.25rem]")}>{face.headline}</p>
+              <p className={cn("mt-3 text-white/56", compact ? "max-w-[92%] text-xs leading-5" : "max-w-[82%] text-sm leading-6")}>{face.detail}</p>
               {face.places ? <p className="mt-1 max-w-[82%] text-xs leading-5 text-white/34">{face.places}</p> : null}
               {stamps(face).length || face.returnStamp ? (
                 <div className="mt-5 flex flex-wrap gap-2">
