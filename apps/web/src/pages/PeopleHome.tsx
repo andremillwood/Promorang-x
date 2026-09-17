@@ -126,9 +126,11 @@ export default function PeopleHome() {
     const liveMoments = localMoments.slice(0, 2);
     const firstScene = data?.communities?.[0];
     const moveHref = String(world?.currentMove?.href || "");
+    const moveTitleNeedle = String(world?.currentMove?.title || "").trim().toLowerCase();
     const matchedMoment = localMoments.find((moment) =>
-      moveHref && (moveHref.includes(String(moment.id)) || (moment.slug && moveHref.includes(String(moment.slug))))
-    ) || liveMoments[0] || null;
+      (moveHref && (moveHref.includes(String(moment.id)) || (moment.slug && moveHref.includes(String(moment.slug)))))
+      || (moveTitleNeedle && String(moment.title || "").trim().toLowerCase() === moveTitleNeedle)
+    ) || null;
     const currentMoveIsRemoteMoment = moveHref.includes("/moments/") && !matchedMoment;
     const heroImage = imageForMoment(matchedMoment) || heroMoments;
     const moveTitle = currentMoveIsRemoteMoment ? "Find something worth showing up for." : world?.currentMove?.title || matchedMoment?.title || "Find something worth showing up for.";
@@ -141,10 +143,10 @@ export default function PeopleHome() {
         seoTitle={t("people.homeSeo")}
         description={description}
         hero={(
-          <section className="group relative min-h-[520px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-black sm:min-h-[590px]">
+          <section className="group relative min-h-[660px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-black lg:min-h-[610px]">
             <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-1000 group-hover:scale-[1.015]" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.95)_0%,rgba(0,0,0,.72)_42%,rgba(0,0,0,.12)_78%),linear-gradient(0deg,rgba(0,0,0,.88)_0%,transparent_55%)]" />
-            <div className="relative z-10 flex min-h-[520px] max-w-[700px] flex-col justify-between p-6 sm:min-h-[590px] sm:p-10 lg:p-12">
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.96)_0%,rgba(0,0,0,.78)_47%,rgba(0,0,0,.32)_76%),linear-gradient(0deg,rgba(0,0,0,.92)_0%,transparent_60%)]" />
+            <div className="relative z-10 flex min-h-[660px] max-w-[760px] flex-col justify-between p-6 pb-[285px] sm:p-10 sm:pb-[300px] lg:min-h-[610px] lg:max-w-[66%] lg:p-12">
               <div>
                 <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500] shadow-[0_0_14px_rgba(255,101,0,.9)]" />{localCity} · Today</p>
                 <p className="mt-3 text-sm font-semibold text-white/65">{greeting}</p>
@@ -155,15 +157,19 @@ export default function PeopleHome() {
                 <p className="mt-5 max-w-xl text-sm leading-6 text-white/72 sm:text-base"><strong className="font-black text-white">Today: {moveTitle}</strong><br />{moveCopy}</p>
                 <div className="mt-7 flex flex-wrap gap-3">
                   <Link to={moveTarget} className="inline-flex min-h-12 items-center gap-8 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20]">Open today’s move <ArrowRight className="h-4 w-4" /></Link>
-                  <Link to="/discover" className="inline-flex min-h-12 items-center gap-8 rounded-md border border-white/35 bg-black/20 px-5 text-sm font-black text-white backdrop-blur transition hover:bg-white/10">Explore {localCity} <ArrowRight className="h-4 w-4" /></Link>
+                  <Link to={to("/card")} className="inline-flex min-h-12 items-center gap-8 rounded-md border border-[#d8ad54]/60 bg-black/35 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-6 right-6 hidden rounded-md border border-white/15 bg-black/55 p-4 backdrop-blur md:block">
+            <Link to={to("/card")} aria-label={t("people.openCardAria")} className="absolute bottom-5 left-5 right-5 z-20 block sm:bottom-8 sm:left-auto sm:right-8 sm:w-[360px] lg:bottom-10 lg:right-10 lg:w-[390px]">
+              <p className="mb-2 text-[9px] font-black uppercase tracking-[.2em] text-[#f2c761]">Your primary access layer</p>
+              <PromoCardFace className="max-w-full shadow-[0_24px_70px_rgba(0,0,0,.62)] transition duration-500 hover:-translate-y-1" interactive={false} model={cardFace} compact />
+            </Link>
+            {matchedMoment ? <div className="absolute right-6 top-6 z-20 hidden rounded-md border border-white/15 bg-black/55 p-4 backdrop-blur lg:block">
               <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff8a45]">Now moving</p>
-              <p className="mt-2 max-w-[210px] text-sm font-bold text-white">{moveTitle}</p>
-              <p className="mt-1 max-w-[210px] text-[10px] leading-4 text-white/45">{matchedMoment?.venue_name || matchedMoment?.location || `Around ${localCity}`}</p>
-            </div>
+              <p className="mt-2 max-w-[210px] text-sm font-bold text-white">{matchedMoment.title}</p>
+              {(matchedMoment.venue_name || matchedMoment.location) ? <p className="mt-1 max-w-[210px] text-[10px] leading-4 text-white/45">{matchedMoment.venue_name || matchedMoment.location}</p> : null}
+            </div> : null}
           </section>
         )}
       >
@@ -188,11 +194,6 @@ export default function PeopleHome() {
               </Link>
             ))}
           </div>
-        </section>
-
-        <section className="grid gap-5 rounded-2xl border border-white/10 bg-[#0c0c0d] p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
-          <div><p className="pr-world-kicker">Your PromoCard</p><h2 className="mt-2 text-3xl font-black tracking-[-.04em]">Access that moves with you.</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/48">Put a real offer, pass or credit on your card, then present it where it can actually be used.</p><Link to={to("/card")} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#ff7a20]">Open your PromoCard <ArrowRight className="h-4 w-4" /></Link></div>
-          <Link to={to("/card")} aria-label={t("people.openCardAria")} className="block w-full"><PromoCardFace className="max-w-full" interactive={false} model={cardFace} compact /></Link>
         </section>
 
         <section aria-labelledby="now-next-title">

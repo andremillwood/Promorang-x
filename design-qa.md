@@ -38,13 +38,32 @@ Post-fix evidence:
 - Primary Today CTA remained visible after navigation recovery.
 - No application console errors were recorded; two extension-origin metadata errors were excluded.
 
+### Iteration 2 — PromoCard primacy
+
+- P1: PromoCard appeared as a separate downstream module, making the platform's primary product object read as secondary to discovery.
+- P1: The Today fallback could combine a current-move title with the venue from the first unrelated local Moment.
+
+Fixes made:
+
+- Moved the live PromoCard face into the opening hero and added a top-level `Open PromoCard` action beside the immediate-move action.
+- Removed the downstream PromoCard module so the card is introduced once, at primary hierarchy.
+- Limited venue display to a Moment matched by canonical href/id/slug or exact title; unmatched moves no longer inherit another Moment's venue.
+- Added the non-secondary PromoCard rule to `DESIGN.md`.
+
+Post-fix evidence:
+
+- The refreshed browser capture shows the PromoCard as a dominant physical object within the first viewport.
+- The primary PromoCard CTA navigated successfully to `/app-preview/card?role=participant`.
+- The mismatched FAT Wednesdays / Smash Yard pairing is no longer possible through the fallback resolver.
+- No application-origin console errors were recorded; extension-origin metadata errors were excluded.
+
 ## Required fidelity surfaces
 
 - Fonts and typography: passed. Condensed Anton hero face, tight uppercase leading and orange emphasis now match the reference hierarchy; DM Sans and Fraunces remain for product copy and editorial headings.
-- Spacing and layout rhythm: passed. Wide hero, compact CTAs, six-card interest rail and denser section cadence follow the source while retaining responsive wrapping.
+- Spacing and layout rhythm: passed. Wide hero, paired primary CTAs, first-viewport PromoCard, six-card interest rail and denser section cadence follow the source while retaining responsive wrapping.
 - Colors and visual tokens: passed. Near-black canvas, white type, warm orange action color and restrained borders align with the source.
 - Image quality and asset fidelity: passed. Existing production raster assets are used with deliberate crops; no placeholder or code-drawn imagery replaces visible photographic content.
-- Copy and content: passed. The cultural promise follows the source direction while Moments, locations, PromoCard state and consequences remain source-backed.
+- Copy and content: passed. The cultural promise follows the source direction while Moments, locations, PromoCard state and consequences remain source-backed. PromoCard is explicitly identified as the primary access layer.
 
 ## Findings
 
@@ -59,6 +78,7 @@ No actionable P0, P1 or P2 findings remain in the verified desktop participant p
 
 - Opened the Music interest lane and verified navigation to the filtered Discover route.
 - Returned to the participant preview and verified the Today CTA remained visible.
+- Opened the primary PromoCard CTA and verified navigation to the participant card route.
 - Checked browser console output for application errors.
 
 final result: passed
