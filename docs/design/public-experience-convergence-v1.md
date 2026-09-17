@@ -6,6 +6,7 @@ Authoritative dependencies:
 - `DESIGN.md`
 - `docs/design/discovery-scene-market-construction-v1.md`
 - `docs/design/promocard-world-experience-v1.md`
+- `docs/design/design-lab-canonical-production-bridge-v1.md`
 - `docs/design/a-plus-platform-execution-plan.md`
 - `.cursor/rules/promorang-object-surfaces.mdc`
 
@@ -13,17 +14,78 @@ Authoritative dependencies:
 
 Public PROMORANG is the first usable layer of the same canonical market, not a brochure for a different signed-in application.
 
-A visitor should be able to encounter a real recorded object, understand its current truth state, and take one meaningful action before authentication is required.
+The public product must work for two kinds of people:
 
-Participant-facing loop:
+1. people who already know what they want,
+2. people who recognize what they want only after they encounter something.
 
-**Ask → Signal → Respond → Prove**
+A visitor should therefore be able to **discover**, **recognize**, **express**, **join** or **keep** a legitimate market object before authentication becomes the dominant concern.
+
+Human-facing loop:
+
+**Discover → Recognize / Want → Signal → Keep → Respond / Act → Prove → Return**
 
 Canonical truth underneath remains:
 
 `PROPOSAL → REVIEW → APPROVED DISCOVERY → INTEREST / DEMAND → SCENE CONTEXT → MOMENT / OFFER / PERSON → VERIFIED ACTION → RETAINED HISTORY`
 
 The public layer may compress explanation. It must not collapse those states.
+
+## Discovery and Demand are complementary, not competing
+
+### Discovery
+
+A Discovery is approved public knowledge: something PROMORANG is willing to publish as real or worth knowing.
+
+Discovery answers:
+
+**What exists / what should I know?**
+
+Its public job is larger than content. Discovery can help a person recognize a want they did not arrive with.
+
+Examples:
+- a place that recently opened,
+- an overlooked local option,
+- a cultural pattern,
+- a useful service,
+- something new or changing in a market.
+
+### Demand
+
+Demand answers:
+
+**What are people asking for / moving toward?**
+
+Demand is a market signal, not supply.
+
+The product should allow both paths:
+
+`DISCOVERY → REACTION / INTEREST → DEMAND`
+
+and
+
+`RAW WANT → DISCOVERY MATCH → EXISTING DEMAND MATCH → UNRESOLVED WANT`
+
+This means PROMORANG should not treat every open-text ask as an immediate new public Signal.
+
+## Discovery-first resolution law
+
+When a person expresses a want, PROMORANG should attempt to resolve it against known market state before manufacturing another public object.
+
+Preferred resolution order:
+
+1. approved Discoveries that may already satisfy the want,
+2. existing recorded Demand that the person may join,
+3. unresolved want retained for matching / later aggregation,
+4. a new public Demand question only when the product has a legitimate reason and authoritative path to create one.
+
+The public UX may say:
+- **We found something**
+- **Others are asking for this**
+- **You are early**
+- **Nothing matches yet**
+
+It must not say a market exists merely because one local browser submitted a sentence.
 
 ## Demand Signal is a presentation, not a new data family
 
@@ -57,18 +119,109 @@ Implementation anchor:
 
 `apps/web/src/components/promorang/DemandSignalObject.tsx`
 
+## PromoCard is central continuity, not an after-the-fact rewards page
+
+PromoCard answers:
+
+**What does any of this mean for me over time?**
+
+Public messaging should position PromoCard as the participant continuity layer across the market lifecycle.
+
+Conceptually it can organize relationships such as:
+
+- **Want** — things I am looking for,
+- **Behind** — legitimate signals / interests I joined,
+- **Open** — access, Offer or Moment consequences actually made available to me,
+- **Kept** — verified / issued history I legitimately retained.
+
+Not every one of these states requires a new backend family. They are participant lenses over canonical truth.
+
+PromoCard must never invent access or retained value merely because a person expressed demand.
+
+`WANT ≠ ACCESS`
+
+`SIGNAL ≠ ENTITLEMENT`
+
+`CLAIM ≠ VERIFIED CONSEQUENCE`
+
+The signup / authentication reason should increasingly be continuity:
+
+**Keep your place in what happens next.**
+
+Authentication should preserve the object / action that gave the person a reason to stay.
+
+## People do not always know what they want
+
+A blank input is not the whole acquisition product.
+
+PROMORANG should support three states of desire:
+
+1. **Explicit demand** — the person can already state the want.
+2. **Recognized demand** — the person encounters a Discovery or Signal and says, effectively, “I want that too.”
+3. **Emergent preference** — repeated interactions suggest possible relevance, but PROMORANG asks the person to confirm rather than claiming to know their hidden desire.
+
+Public copy should therefore use both:
+
+- **Know what you want? Put it up.**
+- **Not sure? See what is moving / worth knowing.**
+
+PROMORANG may infer relevance. The participant confirms whether it matters.
+
+## Cold-start operating mode
+
+PROMORANG must remain useful before network effects exist.
+
+When there are few or no production Discoveries / Demand questions / Moments / Offers, the system should not fabricate social proof.
+
+Cold-start responsibilities are:
+
+### Curate
+
+PROMORANG operators / approved contributors can publish legitimate Discoveries from verifiable market knowledge.
+
+### Ask
+
+PROMORANG may publish clearly framed market-research / demand questions that begin at zero recorded votes.
+
+A platform-authored question is not evidence that a crowd already wants the thing.
+
+### Recruit
+
+When a person is early, the UX can make that useful:
+
+- **You are early.**
+- **You started this.**
+- **Bring in people who would want this too.**
+
+Do not display `0 people want this` as manufactured failure theatre. Make the next legitimate action clear.
+
+### Search / source
+
+An unresolved want can become a sourcing problem:
+
+**We do not have a good answer yet. Want PROMORANG to help find one?**
+
+This can later feed operator, scout, creator or AI-assisted discovery workflows without pretending the requested thing already exists.
+
 ## Production absence is part of the experience
 
-The public homepage must not seed fake market activity.
+The public experience must not seed fake market activity.
 
 Use:
+- approved production Discoveries,
 - production listing demand questions,
 - production city demand questions,
 - their recorded vote counts,
 - confirmed writes,
-- approved Discoveries and real linked context.
+- real linked Scene / Moment / Offer context.
 
-If there are no recorded questions, say so. Empty market state is more valuable than false social proof because it tells PROMORANG what distribution work remains.
+If there are no recorded questions, say so.
+
+If there are no approved Discoveries, say so.
+
+If there is no response supply, do not imply one.
+
+Empty market state is useful information because it tells PROMORANG what sourcing and distribution work remains.
 
 ## Failed write law
 
@@ -89,9 +242,10 @@ Authentication is a checkpoint, not a product reset.
 A public action should preserve its object and return path whenever the current infrastructure supports it.
 
 Examples:
-- open a Demand signal → authenticate → return to that signal,
-- begin a Moment/claim flow → authenticate → resume the same object,
-- open PromoCard → authenticate → continue to PromoCard rather than generic home.
+- open a Discovery → authenticate → return to that Discovery,
+- open / join a Demand signal → authenticate → return to that signal,
+- begin a Moment / claim flow → authenticate → resume the same object,
+- choose to keep a relationship → authenticate → continue into PromoCard rather than generic home.
 
 Use existing `next` / return-path infrastructure.
 
@@ -99,7 +253,7 @@ Use existing `next` / return-path infrastructure.
 
 Primary public mental model:
 
-- **Explore** — approved market knowledge and current opportunities.
+- **Explore** — approved market knowledge and current legitimate opportunities.
 - **Wanted** — recorded Demand questions and signals.
 - **Moments** — concrete things people can actually join or do.
 - **For business** — understand market evidence, then create a distinct response.
@@ -130,12 +284,12 @@ Access when access actually exists.
 Evidence that a state transition or verified action actually occurred.
 
 ### PromoCard
-Participant continuity for issued access, returns and retained history.
+Participant continuity for legitimate wants / relationships plus actually issued access, returns and retained history. Presentation must still preserve source truth.
 
 ### Piece / Memory
 Retained consequence only when durably issued.
 
-## Homepage v1
+## Public homepage
 
 Implementation anchor:
 
@@ -143,14 +297,49 @@ Implementation anchor:
 
 The homepage should:
 
-1. show one recorded Demand question in the first viewport when one exists,
-2. otherwise show an explicit empty market state,
-3. allow a visitor to submit an ask without pretending a failed write succeeded,
-4. show only production-backed vote/question state as public market counts,
-5. explain the loop with a Night Trail rather than generic feature cards,
-6. render aggregate truth with a Receipt,
-7. separate demand from operator response,
-8. introduce PromoCard as continuity for actually issued/retained value rather than a magic reward balance.
+1. support both **explore** and **express** entry modes,
+2. lead with a human benefit rather than internal market terminology,
+3. show approved Discoveries when legitimate records exist,
+4. show recorded Demand when legitimate signals exist,
+5. preserve honest empty state when either source is absent,
+6. allow a visitor to submit an ask without pretending a failed write succeeded,
+7. explain that a want may match existing knowledge / demand before creating anything new,
+8. make PromoCard a central continuity reason to stay,
+9. show only production-backed state as public market evidence,
+10. separate demand from operator response and response from verified outcome.
+
+Recommended public proposition:
+
+**Discover what moves you. Help shape what happens next.**
+
+Supporting explanation:
+
+**Find something worth knowing. Show what you want. Join what other people are asking for. Keep your place in what happens next with PromoCard.**
+
+## Operator marketing suite
+
+Operator pages must not describe a different product from the participant homepage.
+
+Every role lens should answer:
+
+1. **What is true?** — Discovery / approved context.
+2. **What do people want?** — recorded Demand.
+3. **What can this operator legitimately add?** — Moment / Offer / creator response / Scene / governed program.
+4. **What can be proven afterward?** — verified evidence / retained consequence.
+
+Shared implementation anchor for non-merchant / non-brand role pages:
+
+`apps/web/src/components/marketing/MarketRoleLanding.tsx`
+
+Role-specific meaning:
+
+- **Creator** — move attention toward legitimate objects; keep attention distinct from verified action.
+- **Host** — convert justified demand into a real Moment; RSVP remains distinct from attendance.
+- **Community / Scene lead** — create persistent context; Scene membership remains distinct from attendance.
+- **Agency** — orchestrate client responses; observed / attributed / verified / value states remain separate.
+- **Enterprise** — govern the same definitions across teams and markets; local state does not rewrite durable truth.
+- **Merchant** — see demand, release actual supply, validate consequences.
+- **Brand** — see demand before spending, choose a response, then evaluate source-backed outcomes.
 
 ## Design Lab role
 
@@ -167,35 +356,40 @@ Every experiment should answer:
 
 When a presentation proves durable, promote the visual pattern without creating a new data family unless a separate canonical architecture decision explicitly requires one.
 
-## Migration order after homepage
+## Migration status
 
-1. `/for-brands` and `/for-merchants`
-   - lead with recorded demand evidence,
-   - then show a distinct operator response,
-   - then show verified outcome evidence.
+Completed in this public convergence slice:
 
-2. `/how-it-works` and `/what-is-promorang`
-   - remove duplicated feature explanations,
-   - tell the canonical object journey.
+1. Homepage framing and public Demand presentation.
+2. `/for-brands` and `/for-merchants` convergence around `demand → response → verified outcome`.
+3. `/how-it-works` and `/what-is-promorang` canonical explanation convergence.
+4. `/join` job-first routing convergence.
+5. Creator, host, community, agency and enterprise marketing lenses converged on the same object / truth model.
 
-3. `/join`
-   - preserve job-first routing,
-   - represent each path through the object/outcome it operates.
+Next:
 
-4. public Moment / Scene / Discovery / creator / merchant / venue / offer pages
-   - keep the object stable across authentication.
-
-5. campaign / activation landing pages
-   - preserve `signal → response → verified consequence` boundaries.
+1. preserve object / return-path continuity through authentication for public Discovery / Demand / Moment / Offer journeys,
+2. migrate public creator / merchant / venue / offer profile pages where they contradict canonical semantics,
+3. migrate campaign / activation landing pages to preserve `signal → response → verified consequence` boundaries,
+4. test cold-start behavior against truly empty production markets,
+5. measure whether Discoveries and Demand produce PromoCard retention rather than optimizing only for signup count.
 
 ## Acceptance test
 
-A new visitor should answer within ten seconds:
+A new participant should answer within ten seconds:
 
-1. What recorded thing is happening here?
-2. What can I do right now?
-3. What does my action mean — and what does it **not** mean?
-4. Why might an operator/business respond?
-5. What would become mine only after a real verified/issued consequence?
+1. Is there something real here worth discovering?
+2. If I know what I want, where do I express it?
+3. If I do not know what I want, can PROMORANG help me recognize something relevant?
+4. What does my action mean — and what does it **not** mean?
+5. Why should I keep this relationship on PromoCard?
 
-If the answer requires a feature matrix, or if the interface invents activity to appear alive, the surface has failed convergence.
+A new operator should answer within ten seconds:
+
+1. What is true in this market?
+2. What recorded demand exists?
+3. What can I legitimately put into market?
+4. What can I prove afterward?
+5. Which states must never be collapsed in reporting?
+
+If either journey requires a feature matrix, invents activity to look alive, or makes PromoCard feel like an unrelated rewards wallet, the surface has failed convergence.
