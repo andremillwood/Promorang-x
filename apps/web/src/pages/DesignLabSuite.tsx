@@ -9,6 +9,7 @@ import { WorldClassConsumerStudy } from "@/design-system/consumer/WorldClassCons
 import { WorldClassConsumerStudyV2 } from "@/design-system/consumer/WorldClassConsumerStudyV2";
 import { PromorangBrandGrammarStudyV2 } from "@/design-system/consumer/PromorangBrandGrammarStudyV2";
 import { PromorangBrandGrammarFinal } from "@/design-system/consumer/PromorangBrandGrammarFinal";
+import { DiscoverySceneMarketWorldStudy } from "@/design-system/consumer/DiscoverySceneMarketWorldStudy";
 
 const GOVERNANCE = [
   { object: "Discovery", family: "World · editorial signal", route: "/discover", truth: "Proposal ≠ approval · vote ≠ attendance" },
@@ -82,6 +83,7 @@ export default function DesignLabSuite() {
 
         <CanonicalConsumerScreensV2 />
         <CanonicalProductionBridge />
+        <DiscoverySceneMarketWorldStudy />
         <section className="mt-16 border-t border-white/10 pt-10" aria-labelledby="proof-state-study">
           <p className="pr-world-kicker">Production component · illustrative states only</p>
           <h2 id="proof-state-study" className="mt-4 font-serif text-4xl font-bold">A claim is not a decision.</h2>
