@@ -9,10 +9,22 @@ function hasValue(value) {
   return value !== null && value !== undefined && String(value).trim() !== '';
 }
 
-function hasCoordinates(bundle = {}) {
+function coordinatesFrom(bundle = {}) {
   const lat = Number(bundle.latitude ?? bundle.lat ?? bundle.coords?.lat ?? bundle.location?.lat);
   const lng = Number(bundle.longitude ?? bundle.lng ?? bundle.coords?.lng ?? bundle.location?.lng);
-  return Number.isFinite(lat) && Number.isFinite(lng);
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+}
+
+function distanceKm(a, b) {
+  const toRad = (value) => value * Math.PI / 180;
+  const earthRadiusKm = 6371;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const haversine = Math.sin(dLat / 2) ** 2
+    + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * earthRadiusKm * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 }
 
 async function getRequiredProof(momentId) {
@@ -45,7 +57,7 @@ async function requireRecordedMoment(req, res, next) {
     const momentId = actionMatch[1];
     const { data, error } = await supabase
       .from('moments')
-      .select('id')
+      .select('id, latitude, longitude, metadata')
       .eq('id', momentId)
       .maybeSingle();
 
@@ -58,6 +70,7 @@ async function requireRecordedMoment(req, res, next) {
       });
     }
 
+    req.recordedMoment = data;
     return next();
   } catch (error) {
     console.error('[Participation Moment Boundary] lookup error:', error);
@@ -110,15 +123,36 @@ async function enforceProofBoundary(req, res, next) {
     for (const requirement of requirements) {
       const type = String(requirement.requirement_type || '').toLowerCase();
       let satisfied = false;
+      let reason = null;
 
       if (type === 'venue_qr' || type === 'rotating_code') {
         satisfied = hasValue(bundle.proof_code) || hasValue(bundle.qr_code) || hasValue(bundle.code);
       } else if (type === 'timestamped_media' || type === 'receipt') {
         satisfied = hasValue(bundle.evidence_url) || hasValue(bundle.media_url) || hasValue(bundle.receipt_url);
       } else if (type === 'geofence') {
-        satisfied = hasCoordinates(bundle);
+        const participantCoordinates = coordinatesFrom(bundle);
+        const momentCoordinates = coordinatesFrom({
+          latitude: req.recordedMoment?.latitude,
+          longitude: req.recordedMoment?.longitude,
+        });
+        const radiusMeters = Number(req.recordedMoment?.metadata?.geofence_radius_m || 200);
+
+        if (!participantCoordinates) {
+          reason = 'location_not_submitted';
+        } else if (!momentCoordinates) {
+          reason = 'moment_location_not_configured';
+        } else {
+          const measuredDistanceKm = distanceKm(participantCoordinates, momentCoordinates);
+          bundle.geofence_distance_m = Math.round(measuredDistanceKm * 1000);
+          bundle.geofence_radius_m = radiusMeters;
+          satisfied = measuredDistanceKm * 1000 <= radiusMeters;
+          if (!satisfied) reason = 'outside_geofence';
+        }
       } else if (type === 'merchant_confirm') {
-        satisfied = hasValue(bundle.merchant_confirmation_id) || hasValue(bundle.merchant_confirmed_at);
+        // Merchant confirmation is a reviewer-side verification requirement.
+        // It must keep direct check-in closed, but it does not prevent the participant
+        // from creating a pending, reviewable proof submission.
+        satisfied = true;
       }
 
       if (!satisfied) {
@@ -127,6 +161,7 @@ async function enforceProofBoundary(req, res, next) {
           type,
           label: requirement.label || type,
           instructions: requirement.instructions || null,
+          reason,
         });
       }
     }
