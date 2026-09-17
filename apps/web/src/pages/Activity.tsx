@@ -1,198 +1,148 @@
 import { useState } from "react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { Button } from "@/components/ui/button";
-import { Bell, Loader2, Radio, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight, Bell, CheckCheck, Inbox, Loader2, Radio, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { cultureImages } from "@/data/culture-demo";
-import { useI18n } from "@/i18n/I18nContext";
+import { useMarkAllAsRead, useMarkAsRead, useNotifications } from "@/hooks/useNotifications";
 import { getStakeholderLens } from "@promorang/shared";
 
+function safeNotificationRoute(route?: string | null) {
+  return route && route.startsWith("/") && !route.startsWith("//") ? route : null;
+}
+
 const Activity = () => {
-    const { t, formatNumber } = useI18n();
-    const { user, roles, activeRole } = useAuth();
-    const primaryRole = activeRole || roles[0] || "participant";
-    const lens = getStakeholderLens(primaryRole);
-    const [filter, setFilter] = useState("all");
-    const isOperator = ["brand", "merchant", "host", "agency", "admin"].includes(primaryRole);
-    const filterOptions = isOperator
-        ? [
-            { value: "all", label: t("activity.everything") },
-            { value: "social", label: t("activity.peopleProof") },
-            { value: "payout", label: t("activity.payouts") },
-            { value: "inventory", label: t("activity.inventory") },
-            { value: "system", label: t("activity.operational") },
-        ]
-        : [
-            { value: "all", label: t("activity.everything") },
-            { value: "social", label: t("activity.scene") },
-            { value: "proof", label: t("activity.proofRewards") },
-            { value: "system", label: "Promorang" },
-        ];
+  const { user, roles, activeRole } = useAuth();
+  const primaryRole = activeRole || roles[0] || "participant";
+  const lens = getStakeholderLens(primaryRole);
+  const [filter, setFilter] = useState("all");
+  const notifications = useNotifications();
+  const markRead = useMarkAsRead();
+  const markAllRead = useMarkAllAsRead();
 
-    const { data: events, isLoading, refetch } = useQuery({
-        queryKey: ["personalized-feed", user?.id],
-        queryFn: async () => {
-            if (!user) return [];
-
-            // Fetch personalized feed from followed users
-            const { data: feedData, error: feedError } = await supabase.rpc(
-                'fn_get_personalized_feed',
-                {
-                    p_user_id: user.id,
-                    p_limit: 50,
-                    p_offset: 0
-                }
-            );
-
-            if (feedError) {
-                console.error('Feed error:', feedError);
-                // Fallback: just return empty array if function doesn't exist yet
-                return [];
-            }
-
-            // Map feed data to ActivityFeed format
-            const feedEvents = (feedData || []).map((item: any) => ({
-                id: item.id,
-                user_id: item.user_id,
-                event_type: item.activity_type,
-                title: item.title,
-                description: item.description,
-                image_url: item.image_url,
-                created_at: item.created_at,
-                actor: {
-                    full_name: item.user_name,
-                    avatar_url: item.user_avatar
-                },
-                metadata: {
-                    likes_count: item.likes_count,
-                    comments_count: item.comments_count,
-                    source_id: item.source_id,
-                    source_table: item.source_table
-                }
-            }));
-
-            return feedEvents;
+  const { data: events, isLoading, refetch } = useQuery({
+    queryKey: ["personalized-feed", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data: feedData, error: feedError } = await supabase.rpc("fn_get_personalized_feed", {
+        p_user_id: user.id,
+        p_limit: 50,
+        p_offset: 0,
+      });
+      if (feedError) return [];
+      return (feedData || []).map((item: any) => ({
+        id: item.id,
+        user_id: item.user_id,
+        event_type: item.activity_type,
+        title: item.title,
+        description: item.description,
+        image_url: item.image_url,
+        created_at: item.created_at,
+        actor: { full_name: item.user_name, avatar_url: item.user_avatar },
+        metadata: {
+          likes_count: item.likes_count,
+          comments_count: item.comments_count,
+          source_id: item.source_id,
+          source_table: item.source_table,
         },
-        enabled: !!user
-    });
+      }));
+    },
+    enabled: !!user,
+  });
 
-    const filteredEvents = (events || []).filter(e => {
-        if (filter === "all") return true;
-        if (filter === "system") return ["low_stock", "budget_alert", "system", "notification"].includes(e.event_type);
-        if (filter === "payout") return e.event_type === "payout";
-        if (filter === "inventory") return e.event_type === "low_stock";
-        if (filter === "proof") return ["reward", "check_in", "drop_completion", "redemption"].includes(e.event_type);
-        if (filter === "social") return ["follow", "join", "comment", "reaction", "reward", "post", "drop_completion"].includes(e.event_type);
-        return true;
-    });
+  const filteredEvents = (events || []).filter((event) => {
+    if (filter === "all") return true;
+    if (filter === "proof") return ["reward", "check_in", "drop_completion", "redemption"].includes(event.event_type);
+    if (filter === "social") return ["follow", "join", "comment", "reaction", "post"].includes(event.event_type);
+    return true;
+  });
 
-    const handleMarkRead = async (eventId: string) => {
-        // Optimistically update or refetch
-        // We could also call an API to mark as read
-        refetch();
-    };
+  const inbox = notifications.data || [];
+  const unread = inbox.filter((item) => !item.is_read);
+  const watchUpdates = inbox.filter((item) => item.type === "market_watch_changed");
+  const journeyUpdates = inbox.filter((item) => item.type !== "market_watch_changed");
 
-    const handleMarkAllRead = async () => {
-        // Logic to mark all as read
-        refetch();
-    };
+  return (
+    <main className="min-h-screen bg-[#090909] pb-20 text-white">
+      <section className="border-b border-white/10 px-5 pb-10 pt-24 sm:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 border-b border-primary/35 pb-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary"><Radio className="h-3.5 w-3.5" /> Return signals</div>
+            <h1 className="mt-5 font-serif text-5xl font-bold leading-[.94] tracking-[-.05em] sm:text-7xl">What changed while you were away.</h1>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">Source-backed notifications live here alongside broader activity. A watch update means a supported object changed; it does not mean supply, access, attendance or value was automatically created.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] px-5 py-4"><p className="font-mono text-3xl font-black">{unread.length}</p><p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-white/35">Unread</p></div>
+            <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.03] px-5 py-4"><p className="font-mono text-3xl font-black">{watchUpdates.length}</p><p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-white/35">Watch updates</p></div>
+          </div>
+        </div>
+      </section>
 
-    return (
-        <main className="min-h-screen bg-[#090909] pb-16 text-white">
-            <section className="relative overflow-hidden border-b border-white/10">
-                <img src={cultureImages.openMic} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
-                <div className="relative mx-auto flex min-h-[330px] max-w-6xl items-end px-5 pb-10 pt-20 sm:px-8">
-                    <div className="max-w-2xl">
-                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/35 bg-black/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 backdrop-blur">
-                            <Radio className="h-3.5 w-3.5" /> {t("activity.eyebrow")}
-                        </div>
-                        <h1 className="text-4xl font-black leading-[0.95] tracking-tight sm:text-6xl">
-                            {lens.activity.label === "Activity" ? t("activity.title") : lens.activity.label}
-                        </h1>
-                        <p className="mt-5 max-w-xl text-base leading-7 text-white/60">
-                            {lens.activity.meaning}
-                        </p>
-                    </div>
-                    <div className="ml-auto hidden gap-8 pb-2 lg:flex">
-                        <div><p className="text-3xl font-black">{formatNumber(events?.length || 0)}</p><p className="text-xs text-white/45">{t("activity.recent")}</p></div>
-                        <div><p className="text-3xl font-black text-orange-400">{formatNumber(filteredEvents.length)}</p><p className="text-xs text-white/45">{t("activity.view")}</p></div>
-                    </div>
-                </div>
-            </section>
-
-            <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
-                <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                    {filterOptions.map(option => (
-                        <button
-                            key={option.value}
-                            onClick={() => setFilter(option.value)}
-                            className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${filter === option.value
-                                ? "border-orange-500 bg-orange-500 text-black"
-                                : "border-white/10 bg-white/[0.04] text-white/55 hover:bg-white/10 hover:text-white"
-                                }`}
-                        >
-                            {option.label}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="overflow-hidden rounded-lg border border-white/10 bg-[#111]">
-                {isLoading ? (
-                    <div className="flex flex-col items-center justify-center gap-4 py-24 text-white/50">
-                        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-                        <p>{t("activity.listening")}</p>
-                    </div>
-                ) : filteredEvents.length === 0 ? (
-                    <div className="grid min-h-[380px] md:grid-cols-[1.25fr_.75fr]">
-                        <div className="flex flex-col justify-end border-b border-white/10 p-7 md:border-b-0 md:border-r md:p-10">
-                            <Sparkles className="mb-8 h-8 w-8 text-orange-400" />
-                            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">{t("activity.nothing")}</p>
-                            <h2 className="max-w-lg text-3xl font-black leading-tight">{t("activity.emptyTitle")}</h2>
-                            <p className="mt-4 max-w-lg text-sm leading-6 text-white/50">
-                                {t("activity.emptyCopy")}
-                            </p>
-                            <div className="mt-7 flex flex-wrap gap-3">
-                                <Button asChild className="bg-orange-500 font-bold text-black hover:bg-orange-400">
-                                    <Link to={lens.putIn.href}>{lens.putIn.label} <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                                </Button>
-                                <Button asChild variant="outline" className="border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white">
-                                    <Link to="/creators">{t("activity.follow")}</Link>
-                                </Button>
-                            </div>
-                        </div>
-                        <div className="space-y-5 p-7 md:p-10">
-                            {[
-                                [t("activity.choose"), t("activity.chooseCopy")],
-                                [t("activity.prove"), t("activity.proveCopy")],
-                                [t("activity.unlock"), t("activity.unlockCopy")],
-                            ].map(([title, copy], index) => (
-                                <div key={title} className="flex gap-4">
-                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-orange-500/35 text-xs font-bold text-orange-400">{index + 1}</div>
-                                    <div><p className="font-bold">{title}</p><p className="mt-1 text-sm leading-5 text-white/45">{copy}</p></div>
-                                </div>
-                            ))}
-                            <div className="flex items-center gap-2 border-t border-white/10 pt-5 text-xs text-white/40">
-                                <CheckCircle2 className="h-4 w-4 text-emerald-400" /> {t("activity.proofNotice")}
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="p-3 sm:p-5">
-                        <ActivityFeed
-                            events={filteredEvents}
-                            onMarkRead={handleMarkRead}
-                            onMarkAllRead={handleMarkAllRead}
-                        />
-                    </div>
-                )}
-                </div>
+      <div className="mx-auto max-w-6xl space-y-14 px-5 py-10 sm:px-8">
+        <section>
+          <div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Updates for you</p>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Watching + journey changes.</h2>
             </div>
-        </main>
-    );
+            {unread.length ? <button type="button" onClick={() => markAllRead.mutate()} disabled={markAllRead.isPending} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-bold text-white/65"><CheckCheck className="h-4 w-4" />Mark all read</button> : null}
+          </div>
+
+          {notifications.isLoading ? (
+            <div className="flex items-center gap-3 py-8 text-sm text-white/40"><Loader2 className="h-4 w-4 animate-spin text-primary" />Loading updates…</div>
+          ) : inbox.length ? (
+            <div className="divide-y divide-white/10 border-y border-white/10">
+              {inbox.slice(0, 20).map((item) => {
+                const route = safeNotificationRoute(item.route);
+                const row = (
+                  <div className="grid gap-3 py-5 sm:grid-cols-[auto_1fr_auto] sm:items-center">
+                    <div className={`grid h-10 w-10 place-items-center rounded-full border ${item.type === "market_watch_changed" ? "border-primary/30 bg-primary/10" : "border-white/10 bg-white/[0.03]"}`}><Bell className={`h-4 w-4 ${item.type === "market_watch_changed" ? "text-primary" : "text-white/45"}`} /></div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2"><p className="font-serif text-xl font-bold text-white">{item.title}</p>{!item.is_read ? <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.12em] text-black">New</span> : null}</div>
+                      {item.message ? <p className="mt-1 text-sm leading-6 text-white/45">{item.message}</p> : null}
+                      <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-white/25">{item.type === "market_watch_changed" ? "Watched market object" : item.type.replace(/_/g, " ")} · {new Date(item.created_at).toLocaleString()}</p>
+                    </div>
+                    {route ? <span className="inline-flex items-center gap-1 text-xs font-black text-primary">Open <ArrowRight className="h-3.5 w-3.5" /></span> : null}
+                  </div>
+                );
+                return route ? <Link key={item.id} to={route} onClick={() => { if (!item.is_read) markRead.mutate(item.id); }} className="block transition hover:bg-white/[0.02]">{row}</Link> : <button key={item.id} type="button" onClick={() => { if (!item.is_read) markRead.mutate(item.id); }} className="block w-full text-left">{row}</button>;
+              })}
+            </div>
+          ) : (
+            <div className="rounded-[1.6rem] border border-dashed border-white/10 p-7">
+              <Inbox className="h-6 w-6 text-primary" />
+              <h3 className="mt-4 font-serif text-2xl font-bold">No source-backed updates yet.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Watch a Discovery, Demand signal or Moment to keep the relationship on PromoCard. Supported meaningful changes can appear here when the source record changes.</p>
+              <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">Find something to watch <ArrowRight className="h-4 w-4" /></Link>
+            </div>
+          )}
+
+          {watchUpdates.length || journeyUpdates.length ? <p className="mt-3 text-[11px] leading-5 text-white/30">In-app notifications are source-backed where configured. PROMORANG is not promising push, email, or an alert for every saved object.</p> : null}
+        </section>
+
+        <section>
+          <div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+            <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Broader activity</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">People + proof around you.</h2></div>
+            <div className="flex gap-2">{["all", "social", "proof"].map((value) => <button key={value} type="button" onClick={() => setFilter(value)} className={`min-h-9 rounded-full border px-4 text-xs font-bold capitalize ${filter === value ? "border-primary bg-primary text-black" : "border-white/10 text-white/50"}`}>{value}</button>)}</div>
+          </div>
+
+          <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#111]">
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-3 py-20 text-sm text-white/40"><Loader2 className="h-5 w-5 animate-spin text-primary" />Loading activity…</div>
+            ) : filteredEvents.length ? (
+              <div className="p-3 sm:p-5"><ActivityFeed events={filteredEvents} onMarkRead={() => void refetch()} onMarkAllRead={() => void refetch()} /></div>
+            ) : (
+              <div className="grid min-h-[300px] place-items-center p-8 text-center">
+                <div className="max-w-lg"><Sparkles className="mx-auto h-7 w-7 text-primary" /><h3 className="mt-4 font-serif text-3xl font-bold">Nothing else to show right now.</h3><p className="mt-3 text-sm leading-6 text-white/45">Activity is left empty when there is no recorded feed event. It is separate from your direct notifications above.</p><Button asChild className="mt-5 rounded-full bg-primary font-black text-black"><Link to={lens.putIn.href}>{lens.putIn.label} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
 };
 
 export default Activity;
