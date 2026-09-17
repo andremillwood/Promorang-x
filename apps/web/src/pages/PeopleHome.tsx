@@ -109,8 +109,8 @@ export default function PeopleHome() {
         description={description}
         hero={(
           <section className="pr-world-hero p-5 sm:p-7 lg:p-9">
-            <div className="relative z-10 grid min-h-[420px] gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(330px,.78fr)] lg:items-end">
-              <div className="flex flex-col justify-between self-stretch">
+            <div className="relative z-10 grid min-h-[420px] gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,.65fr)] lg:items-center">
+              <div className="min-w-0 flex flex-col justify-between self-stretch">
                 <div>
                   <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ff8a57]"><span className="h-1.5 w-1.5 rounded-full bg-[#ff5a1f] shadow-[0_0_14px_rgba(255,90,31,.9)]" />{ticker}</p>
                   <h1 className="mt-4 font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">{greeting}</h1>
@@ -124,7 +124,7 @@ export default function PeopleHome() {
                       <div className="flex items-end justify-between gap-5">
                         <div>
                           <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{world.currentMove.eyebrow || "Today"}</p>
-                          <h2 className="mt-3 max-w-xl font-serif text-5xl font-bold leading-[.95] tracking-[-.04em] text-[#f4c66c] sm:text-6xl">{world.currentMove.title}</h2>
+                          <h2 className="mt-3 max-w-xl font-serif text-4xl font-bold leading-[.95] tracking-[-.04em] text-[#f4c66c] sm:text-5xl xl:text-6xl">{world.currentMove.title}</h2>
                           <p className="mt-3 max-w-xl text-sm leading-6 text-white/48">{world.currentMove.why || world.slice?.currentLine || invitation.why}</p>
                         </div>
                         <ArrowRight className="mb-1 h-6 w-6 shrink-0 text-[#f4c66c] transition-transform group-hover:translate-x-1" />
@@ -137,8 +137,8 @@ export default function PeopleHome() {
                 </div>
               </div>
 
-              <Link to={to("/card")} aria-label={t("people.openCardAria")} className="group block lg:justify-self-end">
-                <PromoCardFace className="max-w-none" interactive={false} model={cardFace} />
+              <Link to={to("/card")} aria-label={t("people.openCardAria")} className="group block w-full max-w-[420px] lg:justify-self-end">
+                <PromoCardFace className="max-w-full" interactive={false} model={cardFace} />
                 <div className="mt-4 flex items-center justify-between gap-3 px-1"><div><p className="text-xs font-black text-[#f4c66c]">{t("people.openCard")}</p><p className="mt-1 text-[11px] leading-5 text-white/35">Access you can actually present.</p></div><ArrowRight className="h-4 w-4 text-[#f4c66c] transition-transform group-hover:translate-x-1" /></div>
               </Link>
             </div>

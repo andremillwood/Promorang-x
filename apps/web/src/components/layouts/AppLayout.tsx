@@ -5,7 +5,6 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
-import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState, useEffect } from "react";
 import { ParticipantWorldLayout } from "@/components/layouts/ParticipantWorldLayout";
 import { isParticipantWorldRoute } from "@/lib/participant-world-route";
@@ -107,7 +106,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         return (
             <DashboardLayout currentRole={(activeRole || "participant") as any}>
                 {children || <Outlet />}
-                <PWAInstallPrompt />
             </DashboardLayout>
         );
     }
@@ -125,7 +123,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 currentRank={currentRank || 0}
                 onClose={() => setShowRankCelebration(false)}
             />
-            <PWAInstallPrompt />
         </div>
     );
 };
