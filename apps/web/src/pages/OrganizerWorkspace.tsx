@@ -1,166 +1,126 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, BarChart3, CalendarDays, CheckCircle2, DollarSign, Megaphone, Settings, Ticket, Users } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  CalendarDays,
+  CheckCircle2,
+  CircleAlert,
+  CreditCard,
+  QrCode,
+  Radio,
+  ShieldCheck,
+  Ticket,
+  Users,
+} from "lucide-react";
 import SEO from "@/components/SEO";
 import { cultureEvents } from "@/data/culture-demo";
-import { StoryGamificationRail } from "@/components/StoryGamificationRail";
-import { RightUtilityRail } from "@/components/RightUtilityRail";
-import { SpinWheelModal } from "@/components/SpinWheelModal";
-import { TeamSlashModal } from "@/components/TeamSlashModal";
-import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 
-const organizerRoutes = [
-  { label: "Moments", href: "/organizer/events", icon: CalendarDays },
-  { label: "Check-ins", href: "/organizer/check-ins", icon: CheckCircle2 },
-  { label: "Tickets/Sales", href: "/organizer/tickets", icon: Ticket },
-  { label: "Promoters", href: "/organizer/promoters", icon: Megaphone },
-  { label: "Scenes", href: "/organizer/communities", icon: Users },
-  { label: "Analytics", href: "/organizer/analytics", icon: BarChart3 },
-  { label: "Settings", href: "/organizer/settings", icon: Settings },
+type ViewMeta = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  action: string;
+  actionHref: string;
+};
+
+const viewMeta: Record<string, ViewMeta> = {
+  "/organizer/events": { eyebrow: "Host · Moments", title: "Build the rooms people remember.", description: "Create, publish, fill, and operate every Moment from one place.", action: "Create Moment", actionHref: "/create/moment" },
+  "/organizer/check-ins": { eyebrow: "Host · Door proof", title: "Know who truly showed up.", description: "Run the door from the same Host workspace. A guest presents their PromoCard; each accepted arrival becomes trusted proof.", action: "Open door scanner", actionHref: "/staff/scanner" },
+  "/organizer/tickets": { eyebrow: "Host · Entry", title: "Move people from interest to entry.", description: "See demand, ticket movement, and entry without losing the Moment behind the totals.", action: "Open wallet", actionHref: "/wallet" },
+  "/organizer/revenue": { eyebrow: "Host · Return", title: "See what participation creates.", description: "Track sales, payouts, rewards, and the value retained across your Scene.", action: "Open wallet", actionHref: "/wallet" },
+  "/organizer/promoters": { eyebrow: "Host · Distribution", title: "Give the right people something worth carrying.", description: "Coordinate creator drops and attributed distribution around live Moments.", action: "Open PromoPush", actionHref: "/promopush" },
+  "/organizer/communities": { eyebrow: "Host · Scenes", title: "Build belonging beyond one event.", description: "Connect recurring Moments, people, and places into a Scene that compounds.", action: "Open Scenes", actionHref: "/scenes" },
+  "/organizer/scenes": { eyebrow: "Host · Scenes", title: "Build belonging beyond one event.", description: "Connect recurring Moments, people, and places into a Scene that compounds.", action: "Open Scenes", actionHref: "/scenes" },
+  "/organizer/analytics": { eyebrow: "Host · Performance", title: "Read the movement, not just the totals.", description: "Understand conversion, proof, return behavior, and where momentum is forming.", action: "Detailed analytics", actionHref: "/dashboard/analytics" },
+  "/organizer/settings": { eyebrow: "Host · Workspace", title: "Shape how your operation appears.", description: "Manage organizer identity, team access, notifications, payouts, and account controls.", action: "Account settings", actionHref: "/dashboard/settings" },
+};
+
+const proofSteps = [
+  { label: "Moment", copy: "Choose the room you are operating.", icon: CalendarDays },
+  { label: "PromoCard", copy: "The guest presents their live pass.", icon: CreditCard },
+  { label: "Arrival", copy: "Scan or verify the person at the door.", icon: QrCode },
+  { label: "Proof", copy: "The accepted record becomes auditable.", icon: ShieldCheck },
 ];
 
-const viewMeta: Record<string, { eyebrow: string; title: string; description: string; action: string; actionHref: string }> = {
-  "/organizer/events": { eyebrow: "Moments", title: "Build the rooms people remember.", description: "Create, publish, fill, and operate every moment from one place.", action: "Create moment", actionHref: "/create/moment" },
-  "/organizer/check-ins": { eyebrow: "Live proof", title: "Know who truly showed up.", description: "Monitor arrivals, verify exceptions, and turn attendance into trusted proof.", action: "Open live activity", actionHref: "/dashboard/activity" },
-  "/organizer/tickets": { eyebrow: "Tickets & sales", title: "Move people from interest to entry.", description: "See demand, ticket movement, and revenue without losing the moment behind the numbers.", action: "Open wallet", actionHref: "/wallet" },
-  "/organizer/revenue": { eyebrow: "Revenue", title: "See what participation creates.", description: "Track sales, payouts, rewards, and the value retained across your scene.", action: "Open wallet", actionHref: "/wallet" },
-  "/organizer/promoters": { eyebrow: "Distribution", title: "Give the right people something worth carrying.", description: "Coordinate promoters, creator drops, and attributed distribution around live moments.", action: "Open PromoPush", actionHref: "/promopush" },
-  "/organizer/communities": { eyebrow: "Scenes", title: "Build belonging beyond one event.", description: "Connect recurring moments, people, and places into a scene that compounds.", action: "Open scenes", actionHref: "/scenes" },
-  "/organizer/scenes": { eyebrow: "Scenes", title: "Build belonging beyond one event.", description: "Connect recurring moments, people, and places into a scene that compounds.", action: "Open scenes", actionHref: "/scenes" },
-  "/organizer/analytics": { eyebrow: "Performance", title: "Read the movement, not just the totals.", description: "Understand conversion, proof, return behavior, and where momentum is forming.", action: "Detailed analytics", actionHref: "/dashboard/analytics" },
-  "/organizer/settings": { eyebrow: "Workspace", title: "Shape how your operation appears.", description: "Manage organizer identity, team access, notifications, payouts, and account controls.", action: "Account settings", actionHref: "/dashboard/settings" },
-};
+const operationalMetrics = [
+  { label: "At the door", value: "0", helper: "live arrivals", icon: Radio },
+  { label: "Verified", value: "0", helper: "accepted records", icon: CheckCircle2 },
+  { label: "Exceptions", value: "0", helper: "need a decision", icon: CircleAlert },
+  { label: "People", value: "0", helper: "across live Moments", icon: Users },
+];
 
 export default function OrganizerWorkspace() {
   const { pathname } = useLocation();
-  const activeView = viewMeta[pathname];
-
-  const [wheelOpen, setWheelOpen] = useState(false);
-  const [slashOpen, setSlashOpen] = useState(false);
-  const [streakOpen, setStreakOpen] = useState(false);
+  const activeView = viewMeta[pathname] || viewMeta["/organizer/events"];
+  const isDoorView = pathname === "/organizer/check-ins";
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <SEO
-        title="Organizer Workspace - Promorang"
-        description="Manage moments, tickets, check-ins, promoters, scenes, revenue, and performance."
-      />
-      <section className="grid min-h-screen lg:grid-cols-[260px_1fr]">
-        <aside className="hidden border-r border-white/10 bg-white/[0.03] p-5 lg:block">
-          <p className="text-xl font-black">Promorang</p>
-          <div className="mt-8 space-y-2">
-            <Link to="/organizer" className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
-              <BarChart3 className="h-5 w-5" />
-              Dashboard
-            </Link>
-            {organizerRoutes.map((route) => (
-              <Link key={route.label} to={route.href} className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold transition ${pathname === route.href ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/[0.07] hover:text-white"}`}>
-                <route.icon className="h-5 w-5" />
-                {route.label}
+    <main className="min-h-[calc(100vh-4rem)] bg-[#080808] text-white">
+      <SEO title={`${activeView.title} - Promorang`} description={activeView.description} />
+
+      <section className="relative overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(255,91,22,.22),transparent_32%),linear-gradient(120deg,#090909_0%,#0b0b0b_60%,#160c07_100%)]" />
+        <div className="relative mx-auto grid max-w-[1240px] gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_360px] lg:items-end lg:py-16">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-500">{activeView.eyebrow}</p>
+            <h1 className="mt-4 max-w-4xl font-serif text-5xl font-bold leading-[0.92] tracking-[-0.045em] sm:text-6xl">{activeView.title}</h1>
+            <p className="mt-5 max-w-2xl text-sm leading-6 text-white/55 sm:text-base">{activeView.description}</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link to={activeView.actionHref} className="inline-flex min-h-12 items-center gap-8 rounded-lg bg-orange-500 px-5 text-sm font-black text-black transition hover:bg-orange-400">
+                {activeView.action}<ArrowRight className="h-4 w-4" />
               </Link>
-            ))}
-          </div>
-        </aside>
-
-        <section className="px-6 pb-12 pt-24 lg:pt-10">
-          {/* Top Story Rail */}
-          <StoryGamificationRail
-            onOpenWheel={() => setWheelOpen(true)}
-            onOpenStreak={() => setStreakOpen(true)}
-          />
-
-          <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{activeView?.eyebrow || "Operations layer"}</p>
-              <h1 className="mt-2 max-w-3xl text-4xl font-black leading-[0.95] tracking-tight md:text-5xl">{activeView?.title || "Welcome back, organizer."}</h1>
-              <p className="mt-3 max-w-2xl text-white/58">{activeView?.description || "Manage culture without making the consumer experience feel operational."}</p>
-            </div>
-            <div className="flex gap-3">
-              <Link to={activeView?.actionHref || "/create/moment"} className="rounded-lg bg-primary px-5 py-3 text-sm font-black text-white">{activeView?.action || "Create Moment"}</Link>
-              <Link to="/dashboard/analytics" className="rounded-xl border border-white/15 px-5 py-3 text-sm font-black">Export Report</Link>
+              <Link to="/happened" className="inline-flex min-h-12 items-center gap-8 rounded-lg border border-white/15 bg-black/25 px-5 text-sm font-black transition hover:bg-white/10">
+                View recorded proof<ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
 
-          {/* 3-Column Desktop Layout */}
-          <div className="mt-8 flex gap-8 items-start">
-            <div className="flex-1 min-w-0 space-y-8">
-              <div className="grid gap-4 md:grid-cols-4">
-                {[
-                  { label: "Revenue", value: "248,590 Gems", sub: "JMD $248,590", icon: DollarSign, delta: "+18.2%" },
-                  { label: "Tickets Sold", value: "1,248", sub: "Total entries", icon: Ticket, delta: "+23.6%" },
-                  { label: "Check-ins", value: "1,102", sub: "Verified proof", icon: CheckCircle2, delta: "+20.4%" },
-                  { label: "New Followers", value: "+342", sub: "Scene growth", icon: Users, delta: "+15.3%" },
-                ].map((metric) => (
-                  <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/[0.05] p-5 shadow-lg">
-                    <metric.icon className="mb-3 h-7 w-7 rounded-lg bg-primary/15 p-1.5 text-primary" />
-                    <p className="text-xs text-white/55 font-bold uppercase">{metric.label}</p>
-                    <p className="mt-1 text-2xl font-black text-white">{metric.value}</p>
-                    <p className="text-[10px] font-semibold text-white/40">{metric.sub}</p>
-                    <p className="mt-2 text-xs font-bold text-emerald-400">{metric.delta}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Enhanced Visual Revenue Chart */}
-              <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Revenue Overview</p>
-                    <p className="mt-1 text-3xl font-black text-white">248,590 Gems <span className="text-xs font-normal text-zinc-400">(JMD $248,590)</span></p>
-                  </div>
-                  <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-400">This Week</span>
-                </div>
-
-                <div className="h-64 rounded-xl border border-zinc-800 bg-gradient-to-b from-orange-500/10 to-transparent p-4 flex items-end gap-3">
-                  {[32, 46, 40, 58, 70, 62, 78, 92, 86, 74, 96].map((height, index) => (
-                    <div key={index} className="flex-1 flex flex-col justify-end h-full group cursor-pointer">
-                      <div
-                        className="w-full bg-gradient-to-t from-orange-600 to-amber-400 rounded-t-md group-hover:brightness-125 transition-all shadow-lg shadow-orange-500/20"
-                        style={{ height: `${height}%` }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Upcoming Moments */}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-xl font-black">Upcoming Moments</h2>
-                  <Link to="/dashboard?tab=moments" className="text-sm font-bold text-primary">See all</Link>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {cultureEvents.slice(0, 4).map((event) => (
-                    <Link key={event.slug} to={`/events/${event.slug}`} className="flex gap-3 rounded-2xl border border-white/10 bg-black/40 p-3.5 transition hover:border-primary/40">
-                      <img src={event.image} alt="" className="h-16 w-16 rounded-xl object-cover" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-bold text-sm text-white">{event.title}</p>
-                        <p className="text-xs text-white/50">{event.date}, {event.time}</p>
-                        <p className="text-xs text-white/50">{event.place}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-black text-sm text-white">{event.attending}</p>
-                        <p className="text-xs text-emerald-400 font-bold">Going</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+          <Link to="/card" className="group rounded-2xl border border-[#d7ad55]/45 bg-[radial-gradient(circle_at_80%_10%,rgba(226,180,90,.22),transparent_30%),linear-gradient(135deg,#111,#090909_70%)] p-6 shadow-[0_24px_70px_rgba(0,0,0,.55)] transition hover:-translate-y-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full border border-orange-500/35 bg-black text-xl font-black text-orange-500">P</span><div><p className="text-[8px] font-black uppercase tracking-[.25em] text-[#d7ad55]">Promorang</p><p className="font-serif text-2xl font-bold">PromoCard</p></div></div>
+              <span className="h-7 w-10 rounded-md bg-gradient-to-br from-[#ffe291] to-[#ad741e]" />
             </div>
-
-            {/* Persistent Right Utility Sidebar */}
-            <RightUtilityRail
-              onOpenSlashModal={() => setSlashOpen(true)}
-              onOpenStreakModal={() => setStreakOpen(true)}
-            />
-          </div>
-        </section>
+            <p className="mt-10 text-[9px] font-black uppercase tracking-[.2em] text-white/55">The pass at the door</p>
+            <p className="mt-2 font-serif text-3xl font-bold leading-none text-[#efc363]">Every arrival starts here.</p>
+            <p className="mt-4 text-xs leading-5 text-white/45">Access, benefit, identity, and the evidence of use stay connected to the person carrying the card.</p>
+          </Link>
+        </div>
       </section>
 
-      {/* Gamification Modals */}
-      <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
-      <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
-      <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
+      <div className="mx-auto max-w-[1240px] space-y-10 px-5 py-10 sm:px-8">
+        {isDoorView ? (
+          <section aria-labelledby="door-loop-title">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+              <div><p className="text-[10px] font-black uppercase tracking-[.22em] text-orange-500">Canonical loop</p><h2 id="door-loop-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">One door. One proof chain.</h2></div>
+              <p className="max-w-sm text-xs leading-5 text-white/40">The navigation and the objects remain inside the active Host workspace.</p>
+            </div>
+            <div className="mt-5 grid overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] sm:grid-cols-2 lg:grid-cols-4">
+              {proofSteps.map((step, index) => <div key={step.label} className="border-b border-white/10 p-5 last:border-b-0 sm:border-r sm:[&:nth-child(2)]:border-r-0 lg:border-b-0 lg:[&:nth-child(2)]:border-r lg:last:border-r-0"><div className="flex items-center justify-between"><step.icon className="h-5 w-5 text-orange-500" /><span className="text-[10px] font-black text-white/25">0{index + 1}</span></div><p className="mt-6 font-bold">{step.label}</p><p className="mt-2 text-xs leading-5 text-white/40">{step.copy}</p></div>)}
+            </div>
+          </section>
+        ) : null}
+
+        <section aria-labelledby="signals-title">
+          <p className="text-[10px] font-black uppercase tracking-[.22em] text-orange-500">Live operating signals</p>
+          <h2 id="signals-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What needs attention.</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {operationalMetrics.map((metric) => <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><div className="flex items-center justify-between"><p className="text-[9px] font-black uppercase tracking-[.18em] text-white/40">{metric.label}</p><metric.icon className="h-4 w-4 text-orange-500" /></div><p className="mt-7 text-4xl font-black">{metric.value}</p><p className="mt-1 text-xs text-white/35">{metric.helper}</p></div>)}
+          </div>
+        </section>
+
+        <section aria-labelledby="moments-title">
+          <div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-orange-500">Moment inventory</p><h2 id="moments-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Choose the room.</h2></div><Link to="/create/moment" className="hidden text-sm font-bold text-orange-400 sm:inline-flex">Create Moment <ArrowRight className="ml-2 h-4 w-4" /></Link></div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {cultureEvents.slice(0, 4).map((event) => <Link key={event.slug} to={`/moments/${event.slug}`} className="group grid min-h-48 overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] sm:grid-cols-[180px_1fr]"><img src={event.image} alt="" className="h-48 w-full object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-90 sm:h-full" /><div className="flex flex-col justify-end p-5"><p className="text-[9px] font-black uppercase tracking-[.18em] text-emerald-300">Ready to operate</p><h3 className="mt-2 font-serif text-2xl font-bold leading-tight">{event.title}</h3><p className="mt-3 text-xs text-white/40">{event.date} · {event.time} · {event.place}</p><span className="mt-5 inline-flex items-center text-xs font-black text-orange-400">Open Moment <ArrowRight className="ml-2 h-4 w-4" /></span></div></Link>)}
+          </div>
+        </section>
+
+        <section className="grid gap-4 rounded-2xl border border-white/10 bg-white/[.025] p-6 sm:grid-cols-3 sm:p-8">
+          <div><BarChart3 className="h-5 w-5 text-orange-500" /><p className="mt-4 font-bold">Performance follows proof</p><p className="mt-2 text-xs leading-5 text-white/40">Reports should describe recorded participation rather than decorative engagement totals.</p></div>
+          <div><Ticket className="h-5 w-5 text-orange-500" /><p className="mt-4 font-bold">Entry stays attached</p><p className="mt-2 text-xs leading-5 text-white/40">A ticket, pass, or funded perk resolves through the guest’s PromoCard.</p></div>
+          <div><ShieldCheck className="h-5 w-5 text-orange-500" /><p className="mt-4 font-bold">Exceptions remain visible</p><p className="mt-2 text-xs leading-5 text-white/40">Manual decisions belong in an auditable queue instead of disappearing into a dashboard total.</p></div>
+        </section>
+      </div>
     </main>
   );
 }
