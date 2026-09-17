@@ -8,7 +8,7 @@ export default function ForCommunities() {
       eyebrow="For communities & Scene leads"
       title="Give shared interest somewhere to live—and somewhere to go next."
       intro="A Scene is persistent context, not a one-night event. Community leaders can help people discover what belongs, make recurring demand legible, and coordinate real responses without pretending membership automatically means attendance or activity."
-      primaryCta={{ label: "Start a community", href: "/start-community" }}
+      primaryCta={{ label: "Propose a community response", href: "/propose" }}
       secondaryCta={{ label: "Explore Scenes", href: "/scenes" }}
       roleJob="Your job is to create continuity around a real interest, place or cultural pattern: what the community knows, what it wants, what it chooses to do and what members actually keep from participating."
       discoveryUse="Approved Discoveries give a Scene useful local knowledge: places, people, patterns and opportunities members should know about."
