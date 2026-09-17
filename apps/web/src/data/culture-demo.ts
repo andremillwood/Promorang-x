@@ -9,7 +9,7 @@ import openMic from "@/assets/moments/open-mic.jpg";
 import streetArt from "@/assets/moments/street-art.jpg";
 import pottery from "@/assets/moments/pottery.jpg";
 import sunsetPhoto from "@/assets/moments/sunset-photo.jpg";
-import { demoMoments } from "@/data/demo-moments";
+import { demoMoments } from "./demo-moments";
 
 export const cultureImages = {
   momentConcert,
