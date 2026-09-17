@@ -6,7 +6,7 @@ Status: implementation contract on `andre/public-experience-convergence-v2`, sta
 
 Complete the public-market convergence without adding another object family.
 
-The product now needs to carry one person from:
+The product now carries one person through:
 
 `DISCOVERY / DEMAND → WATCH → RESPONSE → ACTION → PROOF → KEPT HISTORY`
 
@@ -14,7 +14,7 @@ while preserving the canonical distinctions underneath.
 
 ## Participant lanes
 
-PromoCard now presents three different relationship classes rather than collapsing everything into rewards:
+PromoCard presents three different relationship classes rather than collapsing everything into rewards:
 
 ### WATCHING
 
@@ -102,6 +102,54 @@ The session marker is resumable intent only.
 
 The person must still explicitly complete the watch action after authentication.
 
+## Source-backed watch notifications
+
+Watching now has a real in-app return channel for supported authoritative changes.
+
+Migration:
+
+`supabase/migrations/202609170002_market_watch_notifications.sql`
+
+It extends the existing `notifications` ledger with:
+- `route`
+- `metadata`
+
+and emits deduplicated `market_watch_changed` notifications only for supported source events:
+
+### Approved Discovery changed
+
+A user watching an approved Discovery can receive an in-app update when its approved title, description, location, city or verification state materially changes.
+
+### Demand threshold crossed
+
+A user watching a Demand question can receive an update when recorded votes cross that question's configured threshold.
+
+The notification explicitly preserves:
+
+`THRESHOLD ≠ SUPPLY`
+
+### Watched Moment changed
+
+A user watching a Moment can receive an update when its schedule, place, status or recorded reward/access detail changes.
+
+The notification does not imply the user has RSVP'd or received the recorded access.
+
+### Notification boundary
+
+The product may say a supported watched object produced an in-app update when the `notifications` row exists.
+
+It must **not** claim:
+- every watch generates an alert,
+- push delivery is guaranteed,
+- email delivery is guaranteed,
+- a watch update means access or supply was issued.
+
+`WATCH ≠ NOTIFICATION GUARANTEE`
+
+`NOTIFICATION ≠ ENTITLEMENT`
+
+The `/notifications` route now reads the real `notifications` table through `useNotifications()` and renders watched-object changes separately from broader activity. The previous page only showed the personalized activity feed and did not surface the real notification ledger.
+
 ## Public Demand + Responses
 
 The previous `/discover/rewards` surface maintained a parallel client-side demand economy using seeded deal requests, local vote increments and invented Points.
@@ -178,7 +226,7 @@ Current market-loop events added in this slice include:
 
 Existing page-view / attribution tracking remains in place.
 
-These events describe interaction stages. They do not replace authoritative market, proof, issuance or commerce records.
+These events describe interaction stages. They do not replace authoritative market, proof, issuance, commerce or notification records.
 
 ## CI
 
@@ -192,6 +240,8 @@ This protects:
 - stale-intent expiry,
 - market-watch resumability without fabricated save completion.
 
+The web CI does not execute Supabase migrations. Migration syntax/application and trigger behavior still require database migration validation in an environment where the branch migrations can be applied.
+
 ## Governing truth boundaries
 
 - proposal ≠ approval
@@ -201,6 +251,8 @@ This protects:
 - Demand ≠ response
 - threshold ≠ Moment / offer
 - watch ≠ entitlement
+- watch ≠ notification guarantee
+- notification ≠ entitlement
 - auth return ≠ action completion
 - RSVP ≠ attendance
 - claim ≠ issuance / redemption
@@ -218,7 +270,9 @@ Run the loop against real production records:
 4. return to the exact Discovery,
 5. explicitly complete Watch,
 6. confirm it appears under PromoCard Watching,
-7. open a recorded Demand question and repeat,
-8. inspect the same signal from an operator account through Opportunity Inbox,
-9. create a real separate response only when appropriate,
-10. verify that Open and Kept states appear only after their own authoritative transitions.
+7. apply a legitimate approved Discovery change and confirm one `market_watch_changed` notification,
+8. open a recorded Demand question and repeat,
+9. cross its configured threshold with authoritative votes and confirm the notification still says threshold is not supply,
+10. inspect the same signal from an operator account through Opportunity Inbox,
+11. create a real separate response only when appropriate,
+12. verify that Open and Kept states appear only after their own authoritative transitions.
