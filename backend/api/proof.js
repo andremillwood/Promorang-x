@@ -74,6 +74,15 @@ router.post('/submissions/:id/review', requireAuth, async (req, res) => {
       return res.status(403).json({ success: false, error: 'Host or admin access required' });
     }
 
+    if (submission?.submission_state !== 'pending') {
+      return res.status(409).json({
+        success: false,
+        error: `This proof has already been ${submission?.submission_state || 'reviewed'}`,
+        code: 'PROOF_ALREADY_REVIEWED',
+        submission_state: submission?.submission_state || null,
+      });
+    }
+
     const result = await proofService.reviewProofSubmission({
       submissionId: req.params.id,
       reviewerId: req.user.id,
