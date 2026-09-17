@@ -39,23 +39,17 @@ router.get('/moments/:id/requirements', requireAuth, async (req, res) => {
   }
 });
 
+// Canonical participant proof submission lives under Participation because that
+// boundary validates Moment existence, RSVP state and every participant-capturable
+// proof requirement before a pending proof can be created. Keep this legacy route
+// fail-closed instead of maintaining a second, weaker write path.
 router.post('/moments/:id/submissions', requireAuth, async (req, res) => {
-  try {
-    const submission = await proofService.submitProofSubmission({
-      momentId: req.params.id,
-      userId: req.user.id,
-      proofBundle: {
-        ...(req.body?.proof_bundle || {}),
-        source_content_id: req.body?.source_content_id || req.body?.proof_bundle?.source_content_id || null,
-        source_mission_id: req.body?.source_mission_id || req.body?.proof_bundle?.source_mission_id || null,
-      },
-      momentMoveId: req.body?.moment_move_id || null,
-    });
-    res.status(201).json({ success: true, submission });
-  } catch (error) {
-    console.error('[Proof API] submission error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  res.status(410).json({
+    success: false,
+    error: 'Use the canonical participant proof flow for this Moment',
+    code: 'USE_CANONICAL_PROOF_FLOW',
+    canonical_path: `/api/participation/moments/${req.params.id}/complete`,
+  });
 });
 
 router.post('/submissions/:id/review', requireAuth, async (req, res) => {
