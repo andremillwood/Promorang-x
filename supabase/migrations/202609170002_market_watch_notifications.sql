@@ -3,10 +3,33 @@
 -- when a supported authoritative source record crosses a meaningful change.
 -- Notification side effects are deliberately non-blocking: failure to notify
 -- must never roll back the authoritative market-source update.
+--
+-- The notifications table still has legacy notification_type/action_url fields
+-- in production. Keep those fields populated alongside the newer type/route
+-- fields so existing notification consumers continue to work.
 
 alter table public.notifications
   add column if not exists route text,
   add column if not exists metadata jsonb not null default '{}'::jsonb;
+
+alter table public.notifications
+  drop constraint if exists notifications_notification_type_check;
+
+alter table public.notifications
+  add constraint notifications_notification_type_check
+  check (notification_type in (
+    'follow',
+    'connection_request',
+    'connection_accepted',
+    'like',
+    'comment',
+    'mention',
+    'share',
+    'order_update',
+    'referral_earning',
+    'achievement',
+    'market_watch_changed'
+  ));
 
 create or replace function public.emit_market_watch_notification(
   p_object_type text,
@@ -26,23 +49,27 @@ declare
 begin
   insert into public.notifications (
     user_id,
+    notification_type,
     type,
     title,
     message,
     related_id,
     is_read,
     dedupe_key,
+    action_url,
     route,
     metadata
   )
   select
     saved.user_id,
     'market_watch_changed',
+    'market_watch_changed',
     p_title,
     p_message,
     null,
     false,
     'market-watch:' || p_object_type || ':' || p_object_id || ':' || saved.user_id::text || ':' || p_revision,
+    p_route,
     p_route,
     jsonb_build_object('object_type', p_object_type, 'object_id', p_object_id, 'watch', true)
   from public.saved_objects saved
@@ -95,6 +122,8 @@ begin
 end;
 $$;
 
+revoke all on function public.notify_watched_discovery_changed() from public, anon, authenticated;
+
 drop trigger if exists trg_notify_watched_discovery_changed on public.discoveries;
 create trigger trg_notify_watched_discovery_changed
 after update of title, description, location_address, city, verification_status on public.discoveries
@@ -132,6 +161,8 @@ begin
   return new;
 end;
 $$;
+
+revoke all on function public.notify_watched_demand_threshold() from public, anon, authenticated;
 
 drop trigger if exists trg_notify_watched_demand_threshold on public.discovery_questions;
 create trigger trg_notify_watched_demand_threshold
@@ -171,6 +202,8 @@ begin
   return new;
 end;
 $$;
+
+revoke all on function public.notify_watched_moment_changed() from public, anon, authenticated;
 
 drop trigger if exists trg_notify_watched_moment_changed on public.moments;
 create trigger trg_notify_watched_moment_changed
