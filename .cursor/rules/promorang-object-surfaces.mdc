@@ -11,13 +11,26 @@ alwaysApply: false
 ## Use these objects instead
 
 - PromoCard face (plastic card, spendable amount)
+- Demand Signal / Request slip (a visible want people can join)
 - Ticket / pass with a stub
 - Paper receipt (what changed)
 - Collectible relic (Pieces)
 - Night trail (one story, not four equal panels)
 - Money pots (separated funds, never “ledgers” for members)
 
-Import from `@/components/promorang/SignatureObjects` or compose a new object that a person could hold, tear, scan, or keep. `Button`/`Badge`/`Card` from `components/ui` are utilities, not the visual system.
+Import from `@/components/promorang/SignatureObjects`, use `@/components/promorang/DemandSignalObject`, or compose a new object that a person could hold, tear, scan, sign, or keep. `Button`/`Badge`/`Card` from `components/ui` are utilities, not the visual system.
+
+## Demand Signal law
+
+A Demand Signal is the canonical public object for a visible want. It should make five things legible without explanation:
+
+1. what people want,
+2. where the signal applies,
+3. how many people are in,
+4. what threshold or response could open next,
+5. one action to join or advance it.
+
+Do not turn demand into a KPI dashboard. Prefer a request slip, wanted notice, petition stub, tally, or other physical metaphor. A Signal can begin anonymously before signup and should survive authentication as the same underlying object.
 
 ## Language
 
@@ -25,7 +38,17 @@ Lead with the human meaning, then the branded term.
 
 Forbidden in member-facing copy: node, AMM, telemetry, stake, yield, mint, burn, escrow, sybil, on-chain, deflationary, flywheel, primitive, ROAS, DAU, capital allocator.
 
-Prefer: show up, save at checkout, refill, ticket, streak, keepsake, prize already paid for, money set aside.
+Prefer: ask, want, join, show up, save at checkout, refill, ticket, streak, keepsake, prize already paid for, money set aside.
+
+## Public experience law
+
+Public PROMORANG is not a brochure for the signed-in product. It is the first usable layer of the product.
+
+- Let visitors ask, vote, browse, claim, or inspect a real object before explaining architecture.
+- Authentication should continue an action, not reset the journey into a generic dashboard.
+- Public and signed-in surfaces must use the same canonical object vocabulary and state model.
+- Show live or truthfully seeded product state; never fabricate market activity to make the site look busy.
+- Prefer evidence and receipts over unsupported marketing claims.
 
 ## First viewport test
 
