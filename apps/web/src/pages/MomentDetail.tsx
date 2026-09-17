@@ -145,7 +145,7 @@ type PaymentIntentLike = {
   id?: string;
 };
 
-type MomentTab = "overview" | "perks" | "community" | "host";
+type MomentTab = "overview" | "perks" | "community" | "host" | "admin";
 
 const MomentDetail = () => {
   const { t, formatDate: i18nFormatDate, formatTime: i18nFormatTime } = useI18n();
@@ -163,6 +163,7 @@ const MomentDetail = () => {
   const [participantCount, setParticipantCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeMomentTab, setActiveMomentTab] = useState<MomentTab>("overview");
+  const [adminLensInitialized, setAdminLensInitialized] = useState(false);
   const [accessQuote, setAccessQuote] = useState<AccessQuote | null>(null);
   const [economy, setEconomy] = useState<MomentEconomy | null>(null);
   const [proofRequirements, setProofRequirements] = useState<ProofRequirement[]>([]);
@@ -178,15 +179,34 @@ const MomentDetail = () => {
     reviewCount?: number;
   } | null>(null);
 
+  const isAdmin = roles.includes("admin");
   const isHost = user && moment?.host_id === user.id;
-  const canManageMoment = Boolean(isHost || roles.includes("admin"));
+  const canManageMoment = Boolean(isHost || isAdmin);
 
-  const momentTabs: Array<{ id: MomentTab; label: string; Icon: typeof Sparkles }> = [
-    { id: "overview", label: t("momentDetail.tabOverview"), Icon: Compass },
-    { id: "perks", label: t("momentDetail.tabPerks"), Icon: Trophy },
-    { id: "community", label: t("momentDetail.tabCommunity"), Icon: MessageSquare },
-    ...(canManageMoment ? [{ id: "host" as const, label: t("momentDetail.tabHost"), Icon: ShieldCheck }] : []),
-  ];
+  useEffect(() => {
+    setAdminLensInitialized(false);
+  }, [id]);
+
+  useEffect(() => {
+    if (moment && isAdmin && !adminLensInitialized) {
+      setActiveMomentTab("admin");
+      setAdminLensInitialized(true);
+    }
+  }, [adminLensInitialized, isAdmin, moment]);
+
+  const momentTabs: Array<{ id: MomentTab; label: string; Icon: typeof Sparkles }> = isAdmin
+    ? [
+        { id: "admin", label: "Admin Record", Icon: ShieldCheck },
+        { id: "overview", label: "Public View", Icon: Compass },
+        { id: "perks", label: t("momentDetail.tabPerks"), Icon: Trophy },
+        { id: "community", label: t("momentDetail.tabCommunity"), Icon: MessageSquare },
+      ]
+    : [
+        { id: "overview", label: t("momentDetail.tabOverview"), Icon: Compass },
+        { id: "perks", label: t("momentDetail.tabPerks"), Icon: Trophy },
+        { id: "community", label: t("momentDetail.tabCommunity"), Icon: MessageSquare },
+        ...(isHost ? [{ id: "host" as const, label: t("momentDetail.tabHost"), Icon: ShieldCheck }] : []),
+      ];
 
   const resolvedMomentId = (moment?.id && UUID_PATTERN.test(moment.id)) ? moment.id : null;
   const journey = useMomentJourney(resolvedMomentId);
@@ -1417,7 +1437,100 @@ const MomentDetail = () => {
               </div>
             )}
 
-            {/* TAB 4: HOST TOOLS */}
+            {/* ADMIN RECORD LENS */}
+            {activeMomentTab === "admin" && isAdmin && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <section className="rounded-3xl border border-[#ff6500]/25 bg-[linear-gradient(135deg,rgba(255,101,0,.10),rgba(255,255,255,.02))] p-6 sm:p-8">
+                  <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-3xl">
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ff7a35]">
+                        <ShieldCheck className="h-4 w-4" /> Admin · Canonical Moment Record
+                      </div>
+                      <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">Inspect the record before intervening.</h2>
+                      <p className="mt-3 text-sm leading-6 text-white/50">
+                        This is the same Moment participants see, with source state, ownership, proof requirements and intervention controls exposed.
+                        RSVP is not attendance; proof submission is not verification; verification is not purchase or fulfillment.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild className="rounded-xl bg-[#ff6500] font-black text-black hover:bg-[#ff7a20]">
+                        <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" />Edit record</Link>
+                      </Button>
+                      <Button asChild variant="outline" className="rounded-xl border-white/15 bg-white/[.03] text-white">
+                        <Link to="/admin?tab=verification-hub"><ShieldCheck className="mr-2 h-4 w-4" />Open Trust</Link>
+                      </Button>
+                      <Button asChild variant="outline" className="rounded-xl border-white/15 bg-white/[.03] text-white">
+                        <Link to="/admin?tab=moments">Moment directory</Link>
+                      </Button>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  {[
+                    ["Lifecycle", moment.status || (moment.is_active ? "active" : "inactive")],
+                    ["Visibility", moment.visibility || "unspecified"],
+                    ["Participation records", String(participantCount)],
+                    ["Proof requirements", String(proofRequirements.length)],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
+                      <p className="text-[9px] font-black uppercase tracking-[.18em] text-white/35">{label}</p>
+                      <p className="mt-3 text-lg font-black text-white">{value}</p>
+                    </div>
+                  ))}
+                </section>
+
+                <section className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
+                  <div className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff7a35]">Source & ownership</p>
+                    <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+                      <div><dt className="text-white/35">Moment ID</dt><dd className="mt-1 break-all font-mono text-xs text-white/75">{moment.id}</dd></div>
+                      <div><dt className="text-white/35">Host ID</dt><dd className="mt-1 break-all font-mono text-xs text-white/75">{moment.host_id || "No host recorded"}</dd></div>
+                      <div><dt className="text-white/35">Starts</dt><dd className="mt-1 text-white/75">{displayStartsAt ? new Date(displayStartsAt).toLocaleString("en-JM", { timeZone: "America/Jamaica" }) : "Not recorded"}</dd></div>
+                      <div><dt className="text-white/35">Venue</dt><dd className="mt-1 text-white/75">{moment.venue_name || moment.location || "Not recorded"}</dd></div>
+                    </dl>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff7a35]">Proof boundary</p>
+                    {proofRequirements.length ? (
+                      <div className="mt-4 space-y-3">
+                        {proofRequirements.map((requirement) => (
+                          <div key={requirement.id} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                            <p className="text-sm font-black text-white">{requirement.label || requirement.requirement_type}</p>
+                            <p className="mt-1 text-xs leading-5 text-white/40">
+                              {requirement.is_required ? "Required" : "Optional"}
+                              {requirement.instructions ? ` · ${requirement.instructions}` : ""}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-sm leading-6 text-white/42">No proof requirements are recorded for this Moment.</p>
+                    )}
+                  </div>
+                </section>
+
+                {economy?.economics ? (
+                  <section className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
+                    <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff7a35]">Economy record</p>
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                      {[
+                        ["Money source", economy.economics.money_source],
+                        ["Entry fee", economy.economics.entry_fee_jmd != null ? `J$${Number(economy.economics.entry_fee_jmd).toLocaleString()}` : "None"],
+                        ["Funded", `J$${Number(economy.economics.total_funded_jmd || 0).toLocaleString()}`],
+                        ["Reward pool", `J$${Number(economy.economics.reward_pool_jmd || 0).toLocaleString()}`],
+                        ["Payout", economy.economics.payout_status || "not recorded"],
+                      ].map(([label, value]) => (
+                        <div key={label}><p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">{label}</p><p className="mt-2 text-sm font-black text-white/75">{value}</p></div>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+              </div>
+            )}
+
+            {/* HOST TOOLS */}
             {activeMomentTab === "host" && isHost && (
               <div className="space-y-8 animate-in fade-in duration-300">
                 <section className="rounded-3xl border border-[#ff5500]/30 bg-[#ff5500]/10 p-6 sm:p-8 space-y-4 shadow-xl">
@@ -1447,28 +1560,52 @@ const MomentDetail = () => {
 
           {/* Right Sidebar Column */}
           <aside className="space-y-6">
-            <HostProfileCard
-              hostId={moment.host_id}
-              name={hostProfile?.display_name || "Event Host"}
-              avatarUrl={hostProfile?.avatar_url}
-              memberSince={hostProfile?.created_at}
-              momentsHosted={hostProfile?.momentsHosted ?? 0}
-              rating={hostProfile?.rating}
-              reviewCount={hostProfile?.reviewCount ?? 0}
-            />
-
-            <SquadJoinCard
-              momentId={moment.id}
-              momentTitle={moment.title}
-              inviterId={user?.id}
-              participantCount={participantCount}
-            />
+            {isAdmin ? (
+              <>
+                <section className="rounded-2xl border border-[#ff6500]/25 bg-[#ff6500]/[.06] p-5">
+                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff7a35]">Admin lens active</p>
+                  <h3 className="mt-2 text-lg font-black text-white">You are inspecting a canonical record.</h3>
+                  <p className="mt-2 text-xs leading-5 text-white/45">Participant-facing actions are secondary while this lens is active. Use Admin Record for source state and interventions.</p>
+                  <div className="mt-4 grid gap-2">
+                    <Button onClick={() => setActiveMomentTab("admin")} className="w-full rounded-xl bg-[#ff6500] text-black hover:bg-[#ff7a20]">Open Admin Record</Button>
+                    <Button asChild variant="outline" className="w-full rounded-xl border-white/10 bg-white/[.03] text-white"><Link to="/admin?tab=verification-hub">Review Trust queue</Link></Button>
+                  </div>
+                </section>
+                <HostProfileCard
+                  hostId={moment.host_id}
+                  name={hostProfile?.display_name || "Event Host"}
+                  avatarUrl={hostProfile?.avatar_url}
+                  memberSince={hostProfile?.created_at}
+                  momentsHosted={hostProfile?.momentsHosted ?? 0}
+                  rating={hostProfile?.rating}
+                  reviewCount={hostProfile?.reviewCount ?? 0}
+                />
+              </>
+            ) : (
+              <>
+                <HostProfileCard
+                  hostId={moment.host_id}
+                  name={hostProfile?.display_name || "Event Host"}
+                  avatarUrl={hostProfile?.avatar_url}
+                  memberSince={hostProfile?.created_at}
+                  momentsHosted={hostProfile?.momentsHosted ?? 0}
+                  rating={hostProfile?.rating}
+                  reviewCount={hostProfile?.reviewCount ?? 0}
+                />
+                <SquadJoinCard
+                  momentId={moment.id}
+                  momentTitle={moment.title}
+                  inviterId={user?.id}
+                  participantCount={participantCount}
+                />
+              </>
+            )}
           </aside>
         </div>
       </main>
 
       {/* Mobile Sticky Join Bar */}
-      {!isJoined && !isHost && !isPast ? <StickyJoinBar
+      {!isAdmin && !isJoined && !isHost && !isPast ? <StickyJoinBar
         momentId={moment.id}
         title={moment.title}
         reward={moment.reward}
