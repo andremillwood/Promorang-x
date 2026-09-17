@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ArrowRight, MapPin } from "lucide-react";
 import {
   presentBenefitDescription,
   presentBenefitHeadline,
@@ -50,29 +51,14 @@ function asBenefit(perk: LivePerkLike, participatingPlace: string): PromoCardBen
     dropId: perk.dropSlug || null,
     title: perk.title,
     detail: perk.detail || perk.description || "",
-    issuer: {
-      id: null,
-      type: "merchant",
-      name: perk.issuer?.name || perk.merchantName || participatingPlace,
-    },
-    eligibility: {
-      who: "everyone",
-      perUserLimit: null,
-      startsAt: null,
-      endsAt: null,
-      remaining,
-    },
+    issuer: { id: null, type: "merchant", name: perk.issuer?.name || perk.merchantName || participatingPlace },
+    eligibility: { who: "everyone", perUserLimit: null, startsAt: null, endsAt: null, remaining },
     availableQuantity: remaining,
     budget: null,
     expiresAt: perk.expiresAt || null,
     fulfillmentState: (perk.fulfillmentState as PromoCardBenefit["fulfillmentState"]) || "available",
     fulfillmentType: "merchant_validation",
-    redemption: {
-      recorded: Boolean(perk.redemption?.recorded),
-      code: perk.redemption?.code || null,
-      redeemedAt: null,
-      redeemedBy: null,
-    },
+    redemption: { recorded: Boolean(perk.redemption?.recorded), code: perk.redemption?.code || null, redeemedAt: null, redeemedBy: null },
     sharedBy: perk.sharedBy?.name ? { id: null, name: perk.sharedBy.name } : null,
     href: perk.href || "/discover",
     rewardType: perk.rewardType,
@@ -82,13 +68,7 @@ function asBenefit(perk: LivePerkLike, participatingPlace: string): PromoCardBen
   };
 }
 
-export function LivePerkCard({
-  perk,
-  intent = "claim",
-}: {
-  perk: LivePerkLike;
-  intent?: "claim" | "share";
-}) {
+export function LivePerkCard({ perk, intent = "claim" }: { perk: LivePerkLike; intent?: "claim" | "share" }) {
   const { t, formatDate } = useI18n();
   const href = livePerkHref(perk, intent);
   const benefit = asBenefit(perk, t("perk.participatingPlace"));
@@ -97,31 +77,33 @@ export function LivePerkCard({
   const issuer = benefit.issuer.name;
   const used = perk.redemption?.recorded || perk.fulfillmentState === "redeemed";
   const scarcity = used ? undefined : localizedBenefitScarcity(benefit, t, formatDate);
-  const action = localizedBenefitCta(benefit, t, {
-    used,
-    hasCode: Boolean(perk.redemption?.code),
-    intent,
-  });
+  const action = localizedBenefitCta(benefit, t, { used, hasCode: Boolean(perk.redemption?.code), intent });
+  const place = perk.availability === "anywhere" ? perk.locationLabel || t("discover.anywhere") : perk.locationLabel || t("perk.nearYou");
 
   return (
-    <Link
-      to={href}
-      className="block rounded-3xl border border-white/10 bg-white/[0.04] p-5 hover:border-emerald-400/40"
-    >
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">{issuer}</p>
-      <p className="mt-1 text-xs text-white/45">
-        {perk.availability === "anywhere"
-          ? perk.locationLabel || t("discover.anywhere")
-          : perk.locationLabel || t("perk.nearYou")}
-      </p>
-      <h4 className="mt-2 font-serif text-2xl font-bold uppercase tracking-tight text-white">{headline}</h4>
-      {description ? <p className="mt-2 text-sm text-white/55">{description}</p> : null}
-      {scarcity || perk.sharedBy?.name ? (
-        <p className="mt-4 text-xs text-white/45">
-          {[scarcity, perk.sharedBy?.name ? t("perk.sharedBy", { name: perk.sharedBy.name }) : null].filter(Boolean).join(" · ")}
-        </p>
-      ) : null}
-      <p className="mt-4 text-sm font-black text-emerald-400">{action}</p>
+    <Link to={href} className="pr-world-object group block min-h-[260px] p-5 sm:p-6">
+      <div className="flex h-full flex-col justify-between">
+        <div>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="pr-world-kicker text-emerald-300">{issuer}</p>
+              <p className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-white/34"><MapPin className="h-3.5 w-3.5" />{place}</p>
+            </div>
+            <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] ${used ? "border-white/10 text-white/35" : "border-emerald-300/25 bg-emerald-300/[.06] text-emerald-200"}`}>{used ? "Used" : "Available"}</span>
+          </div>
+
+          <h4 className="mt-5 max-w-[92%] font-serif text-[2rem] font-bold leading-[.96] tracking-[-.045em] text-white transition group-hover:text-emerald-200">{headline}</h4>
+          {description ? <p className="mt-3 max-w-xl text-sm leading-6 text-white/48">{description}</p> : null}
+        </div>
+
+        <div className="mt-7 border-t border-white/10 pt-4">
+          {scarcity || perk.sharedBy?.name ? <p className="text-[10px] leading-5 text-white/35">{[scarcity, perk.sharedBy?.name ? t("perk.sharedBy", { name: perk.sharedBy.name }) : null].filter(Boolean).join(" · ")}</p> : null}
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <span className="text-xs font-black text-emerald-300">{action}</span>
+            <ArrowRight className="h-4 w-4 text-emerald-300 transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+      </div>
     </Link>
   );
 }
