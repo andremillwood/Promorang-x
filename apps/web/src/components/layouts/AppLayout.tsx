@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState, useEffect } from "react";
+import { ParticipantWorldLayout } from "@/components/layouts/ParticipantWorldLayout";
+import { isParticipantWorldRoute } from "@/lib/participant-world-route";
 
 interface AppLayoutProps {
     children?: React.ReactNode;
@@ -84,6 +86,20 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground animate-pulse">
                 Initializing...
             </div>
+        );
+    }
+
+    const isParticipantWorld = isParticipantWorldRoute(
+        location.pathname,
+        location.search,
+        activeRole,
+    );
+
+    if (user && isParticipantWorld) {
+        return (
+            <ParticipantWorldLayout>
+                {children || <Outlet />}
+            </ParticipantWorldLayout>
         );
     }
 
