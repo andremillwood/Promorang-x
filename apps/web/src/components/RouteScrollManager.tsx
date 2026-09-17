@@ -80,11 +80,12 @@ export default function RouteScrollManager() {
       let kind = marked.dataset.resumableIntent as ResumableIntentKind | undefined;
       if (!kind && location.pathname.match(/^\/moments\/[^/]+\/?$/)) kind = "moment_join";
       if (!kind) return;
+      const pathParts = location.pathname.split("/").filter(Boolean);
 
       rememberResumableIntent({
         kind,
         returnPath,
-        targetId: marked.dataset.resumableTarget || location.pathname.split("/").filter(Boolean).at(-1) || null,
+        targetId: marked.dataset.resumableTarget || pathParts[pathParts.length - 1] || null,
       });
     };
 
