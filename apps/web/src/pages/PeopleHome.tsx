@@ -21,7 +21,6 @@ import { resolveDemandRole } from "@/lib/discovery-demand";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 import { useContentDrops } from "@/hooks/useContentDistribution";
-import { seededContentDrops } from "@/data/seeded-content-drops";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
 
@@ -35,7 +34,7 @@ export default function PeopleHome() {
   const home = useExperienceHome();
   const momentFeed = useCanonicalMomentFeed();
   const contentDrops = useContentDrops("active");
-  const releaseDrops = contentDrops.data?.length ? contentDrops.data : seededContentDrops;
+  const releaseDrops = contentDrops.data || [];
   const to = useExperiencePath();
   const location = useLocation();
   const [params] = useSearchParams();
@@ -114,7 +113,7 @@ export default function PeopleHome() {
               <div className="flex flex-col justify-between self-stretch">
                 <div>
                   <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ff8a57]"><span className="h-1.5 w-1.5 rounded-full bg-[#ff5a1f] shadow-[0_0_14px_rgba(255,90,31,.9)]" />{ticker}</p>
-                  <h1 className="mt-5 max-w-3xl font-serif text-[3.55rem] font-bold leading-[.82] tracking-[-.06em] text-white sm:text-[5rem] lg:text-[6rem]">{greeting}</h1>
+                  <h1 className="mt-4 font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">{greeting}</h1>
                   <p className="mt-5 max-w-xl text-sm leading-7 text-white/52">{description}</p>
                 </div>
 
@@ -124,17 +123,17 @@ export default function PeopleHome() {
                     <Link to={to(world.currentMove.href || invitation.nextHref || "/discover")} className="group mt-3 block border-t border-white/15 pt-4">
                       <div className="flex items-end justify-between gap-5">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{world.currentMove.eyebrow || t("common.tonight")}</p>
-                          <h2 className="mt-2 max-w-xl font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-[#f4c66c] sm:text-4xl">{world.currentMove.title}</h2>
+                          <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{world.currentMove.eyebrow || "Today"}</p>
+                          <h2 className="mt-3 max-w-xl font-serif text-5xl font-bold leading-[.95] tracking-[-.04em] text-[#f4c66c] sm:text-6xl">{world.currentMove.title}</h2>
                           <p className="mt-3 max-w-xl text-sm leading-6 text-white/48">{world.currentMove.why || world.slice?.currentLine || invitation.why}</p>
                         </div>
                         <ArrowRight className="mb-1 h-6 w-6 shrink-0 text-[#f4c66c] transition-transform group-hover:translate-x-1" />
                       </div>
                     </Link>
                   ) : (
-                    <Link to="/discover" className="group mt-3 flex items-end justify-between gap-5 border-t border-white/15 pt-4"><div><h2 className="font-serif text-3xl font-bold tracking-[-.04em] text-[#f4c66c]">Find what is moving.</h2><p className="mt-2 text-sm text-white/45">Nothing is being invented to fill this space. Open Discover and choose from recorded supply and signals.</p></div><ArrowRight className="h-6 w-6 shrink-0 text-[#f4c66c]" /></Link>
+                    <Link to="/discover" className="group mt-3 flex items-end justify-between gap-5 border-t border-white/15 pt-4"><div><h2 className="font-serif text-3xl font-bold tracking-[-.04em] text-[#f4c66c]">Find what is moving.</h2><p className="mt-2 text-sm text-white/45">Explore discoveries, places and upcoming Moments. Choose what catches your attention.</p></div><ArrowRight className="h-6 w-6 shrink-0 text-[#f4c66c]" /></Link>
                   )}
-                  <div className="mt-5 flex flex-wrap gap-2"><Link to={to(nextMove.href)} className="pr-world-primary">{nextMove.label}<ArrowRight className="h-4 w-4" /></Link><Link to="/discover" className="pr-world-chip">Open Discover</Link></div>
+
                 </div>
               </div>
 
@@ -146,6 +145,7 @@ export default function PeopleHome() {
           </section>
         )}
       >
+        {home.isError ? <p role="status" className="text-sm text-amber-200">We couldn’t refresh Today. Showing your last loaded details.</p> : null}
         {isPreview ? (
           <nav aria-label={t("people.previewRoles")} className="pr-world-strip">
             {PREVIEW_ROLES.map((item) => <Link key={item} to={`/app-preview?role=${item}`} data-active={lens.role === item} className="pr-world-chip">{item}</Link>)}
@@ -154,11 +154,11 @@ export default function PeopleHome() {
 
         <section aria-labelledby="now-next-title">
           <div className="flex items-end justify-between gap-4">
-            <div><p className="pr-world-kicker">Verified calendar</p><h2 id="now-next-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Now & next.</h2></div>
+            <div><p className="pr-world-kicker">Coming up</p><h2 id="now-next-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Now & next.</h2></div>
             <Link to="/discover?tab=moments" className="pr-world-link">Full calendar</Link>
           </div>
           <div className="mt-5">
-            {momentFeed.isLoading ? <div className="h-48 animate-pulse rounded-[1.8rem] border border-white/10 bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title="Live timing unavailable" copy="We are not replacing the source with unconfirmed listings." /> : liveMoments.length ? (
+            {momentFeed.isLoading ? <div className="h-48 animate-pulse rounded-[1.8rem] border border-white/10 bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title="Live timing unavailable" copy="We couldn’t load the calendar. Try again shortly." /> : liveMoments.length ? (
               <div className="grid gap-3 lg:grid-cols-3">{liveMoments.map((moment, index) => (
                 <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className={`pr-world-object group block min-h-[260px] overflow-hidden ${index === 0 ? "lg:col-span-2" : ""}`}>
                   <div className="relative h-full min-h-[260px]">
@@ -168,7 +168,7 @@ export default function PeopleHome() {
                   </div>
                 </Link>
               ))}</div>
-            ) : <QuietEmpty title="Nothing confirmed right now" copy="New Moments appear only when their time and place can be verified." />}
+            ) : <QuietEmpty title="Nothing confirmed right now" copy="Check Discover for places and ideas while the next Moment takes shape." />}
           </div>
         </section>
 
@@ -177,14 +177,14 @@ export default function PeopleHome() {
           <div className="pr-world-object-grid mt-4">
             {firstScene ? (
               <Link to={`/scenes/${firstScene.slug}`} className="pr-world-panel pr-world-panel--signal pr-world-object--wide group p-6 sm:p-8">
-                <Radio className="h-5 w-5 text-[#ff5a1f]" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">Scene</p><h3 className="mt-2 max-w-lg font-serif text-4xl font-bold leading-[.92] tracking-[-.04em]">{firstScene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/45">A persistent context around people, places and Moments—not a category page.</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">Enter Scene <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
+                <Radio className="h-5 w-5 text-[#ff5a1f]" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">Scene</p><h3 className="mt-2 max-w-lg font-serif text-4xl font-bold leading-[.92] tracking-[-.04em]">{firstScene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/45">Follow the people, places and Moments that bring this Scene together.</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">Enter Scene <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
               </Link>
             ) : (
               <Link to="/discover" className="pr-world-panel pr-world-object--wide p-6 sm:p-8"><Radio className="h-5 w-5 text-[#ff5a1f]" /><p className="mt-8 pr-world-kicker">Scene</p><h3 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Find a context worth returning to.</h3><p className="mt-3 text-sm leading-6 text-white/45">Scenes will appear here when you actually belong to one.</p></Link>
             )}
 
             <Link to="/vault" className="pr-world-panel pr-world-object--narrow group p-6">
-              <Archive className="h-5 w-5 text-purple-300" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">Vault</p><h3 className="mt-2 font-serif text-3xl font-bold leading-none tracking-[-.04em]">What stayed.</h3><p className="mt-3 text-sm leading-6 text-white/45">Perks, entries and proof that the platform actually retained.</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">Open Vault <ArrowRight className="h-4 w-4" /></span>
+              <Archive className="h-5 w-5 text-purple-300" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">Vault</p><h3 className="mt-2 font-serif text-3xl font-bold leading-none tracking-[-.04em]">What stayed.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your access, draw entries and memories, ready to revisit.</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">Open Vault <ArrowRight className="h-4 w-4" /></span>
             </Link>
           </div>
         </section>

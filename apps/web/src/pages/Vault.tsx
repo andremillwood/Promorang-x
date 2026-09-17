@@ -9,7 +9,6 @@ import { LiquidityVaultDashboard } from "@/components/LiquidityVaultDashboard";
 import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { LivePerkCard } from "@/components/perks/LivePerkCard";
-import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { PaperReceipt } from "@/components/promorang/SignatureObjects";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -42,7 +41,7 @@ const Vault = () => {
   const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState<VaultTab>("perks");
   const card = useMyPromoCard();
-  const { balances } = usePromoShareRail();
+  const { balances, refreshBalances } = usePromoShareRail();
   const claimedPerks = card.data?.benefits || [];
   const usedPerks = card.data?.used || [];
 
@@ -62,9 +61,9 @@ const Vault = () => {
   const memories: VaultMemory[] = Array.isArray(vaultData?.memories) ? vaultData.memories : [];
 
   const tabs: Array<{ id: VaultTab; label: string; note: string; icon: typeof Gift; count?: number }> = [
-    { id: "perks", label: "Use", note: "Perks on your card", icon: Gift, count: claimedPerks.length },
-    { id: "tickets", label: "Chance", note: "PromoShare entries", icon: Ticket, count: balances.promoShareTickets },
-    { id: "memories", label: "Keep", note: "Verified proof", icon: Trophy, count: memories.length },
+    { id: "perks", label: "Use", note: "Perks on your card", icon: Gift, count: card.data ? claimedPerks.length : undefined },
+    { id: "tickets", label: "Chance", note: "PromoShare entries", icon: Ticket, count: balances.promoShareSourceRecorded ? balances.promoShareTickets : undefined },
+    { id: "memories", label: "Keep", note: "Pieces & memories", icon: Trophy, count: vaultQuery.data ? memories.length : undefined },
     { id: "liquidity", label: "Backing", note: "Inspect reserves", icon: Sparkles },
   ];
 
@@ -78,18 +77,12 @@ const Vault = () => {
             <p className="pr-world-kicker">Your Vault</p>
             <h1 className="pr-world-display mt-4 max-w-4xl">What stayed with you.</h1>
             <p className="pr-world-copy mt-5 max-w-2xl">
-              Not a wallet full of promises. These are the things the platform can actually point to: access you possess, entries recorded for you, proof that survived the Moment, and backing you can inspect.
+              Access for your next visit. Entries in the draw. Pieces and memories from the things you took part in.
             </p>
           </div>
-          <GlobalTicketBalancePill />
+          <Link to="/dashboard" className="pr-world-link">Back to Today →</Link>
         </div>
 
-        <div className="pr-world-ledger mt-10">
-          <div className="pr-world-ledger-item"><span>PromoPoints</span><strong>{balances.promoPoints}</strong><p className="mt-1 text-xs text-white/35">Progress, not cash</p></div>
-          <div className="pr-world-ledger-item"><span>Usable perks</span><strong>{claimedPerks.length}</strong><p className="mt-1 text-xs text-white/35">Ready to present</p></div>
-          <div className="pr-world-ledger-item"><span>PromoShare</span><strong>{balances.promoShareTickets}</strong><p className="mt-1 text-xs text-white/35">Recorded entries</p></div>
-          <div className="pr-world-ledger-item"><span>Gems</span><strong>{balances.gems}</strong><p className="mt-1 text-xs text-white/35">Platform value</p></div>
-        </div>
       </header>
 
       <main className="pr-world-canvas">
@@ -102,6 +95,7 @@ const Vault = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
+                aria-pressed={active}
                 data-active={active}
                 className="pr-world-chip min-w-[145px] justify-between px-4 py-3"
               >
@@ -117,19 +111,21 @@ const Vault = () => {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div>
                 <p className="pr-world-kicker text-emerald-300">Use</p>
-                <h2 className="mt-3 max-w-3xl font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Things you can actually walk in with.</h2>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Claimed means you possess the entitlement. It still does not mean redeemed, fulfilled or purchased.</p>
+                <h2 className="mt-3 max-w-3xl font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Access you kept.</h2>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Check each offer’s status and instructions before using it. Claiming access is separate from redemption or fulfillment.</p>
               </div>
               <Link to="/card" className="pr-world-primary">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
             </div>
 
             {card.isLoading ? (
               <div className="pr-world-object-grid">{[1,2,3].map((n) => <Skeleton key={n} className="h-56 rounded-[1.6rem] bg-white/5" />)}</div>
+            ) : card.isError && !card.data ? (
+              <div role="alert" className="pr-world-empty p-6"><p>Your access couldn’t load.</p><button type="button" onClick={() => void card.refetch()} className="pr-world-link min-h-11">Try again</button></div>
             ) : claimedPerks.length ? (
               <div className="pr-world-object-grid">{claimedPerks.map((perk: any, index: number) => <div key={perk.id} className={index === 0 ? "pr-world-object--wide" : ""}><LivePerkCard perk={perk} /></div>)}</div>
             ) : (
               <div className="pr-world-empty px-6 py-12">
-                <div><Gift className="mx-auto h-7 w-7 text-emerald-300" /><h3 className="mt-4 font-serif text-3xl font-bold">Nothing is on your card yet.</h3><p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/45">When a live entitlement is actually issued to you, it will land here. Empty is better than pretending.</p><Link to="/discover" className="pr-world-link mt-5 inline-flex items-center gap-2">Find something worth claiming <ArrowRight className="h-4 w-4" /></Link></div>
+                <div><Gift className="mx-auto h-7 w-7 text-emerald-300" /><h3 className="mt-4 font-serif text-3xl font-bold">Nothing is on your card yet.</h3><p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/45">Claim an available offer and find it here for your next visit.</p><Link to="/discover" className="pr-world-link mt-5 inline-flex items-center gap-2">Find something worth claiming <ArrowRight className="h-4 w-4" /></Link></div>
               </div>
             )}
 
@@ -147,9 +143,10 @@ const Vault = () => {
             <div className="pr-world-panel overflow-hidden p-6 sm:p-9" style={{ background: "radial-gradient(circle at 90% 10%, rgba(125,100,255,.28), transparent 36%), rgba(18,18,20,.82)" }}>
               <p className="pr-world-kicker text-purple-300">Chance</p>
               <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
-                <div><h2 className="font-serif text-5xl font-bold tracking-tight sm:text-6xl">{balances.promoShareTickets} entries.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">They represent recorded participation in a draw. An entry is not a win, and a win is not settlement until the system records it.</p></div>
+                <div><h2 className="font-serif text-5xl font-bold tracking-tight sm:text-6xl">{balances.promoShareSourceRecorded ? `${balances.promoShareTickets} entries.` : "Entries unavailable."}</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">They represent recorded participation in a draw. An entry is not a win, and a win is not settlement until the system records it.</p></div>
                 <div className="border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Next known draw</p><p className="mt-2 font-serif text-2xl font-bold">{balances.nextDrawDate || "No active draw supplied"}</p></div>
               </div>
+              {!balances.promoShareSourceRecorded ? <button type="button" onClick={() => void refreshBalances()} className="pr-world-link mt-5 min-h-11">Refresh entries</button> : null}
               <Link to="/promoshare" className="pr-world-primary mt-7">Open PromoShare <ArrowRight className="h-4 w-4" /></Link>
             </div>
           </section>
@@ -158,7 +155,7 @@ const Vault = () => {
         {activeTab === "memories" ? (
           <section className="space-y-8 animate-in fade-in duration-300">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
-              <div><p className="pr-world-kicker text-amber-300">Keep</p><h2 className="mt-3 font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Receipts from the life you actually lived.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">No demo memory fills an empty shelf. These appear only when the authenticated Vault says the platform retained one.</p></div>
+              <div><p className="pr-world-kicker text-amber-300">Keep</p><h2 className="mt-3 font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Receipts from the life you actually lived.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Revisit your Pieces and memories, with the source details that connect each one to your history.</p></div>
               <div className="flex items-start gap-3 border-t border-white/10 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0"><ReceiptText className="mt-1 h-5 w-5 text-amber-300" /><p className="text-xs leading-6 text-white/45">Proof submission → review → verified attendance → retained memory.</p></div>
             </div>
 
@@ -170,11 +167,11 @@ const Vault = () => {
               <div className="grid items-start gap-7 sm:grid-cols-2 lg:grid-cols-3">{memories.map((memory, index) => {
                 const meta = memory.metadata || {};
                 const place = String(meta.venue_name || meta.location || "").trim();
-                const moment = String(meta.moment_title || memory.title || "Verified Moment");
-                const proofRef = String(meta.proof_submission_id || memory.id);
+                const moment = String(meta.moment_title || memory.title || "Retained memory");
+                const proofRef = meta.proof_submission_id ? String(meta.proof_submission_id) : null;
                 return (
                   <Link key={memory.id} to={`/memories/${memory.id}`} className={`block transition hover:-translate-y-1 ${index % 3 === 1 ? "sm:translate-y-8" : ""}`}>
-                    <PaperReceipt heading={memory.title || moment} lines={[{ label: "Moment", value: moment, strong: true }, ...(place ? [{ label: "Place", value: place }] : []), { label: "Kept", value: readableDate(memory.issued_at) }, { label: "Rarity", value: memory.rarity || "Memory" }, { label: "Proof ref", value: proofRef.slice(0, 18) }]} footer="Verified history stays yours. Open this Piece for its retained source context." />
+                    <PaperReceipt heading={memory.title || moment} lines={[{ label: "Moment", value: moment, strong: true }, ...(place ? [{ label: "Place", value: place }] : []), { label: "Kept", value: readableDate(memory.issued_at) }, { label: "Rarity", value: memory.rarity || "Memory" }, ...(proofRef ? [{ label: "Proof ref", value: proofRef.slice(0, 18) }] : [{ label: "Memory ref", value: memory.id.slice(0, 18) }])]} footer={proofRef ? "Linked proof retained. Open to see the source details." : "A Piece of your history. Open to see its source details."} />
                   </Link>
                 );
               })}</div>
@@ -187,6 +184,7 @@ const Vault = () => {
         {activeTab === "liquidity" ? (
           <section className="space-y-5 animate-in fade-in duration-300">
             <div><p className="pr-world-kicker">Backing</p><h2 className="mt-3 font-serif text-4xl font-bold tracking-tight">Inspect what sits behind the value layer.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">This is intentionally separate from your memories, perks and draw entries. Retained cultural history is not presented as a financial asset.</p></div>
+            <details className="border-y border-white/10 py-4"><summary className="cursor-pointer min-h-11 text-sm">Platform balances</summary><dl className="flex flex-wrap gap-8 py-4 text-sm"><div><dt>PromoPoints</dt><dd>{balances.promoPoints} · not cash</dd></div><div><dt>Gems</dt><dd>{balances.gems}</dd></div></dl></details>
             <div className="pr-world-panel overflow-hidden p-1"><LiquidityVaultDashboard /></div>
           </section>
         ) : null}

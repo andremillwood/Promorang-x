@@ -7,14 +7,11 @@ import {
   getStakeholderLens,
   issuanceFromPromoCardPerk,
   isPresentablePass,
-  ownedBenefitKicker,
-  ownedBenefitStatus,
   fillCardCopy,
   ownedCardCopy,
   PROMOCARD_AIMS,
   resolvePromoCardAim,
   resolvePromoCardFace,
-  resolveWorldInvitation,
   selectOwnedUseThis,
   sortBenefitsByAim,
   type PromoCardAim,
@@ -29,7 +26,6 @@ import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/peo
 import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { StakeholderPutInPass } from "@/components/people/StakeholderLoop";
-import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 import { CommunityCardLink } from "@/components/community/CommunityCardLink";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import type { OfferIssuance } from "@/hooks/useOffers";
@@ -78,29 +74,6 @@ function issuanceForPerk(perk: CardPerk) {
   return issuanceFromPromoCardPerk(perk as PromoCardPerk);
 }
 
-function BenefitTicket({ perk, aim, onShowCode }: { perk: CardPerk; aim?: PromoCardAim | null; onShowCode?: (perk: CardPerk, trigger: HTMLButtonElement) => void }) {
-  const usable = canShowCode(perk);
-  return (
-    <article className="relative overflow-hidden border-y border-white/10 py-5">
-      <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-end">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{ownedBenefitKicker(perk, aim)}</p>
-          <h3 className="mt-2 max-w-2xl font-serif text-3xl font-bold leading-[0.95] tracking-[-0.035em] text-white">{perk.title}</h3>
-          {perk.detail ? <p className="mt-3 max-w-xl text-sm leading-6 text-white/50">{perk.detail}</p> : null}
-          <p className="mt-3 text-xs text-white/35">
-            {[perk.issuer?.name, ownedBenefitStatus(perk as PromoCardPerk), perk.availableQuantity != null ? `${perk.availableQuantity} left` : null].filter(Boolean).join(" · ")}
-          </p>
-        </div>
-        {usable ? (
-          <button type="button" onClick={(event) => onShowCode?.(perk, event.currentTarget)} className={actionClass}>
-            Show this <ArrowRight className="h-4 w-4" />
-          </button>
-        ) : null}
-      </div>
-    </article>
-  );
-}
-
 export default function MyPromoCard() {
   const { t } = useI18n();
   const { user, profile, activeRole } = useAuth();
@@ -113,7 +86,6 @@ export default function MyPromoCard() {
   const home = useExperienceHome();
   const to = useExperiencePath();
   const world = home.data?.world;
-  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({ identityLine: world?.identity?.line, nextHref: "/discover" });
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<CardPerk | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
@@ -134,9 +106,10 @@ export default function MyPromoCard() {
     useThis: data?.useThis || null,
     benefits: (data?.benefits || perks || []) as PromoCardPerk[],
   }) || [...(data?.benefits || []), ...perks].find((item: CardPerk) => canShowCode(item)) || null;
+  const primaryIssuance = useThis ? issuanceForPerk(useThis) : null;
   const nearby = sortBenefitsByAim(data?.nearby || [], aim);
   const nextBenefit = data?.nextBenefit || nearby[0] || null;
-  const qrPass = perks.map(issuanceForPerk).find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
+  const qrPass = livePerks.filter((perk) => !perk.redemption?.recorded).map(issuanceForPerk).find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
   const face = resolvePromoCardFace({
@@ -176,6 +149,7 @@ export default function MyPromoCard() {
 
   return (
     <ExperienceShell
+      className="promocard-page"
       eyebrow="YOUR CREDENTIAL"
       title={copy.title}
       description={stake.promoCard.meaning}
@@ -205,13 +179,13 @@ export default function MyPromoCard() {
               copyState={copyState}
               lastLoaded={Boolean(card.isError && face.credential)}
             />
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Use now</p>
+            <div id="use-this" className="scroll-mt-24">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">On your card</p>
               {useThis ? (
                 <>
                   <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">{useThis.title}</h2>
-                  <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "Present the card when you are ready. Nothing is used until the recorded validation happens."}</p>
-                  {canShowCode(useThis) ? <button type="button" onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>Show this <ArrowRight className="h-4 w-4" /></button> : null}
+                  <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "Present the card when you are ready. The merchant will validate your access when you use it."}</p>
+                  {primaryIssuance && isPresentablePass(primaryIssuance.offers.fulfillment_type, primaryIssuance.status) && primaryIssuance.offers.fulfillment_type === "qr" ? <OfferIssuancePass issuance={primaryIssuance as OfferIssuance} /> : canShowCode(useThis) ? <button type="button" aria-label={`Show code for ${useThis.title}`} onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>Show this <ArrowRight className="h-4 w-4" /></button> : null}
                 </>
               ) : qrPass ? (
                 <OfferIssuancePass issuance={qrPass as OfferIssuance} />
@@ -222,27 +196,8 @@ export default function MyPromoCard() {
                   <Link to={discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{aim ? `Browse ${aim.label}` : "Find something for the card"}<ArrowRight className="h-4 w-4" /></Link>
                 </>
               )}
-              <PromoCardActions useThis={useThis} nearbyCount={nearby.length} nextBenefit={nextBenefit} aim={aim} onUseThis={face.canFlip ? () => setFlipped(true) : undefined} />
             </div>
           </section>
-
-          <section className="grid gap-5 border-t border-white/10 pt-8 lg:grid-cols-2">
-            <CommunityCardLink />
-            <PromoCardWorldContext
-              scene={data?.memberships?.[0]?.title || null}
-              season={data?.memberships?.length ? world?.slice?.seasonTitle : null}
-              crew={world?.crew?.name}
-              run={world?.crew?.runTitle ? `${world.crew.runTitle} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 0}` : null}
-              pathCue={world?.path?.cue}
-              identityLine={world?.identity?.line}
-              formingLine={invitation.formingLine}
-              latestReturn={world?.latestReturn?.heading}
-              nearestUnlock={world?.promoCard?.nearestUnlock}
-              latestPiece={world?.latestMemory?.title}
-            />
-          </section>
-
-          {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
 
           <section className="border-t border-white/10 pt-9">
             <div className="flex items-end justify-between gap-4">
@@ -261,13 +216,31 @@ export default function MyPromoCard() {
                   </Link>
                 ))}
               </div>
-            ) : <p className="mt-6 border-y border-white/10 py-6 text-sm text-white/45">Nothing else live nearby right now. Empty means empty—we won’t substitute sample access.</p>}
+            ) : <p className="mt-6 border-y border-white/10 py-6 text-sm text-white/45">No additional access nearby right now. Check back for new offers.</p>}
           </section>
+
+          <section className="grid gap-5 border-t border-white/10 pt-8 lg:grid-cols-2">
+            <CommunityCardLink />
+            <PromoCardWorldContext
+              scene={data?.memberships?.[0]?.title || null}
+              season={data?.memberships?.length ? world?.slice?.seasonTitle : null}
+              crew={world?.crew?.name}
+              run={world?.crew?.runTitle ? `${world.crew.runTitle} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 0}` : null}
+              pathCue={world?.path?.cue}
+              identityLine={world?.identity?.line}
+              formingLine={world?.invitation?.formingLine || world?.worldSystem?.invitation?.formingLine}
+              latestReturn={world?.latestReturn?.heading}
+              nearestUnlock={world?.promoCard?.nearestUnlock}
+              latestPiece={world?.latestMemory?.title}
+            />
+          </section>
+
+          {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
 
           <section className="grid gap-6 border-t border-white/10 pt-9 lg:grid-cols-[1fr_.7fr]">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f6d48a]">Next opening</p>
-              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Use what is already on your card. This is the next recorded opportunity—not a promised reward.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing queued yet.</h2><p className="mt-3 text-sm text-white/45">A new opening appears only when there is real supply or an issued consequence.</p></>}
+              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Explore this opportunity to see its availability and access requirements.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing queued yet.</h2><p className="mt-3 text-sm text-white/45">Check Discover for opportunities as they become available.</p></>}
             </div>
             <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">What stayed with you</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Kept proof, possessed access and recorded chance live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
           </section>
@@ -276,8 +249,12 @@ export default function MyPromoCard() {
             <summary className="cursor-pointer py-3 text-xs font-black uppercase tracking-[0.18em] text-white/40">Card controls & history</summary>
             <div className="grid gap-6 py-5 lg:grid-cols-2">
               <div>
+                {livePerks.filter((perk) => perk.id !== useThis?.id).length ? <div className="mb-6 space-y-3"><h2 className="font-serif text-2xl text-white">Also on your card</h2>{livePerks.filter((perk) => perk.id !== useThis?.id).map((perk) => {
+                  const issuance = issuanceForPerk(perk);
+                  return <article key={perk.id} className="border-b border-white/10 py-3"><h3 className="font-bold text-white">{perk.title}</h3>{issuance ? <OfferIssuancePass issuance={issuance as OfferIssuance} /> : canShowCode(perk) ? <button type="button" aria-label={`Show code for ${perk.title}`} onClick={(event) => openPerk(perk, event.currentTarget)} className="min-h-11 text-primary">Show code →</button> : <p className="mt-2 text-xs">{perk.redemption?.recorded ? "Already used" : "No presentable code"}</p>}</article>;
+                })}</div> : null}
                 <p className="text-sm font-bold text-white">Aim Discover</p>
-                <p className="mt-1 text-xs leading-5 text-white/40">Optional. This changes what Discover prioritises; it does not change your canonical card state.</p>
+                <p className="mt-1 text-xs leading-5 text-white/40">Optional. Choose what you would like to see more of in Discover.</p>
                 <div className="mt-3 flex flex-wrap gap-2">{PROMOCARD_AIMS.map((item) => <button key={item.id} type="button" aria-pressed={aim?.id === item.id} onClick={() => applied.chooseAim(item)} className={`min-h-9 rounded-full border px-3 text-xs font-bold ${aim?.id === item.id ? "border-[#f6d48a] bg-[#f6d48a] text-black" : "border-white/15 text-white/60"}`}>{item.label}</button>)}</div>
                 {!useThis ? <div className="mt-5"><FillCardMoves aim={aim} authenticated={Boolean(user)} /></div> : null}
               </div>

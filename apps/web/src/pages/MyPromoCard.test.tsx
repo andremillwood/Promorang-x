@@ -1,3 +1,4 @@
+import { I18nProvider } from "@/i18n/I18nContext";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
@@ -32,7 +33,7 @@ vi.mock("@/components/SEO", () => ({ default: () => null }));
 let root: Root;
 let container: HTMLDivElement;
 const button = (label: string) => {
-  const result = Array.from(document.querySelectorAll("button")).find(
+  const result = Array.from((document.querySelector('[role="dialog"]') || document).querySelectorAll("button")).find(
     (item) =>
       item.getAttribute("aria-label") === label || item.textContent === label,
   );
@@ -47,9 +48,9 @@ const click = async (label: string) => {
 const renderCard = async () => {
   await act(async () => {
     root.render(
-      <MemoryRouter initialEntries={["/app-preview/card"]}>
+      <I18nProvider><MemoryRouter initialEntries={["/app-preview/card"]}>
         <MyPromoCard />
-      </MemoryRouter>,
+      </MemoryRouter></I18nProvider>,
     );
   });
 };
@@ -148,7 +149,7 @@ describe("PromoCard journey", () => {
       ],
     };
     await renderCard();
-    expect(container).toHaveTextContent("Expired perks (1)");
+    expect(container).toHaveTextContent("1 expired perk retained in history.");
     expect(
       document.querySelector('button[aria-label="Show code for Past offer"]'),
     ).not.toBeInTheDocument();
@@ -183,11 +184,11 @@ describe("PromoCard journey", () => {
     await renderCard();
     expect(
       Array.from(container.querySelectorAll("a")).find(
-        (link) => link.textContent === "Back to your home",
+        (link) => link.textContent === "Back",
       ),
     ).toHaveAttribute("href", "/app-preview");
     expect(container).toHaveTextContent("This is your PromoCard");
-    expect(container).toHaveTextContent("Aim this card");
+    expect(container).toHaveTextContent("Aim Discover");
     expect(
       Array.from(container.querySelectorAll("button")).some((item) => item.textContent === "Tonight"),
     ).toBe(true);
@@ -205,14 +206,13 @@ describe("PromoCard journey", () => {
     };
     query.data = { points: 0, keys: 0, perks: [], nearby: [] };
     await renderCard();
-    expect(container).toHaveTextContent("Your card is set for Kingston After Dark.");
+    expect(container).toHaveTextContent("Your card is set for Kingston After Dark");
     expect(container).toHaveTextContent("Nothing for Kingston After Dark yet");
     expect(container).toHaveTextContent("On your card");
     expect(container).not.toHaveTextContent("Available to spend");
     expect(container).not.toHaveTextContent("From Discover");
     expect(container).not.toHaveTextContent("A merchant supplied it");
     expect(container).not.toHaveTextContent("Aim this card");
-    expect(container).toHaveTextContent("You can still fill the card");
     expect(container).toHaveTextContent("Browse Kingston After Dark perks");
     expect(container).toHaveTextContent("Ask for Kingston After Dark");
     expect(container).toHaveTextContent("Start a poll");
@@ -260,11 +260,10 @@ describe("PromoCard journey", () => {
       ],
     };
     await renderCard();
-    expect(container).toHaveTextContent("On your card · Food");
-    expect(container).toHaveTextContent("Ready to use");
+    expect(container).toHaveTextContent("On your card");
     expect(container).toHaveTextContent("Show this");
     expect(container).toHaveTextContent("Your Food");
-    expect(container).toHaveTextContent("HOLD AT THE DOOR");
+    expect(container.querySelector(".pr-card-back")).toHaveTextContent("PR-FOOD01");
     expect(container).toHaveTextContent("Show the merchant this code");
     expect(container).not.toHaveTextContent("From Discover");
     expect(container).not.toHaveTextContent("Use what’s on the card");
@@ -274,9 +273,9 @@ describe("PromoCard journey", () => {
     query.data = { perks: [], givenName: "Ada" };
     await act(async () => {
       root.render(
-        <MemoryRouter initialEntries={["/card?role=merchant"]}>
+        <I18nProvider><MemoryRouter initialEntries={["/card?role=merchant"]}>
           <MyPromoCard />
-        </MemoryRouter>,
+        </MemoryRouter></I18nProvider>,
       );
     });
     expect(container).toHaveTextContent("The card people show at your counter");
