@@ -38,7 +38,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
             aria-label="Promorang Today"
           >
             <PromorangMark size={30} />
-            <span className="font-serif text-lg font-semibold tracking-tight">Promorang</span>
+            <span className="text-lg font-bold tracking-tight">Promorang</span>
           </NavLink>
 
           <nav className="hidden items-center gap-1 md:flex" aria-label="Participant navigation">

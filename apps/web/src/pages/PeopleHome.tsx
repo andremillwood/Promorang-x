@@ -1,4 +1,4 @@
-import { Archive, ArrowRight, CalendarDays, MapPin, Radio, Users } from "lucide-react";
+import { Archive, ArrowRight, CalendarDays, Dumbbell, MapPin, MoonStar, Music2, Palette, Radio, UtensilsCrossed, Users } from "lucide-react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
@@ -23,9 +23,26 @@ import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
+import heroMoments from "@/assets/hero-moments.jpg";
+import jazzNight from "@/assets/moments/jazz-night.jpg";
+import cookingClass from "@/assets/moments/cooking-class.jpg";
+import streetArt from "@/assets/moments/street-art.jpg";
+import hiking from "@/assets/moments/hiking.jpg";
+import boardGames from "@/assets/moments/board-games.jpg";
 
 const money = (value: number) => value ? `J$${Math.round(value).toLocaleString()}` : "J$0";
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
+const vibeTracks = [
+  { label: "Music", icon: Music2, image: jazzNight, href: "/discover?tab=moments&category=music" },
+  { label: "Nightlife", icon: MoonStar, image: heroMoments, href: "/discover?tab=moments&category=nightlife" },
+  { label: "Food", icon: UtensilsCrossed, image: cookingClass, href: "/discover?tab=moments&category=food" },
+  { label: "Creative", icon: Palette, image: streetArt, href: "/discover?tab=content" },
+  { label: "Fitness", icon: Dumbbell, image: hiking, href: "/discover?tab=moments&category=wellness" },
+  { label: "Social", icon: Users, image: boardGames, href: "/discover?tab=moments&category=social" },
+];
+const editorialBackdrops = [jazzNight, streetArt];
+
+const imageForMoment = (moment: any) => moment?.image_url || moment?.image || moment?.banner_image_url || null;
 
 export default function PeopleHome() {
   const { t } = useI18n();
@@ -99,8 +116,24 @@ export default function PeopleHome() {
   });
 
   if (isMemberWorkspace) {
-    const liveMoments = momentFeed.data?.moments?.filter((moment) => moment.lifecycle !== "recently_ended").slice(0, 2) || [];
+    const localCity = String(data?.city?.name || data?.market?.city || "Kingston");
+    const cityNeedle = localCity.toLowerCase();
+    const localMoments = momentFeed.data?.moments?.filter((moment) => {
+      if (moment.lifecycle === "recently_ended") return false;
+      const place = `${(moment as any).city || ""} ${moment.venue_name || ""} ${moment.location || ""}`.toLowerCase();
+      return !place.trim() || place.includes(cityNeedle);
+    }) || [];
+    const liveMoments = localMoments.slice(0, 2);
     const firstScene = data?.communities?.[0];
+    const moveHref = String(world?.currentMove?.href || "");
+    const matchedMoment = localMoments.find((moment) =>
+      moveHref && (moveHref.includes(String(moment.id)) || (moment.slug && moveHref.includes(String(moment.slug))))
+    ) || liveMoments[0] || null;
+    const currentMoveIsRemoteMoment = moveHref.includes("/moments/") && !matchedMoment;
+    const heroImage = imageForMoment(matchedMoment) || heroMoments;
+    const moveTitle = currentMoveIsRemoteMoment ? "Find something worth showing up for." : world?.currentMove?.title || matchedMoment?.title || "Find something worth showing up for.";
+    const moveCopy = currentMoveIsRemoteMoment ? `See what is moving in ${localCity}, choose what matters, and make one useful move.` : world?.currentMove?.why || matchedMoment?.description || world?.slice?.currentLine || invitation.why;
+    const moveTarget = to(currentMoveIsRemoteMoment ? "/discover" : world?.currentMove?.href || (matchedMoment ? `/moments/${matchedMoment.slug || matchedMoment.id}` : invitation.nextHref || "/discover"));
 
     return (
       <ExperienceShell
@@ -108,39 +141,28 @@ export default function PeopleHome() {
         seoTitle={t("people.homeSeo")}
         description={description}
         hero={(
-          <section className="pr-world-hero p-5 sm:p-7 lg:p-9">
-            <div className="relative z-10 grid min-h-[420px] gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,.65fr)] lg:items-center">
-              <div className="min-w-0 flex flex-col justify-between self-stretch">
-                <div>
-                  <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ff8a57]"><span className="h-1.5 w-1.5 rounded-full bg-[#ff5a1f] shadow-[0_0_14px_rgba(255,90,31,.9)]" />{ticker}</p>
-                  <h1 className="mt-4 font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">{greeting}</h1>
-                  <p className="mt-5 max-w-xl text-sm leading-7 text-white/52">{description}</p>
-                </div>
-
-                <div className="mt-10 max-w-2xl">
-                  <p className="pr-world-kicker">One move today</p>
-                  {world?.currentMove ? (
-                    <Link to={to(world.currentMove.href || invitation.nextHref || "/discover")} className="group mt-3 block border-t border-white/15 pt-4">
-                      <div className="flex items-end justify-between gap-5">
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{world.currentMove.eyebrow || "Today"}</p>
-                          <h2 className="mt-3 max-w-xl font-serif text-4xl font-bold leading-[.95] tracking-[-.04em] text-[#f4c66c] sm:text-5xl xl:text-6xl">{world.currentMove.title}</h2>
-                          <p className="mt-3 max-w-xl text-sm leading-6 text-white/48">{world.currentMove.why || world.slice?.currentLine || invitation.why}</p>
-                        </div>
-                        <ArrowRight className="mb-1 h-6 w-6 shrink-0 text-[#f4c66c] transition-transform group-hover:translate-x-1" />
-                      </div>
-                    </Link>
-                  ) : (
-                    <Link to="/discover" className="group mt-3 flex items-end justify-between gap-5 border-t border-white/15 pt-4"><div><h2 className="font-serif text-3xl font-bold tracking-[-.04em] text-[#f4c66c]">Find what is moving.</h2><p className="mt-2 text-sm text-white/45">Explore discoveries, places and upcoming Moments. Choose what catches your attention.</p></div><ArrowRight className="h-6 w-6 shrink-0 text-[#f4c66c]" /></Link>
-                  )}
-
+          <section className="group relative min-h-[520px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-black sm:min-h-[590px]">
+            <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-1000 group-hover:scale-[1.015]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.95)_0%,rgba(0,0,0,.72)_42%,rgba(0,0,0,.12)_78%),linear-gradient(0deg,rgba(0,0,0,.88)_0%,transparent_55%)]" />
+            <div className="relative z-10 flex min-h-[520px] max-w-[700px] flex-col justify-between p-6 sm:min-h-[590px] sm:p-10 lg:p-12">
+              <div>
+                <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500] shadow-[0_0_14px_rgba(255,101,0,.9)]" />{localCity} · Today</p>
+                <p className="mt-3 text-sm font-semibold text-white/65">{greeting}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.2em] text-white/75">One move today</p>
+                <h1 className="mt-3 max-w-[680px] font-['Anton'] text-[3.35rem] font-normal uppercase leading-[.88] tracking-[-.035em] text-white sm:text-[4.7rem] lg:text-[5.35rem]">Show up to <span className="text-[#ff6500]">something bigger.</span></h1>
+                <p className="mt-5 max-w-xl text-sm leading-6 text-white/72 sm:text-base"><strong className="font-black text-white">Today: {moveTitle}</strong><br />{moveCopy}</p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Link to={moveTarget} className="inline-flex min-h-12 items-center gap-8 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20]">Open today’s move <ArrowRight className="h-4 w-4" /></Link>
+                  <Link to="/discover" className="inline-flex min-h-12 items-center gap-8 rounded-md border border-white/35 bg-black/20 px-5 text-sm font-black text-white backdrop-blur transition hover:bg-white/10">Explore {localCity} <ArrowRight className="h-4 w-4" /></Link>
                 </div>
               </div>
-
-              <Link to={to("/card")} aria-label={t("people.openCardAria")} className="group block w-full max-w-[420px] lg:justify-self-end">
-                <PromoCardFace className="max-w-full" interactive={false} model={cardFace} compact />
-                <div className="mt-4 flex items-center justify-between gap-3 px-1"><div><p className="text-xs font-black text-[#f4c66c]">{t("people.openCard")}</p><p className="mt-1 text-[11px] leading-5 text-white/35">Access you can actually present.</p></div><ArrowRight className="h-4 w-4 text-[#f4c66c] transition-transform group-hover:translate-x-1" /></div>
-              </Link>
+            </div>
+            <div className="absolute bottom-6 right-6 hidden rounded-md border border-white/15 bg-black/55 p-4 backdrop-blur md:block">
+              <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff8a45]">Now moving</p>
+              <p className="mt-2 max-w-[210px] text-sm font-bold text-white">{moveTitle}</p>
+              <p className="mt-1 max-w-[210px] text-[10px] leading-4 text-white/45">{matchedMoment?.venue_name || matchedMoment?.location || `Around ${localCity}`}</p>
             </div>
           </section>
         )}
@@ -152,6 +174,27 @@ export default function PeopleHome() {
           </nav>
         ) : null}
 
+        <section aria-labelledby="vibe-title">
+          <div className="flex items-end justify-between gap-4">
+            <div><p className="pr-world-kicker">Find your vibe</p><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">What moves you?</h2></div>
+            <p className="hidden max-w-[250px] text-xs leading-5 text-white/42 sm:block">Choose a lane. PROMORANG will surface the Moments, Scenes and access around it.</p>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {vibeTracks.map(({ label, icon: Icon, image, href }) => (
+              <Link key={label} to={href} className="group relative min-h-[150px] overflow-hidden rounded-xl border border-white/10 bg-white/[.03]">
+                <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition duration-500 group-hover:scale-105 group-hover:opacity-75" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{label}</p></div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="grid gap-5 rounded-2xl border border-white/10 bg-[#0c0c0d] p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+          <div><p className="pr-world-kicker">Your PromoCard</p><h2 className="mt-2 text-3xl font-black tracking-[-.04em]">Access that moves with you.</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/48">Put a real offer, pass or credit on your card, then present it where it can actually be used.</p><Link to={to("/card")} className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#ff7a20]">Open your PromoCard <ArrowRight className="h-4 w-4" /></Link></div>
+          <Link to={to("/card")} aria-label={t("people.openCardAria")} className="block w-full"><PromoCardFace className="max-w-full" interactive={false} model={cardFace} compact /></Link>
+        </section>
+
         <section aria-labelledby="now-next-title">
           <div className="flex items-end justify-between gap-4">
             <div><p className="pr-world-kicker">Coming up</p><h2 id="now-next-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Now & next.</h2></div>
@@ -159,10 +202,10 @@ export default function PeopleHome() {
           </div>
           <div className="mt-5">
             {momentFeed.isLoading ? <div className="h-48 animate-pulse rounded-[1.8rem] border border-white/10 bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title="Live timing unavailable" copy="We couldn’t load the calendar. Try again shortly." /> : liveMoments.length ? (
-              <div className="grid gap-3 lg:grid-cols-3">{liveMoments.map((moment, index) => (
-                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className={`pr-world-object group block min-h-[260px] overflow-hidden ${index === 0 ? "lg:col-span-2" : ""}`}>
+              <div className="grid gap-4 sm:grid-cols-2">{liveMoments.map((moment, index) => (
+                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="pr-world-object group block min-h-[300px] overflow-hidden rounded-xl">
                   <div className="relative h-full min-h-[260px]">
-                    {moment.image_url ? <img src={moment.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-[1.025]" /> : <Radio className="absolute right-6 top-6 h-7 w-7 text-[#ff5a1f]" />}
+                    <img src={moment.image_url || editorialBackdrops[index % editorialBackdrops.length]} alt={moment.image_url ? moment.title : ""} className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-[1.035]" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div></div>
                   </div>
