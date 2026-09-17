@@ -8,7 +8,7 @@ export default function ForAgencies() {
       eyebrow="For agencies & client operators"
       title="Give clients a chain of evidence—not a prettier dashboard."
       intro="Agencies can read approved Discoveries and recorded demand across markets, help clients decide how to respond, then keep the response and verified outcome separate. That creates a cleaner client story than turning reach, intent and conversion into one blended performance number."
-      primaryCta={{ label: "Open agency path", href: "/auth?mode=signup&role=agency&next=/dashboard" }}
+      primaryCta={{ label: "Open agency path", href: "/auth?mode=signup&role=brand&next=/dashboard" }}
       secondaryCta={{ label: "See the brand lens", href: "/for-brands" }}
       roleJob="Your job is orchestration: know what the market is saying, recommend a defensible response, coordinate the participant path, and report what the records can actually support."
       discoveryUse="Discoveries provide approved market context that can inform planning and creative without being presented as customer demand."
