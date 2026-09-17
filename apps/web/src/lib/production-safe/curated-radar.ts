@@ -6,11 +6,11 @@ import {
 /**
  * Production-safe facade for editorial radar fixtures.
  *
- * Editorial Moments may still be mapped/sliced/indexed by presentation surfaces,
- * but production detail resolution must not turn a static fixture into an
- * actionable Moment. MomentDetail historically used `.find()` as that bridge,
- * so fail that lookup closed outside development while preserving read-only
- * editorial presentation elsewhere.
+ * Editorial Moments may still be indexed directly by explicitly editorial/sample
+ * presentation surfaces, but production feed/detail resolution must not turn a
+ * static fixture into an actionable Moment. The participant discovery feed uses
+ * `.map()` and MomentDetail historically used `.find()`, so those collection
+ * operations fail closed outside development.
  */
 const moments = import.meta.env.DEV
   ? editorialMoments
@@ -18,6 +18,9 @@ const moments = import.meta.env.DEV
       get(target, property, receiver) {
         if (property === 'find' || property === 'findIndex') {
           return () => undefined;
+        }
+        if (property === 'map') {
+          return () => [];
         }
         return Reflect.get(target, property, receiver);
       },
