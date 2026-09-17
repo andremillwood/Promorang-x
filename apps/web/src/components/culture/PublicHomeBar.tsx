@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/promorang-logo-full.png";
-import { MapPin, WalletCards } from "lucide-react";
+import { WalletCards } from "lucide-react";
 
 export function PublicHomeBar() {
   const { user } = useAuth();
@@ -15,10 +15,10 @@ export function PublicHomeBar() {
 
         <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">
           {[
-            ["Discover", "/discover"],
+            ["Explore", "/discover"],
+            ["Wanted", "/#wanted"],
             ["Moments", "/discover/moments"],
-            ["Rewards", "/discover/rewards"],
-            ["For hosts", "/hosting"],
+            ["For business", "/for-brands"],
             ["Build with Promorang", "/join"],
           ].map(([label, href]) => (
             <Link key={href} to={href} className="rounded-full px-4 py-2 text-sm font-bold text-white/62 transition hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
@@ -31,11 +31,13 @@ export function PublicHomeBar() {
           <Link to="/join" className="text-[11px] font-black uppercase tracking-[0.12em] text-white/55 md:hidden">
             Build
           </Link>
-          <Link to="/how-it-works" className="hidden text-[11px] font-black uppercase tracking-[0.12em] text-white/55 sm:inline">
+          {!user ? (
+            <Link to="/auth?mode=login" className="hidden text-[11px] font-black uppercase tracking-[0.12em] text-white/55 transition hover:text-white sm:inline">
+              Sign in
+            </Link>
+          ) : null}
+          <Link to="/how-it-works" className="hidden text-[11px] font-black uppercase tracking-[0.12em] text-white/55 transition hover:text-white lg:inline">
             How it works
-          </Link>
-          <Link to="/shop" className="hidden min-h-10 items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-4 text-xs font-black text-white/75 transition hover:border-amber-300/40 hover:text-white md:inline-flex">
-            <MapPin className="h-3.5 w-3.5 text-amber-300" /> Places
           </Link>
           <Link
             to={user ? "/wallet" : "/auth?mode=signup&next=/wallet"}
