@@ -3,9 +3,11 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Compass, ExternalLink, MapPin, Sha
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
+import { WatchMarketObjectButton } from "@/components/market/WatchMarketObjectButton";
 import { useDiscovery } from "@/hooks/useDiscoveries";
 import { getSiteUrl } from "@/lib/discovery";
 import { generateDiscoverySchema } from "@/lib/seo-schemas";
+import { trackGrowthEvent } from "@/lib/marketing-attribution";
 
 function realLocation(discovery: { location_address?: string | null; city?: string | null; country?: string | null }) {
   if (!discovery.location_address && !discovery.city && !discovery.country) return "Location not yet recorded";
@@ -43,7 +45,11 @@ export default function DiscoveryDetail() {
   const website = metadata.website_url || null;
   const instagram = metadata.instagram_handle || null;
   const location = realLocation(discovery);
-  const share = () => navigator.share?.({ title: discovery.title, text: discovery.description || undefined, url: window.location.href }).catch(() => undefined);
+  const discoveryHref = `/discoveries/${discovery.slug}`;
+  const share = () => {
+    void trackGrowthEvent({ eventName: "market_object_shared", journey: "participant", stage: "amplified", entityType: "discovery", entityId: String(discovery.id) });
+    return navigator.share?.({ title: discovery.title, text: discovery.description || undefined, url: window.location.href }).catch(() => undefined);
+  };
 
   return (
     <main data-canonical-family="discovery-market" className="min-h-screen bg-black pb-24 text-white">
@@ -51,7 +57,7 @@ export default function DiscoveryDetail() {
         title={`${discovery.title} — Promorang Discovery`}
         description={discovery.description || `${discovery.title} is an approved Promorang Discovery.`}
         image={discovery.cover_image || undefined}
-        url={getSiteUrl(`/discoveries/${discovery.slug}`)}
+        url={getSiteUrl(discoveryHref)}
         schema={generateDiscoverySchema(discovery)}
       />
 
@@ -77,6 +83,15 @@ export default function DiscoveryDetail() {
               <h2 className="mt-3 font-serif text-3xl font-bold">Local knowledge, not a transaction.</h2>
               <p className="mt-3 text-sm leading-6 text-white/55">Approval means this Discovery crossed the platform review boundary. It does not mean there is an offer attached, that anyone attended, or that a purchase occurred.</p>
               <div className="mt-6 grid gap-2">
+                <WatchMarketObjectButton
+                  type="discovery"
+                  id={String(discovery.id)}
+                  title={discovery.title}
+                  subtitle={location}
+                  image={discovery.cover_image || null}
+                  href={discoveryHref}
+                  metadata={{ category: discovery.category || null, city: discovery.city || null }}
+                />
                 {discovery.scene ? <Link to={`/scenes/${discovery.scene.slug}`} className="inline-flex min-h-12 items-center justify-between rounded-full bg-primary px-5 text-sm font-black text-black">Open {discovery.scene.title}<ArrowRight className="h-4 w-4" /></Link> : <Link to="/scenes" className="inline-flex min-h-12 items-center justify-between rounded-full bg-primary px-5 text-sm font-black text-black">Explore Scenes<ArrowRight className="h-4 w-4" /></Link>}
                 <button type="button" onClick={share} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-5 text-sm font-bold text-white"><Share2 className="h-4 w-4" />Share Discovery</button>
               </div>
