@@ -87,6 +87,20 @@ The public UX may say:
 
 It must not say a market exists merely because one local browser submitted a sentence.
 
+### Current implementation
+
+The homepage now performs a conservative client-side related-object check over the approved Discoveries and recorded Demand already loaded from production sources.
+
+If related objects are found:
+- the user sees them first,
+- the interface says they are **related**, not exact semantic matches,
+- a new ask is not recorded automatically,
+- the user must explicitly choose **None of these — record my ask** to continue.
+
+If no useful match is found, the existing authoritative demand-recording path runs as before.
+
+This is a pragmatic first-pass resolver, not a claim that PROMORANG already has a complete semantic intent graph. A stronger server-backed matching / clustering system can replace it later without changing the public interaction law.
+
 ## Demand Signal is a presentation, not a new data family
 
 The canonical object already exists as the **Demand question** defined in `discovery-scene-market-construction-v1.md`.
@@ -302,11 +316,12 @@ The homepage should:
 3. show approved Discoveries when legitimate records exist,
 4. show recorded Demand when legitimate signals exist,
 5. preserve honest empty state when either source is absent,
-6. allow a visitor to submit an ask without pretending a failed write succeeded,
-7. explain that a want may match existing knowledge / demand before creating anything new,
-8. make PromoCard a central continuity reason to stay,
-9. show only production-backed state as public market evidence,
-10. separate demand from operator response and response from verified outcome.
+6. resolve open-text Wants against related loaded Discovery / Demand before recording another ask,
+7. require explicit user confirmation when related objects exist but do not satisfy the person,
+8. allow a visitor to record an ask without pretending a failed write succeeded,
+9. make PromoCard a central continuity reason to stay,
+10. show only production-backed state as public market evidence,
+11. separate demand from operator response and response from verified outcome.
 
 Recommended public proposition:
 
@@ -361,18 +376,17 @@ When a presentation proves durable, promote the visual pattern without creating 
 Completed in this public convergence slice:
 
 1. Homepage framing and public Demand presentation.
-2. `/for-brands` and `/for-merchants` convergence around `demand → response → verified outcome`.
-3. `/how-it-works` and `/what-is-promorang` canonical explanation convergence.
-4. `/join` job-first routing convergence.
-5. Creator, host, community, agency and enterprise marketing lenses converged on the same object / truth model.
-
-Current implementation note:
-
-The public homepage now renders approved Discovery supply and recorded Demand as separate production-backed sections. The open-text ask still records through the existing canonical demand infrastructure; Discovery-first semantic matching is the next product behavior to implement, not something this document should falsely claim is already live.
+2. Approved Discovery + recorded Demand are both first-class public entry surfaces.
+3. Lightweight resolve-before-record behavior checks related loaded Discovery / Demand before recording another ask.
+4. `/for-brands` and `/for-merchants` converge around `demand → response → verified outcome`.
+5. `/how-it-works` and `/what-is-promorang` tell the canonical human journey.
+6. `/join` preserves job-first routing while using the shared market model.
+7. Creator, host, community, agency and enterprise marketing lenses use the same object / truth model.
+8. PromoCard is positioned centrally as participant continuity rather than an unrelated rewards wallet.
 
 Next:
 
-1. implement Discovery-first resolution / matching for open-text Wants before creating or escalating new public demand,
+1. move resolve-before-record from lightweight client matching toward a stronger authoritative matching / clustering service when real usage justifies it,
 2. preserve object / return-path continuity through authentication for public Discovery / Demand / Moment / Offer journeys,
 3. migrate public creator / merchant / venue / offer profile pages where they contradict canonical semantics,
 4. migrate campaign / activation landing pages to preserve `signal → response → verified consequence` boundaries,
