@@ -16,8 +16,11 @@ router.get(['/', '/vault'], requireAuth, async (req, res) => {
 router.get('/summary', requireAuth, async (req, res) => {
   try {
     const vault = await memoryService.getVaultSummary(req.user.id);
+    const memoryCount = Number(vault?.summary?.total_memories || 0);
     const assetCounts = {
-      nft: vault?.summary?.total_memories || 0,
+      memory: memoryCount,
+      // Transitional compatibility alias for clients that have not yet migrated.
+      nft: memoryCount,
       coupon: vault?.active_perks?.length || 0,
       token: 0,
       ticket: 0,
@@ -36,8 +39,9 @@ router.get('/summary', requireAuth, async (req, res) => {
         value_note: 'Retained memories are verified history. Legacy score is not USD, cash value, Gems, or a redemption guarantee.',
         asset_counts: assetCounts,
         ...(vault?.summary || {}),
-        // Re-assert the canonical semantic fields after spreading the legacy summary.
+        // Re-assert canonical semantic fields after spreading any legacy summary.
         total_legacy_score: totalLegacyScore,
+        asset_counts: assetCounts,
       },
       vault,
       ...vault,
@@ -54,8 +58,7 @@ router.get('/assets', requireAuth, async (req, res) => {
     const assets = (vault?.memories || []).map((m) => ({
       id: m.id,
       user_id: req.user.id,
-      // Kept for older clients that group memories under their historical NFT bucket.
-      // canonical_type is the authoritative product meaning.
+      // Transitional compatibility alias. canonical_type is authoritative.
       asset_type: 'nft',
       canonical_type: 'memory',
       name: m.title,
