@@ -4,7 +4,8 @@ export type ResumableIntentKind =
   | "moment_join"
   | "offer_claim"
   | "commerce_purchase"
-  | "commerce_save";
+  | "commerce_save"
+  | "market_watch";
 
 export type ResumableIntent = {
   kind: ResumableIntentKind;
@@ -95,5 +96,7 @@ export function resumableIntentCopy(kind: ResumableIntentKind) {
       return { title: "Continue your reservation", detail: "You’re back on the same item. No purchase or reservation was created during sign-in.", needles: ["reserve", "buy", "pay", "purchase"] };
     case "commerce_save":
       return { title: "Continue saving this", detail: "You’re back where you started. Saving still requires your explicit action.", needles: ["save", "bookmark"] };
+    case "market_watch":
+      return { title: "Keep watching this", detail: "You’re back on the same market object. Nothing was saved while you signed in.", needles: ["watch", "keep", "save", "follow"] };
   }
 }
