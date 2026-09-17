@@ -228,3 +228,15 @@ The participant experience is ready when a first-time user can look at each scre
 5. What has actually happened already?
 
 If a screen requires dashboard literacy or internal PROMORANG terminology before those questions are clear, the overhaul is not finished.
+
+## Continuation — participant composition and evidence states
+
+- Today gives the source-backed current move visual priority over the greeting; the competing generic setup CTA is removed.
+- PromoCard keeps the credential first, a single use section next, available access before world context, and secondary owned passes in controls/history. QR issuance uses the existing pass renderer; expired passes are excluded from the QR fallback.
+- Discover opens on editorial Signal / Action orientation and the canonical approved-Discovery/demand surface. Offers and Moments retain their own routes and error states. Scene detail is preserved.
+- Moment uses an environmental hero and the authoritative participant journey for joined users. RSVP cancellation is explicitly labelled and subordinate. The mobile reserve action observes the hero action’s visibility, instead of assuming a fixed scroll position.
+- `ParticipantProofArtifact` differentiates pending, approved and rejected evidence and is composed into Moment, check-in and an explicitly illustrative Design Lab state study. Pending states do not link to a claimed reward or retained memory. Check-in reopens recorded pending/approved proof instead of immediately showing another submission form.
+- Vault leads with Use / Chance / Keep / Backing. Platform balances sit under Backing. Unavailable entries are not displayed as a recorded zero; memory IDs are not relabelled as proof references.
+- Mobile typography, focus visibility, proof contrast, tab keyboard navigation and reduced-motion handling are included. The unturned PromoCard reverse is inert to keyboard interaction.
+
+Validation must distinguish local component/build checks from live authenticated verification. A passing build does not certify a production proof, redemption, or issuance transaction. Browser and live-data review remain required when the runtime has browser binaries and authenticated source access.

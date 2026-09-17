@@ -1,3 +1,4 @@
+import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { Link, useSearchParams } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -54,7 +55,6 @@ import { SpinWheelModal } from "@/components/SpinWheelModal";
 import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { merchantAuthHref } from "@/lib/merchant-demand";
 import { useContentDrops } from "@/hooks/useContentDistribution";
-import { seededContentDrops } from "@/data/seeded-content-drops";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 
 const categoryFilters = [
@@ -144,7 +144,7 @@ const Discover = () => {
   const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "perks";
+  const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "discoveries";
   const lensParam = searchParams.get("lens");
   const aim = resolveStoredPromoCardAim(searchParams);
 
@@ -159,7 +159,7 @@ const Discover = () => {
 
   const nearby = useNearbyBenefits();
   const contentDrops = useContentDrops("active");
-  const releaseDrops = contentDrops.data?.length ? contentDrops.data : seededContentDrops;
+  const releaseDrops = contentDrops.data || [];
   const perksLoading = nearby.isLoading;
   const livePerks = nearby.data || [];
   const stake = getStakeholderLens(searchParams.get("role") || activeRole);
@@ -175,12 +175,13 @@ const Discover = () => {
   const discoveryQuery = useQuery({
     queryKey: ["discover-public-feed-v3"],
     queryFn: async () => {
-      const { data: momentsData } = await supabase
+      const { data: momentsData, error } = await supabase
         .from("moments")
         .select("*")
         .order("starts_at", { ascending: true })
         .limit(100);
 
+      if (error) throw error;
       const dbMoments = (momentsData || []).map((m) => {
         let lat = Number(m.latitude);
         let lng = Number(m.longitude);
@@ -406,25 +407,20 @@ const Discover = () => {
       <div className="relative min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
         <SEO
           title={`${aim ? aim.cardLine.replace(/\.$/, "") : t("discover.pathPageTitle")} — Promorang`}
-          description={aim ? `${aim.watchingLine} Answer a live question and it lands on your card.` : stake.world.meaning}
+          description="Discover what is worth knowing, then find something you can do."
           url={getSiteUrl("/discover")}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[46rem] bg-[radial-gradient(circle_at_12%_0%,rgba(255,106,0,.16),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(80,160,140,.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold text-white/50">{stake.workspaceLabel} · {city.name}</p>
-              <p className="mt-1 max-w-xl text-[11px] leading-5 text-white/40">{t("discover.pathHonesty")}</p>
-            </div>
-            <GlobalTicketBalancePill />
+          <header className="pb-5 pt-6 sm:pt-10">
+            <p className="pr-world-kicker">Discover · {city.name}</p>
+            <h1 className="mt-5 max-w-3xl font-serif text-5xl font-bold leading-[.95] tracking-[-.045em] sm:text-7xl">Something worth<br />knowing. Or doing.</h1>
+            <p className="mt-5 max-w-xl text-sm leading-7 text-white/60">Follow what catches your eye. Explore local knowledge, see what people want, and find your next move.</p>
+          </header>
+          <div className="grid gap-5 border-y border-white/15 py-6 sm:grid-cols-2">
+            <a href="#discovery-signals" className="group min-h-16"><p className="pr-world-kicker">01 · Signal</p><p className="mt-2 font-serif text-2xl font-bold">What’s worth noticing ↓</p><p className="mt-2 text-sm text-white/55">Discoveries and questions from the community.</p></a>
+            <div><p className="pr-world-kicker">02 · Action</p><p className="mt-2 font-serif text-2xl font-bold">Find something to do</p><div className="mt-2 flex flex-wrap gap-5"><button type="button" onClick={() => handleTabChange("moments")} className="min-h-11 text-sm font-bold text-primary">Explore Moments →</button><button type="button" onClick={() => handleTabChange("perks")} className="min-h-11 text-sm text-white/70">Available offers →</button><Link to="/scenes" className="min-h-11 inline-flex items-center text-sm text-white/70">Enter a Scene →</Link></div></div>
           </div>
-          <div className="mt-5">
-            <StakeholderSurfaceLead role={stake.role} surface="world" />
-          </div>
-          <div className="mt-4">
-            <LiveReleaseSignal drops={releaseDrops} />
-          </div>
-
           <nav aria-label={t("discover.pathPageTitle")} className="mt-6 flex flex-wrap gap-2">
             <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
               {t("discover.pathAlsoInCity")} · {city.name}
@@ -442,9 +438,10 @@ const Discover = () => {
               {t("discover.tabPlaces")}
             </button>
           </nav>
-          <div className="mt-8 sm:mt-10 space-y-6">
-            {aim ? <AimedDiscoverLead aim={aim} authenticated={Boolean(user)} /> : null}
-            {path}
+          <div id="discovery-signals" className="mt-8 scroll-mt-8 sm:mt-10 space-y-6">
+            <DiscoveriesFeedSection />
+            {aim ? <details className="border-t border-white/10 py-4"><summary className="cursor-pointer min-h-11 py-3 text-sm">Explore your interests · {aim.label}</summary><AimedDiscoverLead aim={aim} authenticated={Boolean(user)} />{path}</details> : null}
+            <LiveReleaseSignal drops={releaseDrops} />
           </div>
         </div>
       </div>
@@ -452,14 +449,14 @@ const Discover = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
+    <div className="participant-world min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white pb-16">
       <SEO
         title={t("discover.seoTitle")}
         description={stake.world.meaning}
         url={getSiteUrl("/discover")}
       />
 
-      <div className="w-full px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -477,7 +474,7 @@ const Discover = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            <GlobalTicketBalancePill />
+            <Link to="/card" className="inline-flex min-h-11 items-center text-sm text-white/65">Your PromoCard →</Link>
             <Button
               asChild
               className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 h-10 px-4"
@@ -545,7 +542,7 @@ const Discover = () => {
             <Share2 className="h-4 w-4 text-purple-300" />
             <span>{t("discover.tabShare")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
-              {t("discover.earnTickets")}
+              Share
             </span>
           </button>
 
@@ -621,6 +618,8 @@ const Discover = () => {
                       <Skeleton key={n} className="h-80 w-full rounded-3xl bg-white/5" />
                     ))}
                   </div>
+                ) : nearby.isError ? (
+                  <div role="alert" className="border-y border-white/10 py-8"><p>Offers couldn’t load.</p><button type="button" onClick={() => void nearby.refetch()} className="min-h-11 text-primary">Try again</button></div>
                 ) : (
                   <div className="space-y-8">
                     {localPerks.length > 0 && (
@@ -652,7 +651,7 @@ const Discover = () => {
                     )}
                   </div>
                 )}
-                {!perksLoading && hubPerks.length === 0 && (
+                {!perksLoading && !nearby.isError && hubPerks.length === 0 && (
                   <div className="space-y-4">
                     <HubEmptyState
                       cityName={city.name}
@@ -691,6 +690,7 @@ const Discover = () => {
                   })}
                 </div>
 
+                {discoveryQuery.isError ? <div role="alert" className="border-y border-white/10 py-6"><p>Moments couldn’t load.</p><button type="button" onClick={() => void discoveryQuery.refetch()} className="min-h-11 text-primary">Try again</button></div> : discoveryQuery.isLoading ? <p role="status" className="py-6 text-white/60">Loading Moments…</p> : null}
                 {featuredMoment && !searchQuery && activeCategory === "all" && viewMode === "grid" && (
                   <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-black min-h-[340px] sm:min-h-[380px] flex items-end p-5 sm:p-8">
                     <img

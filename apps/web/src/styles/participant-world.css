@@ -325,3 +325,40 @@
     border-color: rgba(255,255,255,.2);
   }
 }
+
+/* Credential-first composition: the pass, rather than the page heading, leads. */
+.promocard-page .pr-world-display { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; }
+.promocard-page .pr-world-header .pr-world-copy { max-width: 40rem; font-size: .85rem; }
+.promocard-page .pr-world-canvas { margin-top: 1.5rem; }
+.promocard-page .pr-world-header .pr-world-rule { margin-top: 1rem; }
+
+/* Proof is a document with a decision stamp, distinct from access or a reward. */
+.pr-proof-artifact {
+  position: relative;
+  min-width: 0;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: #eee7d9;
+  color: #26221c;
+  border-top: 3px solid #83775f;
+  box-shadow: 0 14px 35px #0003;
+  overflow-wrap: anywhere;
+}
+.pr-proof-artifact[data-proof-state="pending"] { background: #e9dfc8; border-top-style: dashed; border-top-color: #927332; }
+.pr-proof-artifact[data-proof-state="verified"] { background: #dce8de; border-top-color: #356345; }
+.pr-proof-artifact[data-proof-state="rejected"] { background: #efdfda; border-top-color: #9b4739; }
+.pr-proof-stamp { display: inline-block; padding: .45rem .6rem; border: 1px solid currentColor; font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.proof-world .pr-proof-artifact .text-white,
+.proof-world .pr-proof-artifact label { color: #26221c; }
+.proof-world .pr-proof-artifact .text-white\/50,
+.proof-world .pr-proof-artifact .text-white\/70 { color: #595248; }
+.proof-world .pr-proof-artifact input { color: #26221c; background: #fff9; border-color: #83775f; }
+.proof-world .pr-proof-artifact button[type="button"] { color: #26221c; border-color: #83775f; }
+.participant-world :is(a, button, summary):focus-visible { outline: 2px solid #f4c66c; outline-offset: 4px; }
+@media (max-width: 639px) {
+  .moment-world header { padding-top: 1rem; }
+  .promocard-page .pr-world-header .pr-world-copy { display: none; }
+  .promocard-page .pr-world-header .mt-6 { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .participant-world *, .proof-world * { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

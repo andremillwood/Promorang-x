@@ -1,3 +1,5 @@
+import { useMomentJourney } from "@/hooks/useMomentJourney";
+import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams, useParams, Link } from "react-router-dom";
@@ -44,6 +46,9 @@ const CheckIn = () => {
   const [code, setCode] = useState(codeFromUrl);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const journey = useMomentJourney(id);
+  const [previewUrl, setPreviewUrl] = useState<string>();
   const [moment, setMoment] = useState<any>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [locationVerified, setLocationVerified] = useState(false);
@@ -55,6 +60,13 @@ const CheckIn = () => {
   const [proofSubmissionId, setProofSubmissionId] = useState<string | null>(null);
   const [consequence, setConsequence] = useState<ReturnType<typeof resolveWorldConsequence> | null>(null);
   const [keptMemory, setKeptMemory] = useState<{ title: string; origin: string; perk: string; scene?: string; place?: string; date?: string } | null>(null);
+
+  useEffect(() => {
+    if (!imageFile) { setPreviewUrl(undefined); return; }
+    const url = URL.createObjectURL(imageFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
 
   const requiredTypes = proofRequirements
     .filter((requirement) => requirement.is_required !== false)
@@ -99,6 +111,7 @@ const CheckIn = () => {
 
   const fetchMoment = async () => {
     if (!id) return;
+    setLoadError(false);
     if (id.startsWith('m') && id.length <= 4) {
       const demoMoment = demoMoments.find(m => m.id === id);
       if (demoMoment) {
@@ -115,6 +128,7 @@ const CheckIn = () => {
 
     if (data) setMoment(data);
     if (error) {
+      setLoadError(true);
       console.error("Error fetching moment:", error);
       toast({ title: t("checkIn.toastEventNotFound"), description: t("checkIn.toastEventNotFoundDesc"), variant: "destructive" });
     }
@@ -346,6 +360,8 @@ const CheckIn = () => {
     );
   }
 
+  if (loadError) return <main className="participant-world min-h-screen p-8 text-white"><h1 className="font-serif text-3xl">This Moment couldn’t load.</h1><button type="button" onClick={() => void fetchMoment()} className="pr-world-primary mt-5">Try again</button><Link to="/discover" className="ml-5 underline">Back to Discover</Link></main>;
+
   if (!moment) {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex items-center justify-center">
@@ -358,8 +374,10 @@ const CheckIn = () => {
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white">
       <SEO title={t("checkIn.seoTitle", { title: moment.title })} description={t("checkIn.seoDescription", { title: moment.title })} />
 
-      <main className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
-        {success ? (
+      <main className="proof-world mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
+        {!success && journey.data && ["pending", "verified"].includes(journey.data.proof_state || "") ? (
+          <div className="mx-auto max-w-xl space-y-6"><ParticipantProofArtifact journey={journey.data} /><Link to={`/moments/${id}`} className="inline-flex min-h-11 items-center text-sm underline">Back to Moment</Link><button type="button" onClick={() => void journey.refetch()} className="ml-6 min-h-11 text-sm underline">Refresh status</button></div>
+        ) : success ? (
           <div className="mx-auto max-w-xl space-y-6 pt-8 animate-in fade-in duration-300">
             <div className="text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
@@ -378,7 +396,9 @@ const CheckIn = () => {
               ) : null}
             </div>
 
-            {consequence ? (
+            {consequence && !consequence.counted ? (
+              <section className="pr-proof-artifact" data-proof-state="pending"><p className="pr-proof-stamp">Awaiting decision</p><h2 className="mt-4 font-serif text-3xl font-bold">Evidence received.</h2><p className="mt-3 text-sm leading-6">Your proof is under review. Attendance and any rewards await approval.</p></section>
+            ) : consequence ? (
               <ConsequenceReceipt receipt={consequence} reveal={keptMemory} />
             ) : (
               <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4">
@@ -406,7 +426,7 @@ const CheckIn = () => {
           </div>
         ) : (
           <div className="grid gap-8 lg:grid-cols-[1fr_420px] items-start pt-4">
-            <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#121214]">
+            <div className="overflow-hidden border-t border-white/15">
               {(moment.image_url || moment.banner_image_url) ? (
                 <img src={moment.image_url || moment.banner_image_url} alt={moment.title} className="h-56 w-full object-cover" />
               ) : null}
@@ -435,12 +455,15 @@ const CheckIn = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 sm:p-8 space-y-6">
+            <div className="pr-proof-artifact space-y-6" data-proof-state="ready">
               <div className="space-y-1">
-                <h2 className="text-xl font-bold text-white">Submit proof</h2>
+                <p className="pr-proof-stamp">Evidence · not yet submitted</p>
+                <h2 className="mt-3 font-serif text-3xl font-bold">Make your participation count.</h2>
                 <p className="text-xs text-white/50">The platform records your evidence first. Verification and any downstream consequence happen separately.</p>
               </div>
 
+              {journey.data?.proof_state === "rejected" || journey.data?.proof_state === "expired" ? <p role="status" className="border-l-2 border-red-500 pl-3 text-sm">Your previous proof was not approved. Check the requirements below.</p> : null}
+              {proofRequirements.length ? <ul className="divide-y divide-current/15 border-y border-current/15">{proofRequirements.map((requirement) => <li key={requirement.id} className="py-3 text-sm"><strong>{requirement.label || requirement.requirement_type.replace(/_/g, " ")}</strong><span className="ml-2 text-xs opacity-60">{requirement.is_required === false ? "Optional" : "Required"}</span>{requirement.instructions ? <p className="mt-1 leading-6 opacity-75">{requirement.instructions}</p> : null}</li>)}</ul> : null}
               <form onSubmit={handleCheckIn} className="space-y-5">
                 {(requiresCode || proofRequirements.length === 0) && (
                   <div className="space-y-2">
@@ -467,7 +490,7 @@ const CheckIn = () => {
                           isWithinGeofence ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                         }`}>
                           <ShieldCheck className="h-3.5 w-3.5" />
-                          {isWithinGeofence ? t("checkIn.verifiedOnSite") : t("checkIn.remoteCheckIn")}
+                          {isWithinGeofence ? "Location captured" : "Outside venue range"}
                         </span>
                       )}
                     </div>
@@ -495,7 +518,7 @@ const CheckIn = () => {
                     <Label className="text-xs uppercase font-bold text-white/70">{t("checkIn.photoEvidence")}{requiresMedia ? " · required" : ""}</Label>
                     <ImageUpload
                       onImageSelect={(file) => setImageFile(file)}
-                      previewUrl={imageFile ? URL.createObjectURL(imageFile) : undefined}
+                      previewUrl={previewUrl}
                     />
                   </div>
                 )}
@@ -508,7 +531,7 @@ const CheckIn = () => {
                   {loading || uploading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <>Submit proof <Sparkles className="ml-2 h-5 w-5" /></>
+                    <>Submit evidence</>
                   )}
                 </Button>
               </form>

@@ -129,7 +129,7 @@ export function PromoCardFace({
         </article>
 
         {canFlip ? (
-          <article className={cn("pr-plastic-card pr-card-side pr-card-back min-h-[320px] p-6 sm:min-h-[360px] sm:p-7", `pr-plastic-card--${face.state}`)} aria-hidden={!isFlipped}>
+          <article className={cn("pr-plastic-card pr-card-side pr-card-back min-h-[320px] p-6 sm:min-h-[360px] sm:p-7", `pr-plastic-card--${face.state}`)} aria-hidden={!isFlipped} {...(!isFlipped ? { inert: "" } : {})}>
             <div className="relative z-10 flex h-full flex-col items-center justify-between text-center">
               <div>
                 <span className="mx-auto grid h-10 w-10 place-items-center rounded-xl border border-[#f4c66c]/35 bg-black"><PromorangMark size={32} className="h-8 w-8" /></span>
