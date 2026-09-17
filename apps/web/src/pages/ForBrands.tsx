@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { ArrowRight, Building2, Eye, Handshake, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, Building2, Eye, Handshake, ShieldCheck } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
