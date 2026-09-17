@@ -20,8 +20,8 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="PROMORANG — Make demand visible"
-        description="Ask for what you want, join recorded demand signals, and give businesses evidence they can respond to with real offers, Moments, access and action."
+        title="PROMORANG — Discover what moves you. Help shape what happens next."
+        description="Discover things worth knowing, show what you want, join what other people are asking for, and keep your place in what happens next with PromoCard."
       />
       <PublicMarketHome />
     </div>
