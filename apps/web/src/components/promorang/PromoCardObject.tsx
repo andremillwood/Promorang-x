@@ -32,12 +32,12 @@ function stamps(model: PromoCardFaceModel) {
 function PromoCardScanPlate({ credential, compact }: { credential?: string | null; compact?: boolean }) {
   if (credential) {
     return (
-      <span className={cn("pr-card-chip pr-card-chip--live overflow-hidden rounded-[.75rem] border border-[#f4c66c]/40 bg-white p-1", compact && "h-10 w-10")} aria-label="PromoCard scan mark">
-        <QRCodeSVG value={encodeOfferRedeemPayload(credential)} size={compact ? 32 : 44} level="M" className="h-full w-full" />
+      <span className={cn("pr-card-chip pr-card-chip--live overflow-hidden rounded-[.75rem] border border-[#f4c66c]/40 bg-white p-1", compact && "h-9 w-9 sm:h-10 sm:w-10")} aria-label="PromoCard scan mark">
+        <QRCodeSVG value={encodeOfferRedeemPayload(credential)} size={compact ? 30 : 44} level="M" className="h-full w-full" />
       </span>
     );
   }
-  return <span className="pr-card-chip h-12 w-12 rounded-[.8rem] border border-white/10 bg-white/5" aria-label="No code to scan yet" />;
+  return <span className={cn("pr-card-chip rounded-[.8rem] border border-white/10 bg-white/5", compact ? "h-9 w-9 sm:h-10 sm:w-10" : "h-12 w-12")} aria-label="No code to scan yet" />;
 }
 
 export function PromoCardFace({
@@ -90,42 +90,51 @@ export function PromoCardFace({
   return (
     <div className={cn("pr-card-stage w-full max-w-xl", className)}>
       <div className={cn("pr-card-flip", isFlipped && "is-flipped")}>
-        <article className={cn("pr-plastic-card pr-card-side overflow-hidden", compact ? "min-h-[300px] p-5" : "min-h-[320px] p-6 sm:min-h-[360px] sm:p-7", `pr-plastic-card--${face.state}`)} aria-label="PromoCard">
+        <article
+          className={cn(
+            "pr-plastic-card pr-card-side overflow-hidden",
+            compact
+              ? "!aspect-auto min-h-[190px] p-4 sm:min-h-[230px] sm:p-5"
+              : "min-h-[320px] p-6 sm:min-h-[360px] sm:p-7",
+            `pr-plastic-card--${face.state}`,
+          )}
+          aria-label="PromoCard"
+        >
           <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: "linear-gradient(120deg, transparent 0 42%, rgba(244,198,108,.08) 42.2% 42.8%, transparent 43% 100%)" }} />
           <div className="relative z-10 flex h-full flex-col justify-between">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <span className={cn("grid shrink-0 place-items-center rounded-2xl border border-[#f4c66c]/30 bg-black/70 shadow-inner", compact ? "h-10 w-10" : "h-12 w-12")}>
-                  <PromorangMark size={compact ? 32 : 40} className={compact ? "h-8 w-8" : "h-10 w-10"} />
+                <span className={cn("grid shrink-0 place-items-center rounded-2xl border border-[#f4c66c]/30 bg-black/70 shadow-inner", compact ? "h-9 w-9 sm:h-10 sm:w-10" : "h-12 w-12")}>
+                  <PromorangMark size={compact ? 30 : 40} className={compact ? "h-7 w-7 sm:h-8 sm:w-8" : "h-10 w-10"} />
                 </span>
                 <div>
-                  <p className="text-[9px] font-black tracking-[0.28em] text-[#f4c66c]">PROMORANG</p>
-                  <h3 className={cn("mt-1 font-serif font-bold leading-none tracking-[-.04em] text-white", compact ? "text-[1.55rem]" : "text-[1.9rem]")}>PromoCard</h3>
+                  <p className="text-[8px] font-black tracking-[0.28em] text-[#f4c66c] sm:text-[9px]">PROMORANG</p>
+                  <h3 className={cn("mt-1 font-serif font-bold leading-none tracking-[-.04em] text-white", compact ? "text-[1.3rem] sm:text-[1.55rem]" : "text-[1.9rem]")}>PromoCard</h3>
                   {tier ? <p className="mt-2 text-[9px] font-black uppercase tracking-[0.18em] text-white/45">{tier} tier</p> : null}
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <PromoCardScanPlate credential={face.credential} />
+                <PromoCardScanPlate credential={face.credential} compact={compact} />
                 {face.issuerInitial ? <span className="grid h-8 w-8 place-items-center rounded-full border border-[#f4c66c]/35 bg-[#f4c66c]/10 font-serif text-xs font-black text-[#f4c66c]" aria-label={`${face.issuer} mark`}>{face.issuerInitial}</span> : null}
               </div>
             </div>
 
-            <div className={compact ? "py-5" : "py-7 sm:py-9"}>
-              <p className="text-[10px] font-black uppercase tracking-[.2em] text-white/38">{face.action}</p>
-              <p className={cn("mt-2 max-w-[90%] font-serif font-bold leading-[.92] tracking-[-.055em] text-[#f4c66c]", compact ? "text-[2.15rem]" : "text-[2.45rem] sm:text-[3.25rem]")}>{face.headline}</p>
-              <p className={cn("mt-3 text-white/56", compact ? "max-w-[92%] text-xs leading-5" : "max-w-[82%] text-sm leading-6")}>{face.detail}</p>
-              {face.places ? <p className="mt-1 max-w-[82%] text-xs leading-5 text-white/34">{face.places}</p> : null}
+            <div className={compact ? "py-3 sm:py-4" : "py-7 sm:py-9"}>
+              <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/38 sm:text-[10px]">{face.action}</p>
+              <p className={cn("mt-1.5 max-w-[92%] font-serif font-bold leading-[.94] tracking-[-.05em] text-[#f4c66c]", compact ? "text-[1.55rem] sm:text-[1.9rem]" : "text-[2.45rem] sm:text-[3.25rem]")}>{face.headline}</p>
+              <p className={cn("mt-2 text-white/56", compact ? "line-clamp-2 max-w-[92%] text-[11px] leading-4 sm:text-xs sm:leading-5" : "max-w-[82%] text-sm leading-6")}>{face.detail}</p>
+              {face.places ? <p className={cn("mt-1 max-w-[82%] text-white/34", compact ? "hidden sm:block sm:text-[11px] sm:leading-4" : "text-xs leading-5")}>{face.places}</p> : null}
               {stamps(face).length || face.returnStamp ? (
-                <div className="mt-5 flex flex-wrap gap-2">
+                <div className={cn("flex flex-wrap gap-2", compact ? "mt-3" : "mt-5")}>
                   {stamps(face).map((mark) => <span key={mark} className="pr-card-stamp px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] text-[#f4c66c]">{mark}</span>)}
                   {face.returnStamp ? <span className="pr-card-stamp pr-card-stamp--return px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] text-[#f4c66c]">{face.returnStamp}{face.returnDate ? ` · ${face.returnDate}` : ""}</span> : null}
                 </div>
               ) : null}
             </div>
 
-            <div className="flex items-end justify-between gap-4 border-t border-white/10 pt-4 text-[10px] text-white/42">
+            <div className={cn("flex items-end justify-between gap-4 border-t border-white/10 text-white/42", compact ? "pt-2 text-[9px]" : "pt-4 text-[10px]")}>
               <span className="font-black uppercase tracking-[.13em]">{face.holder}</span>
-              <span className="max-w-[58%] text-right leading-4">{face.footerCue}</span>
+              <span className={cn("max-w-[58%] text-right", compact ? "line-clamp-1 leading-3" : "leading-4")}>{face.footerCue}</span>
             </div>
           </div>
         </article>
