@@ -1,133 +1,137 @@
+import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, Briefcase } from "lucide-react";
+import { PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 
 const paths = [
   {
-    eyebrow: "I want in",
+    eyebrow: "I want to find, ask or join",
     title: "Participate",
-    description: "Discover things worth doing, show up, contribute, earn recognition, and unlock more from the places and communities around you.",
+    description: "Discover things worth knowing, put something missing into the market, join what other people want, and keep your place on PromoCard.",
     href: "/auth?mode=signup&role=participant&next=/home",
-    cta: "Join as a participant",
+    cta: "Get my PromoCard",
     icon: UserRound,
-  },
-  {
-    eyebrow: "I create or influence",
-    title: "Creator",
-    description: "Turn attention into measurable action and build proof of the movement your content creates.",
-    href: "/for-creators",
-    cta: "Explore creator tools",
-    icon: Megaphone,
-  },
-  {
-    eyebrow: "I bring people together",
-    title: "Host or organizer",
-    description: "Create Moments, organize experiences, coordinate participation, and build repeat attendance around what you host.",
-    href: "/hosting",
-    cta: "Explore hosting",
-    icon: CalendarDays,
+    stub: "JOIN",
   },
   {
     eyebrow: "I run a place or business",
     title: "Merchant or venue",
-    description: "Turn visits, offers, customer actions, and repeat behavior into something you can see and grow.",
+    description: "See relevant local demand, publish accurate place information, and respond with supply you can genuinely honor.",
     href: "/for-merchants",
-    cta: "Explore merchant tools",
+    cta: "See the merchant path",
     icon: Store,
+    stub: "SUPPLY",
   },
   {
-    eyebrow: "I need an outcome",
+    eyebrow: "I represent a brand",
     title: "Brand",
-    description: "Fund actions you can verify across creators, customers, places, communities, and campaigns.",
+    description: "Read the market before spending, decide what outcome matters, respond with something real, and verify what followed.",
     href: "/for-brands",
-    cta: "Explore brand activations",
+    cta: "See the brand path",
     icon: Building2,
+    stub: "MOVE",
   },
   {
-    eyebrow: "I manage clients",
-    title: "Agency",
-    description: "Operate campaigns and client growth from one system while keeping each client relationship and result clear.",
-    href: "/for-agencies",
-    cta: "Explore agency tools",
-    icon: Briefcase,
+    eyebrow: "I create or influence",
+    title: "Creator",
+    description: "Help people notice things, make interest legible, and build proof around the actions your audience actually takes.",
+    href: "/for-creators",
+    cta: "Explore creator tools",
+    icon: Megaphone,
+    stub: "CREATE",
+  },
+  {
+    eyebrow: "I bring people together",
+    title: "Host or organizer",
+    description: "Turn recurring interest into real Moments, coordinate participation, and keep attendance separate from intent.",
+    href: "/hosting",
+    cta: "Explore hosting",
+    icon: CalendarDays,
+    stub: "HOST",
   },
   {
     eyebrow: "I lead a community",
     title: "Community or Scene lead",
-    description: "Coordinate people around shared interests, repeat rituals, places, causes, and local culture.",
+    description: "Give persistent context to shared interests, local rituals, places and people without forcing everything into one event.",
     href: "/for-communities",
     cta: "Explore community tools",
     icon: Users,
+    stub: "SCENE",
   },
   {
-    eyebrow: "I represent an organization",
+    eyebrow: "I manage clients",
+    title: "Agency",
+    description: "Operate across client demand, responses and evidence while preserving the truth and history of each account.",
+    href: "/for-agencies",
+    cta: "Explore agency tools",
+    icon: Briefcase,
+    stub: "MANAGE",
+  },
+  {
+    eyebrow: "I represent a larger organization",
     title: "Enterprise",
-    description: "Use Promorang across teams, locations, partners, audiences, and larger operational programs.",
+    description: "Use PROMORANG across teams, locations, communities and programs without losing the object and evidence model underneath.",
     href: "/for-enterprise",
     cta: "Explore enterprise",
     icon: Building2,
+    stub: "SCALE",
   },
 ];
 
-const Join = () => {
+export default function Join() {
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
+    <main className="min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
-        title="Build with Promorang"
-        description="Choose what you want to make happen with Promorang — participate, create, host, grow a business, activate a brand, manage clients, or lead a community."
+        title="Build with PROMORANG — Start with the outcome"
+        description="Choose what you are trying to make happen with PROMORANG. Start with the job, then enter the same market through the role that fits."
       />
 
-      <section className="border-b border-white/10 px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-5xl">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Build with Promorang</p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.04em] md:text-6xl">
-            What are you trying to make happen?
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-white/65 md:text-xl">
-            Promorang connects people, places, creators, communities, and organizations around actions that create measurable value. Start with the job you need done — not a platform role you have to understand first.
-          </p>
-        </div>
-      </section>
-
-      <section className="px-6 py-14 md:py-20">
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2">
-          {paths.map((path) => {
-            const Icon = path.icon;
-            return (
-              <Link
-                key={path.title}
-                to={path.href}
-                className="group rounded-3xl border border-white/10 bg-white/[0.035] p-6 transition hover:border-primary/40 hover:bg-white/[0.06] md:p-8"
-              >
-                <div className="flex items-start justify-between gap-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-white/35 transition group-hover:translate-x-1 group-hover:text-primary" />
-                </div>
-                <p className="mt-7 text-[11px] font-black uppercase tracking-[0.18em] text-white/40">{path.eyebrow}</p>
-                <h2 className="mt-2 text-2xl font-black tracking-[-0.03em]">{path.title}</h2>
-                <p className="mt-3 max-w-xl leading-7 text-white/60">{path.description}</p>
-                <p className="mt-6 text-sm font-black text-primary">{path.cta}</p>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="border-t border-white/10 px-6 py-14">
-        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-6 rounded-3xl border border-white/10 bg-white/[0.035] p-7 md:flex-row md:items-center md:p-9">
+      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(249,115,22,.18),transparent_38%),radial-gradient(circle_at_85%_55%,rgba(255,255,255,.05),transparent_32%)]" />
+        <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.95fr_1.05fr] lg:items-center">
           <div>
-            <p className="text-xl font-black">Not sure which path fits?</p>
-            <p className="mt-2 text-white/55">Start by seeing how Promorang works, then choose when the job becomes clear.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">Build with PROMORANG</p>
+            <h1 className="mt-5 max-w-4xl font-serif text-5xl font-bold leading-[.92] tracking-[-0.055em] sm:text-6xl">What are you trying to make happen?</h1>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">Do not start by learning a platform taxonomy. Start with the job. PROMORANG should route you into the same Discovery → Demand → Response → Proof market through the lens that fits what you are actually trying to do.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black"><UserRound className="h-4 w-4" /> I want to participate</Link>
+              <Link to="/how-it-works" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80">Show me the loop <ArrowRight className="h-4 w-4" /></Link>
+            </div>
           </div>
-          <Link to="/how-it-works" className="inline-flex items-center gap-2 text-sm font-black text-primary">
-            See how Promorang works <ArrowRight className="h-4 w-4" />
-          </Link>
+          <PromoCardFace holder="Your entry point" available="One market" limit="Many roles · one history" places="The role changes what you need to see and do. It should not create a different truth underneath." action="Choose your job" variant="membership" interactive={false} />
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-4xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Choose by job</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Different doors. Same market underneath.</h2>
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            {paths.map((path) => {
+              const Icon = path.icon;
+              return (
+                <Link key={path.title} to={path.href} className="group block">
+                  <div className="mb-2 flex items-center justify-between px-1">
+                    <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-white/40"><Icon className="h-3.5 w-3.5 text-orange-300" /> {path.eyebrow}</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-black text-orange-300 transition group-hover:translate-x-1">{path.cta} <ArrowRight className="h-3.5 w-3.5" /></span>
+                  </div>
+                  <TicketPass kicker={path.eyebrow} title={path.title} detail={path.description} stub={path.stub} stubLabel="Path" />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-2">
+          <TicketPass kicker="Not sure which role fits?" title="Start as a participant." detail="Explore, react, ask or join first. The quickest way to understand PROMORANG is to experience the market from the human side before choosing an operator path." stub="START" stubLabel="People" />
+          <TicketPass kicker="Already have an outcome in mind?" title="Start with the response you need to create." detail="If you need visits, trials, attendance, referrals, repeat behavior or another measurable outcome, choose the operator role closest to the party responsible for supplying it." stub="BUILD" stubLabel="Operator" />
         </div>
       </section>
     </main>
   );
-};
-
-export default Join;
+}
