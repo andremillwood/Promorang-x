@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { requireAuth } = require('../middleware/auth');
 const { supabase: serviceSupabase } = require('../lib/supabase');
 const coreParticipation = require('./participation-core');
+const proofService = require('../services/proofService');
+const promoPushTrackingService = require('../services/promoPushTrackingService');
 
 const supabase = global.supabase || serviceSupabase || null;
 
@@ -183,8 +186,116 @@ async function enforceProofBoundary(req, res, next) {
   }
 }
 
+// A proof submission is a claim awaiting review, not verified attendance.
+// Keep the participant in the joined state here; proofService.reviewProofSubmission
+// owns the transition to checked_in plus memory/reward/payout issuance on approval.
+async function submitPendingProof(req, res) {
+  try {
+    const momentId = req.params.id;
+    const userId = req.user.id;
+    const {
+      proof_bundle = {},
+      evidence_url = null,
+      review_reason = null,
+      source_content_id = null,
+      source_mission_id = null,
+      moment_move_id = null,
+      promopush_campaign_id = null,
+      promopush_channel_id = null,
+      promopush_tracking_code = null,
+    } = req.body || {};
+
+    const { data: participation, error: participationError } = await supabase
+      .from('moment_participants')
+      .select('*')
+      .eq('moment_id', momentId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (participationError) throw participationError;
+    if (!participation) {
+      return res.status(409).json({
+        success: false,
+        error: 'RSVP before submitting proof for this Moment',
+        code: 'RSVP_REQUIRED',
+      });
+    }
+
+    const normalizedBundle = {
+      ...proof_bundle,
+      ...(source_content_id ? { source_content_id } : {}),
+      ...(source_mission_id ? { source_mission_id } : {}),
+      ...(promopush_campaign_id ? { promopush_campaign_id } : {}),
+      ...(promopush_channel_id ? { promopush_channel_id } : {}),
+      ...(promopush_tracking_code ? { promopush_tracking_code } : {}),
+      ...(review_reason ? { review_reason } : {}),
+    };
+
+    const submission = await proofService.submitProofSubmission({
+      momentId,
+      userId,
+      proofBundle: normalizedBundle,
+      momentMoveId: moment_move_id,
+    });
+
+    try {
+      await supabase.from('participation_events').insert({
+        moment_id: momentId,
+        user_id: userId,
+        event_type: 'verification_submitted',
+        evidence_url: evidence_url || normalizedBundle.evidence_url || null,
+        metadata: {
+          ...normalizedBundle,
+          proof_submission_id: submission.id,
+          verification_status: 'pending',
+          submitted_at: new Date().toISOString(),
+        },
+      });
+    } catch (eventError) {
+      console.warn('[Participation API] pending proof event skipped:', eventError.message);
+    }
+
+    try {
+      await promoPushTrackingService.trackPromoPushEvent({
+        eventType: 'proof_submitted',
+        momentId,
+        userId,
+        moveId: moment_move_id,
+        proofSubmissionId: submission.id,
+        metadata: normalizedBundle,
+        request: req,
+      });
+    } catch (trackingError) {
+      console.warn('[Participation API] pending proof tracking skipped:', trackingError.message);
+    }
+
+    return res.status(201).json({
+      success: true,
+      submission,
+      checkin: {
+        participation,
+        verification_status: 'pending',
+        reward_pending: true,
+        reward: null,
+        memory: null,
+        piece_awards: [],
+        consequence: null,
+      },
+    });
+  } catch (error) {
+    console.error('[Participation API] pending proof error:', error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Unable to submit proof',
+      code: error.code,
+      ...(error.payload || {}),
+    });
+  }
+}
+
 router.use(requireRecordedMoment);
 router.use(enforceProofBoundary);
+router.post('/moments/:id/complete', requireAuth, submitPendingProof);
 router.use(coreParticipation);
 
 module.exports = router;
