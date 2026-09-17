@@ -57,6 +57,29 @@ Post-fix evidence:
 - The mismatched FAT Wednesdays / Smash Yard pairing is no longer possible through the fallback resolver.
 - No application-origin console errors were recorded; extension-origin metadata errors were excluded.
 
+### Iteration 3 — stakeholder convergence
+
+- P1: Creator, Host, Merchant and Brand homes still rendered the role contracts as generic greetings, numbered navigation and long setup instructions.
+- P1: PromoCard was described as one destination rather than staged as the shared object through which each stakeholder reaches the participant.
+
+Fixes made:
+
+- Re-composed every stakeholder home from the existing Design Lab laws: World, Objects and quiet Utility.
+- Kept the existing stakeholder lenses, `StakeholderPutInPass`, `PromoCardFace`, `TicketPass`, `PaperReceipt`, demand inbox and live-loop actions.
+- Added role-specific photographic stages and propositions for Creator, Host, Merchant and Brand without changing their canonical actions or routes.
+- Made PromoCard a first-viewport primary object in every role, with role-specific language describing the same card relationship.
+- Replaced synthetic-looking dashboard hierarchy with source-backed object, evidence, Scene, inventory, demand and operating-signal sections.
+- Moved the existing setup playbook into progressive disclosure instead of allowing onboarding instructions to dominate the home.
+
+Post-fix evidence:
+
+- Creator: `TURN A RELEASE INTO A REAL MOVE.` with Share and PromoCard as primary actions.
+- Host: `MAKE THE ROOM WORTH SHOWING UP FOR.` with Gather and PromoCard as primary actions.
+- Merchant: `PUT SOMETHING REAL ON THE CARD.` with Put up and PromoCard as primary actions.
+- Brand: `FUND ACTION YOU CAN PROVE.` with Fund and PromoCard as primary actions.
+- All four role previews rendered `What is in play`, kept their role routes, and exposed the primary PromoCard action.
+- No application-origin console errors were recorded during the four-role browser pass.
+
 ## Required fidelity surfaces
 
 - Fonts and typography: passed. Condensed Anton hero face, tight uppercase leading and orange emphasis now match the reference hierarchy; DM Sans and Fraunces remain for product copy and editorial headings.
@@ -79,6 +102,7 @@ No actionable P0, P1 or P2 findings remain in the verified desktop participant p
 - Opened the Music interest lane and verified navigation to the filtered Discover route.
 - Returned to the participant preview and verified the Today CTA remained visible.
 - Opened the primary PromoCard CTA and verified navigation to the participant card route.
+- Verified Creator, Host, Merchant and Brand hero propositions, canonical-object sections and primary PromoCard actions.
 - Checked browser console output for application errors.
 
 final result: passed

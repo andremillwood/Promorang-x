@@ -1,4 +1,4 @@
-import { Archive, ArrowRight, CalendarDays, Dumbbell, MapPin, MoonStar, Music2, Palette, Radio, UtensilsCrossed, Users } from "lucide-react";
+import { Archive, ArrowRight, CalendarDays, Dumbbell, MapPin, MoonStar, Music2, Palette, Radio, ShieldCheck, UtensilsCrossed, Users } from "lucide-react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   firstGivenName,
@@ -13,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty, WorldInvitationCard } from "@/components/people/ExperienceShell";
-import { StakeholderLoopTrail, StakeholderPutInPass, StakeholderSetupPlaybook } from "@/components/people/StakeholderLoop";
+import { StakeholderPutInPass, StakeholderSetupPlaybook } from "@/components/people/StakeholderLoop";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
@@ -29,6 +29,9 @@ import cookingClass from "@/assets/moments/cooking-class.jpg";
 import streetArt from "@/assets/moments/street-art.jpg";
 import hiking from "@/assets/moments/hiking.jpg";
 import boardGames from "@/assets/moments/board-games.jpg";
+import openMic from "@/assets/moments/open-mic.jpg";
+import coffeeCode from "@/assets/moments/coffee-code.jpg";
+import concert from "@/assets/moment-concert.jpg";
 
 const money = (value: number) => value ? `J$${Math.round(value).toLocaleString()}` : "J$0";
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
@@ -41,6 +44,33 @@ const vibeTracks = [
   { label: "Social", icon: Users, image: boardGames, href: "/discover?tab=moments&category=social" },
 ];
 const editorialBackdrops = [jazzNight, streetArt];
+
+const stakeholderStages: Record<string, { kicker: string; title: string; cardLine: string; image: string }> = {
+  creator: {
+    kicker: "Release → movement → attributed consequence",
+    title: "Turn a release into a real move.",
+    cardLine: "The card your distribution helps fill",
+    image: openMic,
+  },
+  host: {
+    kicker: "Moment → arrival → verified room",
+    title: "Make the room worth showing up for.",
+    cardLine: "The pass your guests carry to the door",
+    image: jazzNight,
+  },
+  merchant: {
+    kicker: "Inventory → PromoCard → validated use",
+    title: "Put something real on the card.",
+    cardLine: "The card customers present at your counter",
+    image: coffeeCode,
+  },
+  brand: {
+    kicker: "Funding → action → evidence",
+    title: "Fund action you can prove.",
+    cardLine: "The member face of the value you funded",
+    image: concert,
+  },
+};
 
 const imageForMoment = (moment: any) => moment?.image_url || moment?.image || moment?.banner_image_url || null;
 
@@ -247,24 +277,63 @@ export default function PeopleHome() {
     );
   }
 
+  const stage = stakeholderStages[String(lens.role)] || stakeholderStages.brand;
+  const claimed = Number(data?.outcomes?.ledger?.perksClaimed || 0);
+  const verified = Number(data?.happening || 0);
+  const primaryScene = data?.communities?.[0];
+
   return (
-    <ExperienceShell title={greeting} seoTitle={t("people.homeSeo")} description={description} eyebrow={ticker}>
+    <ExperienceShell
+      title={greeting}
+      seoTitle={t("people.homeSeo")}
+      description={description}
+      hero={(
+        <section className="group relative min-h-[600px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-black">
+          <img src={stage.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-65 transition duration-1000 group-hover:scale-[1.015]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.80)_48%,rgba(0,0,0,.30)_78%),linear-gradient(0deg,rgba(0,0,0,.94),transparent_62%)]" />
+          <div className="relative z-10 flex min-h-[600px] max-w-[760px] flex-col justify-between p-6 pb-[285px] sm:p-10 sm:pb-[300px] lg:max-w-[64%] lg:p-12">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#ff7a35]">{lens.workspaceLabel} · {stage.kicker}</p>
+              <p className="mt-3 text-sm font-semibold text-white/60">{greeting}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.22em] text-white/65">Your next operating move</p>
+              <h1 className="mt-3 font-['Anton'] text-[3.45rem] font-normal uppercase leading-[.88] tracking-[-.035em] text-white sm:text-[4.7rem] lg:text-[5.1rem]">{stage.title}</h1>
+              <p className="mt-5 max-w-xl text-sm leading-6 text-white/68 sm:text-base"><strong className="font-black text-white">{nextMove.label}</strong><br />{lens.promise}</p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link to={to(nextMove.href)} className="inline-flex min-h-12 items-center gap-8 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20]">{nextMove.label} <ArrowRight className="h-4 w-4" /></Link>
+                <Link to={to("/card")} className="inline-flex min-h-12 items-center gap-8 rounded-md border border-[#d8ad54]/60 bg-black/35 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
+              </div>
+            </div>
+          </div>
+          <Link to={to("/card")} aria-label={t("people.openCardAria")} className="absolute bottom-5 left-5 right-5 z-20 block sm:bottom-8 sm:left-auto sm:right-8 sm:w-[360px] lg:bottom-10 lg:right-10 lg:w-[390px]">
+            <p className="mb-2 text-[9px] font-black uppercase tracking-[.2em] text-[#f2c761]">{stage.cardLine}</p>
+            <PromoCardFace className="max-w-full shadow-[0_24px_70px_rgba(0,0,0,.62)] transition duration-500 hover:-translate-y-1" interactive={false} model={cardFace} compact />
+          </Link>
+        </section>
+      )}
+    >
       {isPreview ? <nav aria-label={t("people.previewRoles")} className="pr-world-strip">{PREVIEW_ROLES.map((item) => <Link key={item} to={`/app-preview?role=${item}`} data-active={lens.role === item} className="pr-world-chip">{item}</Link>)}</nav> : null}
-      <StakeholderLoopTrail role={lensRole} />
-      <StakeholderSetupPlaybook role={lensRole} />
 
-      <div className="pr-world-object-grid">
-        <section className="pr-world-panel pr-world-panel--signal pr-world-object--wide p-6 sm:p-8"><p className="pr-world-kicker">Your next operating move</p><h2 className="mt-3 font-serif text-4xl font-bold leading-[.95] tracking-[-.04em]">{nextMove.label}</h2><p className="mt-3 max-w-xl text-sm leading-7 text-white/50">{lens.promise}</p><Link to={to(nextMove.href)} className="pr-world-primary mt-6">Continue <ArrowRight className="h-4 w-4" /></Link></section>
-        <StakeholderPutInPass role={lensRole} />
-      </div>
+      <section aria-labelledby="objects-in-play">
+        <div className="flex items-end justify-between gap-4"><div><p className="pr-world-kicker">Canonical objects</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What is in play.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">The same objects, seen through the work this role must perform.</p></div>
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_.8fr_.8fr]">
+          <StakeholderPutInPass role={lensRole} />
+          {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(claimed), strong: true }]} footer={ticker} /> : <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.025] p-6"><ShieldCheck className="h-5 w-5 text-white/35" /><p className="mt-8 pr-world-kicker">Evidence</p><h3 className="mt-2 font-serif text-2xl font-bold">Nothing verified yet.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your receipt appears only after recorded activity. Empty remains empty.</p></div>}
+          <Link to={primaryScene ? `/scenes/${primaryScene.slug}` : "/discover"} className="group relative min-h-[245px] overflow-hidden rounded-2xl border border-white/10 bg-black">
+            <img src={streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-5"><p className="pr-world-kicker">World context</p><h3 className="mt-2 font-serif text-2xl font-bold">{primaryScene?.title || "Find the Scene this work should move."}</h3><p className="mt-2 text-xs leading-5 text-white/45">{lens.world.meaning}</p></div>
+          </Link>
+        </div>
+      </section>
 
-      {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(data?.outcomes?.ledger?.perksClaimed || 0), strong: true }]} footer={role === "operator" ? t(Number(data?.happening || 0) === 1 ? "people.showedWeekOne" : "people.showedWeekMany", { count: data?.happening || 0 }) : t("people.numbersQuiet")} /> : null}
+      <section aria-labelledby="live-signals"><p className="pr-world-kicker">Production truth</p><h2 id="live-signals" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Live operating signals.</h2><div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">{[["People", Number(data?.people || 0)], ["On PromoCards", claimed], ["Verified", verified]].map(([label, value]) => <div key={String(label)} className="bg-[#0d0d0e] p-6"><p className="font-['Anton'] text-5xl text-white">{value}</p><p className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff7a35]">{label}</p></div>)}</div></section>
 
-      <section className="space-y-4"><div className="flex items-center justify-between"><h2 className="font-serif text-3xl font-bold">{t("people.whatTheyAsked")}</h2><Users className="h-5 w-5 text-[#ff5a1f]" /></div><DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" /></section>
       <LiveLoopActions role={String(activeRole || role)} title={t("people.makeLive")} />
+      <section className="space-y-4"><div className="flex items-center justify-between"><div><p className="pr-world-kicker">Demand</p><h2 className="mt-2 font-serif text-3xl font-bold">{t("people.whatTheyAsked")}</h2></div><Users className="h-5 w-5 text-[#ff5a1f]" /></div><DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" /></section>
 
-      {data?.perks?.length ? <section className="space-y-3"><h2 className="font-serif text-3xl font-bold">{t("people.perksYouCanGive")}</h2><div className="grid gap-3 md:grid-cols-2">{data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => <Link key={perk.id} to={to("/give")}><TicketPass kicker={perk.source === "yours" ? t("people.yours") : t("people.available")} title={perk.title} detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")} stub="DROP" stubLabel="Perk" /></Link>)}</div></section> : null}
-      {!data?.communities?.length ? <Link to={to("/start")}><TicketPass kicker={t("people.firstRoom")} title={t("people.bringPeople")} detail={t("people.bringPeopleCopy")} stub="ROOM" stubLabel={t("common.open")} /></Link> : <Link to={`/scenes/${data.communities[0].slug}`}><TicketPass kicker={t("people.yourCommunity")} title={data.communities[0].title} detail={t("people.yourCommunityCopy")} stub="IN" stubLabel="Room" /></Link>}
+      {data?.perks?.length ? <section className="space-y-3"><p className="pr-world-kicker">Live inventory</p><h2 className="font-serif text-3xl font-bold">{t("people.perksYouCanGive")}</h2><div className="grid gap-3 md:grid-cols-2">{data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => <Link key={perk.id} to={to("/give")}><TicketPass kicker={perk.source === "yours" ? t("people.yours") : t("people.available")} title={perk.title} detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")} stub="DROP" stubLabel="Perk" /></Link>)}</div></section> : null}
+
+      <details className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6"><summary className="cursor-pointer list-none text-sm font-black text-white/70">How this role puts value into PROMORANG</summary><div className="mt-6"><StakeholderSetupPlaybook role={lensRole} /></div></details>
       <Link to="/dashboard?view=studio" className="block text-center text-xs text-white/30">{t("people.olderStudio")}</Link>
     </ExperienceShell>
   );
