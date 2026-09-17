@@ -5,6 +5,7 @@ import {
   inferredResumableIntentForPath,
   readResumableIntent,
   rememberResumableIntent,
+  resumableIntentCopy,
 } from "./resumable-intent";
 
 describe("resumable public action intent", () => {
@@ -29,6 +30,15 @@ describe("resumable public action intent", () => {
     rememberResumableIntent({ kind: "offer_claim", returnPath: "/shop/offer-1?src=share", targetId: "offer-1" });
     expect(readResumableIntent("/shop/offer-1?src=share#claim")?.kind).toBe("offer_claim");
     expect(readResumableIntent("/shop/offer-1?src=other")).toBeNull();
+  });
+
+  it("persists a market watch as intent without implying the object was saved", () => {
+    rememberResumableIntent({ kind: "market_watch", returnPath: "/discoveries/night-market", targetId: "discovery:night-market" });
+    expect(readResumableIntent("/discoveries/night-market")).toMatchObject({
+      kind: "market_watch",
+      targetId: "discovery:night-market",
+    });
+    expect(resumableIntentCopy("market_watch").detail).toContain("Nothing was saved");
   });
 
   it("expires stale intent rather than presenting it as current", () => {
