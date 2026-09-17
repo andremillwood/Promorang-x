@@ -366,13 +366,18 @@ Completed in this public convergence slice:
 4. `/join` job-first routing convergence.
 5. Creator, host, community, agency and enterprise marketing lenses converged on the same object / truth model.
 
+Current implementation note:
+
+The public homepage now renders approved Discovery supply and recorded Demand as separate production-backed sections. The open-text ask still records through the existing canonical demand infrastructure; Discovery-first semantic matching is the next product behavior to implement, not something this document should falsely claim is already live.
+
 Next:
 
-1. preserve object / return-path continuity through authentication for public Discovery / Demand / Moment / Offer journeys,
-2. migrate public creator / merchant / venue / offer profile pages where they contradict canonical semantics,
-3. migrate campaign / activation landing pages to preserve `signal → response → verified consequence` boundaries,
-4. test cold-start behavior against truly empty production markets,
-5. measure whether Discoveries and Demand produce PromoCard retention rather than optimizing only for signup count.
+1. implement Discovery-first resolution / matching for open-text Wants before creating or escalating new public demand,
+2. preserve object / return-path continuity through authentication for public Discovery / Demand / Moment / Offer journeys,
+3. migrate public creator / merchant / venue / offer profile pages where they contradict canonical semantics,
+4. migrate campaign / activation landing pages to preserve `signal → response → verified consequence` boundaries,
+5. test cold-start behavior against truly empty production markets,
+6. measure whether Discoveries and Demand produce PromoCard retention rather than optimizing only for signup count.
 
 ## Acceptance test
 
