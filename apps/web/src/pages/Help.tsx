@@ -1,557 +1,230 @@
-import { useState, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Shield,
-  HelpCircle,
-  Mail,
-  MessageSquare,
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Users,
-  Building2,
-  Sparkles,
-  Gift,
-  Search,
-  ChevronDown,
-  KeyRound,
-  QrCode,
-  Wallet,
-  Trophy,
-  Compass,
-} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, BookOpen, Building2, Compass, CreditCard, FileCheck2, Search, ShieldCheck, Sparkles, Users } from "lucide-react";
 import SEO from "@/components/SEO";
-import { useI18n } from "@/i18n/I18nContext";
-import type { TranslationKey } from "@/i18n/translations";
-import { helpFaqTranslations, helpGuideTranslations } from "@/i18n/help-content";
 
-type CategoryId = "all" | "members" | "venues" | "creators" | "brands" | "safety";
+type HelpCategory = "all" | "people" | "operators" | "proof" | "safety";
 
-interface HowToGuide {
+type Guide = {
   id: string;
-  category: CategoryId;
-  categoryLabel: string;
-  icon: typeof Users;
+  category: Exclude<HelpCategory, "all">;
+  eyebrow: string;
   title: string;
   summary: string;
   steps: string[];
-  actionLink?: { label: string; href: string };
-}
+  href?: string;
+  action?: string;
+};
 
-interface FaqItem {
-  category: CategoryId;
+type Faq = {
+  category: Exclude<HelpCategory, "all">;
   q: string;
   a: string;
-}
+};
 
-const guides: HowToGuide[] = [
+const guides: Guide[] = [
   {
-    id: "what-is-what",
-    category: "members",
-    categoryLabel: "Locals & Members",
-    icon: BookOpen,
-    title: "What PromoCard, Points, Gems, and tickets are",
-    summary: "Eight names. The draw names the prize. PromoCard is what you use. Points prove you showed up. Gems are the money. Perk draws pay Keys. Save & Win is the PromoShare family that pays extra Gems.",
+    id: "discover-want",
+    category: "people",
+    eyebrow: "Discovery → Want",
+    title: "Start even when you do not know what you want",
+    summary: "Browse approved Discoveries, notice what matters to you, then express or join demand only when there is something you actually care about.",
     steps: [
-      "PromoCard comes off a partner bill. It is not a bank account.",
-      "Points are a score. 500 can become 1 PromoKey. They are not money.",
-      "1 Gem = $1. Buy Gems or earn them. Spend them for extras cash cannot buy.",
-      "The Master Key is today's free contribution gate. PromoShare perk draws pay Keys or access. Save & Win is the PromoShare family that pays extra Gems."
+      "Open Discover to browse approved things worth knowing about.",
+      "If something is relevant, open it, share it, or watch it on your PromoCard.",
+      "If what you need is not there, tell PROMORANG what you are looking for.",
+      "PROMORANG should check related Discoveries and recorded Demand before adding another ask.",
     ],
-    actionLink: { label: "Open the map", href: "/economy" }
+    href: "/discover",
+    action: "Explore Discoveries",
   },
   {
-    id: "vote-discoveries",
-    category: "members",
-    categoryLabel: "Locals & Members",
-    icon: Compass,
-    title: "How to Vote on Monday Discoveries",
-    summary: "Cast your vote in weekly city food & culture debates to influence winning venues and earn early access to Wednesday PromoKeys.",
+    id: "demand",
+    category: "people",
+    eyebrow: "Want → Signal",
+    title: "What recorded Demand actually means",
+    summary: "A Demand question records interest, preference or an ask. It does not create inventory, attendance, a deal or a purchase.",
     steps: [
-      "Open the Discover or Radar page every Monday to see active city debates.",
-      "Review the competing dishes, venues, or cultural hotspots.",
-      "Cast your vote before the Monday night lock.",
-      "Active voters receive priority push notifications when Wednesday PromoKeys drop."
+      "An ask may stay as an unresolved intent until it matches a live question.",
+      "Votes are recorded answers to a Demand question.",
+      "A threshold means the configured signal target was met; it does not automatically unlock supply.",
+      "A business, creator, host or community still has to create a separate response object.",
     ],
-    actionLink: { label: "Vote on Radar", href: "/radar?tab=discover" }
+    href: "/discover/rewards#wanted",
+    action: "See recorded Demand",
   },
   {
-    id: "claim-promokey",
-    category: "members",
-    categoryLabel: "Locals & Members",
-    icon: KeyRound,
-    title: "How to Claim & Redeem a PromoKey",
-    summary: "Claim limited VIP tasting passes funded by sponsors and redeem them on-site for food, drinks, or secret menu perks.",
+    id: "promocard",
+    category: "people",
+    eyebrow: "Keep",
+    title: "What PromoCard is for",
+    summary: "PromoCard is your continuity surface: what you are watching, what access has actually been issued, and what source-backed history stayed with you.",
     steps: [
-      "Be ready on Wednesday at 6:00 PM when the weekly PromoKey batch drops.",
-      "Tap 'Claim Key' on your desired venue or moment (limited to 15-25 keys per drop).",
-      "Visit the venue during the designated redemption window (usually Friday–Sunday).",
-      "Scan the venue's countertop QR code or show your in-app pass to staff to redeem."
+      "Watch a Discovery, Demand question, Moment or eligible market object.",
+      "Watched objects are relationships, not entitlements.",
+      "Actual issued offers or access can appear separately when the source record exists.",
+      "Verified or redeemed history stays distinct from things you merely watched or wanted.",
     ],
-    actionLink: { label: "Explore Drops", href: "/discover" }
+    href: "/card",
+    action: "Open PromoCard",
   },
   {
-    id: "check-in-proof",
-    category: "members",
-    categoryLabel: "Locals & Members",
-    icon: QrCode,
-    title: "How to Verify Your Visit & Earn Gems",
-    summary: "Prove you showed up to claim your rewards, build your Access Rank, and earn redeemable Gems.",
+    id: "respond",
+    category: "operators",
+    eyebrow: "Signal → Response",
+    title: "How operators respond to demand",
+    summary: "Brands, merchants, hosts, creators and communities can inspect recorded demand and decide whether to answer it with something real.",
     steps: [
-      "Arrive at the participating venue during operating hours.",
-      "Open your Promorang app and tap 'Check In' or open your active pass.",
-      "Scan the physical countertop QR code stationed at the host stand or bar.",
-      "If prompted, snap a quick photo of your dish/drink to complete the proof loop."
+      "Read the underlying question, vote count, unmatched asks and market context.",
+      "Decide whether the signal is relevant to your role or inventory.",
+      "Create a distinct response: a Moment, offer, inventory, content or approved Discovery as appropriate.",
+      "Do not treat the demand threshold as proof that the response will convert.",
     ],
-    actionLink: { label: "Check-in Workspace", href: "/checkin" }
+    href: "/demand",
+    action: "Open Opportunity Inbox",
   },
   {
-    id: "wallet-withdraw",
-    category: "members",
-    categoryLabel: "Locals & Members",
-    icon: Wallet,
-    title: "How to Withdraw Earnings & Manage Gems",
-    summary: "Convert your earned bounties and rewards into cash or spend Gems in the marketplace.",
+    id: "moment",
+    category: "people",
+    eyebrow: "Response → Action",
+    title: "What a Moment means",
+    summary: "A Moment is an actual actionable record. Opening or RSVPing to one is still not the same as verified attendance.",
     steps: [
-      "Navigate to your Wallet from the navigation menu or dashboard.",
-      "Review your Withdrawable Balance and pending Gem rewards.",
-      "Connect your payout method (Stripe / Bank / PayPal) for direct deposits.",
-      "Initiate a withdrawal or exchange Gems for exclusive partner perks."
+      "Open the Moment and review the real access requirements.",
+      "If authentication interrupts the action, PROMORANG returns you to the same object.",
+      "RSVP or join creates participation intent only when the authoritative write succeeds.",
+      "Attendance is only advanced by the required proof/check-in path.",
     ],
-    actionLink: { label: "Open Wallet", href: "/wallet" }
+    href: "/discover/moments",
+    action: "Browse Moments",
   },
   {
-    id: "venue-countertop-qr",
-    category: "venues",
-    categoryLabel: "Venues & Merchants",
-    icon: Building2,
-    title: "How Venues Set Up & Verify Countertop QRs",
-    summary: "Set up frictionless, tamper-resistant QR check-in stands that automatically authenticate visiting patrons.",
+    id: "proof",
+    category: "proof",
+    eyebrow: "Act → Prove",
+    title: "Why proof is a separate state",
+    summary: "PROMORANG separates a claim from verification so a submission cannot silently become attendance, purchase, value or payout.",
     steps: [
-      "Log into your Merchant Dashboard and navigate to 'Venues & Check-in'.",
-      "Download or print your venue's unique dynamic Countertop QR display.",
-      "Place the stand at your host stand, bar, or checkout counter.",
-      "When patrons scan, your dashboard reflects real-time foot traffic and valid redemptions."
+      "Complete the action first: attend, redeem, submit evidence or perform the required move.",
+      "Submit the required proof through the canonical flow.",
+      "Pending proof remains pending; it is not attendance or verified value.",
+      "Approval is the transition that can create downstream retained consequences such as memory, issued value or eligible attribution.",
     ],
-    actionLink: { label: "Merchant Dashboard", href: "/dashboard/venues" }
   },
   {
-    id: "creator-bounties",
-    category: "creators",
-    categoryLabel: "Creators & Tastemakers",
-    icon: Sparkles,
-    title: "How Creators Claim & Complete Bounties",
-    summary: "Earn guaranteed cash payouts by creating authentic content and driving real foot traffic to local venues.",
+    id: "truth",
+    category: "safety",
+    eyebrow: "Trust",
+    title: "How PROMORANG handles empty or uncertain states",
+    summary: "The product is designed to leave a stage empty rather than invent activity, rewards, supply or outcomes.",
     steps: [
-      "Explore the Bounty Board to view open brand and venue sponsorship opportunities.",
-      "Review requirements (e.g. TikTok/Reel coverage, minimum verified check-ins).",
-      "Claim the bounty and publish your verified tracking link.",
-      "Submit your post link and let the automated attribution engine verify results."
+      "Pending proposal does not appear as approved Discovery.",
+      "Failed demand writes are not displayed as public recorded demand.",
+      "A local browser state is not presented as durable history.",
+      "A response, payout, settlement or reward is only shown when the corresponding source record exists.",
     ],
-    actionLink: { label: "Browse Bounty Board", href: "/bounties" }
   },
-  {
-    id: "brand-campaigns",
-    category: "brands",
-    categoryLabel: "Brands & Sponsors",
-    icon: Trophy,
-    title: "How Brands Launch Real-World Activations",
-    summary: "Fund high-impact city debates, sponsor VIP PromoKeys, and receive verified proof of foot traffic.",
-    steps: [
-      "Define your campaign outcome (trial, foot traffic, user-generated content).",
-      "Choose target cities, neighborhoods, or venue categories.",
-      "Fund the reward pool (PromoKeys, tasting vouchers, creator bounties).",
-      "Monitor live analytics with real-time GPS and receipt verification."
-    ],
-    actionLink: { label: "Brand Solutions", href: "/for-brands" }
-  }
 ];
 
-const faqs: FaqItem[] = [
-  {
-    category: "members",
-    q: "What is a 'PromoKey'?",
-    a: "A PromoKey is an exclusive, brand-funded digital VIP pass. When you claim a PromoKey on Wednesday drops, you unlock a free tasting, secret item, or premium experience at a winning local venue."
-  },
-  {
-    category: "members",
-    q: "What is a 'Moment'?",
-    a: "A Moment is a curated real-world activation or gathering hosted by a tastemaker or venue and backed by brand sponsors to drive verified foot traffic and authentic community connection."
-  },
-  {
-    category: "members",
-    q: "What are Gems and how do I get them?",
-    a: "1 Gem = $1 of platform value. Buy Gems with a card or earn them from funded missions, Moments, allowances, and Save & Win winnings. Holding Gems earns nothing. Spending them on Pieces, perks, or Save & Win opens extras cash outside the app cannot."
-  },
-  {
-    category: "members",
-    q: "What is 'Access Rank'?",
-    a: "Access Rank is your reputation score. Consistent participation, high-quality reviews, and verified check-ins increase your rank, unlocking higher-tier PromoKeys and exclusive VIP invitations."
-  },
-  {
-    category: "venues",
-    q: "How does Promorang guarantee foot traffic for my venue?",
-    a: "Unlike pay-per-click ads, Promorang focuses on pre-committed demand. Hundreds of locals vote on winning spots, claim limited tasting keys, and physically verify their arrival using your countertop QR code."
-  },
-  {
-    category: "venues",
-    q: "Do I need special hardware to accept PromoKeys?",
-    a: "No special hardware is required. You can either print your venue's countertop QR code from the merchant dashboard or scan patrons' in-app vouchers using any standard smartphone."
-  },
-  {
-    category: "creators",
-    q: "How do creator bounties get paid out?",
-    a: "Once you claim a bounty and submit your content or drive the required verified check-ins, funds are automatically released to your Promorang digital wallet, which you can withdraw anytime via Stripe or bank transfer."
-  },
-  {
-    category: "brands",
-    q: "How does Promorang verify that activations actually happened?",
-    a: "Every activation uses a multi-factor proof engine: GPS geofencing, dynamic countertop QR scans, verified receipt uploads, and creator post tracking. You get raw proof data, not estimated impressions."
-  },
-  {
-    category: "safety",
-    q: "How does Promorang protect my location privacy?",
-    a: "We only check location during an intentional check-in action to confirm venue presence. We never sell background location data or track users continuously."
-  },
-  {
-    category: "safety",
-    q: "What should I do if a payout, check-in, or PromoKey fails?",
-    a: "You can submit a support ticket directly from your account or reach out via our contact page with the venue name, approximate time, and screenshot. Our team responds within 24 hours."
-  },
-  {
-    category: "members",
-    q: "What is a PromoCard?",
-    a: "PromoCard is the everyday card. Eligible value comes off a partner bill and you pay the rest. It is not a bank card, not Points, and not Gems."
-  },
-  {
-    category: "members",
-    q: "What are Points?",
-    a: "Points are a seasonal score for showing up. You cannot buy, sell, or cash them out. 500 Points can become 1 PromoKey."
-  },
-  {
-    category: "members",
-    q: "Why spend Gems instead of paying cash?",
-    a: "Gem spend can unlock Pieces, Save & Win tickets, PromoShare entries, standing, and partner perks. A card swipe outside Promorang does not put you in that loop."
-  },
-  {
-    category: "members",
-    q: "What is the Master Key?",
-    a: "The Master Key is today's contribution gate, not a streak you buy. Finish your tier's verified free Proofs and it turns on until reset. PromoKeys still decide how many doors you may open."
-  },
-  {
-    category: "members",
-    q: "What is a PromoShare ticket?",
-    a: "A ticket is a chance in a named draw that already says the prize. Perk draws pay a Key, access, partner perk, product, or Piece — not cash. Save & Win is the PromoShare family that pays extra Gems. A ticket is not a guarantee."
-  },
-  {
-    category: "members",
-    q: "What is Save & Win?",
-    a: "Save & Win is PromoShare's money draw. Park Gems, keep 100% of them, and compete for extra Gems (1 Gem = $1). Take the parked Gems out whenever. Everyday perk draws do not pay cash."
-  }
+const faqs: Faq[] = [
+  { category: "people", q: "What is a Discovery?", a: "Approved public knowledge about a place, thing, pattern or opportunity PROMORANG is willing to publish. Discovery tells you what exists or what is worth knowing; it is not automatically an offer or transaction." },
+  { category: "people", q: "What is Demand?", a: "Recorded market interest: a question, vote or aggregated ask. Demand can help an operator decide whether to respond, but demand is not supply, attendance or a purchase." },
+  { category: "people", q: "What is a Scene?", a: "Persistent cultural or market context where related people, Discoveries and Moments can belong. Scene membership is not attendance at any specific Moment." },
+  { category: "people", q: "What is a Moment?", a: "A separate actionable record such as a gathering or experience. A Moment may be created in response to demand, but it does not exist merely because a threshold was reached." },
+  { category: "people", q: "What does Watch on PromoCard do?", a: "It saves your relationship to that market object so you can find it again and PROMORANG can build a legitimate return experience around it. Watching does not issue access or reserve inventory." },
+  { category: "people", q: "Does signing in complete the action I started?", a: "No. Authentication preserves your object and action intent, then returns you to continue. RSVP, claim, purchase, save and proof still require the real authoritative action afterward." },
+  { category: "operators", q: "Does PROMORANG guarantee foot traffic or sales?", a: "No. PROMORANG can expose recorded demand, responses and verified outcomes where records exist. It does not turn interest or thresholds into guaranteed commercial performance." },
+  { category: "operators", q: "What should a merchant or brand do with a strong signal?", a: "Treat it as evidence worth evaluating. Review volume, recency and context, then decide whether to put a separate offer, Moment or other response into market. Measure what happens afterward instead of assuming conversion." },
+  { category: "proof", q: "Is an RSVP attendance?", a: "No. RSVP or join records intent to participate. Attendance requires the configured proof/check-in state to be verified." },
+  { category: "proof", q: "Is a claim the same as receiving value?", a: "No. Claim, eligibility, issuance, redemption and fulfillment are separate states. The product should only show each when the underlying record supports it." },
+  { category: "proof", q: "What is kept in Vault?", a: "Source-backed retained history and issued objects that legitimately persisted after an action. Vault should not treat a local click, unverified claim or illustrative score as financial value." },
+  { category: "safety", q: "Why does PROMORANG sometimes show an empty state?", a: "Because absence is meaningful. If there is no approved Discovery, recorded Demand, response or verified outcome, the product should say so rather than manufacture network activity." },
 ];
 
-const categories: Array<{ id: CategoryId; label: string; icon: typeof Users }> = [
-  { id: "all", label: "All Topics", icon: BookOpen },
-  { id: "members", label: "Locals & Members", icon: Users },
-  { id: "venues", label: "Venues & Merchants", icon: Building2 },
-  { id: "creators", label: "Creators & Tastemakers", icon: Sparkles },
-  { id: "brands", label: "Brands & Sponsors", icon: Trophy },
-  { id: "safety", label: "Safety & Privacy", icon: Shield },
+const categories: Array<{ id: HelpCategory; label: string; icon: typeof Users }> = [
+  { id: "all", label: "All", icon: BookOpen },
+  { id: "people", label: "People", icon: Users },
+  { id: "operators", label: "Operators", icon: Building2 },
+  { id: "proof", label: "Proof", icon: FileCheck2 },
+  { id: "safety", label: "Trust", icon: ShieldCheck },
 ];
 
 export default function HelpCenter() {
-  const { t, locale } = useI18n();
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
-  const localizedGuides = useMemo(() => guides.map((guide) => {
-    const translated = helpGuideTranslations[locale]?.[guide.id];
-    if (!translated) return guide;
-    return {
-      ...guide,
-      categoryLabel: translated.categoryLabel,
-      title: translated.title,
-      summary: translated.summary,
-      steps: translated.steps,
-      actionLink: guide.actionLink ? { ...guide.actionLink, label: translated.actionLabel } : undefined,
-    };
-  }), [locale]);
-  const localizedFaqs = useMemo(() => {
-    const translated = helpFaqTranslations[locale];
-    return translated?.map((item, index) => ({ ...faqs[index], ...item })) || faqs;
-  }, [locale]);
+  const [category, setCategory] = useState<HelpCategory>("all");
+  const [search, setSearch] = useState("");
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
 
-  // Filtered guides based on search & category
-  const filteredGuides = useMemo(() => {
-    return localizedGuides.filter((g) => {
-      const matchesCategory = activeCategory === "all" || g.category === activeCategory;
-      const matchesSearch =
-        searchQuery.trim() === "" ||
-        g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.steps.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesCategory && matchesSearch;
-    });
-  }, [activeCategory, localizedGuides, searchQuery]);
-
-  // Filtered FAQs based on search & category
-  const filteredFaqs = useMemo(() => {
-    return localizedFaqs.filter((f) => {
-      const matchesCategory = activeCategory === "all" || f.category === activeCategory;
-      const matchesSearch =
-        searchQuery.trim() === "" ||
-        f.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        f.a.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [activeCategory, localizedFaqs, searchQuery]);
+  const normalized = search.trim().toLowerCase();
+  const visibleGuides = useMemo(() => guides.filter((guide) => {
+    if (category !== "all" && guide.category !== category) return false;
+    if (!normalized) return true;
+    return [guide.eyebrow, guide.title, guide.summary, ...guide.steps].join(" ").toLowerCase().includes(normalized);
+  }), [category, normalized]);
+  const visibleFaqs = useMemo(() => faqs.filter((faq) => {
+    if (category !== "all" && faq.category !== category) return false;
+    if (!normalized) return true;
+    return `${faq.q} ${faq.a}`.toLowerCase().includes(normalized);
+  }), [category, normalized]);
 
   return (
-    <div className="min-h-screen bg-[#070707] text-white">
-      <SEO
-        title={t("help.title")}
-        description={t("help.copy")}
-      />
-
-      <main className="pt-24 pb-20 px-5">
-        <div className="container max-w-5xl mx-auto">
-          {/* Top Banner Link to What Is Promorang */}
-          <div className="mb-8 flex items-center justify-center">
-            <Link
-              to="/what-is-promorang"
-              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition"
-            >
-              <Sparkles className="h-3.5 w-3.5" /> {t("help.new")} <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+    <main className="min-h-screen bg-[#070707] px-5 pb-24 pt-24 text-white sm:px-6">
+      <SEO title="PROMORANG Help" description="Plain-English guidance for Discovery, Demand, PromoCard, Moments, proof and operator responses." />
+      <div className="mx-auto max-w-6xl">
+        <header className="border-b border-white/10 pb-10">
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-primary">Help · one object system</p>
+          <h1 className="mt-3 max-w-4xl font-serif text-5xl font-bold leading-[.94] tracking-[-.055em] sm:text-7xl">Understand what is true, what is wanted, and what actually happened.</h1>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">PROMORANG keeps Discovery, Demand, responses, proof and retained history separate so the product can be useful without overstating what the market has done.</p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link to="/what-is-promorang" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-black">What is PROMORANG? <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/how-it-works" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black text-white">See the full journey</Link>
           </div>
+        </header>
 
-          {/* Hero */}
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <h1 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tight mb-4">
-              {t("help.title")}
-            </h1>
-            <p className="text-base md:text-lg text-white/70">
-              {t("help.copy")}
-            </p>
-
-            {/* Live Search Input */}
-            <div className="mt-8 relative max-w-xl mx-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
-              <Input
-                type="text"
-                placeholder={t("help.search")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-4 py-6 bg-white/[0.05] border-white/15 rounded-2xl text-white placeholder:text-white/40 focus:border-primary text-base"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs uppercase font-bold text-white/40 hover:text-white"
-                >
-                  {t("help.clear")}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-10 no-scrollbar">
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition ${
-                    activeCategory === cat.id
-                      ? "bg-primary text-black"
-                      : "border border-white/10 bg-white/[0.03] text-white/60 hover:text-white hover:border-white/20"
-                  }`}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {t(`help.${cat.id}` as TranslationKey)}
-                </button>
-              );
+        <section className="grid gap-4 border-b border-white/10 py-8 lg:grid-cols-[1fr_auto] lg:items-center">
+          <label className="flex min-h-12 items-center gap-3 rounded-full border border-white/12 bg-white/[0.04] px-5">
+            <Search className="h-4 w-4 text-primary" />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Discovery, PromoCard, proof, demand…" className="w-full bg-transparent text-sm outline-none placeholder:text-white/25" />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((item) => {
+              const Icon = item.icon;
+              return <button key={item.id} type="button" onClick={() => setCategory(item.id)} className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-4 text-xs font-bold ${category === item.id ? "border-primary/40 bg-primary/10 text-primary" : "border-white/10 text-white/55"}`}><Icon className="h-3.5 w-3.5" />{item.label}</button>;
             })}
           </div>
+        </section>
 
-          {/* Quick Hub Navigation Cards */}
-          <div className="grid sm:grid-cols-3 gap-4 mb-16">
-            <Link
-              to="/what-is-promorang"
-              className="p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:border-primary/50 transition group"
-            >
-              <HelpCircle className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-bold text-base mb-1">{t("help.hubWhatTitle")}</h3>
-              <p className="text-xs text-white/60 mb-3">{t("help.hubWhatCopy")}</p>
-              <div className="flex items-center text-primary text-xs font-black group-hover:translate-x-1 transition-transform">
-                {t("help.hubWhatCta")} <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </div>
-            </Link>
-
-            <Link
-              to="/how-it-works"
-              className="p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:border-primary/50 transition group"
-            >
-              <Compass className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-bold text-base mb-1">{t("help.hubRhythmTitle")}</h3>
-              <p className="text-xs text-white/60 mb-3">{t("help.hubRhythmCopy")}</p>
-              <div className="flex items-center text-primary text-xs font-black group-hover:translate-x-1 transition-transform">
-                {t("help.hubRhythmCta")} <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </div>
-            </Link>
-
-            <div
-              onClick={() => navigate('/contact')}
-              className="p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:border-primary/50 transition group cursor-pointer"
-            >
-              <MessageSquare className="w-8 h-8 text-primary mb-3" />
-              <h3 className="font-bold text-base mb-1">{t("help.hubSupportTitle")}</h3>
-              <p className="text-xs text-white/60 mb-3">{t("help.hubSupportCopy")}</p>
-              <div className="flex items-center text-primary text-xs font-black group-hover:translate-x-1 transition-transform">
-                {t("help.hubSupportCta")} <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </div>
-            </div>
+        <section className="py-12">
+          <div className="mb-6 flex items-end justify-between gap-4 border-b border-white/10 pb-4">
+            <div><p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Guides</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">The market journey.</h2></div>
+            <Compass className="h-7 w-7 text-white/20" />
           </div>
+          {visibleGuides.length ? <div className="grid gap-4 lg:grid-cols-2">{visibleGuides.map((guide) => (
+            <article key={guide.id} className="rounded-[1.7rem] border border-white/10 bg-white/[0.025] p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{guide.eyebrow}</p>
+              <h3 className="mt-3 font-serif text-3xl font-bold tracking-[-.03em]">{guide.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-white/50">{guide.summary}</p>
+              <ol className="mt-5 space-y-3">{guide.steps.map((step, index) => <li key={step} className="grid grid-cols-[28px_1fr] gap-3 text-sm leading-6 text-white/65"><span className="grid h-7 w-7 place-items-center rounded-full border border-white/10 font-mono text-[10px] text-primary">{index + 1}</span><span>{step}</span></li>)}</ol>
+              {guide.href ? <Link to={guide.href} className="mt-6 inline-flex items-center gap-2 text-sm font-black text-primary">{guide.action || "Open"} <ArrowRight className="h-4 w-4" /></Link> : null}
+            </article>
+          ))}</div> : <p className="text-sm text-white/40">No guides match that search.</p>}
+        </section>
 
-          {/* How-To Guides Section */}
-          <section className="mb-20">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <p className="text-xs font-black uppercase tracking-widest text-primary">{t("help.step")}</p>
-                <h2 className="text-2xl md:text-3xl font-black">{t("help.library")}</h2>
-              </div>
-              <span className="text-xs text-white/40">
-                {t(filteredGuides.length === 1 ? "help.showingGuides" : "help.showingGuidesMany", { count: filteredGuides.length })}
-              </span>
-            </div>
-
-            {filteredGuides.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-white/50 text-sm">
-                {t("help.noGuides", { query: searchQuery })}
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 gap-6">
-                {filteredGuides.map((guide) => {
-                  const Icon = guide.icon;
-                  return (
-                    <div
-                      key={guide.id}
-                      className="p-6 bg-white/[0.03] border border-white/10 rounded-3xl flex flex-col justify-between transition hover:border-white/20"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-4">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 text-[11px] font-black uppercase tracking-wider">
-                            <Icon className="h-3 w-3" />
-                            {guide.categoryLabel}
-                          </span>
-                        </div>
-                        <h3 className="font-bold text-lg text-white mb-2">{guide.title}</h3>
-                        <p className="text-xs text-white/65 leading-relaxed mb-5">{guide.summary}</p>
-                        
-                        <div className="space-y-2 mb-6">
-                          {guide.steps.map((step, idx) => (
-                            <div key={idx} className="flex items-start gap-2.5 text-xs text-white/80">
-                              <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                              <span>{step}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {guide.actionLink && (
-                        <div className="pt-4 border-t border-white/10 flex justify-end">
-                          <Link
-                            to={guide.actionLink.href}
-                            className="inline-flex items-center gap-1.5 text-xs font-black text-primary hover:underline"
-                          >
-                            {guide.actionLink.label} <ArrowRight className="h-3 w-3" />
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* FAQs Section */}
-          <section className="mb-20">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <p className="text-xs font-black uppercase tracking-widest text-primary">{t("help.answers")}</p>
-                <h2 className="text-2xl md:text-3xl font-black">{t("help.faq")}</h2>
-              </div>
-              <span className="text-xs text-white/40">
-                {t(filteredFaqs.length === 1 ? "help.showingFaqs" : "help.showingFaqsMany", { count: filteredFaqs.length })}
-              </span>
-            </div>
-
-            {filteredFaqs.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-white/50 text-sm">
-                {t("help.noFaqs", { query: searchQuery })}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredFaqs.map((faq, i) => {
-                  const isOpen = openFaqIndex === i;
-                  return (
-                    <div
-                      key={i}
-                      className="border border-white/10 bg-white/[0.02] rounded-2xl overflow-hidden transition"
-                    >
-                      <button
-                        onClick={() => setOpenFaqIndex(isOpen ? null : i)}
-                        className="w-full p-5 flex items-center justify-between text-left gap-4 hover:bg-white/[0.02] transition"
-                      >
-                        <h3 className="font-bold text-sm md:text-base text-white">{faq.q}</h3>
-                        <ChevronDown
-                          className={`h-4 w-4 text-white/50 shrink-0 transition-transform duration-200 ${
-                            isOpen ? "rotate-180 text-primary" : ""
-                          }`}
-                        />
-                      </button>
-                      {isOpen && (
-                        <div className="px-5 pb-5 pt-1 text-xs md:text-sm text-white/70 leading-relaxed border-t border-white/5">
-                          {faq.a}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* Still Need Help Box */}
-          <div className="p-8 md:p-12 bg-gradient-to-b from-primary/10 to-white/[0.02] border border-primary/20 rounded-[2.5rem] text-center">
-            <h3 className="text-2xl font-black mb-2">{t("help.still")}</h3>
-            <p className="text-sm text-white/70 max-w-md mx-auto mb-6">
-              {t("help.stillCopy")}
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Button
-                variant="hero"
-                onClick={() => navigate('/contact')}
-                className="bg-primary text-black font-black"
-              >
-                <Mail className="w-4 h-4 mr-2" /> {t("help.email")}
-              </Button>
-              <Link
-                to="/what-is-promorang"
-                className="inline-flex items-center px-4 py-2 rounded-xl border border-white/15 bg-white/[0.05] text-xs font-bold hover:bg-white/10 transition"
-              >
-                {t("help.learn")}
-              </Link>
-            </div>
+        <section className="border-t border-white/10 py-12">
+          <div className="mb-6"><p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">FAQ</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Keep the states separate.</h2></div>
+          <div className="divide-y divide-white/10 border-y border-white/10">
+            {visibleFaqs.map((faq) => {
+              const open = openFaq === faq.q;
+              return <article key={faq.q}><button type="button" onClick={() => setOpenFaq(open ? null : faq.q)} className="flex w-full items-center justify-between gap-4 py-5 text-left"><span className="font-serif text-xl font-bold">{faq.q}</span><span className="text-xl text-primary">{open ? "−" : "+"}</span></button>{open ? <p className="max-w-3xl pb-6 text-sm leading-7 text-white/55">{faq.a}</p> : null}</article>;
+            })}
           </div>
-        </div>
-      </main>
-    </div>
+        </section>
+
+        <section className="grid gap-4 border-t border-white/10 pt-10 sm:grid-cols-3">
+          <Link to="/discover" className="rounded-[1.5rem] border border-white/10 p-5"><Compass className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Discover</p><p className="mt-2 text-xs leading-5 text-white/45">Start with approved knowledge.</p></Link>
+          <Link to="/card" className="rounded-[1.5rem] border border-white/10 p-5"><CreditCard className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">PromoCard</p><p className="mt-2 text-xs leading-5 text-white/45">Keep legitimate relationships and issued access.</p></Link>
+          <Link to="/for-brands" className="rounded-[1.5rem] border border-white/10 p-5"><Sparkles className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Respond</p><p className="mt-2 text-xs leading-5 text-white/45">See how operators turn signal into a separate response.</p></Link>
+        </section>
+      </div>
+    </main>
   );
 }
