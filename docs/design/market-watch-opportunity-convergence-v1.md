@@ -70,7 +70,7 @@ The existing `saved_objects` relationship ledger is reused instead of creating a
 
 Migration:
 
-`supabase/migrations/202609170001_saved_market_objects.sql`
+`supabase/migrations/20260917042026_saved_market_objects.sql`
 
 It extends the existing object-type constraint to support:
 - `discovery`
@@ -106,15 +106,22 @@ The person must still explicitly complete the watch action after authentication.
 
 Watching now has a real in-app return channel for supported authoritative changes.
 
-Migration:
+Migrations:
 
-`supabase/migrations/202609170002_market_watch_notifications.sql`
+- `supabase/migrations/20260917042050_market_watch_notifications.sql`
+- `supabase/migrations/20260917043046_market_watch_lookup_index.sql`
 
-It extends the existing `notifications` ledger with:
+The notification migration extends the existing `notifications` ledger with:
 - `route`
 - `metadata`
 
-and emits deduplicated `market_watch_changed` notifications only for supported source events:
+It also preserves compatibility with the live legacy notification fields by writing both:
+- `notification_type` and `type`,
+- `action_url` and `route`.
+
+The watch lookup migration adds the reverse lookup index used when an authoritative object changes and the system must find its watchers.
+
+Notifications are deduplicated and emitted only for supported source events:
 
 ### Approved Discovery changed
 
@@ -228,9 +235,9 @@ Existing page-view / attribution tracking remains in place.
 
 These events describe interaction stages. They do not replace authoritative market, proof, issuance, commerce or notification records.
 
-## CI
+## CI + live database validation
 
-`.github/workflows/web-build.yml` now runs the targeted public-market continuity tests before the production web build:
+`.github/workflows/web-build.yml` runs the targeted public-market continuity tests before the production web build:
 - `public-object-continuity.test.ts`
 - `resumable-intent.test.ts`
 
@@ -240,7 +247,17 @@ This protects:
 - stale-intent expiry,
 - market-watch resumability without fabricated save completion.
 
-The web CI does not execute Supabase migrations. Migration syntax/application and trigger behavior still require database migration validation in an environment where the branch migrations can be applied.
+The three watch migrations were applied successfully to the active `PromorangVerc` Supabase project on 2026-09-17. The live migration versions are the same versions used by the repository filenames above.
+
+Database checks confirmed:
+- `saved_objects` accepts `discovery` and `demand`,
+- all three source triggers exist,
+- the watch notification functions use a fixed `search_path`,
+- the watch functions are not executable by `anon` or `authenticated`,
+- the reverse watch lookup index exists,
+- a rollback-safe direct notification emit created exactly one compatible notification with both legacy/current type and route fields, then left no test rows behind.
+
+A full approved-Discovery trigger test could not run because the target project had zero approved Discovery records at validation time. That absence is preserved rather than manufacturing test market data.
 
 ## Governing truth boundaries
 
@@ -264,15 +281,16 @@ The web CI does not execute Supabase migrations. Migration syntax/application an
 
 Run the loop against real production records:
 
-1. open an approved Discovery while logged out,
-2. choose Watch on PromoCard,
-3. authenticate,
-4. return to the exact Discovery,
-5. explicitly complete Watch,
-6. confirm it appears under PromoCard Watching,
-7. apply a legitimate approved Discovery change and confirm one `market_watch_changed` notification,
-8. open a recorded Demand question and repeat,
-9. cross its configured threshold with authoritative votes and confirm the notification still says threshold is not supply,
-10. inspect the same signal from an operator account through Opportunity Inbox,
-11. create a real separate response only when appropriate,
-12. verify that Open and Kept states appear only after their own authoritative transitions.
+1. create or approve a legitimate Discovery through the normal source/review path,
+2. open that approved Discovery while logged out,
+3. choose Watch on PromoCard,
+4. authenticate,
+5. return to the exact Discovery,
+6. explicitly complete Watch,
+7. confirm it appears under PromoCard Watching,
+8. apply a legitimate approved Discovery change and confirm one `market_watch_changed` notification,
+9. open a recorded Demand question and repeat,
+10. cross its configured threshold with authoritative votes and confirm the notification still says threshold is not supply,
+11. inspect the same signal from an operator account through Opportunity Inbox,
+12. create a real separate response only when appropriate,
+13. verify that Open and Kept states appear only after their own authoritative transitions.
