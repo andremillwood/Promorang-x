@@ -27,6 +27,48 @@ async function getRequiredProof(momentId) {
   return data || [];
 }
 
+async function requireRecordedMoment(req, res, next) {
+  if (req.method !== 'POST') return next();
+
+  const actionMatch = req.path.match(/^\/moments\/([^/]+)\/(join|complete|checkin)\/?$/);
+  if (!actionMatch) return next();
+
+  try {
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        error: 'Moment source unavailable',
+        code: 'MOMENT_SOURCE_UNAVAILABLE',
+      });
+    }
+
+    const momentId = actionMatch[1];
+    const { data, error } = await supabase
+      .from('moments')
+      .select('id')
+      .eq('id', momentId)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) {
+      return res.status(410).json({
+        success: false,
+        error: 'This Moment is unavailable for participation',
+        code: 'MOMENT_UNAVAILABLE',
+      });
+    }
+
+    return next();
+  } catch (error) {
+    console.error('[Participation Moment Boundary] lookup error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Unable to confirm this Moment for participation',
+      code: 'MOMENT_LOOKUP_FAILED',
+    });
+  }
+}
+
 async function enforceProofBoundary(req, res, next) {
   if (req.method !== 'POST') return next();
 
@@ -106,6 +148,7 @@ async function enforceProofBoundary(req, res, next) {
   }
 }
 
+router.use(requireRecordedMoment);
 router.use(enforceProofBoundary);
 router.use(coreParticipation);
 
