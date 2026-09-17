@@ -1,6 +1,8 @@
 -- Source-backed in-app notifications for watched market relationships.
 -- A watch is still only a saved relationship; notifications are emitted only
 -- when a supported authoritative source record crosses a meaningful change.
+-- Notification side effects are deliberately non-blocking: failure to notify
+-- must never roll back the authoritative market-source update.
 
 alter table public.notifications
   add column if not exists route text,
@@ -44,6 +46,7 @@ begin
     p_route,
     jsonb_build_object('object_type', p_object_type, 'object_id', p_object_id, 'watch', true)
   from public.saved_objects saved
+  join public.users app_user on app_user.id = saved.user_id
   where saved.object_type = p_object_type
     and saved.object_id = p_object_id
   on conflict (dedupe_key) do nothing;
@@ -65,7 +68,7 @@ as $$
 declare
   revision text;
 begin
-  if new.verification_status <> 'approved' then
+  if new.verification_status is distinct from 'approved' then
     return new;
   end if;
 
@@ -76,14 +79,18 @@ begin
   end if;
 
   revision := md5(concat_ws('|', new.title, new.description, new.location_address, new.city, new.verification_status));
-  perform public.emit_market_watch_notification(
-    'discovery',
-    new.id::text,
-    'A Discovery you are watching changed',
-    coalesce(new.title, 'This Discovery') || ' has new approved information. Open it to see what changed.',
-    '/discoveries/' || new.slug,
-    revision
-  );
+  begin
+    perform public.emit_market_watch_notification(
+      'discovery',
+      new.id::text,
+      'A Discovery you are watching changed',
+      coalesce(new.title, 'This Discovery') || ' has new approved information. Open it to see what changed.',
+      '/discoveries/' || new.slug,
+      revision
+    );
+  exception when others then
+    raise warning 'Discovery watch notification failed for %: %', new.id, sqlerrm;
+  end;
   return new;
 end;
 $$;
@@ -109,14 +116,18 @@ begin
 
   if coalesce(old.total_votes, 0) < threshold_value
      and coalesce(new.total_votes, 0) >= threshold_value then
-    perform public.emit_market_watch_notification(
-      'demand',
-      new.id::text,
-      'A Demand signal you are watching reached its threshold',
-      coalesce(new.question, 'This Demand question') || ' reached its configured signal target. This still does not guarantee supply.',
-      '/discover/rewards#wanted',
-      'threshold-' || threshold_value::text
-    );
+    begin
+      perform public.emit_market_watch_notification(
+        'demand',
+        new.id::text,
+        'A Demand signal you are watching reached its threshold',
+        coalesce(new.question, 'This Demand question') || ' reached its configured signal target. This still does not guarantee supply.',
+        '/discover/rewards#wanted',
+        'threshold-' || threshold_value::text
+      );
+    exception when others then
+      raise warning 'Demand watch notification failed for %: %', new.id, sqlerrm;
+    end;
   end if;
   return new;
 end;
@@ -145,14 +156,18 @@ begin
 
   route_value := '/moments/' || coalesce(nullif(new.slug, ''), new.id::text);
   revision := md5(concat_ws('|', new.starts_at::text, new.ends_at::text, new.location, new.venue_name, new.status, new.reward));
-  perform public.emit_market_watch_notification(
-    'moment',
-    new.id::text,
-    'A Moment you are watching changed',
-    coalesce(new.title, 'This Moment') || ' has an updated schedule, place, status, or recorded access detail.',
-    route_value,
-    revision
-  );
+  begin
+    perform public.emit_market_watch_notification(
+      'moment',
+      new.id::text,
+      'A Moment you are watching changed',
+      coalesce(new.title, 'This Moment') || ' has an updated schedule, place, status, or recorded access detail.',
+      route_value,
+      revision
+    );
+  exception when others then
+    raise warning 'Moment watch notification failed for %: %', new.id, sqlerrm;
+  end;
   return new;
 end;
 $$;
