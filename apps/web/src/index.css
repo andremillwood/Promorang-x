@@ -245,6 +245,32 @@
     scrollbar-width: thin;
   }
 
+  /* Canonical admin page frame. Every admin tool inherits the same readable
+     width, outer gutters and section rhythm instead of defining its own edge. */
+  .admin-content-frame {
+    width: min(100%, 1560px);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .admin-content-frame {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .admin-content-frame {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .admin-content-frame {
+      padding-inline: 2.5rem;
+    }
+  }
+
   .dashboard-sidebar-scroll::-webkit-scrollbar {
     width: 5px;
   }
