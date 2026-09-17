@@ -18,6 +18,9 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
   onOpenSlash,
 }) => {
   const { t } = useI18n();
+  const hasRecordedStanding = eligibility !== null;
+  const recordedTickets = hasRecordedStanding ? totalTickets : 0;
+  const recordedMultiplier = hasRecordedStanding ? multiplier : null;
   const isQualified = eligibility === 'qualified';
   const standingLabel = isQualified
     ? t('promoshare.qualified')
@@ -48,7 +51,7 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <PromoShareTicketDrawModal userTickets={totalTickets} />
+            <PromoShareTicketDrawModal userTickets={recordedTickets} />
 
             <Button
               onClick={() => {
@@ -85,20 +88,24 @@ export const PromoShareHero: React.FC<PromoShareHeroProps> = ({
             </div>
           </div>
 
-          <div className={`grid gap-3 ${multiplier != null ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <div className={`grid gap-3 ${recordedMultiplier != null ? 'grid-cols-2' : 'grid-cols-1'}`}>
             <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-3">
               <p className="text-[10px] font-bold uppercase text-zinc-500">{t('promoshare.activeTickets')}</p>
               <p className="mt-0.5 flex items-center gap-1.5 text-2xl font-black text-white">
-                <Ticket className="h-5 w-5 text-orange-400" /> {totalTickets}
+                <Ticket className="h-5 w-5 text-orange-400" /> {recordedTickets}
               </p>
-              <p className="mt-1 text-[10px] leading-4 text-zinc-500">Recorded entries only. A ticket is a chance in its named draw, not a guaranteed prize.</p>
+              <p className="mt-1 text-[10px] leading-4 text-zinc-500">
+                {hasRecordedStanding
+                  ? 'Recorded entries only. A ticket is a chance in its named draw, not a guaranteed prize.'
+                  : 'Standing has not been supplied by an authoritative cycle record on this surface.'}
+              </p>
             </div>
 
-            {multiplier != null ? (
+            {recordedMultiplier != null ? (
               <div className="rounded-xl border border-zinc-800/60 bg-zinc-950 p-3">
                 <p className="text-[10px] font-bold uppercase text-zinc-500">Recorded multiplier</p>
                 <p className="mt-0.5 flex items-center gap-1 text-2xl font-black text-amber-400">
-                  <Trophy className="h-5 w-5 text-amber-400" /> {multiplier}x
+                  <Trophy className="h-5 w-5 text-amber-400" /> {recordedMultiplier}x
                 </p>
               </div>
             ) : null}
