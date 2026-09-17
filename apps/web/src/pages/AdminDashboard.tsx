@@ -358,9 +358,9 @@ const AdminDashboard = () => {
         </section>
       </div>
 
-      {/* 2. Admin Main Viewport (Full 12-col Canvas) */}
-      <div className="w-full min-w-0">
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+      {/* 2. Admin Main Viewport: same canonical frame as the operating header. */}
+      <div className="admin-content-frame min-w-0 pb-16 pt-2 sm:pt-4 lg:pt-6">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
           <TabsContent value="command" className="mt-0">
             <AdminCommandCenter />
           </TabsContent>
