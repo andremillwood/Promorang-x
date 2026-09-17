@@ -147,24 +147,6 @@ export function AdminUsersTab() {
     });
   };
 
-  useEffect(() => {
-    const updateWidth = () => {
-      if (tableScrollRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = tableScrollRef.current;
-        setTableScrollWidth(scrollWidth);
-        setCanScrollLeft(scrollLeft > 10);
-        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-      }
-    };
-    updateWidth();
-    const timer = setTimeout(updateWidth, 100);
-    window.addEventListener("resize", updateWidth);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", updateWidth);
-    };
-  }, [filteredUsers]);
-
   const filteredUsers = useMemo(() => {
     return (users || []).filter((user) => {
       const query = searchQuery.trim().toLowerCase();
@@ -185,6 +167,24 @@ export function AdminUsersTab() {
       return searchMatches && roleMatches && stateMatches;
     });
   }, [roleFilter, searchQuery, stateFilter, users]);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (tableScrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = tableScrollRef.current;
+        setTableScrollWidth(scrollWidth);
+        setCanScrollLeft(scrollLeft > 10);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+      }
+    };
+    updateWidth();
+    const timer = setTimeout(updateWidth, 100);
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, [filteredUsers]);
 
   const summary = useMemo(() => {
     const rows = users || [];
