@@ -8,6 +8,7 @@ import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { useState, useEffect } from "react";
 import { ParticipantWorldLayout } from "@/components/layouts/ParticipantWorldLayout";
 import { isParticipantWorldRoute } from "@/lib/participant-world-route";
+import "@/styles/stakeholder-production-world.css";
 
 interface AppLayoutProps {
     children?: React.ReactNode;
@@ -102,10 +103,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     }
 
     if (user && !isCleanPage) {
+        const stakeholderRole = activeRole || "participant";
         return (
-            <DashboardLayout currentRole={(activeRole || "participant") as any}>
-                {children || <Outlet />}
-            </DashboardLayout>
+            <div data-stakeholder-world data-stakeholder-role={stakeholderRole}>
+                <DashboardLayout currentRole={stakeholderRole as any}>
+                    {children || <Outlet />}
+                </DashboardLayout>
+            </div>
         );
     }
 
