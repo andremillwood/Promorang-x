@@ -1,5 +1,5 @@
 import SEO from "@/components/SEO";
-import CinematicCultureHome from "@/components/CinematicCultureHome";
+import PublicMarketHome from "@/components/marketing/PublicMarketHome";
 import ConsumerMomentPreview from "@/pages/ConsumerMomentPreview";
 import { useLayoutEffect } from "react";
 
@@ -20,10 +20,10 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="Promorang — Your city gives something back"
-        description="Discover Moments, local benefits and cultural experiences. Show up with your PromoCard and unlock more from your city."
+        title="PROMORANG — Make demand visible"
+        description="Ask for what you want, join live demand signals, and help turn customer actions into a marketplace businesses can respond to."
       />
-      <CinematicCultureHome />
+      <PublicMarketHome />
     </div>
   );
 };
