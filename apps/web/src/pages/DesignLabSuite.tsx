@@ -1,3 +1,5 @@
+import { resolveMomentJourney } from "@promorang/shared";
+import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
 import { Link } from "react-router-dom";
 import DesignLab from "@/pages/DesignLab";
 import { CanonicalConsumerScreensV2 } from "@/design-system/consumer/CanonicalConsumerScreensV2";
@@ -80,6 +82,12 @@ export default function DesignLabSuite() {
 
         <CanonicalConsumerScreensV2 />
         <CanonicalProductionBridge />
+        <section className="mt-16 border-t border-white/10 pt-10" aria-labelledby="proof-state-study">
+          <p className="pr-world-kicker">Production component · illustrative states only</p>
+          <h2 id="proof-state-study" className="mt-4 font-serif text-4xl font-bold">A claim is not a decision.</h2>
+          <p className="mt-4 max-w-2xl text-sm text-white/60">The same participant evidence component used in Moment and check-in. These fixtures are for visual review only; they do not represent live participation.</p>
+          <div className="mt-8 grid items-start gap-6 lg:grid-cols-3">{(["pending", "verified", "rejected"] as const).map((proof_state) => <ParticipantProofArtifact key={proof_state} showAction={false} journey={resolveMomentJourney({ moment_id: "design-lab-example", proof_state, joined_at: "2026-09-17", proof_submission_id: `ILLUSTRATIVE-${proof_state}` })} />)}</div>
+        </section>
 
         <div className="mt-16 border-t border-white/10 pt-16">
           <div className="mb-10 max-w-2xl">

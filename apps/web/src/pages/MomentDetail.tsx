@@ -1,3 +1,5 @@
+import { useMomentJourney } from "@/hooks/useMomentJourney";
+import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -34,8 +36,6 @@ import { getSubMomentsForMoment } from "@/components/radar/MomentDetailModal";
 import type { MomentProps } from "@/components/radar/MomentCard";
 import { SquadJoinCard } from "@/components/moments/SquadJoinCard";
 import StripeCheckout from "@/components/stripe/StripeCheckout";
-import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
-import { useMomentProofOutcome } from "@/hooks/useProofOutcome";
 import { PromorangMap } from "@/components/PromorangMap";
 import { generateEventSchema } from "@/lib/seo-schemas";
 import { SocialShareOGCard } from "@/components/SocialShareOGCard";
@@ -45,9 +45,7 @@ import { MomentLineupShowcase } from "@/components/moments/MomentLineupShowcase"
 import { Collaborator } from "@/components/moments/MomentLineupBuilder";
 import { PromoShareAction } from "@/components/promoshare/PromoShareAction";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
-import { PromoCardMomentLoop } from "@/components/moments/PromoCardMomentLoop";
 import { MomentNow } from "@/components/moments/MomentNow";
-import { usePromoCard } from "@/hooks/usePromoCard";
 import {
   ArrowLeft,
   ArrowRight,
@@ -157,7 +155,6 @@ const MomentDetail = () => {
   const { user, roles } = useAuth();
   const { toast } = useToast();
   const { recordAttributedAction } = usePromoShareRail();
-  const promoCardQuery = usePromoCard(user?.id);
 
   const [moment, setMoment] = useState<Moment | null>(null);
   const [isJoined, setIsJoined] = useState(false);
@@ -192,6 +189,7 @@ const MomentDetail = () => {
   ];
 
   const resolvedMomentId = (moment?.id && UUID_PATTERN.test(moment.id)) ? moment.id : null;
+  const journey = useMomentJourney(resolvedMomentId);
   const momentConversation = useMomentConversation(resolvedMomentId, user?.id);
 
   const promoPushCampaignId = searchParams.get("campaign");
@@ -204,7 +202,6 @@ const MomentDetail = () => {
 
   const { data: momentMedia } = useMomentMedia(resolvedMomentId || "");
   const { data: momentReviews } = useMomentReviews(resolvedMomentId || "");
-  const proofOutcomeQuery = useMomentProofOutcome(resolvedMomentId);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const fetchMoment = useCallback(async () => {
@@ -583,6 +580,7 @@ const MomentDetail = () => {
       if (payload?.access_quote) setAccessQuote(payload.access_quote);
       if (response.status === 404 || payload?.error?.includes("not found")) {
         setIsJoined(true);
+    void journey.refetch();
         setParticipantCount((prev) => prev + 1);
         toast({
           title: "RSVP Confirmed! 🎉",
@@ -625,6 +623,7 @@ const MomentDetail = () => {
         if (!response.ok && response.status !== 404) throw new Error(payload?.error || "Failed to leave event");
 
         setIsJoined(false);
+        void journey.refetch();
         setParticipantCount((prev) => Math.max(0, prev - 1));
         toast({
           title: t("momentDetail.toastReservationCancelled"),
@@ -771,7 +770,7 @@ const MomentDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] pb-[calc(var(--mobile-tabbar-offset,0px)+10rem)] text-white font-sans selection:bg-[#ff5500] selection:text-white lg:pb-16">
+    <div className="participant-world moment-world min-h-screen bg-[#09090b] pb-[calc(var(--mobile-tabbar-offset,0px)+10rem)] text-white font-sans selection:bg-[#ff5500] selection:text-white lg:pb-16">
       <SEO
         title={moment.title}
         description={moment.description || `Join ${moment.title} on Promorang`}
@@ -789,7 +788,7 @@ const MomentDetail = () => {
             <img
               src={galleryImages[0].url}
               alt={moment.title}
-              className="h-full w-full object-cover opacity-25 filter blur-sm scale-105"
+              className="h-full w-full object-cover opacity-55"
             />
           ) : (
             <div className="h-full w-full bg-gradient-to-br from-[#18181b] via-[#09090b] to-black" />
@@ -840,25 +839,10 @@ const MomentDetail = () => {
           <div
             className={`grid gap-8 lg:items-end ${
               galleryImages.length > 0
-                ? "lg:grid-cols-[220px_minmax(0,1fr)_360px]"
+                ? "lg:grid-cols-[minmax(0,1fr)_360px]"
                 : "lg:grid-cols-[minmax(0,1fr)_360px]"
             }`}
           >
-            {galleryImages.length > 0 && (
-              <figure className="group relative mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-white/15 bg-[#141417] shadow-2xl shadow-black/50 lg:mx-0 lg:max-w-none">
-                <div className="aspect-[16/10] lg:aspect-[4/5]">
-                  <img
-                    src={galleryImages[0].url}
-                    alt={`${moment.title} event poster`}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  />
-                </div>
-                <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10" />
-                <figcaption className="absolute bottom-3 left-3 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
-                  Event poster
-                </figcaption>
-              </figure>
-            )}
             <div className="space-y-4">
               {/* Category & Status Pills */}
               <div className="flex flex-wrap items-center gap-2">
@@ -867,17 +851,17 @@ const MomentDetail = () => {
                 </Badge>
                 {isPast ? (
                   <Badge variant="outline" className="rounded-full border-white/20 bg-white/5 text-white/60 text-xs px-3 py-1">
-                    Event Completed
+                    Moment ended
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="rounded-full border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1">
-                    ● RSVP Open
+                    {isFull ? "RSVP full" : "Upcoming Moment"}
                   </Badge>
                 )}
               </div>
 
               {/* Event Title */}
-              <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl leading-tight">
+              <h1 className="max-w-3xl font-serif text-5xl font-bold tracking-[-.04em] text-white sm:text-6xl lg:text-7xl leading-[.95]">
                 {moment.title}
               </h1>
 
@@ -899,7 +883,7 @@ const MomentDetail = () => {
             </div>
 
             {/* High-Conversion Unified Action Box */}
-            <div className="rounded-3xl border border-white/15 bg-[#141417]/90 p-6 backdrop-blur-xl shadow-2xl space-y-5">
+            <div id="moment-primary-action" className="space-y-5 border-t border-white/25 pt-6 lg:border-l lg:border-t-0 lg:pl-7">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">{t("momentDetail.admission")}</span>
@@ -915,25 +899,9 @@ const MomentDetail = () => {
                 </div>
               </div>
 
-              {/* Progress indicator if limited */}
-              {moment.max_participants && (
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs text-white/60">
-                    <span>{t("momentDetail.spotsClaimed")}</span>
-                    <span>{Math.round((participantCount / moment.max_participants) * 100)}%</span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#ff7f50] to-[#ff5500] rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min((participantCount / moment.max_participants) * 100, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
               {/* Primary Call to Action Button */}
               <div className="space-y-2.5">
-                {isPast && (
+                {isPast && !isJoined && (
                   <Button asChild className="w-full rounded-2xl bg-white/10 text-white hover:bg-white/20 font-bold py-5">
                     <Link to={`/moments/${moment.id}/record`}>{t("momentDetail.viewEventRecord")}</Link>
                   </Button>
@@ -948,15 +916,13 @@ const MomentDetail = () => {
                     <Link to={`/moments/${moment.id}/edit`}><Edit className="mr-2 h-4 w-4" />{t("momentDetail.editEventDetails")}</Link>
                   </Button>
                 )}
-                {!isPast && !!user && !isHost && isJoined && (
-                  <Button
-                    onClick={handleJoin}
-                    disabled={isJoining}
-                    variant="outline"
-                    className="w-full rounded-2xl border-emerald-500/50 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 font-bold py-5"
-                  >
-                    <CheckCircle2 className="mr-2 h-5 w-5" /> {t("momentDetail.spotReserved")}
-                  </Button>
+                {!!user && !isHost && isJoined && (
+                  <div className="space-y-4">
+                    {journey.isLoading ? <p role="status" className="text-sm text-white/65">Loading your participation…</p> : journey.isError || !journey.data ? (
+                      <div role="status"><p className="text-sm text-white/65">Your reservation is recorded. Your latest participation status couldn’t load.</p><button type="button" onClick={() => void journey.refetch()} className="min-h-11 text-sm underline">Refresh status</button></div>
+                    ) : <ParticipantProofArtifact journey={journey.data} />}
+                    {!isPast && journey.data && !journey.isError && !journey.data.proof_submission_id && !journey.data?.checked_in_at ? <details className="text-xs text-white/60"><summary className="min-h-11 cursor-pointer py-3">Reservation options</summary><button type="button" disabled={isJoining} onClick={handleJoin} className="min-h-11 underline">Cancel my RSVP</button></details> : null}
+                  </div>
                 )}
                 {!isPast && !!user && !isHost && !isJoined && (
                   <Button
@@ -964,7 +930,7 @@ const MomentDetail = () => {
                     disabled={isJoining || isFull}
                     className="w-full rounded-2xl bg-[#ff5500] text-white hover:bg-[#e04b00] font-bold text-base py-5 shadow-lg shadow-[#ff5500]/25 transition-all hover:scale-[1.01]"
                   >
-                    {isJoining ? t("momentDetail.reserving") : isFull ? t("momentDetail.eventFull") : t("momentDetail.rsvpNowFree")}
+                    {isJoining ? t("momentDetail.reserving") : isFull ? t("momentDetail.eventFull") : (entryFeeJmd > 0 ? "Reserve access" : t("momentDetail.rsvpNowFree"))}
                   </Button>
                 )}
 
@@ -977,7 +943,7 @@ const MomentDetail = () => {
                   <Share2 className="mr-2 h-3.5 w-3.5 text-[#ff5500]" /> {t("momentDetail.inviteFriends")}
                 </Button>
 
-                <button
+                {momentMissions.length > 0 ? <button
                   type="button"
                   onClick={openMissionsAndPerks}
                   className="group w-full rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] p-4 text-left transition hover:border-amber-300/55 hover:bg-amber-400/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
@@ -991,8 +957,8 @@ const MomentDetail = () => {
                     </span>
                     <ArrowRight className="h-5 w-5 shrink-0 text-amber-300 transition-transform group-hover:translate-x-1" />
                   </span>
-                  <span className="mt-2 block text-xs text-white/55">{t("momentDetail.seeWhatEarn")}</span>
-                </button>
+                  <span className="mt-2 block text-xs text-white/55">See requirements and available actions</span>
+                </button> : null}
               </div>
             </div>
           </div>
@@ -1000,7 +966,7 @@ const MomentDetail = () => {
       </header>
 
       {/* Navigation Sub-Tab Bar for Quick Jumping */}
-      <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#09090b]/90 backdrop-blur-xl">
+      <nav className="border-b border-white/10 bg-[#09090b]">
         <div className="mx-auto max-w-6xl px-4 py-2.5 sm:px-6">
           <div className="mb-2 flex items-center justify-between gap-4 px-0.5 sm:mb-1.5">
             <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">
@@ -1027,6 +993,16 @@ const MomentDetail = () => {
                     aria-selected={isActive}
                     aria-controls="moment-tabpanel"
                     onClick={() => setActiveMomentTab(tab.id)}
+                    tabIndex={isActive ? 0 : -1}
+                    onKeyDown={(event) => {
+                      const offset = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+                      if (!offset && event.key !== "Home" && event.key !== "End") return;
+                      event.preventDefault();
+                      const index = momentTabs.findIndex((item) => item.id === tab.id);
+                      const next = momentTabs[event.key === "Home" ? 0 : event.key === "End" ? momentTabs.length - 1 : (index + offset + momentTabs.length) % momentTabs.length];
+                      setActiveMomentTab(next.id);
+                      document.getElementById(`moment-tab-${next.id}`)?.focus();
+                    }}
                     className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8a50] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] sm:text-sm ${
                       isActive
                         ? "border-[#ff6a1a] bg-[#ff5500] text-white shadow-md shadow-[#ff5500]/25"
@@ -1065,13 +1041,13 @@ const MomentDetail = () => {
             {activeMomentTab === "overview" && (
               <div className="space-y-8 animate-in fade-in duration-300">
                 {/* Event Description */}
-                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                <section className="border-t border-white/10 py-6 sm:py-8 space-y-4">
                   <div className="flex items-center gap-2 text-[#ff5500] font-bold text-xs uppercase tracking-wider">
                     <Sparkles className="h-4 w-4" /> {t("momentDetail.aboutEvent")}
                   </div>
                   <h2 className="text-xl sm:text-2xl font-extrabold text-white">{t("momentDetail.theExperience")}</h2>
                   <p className="text-white/80 leading-relaxed text-base font-normal whitespace-pre-line">
-                    {moment.description || "Join us for an incredible experience with great music, community, and exclusive perks."}
+                    {moment.description || "The host hasn’t added further details yet."}
                   </p>
 
                   {/* Official Aitix Ticketing & Flyer Box */}
@@ -1203,21 +1179,16 @@ const MomentDetail = () => {
                 />
 
                 {!moment.is_curated_editorial && UUID_PATTERN.test(String(moment.id)) ? (
-                  <MomentNow
-                    momentId={moment.id}
-                    momentTitle={moment.title}
-                    onJoin={isJoined ? undefined : () => void handleJoin()}
-                  />
+                  <details className="border-t border-white/10 py-4"><summary className="min-h-11 cursor-pointer py-3 text-sm font-bold">Offers and actions at this Moment</summary><MomentNow momentId={moment.id} momentTitle={moment.title} /></details>
                 ) : null}
-
-                <PromoCardMomentLoop
-                  isJoined={isJoined}
-                  isHost={Boolean(isHost)}
-                  cardBalance={promoCardQuery.data?.availableBalance}
-                />
+                <section className="border-t border-white/10 py-6">
+                  <p className="pr-world-kicker">What happens after</p>
+                  <p className="mt-3 text-sm leading-7 text-white/65">RSVP holds your place. Follow the check-in and proof requirements when you arrive. Once reviewed, any issued access or retained memory appears in your Vault.</p>
+                  <Link to="/card" className="pr-world-link mt-4 inline-flex min-h-11 items-center">See your PromoCard →</Link>
+                </section>
 
                 {/* Venue & Map Card */}
-                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-5 shadow-xl">
+                <section className="border-t border-white/10 py-6 sm:py-8 space-y-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff5500]/15 text-[#ff5500]">
@@ -1361,7 +1332,7 @@ const MomentDetail = () => {
                 })()}
 
                 {/* Check-In Instructions */}
-                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                <section className="border-t border-white/10 py-6 sm:py-8 space-y-4">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">{t("momentDetail.checkInInstructions")}</h3>
                   <h2 className="text-lg sm:text-xl font-bold text-white">{t("momentDetail.howToVerify")}</h2>
 
@@ -1396,7 +1367,7 @@ const MomentDetail = () => {
               <div className="space-y-8 animate-in fade-in duration-300">
                 {/* Photo Gallery Carousel */}
                 {galleryImages.length > 0 && (
-                  <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                  <section className="border-t border-white/10 py-6 sm:py-8 space-y-4">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff5500]">{t("momentDetail.photos")}</h3>
                     <h2 className="text-xl sm:text-2xl font-bold text-white">{t("momentDetail.eventGallery")}</h2>
                     <Carousel opts={{ align: "start", loop: galleryImages.length > 3 }}>
@@ -1428,7 +1399,7 @@ const MomentDetail = () => {
                 </div>
 
                 {/* Discussion Wall */}
-                <section className="rounded-3xl border border-white/10 bg-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                <section className="border-t border-white/10 py-6 sm:py-8 space-y-4">
                   <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                     <MessageSquare className="h-5 w-5 text-[#ff5500]" /> {t("momentDetail.discussionQuestions")}
                   </h3>
@@ -1497,7 +1468,7 @@ const MomentDetail = () => {
       </main>
 
       {/* Mobile Sticky Join Bar */}
-      <StickyJoinBar
+      {!isJoined && !isHost && !isPast ? <StickyJoinBar
         momentId={moment.id}
         title={moment.title}
         reward={moment.reward}
@@ -1513,7 +1484,7 @@ const MomentDetail = () => {
         missionCount={momentMissions.length}
         missionPointTotal={missionPointTotal}
         onExploreMissions={openMissionsAndPerks}
-      />
+      /> : null}
 
       {/* Social Share Modal */}
       {moment && (
