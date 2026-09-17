@@ -1,8 +1,18 @@
 import type { ReactNode } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { Compass, CreditCard, Home, Settings, Vault } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { BriefcaseBusiness, Check, ChevronDown, Compass, CreditCard, Home, Settings, Store, UserRound, Vault, WandSparkles } from "lucide-react";
 import { PromorangMark } from "@/components/promorang/PromorangMark";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import type { WorkspaceRole } from "@/lib/auth-roles";
 
 type ParticipantWorldLayoutProps = {
   children: ReactNode;
@@ -17,8 +27,29 @@ const navItems = [
 
 const discoveryRoots = ["/discover", "/discovery", "/discoveries", "/scenes", "/moments"];
 
+const roleLabels: Partial<Record<WorkspaceRole, { label: string; icon: typeof UserRound }>> = {
+  participant: { label: "Participant", icon: UserRound },
+  creator: { label: "Creator", icon: WandSparkles },
+  host: { label: "Host", icon: Home },
+  merchant: { label: "Merchant", icon: Store },
+  brand: { label: "Brand", icon: BriefcaseBusiness },
+  agency: { label: "Agency", icon: BriefcaseBusiness },
+  promoter: { label: "Promoter", icon: WandSparkles },
+  marketing: { label: "Marketing", icon: BriefcaseBusiness },
+  admin: { label: "Admin", icon: Settings },
+};
+
 export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { activeRole, roles, setActiveRole } = useAuth();
+  const currentRole = activeRole || "participant";
+  const currentRoleLabel = roleLabels[currentRole]?.label || "Participant";
+
+  const switchRole = (role: WorkspaceRole) => {
+    setActiveRole(role);
+    navigate("/dashboard");
+  };
 
   const isActive = (to: string) => {
     if (to === "/dashboard") return pathname === "/dashboard" || pathname === "/home";
@@ -60,13 +91,49 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
             ))}
           </nav>
 
-          <NavLink
-            to="/settings"
-            className="rounded-full p-2.5 text-stone-400 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
-            aria-label="Settings"
-          >
-            <Settings className="h-5 w-5" aria-hidden="true" />
-          </NavLink>
+          <div className="flex items-center gap-1.5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 text-sm font-semibold text-stone-200 transition-colors hover:border-orange-500/35 hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  aria-label={`Switch workspace. Currently ${currentRoleLabel}`}
+                >
+                  <UserRound className="h-4 w-4 text-orange-400" aria-hidden="true" />
+                  <span className="hidden sm:inline">{currentRoleLabel}</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-stone-500" aria-hidden="true" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Switch workspace</DropdownMenuLabel>
+                {roles.map((role) => {
+                  const roleInfo = roleLabels[role];
+                  const RoleIcon = roleInfo?.icon || UserRound;
+                  return (
+                    <DropdownMenuItem key={role} onClick={() => switchRole(role)} className="flex items-center gap-3 py-3">
+                      <span className="grid h-8 w-8 place-items-center rounded-lg bg-orange-500/15 text-orange-400">
+                        <RoleIcon className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <span className="font-semibold">{roleInfo?.label || role}</span>
+                      {role === currentRole ? <Check className="ml-auto h-4 w-4 text-orange-500" aria-hidden="true" /> : null}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <NavLink to="/help" className="text-stone-500">How role access works</NavLink>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <NavLink
+              to="/dashboard/settings"
+              className="rounded-full p-2.5 text-stone-400 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+              aria-label="Settings"
+            >
+              <Settings className="h-5 w-5" aria-hidden="true" />
+            </NavLink>
+          </div>
         </div>
       </header>
 
