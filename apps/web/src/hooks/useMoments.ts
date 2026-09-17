@@ -1,10 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { fetchMomentGoingCount } from "@/lib/moment-going";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+type CheckInError = Error & {
+  code?: string;
+  momentId?: string;
+};
 
 export interface Moment {
   id: string;
@@ -99,6 +105,7 @@ export function useCheckIn() {
   const { user, session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (momentId: string) => {
@@ -119,7 +126,10 @@ export function useCheckIn() {
 
       const payload = await response.json();
       if (!response.ok) {
-        throw new Error(payload?.error || "Check-in failed");
+        const error = new Error(payload?.error || "Check-in failed") as CheckInError;
+        error.code = payload?.code;
+        error.momentId = momentId;
+        throw error;
       }
 
       return payload;
@@ -134,7 +144,16 @@ export function useCheckIn() {
       queryClient.invalidateQueries({ queryKey: ["joined-moments"] });
       queryClient.invalidateQueries({ queryKey: ["vault"] });
     },
-    onError: (error: any) => {
+    onError: (error: CheckInError) => {
+      if (error.code === "PROOF_SUBMISSION_REQUIRED" && error.momentId) {
+        toast({
+          title: "Proof required",
+          description: "This Moment needs proof before it can be verified.",
+        });
+        navigate(`/moments/${error.momentId}/checkin`);
+        return;
+      }
+
       toast({
         title: "Check-in failed",
         description: error.message,
