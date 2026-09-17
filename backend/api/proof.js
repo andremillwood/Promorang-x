@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const proofService = require('../services/proofService');
+const peopleExperience = require('../services/peopleExperienceService');
+const promoCardReturnService = require('../services/promoCardReturnService');
+const promoShareService = require('../services/promoShareService');
 const { requireAuth } = require('../middleware/auth');
 
 router.get('/submissions/pending', requireAuth, async (req, res) => {
@@ -79,7 +82,60 @@ router.post('/submissions/:id/review', requireAuth, async (req, res) => {
       reviewReason: review_reason,
     });
 
-    res.json({ success: true, ...result });
+    let promoCardReturn = null;
+    if (action === 'approve' && result?.submission) {
+      const verified = result.submission;
+      const proofBundle = verified.proof_bundle || {};
+
+      // Approval is the first point at which the participation can become a
+      // canonical verified action for People/Today/return-state surfaces.
+      try {
+        await peopleExperience.recordVerifiedAction({
+          userId: verified.user_id,
+          actionType: 'MOMENT_ATTENDANCE',
+          momentId: verified.moment_id,
+          contributorId: proofBundle.contributor_id || proofBundle.invited_by_user_id || null,
+          referrerId: proofBundle.referrer_id || proofBundle.invited_by_user_id || null,
+          campaignId: proofBundle.campaign_id || null,
+          verificationMethod: 'proof_review',
+          metadata: {
+            ...proofBundle,
+            moment_id: verified.moment_id,
+            proof_submission_id: verified.id,
+            reviewer_id: req.user.id,
+          },
+        });
+      } catch (experienceError) {
+        console.warn('[Proof API] verified experience recording skipped:', experienceError.message);
+      }
+
+      // PromoCard return eligibility is idempotent by user/action/reference.
+      try {
+        promoCardReturn = await promoCardReturnService.recordEligibleReturn({
+          userId: verified.user_id,
+          actionType: 'check_in',
+          referenceEntityId: verified.moment_id,
+        });
+      } catch (promoCardError) {
+        console.warn('[Proof API] PromoCard return recording skipped:', promoCardError.message);
+      }
+
+      // PromoShare entries are source-backed and upserted by proof submission id.
+      try {
+        await promoShareService.recordVerifiedAction(verified.user_id, 'proof_verified', {
+          source_type: 'proof',
+          source_id: verified.id,
+          weight_value: 3,
+          moment_id: verified.moment_id,
+          reward_id: result.reward?.id || null,
+          proof_submission_id: verified.id,
+        });
+      } catch (promoShareError) {
+        console.warn('[Proof API] verified proof PromoShare recording skipped:', promoShareError.message);
+      }
+    }
+
+    res.json({ success: true, ...result, promo_card_return: promoCardReturn });
   } catch (error) {
     console.error('[Proof API] review error:', error);
     res.status(500).json({ success: false, error: error.message });
