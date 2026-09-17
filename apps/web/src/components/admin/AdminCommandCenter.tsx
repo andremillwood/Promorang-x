@@ -167,7 +167,7 @@ export function AdminCommandCenter() {
   const PrimaryIcon = highestPriority?.icon || Activity;
 
   return (
-    <div className="mx-auto w-full max-w-[1560px] space-y-14 px-4 pb-24 pt-7 text-white animate-in fade-in-50 duration-300 sm:px-6 sm:pt-9 lg:px-8 lg:pt-10 2xl:px-10">
+    <div className="space-y-14 text-white animate-in fade-in-50 duration-300">
       <section className="relative min-h-[470px] overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#090909] shadow-[0_30px_90px_rgba(0,0,0,.28)]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(255,101,0,.24),transparent_28%),radial-gradient(circle_at_28%_85%,rgba(214,178,90,.08),transparent_34%),linear-gradient(120deg,#080808_0%,#0c0c0c_62%,#170b05_100%)]" />
         <div className="absolute right-[-8%] top-[-25%] h-[460px] w-[460px] rounded-full border border-[#ff6500]/10" />
