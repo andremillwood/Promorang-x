@@ -217,6 +217,8 @@ export function StickyJoinBar({
                                 onClick={onJoin}
                                 disabled={isPast || isFull || isJoining || accessState?.canAttempt === false}
                                 className="whitespace-nowrap"
+                                data-resumable-intent={!isLoggedIn && !isPast && !isFull ? "moment_join" : undefined}
+                                data-resumable-target={momentId}
                             >
                                 {getButtonContent()}
                             </Button>
