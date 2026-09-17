@@ -11,13 +11,32 @@ alwaysApply: false
 ## Use these objects instead
 
 - PromoCard face (plastic card, spendable amount)
+- Demand question rendered as a Signal / request slip
 - Ticket / pass with a stub
 - Paper receipt (what changed)
 - Collectible relic (Pieces)
 - Night trail (one story, not four equal panels)
 - Money pots (separated funds, never “ledgers” for members)
 
-Import from `@/components/promorang/SignatureObjects` or compose a new object that a person could hold, tear, scan, or keep. `Button`/`Badge`/`Card` from `components/ui` are utilities, not the visual system.
+Import from `@/components/promorang/SignatureObjects`, use `@/components/promorang/DemandSignalObject` for the existing canonical Demand question, or compose a new presentation object that a person could hold, tear, scan, or keep. `Button`/`Badge`/`Card` from `components/ui` are utilities, not the visual system.
+
+## Demand Signal presentation law
+
+`docs/design/discovery-scene-market-construction-v1.md` remains authoritative for the underlying market object and truth chain.
+
+A Demand Signal is a public presentation of an existing recorded Demand question. It is not a new backend object family and must not bypass:
+
+`QUESTION → OPTION → RECORDED VOTE → AGGREGATE SIGNAL → HUMAN / OPERATOR RESPONSE`
+
+The presentation should make five things legible without explanation:
+
+1. what the question asks,
+2. which market/city it applies to,
+3. the real recorded vote count,
+4. the threshold or possible response when one is explicitly configured,
+5. one action to open or join the signal.
+
+Never render threshold reached as supply unlocked unless a distinct supply/offer record actually exists. `DEMAND ≠ SUPPLY` and `THRESHOLD ≠ AUTOMATIC MOMENT` remain visible truth gates.
 
 ## Language
 
@@ -25,7 +44,18 @@ Lead with the human meaning, then the branded term.
 
 Forbidden in member-facing copy: node, AMM, telemetry, stake, yield, mint, burn, escrow, sybil, on-chain, deflationary, flywheel, primitive, ROAS, DAU, capital allocator.
 
-Prefer: show up, save at checkout, refill, ticket, streak, keepsake, prize already paid for, money set aside.
+Prefer: ask, want, join, show up, save at checkout, refill, ticket, streak, keepsake, prize already paid for, money set aside.
+
+## Public experience law
+
+Public PROMORANG is not a brochure for the signed-in product. It is the first usable layer of the same product and truth model.
+
+- Let visitors ask, vote, browse, claim, or inspect a real object before explaining architecture.
+- Authentication should continue an action, not reset the journey into a generic dashboard.
+- Public and signed-in surfaces must use the same canonical object vocabulary and state boundaries.
+- Production absence remains absence. Do not inject samples or seeded activity to make a market look active.
+- Failed writes remain failed; local/browser state must not be presented as durable public history.
+- Prefer evidence and receipts over unsupported marketing claims.
 
 ## First viewport test
 
