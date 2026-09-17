@@ -228,131 +228,134 @@ const AdminDashboard = () => {
         onSearch={setNavSearch}
       />
 
-      {/* 1. Master Admin Command Header & Category Strip */}
-      <div className="hidden rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-950/20 via-[#0e1218] to-[#0a0d12] p-5 shadow-2xl space-y-4 backdrop-blur-xl lg:block">
-        {/* Top Header Row */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-black font-black shadow-lg shadow-cyan-500/20 shrink-0">
-              <Shield className="h-5 w-5 text-black" />
-            </div>
-            <div>
+      {/* Admin operating header: job-first. The complete subsystem map stays available,
+          but no longer occupies the default working surface. */}
+      <div className="admin-content-frame pt-5 sm:pt-7 lg:pt-8">
+        <section className="rounded-2xl border border-white/10 bg-[linear-gradient(135deg,rgba(255,101,0,.08),rgba(255,255,255,.02)_34%,rgba(255,255,255,.015))] p-4 shadow-[0_24px_70px_rgba(0,0,0,.22)] sm:p-5 lg:p-6">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-white">Platform Administration</h1>
-                <span className="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-mono font-bold tracking-wide uppercase">
-                  ROOT • {activeItem.label}
+                <span className="grid h-9 w-9 place-items-center rounded-xl border border-[#ff6500]/25 bg-[#ff6500]/10 text-[#ff7a35]">
+                  <Shield className="h-4 w-4" />
                 </span>
+                <div className="min-w-0">
+                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#ff7a35]">Admin workspace</p>
+                  <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <h1 className="text-lg font-black text-white sm:text-xl">Platform Administration</h1>
+                    <span className="truncate text-xs text-white/40">{activeItem.label}</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-[11px] text-white/50 mt-0.5">
-                Master operational state, node telemetry, verification triage, and treasury controls.
+              <p className="mt-3 max-w-2xl text-xs leading-5 text-white/45">
+                Start from the job that needs attention. Open the full tool map only when you need a specialist control.
               </p>
             </div>
-          </div>
 
-          {/* Header Quick Actions */}
-          <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
-            <div className="relative w-48 hidden sm:block">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
-              <Input
-                value={navSearch}
-                onChange={(e) => setNavSearch(e.target.value)}
-                placeholder="Jump to tool..."
-                className="h-8 pl-8 rounded-lg border-white/10 bg-white/5 text-white text-xs placeholder:text-white/40 focus:border-cyan-500/50"
-              />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative min-w-0 sm:w-64">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+                <Input
+                  value={navSearch}
+                  onChange={(e) => setNavSearch(e.target.value)}
+                  placeholder="Find an admin tool..."
+                  className="h-11 rounded-xl border-white/10 bg-black/30 pl-9 text-sm text-white placeholder:text-white/30 focus:border-[#ff6500]/45"
+                />
+              </div>
+              <Button onClick={() => handleTabChange("verification-hub")} className="h-11 rounded-xl bg-[#ff6500] px-4 font-black text-black hover:bg-[#ff7a20]">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Review proof
+              </Button>
             </div>
-
-            <Button
-              size="sm"
-              onClick={() => handleTabChange("verification-hub")}
-              className="h-8 px-3 rounded-lg bg-cyan-400 hover:bg-cyan-500 text-black font-extrabold text-xs shadow-md shadow-cyan-400/20"
-            >
-              <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-              Proof Hub
-            </Button>
-
-            <Button
-              size="sm"
-              onClick={() => handleTabChange("promopush")}
-              className="h-8 px-3 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
-            >
-              <Megaphone className="h-3 w-3 mr-1 text-primary" />
-              PromoPush
-            </Button>
           </div>
-        </div>
 
-        {/* Category Navigation Pills (Groups) */}
-        <div className="pt-3 border-t border-white/5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {ADMIN_NAV_GROUPS.map((group) => {
-            const isGroupActive = group.items.some((item) => item.value === activeTab);
+          <nav aria-label="Admin primary jobs" className="mt-5 grid gap-2 border-t border-white/8 pt-4 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              { value: "command", label: "Today", icon: Activity },
+              { value: "moments", label: "Moments", icon: Calendar },
+              { value: "users", label: "People", icon: Users },
+              { value: "verification-hub", label: "Trust", icon: ShieldCheck },
+              { value: "payouts", label: "Money", icon: DollarSign },
+            ].map((item) => {
+              const Icon = item.icon;
+              const active = activeTab === item.value;
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => handleTabChange(item.value)}
+                  className={cn(
+                    "flex min-h-11 items-center gap-2 rounded-xl border px-3 text-left text-xs font-black transition",
+                    active
+                      ? "border-[#ff6500]/45 bg-[#ff6500]/12 text-[#ff9a5d]"
+                      : "border-white/8 bg-white/[.025] text-white/55 hover:border-white/15 hover:bg-white/[.05] hover:text-white",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
 
-            return (
-              <button
-                key={group.label}
-                onClick={() => handleTabChange(group.items[0].value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 ${
-                  isGroupActive
-                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {group.label}
-              </button>
-            );
-          })}
-        </div>
+          <details className="mt-4 border-t border-white/8 pt-4">
+            <summary className="cursor-pointer list-none text-xs font-black text-white/45 transition hover:text-white">
+              All admin tools
+              <span className="ml-2 text-[10px] font-normal text-white/25">specialist controls and system surfaces</span>
+            </summary>
+            <div className="mt-4 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+              {ADMIN_NAV_GROUPS.map((group) => (
+                <div key={group.label}>
+                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff7a35]">{group.label}</p>
+                  <div className="mt-2 grid gap-1">
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const active = activeTab === item.value;
+                      return (
+                        <button
+                          key={item.value}
+                          type="button"
+                          onClick={() => handleTabChange(item.value)}
+                          className={cn(
+                            "flex min-h-10 items-center gap-2 rounded-lg px-3 text-left text-xs transition",
+                            active ? "bg-white/[.08] text-white" : "text-white/48 hover:bg-white/[.04] hover:text-white/80",
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5 shrink-0" />
+                          <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                          {item.badge ? <span className="text-[9px] text-[#ff9a5d]">{item.badge}</span> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
 
-        {/* Sub-item Pills for Selected Category */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none bg-black/30 p-1.5 rounded-xl border border-white/5">
-          {selectedGroup.items.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.value;
-
-            return (
-              <button
-                key={item.value}
-                onClick={() => handleTabChange(item.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition flex items-center gap-2 ${
-                  isActive
-                    ? "bg-white/15 text-white shadow-sm border border-white/20"
-                    : "text-white/50 hover:text-white/90 hover:bg-white/5"
-                }`}
-              >
-                <Icon className={`h-3.5 w-3.5 ${isActive ? "text-cyan-400" : "text-white/40"}`} />
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className="px-1.5 py-0.2 rounded bg-cyan-400/20 text-cyan-300 text-[9px] font-mono font-bold">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search Results Dropdown (if user searches) */}
-        {navSearch.trim().length > 0 && (
-          <div className="p-2 rounded-xl bg-[#141822] border border-cyan-500/30 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
-            {allNavItems
-              .filter((item) => item.label.toLowerCase().includes(navSearch.toLowerCase()))
-              .map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.value}
-                    onClick={() => {
-                      handleTabChange(item.value);
-                      setNavSearch("");
-                    }}
-                    className="flex items-center gap-2 p-2 rounded-lg text-left text-xs text-white/80 hover:bg-cyan-500/10 hover:text-cyan-300 transition"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
-                    <span className="truncate">{item.label}</span>
-                  </button>
-                );
-              })}
-          </div>
-        )}
+          {navSearch.trim().length > 0 ? (
+            <div className="mt-4 grid gap-2 rounded-xl border border-white/10 bg-black/30 p-3 sm:grid-cols-2 lg:grid-cols-3">
+              {allNavItems
+                .filter((item) => item.label.toLowerCase().includes(navSearch.toLowerCase()))
+                .map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => {
+                        handleTabChange(item.value);
+                        setNavSearch("");
+                      }}
+                      className="flex min-h-10 items-center gap-2 rounded-lg px-3 text-left text-xs text-white/65 transition hover:bg-white/[.05] hover:text-white"
+                    >
+                      <Icon className="h-3.5 w-3.5 text-[#ff7a35]" />
+                      {item.label}
+                    </button>
+                  );
+                })}
+            </div>
+          ) : null}
+        </section>
       </div>
 
       {/* 2. Admin Main Viewport (Full 12-col Canvas) */}
