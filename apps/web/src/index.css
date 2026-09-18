@@ -922,3 +922,333 @@ img.promorang-satellite-tiles {
 @media (prefers-reduced-motion: no-preference) {
   .experience-interactive:active { transform: scale(.985); }
 }
+
+
+/* PROMORANG marketing cinematic visual language v1 */
+.marketing-cinematic {
+  --marketing-orange: #ff5a00;
+  --marketing-canvas: #050505;
+  --marketing-panel: #0a0a0a;
+  --marketing-line: rgba(255,255,255,.115);
+  --marketing-muted: rgba(255,255,255,.56);
+  background:
+    radial-gradient(circle at 82% -6%, rgba(255,90,0,.09), transparent 30rem),
+    var(--marketing-canvas);
+  color: #fff;
+}
+
+.marketing-cinematic .font-serif {
+  font-family: "Promorang Space", "DM Sans", system-ui, sans-serif;
+}
+
+.marketing-cinematic h1,
+.marketing-cinematic h2,
+.marketing-cinematic h3 {
+  font-family: "Promorang Space", "DM Sans", system-ui, sans-serif;
+  font-synthesis: none;
+}
+
+.marketing-cinematic h1 {
+  font-weight: 950;
+  letter-spacing: -.065em;
+  line-height: .86;
+  text-wrap: balance;
+}
+
+.marketing-cinematic h2 {
+  font-weight: 900;
+  letter-spacing: -.045em;
+  line-height: .94;
+}
+
+.marketing-cinematic > section {
+  border-color: var(--marketing-line);
+}
+
+.marketing-cinematic > section:not(:first-of-type) {
+  position: relative;
+}
+
+.marketing-cinematic > section:not(:first-of-type)::before {
+  content: "";
+  position: absolute;
+  left: max(1.25rem, calc((100% - 90rem) / 2));
+  right: max(1.25rem, calc((100% - 90rem) / 2));
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.16) 10%, rgba(255,90,0,.24) 50%, rgba(255,255,255,.10) 90%, transparent);
+  pointer-events: none;
+}
+
+.marketing-cinematic .rounded-full {
+  border-radius: .62rem;
+}
+
+.marketing-cinematic a,
+.marketing-cinematic button {
+  letter-spacing: .01em;
+}
+
+.marketing-cinematic a[class*="bg-orange-"],
+.marketing-cinematic button[class*="bg-orange-"] {
+  box-shadow: 0 10px 28px -16px rgba(255,90,0,.8);
+}
+
+.marketing-cinematic-hero {
+  position: relative;
+  min-height: clamp(34rem, 72vh, 49rem);
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #050505;
+  background-position: center;
+  background-size: cover;
+}
+
+.marketing-cinematic-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.97) 0%, rgba(0,0,0,.86) 38%, rgba(0,0,0,.42) 68%, rgba(0,0,0,.3) 100%),
+    linear-gradient(0deg, #050505 0%, transparent 36%);
+}
+
+.marketing-cinematic-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .32;
+  background:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: linear-gradient(to bottom, #000, transparent 78%);
+}
+
+.marketing-cinematic-hero .pr-plastic-card {
+  transform: rotate(1.35deg);
+  border-radius: 14px;
+  box-shadow: 0 30px 75px -28px rgba(0,0,0,.92), 0 0 0 1px rgba(255,90,0,.18);
+}
+
+.marketing-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  color: rgba(255,255,255,.74);
+  font-size: .66rem;
+  font-weight: 900;
+  letter-spacing: .19em;
+  text-transform: uppercase;
+}
+
+.marketing-kicker::before {
+  content: "";
+  width: 1.35rem;
+  height: 2px;
+  background: var(--marketing-orange);
+}
+
+.marketing-section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.marketing-section-head > div {
+  max-width: 52rem;
+}
+
+.marketing-discovery-rail,
+.marketing-demand-rail {
+  display: flex;
+  gap: .85rem;
+  overflow-x: auto;
+  padding-bottom: .6rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.marketing-discovery-rail::-webkit-scrollbar,
+.marketing-demand-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.marketing-discovery-card {
+  position: relative;
+  min-width: min(78vw, 17.25rem);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: .72rem;
+  background: #0b0b0b;
+  scroll-snap-align: start;
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.marketing-discovery-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,90,0,.55);
+}
+
+.marketing-discovery-card__media {
+  position: absolute;
+  inset: 0;
+}
+
+.marketing-discovery-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.marketing-discovery-card__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,.96) 0%, rgba(0,0,0,.38) 52%, rgba(0,0,0,.12) 100%);
+}
+
+.marketing-discovery-card__content {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  padding: 1rem;
+}
+
+.marketing-discovery-card__tag {
+  display: inline-flex;
+  border-radius: .3rem;
+  background: var(--marketing-orange);
+  padding: .28rem .44rem;
+  color: #090909;
+  font-size: .57rem;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.marketing-discovery-card__title {
+  margin-top: .65rem;
+  color: #fff;
+  font-size: 1.55rem;
+  font-weight: 950;
+  letter-spacing: -.045em;
+  line-height: .95;
+  text-wrap: balance;
+}
+
+.marketing-discovery-card__meta {
+  margin-top: .65rem;
+  display: flex;
+  gap: .35rem;
+  color: rgba(255,255,255,.6);
+  font-size: .69rem;
+  line-height: 1.35;
+}
+
+.marketing-demand-rail > * {
+  min-width: min(88vw, 32rem);
+  scroll-snap-align: start;
+}
+
+.marketing-stage {
+  background:
+    radial-gradient(circle at 86% 26%, rgba(255,90,0,.1), transparent 25rem),
+    #080808;
+}
+
+.marketing-cinematic .pr-ticket {
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: .72rem;
+  box-shadow: 0 18px 55px -30px rgba(0,0,0,.9);
+}
+
+.marketing-cinematic .pr-receipt {
+  border-radius: .25rem;
+  transform: rotate(-.35deg);
+}
+
+.marketing-cinematic .pr-relic,
+.marketing-cinematic [class*="rounded-[1.6rem]"],
+.marketing-cinematic [class*="rounded-[1.75rem]"],
+.marketing-cinematic [class*="rounded-[2rem]"] {
+  border-radius: .8rem;
+}
+
+.marketing-cinematic .marketing-closing-band {
+  border-radius: 0 !important;
+  border-left: 0;
+  border-right: 0;
+  background:
+    linear-gradient(90deg, rgba(255,90,0,.08), transparent 38%),
+    #080808;
+}
+
+.marketing-cinematic .marketing-role-grid > a {
+  min-width: 0;
+}
+
+.marketing-cinematic .marketing-role-grid .pr-ticket {
+  min-height: 13.5rem;
+}
+
+@media (min-width: 768px) {
+  .marketing-discovery-card {
+    min-width: 15.5rem;
+  }
+
+  .marketing-demand-rail {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .marketing-demand-rail > * {
+    min-width: 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .marketing-discovery-rail {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .marketing-discovery-card {
+    min-width: 0;
+    aspect-ratio: 3 / 4;
+  }
+}
+
+@media (max-width: 767px) {
+  .marketing-cinematic-hero {
+    min-height: 40rem;
+    background-position: 62% center;
+  }
+
+  .marketing-cinematic-hero::before {
+    background:
+      linear-gradient(0deg, #050505 0%, rgba(0,0,0,.78) 48%, rgba(0,0,0,.36) 100%),
+      linear-gradient(90deg, rgba(0,0,0,.58), transparent);
+  }
+
+  .marketing-cinematic h1 {
+    font-size: clamp(3.2rem, 15vw, 4.55rem) !important;
+  }
+
+  .marketing-cinematic h2 {
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+  }
+
+  .marketing-section-head {
+    align-items: start;
+    flex-direction: column;
+    gap: .75rem;
+  }
+}
