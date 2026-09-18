@@ -183,7 +183,7 @@ const faqs: FaqItem[] = [
   {
     category: "members",
     q: "What are Gems and how do I get them?",
-    a: "1 Gem = $1 of platform value. Buy Gems with a card or earn them from funded missions, Moments, allowances, and Save & Win winnings. Holding Gems earns nothing. Spending them on Pieces, perks, or Save & Win opens extras cash outside the app cannot."
+    a: "Gems use a 1 USD platform denomination, but balance, held value, and withdrawable value are separate states. You can buy Gems or receive them from eligible funded activity and Save & Win winnings. Holding Gems alone earns nothing."
   },
   {
     category: "members",
@@ -248,7 +248,7 @@ const faqs: FaqItem[] = [
   {
     category: "members",
     q: "What is Save & Win?",
-    a: "Save & Win is PromoShare's money draw. Park Gems, keep 100% of them, and compete for extra Gems (1 Gem = $1). Take the parked Gems out whenever. Everyday perk draws do not pay cash."
+    a: "Save & Win is PromoShare's money draw. Park Gems, keep 100% of that principal, and compete for extra Gems from a committed pot. Returning parked Gems follows the pot's exit terms and any applicable wallet hold or withdrawal rules. Everyday perk draws do not pay cash."
   }
 ];
 
