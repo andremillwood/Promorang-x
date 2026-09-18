@@ -608,6 +608,40 @@ Commits:
 
 Status: **Closed**
 
+#### T-031 — Public Brand profile exposed local demo financial economics
+
+Files:
+- `apps/web/src/pages/BrandProfile.tsx`
+- `apps/web/src/lib/promocard/marginPoolService.ts`
+- `apps/web/src/lib/promocard/splitTenderService.ts`
+- `apps/web/src/components/promocard/MerchantMarginPoolManager.tsx`
+- `apps/web/src/components/promocard/HubLiquidityPoolCard.tsx`
+
+Finding:
+- public Brand Profile mounted a margin-pool manager backed entirely by browser localStorage;
+- missing pools were replaced with built-in merchant economics including cash earned, customers acquired, allowance, active status and “guaranteed” revenue projections;
+- the local service shipped three demo merchants as default production data;
+- split-tender calculation invented a $10 allowance and $25 minimum spend when no merchant pool existed;
+- the hub liquidity component derived “settled gross cash flow” and operator earnings from the same demo pools.
+
+Resolution:
+- the public Brand Profile no longer mounts local demo margin economics;
+- margin-pool fixtures and local mutations are development-only;
+- production reads return no local pools and production local writes fail closed;
+- split-tender has zero allowance/eligibility when no recorded pool exists;
+- demo margin/liquidity components render only in development.
+
+Commits:
+- `ec8631ceaf418275f49ee68fa78d11e80124f5c1`
+- `bd1ce78b0ab9afbb7da9877d9b340777d08a9e36`
+- `e2db7017fc367340e5c2260ce00a92eccba3914f`
+- `91f10aa8b3006cbe34fac5c27636737bf618dc92`
+- `a7825c5a7fc3426c3273a5ff5634137d28f4db7a`
+- `39d135facae76bffcc88dbbb19e1602c8ff9385b`
+- `38cb770099442b4838cad75313e74a9db8280b96`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
