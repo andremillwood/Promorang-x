@@ -943,6 +943,36 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-035 — Primary Discover mixed static catalogue state with live market truth
+
+Files:
+- `apps/web/src/pages/Discover.tsx`
+- `apps/web/src/hooks/useListingDiscoveryPolls.ts`
+- `apps/web/src/hooks/useCityDiscoveryPolls.ts`
+- `apps/web/src/lib/discovery-demand.ts`
+- `apps/web/src/hooks/useDiscoveryDemand.ts`
+- `apps/web/src/lib/discovery-path.ts`
+- `apps/web/src/components/discovery/DiscoveryPath.tsx`
+- `apps/web/src/components/discovery/DiscoveriesFeedSection.tsx`
+- `supabase/migrations/20260918223000_discovery_vote_state.sql`
+
+Finding:
+- production Discover initialized and repeatedly merged `getActiveDiscoveryPolls()` from the static design catalogue into live market questions;
+- the Places tab and map used `VERIFIED_VENUES` static records rather than the public venue directory;
+- Moments missing coordinates could receive curated or default coordinates, creating map pins not sourced from the Moment record;
+- “already voted” state survived in browser localStorage independently of `discovery_votes`.
+
+Resolution:
+- the primary Discover catalogue is now composed from recorded/newly-created questions and server-backed listing polls only;
+- Places use `view_public_venue_directory`; source failure renders unavailable rather than static venues;
+- missing Moment/venue coordinates remain missing and are omitted from the map instead of receiving guessed pins;
+- public listing/city poll views expose only the current authenticated user’s recorded vote;
+- Discovery path state derives “already voted” from that authoritative vote plus successful votes in the current session, not localStorage;
+- recorded options are disabled and identified as the current user’s vote.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

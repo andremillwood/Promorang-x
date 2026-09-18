@@ -500,6 +500,7 @@ Remaining C16 work is release/golden-journey QA: every stakeholder journey still
 Latest closed findings:
 - **T-032 — Discover and Found could manufacture durable success in the browser.**
 - **T-034 — Referral and PromoShare distribution could manufacture attribution and performance.**
+- **T-035 — Primary Discover mixed static catalogue state with live market truth.**
 
 Closed direction:
 
@@ -514,7 +515,9 @@ Closed direction:
 - Found claim + promised finder slip is transactional/retry-safe at the SQL boundary;
 - referral APIs fail unavailable instead of emitting demo codes/metrics/earnings/validation;
 - PromoShare uses only a recorded referral code and otherwise creates an unattributed generic share URL;
-- referral source failure is not rendered as zero activity.
+- referral source failure is not rendered as zero activity;
+- primary Discover questions/places are source-backed rather than merged from static catalogues;
+- current-user vote state comes from `discovery_votes`, not persistent browser history.
 
 ### NEXT ACTION
 

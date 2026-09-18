@@ -43,6 +43,7 @@ export function DiscoveriesFeedSection() {
         ...item,
         totalVotes: item.totalVotes + 1,
         options: item.options.map((option) => option.id === optionId ? { ...option, votes: option.votes + 1 } : option),
+        userVotedOptionId: optionId,
       } : item));
       await queryClient.invalidateQueries({ queryKey: ["listing-discovery-polls"] });
       toast.success("Signal recorded.", { description: "Interest is recorded as a vote; it is not attendance, supply, or a purchase." });
@@ -107,7 +108,8 @@ export function DiscoveriesFeedSection() {
                   <div className="mt-5 space-y-2">
                     {poll.options.slice(0, 5).map((option) => {
                       const key = `${poll.id}:${option.id}`;
-                      return <button key={option.id} type="button" disabled={Boolean(votingKey)} onClick={() => castVote(poll, option.id)} className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-left transition hover:border-primary/40 disabled:opacity-50"><span className="text-xs font-bold text-white/75">{option.text}</span><span className="shrink-0 text-[10px] font-black text-primary">{votingKey === key ? "Recording…" : `${option.votes} vote${option.votes === 1 ? "" : "s"}`}</span></button>;
+                      const recorded = poll.userVotedOptionId === option.id;
+                      return <button key={option.id} type="button" disabled={Boolean(votingKey || poll.userVotedOptionId)} onClick={() => castVote(poll, option.id)} className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-left transition hover:border-primary/40 disabled:opacity-50"><span className="text-xs font-bold text-white/75">{option.text}</span><span className="shrink-0 text-[10px] font-black text-primary">{votingKey === key ? "Recording…" : recorded ? `Your vote · ${option.votes}` : `${option.votes} vote${option.votes === 1 ? "" : "s"}`}</span></button>;
                     })}
                   </div>
                   <div className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-[10px] leading-4 text-white/35"><ShieldCheck className="h-3.5 w-3.5 shrink-0 text-purple-300" />Vote ≠ attendance · threshold ≠ guaranteed supply · demand ≠ offer</div>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildDiscoveryDemandInbox,
   closenessForPoll,
+  demandPollFromDiscovery,
   mergeNamedIntents,
   normalizeIntentKey,
   optionShares,
@@ -34,6 +35,16 @@ const night: DemandPoll = {
   thresholdForMoment: 80,
   options: [{ text: "Yard", votes: 10 }],
 };
+
+describe("demandPollFromDiscovery", () => {
+  it("preserves the authoritative current-user vote", () => {
+    const poll = demandPollFromDiscovery({
+      ...jerk,
+      userVotedOptionId: "sweetwood-option",
+    });
+    expect(poll.userVotedOptionId).toBe("sweetwood-option");
+  });
+});
 
 describe("normalizeIntentKey", () => {
   it("collapses the same ask into one key", () => {

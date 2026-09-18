@@ -120,6 +120,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
             totalVotes: poll.total_votes,
             thresholdForMoment: poll.threshold_for_moment,
             options: poll.options,
+            userVotedOptionId: poll.user_voted_option_id || undefined,
           }),
         ),
       ]),

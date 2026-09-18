@@ -14,7 +14,6 @@ import {
   DISCOVER_LENS_STORAGE_KEY,
   DISCOVER_QUERY_STORAGE_KEY,
   DISCOVER_SKIPPED_STORAGE_KEY,
-  DISCOVER_VOTED_STORAGE_KEY,
   discoverPathHref,
   discoveryHref,
   inferLensesFromPreferences,
@@ -125,7 +124,15 @@ export function DiscoveryPath({
     return window.localStorage.getItem(DISCOVER_QUERY_STORAGE_KEY) || "";
   });
   const [draftQuery, setDraftQuery] = useState(query);
-  const [votedIds, setVotedIds] = useState<string[]>(() => readStoredIdList(DISCOVER_VOTED_STORAGE_KEY));
+  const [sessionVotedIds, setSessionVotedIds] = useState<string[]>([]);
+  const recordedVotedIds = useMemo(
+    () => polls.filter((poll) => Boolean(poll.userVotedOptionId)).map((poll) => poll.id),
+    [polls],
+  );
+  const votedIds = useMemo(
+    () => Array.from(new Set([...recordedVotedIds, ...sessionVotedIds])),
+    [recordedVotedIds, sessionVotedIds],
+  );
   const [skippedIds, setSkippedIds] = useState<string[]>(() => readStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY));
   const [justVotedId, setJustVotedId] = useState<string | null>(null);
   const [browseOpen, setBrowseOpen] = useState(false);
@@ -286,10 +293,9 @@ export function DiscoveryPath({
 
   const markVoted = (pollId: string) => {
     setJustVotedId(pollId);
-    setVotedIds((prev) => {
+    setSessionVotedIds((prev) => {
       if (prev.includes(pollId)) return prev;
       const next = [...prev, pollId];
-      writeStoredIdList(DISCOVER_VOTED_STORAGE_KEY, next);
       onVoted?.(pollId);
       return next;
     });
