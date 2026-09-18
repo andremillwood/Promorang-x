@@ -758,6 +758,28 @@ Commits:
 
 Status: **Closed**
 
+#### T-029 — Public role promises and Ops Theatre guaranteed outcomes
+
+Files:
+- `apps/web/src/pages/WhatIsPromorang.tsx`
+- `apps/web/src/components/onboarding/OpsTheatreOrientationModal.tsx`
+
+Finding:
+- the public product explainer promised guaranteed foot traffic, guaranteed real-world action, universal creator payment/commission, built-in sponsorship funding, and GPS/receipt verification of every interaction;
+- the production-used Ops Theatre orientation described invented weekly missions, instant rewards, fixed leaderboard behavior, scarce campaign slots, free merchant allowances, automatic payouts/recaps, and secondary Piece royalties as if they were operating facts.
+
+Resolution:
+- public role promises now describe recorded demand, configured proof, attributed outcomes, explicit funding/terms and verified evidence without guaranteeing conversion or payout;
+- check-in intent, proof verification, issuance, earning and settlement remain separate states;
+- the Ops Theatre modal is now a factual role-orientation surface with one real next move and explicit state boundaries;
+- scripted weekly outcomes, fake scarcity, fake allowances, guaranteed traffic and browser-era reward promises are removed.
+
+Commits:
+- `dd541d06668903f22e03581cd3fe168adcb786f2`
+- `00fb3740b9bd4bb9ec2aa491034fbb30fd3a3216`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
