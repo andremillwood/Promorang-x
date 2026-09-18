@@ -643,8 +643,9 @@ The project is on a constrained Hobby plan. Treat Vercel preview capacity as a r
 
 For `design/canonical-object-system-v1`:
 
-- `vercel.json` disables automatic Git deployments for `design/canonical-object-system-v1` through `git.deploymentEnabled`;
-- branch pushes therefore should not enter the Vercel preview queue at all;
+- root `vercel.json` disables automatic web Git deployments for `design/canonical-object-system-v1`;
+- `backend/vercel.json` disables automatic API Git deployments for the same branch;
+- branch pushes therefore should not enter either PROMORANG Vercel project’s preview queue;
 - batch code changes before moving the branch;
 - prefer code review, unit tests, GitHub Actions and contract checks before visual deployment;
 - when browser/visual QA genuinely requires a fresh Vercel preview, create one deliberately from the exact checkpoint SHA only after explicit user approval;
