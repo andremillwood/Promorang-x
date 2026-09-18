@@ -1027,6 +1027,24 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-038 — Discover promoted chronological inventory as “Featured” and “Trending”
+
+Files:
+- `apps/web/src/pages/Discover.tsx`
+- `apps/web/src/components/discovery/DiscoverRightRail.tsx`
+
+Finding:
+- Discover orders filtered Moments by recorded start time, but labelled the first row “Featured” without a featured-placement source;
+- the same chronological list was sliced into a “Trending in … / Hot” rail without popularity, trend or heat evidence.
+
+Resolution:
+- the primary hero is labelled **Up next**, matching the actual chronological selection rule;
+- the right rail is labelled **Up next in {city} / By start time** and explicitly states it is not a popularity or trend ranking;
+- stale unused mock social/gamification imports were removed from Discover.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

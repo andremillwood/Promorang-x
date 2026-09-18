@@ -503,6 +503,7 @@ Latest closed findings:
 - **T-035 — Primary Discover mixed static catalogue state with live market truth.**
 - **T-036 — Create Moment trusted static venue and browser/URL demand context.**
 - **T-037 — PromoShare still advertised synthetic daily, squad and pre-loaded-card mechanics.**
+- **T-038 — Discover promoted chronological inventory as “Featured” and “Trending.”**
 
 Closed direction:
 
@@ -525,6 +526,7 @@ Closed direction:
 - URL/browser context may prefill a draft but cannot establish market truth or bypass authentication.
 - production PromoShare now exposes recorded cycles/entries/draws/history without mock streak, squad-slash, saved-perk or pre-loaded-card state;
 - unsupported PromoShare gamification/drop components remain development-only rather than production fallbacks.
+- Discover chronology is now described as chronology (“Up next”), not unsupported featured/trending status.
 
 ### NEXT ACTION
 

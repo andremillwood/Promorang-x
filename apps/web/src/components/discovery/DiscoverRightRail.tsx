@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Map, MapPin, Flame, ArrowRight, Sparkles } from "lucide-react";
+import { Map, MapPin, Calendar, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nContext";
 
@@ -19,7 +19,7 @@ export const DiscoverRightRail: React.FC<DiscoverRightRailProps> = ({
 }) => {
   const { t } = useI18n();
   const city = cityName || t("discover.thisHub");
-  const trendingMoments = moments.slice(0, 3);
+  const upcomingMoments = moments.slice(0, 3);
 
   return (
     <aside className="hidden lg:flex flex-col gap-5 w-80 shrink-0 sticky top-20 h-fit">
@@ -48,16 +48,17 @@ export const DiscoverRightRail: React.FC<DiscoverRightRailProps> = ({
       <div className="rounded-3xl border border-white/10 bg-[#111215] p-5 shadow-xl backdrop-blur-md space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 text-amber-400 fill-amber-400" />
-            <h3 className="text-sm font-bold text-white">{t("discover.trendingIn", { city })}</h3>
+            <Calendar className="h-4 w-4 text-amber-400" />
+            <h3 className="text-sm font-bold text-white">Up next in {city}</h3>
           </div>
           <span className="px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 font-bold text-[10px]">
-            {t("discover.hot")}
+            By start time
           </span>
         </div>
 
+        <p className="text-[11px] leading-4 text-white/40">Recorded Moments ordered by their next start time. This is not a popularity or trend ranking.</p>
         <div className="space-y-2.5 pt-1">
-          {trendingMoments.map((m) => (
+          {upcomingMoments.map((m) => (
             <Link
               key={m.id}
               to={`/moments/${m.id}`}
@@ -75,7 +76,7 @@ export const DiscoverRightRail: React.FC<DiscoverRightRailProps> = ({
               <ArrowRight className="h-3.5 w-3.5 text-white/30 group-hover:text-primary group-hover:translate-x-0.5 transition shrink-0" />
             </Link>
           ))}
-          {trendingMoments.length === 0 && (
+          {upcomingMoments.length === 0 && (
             <p className="text-xs text-white/45">{t("discover.noLiveMoments", { city })}</p>
           )}
         </div>
