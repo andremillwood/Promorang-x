@@ -19,6 +19,8 @@ import { useI18n } from "@/i18n/I18nContext";
 import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID, resolveAreaKey, worldObjectState } from "@promorang/shared";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 
+const ALLOW_STATIC_VENUE_FIXTURES = import.meta.env.DEV;
+
 const SEA_DECK_FALLBACK: PublicVenueRow = {
   id: SEA_DECK_VENUE_ID,
   slug: "sea-deck",
@@ -128,14 +130,14 @@ export default function VenueProfile() {
           .maybeSingle();
 
         if (error) throw error;
-        return (data as PublicVenueRow | null) ?? (slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
+        return (data as PublicVenueRow | null) ?? (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
       } catch (error) {
-        if (slug === "sea-deck") return SEA_DECK_FALLBACK;
+        if (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck") return SEA_DECK_FALLBACK;
         throw error;
       }
     },
     enabled: Boolean(slug),
-    retry: slug === "sea-deck" ? 0 : 3,
+    retry: ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? 0 : 3,
   });
 
   const momentsQuery = useQuery({
@@ -151,14 +153,14 @@ export default function VenueProfile() {
 
         if (error) throw error;
         const rows = (data || []) as PublicMomentDirectoryRow[];
-        return rows.length > 0 ? rows : slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
+        return rows.length > 0 ? rows : ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
       } catch (error) {
-        if (slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
+        if (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
         throw error;
       }
     },
     enabled: Boolean(slug),
-    retry: slug === "sea-deck" ? 0 : 3,
+    retry: ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? 0 : 3,
   });
 
   const contentQuery = useQuery({
@@ -312,7 +314,7 @@ export default function VenueProfile() {
                     <Link to="/progress" className="font-bold text-primary">Season board</Link>
                   </p>
                 ) : null}
-                {slug === "sea-deck" ? (
+                {ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? (
                   <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
                     <p className="mt-2 text-lg font-black">AftrHrs · {AFTRHRS_COPY.whenLine}</p>
@@ -369,23 +371,24 @@ export default function VenueProfile() {
                   ))}
                 </div>
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  {slug === "sea-deck" ? (
-                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                      <Link to="/moments/aftrhrs">Open AftrHrs</Link>
+                  <Button asChild className="bg-primary font-bold text-white hover:bg-primary/90">
+                    <Link to={nextMoment ? `/moments/${nextMoment.slug || nextMoment.id}` : "/explore/moments"}>
+                      {nextMoment ? `Open ${nextMoment.title}` : t("venueProfile.findMoment")}
+                    </Link>
+                  </Button>
+                  {commerceListings.length > 0 ? (
+                    <Button asChild variant="outline" className="border-amber-500/40 bg-amber-500/10 font-bold text-amber-300 hover:bg-amber-500/20">
+                      <Link to="/shop">Browse recorded offers & services</Link>
                     </Button>
                   ) : (
-                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                      <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
+                    <Button asChild variant="outline">
+                      <Link to="/shop">Browse live shop inventory</Link>
                     </Button>
                   )}
-                  <Button asChild variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold">
-                    <Link to="/rewards">Claim Perk to Wallet</Link>
-                  </Button>
                 </div>
-                <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/50">
-                  <span>⚡ Powered by Community Vault Float</span>
-                  <span className="text-emerald-400 font-semibold">100% Guaranteed</span>
-                </div>
+                <p className="mt-3 border-t border-white/10 pt-3 text-[11px] leading-5 text-white/45">
+                  Availability, benefits and fulfillment are shown only from recorded Moment and commerce inventory. This venue page does not guarantee a perk or funded value.
+                </p>
               </div>
             </div>
           </section>
