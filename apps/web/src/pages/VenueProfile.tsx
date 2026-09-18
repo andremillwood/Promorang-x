@@ -16,8 +16,8 @@ import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/Va
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
-import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID, resolveAreaKey, worldObjectState } from "@promorang/shared";
-import { useExperienceHome } from "@/hooks/usePeopleExperience";
+import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID } from "@promorang/shared";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 const SEA_DECK_FALLBACK: PublicVenueRow = {
   id: SEA_DECK_VENUE_ID,
@@ -228,7 +228,7 @@ export default function VenueProfile() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-12">
+    <main className="marketing-cinematic public-object-page min-h-screen bg-[#050505] px-4 py-12 text-white">
       {venue && (
         <SEO
           title={venue.name}
@@ -260,7 +260,7 @@ export default function VenueProfile() {
         </div>
       ) : venue ? (
         <>
-          <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-6 py-8 text-white shadow-2xl">
+          <section className="public-object-hero relative overflow-hidden border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-6 py-8 text-white">\n            <CurrentArc variant="hero" className="marketing-hero-current" />
             <Button asChild variant="ghost" className="mb-5 w-fit">
               <Link to={venue.country_slug ? buildLocationPath(venue.country_slug, venue.city_slug) : "/explore/moments"}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -306,12 +306,6 @@ export default function VenueProfile() {
                   </span>
                   {venue.address && <span>{venue.address}</span>}
                 </div>
-                {territory ? (
-                  <p className="pt-1 text-xs text-white/50">
-                    {territory.standingLine}{" "}
-                    <Link to="/progress" className="font-bold text-primary">Season board</Link>
-                  </p>
-                ) : null}
                 {slug === "sea-deck" ? (
                   <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
@@ -384,7 +378,7 @@ export default function VenueProfile() {
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/50">
                   <span>⚡ Powered by Community Vault Float</span>
-                  <span className="text-emerald-400 font-semibold">100% Guaranteed</span>
+
                 </div>
               </div>
             </div>
