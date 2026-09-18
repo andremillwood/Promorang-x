@@ -780,6 +780,59 @@ Commits:
 
 Status: **Closed**
 
+#### T-030 — Remaining guaranteed-outcome and synthetic funded-supply claims
+
+Files:
+- `apps/web/src/pages/ExploreRewards.tsx`
+- `apps/web/src/pages/Help.tsx`
+- `apps/web/src/pages/MidasBrandSponsorshipProposal.tsx`
+- `apps/web/src/pages/CreateProposal.tsx`
+- `apps/web/src/components/promocard/MerchantMarginPoolManager.tsx`
+- `backend/api/merchantSampling.js`
+- `backend/services/bufferDropService.js`
+- `backend/api/platform-drops.js`
+- `packages/shared/src/value-instruments.ts`
+- `apps/web/src/pages/EconomyConcept.tsx`
+- `apps/web/src/components/nodes/PromorangNodeHub.tsx`
+
+Finding:
+- demand thresholds and locally managed wishlist state were presented as guaranteed deals, customer headcount, foot traffic and attendee attribution;
+- local wishlist actions also announced PromoPoint rewards without durable issuance;
+- creator/merchant/brand help copy overstated guaranteed payouts, guaranteed traffic and universal proof coverage;
+- commercial proposals and simulators presented UGC, visits, ROAS, revenue and product trial as guaranteed outputs rather than targets or scenarios;
+- merchant projection math treated full-cap conversion as guaranteed revenue;
+- paid sampling graduation promised guaranteed reach;
+- platform-buffer services fabricated a funded pool and active paid drops when the database was unavailable, and community-drop creation could return a fake successful active drop without persistence or funding;
+- Save & Win/Gem copy preserved principal correctly but collapsed platform denomination, exit rules and withdrawal eligibility into “take it out whenever.”
+
+Resolution:
+- demand is presented as demand; threshold ≠ supply, attendance or merchant commitment;
+- browser-local wishlist actions no longer claim durable Point issuance;
+- public/help/commercial copy now separates targets, attribution, approval, earning and settlement from guarantees;
+- calculators and margin cards are labelled as scenarios or projected targets;
+- sampling uses configurable paid distribution rather than guaranteed reach;
+- buffer pool/drop inventory now fails closed when authoritative storage/funding is unavailable;
+- community-drop creation returns unavailable rather than a synthetic funded object;
+- funded buffer-drop copy says eligible approved completion can receive the configured reward while funded capacity exists;
+- Save & Win keeps principal but exit/hold/withdrawal rules remain explicit;
+- 1 USD Gem denomination is not presented as universal immediate cash-out eligibility.
+
+Commits:
+- `2e6d47dc0ad294d74632fbf22c9946a14b9e9f12`
+- `ab5957bb2dbaaa7fed4f1d499930a131e462e55d`
+- `6b9d2172756bb3a6c626a1585fdb2ef66fa8f21e`
+- `6684cbca104fe710555b1c042699c1e35e9b8aae`
+- `eba5bb14b80391e46d176a718bd1ed42b91e97ca`
+- `c2ed759d693f78ccde36e087ff010e4e802c795b`
+- `93f3d3336992fabde6d8c43aa72e84921ad140e4`
+- `cb9127cc991b3011565c1125b8b32168c3bfc657`
+- `557b79c43dc8b4604c59c8c01c20509d815b060b`
+- `194bf5658d016346a8fb37f6593074ce9c61a5c5`
+- `b955f1b33a3bec484b605a1f129ca089eaea60ac`
+- `2f59a8edf1446ceb5b961cdedd8afd5f72d86b51`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
