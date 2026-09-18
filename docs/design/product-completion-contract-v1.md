@@ -496,7 +496,7 @@ Exit gate:
 
 ## C18 — Mobile parity
 
-Status: **Incomplete**
+Status: **In progress; return provenance and Gems value-state parity hardened**
 
 Deliver:
 - route/journey parity where applicable;
