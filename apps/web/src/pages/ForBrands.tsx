@@ -39,7 +39,7 @@ export default function ForBrands() {
   const leadSignal = liveSignals[0];
 
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title="PROMORANG for Brands — See demand before you spend to create it"
         description="See recorded market demand, decide how to respond, and measure what actually happened without confusing interest with action."
