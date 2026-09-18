@@ -197,6 +197,24 @@ Commit: `c313703df5e62aed5b7a43e8a6de0fae11531446`
 
 Status: **Closed**
 
+#### T-014 — Creator Reputation synthetic tiers and score
+
+File: `apps/web/src/components/creator/CreatorReputationDeck.tsx`
+
+Finding:
+- creator reputation was entirely illustrative: hard-coded tier names, hard-coded active/completed tier states and a hard-coded `98 / 100` Vibe Score.
+
+Resolution:
+- removed invented cultural tier ladder and hidden score;
+- creator progress now comes from `useRoleSuccessProgress("creator")`, backed by recorded releases, linked work, attributed joins and verified unlocks;
+- stored creator economic tier is shown only when `creator_economic_profiles` records one;
+- no tier/score is inferred from likes, views or unverified activity;
+- loading/error/absence remain explicit.
+
+Commit: `29fa719b46bb27c5d601b3a40b91375d1150719c`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
