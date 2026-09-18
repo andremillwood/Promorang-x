@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, CalendarDays, Gift, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { usePublicOffers } from "@/hooks/useOffers";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,8 +47,10 @@ export function PromoCardValueShowcase() {
           </Link>
         </div>
 
-        <div className="marketing-card-value-grid">
+        <div className="marketing-card-value-grid relative">
+          <CurrentArc variant="return" className="marketing-promocard-return-arc" />
           <div className="marketing-promocard-stage">
+            <div className="marketing-return-landing__label mb-4"><RotateCcw className="h-4 w-4" /> THE RETURN LANDS HERE</div>
             <PromoCardFace
               holder={user ? "Your PromoCard" : "Your PromoCard"}
               available="What changed because you joined"
