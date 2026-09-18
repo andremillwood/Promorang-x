@@ -1252,3 +1252,316 @@ img.promorang-satellite-tiles {
     gap: .75rem;
   }
 }
+
+/* PROMORANG marketing world-first composition v2 */
+.marketing-world-rail,
+.marketing-role-rail,
+.marketing-live-rail,
+.marketing-offer-rail {
+  display: flex;
+  gap: .8rem;
+  overflow-x: auto;
+  padding-bottom: .6rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.marketing-world-rail::-webkit-scrollbar,
+.marketing-role-rail::-webkit-scrollbar,
+.marketing-live-rail::-webkit-scrollbar,
+.marketing-offer-rail::-webkit-scrollbar { display: none; }
+
+.marketing-world-card {
+  position: relative;
+  min-width: min(72vw, 12.75rem);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: .72rem;
+  background: #101010;
+  scroll-snap-align: start;
+}
+.marketing-world-card img,
+.marketing-role-card img,
+.marketing-live-card__media img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 260ms ease, filter 260ms ease;
+}
+.marketing-world-card:hover img,
+.marketing-role-card:hover img,
+.marketing-role-card.is-active img,
+.marketing-live-card:hover img { transform: scale(1.04); }
+
+.marketing-world-card__veil,
+.marketing-role-card__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(0,0,0,.94), rgba(0,0,0,.12) 70%),
+    linear-gradient(90deg, rgba(255,90,0,.14), transparent 55%);
+}
+.marketing-world-card__copy,
+.marketing-role-card__copy {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: .95rem;
+  text-align: left;
+}
+.marketing-world-card__eyebrow,
+.marketing-role-card__copy small {
+  color: rgba(255,255,255,.52);
+  font-size: .57rem;
+  font-weight: 850;
+  letter-spacing: .13em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+.marketing-world-card__copy strong,
+.marketing-role-card__copy strong {
+  margin-top: .35rem;
+  color: #fff;
+  font-size: 1.18rem;
+  font-weight: 950;
+  letter-spacing: -.035em;
+  line-height: .98;
+}
+.marketing-world-card__copy small { margin-top: .35rem; letter-spacing: 0; text-transform: none; }
+
+.marketing-compact-empty {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  min-height: 5.25rem;
+  border: 1px dashed rgba(255,255,255,.14);
+  background: rgba(255,255,255,.018);
+  padding: 1rem 1.1rem;
+}
+.marketing-dark-note {
+  border-top: 2px solid #ff5a00;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255,90,0,.1), transparent 44%),
+    rgba(255,255,255,.025);
+  padding: 1.35rem;
+}
+.marketing-promocard-stage { position: relative; padding: clamp(.5rem, 3vw, 2rem); }
+.marketing-promocard-stage::before {
+  content: "";
+  position: absolute;
+  inset: 9% 0 0 8%;
+  background: radial-gradient(circle, rgba(255,90,0,.18), transparent 62%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+.marketing-promocard-stage .pr-card-stage { position: relative; z-index: 1; }
+
+.marketing-card-value-grid {
+  display: grid;
+  gap: 2.25rem;
+  align-items: center;
+}
+.marketing-benefit-stack {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.marketing-benefit-row {
+  display: grid;
+  grid-template-columns: 4.2rem 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.marketing-benefit-row > span {
+  color: #ff8a3d;
+  font-size: .64rem;
+  font-weight: 950;
+  letter-spacing: .16em;
+}
+.marketing-benefit-row h3 {
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.marketing-benefit-row p {
+  margin-top: .3rem;
+  color: rgba(255,255,255,.46);
+  font-size: .76rem;
+  line-height: 1.55;
+}
+
+.marketing-live-card {
+  min-width: min(82vw, 19rem);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: .72rem;
+  background: #0a0a0a;
+  scroll-snap-align: start;
+}
+.marketing-live-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #111;
+}
+.marketing-live-card__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,.82), transparent 68%);
+}
+.marketing-live-card__state {
+  position: absolute;
+  left: .75rem;
+  top: .75rem;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: .3rem;
+  background: rgba(0,0,0,.68);
+  padding: .28rem .45rem;
+  color: #fff;
+  font-size: .57rem;
+  font-weight: 950;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.marketing-live-card__body { padding: .95rem; }
+.marketing-live-card__body h3 {
+  margin-top: .35rem;
+  font-size: 1.18rem;
+  font-weight: 950;
+  letter-spacing: -.035em;
+  line-height: 1.02;
+}
+.marketing-live-card__perk {
+  display: flex;
+  gap: .4rem;
+  align-items: flex-start;
+  margin-top: .8rem;
+  border-left: 2px solid #ff5a00;
+  background: rgba(255,90,0,.07);
+  padding: .55rem .65rem;
+  color: rgba(255,255,255,.7);
+  font-size: .7rem;
+  line-height: 1.45;
+}
+
+.marketing-offer-card {
+  display: flex;
+  min-width: min(82vw, 17rem);
+  min-height: 15.5rem;
+  flex-direction: column;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: .72rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255,90,0,.1), transparent 45%),
+    #0a0a0a;
+  padding: 1rem;
+  scroll-snap-align: start;
+}
+.marketing-offer-card__mark {
+  display: grid;
+  height: 2.6rem;
+  width: 2.6rem;
+  place-items: center;
+  border: 1px solid rgba(255,90,0,.34);
+  border-radius: 999px;
+  background: rgba(255,90,0,.09);
+  color: #ff8a3d;
+}
+.marketing-offer-card h3 {
+  margin-top: .5rem;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 950;
+  letter-spacing: -.035em;
+  line-height: 1.04;
+}
+.marketing-offer-card__copy {
+  margin-top: .65rem;
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(255,255,255,.46);
+  font-size: .74rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.marketing-offer-card__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin-top: 1rem;
+}
+.marketing-offer-card__facts span {
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: .3rem;
+  padding: .32rem .45rem;
+  color: rgba(255,255,255,.55);
+  font-size: .6rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.marketing-operator-band { isolation: isolate; }
+
+.marketing-role-card {
+  position: relative;
+  min-width: min(58vw, 10rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: .72rem;
+  background: #0d0d0d;
+  color: #fff;
+  scroll-snap-align: start;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+.marketing-role-card:hover,
+.marketing-role-card.is-active { border-color: rgba(255,90,0,.72); }
+.marketing-role-card.is-active {
+  box-shadow: inset 0 -3px 0 #ff5a00, 0 16px 38px -26px rgba(255,90,0,.75);
+}
+.marketing-role-card__icon {
+  display: grid;
+  height: 2rem;
+  width: 2rem;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  background: rgba(0,0,0,.5);
+  color: #ff8a3d;
+}
+.marketing-role-detail {
+  display: grid;
+  gap: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,.12);
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.018);
+  padding: 1.5rem;
+}
+.marketing-role-detail__route {
+  border-left: 2px solid #ff5a00;
+  padding-left: 1.2rem;
+}
+
+@media (min-width: 768px) {
+  .marketing-card-value-grid { grid-template-columns: minmax(0,1.08fr) minmax(0,.92fr); }
+  .marketing-role-detail { grid-template-columns: minmax(0,1fr) minmax(260px,.55fr); align-items: center; }
+  .marketing-live-card { min-width: 18rem; }
+  .marketing-offer-card { min-width: 16rem; }
+}
+@media (min-width: 1280px) {
+  .marketing-world-rail { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); overflow: visible; }
+  .marketing-world-card { min-width: 0; }
+  .marketing-role-rail { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); overflow: visible; }
+  .marketing-role-card { min-width: 0; }
+  .marketing-live-rail,
+  .marketing-offer-rail { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); overflow: visible; }
+  .marketing-live-card,
+  .marketing-offer-card { min-width: 0; }
+}
