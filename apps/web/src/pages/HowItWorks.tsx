@@ -5,7 +5,7 @@ import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/component
 
 export default function HowItWorks() {
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title="How PROMORANG works — From discovery to demand to proof"
         description="See how PROMORANG moves from Discovery and expressed demand to a real response, PromoCard continuity, verified action and return."
