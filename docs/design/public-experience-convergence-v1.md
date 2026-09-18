@@ -569,3 +569,13 @@ PromoCard is the persistent personal layer behind public objects. It should usua
 
 ### Signature objects
 Use a TicketPass when a pass-like state exists. Use a PaperReceipt when a receiptable consequence exists. Use PromoCard prominently when showing retained personal state. Do not use signature objects as decorative containers for explanatory product doctrine.
+
+
+### Scene / Community
+Scene is a cultural destination, not a world-system dashboard. Lead with identity, place, feeling and the next real Moment. Follow with real Moments and approved Discoveries. World health, territory telemetry, operator abstractions and contribution menus do not belong ahead of the Scene's human reason to join.
+
+### Place / Venue
+Place is a place-first destination. Lead with where it is, what it is, what is happening there, and what is actually available. Do not surface internal float mechanics, guaranteed-value language, economy diagrams or world-state chips as the anonymous visitor's primary experience.
+
+### Creator
+Creator is identity + work + real connected activity. Production creator pages must resolve from creator-role profiles and source-backed public content. No sample creator should stand in for a missing production profile; no fabricated audience, movement, claim or ticket metrics should be used to make the directory look active.
