@@ -3,6 +3,7 @@ const Outlet = RouterOutlet as any;
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
+import { PublicHomeBar } from "@/components/culture/PublicHomeBar";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -35,9 +36,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     }, [profile?.maturity_state]);
 
     const marketingRoutes = [
-        "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
+        "/", "/join", "/how-it-works", "/what-is-promorang", "/about", "/pricing", "/solutions", "/hosting",
+        "/developers", "/for-developers", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
-        "/help", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
+        "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
         "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
     const isMarketingRoute = marketingRoutes.some(path =>
@@ -70,7 +72,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     if (isMarketingRoute) {
         return (
             <div className="flex min-h-screen flex-col overflow-x-clip">
-                {!isCleanPage && <Header />}
+                {!isCleanPage && <PublicHomeBar />}
                 <main className="flex-1 overflow-x-clip">
                     {children || <Outlet />}
                 </main>
