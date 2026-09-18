@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
-import { NightTrail, PaperReceipt, PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
+import { PromoCardValueShowcase } from "@/components/marketing/PromoCardValueShowcase";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useDiscoveries } from "@/hooks/useDiscoveries";
 import { useMarket } from "@/contexts/MarketContext";
@@ -365,40 +366,7 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
-          <div>
-            <p className="marketing-kicker">PromoCard keeps the thread</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Your place in the market should survive the moment.</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">
-              PromoCard carries what you are watching, what you joined, access that was actually issued, and verified history worth keeping. It is continuity—not a promise that supply exists.
-            </p>
-            <div className="mt-7 grid gap-3 sm:grid-cols-3">
-              {[
-                ["WATCHING", "What matters to me"],
-                ["OPEN", "What I can actually use"],
-                ["KEPT", "What really happened"],
-              ].map(([label, text]) => (
-                <div key={label} className="border-l-2 border-orange-500 bg-white/[0.025] px-4 py-3">
-                  <p className="text-[10px] font-black tracking-[0.15em] text-orange-300">{label}</p>
-                  <p className="mt-1 text-sm font-bold text-white">{text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="marketing-promocard-stage">
-            <PromoCardFace
-              holder="Your PromoCard"
-              available="What you're part of"
-              limit="Watching · Open · Kept"
-              places="One place to keep what you discover, back, access and actually do."
-              action="See what changed"
-              variant="membership"
-              interactive={false}
-            />
-          </div>
-        </div>
-      </section>
+      <PromoCardValueShowcase />
 
       <section className="border-b border-white/10 bg-[#080808] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
