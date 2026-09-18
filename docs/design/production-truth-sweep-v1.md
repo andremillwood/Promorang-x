@@ -139,6 +139,64 @@ Status: **Open contract debt**
 
 The current `moment_collaborators` schema defaults records to `confirmed` and does not expose a separate invitation/acceptance lifecycle. Do not invent acceptance UI until an authoritative collaborator invitation contract exists. Treat “confirmed” as current schema behavior, not proof that a linked user explicitly accepted.
 
+#### T-011 — Host sponsorship synthetic offers and escrow
+
+Files:
+- `apps/web/src/components/host/HostSponsorshipConsole.tsx`
+- `apps/web/src/components/host/SponsorshipRequests.tsx`
+
+Finding:
+- hard-coded sponsor brands, offer amounts, escrow totals and earnings were presented as live operations;
+- the real sponsorship component's empty state also displayed an illustrative Nike opportunity.
+
+Resolution:
+- Host sponsorship console now wraps the authoritative sponsorship request source only;
+- hard-coded escrow/earnings/offer state removed;
+- empty request state stays honestly empty;
+- accepted, funded and paid remain separate states.
+
+Commits:
+- `6fae524585de1c8fbff30f924c36b75634b72d86`
+- `4000bc62a79c60011f4e3da9a54d6e7615a8b741`
+
+Status: **Closed**
+
+#### T-012 — Merchant Places demo inventory and fabricated telemetry
+
+File: `apps/web/src/components/merchant/MerchantVenueStudio.tsx`
+
+Finding:
+- empty venue inventory was replaced by two demo Kingston venues;
+- missing capacity, occupancy, rating and linked Moment values were filled with invented numbers.
+
+Resolution:
+- venue list uses authoritative merchant venue records only;
+- empty stays empty;
+- missing capacity/rating stays “Not recorded”;
+- occupancy and linked Moment telemetry are not claimed without a source.
+
+Commit: `95f5d827bdee89294b7b8871302ca2ba2c32bfaa`
+
+Status: **Closed**
+
+#### T-013 — Merchant storefront synthetic live state
+
+File: `apps/web/src/components/merchant/MerchantStorefrontConsole.tsx`
+
+Finding:
+- demo storefront ID, “Public Visible”, “Open Now”, fake active deal, fake products, fake prices/points and live item counts were presented inside the merchant workspace.
+
+Resolution:
+- synthetic customer preview removed;
+- storefront link requires authenticated merchant identity;
+- offer input is explicitly a draft that continues into the authoritative inventory flow;
+- real `ProductCatalogManager` remains the catalog source;
+- offer, claim, validation, purchase and fulfillment boundaries are stated explicitly.
+
+Commit: `c313703df5e62aed5b7a43e8a6de0fae11531446`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
