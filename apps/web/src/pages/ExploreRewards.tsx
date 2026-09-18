@@ -12,6 +12,8 @@ import { discoveryHref } from "@/lib/discovery-path";
 import { supabase } from "@/integrations/supabase/client";
 import { getSiteUrl } from "@/lib/discovery";
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
   if (votesRemaining === 0) return "threshold_met" as const;
@@ -77,7 +79,7 @@ export function ExploreRewards() {
   }
 
   return (
-    <main className="min-h-screen bg-[#080808] px-5 pb-24 pt-24 text-white sm:px-6">
+    <main className="marketing-cinematic min-h-screen bg-[#080808] px-5 pb-24 pt-24 text-white sm:px-6">\n      <CurrentArc variant="hero" className="marketing-hero-current" />
       <SEO
         title="Wanted + Responses — PROMORANG"
         description="See recorded demand separately from the Moments and offers operators have actually put into market."
