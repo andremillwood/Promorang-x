@@ -64,14 +64,15 @@ function writeLocalIntent(city: string, query: string) {
 }
 
 export async function recordDiscoveryNamedIntent(city: string, query: string): Promise<boolean> {
-  writeLocalIntent(city, query);
   try {
     const { error } = await (supabase as any).rpc("record_discovery_named_intent", {
       p_city: city,
       p_query: query,
       p_anonymous_id: readDiscoverAnonId() || null,
     });
-    return !error;
+    if (error) return false;
+    writeLocalIntent(city, query);
+    return true;
   } catch {
     return false;
   }
@@ -88,23 +89,22 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
 
   const intentsQuery = useQuery({
     queryKey: ["discovery-named-intents", cityName],
-    initialData: () => readLocalIntents(cityName),
+    initialData: () => import.meta.env.DEV ? readLocalIntents(cityName) : undefined,
     queryFn: async (): Promise<NamedIntent[]> => {
-      const local = readLocalIntents(cityName);
-      try {
-        const { data, error } = await (supabase as any).rpc("list_discovery_named_intent_counts", {
-          p_city: cityName,
-        });
-        if (error) return local;
-        const remote = ((data || []) as Array<{ query_raw: string; ask_count: number; last_asked_at?: string }>).map((row) => ({
-          query: row.query_raw,
-          count: row.ask_count,
-          lastAskedAt: row.last_asked_at,
-        }));
-        return mergeNamedIntents(remote, local);
-      } catch {
-        return local;
+      const local = import.meta.env.DEV ? readLocalIntents(cityName) : [];
+      const { data, error } = await (supabase as any).rpc("list_discovery_named_intent_counts", {
+        p_city: cityName,
+      });
+      if (error) {
+        if (import.meta.env.DEV) return local;
+        throw error;
       }
+      const remote = ((data || []) as Array<{ query_raw: string; ask_count: number; last_asked_at?: string }>).map((row) => ({
+        query: row.query_raw,
+        count: row.ask_count,
+        lastAskedAt: row.last_asked_at,
+      }));
+      return import.meta.env.DEV ? mergeNamedIntents(remote, local) : remote;
     },
   });
 
@@ -128,23 +128,26 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
 
   const unlocksQuery = useQuery({
     queryKey: ["discovery-card-unlocks", cityName],
-    initialData: () => tallyCardUnlocks(readLocalCardUnlocks().filter((row) => row.city === cityName)),
+    initialData: () => import.meta.env.DEV
+      ? tallyCardUnlocks(readLocalCardUnlocks().filter((row) => row.city === cityName))
+      : undefined,
     queryFn: async (): Promise<UnlockTally[]> => {
-      const local = tallyCardUnlocks(readLocalCardUnlocks().filter((row) => !row.city || row.city === cityName));
-      try {
-        const { data, error } = await (supabase as any).rpc("list_discovery_card_unlock_counts", {
-          p_city: cityName,
-        });
-        if (error) return local;
-        const remote = ((data || []) as Array<{ poll_id: string; on_cards: number; used: number }>).map((row) => ({
-          pollId: row.poll_id,
-          onCards: row.on_cards || 0,
-          used: row.used || 0,
-        }));
-        return mergeUnlockTallies(remote, local);
-      } catch {
-        return local;
+      const local = import.meta.env.DEV
+        ? tallyCardUnlocks(readLocalCardUnlocks().filter((row) => !row.city || row.city === cityName))
+        : [];
+      const { data, error } = await (supabase as any).rpc("list_discovery_card_unlock_counts", {
+        p_city: cityName,
+      });
+      if (error) {
+        if (import.meta.env.DEV) return local;
+        throw error;
       }
+      const remote = ((data || []) as Array<{ poll_id: string; on_cards: number; used: number }>).map((row) => ({
+        pollId: row.poll_id,
+        onCards: row.on_cards || 0,
+        used: row.used || 0,
+      }));
+      return import.meta.env.DEV ? mergeUnlockTallies(remote, local) : remote;
     },
   });
 
