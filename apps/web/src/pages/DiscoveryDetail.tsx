@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle2, Compass, ExternalLink, MapPin, Share2, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Compass, ExternalLink, MapPin, Share2, UserRound } from "lucide-react";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
@@ -147,24 +147,11 @@ export default function DiscoveryDetail() {
         </section>
       ) : null}
 
-      <section className="container px-6 py-12">
-        <div className="grid gap-10 border-y border-white/10 py-10 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
-          <div>
-            <p className="marketing-kicker">PromoCard continuity</p>
-            <h2 className="mt-3 text-4xl font-black">Do not lose the thing you just discovered.</h2>
-            <p className="mt-4 text-sm leading-7 text-white/50">Watching keeps the relationship legible. If a real Moment, Offer or other response appears later, PROMORANG has somewhere truthful to bring you back.</p>
-          </div>
-          <PromoCardFace holder="Your PromoCard" available="Watching this Discovery" limit="Interest · response · proof" places="Only relationships and consequences supported by real records return here." action="See what changed" variant="membership" interactive={false} />
-        </div>
+      <section className="container px-6 py-14">
+        <div className="mb-7 flex items-end justify-between border-b border-white/10 pb-5"><div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Keep exploring</p><h2 className="mt-2 font-serif text-4xl font-bold">More worth knowing.</h2></div><Link to="/discover" className="hidden items-center gap-2 text-sm font-bold text-primary sm:flex">All Discoveries<ArrowRight className="h-4 w-4"/></Link></div>
+        {relatedDiscoveries.length ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{relatedDiscoveries.map((item) => <Link key={item.id} to={`/discoveries/${item.slug}`} className="group overflow-hidden border border-white/10 bg-white/[.025]"><div className="aspect-[4/3] overflow-hidden bg-white/[.04]">{item.cover_image ? <img src={item.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><Compass className="h-7 w-7 text-white/20"/></div>}</div><div className="p-4"><p className="text-[9px] font-black uppercase tracking-[.14em] text-primary">{formatDiscoveryCategory(item.category)}</p><h3 className="mt-2 font-serif text-xl font-bold leading-tight">{item.title}</h3><p className="mt-2 text-[11px] text-white/42">{realLocation(item)}</p></div></Link>)}</div> : <p className="text-sm text-white/45">No related approved Discoveries are available yet.</p>}
       </section>
-
-      <section className="container px-6 pb-16 pt-8">
-        <div className="grid gap-5 rounded-[2rem] border border-white/10 bg-white/[0.02] p-6 sm:grid-cols-[auto_1fr] sm:p-8">
-          <ShieldCheck className="h-7 w-7 text-primary" />
-          <div><p className="font-serif text-2xl font-bold">Truth boundaries</p><p className="mt-2 text-sm leading-7 text-white/50">Proposal ≠ approval · interest ≠ attendance · Discovery ≠ offer · offer ≠ purchase · Scene membership ≠ attendance. PROMORANG should only advance each state when the corresponding record actually exists.</p></div>
-        </div>
-      </section>
-
+      <section className="border-t border-white/10 bg-white/[.02]"><div className="container flex flex-col gap-5 px-6 py-10 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">PromoCard</p><h2 className="mt-2 font-serif text-2xl font-bold">Want to remember this?</h2><p className="mt-2 text-xs text-white/42">Watch it now. Come back when something real changes.</p></div><WatchMarketObjectButton type="discovery" id={String(discovery.id)} title={discovery.title} subtitle={location} image={discovery.cover_image || null} href={discoveryHref} metadata={{ category: discovery.category || null, city: discovery.city || null }} /></div></section>
       <MobileBottomNav />
     </main>
   );
