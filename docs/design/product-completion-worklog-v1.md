@@ -508,6 +508,7 @@ Latest closed findings:
 - **T-040 — Following collapsed source failures into empty states and exposed non-functional filters.**
 - **T-041 — Creator directory mixed fabricated identities, verification and performance proof into production.**
 - **T-042 — UserProfile and FollowButton converted source gaps into false identity/social state.**
+- **T-043 — Creator share feed published static polls/Moments and invented reward promises.**
 
 Closed direction:
 
@@ -536,6 +537,7 @@ Closed direction:
 - Following now fails visibly when its graph/Moment/count sources fail, uses the canonical combined going count, and only exposes filters with real semantics.
 - the creator directory is now role/profile-backed only; fabricated creator identities, verification, performance metrics and ranking claims are removed.
 - profile identity/social state now distinguishes unavailable/not-found/empty, keeps private histories owner-only, and verifies follow state before mutation.
+- creator share inventory now comes from recorded polls, public Moments and live perks; generic sharing no longer carries invented points/ticket promises.
 
 ### NEXT ACTION
 

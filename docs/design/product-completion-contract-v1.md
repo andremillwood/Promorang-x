@@ -228,7 +228,7 @@ Exit gate:
 
 ## C6 — Creator convergence
 
-Status: **In progress; proof/value path hardened, acceptance/rights contract still incomplete**
+Status: **In progress; proof/value path and creator directory/share inventory truth hardened; acceptance/rights contract still incomplete**
 
 Canonical journey:
 `OPPORTUNITY → BRIEF → ACCEPT → CREATE → RIGHTS/REVIEW → RELEASE → ATTRIBUTION → VERIFIED OUTCOME → EARNING → SETTLEMENT → REPUTATION/RETURN`

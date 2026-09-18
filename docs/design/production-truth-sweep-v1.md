@@ -1151,6 +1151,31 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-043 — Creator share feed published static polls/Moments and invented reward promises
+
+Files:
+- `apps/web/src/components/creator/ThingsWorthSharingFeed.tsx`
+- `apps/web/src/hooks/useListingDiscoveryPolls.ts`
+- `apps/web/src/components/promoshare/PromoShareAction.tsx`
+
+Finding:
+- the production creator share feed sourced discovery cards from static `DISCOVERY_POLLS` and Moment cards from `CURATED_KINGSTON_MOMENTS`;
+- those fixture objects were presented as shareable/live inventory on `/creators`;
+- static poll vote counts were presented as current response counts;
+- share CTAs attached fixed “25 points + 1 ticket” and “50 points + 2 tickets” reward rules without a source-backed eligibility configuration;
+- missing live inventory could therefore be obscured by fixture supply.
+
+Resolution:
+- discovery-share cards now come from `view_public_listing_discovery_polls` through `useListingDiscoveryPolls`;
+- Moment-share cards now come from `view_public_moment_directory` and only include recorded upcoming active Moments;
+- source loading/failure/empty states remain explicit and are never replaced by fixtures;
+- recorded poll response counts remain visible because they come from the public poll view;
+- creator-share actions no longer pass fixed reward/ticket rules; they remain generic PromoShare routes until a recorded reward rule exists;
+- share copy identifies recorded signals/Moments rather than “live” or reward-bearing inventory by assumption.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
