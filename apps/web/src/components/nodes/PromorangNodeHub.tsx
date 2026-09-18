@@ -70,7 +70,7 @@ export const PromorangNodeHub = ({
         <div>
           <p className="text-xs font-bold tracking-[0.2em] text-amber-300">Save & Win</p>
           <h1 className="mt-3 font-serif text-4xl font-bold leading-[1.05] md:text-6xl">
-            Set money aside. Stay in the draws. Take it out whenever.
+            Set Gems aside. Stay in the draws. Principal remains yours; exit and withdrawal rules still apply.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-zinc-300 md:text-lg">
             Community pots back local discounts and check-ins. You keep 100% of what you put in. While it sits there, you collect free tickets into weekly and monthly prize draws.
