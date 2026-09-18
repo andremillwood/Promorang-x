@@ -44,7 +44,9 @@ Lead with the human meaning, then the branded term.
 
 Forbidden in member-facing copy: node, AMM, telemetry, stake, yield, mint, burn, escrow, sybil, on-chain, deflationary, flywheel, primitive, ROAS, DAU, capital allocator.
 
-Prefer: ask, want, join, show up, save at checkout, refill, ticket, streak, keepsake, prize already paid for, money set aside.
+Prefer participant language: looking for, tell PROMORANG, keep this, join, show up, use, see what changed, save at checkout, refill, ticket, keepsake.
+
+Reserve `Demand`, `market signal`, `supply`, `response`, and `record my ask` for explanatory or operator contexts. Do not make “Ask the market” a participant job-to-be-done.
 
 ## Public experience law
 
@@ -60,3 +62,27 @@ Public PROMORANG is not a brochure for the signed-in product. It is the first us
 ## First viewport test
 
 A screenshot must show a real object and one next action. If it could belong to any fintech SaaS, rebuild it.
+
+
+## Marketing Current + Return law
+
+Marketing visual expression must follow `docs/design/marketing-current-return-visual-system-v1.md`.
+
+The external visual reference may influence:
+- photographic density,
+- editorial hierarchy,
+- cultural confidence,
+- compact rails.
+
+PROMORANG's proprietary signature comes from:
+- Current / trajectory,
+- Return arc,
+- Signal,
+- trails,
+- tangible objects,
+- consequence receipts,
+- PromoCard as the place useful consequences return to.
+
+The boomerang is product physics, not repeated decorative iconography.
+
+Use movement to explain state and consequence. Respect `prefers-reduced-motion`; when motion is reduced, preserve the path, hierarchy and meaning statically.
