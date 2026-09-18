@@ -381,7 +381,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/admin` | production | Primary candidate; still requires experience audit |
 | `/admin/promoshare` | limited | Standalone Admin utility; candidate for main Admin consolidation |
 | `/admin/featured` | limited | Standalone Admin utility; candidate for main Admin consolidation |
-| `/admin/kyc` | limited | Standalone Admin utility; candidate for main Admin consolidation |
+| `/admin/kyc` | redirect | Redirects to `/admin?tab=verification-hub` |
 | `/marketplace` | limited | Secondary/legacy concept; review against canonical spine |
 | `/portfolio` | limited | Secondary/legacy concept; review against canonical spine |
 | `/pieces/:pieceType/:assetId` | production | Primary candidate; still requires experience audit |
