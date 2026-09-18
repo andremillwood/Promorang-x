@@ -454,7 +454,7 @@ Exit gate:
 
 ## C16 — Progress, result and return
 
-Status: **In progress; closeout provenance and return-state truth hardened**
+Status: **In progress; operator closeout provenance and role-scoped return truth hardened**
 
 Deliver:
 - participant progress/what happened;
