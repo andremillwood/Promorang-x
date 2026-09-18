@@ -218,30 +218,34 @@ const Discover = () => {
 
       const scheduledDbMoments = dbMoments.map((moment) => applyEncoreSchedule(moment));
 
-      const curatedAsMoments = CURATED_KINGSTON_MOMENTS.map((cm) => {
-        const coords = CURATED_COORDINATES[cm.id] || DEFAULT_DISCOVER_CENTER;
-        const isEncore = isEncoreRecord(cm);
-        return applyEncoreSchedule({
-          id: cm.id,
-          host_id: "editorial",
-          title: cm.title,
-          description: cm.description,
-          category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
-          location: cm.location,
-          venue_name: cm.venueName,
-          latitude: coords.lat,
-          longitude: coords.lng,
-          starts_at: isEncore ? ENCORE_START_ISO : new Date(Date.now() + 86400000).toISOString(),
-          ends_at: isEncore ? ENCORE_END_ISO : null,
-          max_participants: 50,
-          reward: `${cm.pointsReward} Points + PromoKey`,
-          image_url: cm.image,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          ...(isEncore ? ENCORE_RECURRENCE : {}),
-        });
-      });
+      // Editorial fixtures are a design/dev aid only. Production discovery is
+      // intentionally empty when authoritative Moment inventory is empty.
+      const curatedAsMoments = import.meta.env.DEV
+        ? CURATED_KINGSTON_MOMENTS.map((cm) => {
+            const coords = CURATED_COORDINATES[cm.id] || DEFAULT_DISCOVER_CENTER;
+            const isEncore = isEncoreRecord(cm);
+            return applyEncoreSchedule({
+              id: cm.id,
+              host_id: "editorial",
+              title: cm.title,
+              description: cm.description,
+              category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
+              location: cm.location,
+              venue_name: cm.venueName,
+              latitude: coords.lat,
+              longitude: coords.lng,
+              starts_at: isEncore ? ENCORE_START_ISO : new Date(Date.now() + 86400000).toISOString(),
+              ends_at: isEncore ? ENCORE_END_ISO : null,
+              max_participants: 50,
+              reward: null,
+              image_url: cm.image,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              ...(isEncore ? ENCORE_RECURRENCE : {}),
+            });
+          })
+        : [];
 
       const seenTitles = new Set(scheduledDbMoments.map((m) => m.title.toLowerCase()));
       const hasDbEncore = scheduledDbMoments.some((moment) => isEncoreRecord(moment));
