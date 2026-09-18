@@ -92,8 +92,8 @@ export default function Creators() {
             </div>
 
             {/* Quick Search Box */}
-            <div className="rounded-3xl border border-white/15 bg-black/65 p-5 backdrop-blur-xl space-y-3 shadow-2xl">
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-white">
+            <div className=" border border-white/15 bg-black/65 p-5 backdrop-blur-xl space-y-3 shadow-2xl">
+              <div className="flex items-center gap-3  border border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-white">
                 <Search className="h-4 w-4 text-purple-400 shrink-0" />
                 <input
                   type="text"
@@ -128,7 +128,7 @@ export default function Creators() {
               Public creator-role profiles currently available on PROMORANG.
             </p>
           </div>
-          <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 rounded-2xl text-xs font-bold">
+          <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20  text-xs font-bold">
             <Link to="/for-creators">Join as a Creator →</Link>
           </Button>
         </div>
@@ -141,7 +141,7 @@ export default function Creators() {
               <Link
                 key={creator.user_id}
                 to={`/creators/${creator.username || creator.user_id}`}
-                className="group flex flex-col sm:flex-row gap-5 rounded-3xl border border-white/10 bg-zinc-900/60 p-6 transition-all hover:border-purple-500/50 hover:bg-zinc-900/90 shadow-xl"
+                className="group flex flex-col sm:flex-row gap-5  border border-white/10 bg-zinc-900/60 p-6 transition-all hover:border-purple-500/50 hover:bg-zinc-900/90 shadow-xl"
               >
                 <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 text-2xl font-black text-black shadow-lg">
                   {creator.avatar_url ? (
@@ -176,7 +176,7 @@ export default function Creators() {
             ))}
           </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-white/15 px-6 py-16 text-center">
+          <div className=" border border-dashed border-white/15 px-6 py-16 text-center">
             <Users className="mx-auto h-9 w-9 text-purple-400" />
             <h3 className="mt-5 text-2xl font-black">No creators found</h3>
             <p className="mx-auto mt-2 max-w-md text-xs text-white/50">
@@ -186,21 +186,12 @@ export default function Creators() {
         )}
       </section>
 
-      {/* 4 Pillars of Creator Success */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:grid-cols-4">
-          {[
-            { icon: Sparkles, title: "1. Discover", text: "Find exciting Perks, moments, and cultural drops worth talking about." },
-            { icon: Share2, title: "2. Distribute", text: "1-click PromoShare links that carry persistent single-level referral attribution." },
-            { icon: TrendingUp, title: "3. Build Proof", text: "Verifiable reputation based on real foot traffic and claims, not vanity metrics." },
-            { icon: Ticket, title: "4. Win & Earn", text: "Minted PromoPoints, Gems, and PromoShare tickets for every verified action." },
-          ].map((item) => (
-            <div key={item.title} className="rounded-2xl border border-white/10 bg-black/40 p-5 space-y-2">
-              <item.icon className="h-6 w-6 text-purple-400" />
-              <h3 className="font-black text-sm text-white">{item.title}</h3>
-              <p className="text-xs leading-relaxed text-white/60">{item.text}</p>
-            </div>
-          ))}
+      {/* Continue through the public object graph */}
+      <section className="border-y border-white/10 bg-white/[.02]">
+        <div className="grid gap-px bg-white/10 md:grid-cols-3">
+          <Link to="/discover" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Discover</p><h3 className="mt-3 font-serif text-2xl font-bold">Find something worth moving.</h3><p className="mt-2 text-sm text-white/45">Start with a signal, question, drop or local discovery.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
+          <Link to="/discover?tab=moments" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Moments</p><h3 className="mt-3 font-serif text-2xl font-bold">Move people somewhere real.</h3><p className="mt-2 text-sm text-white/45">Find public activity with a place, time and action.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
+          <Link to="/scenes" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Scenes</p><h3 className="mt-3 font-serif text-2xl font-bold">Enter the culture around it.</h3><p className="mt-2 text-sm text-white/45">Follow recurring communities, rituals and places.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
         </div>
       </section>
 
