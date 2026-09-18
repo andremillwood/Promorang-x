@@ -65,6 +65,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     location_sharing_enabled: false,
   }));
   const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "merchant" | "brand" | "agency" | null>(null);
+  const [locationMessage, setLocationMessage] = useState<string>("Location is optional. You can enter a city manually instead.");
 
   const { setActiveRole, activeRole } = useAuth();
   const createPreferences = useCreateUserPreferences();
@@ -97,7 +98,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     },
     {
       title: "Activate Alerts",
-      subtitle: "Live door passes, nearby deals & Gem rewards",
+      subtitle: "Door passes, nearby activity and account updates",
       icon: <Bell className="w-6 h-6" />,
     },
   ];
@@ -204,21 +205,32 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   };
 
   const requestLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setPreferences((prev) => ({
-            ...prev,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            location_sharing_enabled: true,
-          }));
-        },
-        (error) => {
-          console.error("Location error:", error);
-        }
-      );
+    if (!navigator.geolocation) {
+      setLocationMessage("Location sharing is not available in this browser. Enter your city manually to continue.");
+      return;
     }
+
+    setLocationMessage("Waiting for your browser location permission…");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setPreferences((prev) => ({
+          ...prev,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          location_sharing_enabled: true,
+        }));
+        setLocationMessage("Location sharing enabled. You can turn it off later in your preferences.");
+      },
+      () => {
+        setPreferences((prev) => ({
+          ...prev,
+          latitude: null,
+          longitude: null,
+          location_sharing_enabled: false,
+        }));
+        setLocationMessage("Location was not shared. That is okay—enter your city manually or continue without precise location.");
+      }
+    );
   };
 
   return (
@@ -522,6 +534,9 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                     </Button>
                     <p className="text-sm text-muted-foreground">
                       {t("onboarding.manualLocation")}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground" role="status" aria-live="polite">
+                      {locationMessage}
                     </p>
                   </div>
 
