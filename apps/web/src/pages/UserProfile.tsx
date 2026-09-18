@@ -22,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchProfileRow } from "@/lib/account-profile";
 import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
-import { useI18n } from "@/i18n/I18nContext";
+import { useI18n } from "@/i18n/I18nContext";\nimport { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 interface UserProfile {
     id: string;
@@ -221,13 +221,13 @@ const UserProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#090909] text-white">
+        <div className="marketing-cinematic public-object-page min-h-screen bg-[#050505] text-white">
             <main className="pb-16">
-                <section className="relative overflow-hidden border-b border-white/10">
+                <section className="public-object-hero relative overflow-hidden border-b border-white/10">\n                    <CurrentArc variant="hero" className="marketing-hero-current" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(249,115,22,0.3),transparent_34%),linear-gradient(135deg,#20150f,#090909_62%)]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#090909] via-transparent to-black/30" />
-                <div className="relative mx-auto max-w-[1600px] px-5 pb-10 pt-28 sm:px-8 xl:px-12 2xl:px-16">
+                <div className="relative mx-auto max-w-[1320px] px-5 pb-12 pt-28 sm:px-6">
                     {/* Profile Header */}
                     <div className="flex flex-col items-start gap-6 md:flex-row md:items-end">
                         {/* Avatar */}
@@ -335,7 +335,7 @@ const UserProfilePage = () => {
                     </div>
                 </div>
                 </section>
-                <div className="mx-auto max-w-[1600px] px-5 py-10 sm:px-8 xl:px-12 2xl:px-16">
+                <div className="mx-auto max-w-[1320px] px-5 py-10 sm:px-6">
 
                     {/* Stats */}
                     <div className="mb-10 grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
@@ -361,7 +361,7 @@ const UserProfilePage = () => {
                     </div>
 
                     {/* Tabs */}
-                    <div className="mb-6 flex gap-1 overflow-x-auto border-b border-white/10">
+                    <div className="public-object-tabs sticky top-14 z-20 mb-6 flex gap-1 overflow-x-auto border-y border-white/10 bg-black/90">
                         {[
                             { id: "hosted" as const, label: t("profile.hosted"), icon: Grid },
                             { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
