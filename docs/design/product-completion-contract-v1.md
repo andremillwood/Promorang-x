@@ -517,7 +517,7 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **In progress**
+Status: **In progress; Discover/Found durable-state and mutation truth hardened**
 
 Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 
