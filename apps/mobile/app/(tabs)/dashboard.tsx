@@ -112,11 +112,13 @@ export default function DashboardScreen() {
                 </View>
 
                 {/* Snapchat Loss-Aversion Streak Header */}
-                <StreakStatusHeader
-                    currentStreak={5}
-                    hoursRemaining={4}
-                    onPressStreak={() => setStoryVisible(true)}
-                />
+                {__DEV__ ? (
+                    <StreakStatusHeader
+                        currentStreak={5}
+                        hoursRemaining={4}
+                        onPressStreak={() => setStoryVisible(true)}
+                    />
+                ) : null}
 
                 {renderRoleDashboard()}
             </View>
@@ -124,21 +126,23 @@ export default function DashboardScreen() {
             <View style={{ height: 100 }} />
 
             {/* Snapchat Deal Stories Modal */}
-            <DealStoryPlayer
-                visible={storyVisible}
-                stories={sampleStories}
-                onClose={() => setStoryVisible(false)}
-                onClaimDeal={() => {
-                    setStoryVisible(false);
-                    setCameraVisible(true);
-                }}
-            />
-
-            {/* Camera Proof-of-Moment Scanner Modal */}
-            <CameraMomentScanner
-                visible={cameraVisible}
-                onClose={() => setCameraVisible(false)}
-            />
+            {__DEV__ ? (
+                <>
+                    <DealStoryPlayer
+                        visible={storyVisible}
+                        stories={sampleStories}
+                        onClose={() => setStoryVisible(false)}
+                        onClaimDeal={() => {
+                            setStoryVisible(false);
+                            setCameraVisible(true);
+                        }}
+                    />
+                    <CameraMomentScanner
+                        visible={cameraVisible}
+                        onClose={() => setCameraVisible(false)}
+                    />
+                </>
+            ) : null}
 
             {/* Product Tour */}
             <ProductTour tourId="dashboard" autoStart={true} />
@@ -530,6 +534,10 @@ function MobileReturnCard({ role, isDark }: { role: StakeholderReturnRole; isDar
             <View style={styles.returnStatement}>
                 <Text style={styles.returnStatementLabel}>COMMERCIAL RETURN</Text>
                 <Text style={styles.returnStatementText}>{blueprint.commercialReturn}</Text>
+            </View>
+            <View style={styles.returnStatement}>
+                <Text style={styles.returnStatementLabel}>SOURCE OF THESE NUMBERS</Text>
+                <Text style={styles.returnStatementText}>People, returns, stories, collaborations and gross value come from activation closeout snapshots and may be operator-reported. Gems and access are read from their ledgers.</Text>
             </View>
             <View style={styles.returnMetrics}>
                 {metrics.map((metric) => (
