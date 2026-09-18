@@ -354,7 +354,7 @@ Exit gate:
 
 ## C11 — Onboarding, auth and first success
 
-Status: **Largely unaddressed**
+Status: **In progress; durable completion and role-first routing hardened**
 
 Deliver:
 - auth;
