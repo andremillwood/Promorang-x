@@ -51,7 +51,7 @@ export const helpGuideTranslations: Partial<Record<Locale, Record<string, GuideT
     "check-in-proof": {
       categoryLabel: "Locales y miembros",
       title: "Cómo verificar tu visita y ganar Gems",
-      summary: "Demuestra que asististe para recibir recompensas, mejorar tu Access Rank y ganar Gems canjeables.",
+      summary: "Envía la prueba de visita requerida. Cualquier recompensa, cambio de rango o consecuencia en Gems aparece solo después de la verificación y emisión aplicables.",
       steps: [
         "Llega al lugar participante durante su horario de atención.",
         "Abre Promorang y pulsa «Check In» o abre tu pase activo.",
@@ -63,31 +63,31 @@ export const helpGuideTranslations: Partial<Record<Locale, Record<string, GuideT
     "wallet-withdraw": {
       categoryLabel: "Locales y miembros",
       title: "Cómo retirar ganancias y administrar Gems",
-      summary: "Convierte recompensas y pagos ganados en efectivo o usa Gems en el mercado.",
+      summary: "Revisa los estados registrados de Gems, el saldo retirable, el valor pendiente y las opciones de pago disponibles en tu cuenta.",
       steps: [
         "Abre tu Billetera desde la navegación o el panel.",
         "Revisa el saldo disponible y las recompensas pendientes.",
-        "Conecta Stripe, una cuenta bancaria o PayPal para recibir depósitos.",
-        "Solicita un retiro o cambia Gems por beneficios de socios.",
+        "Revisa el método de pago y las opciones de retiro que estén realmente disponibles para tu cuenta.",
+        "Solicita un retiro solo desde el saldo marcado como retirable, o usa Gems elegibles en beneficios disponibles.",
       ],
       actionLabel: "Abrir Billetera",
     },
     "venue-countertop-qr": {
       categoryLabel: "Lugares y comerciantes",
       title: "Cómo configurar y verificar códigos QR de mostrador",
-      summary: "Configura puntos de check-in rápidos y resistentes a manipulaciones para autenticar a los visitantes.",
+      summary: "Configura puntos QR que registran un escaneo elegible como una parte del flujo de prueba del lugar.",
       steps: [
         "Entra al Panel de Comerciante y abre «Lugares y Check-in».",
         "Descarga o imprime el código QR dinámico de tu lugar.",
         "Colócalo en la entrada, barra o caja.",
-        "Cada escaneo aparecerá como tráfico y canje válido en tiempo real.",
+        "Cada escaneo queda registrado; visita, canje, compra o cumplimiento dependen del flujo de verificación y comercio aplicable.",
       ],
       actionLabel: "Panel de Comerciante",
     },
     "creator-bounties": {
       categoryLabel: "Creadores y referentes",
       title: "Cómo reclamar y completar recompensas de creador",
-      summary: "Obtén pagos en efectivo creando contenido auténtico y generando visitas reales a lugares locales.",
+      summary: "Completa oportunidades de creador configuradas y distingue atribución, aprobación, ganancia y liquidación.",
       steps: [
         "Explora el tablero de recompensas para ver oportunidades abiertas.",
         "Revisa los requisitos de contenido y check-ins verificados.",
@@ -104,7 +104,7 @@ export const helpGuideTranslations: Partial<Record<Locale, Record<string, GuideT
         "Define el resultado de la campaña: prueba, visitas o contenido.",
         "Elige ciudades, barrios o categorías de lugares.",
         "Financia el fondo de PromoKeys, cupones o recompensas.",
-        "Supervisa análisis en vivo con ubicación, recibos y check-ins verificados.",
+        "Revisa los análisis registrados y la ubicación, recibos, check-ins u otras pruebas que la activación haya configurado y registrado.",
       ],
       actionLabel: "Soluciones para marcas",
     },
@@ -149,7 +149,7 @@ export const helpGuideTranslations: Partial<Record<Locale, Record<string, GuideT
     "check-in-proof": {
       categoryLabel: "Moradores e membros",
       title: "Como comprovar sua visita e ganhar Gems",
-      summary: "Comprove sua presença para receber recompensas, aumentar seu Access Rank e ganhar Gems resgatáveis.",
+      summary: "Envie a prova de visita exigida. Recompensa, mudança de nível ou consequência em Gems só aparece após as regras aplicáveis de verificação e emissão.",
       steps: [
         "Chegue ao local participante durante o horário de funcionamento.",
         "Abra a Promorang e toque em «Check In» ou abra seu passe ativo.",
@@ -161,31 +161,31 @@ export const helpGuideTranslations: Partial<Record<Locale, Record<string, GuideT
     "wallet-withdraw": {
       categoryLabel: "Moradores e membros",
       title: "Como sacar ganhos e administrar Gems",
-      summary: "Converta pagamentos e recompensas em dinheiro ou use Gems no marketplace.",
+      summary: "Revise os estados registrados das Gems, saldo sacável, valor pendente e opções de pagamento disponíveis para sua conta.",
       steps: [
         "Abra sua Carteira pelo menu ou painel.",
         "Confira o saldo disponível e as recompensas pendentes.",
-        "Conecte Stripe, conta bancária ou PayPal para receber depósitos.",
-        "Solicite um saque ou troque Gems por benefícios de parceiros.",
+        "Revise o método de pagamento e as opções de saque realmente disponíveis para sua conta.",
+        "Solicite saque apenas do saldo marcado como sacável, ou use Gems elegíveis em benefícios disponíveis.",
       ],
       actionLabel: "Abrir Carteira",
     },
     "venue-countertop-qr": {
       categoryLabel: "Locais e comerciantes",
       title: "Como configurar e verificar códigos QR de balcão",
-      summary: "Configure pontos de check-in rápidos e resistentes a fraude para autenticar visitantes.",
+      summary: "Configure pontos QR que registram uma leitura elegível como parte do fluxo de prova do local.",
       steps: [
         "Entre no Painel do Comerciante e abra «Locais e Check-in».",
         "Baixe ou imprima o QR dinâmico do seu local.",
         "Coloque-o na entrada, no bar ou no caixa.",
-        "Cada leitura aparecerá como visita e resgate válido em tempo real.",
+        "Cada leitura é registrada; visita, resgate, compra ou cumprimento dependem do fluxo aplicável de verificação e comércio.",
       ],
       actionLabel: "Painel do Comerciante",
     },
     "creator-bounties": {
       categoryLabel: "Criadores e formadores de opinião",
       title: "Como resgatar e concluir recompensas de criador",
-      summary: "Receba pagamentos criando conteúdo autêntico e gerando visitas reais para estabelecimentos locais.",
+      summary: "Conclua oportunidades de criador configuradas e separe atribuição, aprovação, ganho e liquidação.",
       steps: [
         "Explore o quadro de recompensas para ver oportunidades abertas.",
         "Confira os requisitos de conteúdo e check-ins comprovados.",
@@ -202,7 +202,7 @@ export const helpGuideTranslations: Partial<Record<Locale, Record<string, GuideT
         "Defina o resultado da campanha: experimentação, visitas ou conteúdo.",
         "Escolha cidades, bairros ou categorias de locais.",
         "Financie PromoKeys, vouchers ou recompensas para criadores.",
-        "Acompanhe análises ao vivo com localização, recibos e check-ins comprovados.",
+        "Revise análises registradas e a localização, recibos, check-ins ou outras provas que a ativação realmente configurou e registrou.",
       ],
       actionLabel: "Soluções para marcas",
     },
