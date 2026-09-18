@@ -859,6 +859,60 @@ Commits:
 
 Status: **Closed**
 
+
+#### T-032 — Discover and Found could manufacture durable success in the browser
+
+Files:
+- `apps/web/src/lib/discovery-card.ts`
+- `apps/web/src/hooks/useDiscoveryCard.ts`
+- `apps/web/src/hooks/useDiscoveryDemand.ts`
+- `apps/web/src/hooks/useDiscoveryFound.ts`
+- `apps/web/src/components/discovery/DiscoveryPath.tsx`
+- `apps/web/src/components/radar/DiscoveryWidget.tsx`
+- `apps/web/src/components/discovery/PutUpFoundModal.tsx`
+- `apps/web/src/components/discovery/FoundListingCard.tsx`
+- `apps/web/src/pages/Discover.tsx`
+- `backend/services/peopleExperienceService.js`
+- `supabase/migrations/20260918220000_remove_found_listing_fixtures.sql`
+- `supabase/migrations/20260918221000_harden_found_claim_atomicity.sql`
+
+Finding:
+- Discover persisted a local card unlock before either the API or RPC confirmed a server-issued redemption code, then returned that local object as success if every durable write failed;
+- local card rows were merged into city-level card counts and local named intents could become demand state when authoritative reads failed;
+- Found creation and claim mutated browser storage first and returned local success after API/RPC failure;
+- the Found list always merged two hard-coded seed requests into production and the database migration inserted those same synthetic requests;
+- the generic Discovery widget updated vote totals before the vote mutation resolved;
+- the Found claim service could fall back to a stale unclaimed row after a failed/racing update and could report a finder slip even when slip insertion failed;
+- the SQL claim RPC used `ON CONFLICT DO NOTHING` but could return a newly generated slip code that was never persisted.
+
+Resolution:
+- browser storage caches only card unlocks that contain a persisted redemption code;
+- production demand/card counts and Found listings now come from authoritative RPC results; fixture/local fallbacks are development-only;
+- Discover vote UI waits for the durable vote mutation and separates recorded vote state from PromoCard issuance state;
+- a successful vote with failed perk issuance remains a successful vote but shows the perk as not on the card and exposes a retry;
+- Found create/claim surfaces remain open and show failure instead of navigating/closing as success;
+- Found client mutations write local cache only after durable API/RPC success;
+- backend Found mutation errors and races fail closed;
+- finder-slip issuance is retry-safe and the SQL claim transaction returns only the redemption code actually stored;
+- a forward migration removes the two synthetic Found fixtures and any slips created from them.
+
+Commits:
+- `db93e90ae89b2d29184cdb30c6a98eb34413f6ba`
+- `df1556bd312a15f156b98ae01bd783d9f2fb8098`
+- `43e099b442e1357c09a5171adcde84c00b19f03e`
+- `588db03df05b2b9489c4459a8c28c8f8dbd55e0d`
+- `c8a788e537a1635160cbcaa5f5030d97253e5002`
+- `642b4efec89cb0bda21099c11ad177d78b7b17c2`
+- `cd56f52983023609f6fcd6e89768471472d0c316`
+- `58fce3fa364564670ec121e0c191b87397f0a586`
+- `ccb95ce06030adaa216c892b7f8cfd2eda176670`
+- `ef3b72d329c3b3be7207a5bc573a41d48c2e6411`
+- `4c2deaeb1196e773aaecccb700c11f5e65eb47c2`
+- `e24232ac312a68939ea48dd0f33d2b1bbc50bb3a`
+- `ee018fb6a187497c492bcbb9c228ddcfd54c432b`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
