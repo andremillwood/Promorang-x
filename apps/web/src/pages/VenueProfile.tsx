@@ -403,21 +403,6 @@ export default function VenueProfile() {
           ) : null}
 
           <div className="mt-10 space-y-12">
-            <ValueExchangeSummary
-              action="Visit, attend, buy, book or contribute"
-              proof="Check-in, receipt, redemption or approved contribution"
-              outcomes={venueOutcomes}
-            />
-            <section className="grid gap-3 md:grid-cols-3">
-              {placeRail.map((item) => (
-                <div key={item.label} className="rounded-2xl border border-border bg-card/80 p-4 shadow-soft">
-                  <item.icon className="h-5 w-5 text-primary" />
-                  <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-primary">{item.label}</p>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.body}</p>
-                </div>
-              ))}
-            </section>
-
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
