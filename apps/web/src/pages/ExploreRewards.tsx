@@ -416,6 +416,17 @@ export function ExploreRewards() {
 
           {/* Demand Requests Grid with Venue Photography & Gauges */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {!filteredRequests.length && (
+              <div className="md:col-span-2 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+                <p className="text-sm font-black text-white">No authoritative reward-demand requests are recorded on this surface.</p>
+                <p className="mt-2 max-w-2xl text-xs leading-6 text-white/55">
+                  Production market demand lives in Discover. This page does not substitute sample merchants, local votes, or browser-only requests when that source is empty.
+                </p>
+                <Button asChild variant="outline" className="mt-4 rounded-2xl border-white/15 bg-white/5 text-white hover:bg-white/10">
+                  <Link to="/discover">Open Discover demand</Link>
+                </Button>
+              </div>
+            )}
             {filteredRequests.map((req) => {
               const progressPercent = Math.min(
                 100,
@@ -501,7 +512,7 @@ export function ExploreRewards() {
                         }`}
                       >
                         <ThumbsUp className="h-3.5 w-3.5" />
-                        <span>{req.has_voted ? "Request Backed (+10 Pts)" : "Back Request (+10 Pts)"}</span>
+                        <span>{req.has_voted ? "Request Backed" : "Back Request"}</span>
                       </Button>
 
                       <span className="text-xs font-bold text-primary flex items-center gap-1">
