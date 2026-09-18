@@ -5,6 +5,10 @@
     "outputDirectory": "dist",
     "rewrites": [
         {
+            "source": "/api/backend/:path*",
+            "destination": "https://api.promorang.co/api/:path*"
+        },
+        {
             "source": "/((?!assets/|api/|favicon.ico|robots.txt|sitemap.xml|llms.txt|.*\\..*).*)",
             "destination": "/index.html"
         }
