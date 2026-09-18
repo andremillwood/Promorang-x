@@ -215,6 +215,24 @@ Commit: `29fa719b46bb27c5d601b3a40b91375d1150719c`
 
 Status: **Closed**
 
+#### T-015 — Brand Creator Bureau synthetic roster, metrics and payouts
+
+File: `apps/web/src/components/brand/BrandCreatorBureau.tsx`
+
+Finding:
+- Brand creator operations were represented by hard-coded creators, stock-photo identities, fake views/likes, invented tiers, fake bounty amounts, a static “32 Active Creators” count, and local approval actions that claimed money was disbursed.
+
+Resolution:
+- removed the synthetic roster and local payout/approval simulation;
+- Brand distribution now routes into the real Content Drops workspace;
+- creator discovery routes to recorded creator profiles;
+- evidence review routes to the Brand proof/evidence surface;
+- creator fit, availability, reach, approval and payout stay absent unless an authoritative source records them.
+
+Commit: `55f672fa9f62ef732b27366af71e333497842cd3`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
