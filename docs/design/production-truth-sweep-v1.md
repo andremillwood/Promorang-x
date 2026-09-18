@@ -1074,6 +1074,30 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-040 — Following collapsed source failures into empty states and exposed non-functional filters
+
+Files:
+- `apps/web/src/pages/Following.tsx`
+- `supabase/migrations/202609110004_aftrhrs_guest_moment_going.sql`
+
+Finding:
+- failure loading the follow graph, followed profiles, followed Moments or participation counts was logged but rendered as a normal empty Following state;
+- per-user Moment counts and suggestion stats treated count-query failure as `0`;
+- participant counts used a fallback helper that could degrade to a narrower raw table count or `0`, omitting guest/event participation represented by the canonical public Moment directory;
+- the visible **New** filter performed no filtering at all;
+- suggested-user decoration implied ranking/popularity without a dedicated ranking source.
+
+Resolution:
+- Following now exposes source failure explicitly with retry rather than presenting “not following” or “no Moments”;
+- followed-user Moment counts and suggestion counts throw on source failure instead of becoming zero;
+- displayed going counts come from `view_public_moment_directory.participant_count`, which combines account joins, guest RSVPs and event participations;
+- when a Moment has no corresponding public-directory count row, participation is unknown rather than coerced to zero;
+- **Soon** means a recorded start within the next three days and **New** means the Moment record was created within the last seven days;
+- unsupported popularity/star decoration was removed from suggestions.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

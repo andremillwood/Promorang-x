@@ -505,6 +505,7 @@ Latest closed findings:
 - **T-037 — PromoShare still advertised synthetic daily, squad and pre-loaded-card mechanics.**
 - **T-038 — Discover promoted chronological inventory as “Featured” and “Trending.”**
 - **T-039 — Saved and Activity utilities reported browser-only success / false emptiness.**
+- **T-040 — Following collapsed source failures into empty states and exposed non-functional filters.**
 
 Closed direction:
 
@@ -530,6 +531,7 @@ Closed direction:
 - Discover chronology is now described as chronology (“Up next”), not unsupported featured/trending status.
 - Saved Moments now come from the account ledger; save/remove changes reconcile only after durable writes;
 - personalized Activity source failure stays an error, and the feed no longer invents local read receipts.
+- Following now fails visibly when its graph/Moment/count sources fail, uses the canonical combined going count, and only exposes filters with real semantics.
 
 ### NEXT ACTION
 
