@@ -454,7 +454,7 @@ Exit gate:
 
 ## C16 — Progress, result and return
 
-Status: **Partially addressed**
+Status: **In progress; closeout provenance and return-state truth hardened**
 
 Deliver:
 - participant progress/what happened;
