@@ -1,4 +1,5 @@
 import { useMomentJourney } from "@/hooks/useMomentJourney";
+import { PublicMomentDetail } from "@/components/moments/PublicMomentDetail";
 import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
@@ -147,7 +148,7 @@ type PaymentIntentLike = {
 
 type MomentTab = "overview" | "perks" | "community" | "host";
 
-const MomentDetail = () => {
+const SignedInMomentDetail = () => {
   const { t, formatDate: i18nFormatDate, formatTime: i18nFormatTime } = useI18n();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -1496,6 +1497,13 @@ const MomentDetail = () => {
       )}
     </div>
   );
+};
+
+
+const MomentDetail = () => {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="min-h-screen bg-[#050505]" />;
+  return user ? <SignedInMomentDetail /> : <PublicMomentDetail />;
 };
 
 export default MomentDetail;
