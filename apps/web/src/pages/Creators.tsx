@@ -44,7 +44,7 @@ export default function Creators() {
       if (ids.length) {
         const { data, error } = await supabase
           .from("profiles")
-          .select("user_id,full_name,avatar_url,bio,location")
+          .select("user_id,full_name,display_name,username,avatar_url,bio,location")
           .in("user_id", ids)
           .not("full_name", "is", null)
           .order("full_name");
