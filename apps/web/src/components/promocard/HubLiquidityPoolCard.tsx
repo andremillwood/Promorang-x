@@ -27,8 +27,8 @@ export const HubLiquidityPoolCard: React.FC<HubLiquidityPoolCardProps> = ({
   seasonTitle = "Season 1: Spring Revival",
   operatorSharePercent = 80,
 }) => {
-  if (!import.meta.env.DEV) return null;
   const [showBulkPassModal, setShowBulkPassModal] = React.useState(false);
+  if (!import.meta.env.DEV) return null;
   const pools = MarginPoolService.getAllPools();
   const totalMerchants = pools.length;
   const totalBuyingPower = pools.reduce((acc, p) => acc + p.totalMarginCommitted, 0);
