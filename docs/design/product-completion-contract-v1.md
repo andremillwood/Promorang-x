@@ -438,7 +438,7 @@ Exit gate:
 
 ## C15 — Gems, Wallet, PromoShare and advanced economy
 
-Status: **Partially converged**
+Status: **In progress; user-facing value truth hardened, claim/settlement atomicity still open**
 
 Deliver:
 - canonical Gems states per DESIGN.md;
