@@ -553,6 +553,32 @@ Commit:
 
 Status: **Closed**
 
+#### T-029 — RSVP intent leaked into participant attendance summaries
+
+Files:
+- `packages/shared/src/people-experience.ts`
+- `backend/services/peopleExperienceService.js`
+- `packages/shared/src/people-experience.test.ts`
+- `backend/tests/unit/peopleExperienceService.test.js`
+
+Finding:
+- `event_rsvp` and `MOMENT_RSVP` were classified into the same `went` bucket as verified attendance;
+- the shared human-action label defaulted any unrecognized action to “showed up,” allowing unknown verified actions to read like physical presence.
+
+Resolution:
+- RSVP action types no longer count as attendance;
+- unknown action labels now resolve neutrally to “activity recorded”;
+- explicit show-up actions remain `MOMENT_ATTENDANCE`, `check_in`, `moment_join_verified`, `proof_verified`, and other specifically verified visit types;
+- shared and backend regression tests lock RSVP intent ≠ attendance.
+
+Commits:
+- `78e84f196aacb41e301edb834a7ffe2cfe587e38`
+- `ed045b92485faa1af6d780c0552b2461541431a5`
+- `d48ee7a32ae351135f53b9516b6e32535953e5ad`
+- `0bf37f10c8fd1533d4baa40bc938b894a957803a`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
