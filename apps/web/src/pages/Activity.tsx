@@ -32,7 +32,7 @@ const Activity = () => {
             { value: "system", label: "Promorang" },
         ];
 
-    const { data: events, isLoading, refetch } = useQuery({
+    const { data: events, isLoading, isError, refetch } = useQuery({
         queryKey: ["personalized-feed", user?.id],
         queryFn: async () => {
             if (!user) return [];
@@ -47,11 +47,7 @@ const Activity = () => {
                 }
             );
 
-            if (feedError) {
-                console.error('Feed error:', feedError);
-                // Fallback: just return empty array if function doesn't exist yet
-                return [];
-            }
+            if (feedError) throw feedError;
 
             // Map feed data to ActivityFeed format
             const feedEvents = (feedData || []).map((item: any) => ({
@@ -88,17 +84,6 @@ const Activity = () => {
         if (filter === "social") return ["follow", "join", "comment", "reaction", "reward", "post", "drop_completion"].includes(e.event_type);
         return true;
     });
-
-    const handleMarkRead = async (eventId: string) => {
-        // Optimistically update or refetch
-        // We could also call an API to mark as read
-        refetch();
-    };
-
-    const handleMarkAllRead = async () => {
-        // Logic to mark all as read
-        refetch();
-    };
 
     return (
         <main className="min-h-screen bg-[#090909] pb-16 text-white">
@@ -146,6 +131,17 @@ const Activity = () => {
                         <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
                         <p>{t("activity.listening")}</p>
                     </div>
+                ) : isError ? (
+                    <div role="alert" className="flex min-h-[320px] flex-col items-center justify-center gap-3 p-8 text-center">
+                        <Bell className="h-8 w-8 text-amber-300" />
+                        <h2 className="text-lg font-bold">Activity is unavailable.</h2>
+                        <p className="max-w-lg text-sm leading-6 text-white/50">
+                            The activity source could not be read, so PROMORANG is not treating this as an empty feed.
+                        </p>
+                        <Button type="button" variant="outline" onClick={() => void refetch()}>
+                            Try again
+                        </Button>
+                    </div>
                 ) : filteredEvents.length === 0 ? (
                     <div className="grid min-h-[380px] md:grid-cols-[1.25fr_.75fr]">
                         <div className="flex flex-col justify-end border-b border-white/10 p-7 md:border-b-0 md:border-r md:p-10">
@@ -182,11 +178,7 @@ const Activity = () => {
                     </div>
                 ) : (
                     <div className="p-3 sm:p-5">
-                        <ActivityFeed
-                            events={filteredEvents}
-                            onMarkRead={handleMarkRead}
-                            onMarkAllRead={handleMarkAllRead}
-                        />
+                        <ActivityFeed events={filteredEvents} />
                     </div>
                 )}
                 </div>

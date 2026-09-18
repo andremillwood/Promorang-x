@@ -20,8 +20,8 @@ interface Collection {
 
 interface SavedCollectionsProps {
     collections: Collection[];
-    onCreateCollection?: (name: string) => void;
-    onDeleteCollection?: (id: string) => void;
+    onCreateCollection?: (name: string) => void | Promise<void>;
+    onDeleteCollection?: (id: string) => void | Promise<void>;
     onRemoveMoment?: (collectionId: string, momentId: string) => void;
     className?: string;
 }
@@ -31,30 +31,21 @@ interface SavedCollectionsProps {
  * Shows user's saved moments organized in collections
  */
 export function SavedCollections({
-    collections: initialCollections,
+    collections,
     onCreateCollection,
     onDeleteCollection,
     onRemoveMoment,
     className,
 }: SavedCollectionsProps) {
     const { t, formatNumber } = useI18n();
-    const [collections, setCollections] = useState(initialCollections);
     const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [isCreating, setIsCreating] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState("");
 
-    const handleCreateCollection = () => {
-        if (!newCollectionName.trim()) return;
-
-        const newCollection: Collection = {
-            id: `temp-${Date.now()}`,
-            name: newCollectionName,
-            moments: [],
-        };
-
-        setCollections(prev => [...prev, newCollection]);
-        onCreateCollection?.(newCollectionName);
+    const handleCreateCollection = async () => {
+        if (!newCollectionName.trim() || !onCreateCollection) return;
+        await onCreateCollection(newCollectionName.trim());
         setNewCollectionName("");
         setIsCreating(false);
     };
@@ -85,15 +76,17 @@ export function SavedCollections({
                     >
                         {viewMode === "grid" ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
                     </Button>
-                    <Button variant="outline" size="sm" className="border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white" onClick={() => setIsCreating(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        {t("saved.new")}
-                    </Button>
+                    {onCreateCollection ? (
+                        <Button variant="outline" size="sm" className="border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white" onClick={() => setIsCreating(true)}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            {t("saved.new")}
+                        </Button>
+                    ) : null}
                 </div>
             </div>
 
             {/* Create Collection Modal */}
-            {isCreating && (
+            {isCreating && onCreateCollection && (
                 <div className="mb-6 rounded-lg border border-orange-500/30 bg-white/[0.04] p-4">
                     <input
                         type="text"
@@ -183,8 +176,7 @@ export function SavedCollections({
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        onDeleteCollection?.(collection.id);
-                                        setCollections(prev => prev.filter(c => c.id !== collection.id));
+                                        void onDeleteCollection?.(collection.id);
                                     }}
                                     className="absolute top-2 right-2 p-2 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
                                 >

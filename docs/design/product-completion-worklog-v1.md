@@ -504,6 +504,7 @@ Latest closed findings:
 - **T-036 — Create Moment trusted static venue and browser/URL demand context.**
 - **T-037 — PromoShare still advertised synthetic daily, squad and pre-loaded-card mechanics.**
 - **T-038 — Discover promoted chronological inventory as “Featured” and “Trending.”**
+- **T-039 — Saved and Activity utilities reported browser-only success / false emptiness.**
 
 Closed direction:
 
@@ -527,6 +528,8 @@ Closed direction:
 - production PromoShare now exposes recorded cycles/entries/draws/history without mock streak, squad-slash, saved-perk or pre-loaded-card state;
 - unsupported PromoShare gamification/drop components remain development-only rather than production fallbacks.
 - Discover chronology is now described as chronology (“Up next”), not unsupported featured/trending status.
+- Saved Moments now come from the account ledger; save/remove changes reconcile only after durable writes;
+- personalized Activity source failure stays an error, and the feed no longer invents local read receipts.
 
 ### NEXT ACTION
 

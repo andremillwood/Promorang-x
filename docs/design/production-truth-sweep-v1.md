@@ -1045,6 +1045,35 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-039 — Saved and Activity utilities reported browser-only success / false emptiness
+
+Files:
+- `apps/web/src/pages/Saved.tsx`
+- `apps/web/src/components/SavedCollections.tsx`
+- `apps/web/src/components/SaveButton.tsx`
+- `apps/web/src/pages/Activity.tsx`
+- `apps/web/src/components/ActivityFeed.tsx`
+- `apps/web/supabase/migrations/20260202_social_features.sql`
+- `supabase/migrations/202604200006_feed_generation_function.sql`
+
+Finding:
+- `/saved` rendered a local default collection, created/deleted temporary browser collections, and showed success toasts despite TODO-only persistence;
+- the shared Save button toggled saved state optimistically and reported “Saved!” / “Removed” without writing `saved_moments`;
+- `/activity` converted personalized-feed RPC failure into an empty feed;
+- the Activity feed invented unread/read state locally and exposed “Mark all read” even though the personalized `activity_feed` RPC has no read-receipt contract for those rows.
+
+Resolution:
+- Saved reads the existing private `saved_moments` ledger and joins recorded Moment rows;
+- source failure is rendered as unavailable, not an empty collection;
+- custom collection labels derive from recorded `collection_name`; because the schema has no standalone empty-collection record, the UI no longer pretends an empty collection can be created;
+- deleting a custom collection label moves its rows back to `Saved` instead of deleting saved Moments;
+- SaveButton reads, inserts and deletes `saved_moments` and changes UI state only after a successful write;
+- Activity RPC failure remains an error with retry;
+- personalized Activity is read-only until its actual `activity_feed` rows have an authoritative read-receipt contract; local unread dots and fake mark-read actions are removed.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

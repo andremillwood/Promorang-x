@@ -394,7 +394,7 @@ Exit gate:
 
 ## C13 — Utility surfaces
 
-Status: **In progress; core utility data paths source-backed, Settings truth hardened**
+Status: **In progress; Saved/Activity persistence and failure semantics hardened; core utility data paths source-backed, Settings truth hardened**
 
 Includes:
 - Search
