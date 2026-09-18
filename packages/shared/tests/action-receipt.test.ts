@@ -4,8 +4,20 @@ import { resolveCommerceReceiptPresentation } from "../src";
 describe("commerce action receipt", () => {
   it("shows every durable consequence recorded by commerce", () => {
     const result = resolveCommerceReceiptPresentation({ receiptType: "purchase", status: "fulfilled", productName: "Aqua Fest Meal", attribution: { commerce_outcomes: { promoshare_ticket: { awarded: true }, moment_piece: { awarded: true } } } });
-    expect(result.headline).toBe("It counted");
+    expect(result.headline).toBe("Completed");
     expect(result.outcomes.map((outcome) => outcome.id)).toEqual(["commerce", "promoshare", "moment_piece"]);
+  });
+
+  it("does not describe an issued purchase as fulfilled", () => {
+    const result = resolveCommerceReceiptPresentation({ receiptType: "purchase", status: "issued", productName: "Meal" });
+    expect(result.headline).toBe("Purchase recorded");
+    expect(result.explanation).toContain("Fulfillment remains separate");
+  });
+
+  it("keeps claims distinct from redemption and purchase", () => {
+    const result = resolveCommerceReceiptPresentation({ receiptType: "claim", status: "issued" });
+    expect(result.headline).toBe("Claim recorded");
+    expect(result.explanation).toContain("Redemption, purchase and fulfillment");
   });
 
   it("keeps a truthful record when value is refunded", () => {
