@@ -189,7 +189,7 @@ export function ExploreRewards() {
             <p className="text-xs leading-5 text-white/40">A public Offer is supply. Seeing it is not the same as receiving an issuance, claiming it, redeeming it or completing fulfillment.</p>
           </div>
 
-          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading public Offers…</p> : offers.length ? (
+          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading public Offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">PROMORANG can’t confirm public Offers right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">A source failure is not being presented as an empty market.</p></div> : offers.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {offers.map((offer) => (
                 <article key={offer.id} className="flex min-h-[250px] flex-col border border-white/10 bg-white/[0.025] p-5">
@@ -225,7 +225,7 @@ export function ExploreRewards() {
             <p className="text-xs leading-5 text-white/40">These are separate production Moment records carrying a recorded reward/access description. Opening one is not the same as receiving or redeeming it.</p>
           </div>
 
-          {responsesQuery.isLoading ? <p className="text-sm text-white/40">Loading responses…</p> : responses.length ? (
+          {responsesQuery.isLoading ? <p className="text-sm text-white/40">Loading responses…</p> : responsesQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Sparkles className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">PROMORANG can’t confirm reward-bearing Moments right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">A read failure is not the same thing as no operator response.</p></div> : responses.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {responses.map((moment) => {
                 const href = `/moments/${moment.slug || moment.id}`;
