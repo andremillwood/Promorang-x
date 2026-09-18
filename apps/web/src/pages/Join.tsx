@@ -80,7 +80,7 @@ const paths = [
 
 export default function Join() {
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title="Build with PROMORANG — Start with the outcome"
         description="Choose what you are trying to make happen with PROMORANG. Start with the job, then enter the same market through the role that fits."
@@ -109,7 +109,7 @@ export default function Join() {
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Different doors. Same market underneath.</h2>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <div className="marketing-role-grid mt-10 grid gap-4 md:grid-cols-2">
             {paths.map((path) => {
               const Icon = path.icon;
               return (
