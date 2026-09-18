@@ -392,15 +392,15 @@ const Discover = () => {
         setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
       }}
       onCastVote={async (poll, optionId) => {
-        if (!poll.detailUrl) return;
         if (!user) {
           toast.info(t("discover.signInVote"));
-          return;
+          throw new Error("Sign in to record this vote.");
         }
         try {
           await castListingDiscoveryVote(poll.id, optionId);
         } catch (error: any) {
           toast.error(error?.message?.includes("duplicate") ? t("discover.alreadyVoted") : t("discover.voteFailed"));
+          throw error;
         }
       }}
     />
