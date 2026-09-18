@@ -42,8 +42,8 @@ export function PublicHomeBar() {
             className="inline-flex min-h-10 items-center gap-2 rounded-md bg-orange-500 px-3.5 text-[10px] font-black uppercase tracking-[0.11em] text-black shadow-[0_10px_24px_rgba(255,85,0,.2)] transition hover:bg-orange-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
           >
             <WalletCards className="h-3.5 w-3.5" />
-            <span className="hidden xs:inline">{user ? "My Card" : "PromoCard"}</span>
-            <span className="xs:hidden">{user ? "Card" : "Join"}</span>
+            <span className="hidden sm:inline">{user ? "My Card" : "PromoCard"}</span>
+            <span className="sm:hidden">{user ? "Card" : "Join"}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
