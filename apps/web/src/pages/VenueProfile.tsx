@@ -10,7 +10,7 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { buildLocationPath, formatLocationLabel, getSiteUrl } from "@/lib/discovery";
-import { ArrowLeft, CalendarDays, CheckCircle2, Gem, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
+import { ArrowLeft, CalendarDays, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/ValueOutcomes";
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
@@ -274,7 +274,7 @@ export default function VenueProfile() {
                   {t("venueProfile.label")}
                 </Badge>
                 <div>
-                  <div className="flex flex-wrap items-center gap-3"><h1 className="max-w-4xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-7xl">{venue.name}</h1><VerifiedPioneerBadge beneficiaryType="venue" beneficiaryId={venue.id} /></div>
+                  <div className="flex flex-wrap items-center gap-3"><h1 className="max-w-4xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-7xl">{venue.name}</h1></div>
                   <p className="mt-4 max-w-3xl text-base leading-7 text-white/68">
                     {venue.description || t("venueProfile.fallback")}
                   </p>
