@@ -239,20 +239,20 @@ const ForBrands = () => {
                                 <div className="relative z-10">
                                     <div className="flex items-center justify-between mb-8">
                                         <h4 className="text-xl font-black tracking-[-0.04em] text-white">{t("forBrands.scenePulseTitle")}</h4>
-                                        <Badge className="bg-primary/20 text-primary border-primary/20 animate-pulse">{t("forBrands.pulseLive")}</Badge>
+                                        <Badge className="border-primary/20 bg-primary/20 text-primary">Illustrative view</Badge>
                                     </div>
                                     <div className="space-y-4">
                                         {[
-                                            { titleKey: "forBrands.pulse1Title" as const, verified: "84%", status: "Active", energyKey: "forBrands.pulse1Energy" as const },
-                                            { titleKey: "forBrands.pulse2Title" as const, verified: "92%", status: "Active", energyKey: "forBrands.pulse2Energy" as const },
+                                            { titleKey: "forBrands.pulse1Title" as const, energyKey: "forBrands.pulse1Energy" as const },
+                                            { titleKey: "forBrands.pulse2Title" as const, energyKey: "forBrands.pulse2Energy" as const },
                                         ].map((intel, i) => (
                                             <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
                                                 <div>
                                                     <p className="text-xs font-bold text-white">{t(intel.titleKey)}</p>
-                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">{t("forBrands.pulseStatus", { status: intel.status })}</p>
+                                                    <p className="mt-1 text-[10px] uppercase tracking-widest text-white/40">Example demand signal</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-xs font-black text-primary">{t("forBrands.pulseVerified", { verified: intel.verified })}</p>
+                                                    <p className="text-xs font-black text-primary">Verification appears only when recorded</p>
                                                     <p className="text-[9px] text-white/20 uppercase font-black">{t(intel.energyKey)}</p>
                                                 </div>
                                             </div>
