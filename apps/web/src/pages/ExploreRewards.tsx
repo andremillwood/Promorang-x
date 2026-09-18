@@ -7,6 +7,7 @@ import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { WatchMarketObjectButton } from "@/components/market/WatchMarketObjectButton";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useMarket } from "@/contexts/MarketContext";
+import { usePublicOffers } from "@/hooks/useOffers";
 import { discoveryHref } from "@/lib/discovery-path";
 import { supabase } from "@/integrations/supabase/client";
 import { getSiteUrl } from "@/lib/discovery";
@@ -25,6 +26,7 @@ export function ExploreRewards() {
     country.slug || "jamaica",
     city.id === "all-jamaica" ? undefined : city.id,
   );
+  const offersQuery = usePublicOffers();
   const [ask, setAsk] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ query: string; recorded: boolean } | null>(null);
@@ -46,6 +48,7 @@ export function ExploreRewards() {
 
   const liveSignals = useMemo(() => inbox.questions.slice(0, 8), [inbox.questions]);
   const responses = responsesQuery.data || [];
+  const offers = (offersQuery.data || []).filter((offer) => ["active", "published", "live"].includes(offer.status)).slice(0, 8);
   const marketName = city.name === "All Jamaica" ? "Jamaica" : city.name;
 
   async function submitAsk(event: FormEvent<HTMLFormElement>) {
@@ -171,6 +174,42 @@ export function ExploreRewards() {
               <h3 className="mt-4 font-serif text-2xl font-bold">No recorded demand questions are live here yet.</h3>
               <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">That absence is real. Use the ask above or explore approved Discoveries rather than filling the surface with synthetic activity.</p>
               <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">Explore Discoveries <ArrowRight className="h-4 w-4" /></Link>
+            </div>
+          )}
+        </section>
+
+        <section className="border-t border-white/10 py-14" id="offers">
+          <div className="mb-7 grid gap-4 border-b border-white/10 pb-5 lg:grid-cols-[1fr_.6fr] lg:items-end">
+            <div>
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Offers & perks</p>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What somebody has actually made available.</h2>
+            </div>
+            <p className="text-xs leading-5 text-white/40">A public Offer is supply. Seeing it is not the same as receiving an issuance, claiming it, redeeming it or completing fulfillment.</p>
+          </div>
+
+          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading public Offers…</p> : offers.length ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {offers.map((offer) => (
+                <article key={offer.id} className="flex min-h-[250px] flex-col border border-white/10 bg-white/[0.025] p-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-orange-400/30 bg-orange-400/10 text-orange-300"><Gift className="h-5 w-5" /></div>
+                  <p className="mt-5 text-[9px] font-black uppercase tracking-[0.16em] text-primary">{offer.reward_type.replace(/_/g, " ")}</p>
+                  <h3 className="mt-2 text-xl font-black leading-tight">{offer.title}</h3>
+                  {offer.description ? <p className="mt-3 line-clamp-3 text-xs leading-5 text-white/45">{offer.description}</p> : null}
+                  <div className="mt-auto border-t border-white/10 pt-4 text-[10px] uppercase tracking-[0.1em] text-white/35">
+                    {typeof offer.quantity_total === "number"
+                      ? `${Math.max(0, offer.quantity_total - offer.quantity_reserved - offer.quantity_redeemed)} available`
+                      : "Availability set by operator"}
+                    <span className="mx-2">·</span>
+                    {offer.fulfillment_type.replace(/_/g, " ")}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="border border-dashed border-white/12 p-7">
+              <Gift className="h-6 w-6 text-primary" />
+              <h3 className="mt-4 font-serif text-2xl font-bold">No public direct Offers are available right now.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">PROMORANG does not fill this space with sample perks. Reward-bearing Moments may still appear in the response section below.</p>
             </div>
           )}
         </section>
