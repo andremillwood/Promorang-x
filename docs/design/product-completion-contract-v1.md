@@ -515,7 +515,9 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **Required release blocker**
+Status: **In progress**
+
+Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 
 Audit production code for:
 - demo
