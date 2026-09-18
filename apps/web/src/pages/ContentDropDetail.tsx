@@ -90,7 +90,7 @@ export default function ContentDropDetail() {
           {
             label: pays ? "Counts" : "Does not pay",
             value: pays
-              ? `+${Number(action.points_awarded || pointsPerAction)} after a Promorang consequence`
+              ? `+${Number(action.points_awarded ?? 0)} recorded contribution value`
               : "Sharing is not the payday",
             kind: "points",
           },
@@ -102,7 +102,7 @@ export default function ContentDropDetail() {
           journey_stage: "first_value",
           object_type: "content_drop",
           object_id: id,
-          metadata: { action_type: actionType, points: action.points_awarded || pointsPerAction },
+          metadata: { action_type: actionType, points: Number(action.points_awarded ?? 0) },
         });
       },
     });
