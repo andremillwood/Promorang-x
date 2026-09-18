@@ -10,6 +10,11 @@ export interface CanonicalMoment {
   category?: string | null;
   location?: string | null;
   venue_name?: string | null;
+  venue_id?: string | null;
+  venue_slug?: string | null;
+  scene_id?: string | null;
+  scene_slug?: string | null;
+  scene_title?: string | null;
   starts_at: string;
   ends_at?: string | null;
   effective_ends_at: string;
