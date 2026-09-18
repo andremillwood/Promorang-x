@@ -26,7 +26,6 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
   merchantId = "merchant_demo_1",
   merchantName = "Kinfolk Coffee & Roasters",
 }) => {
-  if (!import.meta.env.DEV) return null;
   const { toast } = useToast();
   const [pool, setPool] = useState<MerchantMarginPool>(
     MarginPoolService.getPoolByMerchantId(merchantId) || {
@@ -60,6 +59,8 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
       description: `Authorized $${(allowance * cap).toFixed(2)} in zero-cash customer acquisition margin.`,
     });
   };
+
+  if (!import.meta.env.DEV) return null;
 
   return (
     <div className="space-y-6">
