@@ -2164,8 +2164,13 @@ img.promorang-satellite-tiles {
 .public-object-hero__media::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(0,0,0,.42),transparent 52%); pointer-events:none; }
 .public-object-hero__state { position:absolute; z-index:2; left:.8rem; top:.8rem; border:1px solid rgba(255,255,255,.16); background:rgba(0,0,0,.72); padding:.38rem .5rem; font-size:.56rem; font-weight:950; letter-spacing:.12em; text-transform:uppercase; }
 .public-object-tabs { position:sticky; top:3.5rem; z-index:28; backdrop-filter:blur(18px); }
+.public-object-tabs > div { scrollbar-width:none; overscroll-behavior-x:contain; }
+.public-object-tabs > div::-webkit-scrollbar { display:none; }
 .public-object-tabs a { white-space:nowrap; transition:color 160ms ease; }
 .public-object-tabs a:hover { color:#fff; }
+.public-object-page h1,
+.merchant-public-world h1,
+[data-canonical-family="discovery-market"] h1 { overflow-wrap:anywhere; }
 .public-object-related-grid,.merchant-object-grid { display:grid; grid-template-columns:1fr; gap:.75rem; }
 .public-object-related,.merchant-object-card { overflow:hidden; border:1px solid rgba(255,255,255,.1); background:#090909; transition:transform 180ms ease,border-color 180ms ease; }
 .public-object-related:hover,.merchant-object-card:hover { transform:translateY(-3px); border-color:rgba(255,90,0,.45); }
@@ -2173,6 +2178,18 @@ img.promorang-satellite-tiles {
 .public-object-related__media img,.merchant-object-card__media img { width:100%;height:100%;object-fit:cover;transition:transform 320ms ease; }
 .public-object-related:hover img,.merchant-object-card:hover img { transform:scale(1.035); }
 .public-object-related__media span,.merchant-object-card__media span { position:absolute; left:.65rem; top:.65rem; background:rgba(0,0,0,.78); border:1px solid rgba(255,255,255,.14); padding:.3rem .42rem; font-size:.52rem; font-weight:950; letter-spacing:.1em; text-transform:uppercase; color:#fff; }
+@media(max-width:639px){
+  .public-object-hero{min-height:0!important}
+  .public-object-hero__media{min-height:240px;aspect-ratio:4/3}
+  .public-object-hero__media img{min-height:240px}
+  .public-object-tabs{top:3.25rem}
+  .public-object-tabs>div{scroll-snap-type:x proximity}
+  .public-object-tabs a{scroll-snap-align:start}
+  .public-object-related-grid,.merchant-object-grid{display:flex;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-x:contain;padding-bottom:.5rem}
+  .public-object-related-grid::-webkit-scrollbar,.merchant-object-grid::-webkit-scrollbar{display:none}
+  .public-object-related,.merchant-object-card{flex:0 0 min(84vw,20rem);scroll-snap-align:start}
+  .public-object-page h1,.merchant-public-world h1,[data-canonical-family="discovery-market"] h1{font-size:clamp(2.65rem,13vw,4rem)!important;line-height:.9}
+}
 @media(min-width:640px){.public-object-related-grid,.merchant-object-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(min-width:1024px){.public-object-related-grid,.merchant-object-grid{grid-template-columns:repeat(4,minmax(0,1fr));}.public-object-hero__media{min-height:460px}.public-object-hero__media img{min-height:460px}}
 @media(min-width:1280px){.merchant-object-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}

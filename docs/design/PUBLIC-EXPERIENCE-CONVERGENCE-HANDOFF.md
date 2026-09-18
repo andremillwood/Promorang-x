@@ -667,6 +667,20 @@ Before coding, check:
 
 ---
 
+### 2026-09-18 — Mobile public-object density pass
+
+**Problem:** canonical object grids still collapsed into long single-column mobile stacks, sticky object tabs retained visible scroll chrome, and long object titles could become oversized or fragile on narrow screens.
+
+**Decision:** mobile public object destinations should behave like cultural shelves: compact hero media, horizontally inspectable related inventory, scrollable sticky context tabs, and resilient title wrapping.
+
+**Implemented:** shared public-object CSS now gives mobile relationship/storefront rails horizontal snap behavior, hides tab/rail scrollbars, reduces mobile hero-media minimum height, removes inherited Scene hero minimum height on small screens, and clamps/wraps long object titles across public destinations.
+
+**Validation:** source-level CSS and selector inspection only. No Vercel deployment was intentionally requested; branch updates remain batched.
+
+**Remaining:** manual device/incognito review when an intentional preview/build budget is available, then PR/base reconciliation.
+
+---
+
 ## 14. Update protocol
 
 After each meaningful convergence pass, append a dated entry to this file using:
