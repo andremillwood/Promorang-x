@@ -169,7 +169,14 @@ export default function PublicMarketHome() {
               </a>
             </div>
 
-            <p className="mt-7 max-w-xl text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
+            <div className="marketing-hero-promocard-outcomes" aria-label="What PromoCard does for you">
+              <span className="marketing-hero-promocard-label">PromoCard</span>
+              <span><strong>WATCH</strong> what matters</span>
+              <span><strong>OPEN</strong> Moments & access</span>
+              <span><strong>USE</strong> perks that exist</span>
+              <span><strong>KEEP</strong> proof & history</span>
+            </div>
+            <p className="mt-4 max-w-xl text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
               Editorial atmosphere only · source-backed market state begins below
             </p>
           </div>
