@@ -392,7 +392,7 @@ Exit gate:
 
 ## C13 — Utility surfaces
 
-Status: **Under active truth/design propagation**
+Status: **In progress; core utility data paths source-backed, Settings truth hardened**
 
 Includes:
 - Search
