@@ -18,6 +18,45 @@ router.get('/feed', async (req, res) => {
         if (error) throw error;
 
         const momentIds = (moments || []).map((moment) => moment.id);
+        const venueIds = [...new Set((moments || []).map((moment) => moment.venue_id).filter(Boolean))];
+        const sceneIdsOnMoment = [...new Set((moments || []).map((moment) => moment.scene_id).filter(Boolean))];
+
+        const [{ data: venues }, { data: sceneLinks }] = await Promise.all([
+            venueIds.length
+                ? supabase.from('view_public_venue_directory').select('id,slug,name').in('id', venueIds)
+                : Promise.resolve({ data: [] }),
+            momentIds.length
+                ? supabase.from('moment_scene_links').select('moment_id,scene_id').in('moment_id', momentIds)
+                : Promise.resolve({ data: [] }),
+        ]);
+
+        const linkedSceneIds = (sceneLinks || []).map((link) => link.scene_id).filter(Boolean);
+        const allSceneIds = [...new Set([...sceneIdsOnMoment, ...linkedSceneIds])];
+        const { data: scenes } = allSceneIds.length
+            ? await supabase.from('scenes').select('id,slug,title').in('id', allSceneIds)
+            : { data: [] };
+
+        const venueById = Object.fromEntries((venues || []).map((venue) => [venue.id, venue]));
+        const sceneById = Object.fromEntries((scenes || []).map((scene) => [scene.id, scene]));
+        const linkedSceneByMoment = {};
+        (sceneLinks || []).forEach((link) => {
+            if (!linkedSceneByMoment[link.moment_id] && link.scene_id) linkedSceneByMoment[link.moment_id] = link.scene_id;
+        });
+
+        const enrichedMoments = (moments || []).map((moment) => {
+            const venue = moment.venue_id ? venueById[moment.venue_id] : null;
+            const sceneId = moment.scene_id || linkedSceneByMoment[moment.id] || null;
+            const scene = sceneId ? sceneById[sceneId] : null;
+            return {
+                ...moment,
+                venue_name: moment.venue_name || venue?.name || null,
+                venue_slug: venue?.slug || null,
+                scene_id: sceneId,
+                scene_slug: scene?.slug || null,
+                scene_title: scene?.title || null,
+            };
+        });
+
         const brandNamesByMoment = {};
         if (momentIds.length > 0) {
             const { data: associations } = await supabase
@@ -41,7 +80,7 @@ router.get('/feed', async (req, res) => {
             });
         }
 
-        const feed = buildMomentFeed(moments || [], brandNamesByMoment);
+        const feed = buildMomentFeed(enrichedMoments, brandNamesByMoment);
         res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
         res.json({ success: true, data: feed });
     } catch (err) {
