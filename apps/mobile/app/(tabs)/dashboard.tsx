@@ -480,7 +480,7 @@ function HostDashboardView({ isDark }: RoleViewProps) {
 }
 
 function MobileReturnCard({ role, isDark }: { role: StakeholderReturnRole; isDark: boolean }) {
-    const { data, loading } = useStakeholderReturn();
+    const { data, loading } = useStakeholderReturn(role);
     const blueprint = STAKEHOLDER_RETURN_BLUEPRINTS[role];
     const metricValue: Record<StakeholderReturnMetricId, number> = {
         accessOpened: data.accessCount,
@@ -494,7 +494,7 @@ function MobileReturnCard({ role, isDark }: { role: StakeholderReturnRole; isDar
         peopleReached: data.people,
         storiesCreated: data.stories,
         collaborations: data.collaborations,
-        gemsMoved: Math.max(data.gemsEarned, data.grossValue),
+        gemsMoved: data.gemsEarned,
     };
     const metrics = blueprint.metrics.slice(0, 3).map((id) => ({ ...STAKEHOLDER_RETURN_METRICS[id], value: metricValue[id] }));
 
