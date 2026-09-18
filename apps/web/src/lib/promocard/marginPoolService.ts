@@ -59,6 +59,7 @@ const DEFAULT_POOLS: Record<string, MerchantMarginPool> = {
 
 export class MarginPoolService {
   private static getStoredPools(): Record<string, MerchantMarginPool> {
+    if (!import.meta.env.DEV) return {};
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -71,6 +72,9 @@ export class MarginPoolService {
   }
 
   private static saveStoredPools(pools: Record<string, MerchantMarginPool>): void {
+    if (!import.meta.env.DEV) {
+      throw new Error("Margin pool fixtures are development-only; production value must come from an authoritative ledger.");
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(pools));
     } catch {
@@ -92,6 +96,9 @@ export class MarginPoolService {
     merchantId: string,
     updates: Partial<MerchantMarginPool>
   ): MerchantMarginPool {
+    if (!import.meta.env.DEV) {
+      throw new Error("Margin pool configuration is not available without an authoritative production ledger.");
+    }
     const pools = this.getStoredPools();
     const existing = pools[merchantId] || {
       merchantId,
@@ -120,6 +127,9 @@ export class MarginPoolService {
     fiatCashAmount: number,
     promoAmount: number
   ): void {
+    if (!import.meta.env.DEV) {
+      throw new Error("Local redemption accounting is disabled in production.");
+    }
     const pools = this.getStoredPools();
     if (pools[merchantId]) {
       pools[merchantId].currentRedemptionsCount += 1;
