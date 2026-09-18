@@ -69,13 +69,6 @@ const ForBrands = () => {
         },
     ];
 
-    const stats: Array<{ valKey: TranslationKey; labelKey: TranslationKey }> = [
-        { valKey: "forBrands.statMomentsVal", labelKey: "forBrands.statMoments" },
-        { valKey: "forBrands.statMarksVal", labelKey: "forBrands.statMarksStat" },
-        { valKey: "forBrands.statQrVal", labelKey: "forBrands.statQr" },
-        { valKey: "forBrands.statUgcVal", labelKey: "forBrands.statUgc" },
-    ];
-
     return (
         <div className="marketing-refined min-h-screen overflow-x-clip bg-background">
             <SEO
@@ -154,11 +147,14 @@ const ForBrands = () => {
                                     <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{t("forBrands.signalBadge")}</p>
                                     <p className="mt-1 text-sm text-zinc-300">{t("forBrands.previewSubtitle")}</p>
                                 </div>
-                                <Badge className="border-primary/20 bg-primary/15 text-primary">{t("forBrands.liveBadge")}</Badge>
+                                <Badge className="border-primary/20 bg-primary/15 text-primary">Example report</Badge>
                             </div>
                             <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
                                 <h2 className="text-2xl font-black tracking-[-0.04em] text-white">{t("forBrands.coffeeTourTitle")}</h2>
                                 <p className="mt-2 text-sm leading-6 text-zinc-300">{t("forBrands.coffeeTourDesc")}</p>
+                                <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-5 text-zinc-400">
+                                  Illustrative campaign report. These figures are examples of the measurement format, not current Promorang performance or a guaranteed result.
+                                </p>
                                 <div className="mt-6 grid grid-cols-3 gap-3">
                                     {[
                                         { valKey: "forBrands.statRedemptionsVal" as const, labelKey: "forBrands.statRedemptions" as const },
@@ -264,22 +260,6 @@ const ForBrands = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Stats Section */}
-            <section className="py-12 border-b border-border bg-muted/30">
-                <div className="container px-4 sm:px-6">
-                    <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
-                        {stats.map((stat, index) => (
-                            <div key={index} className="text-center">
-                                <p className="text-3xl font-black text-primary md:text-4xl">
-                                    {t(stat.valKey)}
-                                </p>
-                                <p className="text-sm text-muted-foreground mt-1">{t(stat.labelKey)}</p>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </section>
