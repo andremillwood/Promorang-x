@@ -102,6 +102,43 @@ Commit: `e096b626721258a5ffc7ec03620a8ceb52757110`
 
 Status: **Closed**
 
+
+#### T-008 — Admin hard-coded queue badges
+
+File: `apps/web/src/pages/AdminDashboard.tsx`
+
+Finding:
+- Admin navigation displayed static “Live” / “3 New” badges independent of authoritative queue state.
+
+Resolution:
+- removed the hard-coded queue claims; operator attention counts must come from live sources where shown.
+
+Commit: `ffdc0b39bbce1a0fade3370b59eaffb45b3daade`
+
+Status: **Closed**
+
+#### T-009 — Create Moment partial collaborator persistence
+
+File: `apps/web/src/pages/CreateMoment.tsx`
+
+Finding:
+- Moment creation could succeed while collaborator insertion failed silently, yet the UI reported the whole operation as successful.
+
+Resolution:
+- collaborator insert errors are checked;
+- Moment creation is reported as partial success when team records fail;
+- the user lands on the canonical Moment record to review what was actually saved.
+
+Commit: `ac5e3a9f0b8ded63bf7bdfe1487d0304b5770374`
+
+Status: **Closed**
+
+### T-010 — Collaborator acceptance semantics
+
+Status: **Open contract debt**
+
+The current `moment_collaborators` schema defaults records to `confirmed` and does not expose a separate invitation/acceptance lifecycle. Do not invent acceptance UI until an authoritative collaborator invitation contract exists. Treat “confirmed” as current schema behavior, not proof that a linked user explicitly accepted.
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
