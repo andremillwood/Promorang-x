@@ -257,7 +257,7 @@ const UserProfilePage = () => {
                     <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
                     <h1 className="mt-4 font-serif text-2xl font-bold">Profile unavailable</h1>
                     <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
-                        The profile source could not be read, so this is not being presented as “profile not found.”
+                        We couldn’t load this profile right now. Try again in a moment.
                     </p>
                 </div>
             </div>
@@ -412,7 +412,7 @@ const UserProfilePage = () => {
                             <p className="text-sm text-white/40">Following</p>
                         </div>
                     </div>
-                    {stats?.rating !== undefined ? <p className="mb-8 flex items-center gap-2 text-xs font-bold text-white/50"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400"/>{stats.rating.toFixed(1)} from {stats.reviewCount} recorded rating{stats.reviewCount === 1 ? "" : "s"}</p> : null}
+                    {stats?.rating !== undefined ? <p className="mb-8 flex items-center gap-2 text-xs font-bold text-white/50"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400"/>{stats.rating.toFixed(1)} from {stats.reviewCount} rating{stats.reviewCount === 1 ? "" : "s"}</p> : null}
 
                     {/* Tabs */}
                     <div className="public-object-tabs sticky top-14 z-20 mb-6 flex gap-1 overflow-x-auto border-y border-white/10 bg-black/90">
@@ -444,7 +444,7 @@ const UserProfilePage = () => {
                     {/* Content */}
                     {statsError ? (
                         <div role="status" className="mb-6 rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-white/55">
-                            Profile counts are unavailable. The profile identity and tab content below remain source-backed.
+                            Some profile stats are unavailable right now.
                         </div>
                     ) : null}
                     {tabLoading ? (
@@ -456,7 +456,7 @@ const UserProfilePage = () => {
                         <div role="alert" className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
                             <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
                             <h3 className="mt-4 font-bold">Profile section unavailable</h3>
-                            <p className="mt-2 text-sm text-white/50">The source failed, so this is not being shown as an empty section.</p>
+                            <p className="mt-2 text-sm text-white/50">We couldn’t load this section right now.</p>
                         </div>
                     ) : moments.length > 0 ? (
                         <MasonryGrid>

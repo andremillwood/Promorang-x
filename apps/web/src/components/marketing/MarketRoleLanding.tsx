@@ -77,15 +77,15 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
                 threshold={leadSignal.poll.thresholdForMoment}
                 responseLabel={leadSignal.poll.targetUnlockPerk}
                 href={discoveryHref(leadSignal.poll)}
-                actionLabel="Open recorded signal"
+                actionLabel="Open signal"
                 state={signalState(leadSignal.votesRemaining, leadSignal.closeness)}
               />
             ) : (
               <TicketPass
-                kicker={isLoading ? "Reading recorded market" : "No recorded demand shown"}
-                title={isLoading ? "Checking this market…" : "An empty market stays empty."}
-                detail={isLoading ? "PROMORANG is reading production state." : "This page does not invent demand, customers, inventory or outcomes to make the opportunity look larger than it is."}
-                stub="TRUTH"
+                kicker={isLoading ? "Reading the market" : "Quiet here right now"}
+                title={isLoading ? "Checking this market…" : "No strong signal yet."}
+                detail={isLoading ? "Looking for live demand in this market." : "There isn’t a live demand signal here right now. Explore what people are discovering, or come back as the market moves."}
+                stub="NOW"
                 stubLabel="Market"
               />
             )}
@@ -95,8 +95,8 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
 
       <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">One market · your lens</p>
-          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Start with what is true, then decide what you can add.</h2>
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">The market · your role</p>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">See what is happening. Decide where you fit.</h2>
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
             <TicketPass
               kicker="Discovery"
@@ -126,19 +126,19 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
       <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <NightTrail
-            eyebrow="The operating loop"
-            title="Read → decide → respond → prove"
+            eyebrow="A simple way to work"
+            title="See → decide → respond → learn"
             steps={[
-              { label: "Read", title: "Start with Discovery and recorded demand.", text: "Use approved knowledge and actual participant signals instead of assumptions dressed up as market truth." },
-              { label: "Decide", title: "Choose whether the signal deserves a response.", text: "Demand can inform a decision. It does not obligate supply or prove that anyone will attend, buy or convert." },
+              { label: "See", title: "Start with what people are noticing and asking for.", text: "Use what is happening in the market as context, then decide whether it matters to your role." },
+              { label: "Decide", title: "Choose whether it deserves your move.", text: "You can watch, research, respond—or do nothing. A signal is a reason to look closer, not a promise of results." },
               { label: "Respond", title: props.responseTitle, text: props.responseDetail },
-              { label: "Prove", title: props.proofTitle, text: props.proofDetail },
+              { label: "Learn", title: props.proofTitle, text: props.proofDetail },
             ]}
           />
           <PaperReceipt
-            heading="Truth before persuasion"
-            lines={props.truthGates.map((gate, index) => ({ label: `Gate ${index + 1}`, value: gate, strong: index === 0 }))}
-            footer="PROMORANG can make a market legible without collapsing interest, supply, action and verified outcome into the same number."
+            heading="Keep these distinctions clear"
+            lines={props.truthGates.map((gate, index) => ({ label: "Keep clear", value: gate, strong: index === 0 }))}
+            footer="Interest, availability and outcomes tell you different things. Keeping them separate makes better decisions possible."
           />
         </div>
       </section>
@@ -146,12 +146,12 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
       <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-8 rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10">
           <div>
-            <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300"><ShieldCheck className="h-4 w-4" /> PromoCard continuity</p>
-            <h2 className="mt-3 font-serif text-3xl font-bold tracking-[-0.04em] sm:text-4xl">The participant relationship should survive the campaign, event or offer.</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">{props.promoCardDetail} PromoCard should only show access, returns and retained history that were actually issued or verified.</p>
+            <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300"><ShieldCheck className="h-4 w-4" /> Why PromoCard matters</p>
+            <h2 className="mt-3 font-serif text-3xl font-bold tracking-[-0.04em] sm:text-4xl">Give the relationship somewhere to continue.</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">{props.promoCardDetail} The goal is simple: make the next relevant move easier to find.</p>
           </div>
           <Link to="/what-is-promorang" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-orange-100">
-            See the whole system <ArrowRight className="h-4 w-4" />
+            See the participant side <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
@@ -159,8 +159,8 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
       <section className="px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 border-t border-white/10 pt-10 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="font-serif text-2xl font-bold">Ready to make a legitimate response?</p>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">Start from the job you need done. PROMORANG should not require you to understand the entire platform before making the next move.</p>
+            <p className="font-serif text-2xl font-bold">Ready to make your move?</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">Start with the outcome you need. PROMORANG can reveal the next useful step without asking you to learn the whole platform first.</p>
           </div>
           <Link to={props.primaryCta.href} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black transition hover:bg-orange-400">
             {props.primaryCta.label} <ArrowRight className="h-4 w-4" />

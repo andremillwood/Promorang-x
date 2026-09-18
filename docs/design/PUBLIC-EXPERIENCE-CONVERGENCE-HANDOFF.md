@@ -725,3 +725,16 @@ This file is the continuity log. `DESIGN.md` remains the broader design-system l
 **Validation:** continuity tests had already passed 9/9 before this repair. The new integration candidate is staged before the PR branch moves. No manual Vercel deployment is being used for iterative validation.
 
 **Remaining:** advance the branch once, run the normal GitHub Web Build, then address only concrete build/runtime findings and complete anonymous/mobile + real-record watch validation.
+
+
+### 2026-09-18 — User-facing copy convergence
+
+**Problem:** production-truth work correctly removed fabricated state, but some of the enforcement language leaked into visible UI. Participants and stakeholders were being shown implementation phrases such as “source-backed,” “recorded state,” “authoritative,” “production state,” “inventory source,” and “truth gate.”
+
+**Decision:** preserve all truth/state behavior while rewriting visible copy around the human job. Truth stays in the data and transitions; the UI speaks in participant, creator, merchant, brand, host, community, agency and enterprise language.
+
+**Implemented:** rewrote Activity, Creators, Discover place labels, UserProfile errors, Venue merchant relationships, Wanted/Responses, Brand, Merchant, Creator, Community, Agency, Enterprise, Hosting, Join, Help, How It Works, What Is PROMORANG, Offer detail, Merchant storefront, plus the shared MarketRoleLanding stakeholder shell.
+
+**Copy law:** added DESIGN.md section 0.2.1 — “Truth belongs in product behavior. Humanity belongs in the copy.” Internal state-machine and database terminology must not leak into ordinary persuasion or participant copy.
+
+**Release posture:** copy-only convergence layered on top of the green public convergence build. No product mechanics, data sources, eligibility rules, RLS, reward logic, or route structure intentionally changed. Stage and validate before moving the PR branch once.

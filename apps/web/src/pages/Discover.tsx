@@ -357,9 +357,9 @@ const SignedInDiscover = () => {
           id: v.id,
           lat,
           lng,
-          title: v.name || "Recorded place",
+          title: v.name || "Place",
           subtitle: [v.city, v.venue_type].filter(Boolean).join(" · ") || undefined,
-          category: v.verification_status === "verified" ? t("discover.verifiedVenue") : "Recorded place",
+          category: v.verification_status === "verified" ? t("discover.verifiedVenue") : "Place",
           imageUrl: v.image_url || undefined,
           url: `/venues/${v.slug || v.id}`,
           actionLabel: t("discover.viewVenue"),
@@ -811,7 +811,7 @@ const SignedInDiscover = () => {
                     <h3 className="text-xl font-bold text-white">{t("discover.placesTitle")}</h3>
                     <p className="text-xs text-white/50">{t("discover.placesCopy", { city: city.name })}</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{formatNumber(hubVenues.length)} recorded places</span>
+                  <span className="text-xs font-semibold text-white/50">{formatNumber(hubVenues.length)} places</span>
                 </div>
 
                 {venuesQuery.isLoading ? (
@@ -840,10 +840,10 @@ const SignedInDiscover = () => {
                               {venue.city ? <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">{venue.city}</Badge> : null}
                               {venue.venue_type ? <Badge variant="outline" className="border-white/15 text-white/60 text-[10px] capitalize">{venue.venue_type.replaceAll("_", " ")}</Badge> : null}
                             </div>
-                            <h4 className="text-base font-bold text-white truncate">{venue.name || "Recorded place"}</h4>
+                            <h4 className="text-base font-bold text-white truncate">{venue.name || "Place"}</h4>
                             <p className="text-xs text-white/60 flex items-center gap-1">
                               <MapPin className="h-3 w-3 text-primary shrink-0" />
-                              <span className="truncate">{venue.location || venue.address || "Location not recorded"}</span>
+                              <span className="truncate">{venue.location || venue.address || "Location coming soon"}</span>
                             </p>
                           </div>
                         </div>

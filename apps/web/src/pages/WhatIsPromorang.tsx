@@ -48,19 +48,19 @@ export default function WhatIsPromorang() {
       <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <NightTrail eyebrow="The simplest explanation" title="Discover → want → join → respond → prove" steps={[
-            { label: "Discover", title: "See what exists or what is worth noticing.", text: "A Discovery is approved knowledge, not automatically an offer, event or endorsement." },
+            { label: "Discover", title: "See what exists or what is worth noticing.", text: "Find a place, person, product, idea or possibility that catches your attention." },
             { label: "Want", title: "Recognize or express a preference.", text: "You can react to something you found or tell PROMORANG what you are still looking for." },
-            { label: "Join", title: "See when other people feel the same way.", text: "Recorded demand makes shared interest legible. It still does not mean attendance, inventory or purchase." },
-            { label: "Respond", title: "Someone decides what to put up.", text: "A merchant, brand, creator or host can create a distinct response with real terms, limits and supply." },
+            { label: "Join", title: "See when other people feel the same way.", text: "When people care about the same thing, that shared interest becomes easier to see—and easier for someone to respond to." },
+            { label: "Respond", title: "Someone decides what to put up.", text: "A merchant, brand, creator or host can put up an offer, Moment, access or other response with clear terms." },
           ]} />
           <div className="mt-10 grid gap-5 md:grid-cols-[1.1fr_.9fr]">
-            <TicketPass kicker="Then" title="Proof tells us what actually happened." detail="A claim, visit, check-in, purchase or other action only becomes verified when the required evidence and approval exist." stub="PROOF" stubLabel="Reality" />
-            <PaperReceipt heading="PROMORANG truth" lines={[
+            <TicketPass kicker="Then" title="Proof tells us what actually happened." detail="When something happens—a visit, check-in, claim or purchase—proof helps PROMORANG remember the action accurately." stub="PROOF" stubLabel="Reality" />
+            <PaperReceipt heading="What each step means" lines={[
               { label: "Discovery", value: "What is known", strong: true },
               { label: "Demand", value: "What is wanted", strong: true },
               { label: "Response", value: "What is supplied", strong: true },
               { label: "Proof", value: "What happened", strong: true },
-            ]} footer="One object can lead to another, but PROMORANG should never silently pretend they are the same thing." />
+            ]} footer="Each step tells you something different. PROMORANG keeps them connected without blurring them together." />
           </div>
         </div>
       </section>
@@ -70,13 +70,13 @@ export default function WhatIsPromorang() {
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">PromoCard is the thread</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">The market is public. Your relationship to it is personal.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">PromoCard remembers the parts of PROMORANG that matter to you: what you are watching, what you are behind, access that was actually issued, verified actions and things worth returning to.</p>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">PromoCard keeps the parts of PROMORANG that matter to you in one place: what you are watching, what you want, access you have, and the things you have been part of.</p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               <TicketPass kicker="Before something happens" title="Keep your place" detail="A want or signal can stay connected to you so PROMORANG has a reason to bring you back when the market changes." stub="KEEP" stubLabel="Intent" />
               <TicketPass kicker="After something happens" title="Keep the consequence" detail="Real access, proof, returns and retained history can stay attached to the same person instead of disappearing after one campaign." stub="RETURN" stubLabel="History" />
             </div>
           </div>
-          <PromoCardFace holder="Your PromoCard" available="What you're part of" limit="Wants · access · proof" places="The card carries continuity across the market without turning unverified interest into value." action="Keep your place" variant="membership" interactive={false} />
+          <PromoCardFace holder="Your PromoCard" available="What you're part of" limit="Wants · access · proof" places="One place for the things you are watching, the access you have, and what you have been part of." action="Keep your place" variant="membership" interactive={false} />
         </div>
       </section>
 
@@ -84,12 +84,12 @@ export default function WhatIsPromorang() {
         <div className="mx-auto max-w-6xl">
           <div className="max-w-4xl">
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">One market, different reasons to enter</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Everybody sees a different job. They should still be acting on the same truth.</h2>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Different people come here for different reasons.</h2>
           </div>
           <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <TicketPass kicker="People" title="Find what moves you" detail="Discover, look, join, act and keep your personal history on PromoCard." stub="JOIN" stubLabel="People" />
-            <TicketPass kicker="Merchants" title="Respond to local demand" detail="See relevant interest and put up only the supply your business can actually honor." stub="SUPPLY" stubLabel="Place" />
-            <TicketPass kicker="Brands" title="Read the market first" detail="Observe demand, decide what outcome matters, respond and verify what followed." stub="MOVE" stubLabel="Brand" />
+            <TicketPass kicker="Merchants" title="Respond to local demand" detail="See what people nearby want and put up something your business can genuinely honor." stub="SUPPLY" stubLabel="Place" />
+            <TicketPass kicker="Brands" title="Read the market first" detail="See where attention is forming, choose how to show up, and learn what people did next." stub="MOVE" stubLabel="Brand" />
             <TicketPass kicker="Creators & hosts" title="Surface and organize attention" detail="Help people discover something, gather around it and move into real participation." stub="BUILD" stubLabel="Culture" />
           </div>
         </div>

@@ -82,7 +82,7 @@ export function ExploreRewards() {
     <main className="marketing-cinematic min-h-screen bg-[#080808] px-5 pb-24 pt-24 text-white sm:px-6">\n      <CurrentArc variant="hero" className="marketing-hero-current" />
       <SEO
         title="Wanted + Responses — PROMORANG"
-        description="See recorded demand separately from the Moments and offers operators have actually put into market."
+        description="See what people want, tell PROMORANG what you’re looking for, and discover what businesses and hosts have put up in response."
         url={getSiteUrl("/discover/rewards")}
       />
 
@@ -90,13 +90,13 @@ export function ExploreRewards() {
         <header className="grid gap-8 border-b border-white/10 pb-10 lg:grid-cols-[1fr_.72fr] lg:items-end">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-primary">Wanted + responses · {marketName}</p>
-            <h1 className="mt-3 max-w-4xl font-serif text-5xl font-bold leading-[.94] tracking-[-.055em] sm:text-7xl">What people want is not the same thing as what exists.</h1>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">This surface keeps the two sides separate. Demand shows recorded questions and votes. Responses show real Moments with a recorded reward or access proposition. A threshold never creates supply by itself.</p>
+            <h1 className="mt-3 max-w-4xl font-serif text-5xl font-bold leading-[.94] tracking-[-.055em] sm:text-7xl">See what people want. See what’s actually available.</h1>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">Start with what people are asking for, then see the offers, perks and Moments that are actually live. Want something missing? Tell PROMORANG.</p>
           </div>
           <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Truth boundary</p>
-            <p className="mt-3 font-serif text-2xl font-bold">Signal ≠ response ≠ outcome.</p>
-            <p className="mt-2 text-xs leading-5 text-white/45">PROMORANG only advances the state when a separate source-backed record exists.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">How it works</p>
+            <p className="mt-3 font-serif text-2xl font-bold">Want it → someone responds → people act.</p>
+            <p className="mt-2 text-xs leading-5 text-white/45">A popular ask can get attention, but something only appears here when someone actually puts it up.</p>
           </div>
         </header>
 
@@ -104,7 +104,7 @@ export function ExploreRewards() {
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Looking for something?</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">Tell PROMORANG.</h2>
-            <p className="mt-3 max-w-lg text-sm leading-6 text-white/50">Tell PROMORANG what you are looking for. Saving your interest does not create an Offer, reward Points, or promise that somebody will respond.</p>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/50">Tell us what you’re looking for. Your ask can join similar interest and help shape what comes next.</p>
           </div>
           <form onSubmit={submitAsk} className="self-end">
             <div className="flex flex-col gap-2 rounded-[1.4rem] border border-white/12 bg-white/[0.045] p-2 sm:flex-row">
@@ -124,8 +124,8 @@ export function ExploreRewards() {
             {result ? (
               <p className={`mt-3 text-xs leading-5 ${result.recorded ? "text-emerald-300" : "text-amber-200"}`}>
                 {result.recorded
-                  ? `PROMORANG is keeping an eye on “${result.query}”. This is recorded interest behind the scenes, not supply.`
-                  : `PROMORANG could not confirm “${result.query}” was saved. Nothing is being presented as watched or counted.`}
+                  ? `Got it. PROMORANG is keeping an eye on “${result.query}”.`
+                  : `We couldn’t save “${result.query}” right now. Try again.`}
               </p>
             ) : null}
           </form>
@@ -134,13 +134,13 @@ export function ExploreRewards() {
         <section className="py-14" id="wanted">
           <div className="mb-7 flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Recorded demand</p>
-              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What people are signaling.</h2>
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">What people want</p>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What people are asking for.</h2>
             </div>
-            <p className="max-w-md text-xs leading-5 text-white/40">Votes and asks are evidence of interest. They are not attendance, purchase intent, inventory or entitlement.</p>
+            <p className="max-w-md text-xs leading-5 text-white/40">Votes show interest. They are not a reservation or purchase.</p>
           </div>
 
-          {isLoading ? <p className="text-sm text-white/40">Loading recorded demand…</p> : liveSignals.length ? (
+          {isLoading ? <p className="text-sm text-white/40">Loading what people want…</p> : liveSignals.length ? (
             <div className="grid gap-5 lg:grid-cols-2">
               {liveSignals.map((question) => {
                 const href = discoveryHref(question.poll);
@@ -173,8 +173,8 @@ export function ExploreRewards() {
           ) : (
             <div className="rounded-[1.7rem] border border-dashed border-white/12 p-7">
               <Radio className="h-6 w-6 text-primary" />
-              <h3 className="mt-4 font-serif text-2xl font-bold">No recorded demand questions are live here yet.</h3>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">That absence is real. Use the ask above or explore approved Discoveries rather than filling the surface with synthetic activity.</p>
+              <h3 className="mt-4 font-serif text-2xl font-bold">No one has asked for anything here yet.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Be first to tell PROMORANG what you’re looking for, or explore what’s already happening.</p>
               <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">Explore Discoveries <ArrowRight className="h-4 w-4" /></Link>
             </div>
           )}
@@ -184,12 +184,12 @@ export function ExploreRewards() {
           <div className="mb-7 grid gap-4 border-b border-white/10 pb-5 lg:grid-cols-[1fr_.6fr] lg:items-end">
             <div>
               <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Offers & perks</p>
-              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What somebody has actually made available.</h2>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What’s available now.</h2>
             </div>
-            <p className="text-xs leading-5 text-white/40">A public Offer is supply. Seeing it is not the same as receiving an issuance, claiming it, redeeming it or completing fulfillment.</p>
+            <p className="text-xs leading-5 text-white/40">These are live offers and perks. Open one to see the terms before you claim it.</p>
           </div>
 
-          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading public Offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">PROMORANG can’t confirm public Offers right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">A source failure is not being presented as an empty market.</p></div> : offers.length ? (
+          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading public Offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Offers couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : offers.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {offers.map((offer) => (
                 <article key={offer.id} className="flex min-h-[250px] flex-col border border-white/10 bg-white/[0.025] p-5">
@@ -210,8 +210,8 @@ export function ExploreRewards() {
           ) : (
             <div className="border border-dashed border-white/12 p-7">
               <Gift className="h-6 w-6 text-primary" />
-              <h3 className="mt-4 font-serif text-2xl font-bold">No public direct Offers are available right now.</h3>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">PROMORANG does not fill this space with sample perks. Reward-bearing Moments may still appear in the response section below.</p>
+              <h3 className="mt-4 font-serif text-2xl font-bold">No direct offers right now.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Check the Moments below—some may still include access or perks.</p>
             </div>
           )}
         </section>
@@ -219,13 +219,13 @@ export function ExploreRewards() {
         <section className="border-t border-white/10 py-14" id="responses">
           <div className="mb-7 grid gap-4 border-b border-white/10 pb-5 lg:grid-cols-[1fr_.6fr] lg:items-end">
             <div>
-              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Actual responses</p>
-              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What somebody has actually put into market.</h2>
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Moments with something extra</p>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Plans, experiences and Moments with something included.</h2>
             </div>
-            <p className="text-xs leading-5 text-white/40">These are separate production Moment records carrying a recorded reward/access description. Opening one is not the same as receiving or redeeming it.</p>
+            <p className="text-xs leading-5 text-white/40">Open one to see what’s included and how to join.</p>
           </div>
 
-          {responsesQuery.isLoading ? <p className="text-sm text-white/40">Loading responses…</p> : responsesQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Sparkles className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">PROMORANG can’t confirm reward-bearing Moments right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">A read failure is not the same thing as no operator response.</p></div> : responses.length ? (
+          {responsesQuery.isLoading ? <p className="text-sm text-white/40">Loading responses…</p> : responsesQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Sparkles className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Moments couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : responses.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {responses.map((moment) => {
                 const href = `/moments/${moment.slug || moment.id}`;
@@ -234,14 +234,14 @@ export function ExploreRewards() {
                     <div className="relative h-36 bg-white/[0.04]">
                       {moment.image_url ? <img src={moment.image_url} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><Sparkles className="h-7 w-7 text-white/15" /></div>}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                      <span className="absolute left-3 top-3 rounded-full border border-emerald-300/20 bg-black/65 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-200"><CheckCircle2 className="mr-1 inline h-3 w-3" />Recorded Moment</span>
+                      <span className="absolute left-3 top-3 rounded-full border border-emerald-300/20 bg-black/65 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-200"><CheckCircle2 className="mr-1 inline h-3 w-3" />Live Moment</span>
                     </div>
                     <div className="p-4">
                       <p className="text-[9px] font-black uppercase tracking-[0.16em] text-primary">{moment.category || "Moment"}</p>
                       <h3 className="mt-2 font-serif text-xl font-bold leading-tight">{moment.title}</h3>
                       <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/40"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-primary" />{moment.venue_name || moment.location || "Location on Moment"}</p>
                       <div className="mt-4 rounded-xl border border-white/10 bg-black/25 p-3">
-                        <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.14em] text-white/35"><Gift className="h-3 w-3 text-primary" />Recorded response</p>
+                        <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.14em] text-white/35"><Gift className="h-3 w-3 text-primary" />Included</p>
                         <p className="mt-1 text-xs font-bold text-white/75">{moment.reward}</p>
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -256,8 +256,8 @@ export function ExploreRewards() {
           ) : (
             <div className="rounded-[1.7rem] border border-dashed border-white/12 p-7">
               <Gift className="h-6 w-6 text-primary" />
-              <h3 className="mt-4 font-serif text-2xl font-bold">No recorded responses with rewards are available right now.</h3>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">PROMORANG will not manufacture a deal because demand crossed a threshold. Operators have to put a distinct response into market.</p>
+              <h3 className="mt-4 font-serif text-2xl font-bold">No Moments with perks are live right now.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Keep exploring, or tell PROMORANG what you want to see next.</p>
             </div>
           )}
         </section>

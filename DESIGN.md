@@ -90,6 +90,30 @@ The sidebar or account menu can provide reliable access to these tools. They mus
 - **Promorang Orange (`#FF5500` / `#F97316`)** is the canonical primary color identifying primary actions, active state glows, and persuasion triggers. It anchors visual hierarchy across all screens.
 - **Unified Hero Architecture**: Never stack separate disconnected banner boxes above a page heading. Always integrate headlines, subheadlines, live proof tickers, primary CTAs, and progress rings into a single, cohesive, high-impact hero container.
 - **Accessible Everyman Language**: User-facing copy must avoid Wall-Street/crypto jargon ("Capital Pool", "Yield Multiplier", "Staking Ledger"). Use warm, everyday words ("Community Treat Vault", "Early Bird 3x Boost", "Post a Perk", "Saved Perks", "Your Wins").
+
+### 0.2.1 User-Facing Copy Law
+
+**Truth belongs in product behavior. Humanity belongs in the copy.**
+
+PROMORANG may use strict internal language for state, proof, eligibility, source records, ownership, inventory, attribution, and verification. Those concepts must not leak into customer-facing copy unless the user genuinely benefits from that precision.
+
+- Never expose database or implementation language such as “source-backed,” “authoritative record,” “production state,” “recorded object,” “directory source,” or “inventory source” in ordinary participant or stakeholder copy.
+- Enforce truth underneath the experience. If nothing exists, say “Nothing here yet,” not “No source-backed records exist.”
+- Participant copy should lead with curiosity, belonging, access, movement, and return.
+- Creator copy should lead with attention, influence, reputation, audience movement, and opportunity.
+- Merchant copy should lead with local demand, visits, offers, capacity, customers, and return behavior.
+- Brand copy should lead with market intelligence, activation, audience response, and measurable outcomes.
+- Host copy should lead with turnout, access, attendance, experience quality, and return.
+- Community copy should lead with belonging, shared interests, rituals, participation, and continuity.
+- Agency copy should lead with client clarity, orchestration, market signals, activation, and results.
+- Enterprise copy should lead with coordination, governance, consistency, roles, reporting, and program outcomes.
+- Error states should say what the person needs to know and what they can do next. Do not explain internal failure semantics.
+- Empty states should be honest, concise, and useful: acknowledge the absence, then offer the next meaningful move.
+- Words such as “verified,” “proof,” “eligibility,” and “attribution” are allowed when they communicate a meaningful user distinction. They should not be used merely to demonstrate that the implementation is rigorous.
+- Detailed state-machine precision belongs in operational surfaces, legal/compliance copy, Help when necessary, and internal documentation—not in persuasion copy.
+
+A useful test: **Would a normal user say this sentence, or is the product team explaining why the database is trustworthy?** If it is the latter, rewrite it.
+
 - Use subtle white borders, controlled amber/orange glows (`box-shadow: 0 0 30px rgba(255, 85, 0, 0.3)`), and restrained status colors.
 - Put editorial culture imagery in the product, not only on marketing pages.
 - Prefer rails, feeds, media cards, compact lists, and active objects over explanatory panel stacks.

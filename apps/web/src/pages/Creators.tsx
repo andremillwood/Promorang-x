@@ -61,7 +61,7 @@ export default function Creators() {
     <main className="min-h-screen bg-black pb-24 text-white">
       <SEO
         title="Creators & Distributors — Promorang"
-        description="Get discovered. Find things worth sharing. Build proof that you move people."
+        description="Get discovered. Share what deserves attention. Build a reputation people can see."
       />
 
       {/* Hero Section */}
@@ -83,12 +83,12 @@ export default function Creators() {
               <h1 className="max-w-5xl font-sans text-4xl sm:text-6xl lg:text-7xl font-black uppercase leading-[0.88] tracking-[-0.05em]">
                 Get Discovered. <br />
                 <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                  Build Recorded Proof Over Time.
+                  Build a Reputation People Can See.
                 </span>
               </h1>
 
               <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-white/70">
-                Find things worth sharing and build a record around actions PROMORANG can actually verify. Eligible attribution, rewards, or draw entries appear only when their source records exist.
+                Share what deserves attention. When people move through what you share, your profile starts to tell the story.
               </p>
             </div>
 
@@ -126,7 +126,7 @@ export default function Creators() {
               Creator Directory
             </h2>
             <p className="text-xs text-white/60 mt-1">
-              Public creator-role profiles currently available on PROMORANG.
+              Find creators, DJs, hosts and pages worth following.
             </p>
           </div>
           <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20  text-xs font-bold">
@@ -140,7 +140,7 @@ export default function Creators() {
           <div role="alert" className="rounded-3xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
             <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
             <h3 className="mt-4 text-xl font-black">Creator directory unavailable</h3>
-            <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/50">PROMORANG could not read the creator-role directory, so the failure is not being replaced with sample creators.</p>
+            <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/50">We couldn’t load creators right now. Try again in a moment.</p>
             <button type="button" onClick={() => void creatorsQuery.refetch()} className="mt-4 text-sm font-bold text-purple-300 hover:text-purple-200">Try again</button>
           </div>
         ) : filteredCreators.length ? (
@@ -161,7 +161,7 @@ export default function Creators() {
 
                 <div className="space-y-2 flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">Creator role</p>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">Creator</p>
                     {creator.location && (
                       <span className="text-[10px] text-white/40">{creator.location}</span>
                     )}
@@ -172,7 +172,7 @@ export default function Creators() {
                   </h3>
 
                   <p className="line-clamp-2 text-xs leading-relaxed text-white/60">
-                    {creator.bio || "No profile bio recorded yet."}
+                    {creator.bio || "Creator on PROMORANG."}
                   </p>
 
 
@@ -185,7 +185,7 @@ export default function Creators() {
             <Users className="mx-auto h-9 w-9 text-purple-400" />
             <h3 className="mt-5 text-2xl font-black">No creators found</h3>
             <p className="mx-auto mt-2 max-w-md text-xs text-white/50">
-              Try adjusting your search query. If the directory source is healthy, only recorded creator-role profiles appear here.
+              No creators matched your search. Try another name, place or keyword.
             </p>
           </div>
         )}

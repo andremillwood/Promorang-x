@@ -27,7 +27,7 @@ const paths = [
   {
     eyebrow: "I run a place or business",
     title: "Merchant",
-    description: "See relevant local demand, publish accurate place information, and respond with supply you can genuinely honor.",
+    description: "See what people nearby want, keep your place accurate, and put up offers, Moments or updates your business can genuinely honor.",
     href: "/for-merchants",
     cta: "See the merchant path",
     icon: Store,
@@ -37,7 +37,7 @@ const paths = [
   {
     eyebrow: "I represent a brand",
     title: "Brand",
-    description: "Read the market before spending, decide what outcome matters, respond with something real, and verify what followed.",
+    description: "See where attention is forming, choose where your brand should show up, and learn what people do next.",
     href: "/for-brands",
     cta: "See the brand path",
     icon: Building2,
@@ -47,7 +47,7 @@ const paths = [
   {
     eyebrow: "I create or influence",
     title: "Creator",
-    description: "Help people notice things, make interest legible, and build proof around the actions your audience actually takes.",
+    description: "Share what deserves attention, move people toward something real, and build a reputation around what happens next.",
     href: "/for-creators",
     cta: "Explore creator tools",
     icon: Megaphone,
@@ -57,7 +57,7 @@ const paths = [
   {
     eyebrow: "I bring people together",
     title: "Host",
-    description: "Turn recurring interest into real Moments, coordinate participation, and keep attendance separate from intent.",
+    description: "Turn interest into Moments people actually show up for, manage access, and give them a reason to return.",
     href: "/hosting",
     cta: "Explore hosting",
     icon: CalendarDays,
@@ -67,7 +67,7 @@ const paths = [
   {
     eyebrow: "I lead a community",
     title: "Community",
-    description: "Give persistent context to shared interests, local rituals, places and people without forcing everything into one event.",
+    description: "Give shared interests, local rituals, places and people a home that can keep growing between Moments.",
     href: "/for-communities",
     cta: "Explore community tools",
     icon: Users,
@@ -77,7 +77,7 @@ const paths = [
   {
     eyebrow: "I manage clients",
     title: "Agency",
-    description: "Operate across client demand, responses and evidence while preserving the truth and history of each account.",
+    description: "See what each client market wants, coordinate responses, and keep outcomes clear across accounts.",
     href: "/for-agencies",
     cta: "Explore agency tools",
     icon: Briefcase,
@@ -87,7 +87,7 @@ const paths = [
   {
     eyebrow: "I represent a larger organization",
     title: "Enterprise",
-    description: "Use PROMORANG across teams, locations, communities and programs without losing the object and evidence model underneath.",
+    description: "Use PROMORANG across teams, locations, communities and programs with consistent roles, reporting and governance.",
     href: "/for-enterprise",
     cta: "Explore enterprise",
     icon: Building2,
@@ -105,7 +105,7 @@ export default function Join() {
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#050505] text-white">
       <SEO
         title="Build with PROMORANG — Choose how you enter the market"
-        description="Choose what you are trying to make happen with PROMORANG. Different roles enter the same Discovery, Demand, Response and Proof market through different lenses."
+        description="Choose what you are trying to make happen with PROMORANG and enter through the role that fits you best."
       />
 
       <section className="marketing-join-hero relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
@@ -116,7 +116,7 @@ export default function Join() {
           <p className="marketing-kicker">Build with PROMORANG</p>
           <h1 className="mt-5 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl">What are you trying to make happen?</h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">
-            Start with the job, not the platform taxonomy. Every role enters the same market; the lens changes what you need to see, decide and prove.
+            Start with what you want to make happen. PROMORANG changes around your role so the next useful move is easier to see.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
@@ -126,7 +126,7 @@ export default function Join() {
               See the loop <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">Role imagery is editorial atmosphere · role capabilities are described below</p>
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">Choose a role to see the path that fits you best</p>
         </div>
       </section>
 
@@ -136,7 +136,7 @@ export default function Join() {
             <div>
               <p className="marketing-kicker">Choose your lens</p>
               <h2 className="mt-3 text-4xl font-black sm:text-5xl">Who are you here as?</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Different doors. Same market underneath. Choose the role closest to the job you are responsible for.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Choose the role closest to what you are responsible for.</p>
             </div>
           </div>
 
@@ -172,7 +172,7 @@ export default function Join() {
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">{selected.description}</p>
             </div>
             <div className="marketing-role-detail__route">
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/35">Role truth path</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/35">Your path</p>
               <p className="mt-2 text-lg font-black text-white">{selected.proof}</p>
               <Link to={selected.href} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
                 {selected.cta} <ArrowRight className="h-4 w-4" />
@@ -193,7 +193,7 @@ export default function Join() {
           <div>
             <p className="marketing-kicker">Already responsible for an outcome?</p>
             <h2 className="mt-3 text-3xl font-black">Choose the party that can actually respond.</h2>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Visits, trials, attendance, referrals and repeat behavior should begin with the operator responsible for creating real supply—not with a marketing promise.</p>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Visits, trials, attendance, referrals and repeat behavior need someone to make a real offer, Moment, invitation or experience people can act on.</p>
             <Link to="/for-brands" className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">See the business side <ArrowRight className="h-4 w-4" /></Link>
           </div>
         </div>

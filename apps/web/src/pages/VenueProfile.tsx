@@ -412,7 +412,7 @@ export default function VenueProfile() {
               <section id="place-merchants">
                 <div className="mb-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available here</p><h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Merchants connected to this place</h2></div>
                 <div className="grid gap-3 md:grid-cols-2">
-                  {merchantsAtVenue.map((merchant) => <Link key={merchant.merchant_user_id} to={`/storefront/${merchant.merchant_user_id}`} className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5"><div><p className="text-sm font-black text-foreground">{merchant.merchant_name || "Local merchant"}</p><p className="mt-1 text-xs text-muted-foreground">Open the merchant's real public inventory.</p></div><ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1"/></Link>)}
+                  {merchantsAtVenue.map((merchant) => <Link key={merchant.merchant_user_id} to={`/storefront/${merchant.merchant_user_id}`} className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5"><div><p className="text-sm font-black text-foreground">{merchant.merchant_name || "Local merchant"}</p><p className="mt-1 text-xs text-muted-foreground">See what they have available.</p></div><ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1"/></Link>)}
                 </div>
               </section>
             ) : null}

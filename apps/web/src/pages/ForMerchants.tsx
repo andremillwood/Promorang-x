@@ -38,7 +38,7 @@ export default function ForMerchants() {
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title={claimVenue ? `${claimVenue} on PROMORANG` : "PROMORANG for Merchants — Respond to demand with something real"}
-        description="See what people are asking for, decide what your business can actually supply, and keep demand, offer and verified outcome separate."
+        description="See what people nearby want, decide what fits your business, and give them a reason to visit."
         type="website"
       />
 
@@ -53,14 +53,14 @@ export default function ForMerchants() {
               <span className="text-emerald-300">what might move people.</span>
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">
-              See what people around you are asking for. Decide what your business can genuinely respond with. PROMORANG keeps the interest, the offer and the verified visit or purchase as different states.
+              See what people nearby are looking for. Decide what fits your business, put up something you can honor, and see what brings people through the door.
             </p>
 
             {claimVenue ? (
               <div className="mt-7 max-w-2xl rounded-[1.6rem] border border-amber-300/20 bg-amber-300/[0.07] p-5">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">Is this your place?</p>
                 <p className="mt-2 font-serif text-2xl font-bold">{claimVenue}</p>
-                <p className="mt-2 text-sm leading-6 text-white/55">Claiming a place should connect the real operator to its PROMORANG presence; it does not change recorded demand or verification history.</p>
+                <p className="mt-2 text-sm leading-6 text-white/55">Claim this place to manage how your business appears on PROMORANG and connect offers, Moments and updates to the right location.</p>
                 <Link to={`${registerHref}${registerHref.includes("?") ? "&" : "?"}name=${encodeURIComponent(claimVenue)}`} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-amber-300 px-5 text-sm font-black text-black">Claim this place <ArrowRight className="h-4 w-4" /></Link>
               </div>
             ) : null}
@@ -94,7 +94,7 @@ export default function ForMerchants() {
                 state={signalState(leadSignal.votesRemaining, leadSignal.closeness)}
               />
             ) : (
-              <TicketPass kicker="No recorded signal yet" title="You do not need fake demand to get started." detail="Register your place, publish accurate information, or watch the market. When real demand forms, PROMORANG should show it as it is." stub="OPEN" stubLabel="Market" />
+              <TicketPass kicker="Nothing strong nearby yet" title="You don’t have to wait for a signal." detail="Claim your place, keep your information current, or watch what people are asking for as the market develops." stub="OPEN" stubLabel="Market" />
             )}
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function ForMerchants() {
             <div>
               <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Local market</p>
               <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">A request is not a customer. It is a reason to look closer.</h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">PROMORANG should help you qualify whether an ask is relevant before you commit inventory, discounts, staff time or operating changes.</p>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">Use the signal to decide whether it is worth a response before you commit discounts, stock, staff time or special hours.</p>
             </div>
 
             {isLoading && !liveSignals.length ? <div className="h-56 animate-pulse rounded-[1.6rem] bg-white/[0.04]" /> : liveSignals.length ? (
@@ -116,7 +116,7 @@ export default function ForMerchants() {
                 ))}
               </div>
             ) : (
-              <TicketPass kicker="Recorded state" title="No demand questions are live here yet." detail="PROMORANG should let that be true. A merchant can still create useful supply, publish accurate Discovery information, and wait for legitimate signals to form." stub="0" stubLabel="Demand" />
+              <TicketPass kicker="Right now" title="No demand questions are live here yet." detail="No live requests yet. You can still claim your place, keep your information current and put up something useful when it makes sense." stub="0" stubLabel="Demand" />
             )}
           </div>
         </div>
@@ -127,15 +127,15 @@ export default function ForMerchants() {
           <NightTrail eyebrow="The merchant loop" title="See → qualify → respond → verify" steps={[
             { label: "See", title: "Read what people are actually asking for.", text: "A demand signal makes interest visible. It does not promise a visit or a sale." },
             { label: "Qualify", title: "Decide whether this demand fits your business.", text: "Look at location, timing, volume and commitment before deciding whether the signal deserves a response." },
-            { label: "Respond", title: "Put up only what you can honor.", text: "Create a real offer, access window, Moment or place update with explicit limits instead of turning demand into fictional inventory." },
-            { label: "Verify", title: "Keep outcome separate from intent.", text: "A validated PromoCard, approved proof or purchase record can show what happened after the response." },
+            { label: "Respond", title: "Put up only what you can honor.", text: "Create an offer, access window, Moment or place update with clear terms and limits." },
+            { label: "Verify", title: "See what happened after the response.", text: "Validated claims, visits or purchases help you understand what actually moved." },
           ]} />
           <PaperReceipt heading={`${inbox.city} merchant snapshot`} lines={[
             { label: "Demand questions", value: inbox.questions.length.toLocaleString(), strong: true },
-            { label: "Recorded votes", value: inbox.liveVoteCount.toLocaleString(), strong: true },
+            { label: "Votes", value: inbox.liveVoteCount.toLocaleString(), strong: true },
             { label: "Near threshold", value: inbox.unlocking.length.toLocaleString() },
-            { label: "Truth gate", value: "Signal ≠ sale", strong: true },
-          ]} footer="The useful merchant promise is not guaranteed traffic. It is a clearer path from visible interest to a response you can actually stand behind." />
+            { label: "Read as", value: "Interest, not sale", strong: true },
+          ]} footer="Visible demand helps you make a better decision. It does not guarantee a visit or sale." />
         </div>
       </section>
 
@@ -143,14 +143,14 @@ export default function ForMerchants() {
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">PromoCard at the counter</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">The card should show what this person can actually use now.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">A merchant should not have to decode the entire PROMORANG economy. If a participant has real access, the PromoCard should make the entitlement and validation step obvious. If they do not, it should not manufacture one.</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Make it obvious what this person can use now.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Your team shouldn’t have to understand the whole system. If someone has valid access, PromoCard should make the offer and next step clear.</p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               <TicketPass kicker="Before the visit" title="Make the terms clear" detail="What is available, when it can be used, how many exist, and what the participant must do." stub="OPEN" stubLabel="Supply" />
-              <TicketPass kicker="After validation" title="Keep the receipt" detail="Validation can become proof of an action without silently claiming a separate purchase or fulfillment." stub="VALID" stubLabel="Proof" />
+              <TicketPass kicker="After the visit" title="Remember the visit" detail="Validation can become proof of an action without silently claiming a separate purchase or fulfillment." stub="VALID" stubLabel="Proof" />
             </div>
           </div>
-          <PromoCardFace holder="Participant PromoCard" available="Use this here" limit="Issued offer · terms apply" places="The card presents the entitlement that exists; the merchant validates the action that actually occurs." action="Present this" interactive={false} />
+          <PromoCardFace holder="Participant PromoCard" available="Use this here" limit="Issued offer · terms apply" places="Show the offer, the terms and the next step at a glance." action="Present this" interactive={false} />
         </div>
       </section>
 

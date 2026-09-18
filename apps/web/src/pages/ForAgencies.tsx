@@ -3,27 +3,27 @@ import MarketRoleLanding from "@/components/marketing/MarketRoleLanding";
 export default function ForAgencies() {
   return (
     <MarketRoleLanding
-      seoTitle="PROMORANG for agencies — Manage demand, response and proof without collapsing them"
-      seoDescription="Give clients a clearer view of what people want, what the client actually put into market, and what later became verified action."
+      seoTitle="PROMORANG for agencies — Turn market signals into clearer client action"
+      seoDescription="See what people want, coordinate the right client response, and report what happened next with more clarity."
       eyebrow="For agencies & client operators"
-      title="Give clients a chain of evidence—not a prettier dashboard."
-      intro="Agencies can read approved Discoveries and recorded demand across markets, help clients decide how to respond, then keep the response and verified outcome separate. That creates a cleaner client story than turning reach, intent and conversion into one blended performance number."
+      title="Give clients a clearer line from market signal to action."
+      intro="Agencies can see what people are discovering and asking for, help clients decide where to respond, and show what happened afterward without turning reach, interest and conversion into one vague number."
       primaryCta={{ label: "Open agency path", href: "/auth?mode=signup&role=brand&next=/dashboard" }}
       secondaryCta={{ label: "See the brand lens", href: "/for-brands" }}
-      roleJob="Your job is orchestration: know what the market is saying, recommend a defensible response, coordinate the participant path, and report what the records can actually support."
-      discoveryUse="Discoveries provide approved market context that can inform planning and creative without being presented as customer demand."
-      demandUse="Recorded demand gives clients an evidence layer before they spend. It can inform targeting, inventory and activation design without being overstated as guaranteed conversion."
+      roleJob="Read the market, shape the response, coordinate the moving parts, and give the client a result story they can understand."
+      discoveryUse="Discoveries give planners and creatives context about places, people, patterns and opportunities already in the market."
+      demandUse="Demand gives clients a clearer view of what people are asking for before they spend, helping shape targeting, offers and activation design."
       responseTitle="Translate demand into a client response with a clear owner"
-      responseDetail="A campaign, Offer, Moment, creator brief or merchant action should exist as its own response record with explicit supply and responsibility—not as an implied consequence of a demand threshold."
+      responseDetail="Turn the signal into a campaign, offer, Moment, creator brief or merchant action with a clear owner, terms and next step."
       responseStub="ORCH"
-      proofTitle="Build the client result pack from source-backed outcomes"
-      proofDetail="Observed, attributed and verified events should remain distinct. ROI and incrementality claims belong only where the supporting records actually exist."
-      promoCardDetail="PromoCard can carry the participant-side consequence of a managed activation, helping the relationship persist beyond the agency report while keeping issuance and verification source-backed."
+      proofTitle="Show the client what happened next"
+      proofDetail="Separate reach, attributed actions and confirmed outcomes so the client can see what changed without overstating ROI."
+      promoCardDetail="PromoCard gives the participant something to carry forward after the activation, so the relationship can continue beyond the agency report."
       truthGates={[
-        "Observed ≠ attributed ≠ verified ≠ value",
-        "Evidence ≠ ROI without supporting records",
-        "Demand ≠ supply",
-        "Approval ≠ settlement",
+        "Reach is not conversion",
+        "Results need context before they become ROI",
+        "Interest is not availability",
+        "Approval and settlement are different steps",
       ]}
     />
   );
