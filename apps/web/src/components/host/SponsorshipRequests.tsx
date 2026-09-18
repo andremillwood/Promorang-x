@@ -84,7 +84,7 @@ export function HostSponsorshipRequests() {
                   <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                      <div className="min-w-0 space-y-4">
                         <div>
-                           <Badge className="bg-emerald-500 text-white mb-2 shadow-glow-emerald">USD Funded & Locked</Badge>
+                           <Badge className="bg-emerald-500 text-white mb-2 shadow-glow-emerald">Funded request</Badge>
                            <h4 className="text-2xl font-black italic font-serif">
                               {request.moment?.title || "Community Moment"}
                            </h4>
@@ -92,13 +92,13 @@ export function HostSponsorshipRequests() {
                         </div>
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Moment Budget</p>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Recorded request amount</p>
                               <p className="text-xl font-black text-emerald-600">${request.bid_amount}</p>
                            </div>
                            <div className="hidden h-8 w-px bg-emerald-500/20 sm:block" />
                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Host Liquidity</p>
-                              <p className="text-[10px] font-bold text-foreground uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded">Verified Payouts</p>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Funding state</p>
+                              <p className="text-[10px] font-bold text-foreground uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded">Funded · payout not implied</p>
                            </div>
                         </div>
                      </div>
