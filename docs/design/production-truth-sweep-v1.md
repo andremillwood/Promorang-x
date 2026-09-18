@@ -352,6 +352,26 @@ Commits:
 
 Status: **Closed**
 
+#### T-022 — Offer Studio silently published default supply
+
+File: `apps/web/src/pages/OfferStudio.tsx`
+
+Finding:
+- new offers defaulted to `status: active` even though status was not exposed in the creation form;
+- new offers also defaulted to 100 units, creating supply the operator had not explicitly entered;
+- this overrode the unified-offer schema/service's safer `draft` default.
+
+Resolution:
+- new offers are always created as `draft`;
+- quantity starts blank rather than at an invented 100 units;
+- the existing Manage workspace remains the explicit activation boundary;
+- success copy now says the offer was saved as draft and must be reviewed/activated;
+- form reset preserves the active market city instead of resetting silently to Kingston.
+
+Commit: `647c2a1de9c45a4b7a3e4fc81b81296b46c66d23`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
