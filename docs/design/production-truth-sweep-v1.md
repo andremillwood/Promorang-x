@@ -233,6 +233,22 @@ Commit: `55f672fa9f62ef732b27366af71e333497842cd3`
 
 Status: **Closed**
 
+#### T-016 — Merchant analytics source failure rendered as real zero
+
+File: `apps/web/src/components/merchant/SalesAnalyticsDashboard.tsx`
+
+Finding:
+- failed analytics requests were caught, but the component then rendered null state through `|| 0` fallbacks, making unavailable data look like real zero revenue, sales, customers and redemptions.
+
+Resolution:
+- all analytics responses are checked for HTTP success;
+- failure clears stale metric state and renders an explicit unavailable state;
+- no zero-value business result is substituted for a failed source.
+
+Commit: `0588cd6f8e7fa1540bb9328b8cfa729136286097`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
