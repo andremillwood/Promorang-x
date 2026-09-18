@@ -10,7 +10,7 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { buildLocationPath, formatLocationLabel, getSiteUrl } from "@/lib/discovery";
-import { ArrowLeft, CalendarDays, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
@@ -214,7 +214,7 @@ export default function VenueProfile() {
   }
 
   return (
-    <main className="marketing-cinematic public-object-page min-h-screen bg-[#050505] px-4 py-12 text-white">
+    <main className="marketing-cinematic public-object-page min-h-screen bg-[#050505] text-white">
       {venue && (
         <SEO
           title={venue.name}
@@ -236,7 +236,7 @@ export default function VenueProfile() {
       )}
 
       {isLoading ? (
-        <div className="space-y-6">
+        <div className="mx-auto max-w-[1320px] space-y-6 px-5 py-16 sm:px-6">
           <Skeleton className="h-56 rounded-[2rem]" />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -246,7 +246,7 @@ export default function VenueProfile() {
         </div>
       ) : venue ? (
         <>
-          <section className="public-object-hero relative overflow-hidden border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-6 py-8 text-white">\n            <CurrentArc variant="hero" className="marketing-hero-current" />
+          <section className="public-object-hero relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-5 pb-12 pt-20 text-white sm:px-6">\n            <CurrentArc variant="hero" className="marketing-hero-current" />\n            <div className="relative mx-auto max-w-[1320px]">
             <Button asChild variant="ghost" className="mb-5 w-fit">
               <Link to={venue.country_slug ? buildLocationPath(venue.country_slug, venue.city_slug) : "/explore/moments"}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -316,7 +316,7 @@ export default function VenueProfile() {
             </div>
           </section>
 
-          {venue.listing_status === "unclaimed" && enrichmentOpportunities.length > 0 ? (
+          <div id="place-about" className="mx-auto max-w-[1320px] px-5 sm:px-6">\n          {venue.listing_status === "unclaimed" && enrichmentOpportunities.length > 0 ? (
             <section className="mt-8 rounded-[2rem] border border-primary/20 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.14),transparent_40%),rgba(255,255,255,0.025)] p-6 sm:p-8">
               <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div><p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-primary"><Telescope className="h-4 w-4"/>Scout enrichment</p><h2 className="mt-2 font-serif text-3xl font-bold">Help complete this Discovery.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Claim one missing fact, submit local proof, and become part of this place’s verification record. This does not claim ownership of the business.</p></div>
@@ -443,7 +443,7 @@ export default function VenueProfile() {
               </section>
             ) : null}
 
-            <section>
+            <section id="place-content">
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{t("venueProfile.linkedContent")}</h2>
