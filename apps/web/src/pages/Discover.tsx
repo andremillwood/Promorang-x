@@ -56,6 +56,7 @@ import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { merchantAuthHref } from "@/lib/merchant-demand";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
+import { PublicDiscoverExperience } from "@/components/discovery/PublicDiscoverExperience";
 
 const categoryFilters = [
   { id: "all", key: "discover.filterAllDrops" as const, icon: Sparkles },
@@ -136,7 +137,7 @@ const HubEmptyState = ({
 
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
-const Discover = () => {
+const SignedInDiscover = () => {
   const { t, locale, formatNumber } = useI18n();
   const { user, activeRole } = useAuth();
   const { city, setCity } = useMarket();
@@ -870,6 +871,15 @@ const Discover = () => {
       </div>
     </div>
   );
+};
+
+
+const Discover = () => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <div className="min-h-screen bg-[#050505]" />;
+  }
+  return user ? <SignedInDiscover /> : <PublicDiscoverExperience />;
 };
 
 export default Discover;
