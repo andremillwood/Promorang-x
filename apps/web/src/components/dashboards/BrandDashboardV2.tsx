@@ -21,11 +21,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBrandCampaigns, useBrandStats } from "@/hooks/useCampaigns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { StoryGamificationRail } from "@/components/StoryGamificationRail";
-import { RightUtilityRail } from "@/components/RightUtilityRail";
-import { SpinWheelModal } from "@/components/SpinWheelModal";
-import { TeamSlashModal } from "@/components/TeamSlashModal";
-import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 
 // Modular Brand Consoles
@@ -45,18 +40,11 @@ export function BrandDashboardV2() {
   const defaultTab = searchParams.get("tab") || "campaigns";
   const [activeTab, setActiveTab] = useState(defaultTab);
 
-  const [wheelOpen, setWheelOpen] = useState(false);
-  const [slashOpen, setSlashOpen] = useState(false);
-  const [streakOpen, setStreakOpen] = useState(false);
-
   const activeOrg = organizations.find((org) => org.id === activeOrgId);
   const managingAgency = organizations.find((org) => org.type === "agency");
   const isManagedClient = agencyClients.some((client) => client.id === activeOrgId);
   const activeBrandName =
     activeOrg?.name || profile?.display_name || user?.user_metadata?.full_name || "Brand Partner";
-  const isManchesterHills =
-    activeOrg?.slug === "manchester-hills-foods" || activeBrandName.toLowerCase().includes("manchester hills");
-
   useEffect(() => {
     const requestedTab = searchParams.get("tab");
     if (requestedTab) setActiveTab(requestedTab);
@@ -75,10 +63,8 @@ export function BrandDashboardV2() {
   const isNewBrandWorkspace = !campaignsLoading && (campaigns?.length || 0) === 0;
 
   if (isNewBrandWorkspace) {
-    const pilotTitle = isManchesterHills ? "Find Your Manchester Hills Flavour" : `First 50 for ${activeBrandName}`;
-    const pilotOutcome = isManchesterHills
-      ? "Learn which products people choose, capture 50 attributable customer actions, and create evidence Pandxtra can take back to Manchester Hills."
-      : "Create one small measurable demand test, move 50 real people to act, and use the result to decide what should scale.";
+    const pilotTitle = `First 50 for ${activeBrandName}`;
+    const pilotOutcome = "Create one small measurable demand test, move 50 real people to act, and use the recorded result to decide what should scale.";
 
     return (
       <div className="space-y-6 pb-16 text-white animate-in fade-in-50 duration-300">
@@ -128,8 +114,8 @@ export function BrandDashboardV2() {
               {[
                 {
                   step: "01",
-                  title: isManchesterHills ? "Choose a flavour" : "Choose an action",
-                  copy: isManchesterHills ? "Let people pick the Manchester Hills product they are most interested in." : "Decide the single customer behavior this test should create.",
+                  title: "Choose an action",
+                  copy: "Decide the single customer behavior this test should create.",
                 },
                 {
                   step: "02",
@@ -165,10 +151,10 @@ export function BrandDashboardV2() {
 
           <div className="rounded-3xl border border-border bg-card/70 p-5 sm:p-6">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Before launch</p>
-            <h2 className="mt-2 text-xl font-black">What Pandxtra needs from the client</h2>
+            <h2 className="mt-2 text-xl font-black">What needs to be confirmed before launch</h2>
             <div className="mt-5 space-y-3">
               {[
-                isManchesterHills ? "Confirm the current product / flavour list" : "Confirm the product, service, or offer being promoted",
+                "Confirm the product, service, or offer being promoted",
                 "Approved product details, pack sizes and current pricing where relevant",
                 "Approved images or creative assets",
                 "The incentive or customer reason to act",
@@ -214,11 +200,6 @@ export function BrandDashboardV2() {
 
   return (
     <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
-      <StoryGamificationRail
-        onOpenWheel={() => setWheelOpen(true)}
-        onOpenStreak={() => setStreakOpen(true)}
-      />
-
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-black backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
@@ -310,7 +291,7 @@ export function BrandDashboardV2() {
         })}
       </div>
 
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,2fr)_360px]">
+      <div className="grid gap-6">
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
@@ -329,12 +310,7 @@ export function BrandDashboardV2() {
             <TabsContent value="insights" className="mt-0"><BrandIntelligenceConsole /></TabsContent>
           </Tabs>
         </div>
-        <RightUtilityRail onOpenSlashModal={() => setSlashOpen(true)} onOpenStreakModal={() => setStreakOpen(true)} />
       </div>
-
-      <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
-      <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
-      <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
     </div>
   );
 }
