@@ -270,6 +270,39 @@ Commits:
 
 Status: **Closed**
 
+#### T-018 — Content Distribution synthetic reward defaults and client verification override
+
+Files:
+- `backend/services/contentDistributionService.js`
+- `backend/api/content-distribution.js`
+- `apps/web/src/pages/ContentDropDetail.tsx`
+
+Finding:
+- unconfigured PromoShare entry counts defaulted to one;
+- the generic content action payload could contribute a client-supplied `verified` flag;
+- the release detail could display configured points when the server actually awarded zero.
+
+Resolution:
+- no configured PromoShare entry count now resolves to zero;
+- content context marks PromoShare enabled only when explicitly configured;
+- generic content actions no longer accept the client `verified` flag as authority;
+- release receipts display the server-awarded value, including a real zero, without falling back to configured points;
+- release detail no longer implies a reward when none is configured.
+
+Commits:
+- `d4a6424fbe952e3300231899fb34a1b46fe62f28`
+- `b6783497ed6f86c20ac60dc199b5014b3e4d99c5`
+- `e7158cc099076f0baf1cbbda186893f4b2e8c5e0`
+- `894e4e9594921cefebcd4fcaf9048d8db8197ec7`
+
+Status: **Closed**
+
+### T-019 — Creator acceptance / availability / rights-review contract
+
+Status: **Open contract debt**
+
+The current production Creator path uses `content_distribution_campaigns`, assets and attributed actions. It does not yet expose one canonical record for creator acceptance, availability, commissioned deliverables, rights terms and approval/review state. Do not represent an open Content Drop as an accepted commission or approved creator brief until that contract exists.
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
