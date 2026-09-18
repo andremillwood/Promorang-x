@@ -6,8 +6,8 @@ Repository: `andremillwood/Promorang-x`
 Branch: `design/canonical-object-system-v1`
 PR: **#129 — Canonical Object System v10: convergence + participant loop hardening**
 PR state at checkpoint: **open · draft · mergeable · unmerged**
-Exact head at checkpoint: `5b7ef07c52938d8425d15b12922d29bd8b419994`
-Exact-head CI: **Web Build #485 — success**
+Static head SHA: **intentionally not authoritative — fetch PR #129 before resuming**
+Latest CI rule: **validate only meaningful checkpoint heads; do not burn Vercel previews for iterative pushes**
 
 This file exists so work can continue in a new chat without reconstructing the project history.
 
@@ -107,8 +107,8 @@ The completion contract defines C1–C21. Current broad status:
 - **C11 Onboarding** — durable completion and role-first routing hardened.
 - **C14 Commerce/Fulfillment** — participant + merchant state boundaries hardened.
 - **C15 Wallet/Gems/PromoShare** — user-facing value truth hardened; claim/settlement atomicity remains open.
-- **C16 Progress/Result/Return** — **currently active when this log was created**.
-- **C19 Production Truth Sweep** — ongoing release blocker; many major findings closed.
+- **C16 Progress/Result/Return** — operator-closeout provenance and role-scoped return semantics are hardened; journey-closure QA remains.
+- **C19 Production Truth Sweep** — **current active workstream**; Discover/Found durable-state, mutation, and fixture truth were hardened in the latest continuation.
 
 ## Still requires substantial completion work
 
@@ -475,69 +475,61 @@ Do not claim this is solved yet.
 
 ---
 
-# 16. C16 — Progress / Result / Return — CURRENT ACTIVE WORK
+# 16. C16 — Progress / Result / Return
 
-This was the active workstream when this handoff log was created.
+C16's operator-closeout provenance defect is no longer the active blocker.
 
-Finding:
+Closed direction:
 
-`activation_outcome_snapshots` are direct **operator-entered closeout snapshots**, but read-side wording could make them sound like independently verified telemetry.
+- `activation_outcome_snapshots` are explicitly operator-reported closeout snapshots;
+- web/mobile writers record the actual supported stakeholder role rather than silently becoming Agency;
+- metadata preserves `provenance: "operator_reported"`, recorder role, and `verified_telemetry: false`;
+- stakeholder-return aggregation is scoped to the active role;
+- participant return excludes operator closeout snapshots;
+- Gems/access/openings remain sourced from their own ledgers rather than being relabelled as closeout telemetry;
+- mobile Gems movement is not substituted from gross monetary value.
 
-Also found:
+The detailed production-truth finding is T-027 in `production-truth-sweep-v1.md`.
 
-- web `recordOutcome` hard-coded every recorder as `agency`;
-- mobile `recordOutcome` did the same.
+Remaining C16 work is release/golden-journey QA: every stakeholder journey still needs an explicit result destination and meaningful repeat/improve/stop next move.
 
-Changes already made:
+---
 
-## Web
+# 16A. CURRENT ACTIVE WORK — C19 Production truth sweep
 
-`apps/web/src/hooks/useActivationOperations.ts`
+Latest closed finding: **T-032 — Discover and Found could manufacture durable success in the browser.**
 
-- takes current supported stakeholder role;
-- refuses unsupported roles instead of silently becoming Agency;
-- snapshot metadata now records:
-  - `provenance: "operator_reported"`
-  - `recorder_role`
-  - `verified_telemetry: false`
-- success copy changed to **Operator closeout recorded**.
+Closed direction:
 
-## Mobile
+- a PromoCard unlock is authoritative only when a server-issued redemption code exists;
+- local card storage may cache that recorded credential but cannot mint one;
+- production city demand/card counts no longer merge browser-only rows;
+- production Found listings no longer merge local or seeded fixtures;
+- the two synthetic Found database fixtures are removed by forward migration;
+- Discovery vote UI waits for the durable mutation before reporting success;
+- vote success and PromoCard issuance are separate outcomes;
+- Found create/claim stays failed when the durable mutation fails;
+- Found claim + promised finder slip is transactional/retry-safe at the SQL boundary.
 
-`apps/mobile/hooks/useActivationOperations.ts`
+### NEXT ACTION
 
-- no longer hard-codes Agency;
-- unused mutation now requires explicit schema-supported `stakeholderType`;
-- records same operator-reported provenance metadata.
+Continue C19, but do it in cost-controlled batches:
 
-## Activation Detail
+1. audit/read several related primary-path files before writing;
+2. group fixes into one coherent slice;
+3. create blobs/tree/commit and move the branch ref once;
+4. rely on GitHub CI/static review between slices;
+5. do **not** create a Vercel preview for this design branch unless visual/browser QA is specifically required;
+6. when a preview is required, use a deliberate checkpoint commit containing `[vercel-preview]`;
+7. never deploy/promote production without explicit user instruction.
 
-`apps/web/src/pages/ActivationDetail.tsx`
+Highest-value remaining sweep targets:
 
-Read-side language now says:
-
-- **Operator-reported activation closeout**
-- **What was reported**
-- **Reported people/content/contribution/value**
-- form warns these values are not independently verified platform telemetry.
-
-### NEXT ACTION — start here in a new chat
-
-Continue C16 by auditing:
-
-- `apps/web/src/components/dashboard/StakeholderReturnPanel.tsx`
-- `apps/web/src/hooks/useStakeholderReturn.ts`
-- `apps/mobile/hooks/useStakeholderReturn.ts`
-- `apps/mobile/app/(tabs)/dashboard.tsx`
-
-Goal:
-
-- preserve provenance downstream;
-- do not relabel operator-reported snapshots as verified return;
-- keep separately sourced Gems/access/openings/collaboration records distinct;
-- determine whether totals need “reported” vs “recorded” labels;
-- record the result in `production-truth-sweep-v1.md`;
-- advance C16 status only after this is complete.
+- T-004 production aliases / fixture imports;
+- T-005 remaining local/browser authority;
+- T-006 hard-coded metrics/social proof;
+- T-007 mutation failure semantics;
+- deep stakeholder → create/edit → commerce → economy → utilities/profiles/marketing/mobile.
 
 ---
 
@@ -574,7 +566,8 @@ Major closed findings include:
 - unsupported PromoCard savings;
 - commerce receipt state collapse;
 - PromoShare fake dashboard/draws;
-- local spin/streak rewards.
+- local spin/streak rewards;
+- Discover/Found browser-authority, synthetic Found seeds, optimistic vote success, and finder-slip atomicity.
 
 ---
 
@@ -636,19 +629,28 @@ Canonical navigation should remain much smaller than implementation surface.
 
 # 20. CI / release discipline
 
-At this checkpoint:
+Current branch:
 
-- branch: `design/canonical-object-system-v1`
-- PR #129: open / draft / mergeable / unmerged
-- exact head: `5b7ef07c52938d8425d15b12922d29bd8b419994`
-- Web Build #485: **success**
+- `design/canonical-object-system-v1`
+- PR #129 remains draft/open/unmerged unless GitHub says otherwise;
+- always fetch the actual PR head before making release claims;
+- GitHub **Web Build** is the normal iterative validation surface for web changes;
+- there is no equivalent full backend/mobile GitHub Actions coverage, so do not overclaim backend/mobile validation.
 
-Important:
+### Vercel capacity policy
 
-- only claim CI status for the exact current SHA;
-- there is no equivalent full backend/mobile GitHub Actions coverage;
-- do not claim backend/mobile validated by Actions;
-- do not merge without explicit instruction from the user.
+The project is on a constrained Hobby plan. Treat Vercel preview capacity as a release resource, not an edit-time test runner.
+
+For `design/canonical-object-system-v1`:
+
+- the repo-level Vercel ignored-build script skips previews by default;
+- a deliberate checkpoint commit containing `[vercel-preview]` opts into a fresh preview;
+- batch code changes before moving the branch;
+- prefer code review, unit tests, GitHub Actions and contract checks before visual deployment;
+- do not run manual Vercel deploy commands for routine validation;
+- do not promote or deploy production without explicit user instruction.
+
+This policy does **not** weaken release QA. It moves browser preview validation to deliberate checkpoints instead of every intermediate push.
 
 ---
 
@@ -662,13 +664,16 @@ When the user says **“proceed”**:
    - this worklog,
    - completion contract,
    - production truth sweep.
-4. Resume from the **NEXT ACTION** in C16 unless the files show it was already completed.
-5. Fix only concrete blockers discovered.
-6. Update the truth/completion ledgers as work closes.
-7. Continue in completion-contract order.
-8. Do not open new product families or speculative architecture.
-9. Do not reintroduce sample/demo state to make production look populated.
-10. Do not merge.
+4. Resume from the **CURRENT ACTIVE WORK / NEXT ACTION** in this log; C19 is current unless later ledger changes supersede it.
+5. Audit broadly enough to form one coherent slice before writing.
+6. Batch file changes into one Git tree/commit/ref update wherever possible.
+7. Fix only concrete blockers discovered.
+8. Update the truth/completion ledgers as work closes.
+9. Use GitHub CI/static checks for iterative validation.
+10. Keep Vercel quiet on the design branch unless a deliberate `[vercel-preview]` checkpoint is required.
+11. Do not open new product families or speculative architecture.
+12. Do not reintroduce sample/demo state to make production look populated.
+13. Do not merge or production-deploy without explicit instruction.
 
 ---
 
@@ -676,7 +681,7 @@ When the user says **“proceed”**:
 
 Use this if continuity is needed:
 
-> Continue work on `andremillwood/Promorang-x`, branch `design/canonical-object-system-v1`, PR #129. Read `DESIGN.md`, `docs/design/product-completion-contract-v1.md`, `docs/design/product-completion-worklog-v1.md`, `docs/design/production-truth-sweep-v1.md`, and `docs/design/route-readiness-registry-v1.md` first. Respect the authority order and do not start a new roadmap. Resume from the worklog’s CURRENT ACTIVE WORK / NEXT ACTION. Verify the exact PR head and exact-head CI before changing code. Continue C1–C21 toward release, update the ledgers as findings close, preserve canonical truth boundaries, never substitute demo/synthetic production state, and do not merge without explicit instruction.
+> Continue work on `andremillwood/Promorang-x`, branch `design/canonical-object-system-v1`, PR #129. Read `DESIGN.md`, `docs/design/product-completion-contract-v1.md`, `docs/design/product-completion-worklog-v1.md`, `docs/design/production-truth-sweep-v1.md`, and `docs/design/route-readiness-registry-v1.md` first. Respect the authority order and do not start a new roadmap. Resume from the worklog’s CURRENT ACTIVE WORK / NEXT ACTION. Verify the exact PR head before changing code. Batch coherent changes into one branch update wherever possible. Keep Vercel previews disabled for ordinary design-branch iteration; only opt in with `[vercel-preview]` when browser/visual QA is specifically needed. Continue C1–C21 toward release, preserve canonical truth boundaries, never substitute demo/synthetic production state, and do not merge or production-deploy without explicit instruction.
 
 ---
 

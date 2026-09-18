@@ -45,6 +45,20 @@ Preview deployments from feature branches are allowed. They must never be promot
 
 `main` must not absorb parallel PromoCard experiments or Today-as-public-home.
 
+## Cost-controlled preview policy
+
+Vercel preview capacity is treated as a release resource.
+
+For the long-running `design/canonical-object-system-v1` branch:
+
+- Git pushes are **ignored by Vercel by default** through `scripts/vercel-ignore-non-web.mjs`;
+- add `[vercel-preview]` to a deliberate checkpoint commit only when fresh browser/visual QA is required;
+- ordinary implementation should be batched and validated with code review, tests and GitHub Actions first;
+- production `main` behavior is unchanged;
+- no manual `vercel deploy`, `vercel --prod`, promotion or redeploy is part of routine implementation.
+
+This is a capacity-control policy, not a release-quality shortcut. Final browser QA still requires an intentional preview before merge/release.
+
 ## How work reaches production
 
 ```text
