@@ -1,6 +1,8 @@
 # PROMORANG Product Completion Contract v1
 
 Status: **canonical completion ledger**
+
+Living handoff/work log: [`product-completion-worklog-v1.md`](product-completion-worklog-v1.md). Read that file first when resuming this programme in a new chat.
 Branch: `design/canonical-object-system-v1`
 Applies until: production release of the converged experience
 Authority order:
