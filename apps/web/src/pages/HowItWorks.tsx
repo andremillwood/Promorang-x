@@ -2,6 +2,7 @@ import { ArrowRight, Compass, Search, ShieldCheck, Sparkles, Store, Users } from
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 export default function HowItWorks() {
   return (
@@ -12,6 +13,7 @@ export default function HowItWorks() {
       />
 
       <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_0%,rgba(249,115,22,.2),transparent_38%),radial-gradient(circle_at_82%_52%,rgba(255,255,255,.05),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl">
           <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300"><Sparkles className="h-4 w-4" /> How PROMORANG works</p>
@@ -20,7 +22,7 @@ export default function HowItWorks() {
             <span className="text-orange-400"> “that looks interesting” </span>
             to something real.
           </h1>
-          <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">PROMORANG does not assume everybody arrives with a clear need. You can start by discovering something, asking for something, or joining something other people already want. PromoCard keeps your relationship to that market together as it changes.</p>
+          <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">PROMORANG does not assume everybody arrives with a clear need. You can start by discovering something, telling PROMORANG what you are looking for, or joining something other people already want. PromoCard keeps your relationship to that market together as it changes.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black"><Compass className="h-4 w-4" /> Start by exploring</Link>
             <Link to="/#ask" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-black text-white"><Search className="h-4 w-4" /> I know what I want</Link>
@@ -33,7 +35,7 @@ export default function HowItWorks() {
           <NightTrail eyebrow="Participant journey" title="See → feel → signal → keep → act → return" steps={[
             { label: "See", title: "Encounter something worth knowing.", text: "Discovery gives you places, products, experiences, people or possibilities you may not have known to ask for." },
             { label: "Feel", title: "Recognize that you care.", text: "You might save it, want it, ask for more like it, or realize something is missing." },
-            { label: "Signal", title: "Make that interest legible.", text: "Join an existing demand question or put your own ask into the market. Interest stays interest until stronger evidence exists." },
+            { label: "Signal", title: "Make that interest legible.", text: "Join an existing signal or keep looking for something that is still missing. PROMORANG handles the demand record underneath. Interest stays interest until stronger evidence exists." },
             { label: "Keep", title: "PromoCard remembers your place.", text: "Instead of losing the thread, PROMORANG can bring you back when something relevant changes or a real response appears." },
           ]} />
           <div className="mt-9 grid gap-4 md:grid-cols-2">
