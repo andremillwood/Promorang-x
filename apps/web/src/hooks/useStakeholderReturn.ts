@@ -57,12 +57,15 @@ export function useStakeholderReturn(role: StakeholderRole, enabled = true) {
       if (!user) throw new Error("Sign in to view return");
 
       const [outcomesResult, gemsResult, passesResult, openingsResult, collaborationsResult] = await Promise.all([
-        db
-          .from("activation_outcome_snapshots")
-          .select("people_reached,people_joined,people_showed_up,people_returned,stories_created,creator_driven_visits,invitations_opened,collaborations_opened,redemptions,purchases,gross_value,funded_value,human_return_summary,commercial_return_summary,scene_learning_summary,content_return_summary,gems_return_summary,participant_value_summary,next_decision,next_decision_note,captured_at")
-          .eq("owner_user_id", user.id)
-          .order("captured_at", { ascending: false })
-          .limit(12),
+        role === "participant"
+          ? Promise.resolve({ data: [], error: null })
+          : db
+              .from("activation_outcome_snapshots")
+              .select("people_reached,people_joined,people_showed_up,people_returned,stories_created,creator_driven_visits,invitations_opened,collaborations_opened,redemptions,purchases,gross_value,funded_value,human_return_summary,commercial_return_summary,scene_learning_summary,content_return_summary,gems_return_summary,participant_value_summary,next_decision,next_decision_note,captured_at")
+              .eq("owner_user_id", user.id)
+              .eq("stakeholder_type", role)
+              .order("captured_at", { ascending: false })
+              .limit(12),
         db
           .from("economy_transactions")
           .select("amount,transaction_type,source,description,created_at")
