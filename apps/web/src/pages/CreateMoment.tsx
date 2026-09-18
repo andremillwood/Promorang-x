@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { authEntryHref, resolveCreateIntent } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,7 +29,7 @@ import {
 import { MomentLineupBuilder, type Collaborator } from "@/components/moments/MomentLineupBuilder";
 import { SmartVenuePicker } from "@/components/venues/SmartVenuePicker";
 import { useI18n } from "@/i18n/I18nContext";
-import { readLocalFoundListings } from "@/lib/discovery-found";
+import { peopleExperienceApi } from "@/services/peopleExperience";
 
 const categories = [
   "Music & Parties",
@@ -84,26 +85,32 @@ export function CreateMoment() {
   const [reward, setReward] = useState("");
 
   const foundId = params.get("found");
-  const foundListing = foundId
-    ? readLocalFoundListings().find((row) => row.id === foundId) || {
-        id: foundId,
-        title: params.get("title") || "",
-        whereHint: params.get("where") || "",
-        words: params.get("title") || "",
-        perkToFinder: "",
-      }
-    : null;
+  const foundCity = params.get("city") || "Kingston & St. Andrew";
+  const handoffTitle = params.get("title") || "";
+  const handoffWhere = params.get("where") || "";
+  const foundQuery = useQuery({
+    queryKey: ["create-moment-found-handoff", foundId, foundCity],
+    enabled: Boolean(user && foundId),
+    queryFn: async () => {
+      const rows = await peopleExperienceApi.listFound(foundCity);
+      return (rows || []).find((row) => String(row.id) === foundId) || null;
+    },
+    retry: 1,
+  });
+  const foundListing = foundQuery.data?.status === "claimed" ? foundQuery.data : null;
 
   useEffect(() => {
-    if (!foundListing) return;
-    if (foundListing.title) setTitle((current) => current || foundListing.title);
-    if (foundListing.whereHint) setLocation((current) => current || foundListing.whereHint || "");
-    if (foundListing.words) {
-      setDescription((current) => current || `People already asked for “${foundListing.words}”. Explain why this Moment is worth showing up for.`);
+    if (!foundId) return;
+    const recordedTitle = String(foundListing?.title || handoffTitle).trim();
+    const recordedWhere = String(foundListing?.whereHint || handoffWhere).trim();
+    if (recordedTitle) setTitle((current) => current || recordedTitle);
+    if (recordedWhere) setLocation((current) => current || recordedWhere);
+    if (foundListing?.words) {
+      setDescription((current) => current || `Recorded demand: “${foundListing.words}”. Explain why this Moment is worth showing up for.`);
     }
-  }, [foundId, foundListing]);
+  }, [foundId, foundListing?.id, foundListing?.words, foundListing?.title, foundListing?.whereHint, handoffTitle, handoffWhere]);
 
-  if (!user && !foundId) {
+  if (!user) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0b] p-6 text-center text-white">
         <div className="max-w-md space-y-4">
@@ -116,7 +123,11 @@ export function CreateMoment() {
               : "A Promorang account is required so attendance, proof, and any later rewards stay attached to the correct host."}
           </p>
           <Button
-            onClick={() => navigate(authEntryHref({ mode: "login", role: "host", next: "/create/moment" }))}
+            onClick={() => {
+              const query = params.toString();
+              const next = `/create/moment${query ? `?${query}` : ""}`;
+              navigate(authEntryHref({ mode: "login", role: "host", next }));
+            }}
             className="rounded-full bg-primary px-8 py-6 font-bold text-white hover:bg-primary/90"
           >
             Sign in / Register
@@ -278,7 +289,15 @@ export function CreateMoment() {
               </button>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Badge className="border-primary/30 bg-primary/15 text-primary">
-                  {foundListing ? "Claimed demand" : fromPeopleFlow ? createIntent.label : "Host workspace"}
+                  {foundId
+                    ? foundQuery.isLoading
+                      ? "Checking demand"
+                      : foundListing
+                        ? "Recorded demand"
+                        : "Demand handoff"
+                    : fromPeopleFlow
+                      ? createIntent.label
+                      : "Host workspace"}
                 </Badge>
                 <span className="text-xs text-white/45">Create the outcome before the event object.</span>
               </div>
@@ -297,6 +316,12 @@ export function CreateMoment() {
             </div>
           </div>
         </header>
+
+        {foundId && !foundQuery.isLoading && !foundListing ? (
+          <div className="mb-6 rounded-2xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-amber-100/70">
+            The linked demand record could not be verified as a claimed Found request. Any title or location carried in the URL is treated only as draft context; this Moment will not describe it as recorded demand.
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2">
           {[
@@ -446,9 +471,11 @@ export function CreateMoment() {
                   onSelectVenue={(venue) => {
                     setVenueName(venue.name);
                     setLocation(venue.location);
-                    setLatitude(venue.latitude);
-                    setLongitude(venue.longitude);
-                    if (venue.capacity) setMaxParticipants(venue.capacity);
+                    setLatitude(typeof venue.latitude === "number" ? venue.latitude : null);
+                    setLongitude(typeof venue.longitude === "number" ? venue.longitude : null);
+                    if (typeof venue.capacity === "number" && venue.capacity > 0) {
+                      setMaxParticipants(venue.capacity);
+                    }
                   }}
                   onManualNameChange={setVenueName}
                   onManualAddressChange={setLocation}

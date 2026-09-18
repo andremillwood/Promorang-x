@@ -58,6 +58,7 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
   onOpenWheel,
   onOpenStreak,
 }) => {
+  if (!import.meta.env.DEV) return null;
   const { t } = useI18n();
 
   return (

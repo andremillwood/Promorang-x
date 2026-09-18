@@ -973,6 +973,209 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-036 — Create Moment trusted static venue and browser/URL demand context
+
+Files:
+- `apps/web/src/components/venues/SmartVenuePicker.tsx`
+- `apps/web/src/pages/CreateMoment.tsx`
+- `apps/web/src/lib/discovery-found.ts`
+- `apps/web/src/lib/discovery-found.test.ts`
+
+Finding:
+- Create Moment sourced venue suggestions from the static `VERIFIED_VENUES` design catalogue and labelled them verified partner venues;
+- selecting one could auto-fill address, coordinates and capacity as current facts;
+- a `?found=` URL or browser-cached Found row was enough for the form to say “Claimed demand” and “People already asked…” without re-reading recorded market state;
+- a `?found=` query parameter also bypassed the normal sign-in gate before entering the creation form.
+
+Resolution:
+- venue suggestions now read `view_public_venue_directory`;
+- directory rows are labelled from recorded verification/claim state rather than universally as verified partners;
+- the picker fills only recorded identity/location and does not infer capacity or coordinates that the public directory does not expose;
+- manual venue entry remains available when the directory is empty or unavailable;
+- Found workspace links carry the recorded city so the create flow can re-read the correct market record;
+- Create Moment re-loads the Found record through the experience API and describes it as recorded demand only when that row is returned as claimed;
+- URL title/location values may prefill a draft but are not treated as evidence of demand when the source record cannot be verified;
+- authentication is required for Create Moment even when a `found` parameter is present, while the handoff URL is preserved through sign-in.
+
+Status: **Closed**
+
+
+#### T-037 — PromoShare still advertised synthetic daily, squad and pre-loaded-card mechanics
+
+Files:
+- `apps/web/src/pages/PromoShare.tsx`
+- `apps/web/src/components/StoryGamificationRail.tsx`
+- `apps/web/src/components/RightUtilityRail.tsx`
+- `apps/web/src/components/TeamSlashModal.tsx`
+- `apps/web/src/components/promoshare/CardDropCreator.tsx`
+- `apps/web/src/pages/CardDropClaim.tsx`
+
+Finding:
+- the production `/promoshare` route still rendered a mock story rail with fictional daily wheel/streak/scene/drop activity;
+- the right utility rail presented a fabricated active squad slash, countdown, friend progress, daily Piece boost and named saved perks;
+- PromoShare opened `TeamSlashModal`, which invented a 15-minute deal, 1/3 joined state, target price and referral URL without a campaign or server record;
+- `CardDropCreator` generated browser-only “pre-loaded” dollar balances and claim links, then promised 5% commission and +25% recharge without funding, issuance or settlement records;
+- the claim receiver itself was already truth-safe: `/claim-drop` ignores legacy amount/from/code parameters and only opens a recorded live drop by slug.
+
+Resolution:
+- production PromoShare no longer mounts the mock story rail, synthetic right rail, squad-slash modal or browser-generated Card Drop creator;
+- the PromoShare hero no longer advertises the unsupported squad-slash action;
+- the legacy mock rail/slash/drop components are explicitly development-only so an accidental future import cannot expose them in production;
+- authoritative PromoShare cycle, entry, draw and history data remain unchanged;
+- generic sharing remains available without implying a reward, funded card balance or attributable conversion.
+
+Status: **Closed**
+
+
+#### T-038 — Discover promoted chronological inventory as “Featured” and “Trending”
+
+Files:
+- `apps/web/src/pages/Discover.tsx`
+- `apps/web/src/components/discovery/DiscoverRightRail.tsx`
+
+Finding:
+- Discover orders filtered Moments by recorded start time, but labelled the first row “Featured” without a featured-placement source;
+- the same chronological list was sliced into a “Trending in … / Hot” rail without popularity, trend or heat evidence.
+
+Resolution:
+- the primary hero is labelled **Up next**, matching the actual chronological selection rule;
+- the right rail is labelled **Up next in {city} / By start time** and explicitly states it is not a popularity or trend ranking;
+- stale unused mock social/gamification imports were removed from Discover.
+
+Status: **Closed**
+
+
+#### T-039 — Saved and Activity utilities reported browser-only success / false emptiness
+
+Files:
+- `apps/web/src/pages/Saved.tsx`
+- `apps/web/src/components/SavedCollections.tsx`
+- `apps/web/src/components/SaveButton.tsx`
+- `apps/web/src/pages/Activity.tsx`
+- `apps/web/src/components/ActivityFeed.tsx`
+- `apps/web/supabase/migrations/20260202_social_features.sql`
+- `supabase/migrations/202604200006_feed_generation_function.sql`
+
+Finding:
+- `/saved` rendered a local default collection, created/deleted temporary browser collections, and showed success toasts despite TODO-only persistence;
+- the shared Save button toggled saved state optimistically and reported “Saved!” / “Removed” without writing `saved_moments`;
+- `/activity` converted personalized-feed RPC failure into an empty feed;
+- the Activity feed invented unread/read state locally and exposed “Mark all read” even though the personalized `activity_feed` RPC has no read-receipt contract for those rows.
+
+Resolution:
+- Saved reads the existing private `saved_moments` ledger and joins recorded Moment rows;
+- source failure is rendered as unavailable, not an empty collection;
+- custom collection labels derive from recorded `collection_name`; because the schema has no standalone empty-collection record, the UI no longer pretends an empty collection can be created;
+- deleting a custom collection label moves its rows back to `Saved` instead of deleting saved Moments;
+- SaveButton reads, inserts and deletes `saved_moments` and changes UI state only after a successful write;
+- Activity RPC failure remains an error with retry;
+- personalized Activity is read-only until its actual `activity_feed` rows have an authoritative read-receipt contract; local unread dots and fake mark-read actions are removed.
+
+Status: **Closed**
+
+
+#### T-040 — Following collapsed source failures into empty states and exposed non-functional filters
+
+Files:
+- `apps/web/src/pages/Following.tsx`
+- `supabase/migrations/202609110004_aftrhrs_guest_moment_going.sql`
+
+Finding:
+- failure loading the follow graph, followed profiles, followed Moments or participation counts was logged but rendered as a normal empty Following state;
+- per-user Moment counts and suggestion stats treated count-query failure as `0`;
+- participant counts used a fallback helper that could degrade to a narrower raw table count or `0`, omitting guest/event participation represented by the canonical public Moment directory;
+- the visible **New** filter performed no filtering at all;
+- suggested-user decoration implied ranking/popularity without a dedicated ranking source.
+
+Resolution:
+- Following now exposes source failure explicitly with retry rather than presenting “not following” or “no Moments”;
+- followed-user Moment counts and suggestion counts throw on source failure instead of becoming zero;
+- displayed going counts come from `view_public_moment_directory.participant_count`, which combines account joins, guest RSVPs and event participations;
+- when a Moment has no corresponding public-directory count row, participation is unknown rather than coerced to zero;
+- **Soon** means a recorded start within the next three days and **New** means the Moment record was created within the last seven days;
+- unsupported popularity/star decoration was removed from suggestions.
+
+Status: **Closed**
+
+
+#### T-041 — Creator directory mixed fabricated identities, verification and performance proof into production
+
+Files:
+- `apps/web/src/pages/Creators.tsx`
+
+Finding:
+- `/creators` merged four sample creator identities into the live creator-role directory;
+- the sample identities included invented bios, locations, tags, audience-movement counts, claim counts and ticket counts;
+- real creator profiles without metrics received fallback values such as `120+ Moves`, `45 Claims` and `12 Tickets`;
+- every row was labelled **Verified Distributor** even though creator-role membership is not a verification record;
+- the directory claimed it was ranked by verifiable movement/claims/engagement while the actual database query ordered profiles alphabetically;
+- profile-source failure could be replaced by the sample directory instead of remaining unavailable.
+
+Resolution:
+- production creator discovery now contains only accounts with a recorded `creator` role and a recorded profile;
+- profile query failure throws and renders an explicit unavailable state with retry;
+- sample creators and all fallback movement/claim/ticket figures are removed;
+- creator-role membership is labelled as **Creator role**, not verification;
+- the directory states its actual ordering rule and makes no popularity/performance ranking claim;
+- category/tag filters that depended on sample-only tags are removed;
+- public performance proof is withheld until a dedicated recorded metric source exists;
+- creator-value copy now distinguishes eligible recorded attribution/reward/draw outcomes from universal guarantees.
+
+Status: **Closed**
+
+
+#### T-042 — UserProfile and FollowButton converted source gaps into false identity/social state
+
+Files:
+- `apps/web/src/pages/UserProfile.tsx`
+- `apps/web/src/components/FollowButton.tsx`
+
+Finding:
+- profile-source failure was indistinguishable from “profile not found”;
+- the current-user auth fallback invented a default bio and location that had never been saved as profile facts;
+- hosted/attended count query errors were not checked, while follower/following counts were hard-coded to zero;
+- public profiles exposed Attended and Saved tabs even though those histories were not backed by a public contract; Saved always rendered empty;
+- hosted/attended tab query failure was converted to a normal empty section;
+- FollowButton ignored follow-status read errors and treated them as “not following,” allowing the UI to expose the wrong next mutation.
+
+Resolution:
+- profile-source failure has a distinct unavailable state; “not found” is reserved for a successful read with no profile record;
+- auth fallback for the current account supplies only account-backed identity fields and leaves unsaved bio/location empty;
+- public hosted count comes from the public Moment directory and follower/following counts come from `user_follows`; count-source failure is shown as unavailable rather than zero;
+- attended count/history and saved history are account-owner-only on this surface;
+- own Saved history reads the private `saved_moments` ledger;
+- Hosted uses the public Moment directory rather than unrestricted Moment rows;
+- tab loading/source failure is explicit and cannot masquerade as an empty section;
+- FollowButton verifies current follow state before enabling follow/unfollow and disables mutation when that read fails.
+
+Status: **Closed**
+
+
+#### T-043 — Creator share feed published static polls/Moments and invented reward promises
+
+Files:
+- `apps/web/src/components/creator/ThingsWorthSharingFeed.tsx`
+- `apps/web/src/hooks/useListingDiscoveryPolls.ts`
+- `apps/web/src/components/promoshare/PromoShareAction.tsx`
+
+Finding:
+- the production creator share feed sourced discovery cards from static `DISCOVERY_POLLS` and Moment cards from `CURATED_KINGSTON_MOMENTS`;
+- those fixture objects were presented as shareable/live inventory on `/creators`;
+- static poll vote counts were presented as current response counts;
+- share CTAs attached fixed “25 points + 1 ticket” and “50 points + 2 tickets” reward rules without a source-backed eligibility configuration;
+- missing live inventory could therefore be obscured by fixture supply.
+
+Resolution:
+- discovery-share cards now come from `view_public_listing_discovery_polls` through `useListingDiscoveryPolls`;
+- Moment-share cards now come from `view_public_moment_directory` and only include recorded upcoming active Moments;
+- source loading/failure/empty states remain explicit and are never replaced by fixtures;
+- recorded poll response counts remain visible because they come from the public poll view;
+- creator-share actions no longer pass fixed reward/ticket rules; they remain generic PromoShare routes until a recorded reward rule exists;
+- share copy identifies recorded signals/Moments rather than “live” or reward-bearing inventory by assumption.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

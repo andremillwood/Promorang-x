@@ -228,7 +228,7 @@ Exit gate:
 
 ## C6 — Creator convergence
 
-Status: **In progress; proof/value path hardened, acceptance/rights contract still incomplete**
+Status: **In progress; proof/value path and creator directory/share inventory truth hardened; acceptance/rights contract still incomplete**
 
 Canonical journey:
 `OPPORTUNITY → BRIEF → ACCEPT → CREATE → RIGHTS/REVIEW → RELEASE → ATTRIBUTION → VERIFIED OUTCOME → EARNING → SETTLEMENT → REPUTATION/RETURN`
@@ -326,7 +326,7 @@ Exit gate:
 
 ## C10 — Create/edit workflows
 
-Status: **Under-addressed**
+Status: **In progress; Moment creation truth boundaries and source-backed venue/demand handoff hardened**
 
 Priority:
 1. Create Moment
@@ -374,7 +374,7 @@ Exit gate:
 
 ## C12 — Profiles, identity and directories
 
-Status: **In progress; public attendance, rating and venue provenance hardened**
+Status: **In progress; public attendance, rating, venue provenance, creator-directory and profile/social truth hardened**
 
 Deliver:
 - participant profile;
@@ -394,7 +394,7 @@ Exit gate:
 
 ## C13 — Utility surfaces
 
-Status: **In progress; core utility data paths source-backed, Settings truth hardened**
+Status: **In progress; Saved/Activity/Following persistence and failure semantics hardened; core utility data paths source-backed, Settings truth hardened**
 
 Includes:
 - Search
@@ -440,7 +440,7 @@ Exit gate:
 
 ## C15 — Gems, Wallet, PromoShare and advanced economy
 
-Status: **In progress; user-facing value, Save & Win withdrawal language and PromoShare truth hardened; claim/settlement atomicity still open**
+Status: **In progress; user-facing value, Save & Win withdrawal language and PromoShare production truth hardened; synthetic gamification/drop entry points removed; claim/settlement atomicity still open**
 
 Deliver:
 - canonical Gems states per DESIGN.md;

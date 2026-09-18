@@ -30,7 +30,6 @@ import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModa
 import { PromorangMap, MapMarkerItem } from "@/components/PromorangMap";
 import { applyEncoreSchedule, authEntryHref, ENCORE_END_ISO, ENCORE_RECURRENCE, ENCORE_START_ISO, getStakeholderLens, isEncoreRecord, worldObjectState } from "@promorang/shared";
 import { DiscoverRightRail } from "@/components/discovery/DiscoverRightRail";
-import { SocialGraphFacepile } from "@/components/SocialGraphFacepile";
 import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
@@ -50,8 +49,6 @@ import { LivePerkCard } from "@/components/perks/LivePerkCard";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 import { useI18n } from "@/i18n/I18nContext";
-import { SpinWheelModal } from "@/components/SpinWheelModal";
-import { DailyRewardsModal } from "@/components/DailyRewardsModal";
 import { merchantAuthHref } from "@/lib/merchant-demand";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
@@ -312,7 +309,7 @@ const SignedInDiscover = () => {
     });
   }, [hubMoments, activeCategory, searchQuery]);
 
-  const featuredMoment = filteredMoments[0] || null;
+  const nextMoment = filteredMoments[0] || null;
 
   const mapMarkers = useMemo<MapMarkerItem[]>(() => {
     const markers: MapMarkerItem[] = [];
@@ -698,20 +695,20 @@ const SignedInDiscover = () => {
                 </div>
 
                 {discoveryQuery.isError ? <div role="alert" className="border-y border-white/10 py-6"><p>Moments couldn’t load.</p><button type="button" onClick={() => void discoveryQuery.refetch()} className="min-h-11 text-primary">Try again</button></div> : discoveryQuery.isLoading ? <p role="status" className="py-6 text-white/60">Loading Moments…</p> : null}
-                {featuredMoment && !searchQuery && activeCategory === "all" && viewMode === "grid" && (
+                {nextMoment && !searchQuery && activeCategory === "all" && viewMode === "grid" && (
                   <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-black min-h-[340px] sm:min-h-[380px] flex items-end p-5 sm:p-8">
                     <img
-                      src={featuredMoment.image_url || undefined}
-                      alt={featuredMoment.title}
+                      src={nextMoment.image_url || undefined}
+                      alt={nextMoment.title}
                       className="absolute inset-0 h-full w-full object-cover opacity-60"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                     <div className="relative z-10 space-y-3 max-w-xl">
-                      <Badge className="bg-primary text-white font-bold text-xs">{t("discover.featured")}</Badge>
-                      <h2 className="text-2xl sm:text-4xl font-black text-white">{featuredMoment.title}</h2>
-                      <p className="text-xs sm:text-sm text-white/70">{featuredMoment.description}</p>
+                      <Badge className="bg-primary text-white font-bold text-xs">Up next</Badge>
+                      <h2 className="text-2xl sm:text-4xl font-black text-white">{nextMoment.title}</h2>
+                      <p className="text-xs sm:text-sm text-white/70">{nextMoment.description}</p>
                       <Button asChild className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-xs px-6 py-2.5">
-                        <Link to={`/moments/${featuredMoment.id}`}>{t("discover.viewRsvp")}</Link>
+                        <Link to={`/moments/${nextMoment.id}`}>{t("discover.viewRsvp")}</Link>
                       </Button>
                     </div>
                   </div>

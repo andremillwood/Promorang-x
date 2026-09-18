@@ -712,3 +712,16 @@ This file is the continuity log. `DESIGN.md` remains the broader design-system l
 - Marketing/help rewrites remained authoritative where they already superseded legacy pages and already removed the claims the newer truth sweep was correcting.
 - Reconciliation was staged as an unreferenced merge candidate before moving the PR branch.
 - No direct Vercel deployment was invoked. Preview builds remain reserved for an intentional integration checkpoint.
+
+
+### 2026-09-18 — Build repair + latest canonical truth
+
+**Problem:** the first post-reconciliation Web Build exposed malformed JSX nesting in `VenueProfile.tsx`, while the canonical completion branch advanced eight more commits and touched four files also changed by public convergence.
+
+**Decision:** repair the parser failure first, then merge the newer completion/truth behavior into the current public layouts rather than replacing the public object work wholesale.
+
+**Implemented:** closed the missing Venue hero/body wrappers; carried forward Activity source-failure handling; tightened Creator directory truth/error behavior; adopted the latest Discover cleanup; and merged UserProfile privacy/error rules with the public object design, real follower counts, recorded ratings, checked-in attendance, and source-backed Saved state.
+
+**Validation:** continuity tests had already passed 9/9 before this repair. The new integration candidate is staged before the PR branch moves. No manual Vercel deployment is being used for iterative validation.
+
+**Remaining:** advance the branch once, run the normal GitHub Web Build, then address only concrete build/runtime findings and complete anonymous/mobile + real-record watch validation.

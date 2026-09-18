@@ -8,7 +8,7 @@ import {
   Share2, 
   Ticket, 
   TrendingUp,
-  CheckCircle2
+  AlertTriangle
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
@@ -32,28 +32,29 @@ export default function Creators() {
       if (roleError) throw roleError;
       const ids = Array.from(new Set((roleRows || []).map((row) => row.user_id)));
       
-      let dbProfiles: any[] = [];
-      if (ids.length) {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("user_id,full_name,display_name,username,avatar_url,bio,location")
-          .in("user_id", ids)
-          .not("full_name", "is", null)
-          .order("full_name");
-        if (!error && data) dbProfiles = data;
-      }
+      if (!ids.length) return [];
 
-      return dbProfiles;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("user_id,full_name,display_name,username,avatar_url,bio,location")
+        .in("user_id", ids)
+        .not("full_name", "is", null)
+        .order("full_name");
+
+      if (error) throw error;
+      return data || [];
     },
   });
 
   const creators = creatorsQuery.data || [];
 
-  const filteredCreators = creators.filter((c: any) => {
-    const matchesSearch = !searchQuery || 
-      c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.bio?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+  const filteredCreators = creators.filter((creator: any) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return creator.full_name?.toLowerCase().includes(query) ||
+      creator.display_name?.toLowerCase().includes(query) ||
+      creator.bio?.toLowerCase().includes(query) ||
+      creator.location?.toLowerCase().includes(query);
   });
 
   return (
@@ -82,12 +83,12 @@ export default function Creators() {
               <h1 className="max-w-5xl font-sans text-4xl sm:text-6xl lg:text-7xl font-black uppercase leading-[0.88] tracking-[-0.05em]">
                 Get Discovered. <br />
                 <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                  Build Proof You Move People.
+                  Build Recorded Proof Over Time.
                 </span>
               </h1>
 
               <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-white/70">
-                Find things worth sharing across Kingston culture and verified partner perks. When you move people, earn attribution, PromoPoints, and PromoShare draw tickets.
+                Find things worth sharing and build a record around actions PROMORANG can actually verify. Eligible attribution, rewards, or draw entries appear only when their source records exist.
               </p>
             </div>
 
@@ -135,6 +136,13 @@ export default function Creators() {
 
         {creatorsQuery.isLoading ? (
           <p className="py-12 text-center text-sm text-white/45">Loading creators...</p>
+        ) : creatorsQuery.isError ? (
+          <div role="alert" className="rounded-3xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
+            <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
+            <h3 className="mt-4 text-xl font-black">Creator directory unavailable</h3>
+            <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/50">PROMORANG could not read the creator-role directory, so the failure is not being replaced with sample creators.</p>
+            <button type="button" onClick={() => void creatorsQuery.refetch()} className="mt-4 text-sm font-bold text-purple-300 hover:text-purple-200">Try again</button>
+          </div>
         ) : filteredCreators.length ? (
           <div className="grid gap-6 md:grid-cols-2">
             {filteredCreators.map((creator: any) => (
@@ -153,10 +161,7 @@ export default function Creators() {
 
                 <div className="space-y-2 flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      <span>Creator profile</span>
-                    </p>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">Creator role</p>
                     {creator.location && (
                       <span className="text-[10px] text-white/40">{creator.location}</span>
                     )}
@@ -167,7 +172,7 @@ export default function Creators() {
                   </h3>
 
                   <p className="line-clamp-2 text-xs leading-relaxed text-white/60">
-                    {creator.bio || "Creator on PROMORANG."}
+                    {creator.bio || "No profile bio recorded yet."}
                   </p>
 
 
@@ -180,7 +185,7 @@ export default function Creators() {
             <Users className="mx-auto h-9 w-9 text-purple-400" />
             <h3 className="mt-5 text-2xl font-black">No creators found</h3>
             <p className="mx-auto mt-2 max-w-md text-xs text-white/50">
-              Try adjusting your search query or tag filter.
+              Try adjusting your search query. If the directory source is healthy, only recorded creator-role profiles appear here.
             </p>
           </div>
         )}

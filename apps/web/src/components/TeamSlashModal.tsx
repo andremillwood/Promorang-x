@@ -30,7 +30,7 @@ export const TeamSlashModal: React.FC<TeamSlashModalProps> = ({
     return () => clearInterval(timer);
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!import.meta.env.DEV || !isOpen) return null;
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;

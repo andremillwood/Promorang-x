@@ -15,11 +15,12 @@ import {
     MessageCircle,
     Settings,
     Grid,
+    Bookmark,
+    AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchProfileRow } from "@/lib/account-profile";
-import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 import { useI18n } from "@/i18n/I18nContext";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
@@ -37,7 +38,7 @@ interface UserProfile {
 
 interface ProfileStats {
     momentsHosted: number;
-    momentsAttended: number;
+    momentsAttended: number | null;
     followers: number;
     following: number;
     rating?: number;
@@ -45,19 +46,21 @@ interface ProfileStats {
 }
 
 const UserProfilePage = () => {
-    const { t } = useI18n();
+    const { t, formatNumber } = useI18n();
     const { userId } = useParams<{ userId: string }>();
     const { user } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [stats, setStats] = useState<ProfileStats | null>(null);
-    const [moments, setMoments] = useState<Tables<"moments">[]>([]);
+    const [moments, setMoments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [tabLoading, setTabLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<"hosted" | "attended">("hosted");
-    const [isFollowing, setIsFollowing] = useState(false);
+    const [activeTab, setActiveTab] = useState<"hosted" | "attended" | "saved">("hosted");
+    const [profileError, setProfileError] = useState<string | null>(null);
+    const [statsError, setStatsError] = useState<string | null>(null);
+    const [tabError, setTabError] = useState<string | null>(null);
 
     // If userId is not provided, it means we are at /profile, so use the current user's ID
-    const effectiveUserId = userId || user?.id;
+    const effectiveUserId = !userId || userId === "me" ? user?.id : userId;
 
     // Check if viewing own profile
     const isOwnProfile = effectiveUserId === user?.id || userId === "me";
@@ -68,6 +71,8 @@ const UserProfilePage = () => {
             if (!effectiveUserId) return;
 
             setLoading(true);
+            setProfileError(null);
+            setStatsError(null);
             try {
                 // Fetch profile from Supabase
                 const { data, error } = await fetchProfileRow(supabase, effectiveUserId);
@@ -93,13 +98,13 @@ const UserProfilePage = () => {
                         is_superhost: false,
                     });
                 } else if (isOwnProfile && user) {
-                    // Fallback for current user if no profile record exists yet
+                    // The account can identify the current user, but it must not invent unsaved profile facts.
                     setProfile({
                         id: user.id,
                         full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || t("profile.user"),
                         avatar_url: user.user_metadata?.avatar_url || null,
-                        bio: t("profile.newBio"),
-                        location: t("profile.global"),
+                        bio: null,
+                        location: null,
                         is_verified: false,
                         is_superhost: false,
                         created_at: user.created_at
@@ -108,36 +113,58 @@ const UserProfilePage = () => {
                     setProfile(null);
                 }
 
-                // Fetch only source-backed public stats.
-                const [hostedResult, attendedResult, followersResult, followingResult] = await Promise.all([
-                    supabase.from("moments").select("id", { count: "exact" }).eq("host_id", effectiveUserId).limit(500),
-                    supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId).eq("status", "checked_in"),
-                    supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("following_id", effectiveUserId),
-                    supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("follower_id", effectiveUserId),
-                ]);
-                if (hostedResult.error) throw hostedResult.error;
-                if (attendedResult.error) throw attendedResult.error;
-                if (followersResult.error) throw followersResult.error;
-                if (followingResult.error) throw followingResult.error;
+                try {
+                    const [hostedResult, attendedResult, followersResult, followingResult] = await Promise.all([
+                        supabase.from("view_public_moment_directory").select("id", { count: "exact" }).eq("host_id", effectiveUserId).eq("is_active", true).limit(500),
+                        isOwnProfile
+                            ? supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId).eq("status", "checked_in")
+                            : Promise.resolve({ count: null, error: null }),
+                        supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("following_id", effectiveUserId),
+                        supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("follower_id", effectiveUserId),
+                    ]);
 
-                const hostedMomentIds = (hostedResult.data || []).map((row) => row.id);
-                let ratings: number[] = [];
-                if (hostedMomentIds.length) {
-                    const { data: reviewRows, error: reviewError } = await supabase.from("moment_reviews").select("rating").in("moment_id", hostedMomentIds);
-                    if (!reviewError) ratings = (reviewRows || []).map((row) => row.rating).filter((rating): rating is number => typeof rating === "number" && Number.isFinite(rating));
+                    const statsQueryError =
+                        hostedResult.error ||
+                        attendedResult.error ||
+                        followersResult.error ||
+                        followingResult.error;
+                    if (statsQueryError) throw statsQueryError;
+
+                    const hostedMomentIds = (hostedResult.data || []).map((row: any) => row.id).filter(Boolean);
+                    let ratings: number[] = [];
+                    if (hostedMomentIds.length) {
+                        const { data: reviewRows, error: reviewError } = await supabase
+                            .from("moment_reviews")
+                            .select("rating")
+                            .in("moment_id", hostedMomentIds);
+                        if (!reviewError) {
+                            ratings = (reviewRows || [])
+                                .map((row) => row.rating)
+                                .filter((rating): rating is number => typeof rating === "number" && Number.isFinite(rating));
+                        }
+                    }
+                    const rating = ratings.length
+                        ? Math.round((ratings.reduce((sum, value) => sum + value, 0) / ratings.length) * 10) / 10
+                        : undefined;
+
+                    setStats({
+                        momentsHosted: hostedResult.count ?? hostedMomentIds.length,
+                        momentsAttended: isOwnProfile ? attendedResult.count ?? 0 : null,
+                        followers: followersResult.count ?? 0,
+                        following: followingResult.count ?? 0,
+                        rating,
+                        reviewCount: ratings.length,
+                    });
+                } catch (statsQueryError) {
+                    console.error("Error fetching profile stats:", statsQueryError);
+                    setStats(null);
+                    setStatsError("Profile counts are unavailable.");
                 }
-                const rating = ratings.length ? Math.round((ratings.reduce((sum, value) => sum + value, 0) / ratings.length) * 10) / 10 : undefined;
-
-                setStats({
-                    momentsHosted: hostedResult.count || hostedMomentIds.length,
-                    momentsAttended: attendedResult.count || 0,
-                    followers: followersResult.count || 0,
-                    following: followingResult.count || 0,
-                    rating,
-                    reviewCount: ratings.length,
-                });
             } catch (err) {
                 console.error("Error fetching profile:", err);
+                setProfile(null);
+                setStats(null);
+                setProfileError("Profile data could not be loaded.");
             } finally {
                 setLoading(false);
             }
@@ -146,50 +173,63 @@ const UserProfilePage = () => {
         fetchProfileData();
     }, [effectiveUserId, isOwnProfile, user]);
 
-    // 2. Fetch moments tab content (Hosted / Attended / Saved)
+    // 2. Fetch tab content only from sources the current viewer is allowed to read.
     useEffect(() => {
+        if (!isOwnProfile && activeTab !== "hosted") {
+            setActiveTab("hosted");
+            return;
+        }
+
         const fetchTabMoments = async () => {
             if (!effectiveUserId) return;
             setTabLoading(true);
+            setTabError(null);
             try {
                 if (activeTab === "hosted") {
                     const { data, error } = await supabase
-                        .from("moments")
+                        .from("view_public_moment_directory")
                         .select("*")
                         .eq("host_id", effectiveUserId)
+                        .eq("is_active", true)
                         .order("starts_at", { ascending: false });
-
-                    if (!error && data) {
-                        setMoments(data);
-                    } else {
-                        setMoments([]);
-                    }
+                    if (error) throw error;
+                    setMoments(data || []);
                 } else if (activeTab === "attended") {
                     const { data, error } = await supabase
                         .from("moment_participants")
                         .select("moment_id, moments(*)")
                         .eq("user_id", effectiveUserId)
                         .eq("status", "checked_in");
+                    if (error) throw error;
+                    setMoments((data || []).map((item: any) => item.moments).filter(Boolean));
+                } else {
+                    const { data: savedRows, error: savedError } = await (supabase as any)
+                        .from("saved_moments")
+                        .select("moment_id")
+                        .eq("user_id", effectiveUserId)
+                        .order("created_at", { ascending: false });
+                    if (savedError) throw savedError;
 
-                    if (!error && data) {
-                        const attendedMoments = data
-                            .map((item: any) => item.moments)
-                            .filter((m): m is Tables<"moments"> => Boolean(m));
-                        setMoments(attendedMoments);
-                    } else {
+                    const ids = [...new Set((savedRows || []).map((row: any) => row.moment_id).filter(Boolean))];
+                    if (!ids.length) {
                         setMoments([]);
+                    } else {
+                        const { data, error } = await supabase.from("moments").select("*").in("id", ids);
+                        if (error) throw error;
+                        setMoments(data || []);
                     }
                 }
             } catch (err) {
                 console.error("Error fetching moments for tab:", err);
                 setMoments([]);
+                setTabError("This profile section could not be loaded.");
             } finally {
                 setTabLoading(false);
             }
         };
 
-        fetchTabMoments();
-    }, [effectiveUserId, activeTab]);
+        void fetchTabMoments();
+    }, [effectiveUserId, activeTab, isOwnProfile]);
 
     if (loading) {
         return (
@@ -205,6 +245,20 @@ const UserProfilePage = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (profileError) {
+        return (
+            <div className="min-h-screen bg-background">
+                <div className="px-4 pb-12 pt-24 text-center">
+                    <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
+                    <h1 className="mt-4 font-serif text-2xl font-bold">Profile unavailable</h1>
+                    <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
+                        The profile source could not be read, so this is not being presented as “profile not found.”
+                    </p>
                 </div>
             </div>
         );
@@ -309,9 +363,7 @@ const UserProfilePage = () => {
                                     <>
                                         <FollowButton
                                             userId={profile.id}
-                                            isFollowing={isFollowing}
                                             followerCount={stats?.followers}
-                                            onFollowChange={setIsFollowing}
                                         />
                                         <Button
                                             variant="outline"
@@ -344,19 +396,19 @@ const UserProfilePage = () => {
                     {/* Stats */}
                     <div className="mb-10 grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
                         <div className="border-b border-r border-white/10 px-3 py-6 md:border-b-0 md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.momentsHosted}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.momentsHosted) : "—"}</p>
                             <p className="text-sm text-white/40">{t("profile.hostedCount")}</p>
                         </div>
                         <div className="border-b border-white/10 px-3 py-6 md:border-b-0 md:border-r md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.momentsAttended}</p>
+                            <p className="text-2xl font-black text-white">{stats?.momentsAttended == null ? "Private" : formatNumber(stats.momentsAttended)}</p>
                             <p className="text-sm text-white/40">{t("profile.verifiedMarks")}</p>
                         </div>
                         <div className="border-r border-white/10 px-3 py-6 md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.followers) : "—"}</p>
                             <p className="text-sm text-white/40">Followers</p>
                         </div>
                         <div className="px-3 py-6 md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.following?.toLocaleString()}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.following) : "—"}</p>
                             <p className="text-sm text-white/40">Following</p>
                         </div>
                     </div>
@@ -366,7 +418,12 @@ const UserProfilePage = () => {
                     <div className="public-object-tabs sticky top-14 z-20 mb-6 flex gap-1 overflow-x-auto border-y border-white/10 bg-black/90">
                         {[
                             { id: "hosted" as const, label: t("profile.hosted"), icon: Grid },
-                            { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
+                            ...(isOwnProfile
+                                ? [
+                                    { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
+                                    { id: "saved" as const, label: t("profile.saved"), icon: Bookmark },
+                                ]
+                                : []),
                         ].map(tab => (
                             <button
                                 key={tab.id}
@@ -385,7 +442,23 @@ const UserProfilePage = () => {
                     </div>
 
                     {/* Content */}
-                    {moments.length > 0 ? (
+                    {statsError ? (
+                        <div role="status" className="mb-6 rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-white/55">
+                            Profile counts are unavailable. The profile identity and tab content below remain source-backed.
+                        </div>
+                    ) : null}
+                    {tabLoading ? (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Skeleton className="h-64 rounded-2xl" />
+                            <Skeleton className="h-64 rounded-2xl" />
+                        </div>
+                    ) : tabError ? (
+                        <div role="alert" className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
+                            <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
+                            <h3 className="mt-4 font-bold">Profile section unavailable</h3>
+                            <p className="mt-2 text-sm text-white/50">The source failed, so this is not being shown as an empty section.</p>
+                        </div>
+                    ) : moments.length > 0 ? (
                         <MasonryGrid>
                             {moments.map(moment => (
                                 <MomentCard key={moment.id} moment={moment} />
@@ -396,7 +469,7 @@ const UserProfilePage = () => {
                             <Grid className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
                             <h3 className="font-medium text-lg mb-2">{t("profile.empty")}</h3>
                             <p className="text-muted-foreground">
-                                {activeTab === "hosted" ? t("profile.emptyHosted") : t("profile.emptyAttended")}
+                                {activeTab === "hosted" ? t("profile.emptyHosted") : activeTab === "attended" ? t("profile.emptyAttended") : t("profile.emptySaved")}
                             </p>
                         </div>
                     )}

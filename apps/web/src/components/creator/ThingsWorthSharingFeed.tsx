@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { DISCOVERY_POLLS } from '@/data/discoveriesData';
-import { CURATED_KINGSTON_MOMENTS } from '@/lib/curated-radar';
 import { PromoShareAction } from '@/components/promoshare/PromoShareAction';
 import { LivePerkCard } from '@/components/perks/LivePerkCard';
 import { useNearbyBenefits } from '@/hooks/usePeopleExperience';
+import { useListingDiscoveryPolls } from '@/hooks/useListingDiscoveryPolls';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Sparkles, 
   Gift, 
@@ -25,10 +26,26 @@ const SHARE_TABS: Array<{ id: 'all' | 'perks' | 'discoveries' | 'moments'; key: 
 export const ThingsWorthSharingFeed: React.FC = () => {
   const { t, formatNumber } = useI18n();
   const nearby = useNearbyBenefits();
+  const discoveriesQuery = useListingDiscoveryPolls(3);
+  const momentsQuery = useQuery({
+    queryKey: ['creator-share-recorded-moments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('view_public_moment_directory')
+        .select('id,slug,title,description,location,starts_at')
+        .eq('is_active', true)
+        .gte('starts_at', new Date().toISOString())
+        .order('starts_at', { ascending: true })
+        .limit(3);
+      if (error) throw error;
+      return (data || []).filter((moment) => Boolean(moment.id && moment.title));
+    },
+    staleTime: 60_000,
+  });
   const [filter, setFilter] = useState<'all' | 'perks' | 'discoveries' | 'moments'>('all');
 
-  const distributableDiscoveries = DISCOVERY_POLLS.slice(0, 3);
-  const distributableMoments = CURATED_KINGSTON_MOMENTS.slice(0, 3);
+  const distributableDiscoveries = discoveriesQuery.data || [];
+  const distributableMoments = momentsQuery.data || [];
   const distributablePerks = (nearby.data || []).slice(0, 8);
 
   return (
@@ -52,7 +69,9 @@ export const ThingsWorthSharingFeed: React.FC = () => {
           <div className="grid grid-cols-2 gap-3 bg-black/50 p-4 rounded-2xl border border-white/10 shrink-0">
             <div className="text-center">
               <span className="text-[10px] text-zinc-400 font-bold uppercase block">{t("discover.shareLivePerks")}</span>
-              <span className="text-xl font-mono font-black text-emerald-400">{formatNumber(distributablePerks.length)}</span>
+              <span className="text-xl font-mono font-black text-emerald-400">
+                {nearby.isLoading ? '…' : nearby.isError ? '—' : formatNumber(distributablePerks.length)}
+              </span>
             </div>
             <div className="text-center border-l border-white/10 px-3">
               <span className="text-[10px] text-zinc-400 font-bold uppercase block">{t("discover.shareNextMove")}</span>
@@ -80,6 +99,12 @@ export const ThingsWorthSharingFeed: React.FC = () => {
         </div>
       </div>
 
+      {(nearby.isError || discoveriesQuery.isError || momentsQuery.isError) ? (
+        <div role="alert" className="rounded-2xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-white/55">
+          Some shareable inventory could not be loaded. Missing sources are left unavailable rather than replaced with sample perks, polls, or Moments.
+        </div>
+      ) : null}
+
       {/* Distributable Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Perks Section */}
@@ -98,7 +123,11 @@ export const ThingsWorthSharingFeed: React.FC = () => {
 
         {/* Discoveries Section */}
         {(filter === 'all' || filter === 'discoveries') &&
-          distributableDiscoveries.map((disc) => (
+          (discoveriesQuery.isLoading ? (
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-xs text-white/45">Loading recorded signals…</div>
+          ) : discoveriesQuery.isError ? (
+            filter === 'discoveries' ? <div className="rounded-3xl border border-amber-300/15 bg-amber-300/[0.05] p-6 text-xs text-white/55">Recorded signals are unavailable.</div> : null
+          ) : distributableDiscoveries.length ? distributableDiscoveries.map((disc) => (
             <div
               key={disc.id}
               className="rounded-3xl bg-zinc-900/90 border border-zinc-800 p-6 flex flex-col justify-between space-y-4 hover:border-orange-500/40 transition-all shadow-xl"
@@ -106,7 +135,7 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <Badge className="bg-orange-500/15 text-orange-400 border-orange-500/30 text-[11px] font-bold">
-                    {t("discover.shareSignal")}
+                    Recorded signal
                   </Badge>
                   <span className="text-zinc-500 text-[11px] font-mono">{t("discover.shareResponses", { count: formatNumber(disc.totalVotes) })}</span>
                 </div>
@@ -117,23 +146,28 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               </div>
 
               <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-mono text-purple-300 font-bold">{t("discover.shareTicketVote")}</span>
+                <span className="text-xs font-mono text-purple-300 font-bold">Share recorded signal</span>
                 <PromoShareAction
                   objectType="discovery"
                   objectId={disc.id}
-                  slugOrPath={disc.slug}
+                  slugOrPath={disc.detailUrl || disc.slug}
                   title={disc.question}
-                  potentialReward={{ promoPoints: 25, tickets: 1, condition: t("discover.shareWhenVote") }}
                   buttonLabel={t("discover.sharePoll")}
                   variant="compact"
                 />
               </div>
             </div>
-          ))}
+          )) : filter === 'discoveries' ? (
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-xs text-white/55">No recorded discovery signals are available to share right now.</div>
+          ) : null)}
 
         {/* Moments Section */}
         {(filter === 'all' || filter === 'moments') &&
-          distributableMoments.map((moment) => (
+          (momentsQuery.isLoading ? (
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-xs text-white/45">Loading recorded Moments…</div>
+          ) : momentsQuery.isError ? (
+            filter === 'moments' ? <div className="rounded-3xl border border-amber-300/15 bg-amber-300/[0.05] p-6 text-xs text-white/55">Recorded Moments are unavailable.</div> : null
+          ) : distributableMoments.length ? distributableMoments.map((moment) => (
             <div
               key={moment.id}
               className="rounded-3xl bg-zinc-900/90 border border-zinc-800 p-6 flex flex-col justify-between space-y-4 hover:border-purple-500/40 transition-all shadow-xl"
@@ -141,7 +175,7 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <Badge className="bg-purple-500/15 text-purple-300 border-purple-500/30 text-[11px] font-bold">
-                    {t("discover.shareLiveMoment")}
+                    Recorded Moment
                   </Badge>
                   <span className="text-zinc-500 text-[11px] font-mono">{moment.location}</span>
                 </div>
@@ -150,18 +184,20 @@ export const ThingsWorthSharingFeed: React.FC = () => {
               </div>
 
               <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-mono text-amber-400 font-bold">{t("discover.shareTicketsRsvp")}</span>
+                <span className="text-xs font-mono text-amber-400 font-bold">Share Moment</span>
                 <PromoShareAction
                   objectType="moment"
-                  objectId={moment.id}
-                  title={moment.title}
-                  potentialReward={{ promoPoints: 50, tickets: 2, condition: t("discover.shareWhenRsvp") }}
+                  objectId={String(moment.id)}
+                  slugOrPath={`/moments/${moment.slug || moment.id}`}
+                  title={String(moment.title)}
                   buttonLabel={t("discover.sharePromote")}
                   variant="compact"
                 />
               </div>
             </div>
-          ))}
+          )) : filter === 'moments' ? (
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-xs text-white/55">No upcoming recorded Moments are available to share right now.</div>
+          ) : null)}
       </div>
     </section>
   );

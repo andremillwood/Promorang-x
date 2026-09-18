@@ -22,7 +22,7 @@ const Activity = () => {
   const markRead = useMarkAsRead();
   const markAllRead = useMarkAllAsRead();
 
-  const { data: events, isLoading, refetch } = useQuery({
+  const { data: events, isLoading, isError, refetch } = useQuery({
     queryKey: ["personalized-feed", user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -31,7 +31,7 @@ const Activity = () => {
         p_limit: 50,
         p_offset: 0,
       });
-      if (feedError) return [];
+      if (feedError) throw feedError;
       return (feedData || []).map((item: any) => ({
         id: item.id,
         user_id: item.user_id,
@@ -131,8 +131,15 @@ const Activity = () => {
           <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#111]">
             {isLoading ? (
               <div className="flex items-center justify-center gap-3 py-20 text-sm text-white/40"><Loader2 className="h-5 w-5 animate-spin text-primary" />Loading activity…</div>
+            ) : isError ? (
+              <div role="alert" className="flex min-h-[300px] flex-col items-center justify-center gap-3 p-8 text-center">
+                <Bell className="h-7 w-7 text-amber-300" />
+                <h3 className="font-serif text-3xl font-bold">Activity is unavailable.</h3>
+                <p className="max-w-lg text-sm leading-6 text-white/45">The activity source could not be read, so PROMORANG is not treating this as an empty feed.</p>
+                <Button type="button" variant="outline" onClick={() => void refetch()}>Try again</Button>
+              </div>
             ) : filteredEvents.length ? (
-              <div className="p-3 sm:p-5"><ActivityFeed events={filteredEvents} onMarkRead={() => void refetch()} onMarkAllRead={() => void refetch()} /></div>
+              <div className="p-3 sm:p-5"><ActivityFeed events={filteredEvents} /></div>
             ) : (
               <div className="grid min-h-[300px] place-items-center p-8 text-center">
                 <div className="max-w-lg"><Sparkles className="mx-auto h-7 w-7 text-primary" /><h3 className="mt-4 font-serif text-3xl font-bold">Nothing else to show right now.</h3><p className="mt-3 text-sm leading-6 text-white/45">Activity is left empty when there is no recorded feed event. It is separate from your direct notifications above.</p><Button asChild className="mt-5 rounded-full bg-primary font-black text-black"><Link to={lens.putIn.href}>{lens.putIn.label} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>

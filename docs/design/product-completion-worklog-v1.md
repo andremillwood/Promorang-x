@@ -501,6 +501,14 @@ Latest closed findings:
 - **T-032 — Discover and Found could manufacture durable success in the browser.**
 - **T-034 — Referral and PromoShare distribution could manufacture attribution and performance.**
 - **T-035 — Primary Discover mixed static catalogue state with live market truth.**
+- **T-036 — Create Moment trusted static venue and browser/URL demand context.**
+- **T-037 — PromoShare still advertised synthetic daily, squad and pre-loaded-card mechanics.**
+- **T-038 — Discover promoted chronological inventory as “Featured” and “Trending.”**
+- **T-039 — Saved and Activity utilities reported browser-only success / false emptiness.**
+- **T-040 — Following collapsed source failures into empty states and exposed non-functional filters.**
+- **T-041 — Creator directory mixed fabricated identities, verification and performance proof into production.**
+- **T-042 — UserProfile and FollowButton converted source gaps into false identity/social state.**
+- **T-043 — Creator share feed published static polls/Moments and invented reward promises.**
 
 Closed direction:
 
@@ -517,7 +525,19 @@ Closed direction:
 - PromoShare uses only a recorded referral code and otherwise creates an unattributed generic share URL;
 - referral source failure is not rendered as zero activity;
 - primary Discover questions/places are source-backed rather than merged from static catalogues;
-- current-user vote state comes from `discovery_votes`, not persistent browser history.
+- current-user vote state comes from `discovery_votes`, not persistent browser history;
+- Create Moment venue suggestions come from the public venue directory rather than a static verified-venue catalogue;
+- a Found → Create Moment handoff is described as recorded demand only after the claimed Found record is re-read from the authoritative source;
+- URL/browser context may prefill a draft but cannot establish market truth or bypass authentication.
+- production PromoShare now exposes recorded cycles/entries/draws/history without mock streak, squad-slash, saved-perk or pre-loaded-card state;
+- unsupported PromoShare gamification/drop components remain development-only rather than production fallbacks.
+- Discover chronology is now described as chronology (“Up next”), not unsupported featured/trending status.
+- Saved Moments now come from the account ledger; save/remove changes reconcile only after durable writes;
+- personalized Activity source failure stays an error, and the feed no longer invents local read receipts.
+- Following now fails visibly when its graph/Moment/count sources fail, uses the canonical combined going count, and only exposes filters with real semantics.
+- the creator directory is now role/profile-backed only; fabricated creator identities, verification, performance metrics and ranking claims are removed.
+- profile identity/social state now distinguishes unavailable/not-found/empty, keeps private histories owner-only, and verifies follow state before mutation.
+- creator share inventory now comes from recorded polls, public Moments and live perks; generic sharing no longer carries invented points/ticket promises.
 
 ### NEXT ACTION
 

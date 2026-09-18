@@ -4,14 +4,12 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Users, Sparkles, Calendar, UserPlus, Star, ArrowRight, Radio } from "lucide-react";
+import { Users, Sparkles, Calendar, UserPlus, ArrowRight, Radio, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { FollowButton } from "@/components/FollowButton";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
-import { fetchMomentGoingCount } from "@/lib/moment-going";
 
 interface FollowingUser {
     id: string;
@@ -31,7 +29,7 @@ interface FollowingMoment {
     host_id: string;
     host_name: string;
     max_participants: number | null;
-    participant_count: number;
+    participant_count: number | null;
     reward: string | null;
     created_at: string;
     updated_at: string;
@@ -45,7 +43,6 @@ interface SuggestedUser {
     bio?: string;
     followers_count: number;
     moments_count: number;
-    reason: string;
 }
 
 const Following = () => {
@@ -57,6 +54,9 @@ const Following = () => {
     const [suggestedUsers, setSuggestedUsers] = useState<SuggestedUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingSuggestions, setLoadingSuggestions] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
+    const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
+    const [reloadKey, setReloadKey] = useState(0);
 
     // Fetch following users and their moments
     useEffect(() => {
@@ -67,6 +67,7 @@ const Following = () => {
 
         const fetchFollowingData = async () => {
             setLoading(true);
+            setLoadError(null);
             try {
                 // 1. Get users we're following
                 const { data: followsData, error: followsError } = await supabase
@@ -94,20 +95,22 @@ const Following = () => {
 
                 if (usersError) throw usersError;
 
-                // 3. Get moments count for each user
+                // 3. Count source-backed public Moments for each followed user.
                 const usersWithMoments = await Promise.all(
                     (usersData || []).map(async (u) => {
-                        const { count } = await supabase
-                            .from('moments')
+                        const { count, error: countError } = await supabase
+                            .from('view_public_moment_directory')
                             .select('*', { count: 'exact', head: true })
                             .eq('host_id', u.id)
                             .eq('is_active', true);
+
+                        if (countError) throw countError;
 
                         return {
                             id: u.id,
                             name: u.display_name || u.username || t("following.unknown"),
                             avatar: u.avatar_url,
-                            momentsCount: count || 0
+                            momentsCount: count ?? 0
                         };
                     })
                 );
@@ -129,33 +132,46 @@ const Following = () => {
 
                 if (momentsError) throw momentsError;
 
-                // 5. Get participant counts for each moment
-                const momentsWithCounts = await Promise.all(
-                    (momentsData || []).map(async (m: any) => {
-                        const count = await fetchMomentGoingCount(supabase, m.id);
+                // 5. Read the canonical combined going count from the public Moment directory.
+                const momentIds = (momentsData || []).map((moment: any) => moment.id);
+                const { data: countRows, error: countError } = momentIds.length
+                    ? await supabase
+                        .from('view_public_moment_directory')
+                        .select('id, participant_count')
+                        .in('id', momentIds)
+                    : { data: [], error: null };
 
-                        return {
-                            id: m.id,
-                            title: m.title,
-                            description: m.description,
-                            category: m.category,
-                            starts_at: m.starts_at,
-                            location: m.location,
-                            image_url: m.image_url,
-                            host_id: m.host_id,
-                            host_name: m.host?.display_name || m.host?.username || t("following.unknownHost"),
-                            max_participants: m.max_participants,
-                            participant_count: count || 0,
-                            reward: m.reward,
-                            created_at: m.created_at,
-                            updated_at: m.updated_at
-                        };
-                    })
+                if (countError) throw countError;
+
+                const countByMoment = new Map(
+                    (countRows || []).map((row) => [String(row.id), row.participant_count ?? 0])
                 );
+
+                const momentsWithCounts = (momentsData || []).map((m: any) => ({
+                    id: m.id,
+                    title: m.title,
+                    description: m.description,
+                    category: m.category,
+                    starts_at: m.starts_at,
+                    location: m.location,
+                    image_url: m.image_url,
+                    host_id: m.host_id,
+                    host_name: m.host?.display_name || m.host?.username || t("following.unknownHost"),
+                    max_participants: m.max_participants,
+                    participant_count: countByMoment.has(String(m.id))
+                        ? countByMoment.get(String(m.id)) ?? 0
+                        : null,
+                    reward: m.reward,
+                    created_at: m.created_at,
+                    updated_at: m.updated_at
+                }));
 
                 setMoments(momentsWithCounts);
             } catch (error) {
                 console.error('Error fetching following data:', error);
+                setFollowingUsers([]);
+                setMoments([]);
+                setLoadError('Following data could not be loaded.');
             } finally {
                 setLoading(false);
             }
@@ -163,8 +179,9 @@ const Following = () => {
 
         const fetchSuggestedUsers = async () => {
             setLoadingSuggestions(true);
+            setSuggestionsError(null);
             try {
-                // Get users with most moments who aren't followed yet
+                // Start with recent user records, then keep only accounts with recorded public Moments that are not already followed.
                 const { data: topHosts, error } = await supabase
                     .from('users')
                     .select(`
@@ -183,24 +200,29 @@ const Following = () => {
                 // Get moments count and followers for each
                 const usersWithStats = await Promise.all(
                     (topHosts || []).map(async (u) => {
-                        const { count: momentsCount } = await supabase
-                            .from('moments')
+                        const { count: momentsCount, error: momentsCountError } = await supabase
+                            .from('view_public_moment_directory')
                             .select('*', { count: 'exact', head: true })
                             .eq('host_id', u.id)
                             .eq('is_active', true);
 
-                        const { count: followersCount } = await supabase
+                        if (momentsCountError) throw momentsCountError;
+
+                        const { count: followersCount, error: followersCountError } = await supabase
                             .from('user_follows')
                             .select('*', { count: 'exact', head: true })
                             .eq('following_id', u.id);
 
-                        // Check if already following
-                        const { data: isFollowing } = await supabase
+                        if (followersCountError) throw followersCountError;
+
+                        const { data: isFollowing, error: followingCheckError } = await supabase
                             .from('user_follows')
                             .select('id')
                             .eq('follower_id', user?.id || '')
                             .eq('following_id', u.id)
                             .maybeSingle();
+
+                        if (followingCheckError) throw followingCheckError;
 
                         // Only include if has moments and not following
                         if ((momentsCount || 0) > 0 && !isFollowing) {
@@ -210,9 +232,8 @@ const Following = () => {
                                 avatar: u.avatar_url,
                                 username: u.username || '',
                                 bio: u.bio,
-                                followers_count: followersCount || 0,
-                                moments_count: momentsCount || 0,
-                                reason: (momentsCount || 0) > 5 ? 'Popular Host' : 'Active Creator'
+                                followers_count: followersCount ?? 0,
+                                moments_count: momentsCount ?? 0
                             };
                         }
                         return null;
@@ -224,6 +245,8 @@ const Following = () => {
                 setSuggestedUsers(validUsers);
             } catch (error) {
                 console.error('Error fetching suggested users:', error);
+                setSuggestedUsers([]);
+                setSuggestionsError('Suggestions could not be loaded.');
             } finally {
                 setLoadingSuggestions(false);
             }
@@ -231,13 +254,17 @@ const Following = () => {
 
         fetchFollowingData();
         fetchSuggestedUsers();
-    }, [user]);
+    }, [user, reloadKey]);
 
     const filteredMoments = moments.filter(moment => {
+        const now = Date.now();
         if (filter === "upcoming") {
-            const startsAt = new Date(moment.starts_at);
-            const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 3600000);
-            return startsAt <= threeDaysFromNow;
+            const startsAt = new Date(moment.starts_at).getTime();
+            return startsAt >= now && startsAt <= now + 3 * 24 * 60 * 60 * 1000;
+        }
+        if (filter === "new") {
+            const createdAt = new Date(moment.created_at).getTime();
+            return Number.isFinite(createdAt) && createdAt >= now - 7 * 24 * 60 * 60 * 1000;
         }
         return true;
     });
@@ -316,6 +343,17 @@ const Following = () => {
                                     </div>
                                 ))}
                             </div>
+                        ) : loadError ? (
+                            <div role="alert" className="flex items-start justify-between gap-4 rounded-2xl border border-amber-300/15 bg-amber-300/[0.05] p-4">
+                                <div className="flex gap-3">
+                                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                                    <div>
+                                        <p className="text-sm font-bold text-white">Following is unavailable.</p>
+                                        <p className="mt-1 text-xs leading-5 text-white/50">The account follow graph or Moment source could not be read, so PROMORANG is not showing an empty state.</p>
+                                    </div>
+                                </div>
+                                <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="shrink-0 text-xs font-bold text-orange-300 hover:text-orange-200">Try again</button>
+                            </div>
                         ) : followingUsers.length > 0 ? (
                             <div className="flex gap-4 overflow-x-auto pb-2">
                                 {followingUsers.map(person => (
@@ -361,6 +399,10 @@ const Following = () => {
                                             </div>
                                         ))}
                                     </div>
+                                ) : suggestionsError ? (
+                                    <div role="alert" className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-white/55">
+                                        Suggestions are unavailable because the source could not be read. Your actual following state is unchanged.
+                                    </div>
                                 ) : suggestedUsers.length > 0 ? (
                                     <div className="space-y-3">
                                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -382,11 +424,6 @@ const Following = () => {
                                                         ) : (
                                                             <div className="h-14 w-14 rounded-full bg-gradient-primary flex items-center justify-center text-lg text-white font-medium">
                                                                 {(person.name || "?").charAt(0)}
-                                                            </div>
-                                                        )}
-                                                        {person.moments_count > 5 && (
-                                                            <div className="absolute -top-1 -right-1 bg-amber-500 text-white text-[8px] font-bold px-1 py-0.5 rounded-full">
-                                                                <Star className="w-3 h-3" />
                                                             </div>
                                                         )}
                                                     </Link>
@@ -462,6 +499,13 @@ const Following = () => {
                                 </div>
                             ))}
                         </MasonryGrid>
+                    ) : loadError ? (
+                        <div role="alert" className="rounded-lg border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
+                            <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-amber-300" />
+                            <h3 className="font-bold text-white">Following Moments are unavailable.</h3>
+                            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/50">The source failed, so this is not being presented as “no Moments.”</p>
+                            <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="mt-4 text-sm font-bold text-orange-300 hover:text-orange-200">Try again</button>
+                        </div>
                     ) : filteredMoments.length > 0 ? (
                         <MasonryGrid>
                             {filteredMoments.map(moment => (

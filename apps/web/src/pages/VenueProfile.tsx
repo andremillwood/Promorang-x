@@ -337,6 +337,7 @@ export default function VenueProfile() {
                 {commerceListings.length ? <a href="#offers" className="mt-2 inline-flex min-h-11 w-full items-center justify-between border border-white/15 px-5 text-xs font-black uppercase tracking-[.08em]">See what's available <ShoppingBag className="h-4 w-4"/></a> : null}
               </aside>
             </div>
+            </div>
           </section>
 
           <div id="place-about" className="mx-auto max-w-[1320px] px-5 sm:px-6">
@@ -516,6 +517,7 @@ export default function VenueProfile() {
                 </div>
               )}
             </section>
+          </div>
           </div>
         </>
       ) : null}
