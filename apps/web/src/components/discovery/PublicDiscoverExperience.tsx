@@ -69,9 +69,35 @@ export function PublicDiscoverExperience() {
     [moments, normalizedQuery],
   );
 
+  const filteredOffers = useMemo(
+    () =>
+      normalizedQuery
+        ? offers.filter((offer) =>
+            [offer.title, offer.description, offer.reward_type, offer.fulfillment_type]
+              .filter(Boolean)
+              .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
+          )
+        : offers,
+    [offers, normalizedQuery],
+  );
+
+  const filteredSignals = useMemo(
+    () =>
+      normalizedQuery
+        ? demand.inbox.questions.filter((signal) =>
+            [signal.poll.question, signal.poll.contextNotes, ...signal.poll.options.map((option) => option.text)]
+              .filter(Boolean)
+              .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
+          )
+        : demand.inbox.questions,
+    [demand.inbox.questions, normalizedQuery],
+  );
+
   const featuredMoment = filteredMoments[0] || moments[0] || null;
-  const heroImage = featuredMoment?.image_url || discoveries[0]?.cover_image || heroMoments;
-  const liveSignals = demand.inbox.questions.slice(0, 4);
+  const heroDiscovery = filteredDiscoveries[0] || discoveries[0] || null;
+  const heroImage = featuredMoment?.image_url || heroDiscovery?.cover_image || heroMoments;
+  const heroIsEditorial = !featuredMoment?.image_url && !heroDiscovery?.cover_image;
+  const liveSignals = filteredSignals.slice(0, 4);
 
   return (
     <main className="marketing-cinematic public-discover-world min-h-screen bg-[#050505] text-white">
@@ -112,6 +138,10 @@ export function PublicDiscoverExperience() {
                 {query ? <button type="button" onClick={() => setQuery("")} className="text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Clear</button> : null}
               </div>
             </div>
+
+            {heroIsEditorial ? (
+              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">Editorial atmosphere · not a live Discovery or Moment</p>
+            ) : null}
 
             <div className="marketing-hero-promocard-outcomes">
               <span className="marketing-hero-promocard-label">PromoCard</span>
@@ -218,9 +248,11 @@ export function PublicDiscoverExperience() {
 
           {offersQuery.isLoading ? (
             <div className="marketing-offer-rail">{[0,1,2,3].map((item) => <div key={item} className="marketing-offer-card animate-pulse bg-white/[0.04]" />)}</div>
-          ) : offers.length ? (
+          ) : offersQuery.isError ? (
+            <div className="marketing-compact-empty"><Gift className="h-5 w-5 text-orange-400" /><div><p className="text-sm font-black">PROMORANG can’t confirm public Offers right now.</p><p className="mt-1 text-xs leading-5 text-white/45">A source failure is not being presented as “no perks available.”</p></div></div>
+          ) : filteredOffers.length ? (
             <div className="marketing-offer-rail">
-              {offers.slice(0,4).map((offer) => (
+              {filteredOffers.slice(0,4).map((offer) => (
                 <article key={offer.id} className="marketing-offer-card">
                   <div className="marketing-offer-card__mark"><Gift className="h-5 w-5" /></div>
                   <p className="mt-4 text-[9px] font-black uppercase tracking-[0.14em] text-orange-300">{offer.reward_type.replace(/_/g, " ")}</p>
