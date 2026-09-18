@@ -21,6 +21,7 @@ import { useHubExperience, useExperienceActions, useExperienceHome } from "@/hoo
 import { getSiteUrl } from "@/lib/discovery";
 import { generateSceneSchema } from "@/lib/seo-schemas";
 import { useI18n } from "@/i18n/I18nContext";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 export default function CommunityDetail() {
   const { t, formatDate, formatNumber } = useI18n();
@@ -69,9 +70,9 @@ export default function CommunityDetail() {
     }
   };
   return (
-    <main className="min-h-screen bg-black pb-24 text-white">
+    <main className="marketing-cinematic public-object-page min-h-screen bg-black pb-24 text-white">
       <SEO title={`${scene.title} — ${t("sceneDetail.seoSuffix")}`} description={scene.description || state.body} image={scene.image_url || undefined} url={getSiteUrl(`/scenes/${scene.slug}`)} schema={generateSceneSchema(scene, moments, discoveries)} />
-      <section className="relative min-h-[700px] overflow-hidden border-b border-white/10 pt-24">
+      <section className="public-object-hero relative min-h-[700px] overflow-hidden border-b border-white/10 pt-24">\n        <CurrentArc variant="hero" className="marketing-hero-current" />
         {scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.98)_0%,rgba(0,0,0,.76)_52%,rgba(0,0,0,.28)_100%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
@@ -83,40 +84,6 @@ export default function CommunityDetail() {
         </div>
       </section>
 
-      {home.data?.world?.health?.some((item: { count: number }) => item.count > 0) || home.data?.world?.dispatch?.line || hub.data?.polarity?.line || hub.data?.territories?.length ? (
-        <section className="container px-6 pt-10">
-          {hub.data?.polarity?.line || home.data?.world?.dispatch?.line ? <p className="text-sm text-white/55">{hub.data?.polarity?.line || home.data?.world?.dispatch?.line}</p> : null}
-          {hub.data?.contest?.contestLine && (hub.data.contest.totalCurrent || 0) > 0 ? (
-            <p className="mt-2 text-sm text-white/45">{presentContestLine(hub.data.contest.contestLine, hub.data.contest.totalCurrent)}</p>
-          ) : null}
-          {home.data?.world?.health?.some((item: { count: number }) => item.count > 0) ? (
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
-              {home.data.world.health.map((item: { dimension: string; label: string; count: number }) => (
-                <article key={item.dimension} className="rounded-2xl border border-white/10 px-3 py-3">
-                  <p className="text-[10px] uppercase tracking-widest text-white/40">{item.label}</p>
-                  <p className="mt-1 font-serif text-xl font-bold">{item.count}</p>
-                </article>
-              ))}
-            </div>
-          ) : null}
-          {hub.data?.territories?.some((area: { presenceCount: number; supportCount: number }) => area.presenceCount + area.supportCount > 0) ? (
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              {hub.data.territories.map((area: { key: string; title: string; state: string; standingLine: string }) => (
-                <article key={area.key} className="rounded-2xl border border-white/10 px-3 py-3">
-                  <p className="text-[10px] uppercase tracking-widest text-white/40">{area.state}</p>
-                  <p className="mt-1 font-serif text-lg font-bold">{area.title}</p>
-                  <p className="mt-1 text-xs text-white/45">{area.standingLine}</p>
-                </article>
-              ))}
-            </div>
-          ) : null}
-          <div className="mt-4 flex flex-wrap gap-4">
-            <Link to="/progress" className="text-sm font-bold text-primary">{t("sceneDetail.whatChanged")}</Link>
-            <Link to="/guilds" className="text-sm font-bold text-primary">{t("sceneDetail.openGuilds")}</Link>
-          </div>
-        </section>
-      ) : null}
-
       <section className="container px-6 py-14 sm:py-20">
         <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
           <div><p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("sceneDetail.feeling")}</p><h2 className="mt-4 font-serif text-4xl font-bold leading-[.96] sm:text-5xl">{metadata.welcome || t("sceneDetail.welcome")}</h2><p className="mt-6 max-w-lg text-sm leading-7 text-white/48">{metadata.recurring_ritual || t("sceneDetail.ritual")}</p></div>
@@ -126,17 +93,7 @@ export default function CommunityDetail() {
 
       <section className="container px-6 py-8"><div className="mb-8 flex items-end justify-between border-b border-white/10 pb-6"><div><p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("sceneDetail.gatherEyebrow")}</p><h2 className="mt-3 font-serif text-4xl font-bold">{t("sceneDetail.moments")}</h2></div><Link to="/discover" className="hidden items-center gap-2 text-sm text-white/50 hover:text-primary sm:flex">{t("sceneDetail.exploreAll")}<ArrowRight className="h-4 w-4"/></Link></div>{moments.length ? <div className="grid gap-5 md:grid-cols-2">{moments.slice(0,4).map((moment:any) => <Link key={moment.id} to={hrefForSceneMoment(moment)} className="group relative min-h-[380px] overflow-hidden rounded-[2rem] border border-white/10">{moment.image_url ? <img src={moment.image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"/> : null}<div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent"/><div className="absolute inset-x-0 bottom-0 p-7">{isAftrHrsMoment(moment) ? <p className="mb-2 text-[10px] font-black uppercase tracking-[.2em] text-fuchsia-200">{AFTRHRS_COPY.sceneFeaturedLabel}</p> : null}<p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-primary"><CalendarDays className="h-3.5 w-3.5"/>{moment.starts_at ? formatDate(moment.starts_at,{month:"short",day:"numeric"}) : t("sceneDetail.coming")}</p><h3 className="mt-3 font-serif text-3xl font-bold">{moment.title}</h3><p className="mt-2 flex items-center gap-2 text-xs text-white/55"><MapPin className="h-3.5 w-3.5"/>{moment.venue_name || moment.location}</p></div></Link>)}</div> : <div className="border-y border-white/10 py-12"><Sparkles className="h-6 w-6 text-primary"/><h3 className="mt-4 font-serif text-3xl font-bold">{t("sceneDetail.noGathering")}</h3><p className="mt-3 text-sm text-white/45">{t("sceneDetail.noGatheringCopy")}</p></div>}</section>
       <section className="container px-6 py-14"><div className="mb-8 border-b border-white/10 pb-6"><p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("sceneDetail.localKnowledge")}</p><h2 className="mt-3 font-serif text-4xl font-bold">{t("sceneDetail.discoveries")}</h2></div>{discoveries.length ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{discoveries.map((discovery:any) => <Link key={discovery.id} to={`/discoveries/${discovery.slug}`} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.03]"><div className="h-52 bg-white/5">{discovery.cover_image ? <img src={discovery.cover_image} alt={discovery.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><Compass className="h-8 w-8 text-white/20"/></div>}</div><div className="p-6"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">{t("sceneDetail.discovery")}</p><h3 className="mt-2 font-serif text-2xl font-bold group-hover:text-primary">{discovery.title}</h3><p className="mt-2 flex items-center gap-2 text-xs text-white/50"><MapPin className="h-3.5 w-3.5"/>{[discovery.city,discovery.country].filter(Boolean).join(", ")}</p></div></Link>)}</div> : <p className="text-sm text-white/45">{t("sceneDetail.noDiscoveries")}</p>}</section>
-      <section className="container px-6 pb-16">
-        <p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("sceneDetail.involved")}</p>
-        <h2 className="mt-3 font-serif text-4xl font-bold">{t("sceneDetail.contributeTitle")}</h2>
-        <p className="mt-3 max-w-xl text-sm text-white/50">{t("sceneDetail.contributeCopy")}</p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <Link to={`/give?hub=${scene.id}`} className="rounded-[1.6rem] border border-white/10 px-5 py-5"><p className="font-serif text-2xl font-bold">{t("sceneDetail.bring")}</p><p className="mt-1 text-sm text-white/45">{t("sceneDetail.bringCopy")}</p></Link>
-          <Link to={`/create?hub=${scene.id}`} className="rounded-[1.6rem] border border-white/10 px-5 py-5"><p className="font-serif text-2xl font-bold">{t("sceneDetail.createHere")}</p><p className="mt-1 text-sm text-white/45">{t("sceneDetail.createHereCopy")}</p></Link>
-          <Link to={`/earn?hub=${scene.id}`} className="rounded-[1.6rem] border border-white/10 px-5 py-5"><p className="font-serif text-2xl font-bold">{t("sceneDetail.earnHere")}</p><p className="mt-1 text-sm text-white/45">{t("sceneDetail.earnHereCopy")}</p></Link>
-          <button type="button" onClick={handleInvitePeople} className="rounded-[1.6rem] border border-white/10 px-5 py-5 text-left"><p className="font-serif text-2xl font-bold">{t("sceneDetail.invitePeople")}</p><p className="mt-1 text-sm text-white/45">{t("sceneDetail.invitePeopleCopy")}</p></button>
-        </div>
-      </section>
+      <section className="border-t border-white/10 bg-white/[.02]"><div className="container flex flex-col gap-5 px-6 py-10 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Stay close</p><h2 className="mt-2 font-serif text-2xl font-bold">Want to be part of this Scene?</h2><p className="mt-2 text-xs text-white/42">Join to keep the Scene close and return when a real Moment or Discovery changes.</p></div><div className="flex gap-2">{membership?.membership_state === "active" ? <Link to="/card" className="inline-flex min-h-11 items-center gap-2 border border-primary/40 px-5 text-xs font-black uppercase tracking-[.08em] text-primary">Open PromoCard <ArrowRight className="h-4 w-4"/></Link> : <button type="button" disabled={joinScene.isPending} onClick={handleJoin} className="inline-flex min-h-11 items-center gap-2 bg-primary px-5 text-xs font-black uppercase tracking-[.08em] text-black">{joinScene.isPending ? t("sceneDetail.joining") : t("sceneDetail.join")} <ArrowRight className="h-4 w-4"/></button>}<button type="button" onClick={handleInvitePeople} className="inline-flex min-h-11 items-center border border-white/15 px-4 text-xs font-black uppercase tracking-[.08em]">Invite</button></div></div></section>
       <MobileBottomNav />
     </main>
   );
