@@ -40,14 +40,14 @@ export default function Communities() {
           <div><p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("scenes.living")}</p><h2 className="mt-3 font-serif text-4xl font-bold sm:text-5xl">{t("scenes.returning")}</h2></div>
           <Link to="/discover" className="hidden items-center gap-2 text-sm font-bold text-white/50 hover:text-primary sm:flex">{t("scenes.more")} <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        {scenes.isLoading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-[440px] animate-pulse rounded-[2rem] bg-white/[.05]" /><div className="h-[440px] animate-pulse rounded-[2rem] bg-white/[.05]" /></div> : scenes.data?.length ? (
+        {scenes.isLoading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-[440px] animate-pulse  bg-white/[.05]" /><div className="h-[440px] animate-pulse  bg-white/[.05]" /></div> : scenes.data?.length ? (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-12">
             {scenes.data.map((scene, index) => (
-              <Link key={scene.id} to={`/scenes/${scene.slug}`} className={`group relative isolate min-h-[440px] overflow-hidden rounded-[2rem] border border-white/10 ${index % 3 === 0 ? "xl:col-span-7" : "xl:col-span-5"}`}>
+              <Link key={scene.id} to={`/scenes/${scene.slug}`} className={`group relative isolate min-h-[440px] overflow-hidden  border border-white/10 ${index % 3 === 0 ? "xl:col-span-7" : "xl:col-span-5"}`}>
                 {scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,.32),transparent_34%),#15110e]" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/18 to-black/10" />
                 <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-primary"><MapPin className="h-3.5 w-3.5" />{isAftrHrsSceneSlug(scene.slug) ? AFTRHRS_COPY.sceneMomentLine : sceneLocation(scene)}</p><h3 className="mt-4 font-serif text-4xl font-bold leading-none sm:text-5xl">{scene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/58">{isAftrHrsSceneSlug(scene.slug) ? AFTRHRS_COPY.sceneListBody : (scene.metadata.tagline || scene.description)}</p></div>
-                <span className="absolute right-5 top-5 grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-black/30 backdrop-blur transition group-hover:bg-primary group-hover:text-black"><ArrowRight className="h-4 w-4" /></span>
+                <span className="absolute right-5 top-5 grid h-12 w-12 place-items-center border border-white/20 bg-black/30 backdrop-blur transition group-hover:bg-primary group-hover:text-black"><ArrowRight className="h-4 w-4" /></span>
               </Link>
             ))}
           </div>
@@ -56,7 +56,7 @@ export default function Communities() {
         )}
       </section>
       <section className="mx-auto max-w-[1600px] px-6 pb-12 lg:px-8 xl:px-12 2xl:px-16"><div className="grid gap-6 border-t border-white/10 py-10 sm:grid-cols-3">{[[Users,t("scenes.people"),t("scenes.peopleCopy")],[MapPin,t("scenes.places"),t("scenes.placesCopy")],[Heart,t("scenes.rituals"),t("scenes.ritualsCopy")]].map(([Icon,title,body]) => { const C=Icon as typeof Users; return <div key={title as string} className="border-l border-white/10 pl-5"><C className="h-4 w-4 text-primary"/><h3 className="mt-5 font-serif text-xl font-bold">{title as string}</h3><p className="mt-2 text-xs leading-5 text-white/42">{body as string}</p></div>; })}</div></section>
-      <MobileBottomNav />
+      <section className="border-y border-white/10 bg-white/[.02]"><div className="mx-auto grid max-w-[1600px] gap-px bg-white/10 md:grid-cols-3"><Link to="/discover?tab=moments" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">Move</p><h3 className="mt-3 font-serif text-2xl font-bold">Find a Moment</h3><p className="mt-2 text-sm text-white/45">Enter through something happening now or next.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link><Link to="/explore/venues" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">Place</p><h3 className="mt-3 font-serif text-2xl font-bold">Follow the room</h3><p className="mt-2 text-sm text-white/45">See the places where Scenes become physical.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link><Link to="/creators" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">People</p><h3 className="mt-3 font-serif text-2xl font-bold">Find who moves it</h3><p className="mt-2 text-sm text-white/45">Continue through creators and distributors connected to culture.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link></div></section>\n      <MobileBottomNav />
     </main>
   );
 }
