@@ -72,7 +72,8 @@ export default function CommunityDetail() {
   return (
     <main className="marketing-cinematic public-object-page min-h-screen bg-black pb-24 text-white">
       <SEO title={`${scene.title} — ${t("sceneDetail.seoSuffix")}`} description={scene.description || state.body} image={scene.image_url || undefined} url={getSiteUrl(`/scenes/${scene.slug}`)} schema={generateSceneSchema(scene, moments, discoveries)} />
-      <section className="public-object-hero relative min-h-[700px] overflow-hidden border-b border-white/10 pt-24">\n        <CurrentArc variant="hero" className="marketing-hero-current" />
+      <section className="public-object-hero relative min-h-[700px] overflow-hidden border-b border-white/10 pt-24">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         {scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.98)_0%,rgba(0,0,0,.76)_52%,rgba(0,0,0,.28)_100%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
