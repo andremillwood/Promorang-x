@@ -303,6 +303,30 @@ Status: **Open contract debt**
 
 The current production Creator path uses `content_distribution_campaigns`, assets and attributed actions. It does not yet expose one canonical record for creator acceptance, availability, commissioned deliverables, rights terms and approval/review state. Do not represent an open Content Drop as an accepted commission or approved creator brief until that contract exists.
 
+#### T-020 — Host Moments curated fallback and fabricated stage telemetry
+
+Files:
+- `apps/web/src/components/host/HostMomentsStagingConsole.tsx`
+- `apps/web/src/components/host/SponsorshipRequests.tsx`
+
+Finding:
+- when a host had no Moments, the staging console substituted two curated Kingston Moments;
+- missing participant count, capacity and reward values were replaced by invented defaults;
+- funded sponsorship cards used payout/liquidity language that could imply funded = paid.
+
+Resolution:
+- Host Moments now render only authoritative hosted Moment records;
+- empty inventory remains an explicit empty state;
+- participant count, capacity and reward show “not recorded” when absent;
+- RSVP/participant count is explicitly not treated as verified attendance;
+- funded sponsorship language no longer implies payout or settlement.
+
+Commits:
+- `6bcf78d0a166ccb70e06d8594b3b8e74845b71ea`
+- `1fce7fda9a9c70ba36085aa8ade58abb7d4bf9c6`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
