@@ -250,7 +250,7 @@ Exit gate:
 
 ## C7 — Brand convergence
 
-Status: **Needs comprehensive production pass**
+Status: **In progress**
 
 Canonical journey:
 `MARKET SIGNAL → SCENE/AUDIENCE FIT → ACTIVATION DECISION → FUND/SUPPLY → EXECUTION → EVIDENCE → OUTCOME → REPEAT/IMPROVE/STOP`
@@ -272,7 +272,7 @@ Exit gate:
 
 ## C8 — Agency convergence
 
-Status: **Needs comprehensive production pass**
+Status: **In progress**
 
 Deliver:
 - client switcher and ownership context;
@@ -628,8 +628,8 @@ Update this table as work is completed.
 | C4 | Host | In progress | create→operate→close |
 | C5 | Merchant | In progress | demand→supply→validate→fulfill |
 | C6 | Creator | In progress | brief→proof→earning→settlement |
-| C7 | Brand | Not complete | activation golden journey |
-| C8 | Agency | Not complete | client-scoped golden journey |
+| C7 | Brand | In progress | activation golden journey |
+| C8 | Agency | In progress | client-scoped golden journey |
 | C9 | Admin | In progress | specialist tab audit |
 | C10 | Create/Edit | Not complete | creation-flow review |
 | C11 | Onboarding | Not complete | cold-start test |
