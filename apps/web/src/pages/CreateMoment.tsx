@@ -207,6 +207,8 @@ export function CreateMoment() {
 
       if (error) throw error;
 
+      let collaboratorWriteFailed = false;
+
       if (collaborators.length > 0 && newMoment?.id) {
         const collabRows = collaborators.map((collaborator) => ({
           moment_id: newMoment.id,
@@ -221,17 +223,27 @@ export function CreateMoment() {
           status: "confirmed",
         }));
 
-        await (supabase as any).from("moment_collaborators").insert(collabRows);
+        const { error: collaboratorError } = await (supabase as any)
+          .from("moment_collaborators")
+          .insert(collabRows);
+
+        if (collaboratorError) {
+          collaboratorWriteFailed = true;
+          console.error("Moment published but collaborators were not saved:", collaboratorError);
+        }
       }
 
       toast({
-        title: "Moment published",
-        description: reward.trim()
-          ? "Your Moment is live. The configured perk should only be promoted if it is approved and available."
-          : "Your Moment is live. Attach a real, approved perk only if you have one to offer.",
+        title: collaboratorWriteFailed ? "Moment published; team needs attention" : "Moment published",
+        description: collaboratorWriteFailed
+          ? "The Moment is live, but one or more collaborator records were not saved. Review the Moment before promoting the lineup."
+          : reward.trim()
+            ? "Your Moment is live. The configured perk should only be promoted if it is approved and available."
+            : "Your Moment is live. Attach a real, approved perk only if you have one to offer.",
+        variant: collaboratorWriteFailed ? "destructive" : undefined,
       });
 
-      navigate(`/give?moment=${encodeURIComponent(newMoment.id)}`);
+      navigate(`/moments/${encodeURIComponent(newMoment.id)}`);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Failed to create Moment";
       console.error("Error creating Moment:", error);
