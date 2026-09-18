@@ -667,6 +667,41 @@ Commits:
 
 Status: **Closed**
 
+#### T-033 — Public marketing examples were presented as live proof or guaranteed economics
+
+Files:
+- `apps/web/src/pages/ForBrands.tsx`
+- `apps/web/src/pages/HowItWorks.tsx`
+- `apps/web/src/components/value/MerchantRoiSimulator.tsx`
+- `apps/web/src/components/value/CreatorEarningsSimulator.tsx`
+- `apps/web/src/pages/ForMerchants.tsx`
+
+Finding:
+- Brand marketing labeled a static Scene Pulse “live” and showed hard-coded 84% / 92% verified figures;
+- Brand and Merchant pages rendered unsourced proof-stat strips through translation-defined values;
+- a Brand campaign preview used example metrics with a live badge;
+- How It Works rendered simulated role/account stats without an explicit user-facing “not live data” boundary;
+- Merchant ROI modeling used fixed gross-margin/ad-acquisition assumptions while claiming zero-waste, 100% verified/performance-based economics and “lock in” projected gains;
+- Creator modeling presented fixed niche bounty/rate assumptions as available-now work, direct escrow payouts, secured earnings and invented Gems conversion.
+
+Resolution:
+- Brand Scene Pulse and campaign reports are explicitly illustrative; hard-coded verification percentages and live badges are removed;
+- unsourced Brand/Merchant stat strips are removed;
+- How It Works labels simulated role previews as illustrative and not live account data;
+- Merchant calculator remains useful but explicitly labels its 65% margin / $48 comparison-cost inputs as scenario assumptions and removes guaranteed-performance language;
+- Creator calculator labels all fees/rates as example assumptions, removes “available now,” escrow/funding claims and the fabricated Gems conversion;
+- calculator outputs are planning scenarios, not current platform performance, offers, approved earnings or settlement.
+
+Commits:
+- `3bb3f1635b3ff57191ca6d221a0fdeaad5f5e0c4`
+- `b18f3b497cbf9496b93dd6ce277914b3b733f2e3`
+- `0b148312b402ff4ec90b3e3abffa038bc7572943`
+- `581bfb36bc1f6719b4d2f848357fa6ea7c2fb82e`
+- `df861aa5b01d3330e0fa115460072885d62a9ec4`
+- `54ffca8e73c2efb8e055322a3a0b443b0c7aa060`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
