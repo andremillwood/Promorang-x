@@ -439,6 +439,35 @@ Commits:
 
 Status: **Closed**
 
+#### T-024 — Participant commerce fallbacks and receipt-state collapse
+
+Files:
+- `apps/web/src/pages/CommerceDetail.tsx`
+- `apps/web/src/components/discovery/DiscoveriesFeedSection.tsx`
+- `packages/shared/src/action-receipt.ts`
+- `packages/shared/tests/action-receipt.test.ts`
+
+Finding:
+- Commerce Detail could fall through from the canonical public commerce directory to a raw `products` lookup and synthesize active status, points eligibility, points cost, Kingston venue/location and other commerce facts;
+- Commerce and Discovery surfaces displayed a universal PromoCard savings badge with hard-coded dollar savings despite no entitlement/offer ledger source;
+- the shared commerce receipt presenter treated most non-failed states as “It counted,” collapsing recorded purchase/claim/reservation into completed commerce.
+
+Resolution:
+- raw product fallback no longer manufactures production commerce state;
+- unsupported universal PromoCard savings claims are removed;
+- explicit labelled sample catalogue remains non-actionable instructional content only;
+- shared receipt presentation now distinguishes recorded purchase, claim, reservation, redemption, completed fulfillment, refund and stopped states;
+- claim ≠ redemption ≠ purchase and purchase ≠ fulfillment are now preserved across web/mobile receipt presentation;
+- shared tests lock these boundaries.
+
+Commits:
+- `4e5feb2feff68c003b669832f68891fbc77d0673`
+- `3798037df0957e4d006c9befe55c9543bc059a8a`
+- `cd9d93eec41621c43e3994a9a2c790cca81b3aec`
+- `6d68e7685f2fa07b868f29321964a8226e78c0aa`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
