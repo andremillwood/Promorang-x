@@ -2,6 +2,7 @@ import { ArrowRight, Building2, Compass, ShieldCheck, Sparkles, Store, Users } f
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 export default function WhatIsPromorang() {
   return (
@@ -12,6 +13,7 @@ export default function WhatIsPromorang() {
       />
 
       <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(249,115,22,.2),transparent_38%),radial-gradient(circle_at_80%_55%,rgba(147,51,234,.1),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl">
           <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300"><Sparkles className="h-4 w-4" /> What is PROMORANG?</p>
@@ -38,7 +40,7 @@ export default function WhatIsPromorang() {
           </div>
           <div className="mt-9 grid gap-5 md:grid-cols-2">
             <TicketPass kicker="I do not know yet" title="Discovery helps a preference appear." detail="See an approved place, product, experience, idea or local possibility. Something catches your attention. Now you know you care." stub="SEE" stubLabel="Discovery" />
-            <TicketPass kicker="I already know" title="Put the missing thing into the market." detail="Ask for the place, offer, product, experience or change you want. If other people feel the same way, that demand becomes easier to see." stub="ASK" stubLabel="Demand" />
+            <TicketPass kicker="I already know" title="Tell PROMORANG what is missing." detail="Tell PROMORANG the place, offer, product, experience or change you are looking for. If other people feel the same way, shared interest becomes easier to see." stub="ASK" stubLabel="Demand" />
           </div>
         </div>
       </section>
