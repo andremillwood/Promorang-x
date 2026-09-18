@@ -2300,3 +2300,33 @@ Do not bolt uplift modules onto old pages. Recompose the page around the journey
 If a design looks like it could belong to any SaaS dashboard, it is not Promorang yet.
 
 Make it feel like people, places, moments, proof, and value are moving in the same world.
+
+
+## Public object destination law
+
+Collection pages help people browse. Object pages help people care, act, and continue exploring.
+
+Public objects use:
+`MEDIA → IDENTITY → CONTEXT → ACTION → DEPTH → RELATIONSHIPS → MORE`
+
+The primary question changes by object:
+- Discovery: Why should I know about this?
+- Moment: Why should I show up?
+- Offer: Why should I claim / use this?
+- Merchant: Why should I visit / buy / follow?
+- Scene: Why should I become part of this?
+
+### Signature-object semantic rule
+
+Signature objects should represent real product state whenever practical.
+- TicketPass is strongest when a real pass / access state exists.
+- PaperReceipt is strongest when a real consequence can be receipted.
+- PromoCard is strongest when showing a retained participant relationship.
+
+Do not use tickets, receipts, PromoCards, or other holdable objects merely as decorative containers for explanatory marketing copy on consumer object pages.
+
+Marketing surfaces may explain the system. Product object pages should let people experience it.
+
+### Public object density
+
+Object destinations should be information-rich and media-forward. Prefer real imagery, object metadata, host/place context, related objects, and onward discovery over large empty explanatory sections.
