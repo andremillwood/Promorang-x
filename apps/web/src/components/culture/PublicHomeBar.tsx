@@ -18,6 +18,7 @@ export function PublicHomeBar() {
             ["Discover", "/discover"],
             ["Wanted", "/#wanted"],
             ["Moments", "/discover/moments"],
+            ["Perks", "/discover/rewards"],
             ["For business", "/for-brands"],
             ["Build", "/join"],
           ].map(([label, href]) => (
