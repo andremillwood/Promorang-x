@@ -98,7 +98,7 @@ const guides: HowToGuide[] = [
     categoryLabel: "Locals & Members",
     icon: QrCode,
     title: "How to Verify Your Visit & Earn Gems",
-    summary: "Prove you showed up to claim your rewards, build your Access Rank, and earn redeemable Gems.",
+    summary: "Submit the required visit proof. Any reward, rank change, or Gem consequence appears only after the applicable verification and issuance rules succeed.",
     steps: [
       "Arrive at the participating venue during operating hours.",
       "Open your Promorang app and tap 'Check In' or open your active pass.",
@@ -113,12 +113,12 @@ const guides: HowToGuide[] = [
     categoryLabel: "Locals & Members",
     icon: Wallet,
     title: "How to Withdraw Earnings & Manage Gems",
-    summary: "Convert your earned bounties and rewards into cash or spend Gems in the marketplace.",
+    summary: "Review recorded Gem states, withdrawable value, pending value, and the payout actions currently available to your account.",
     steps: [
       "Navigate to your Wallet from the navigation menu or dashboard.",
       "Review your Withdrawable Balance and pending Gem rewards.",
-      "Connect your payout method (Stripe / Bank / PayPal) for direct deposits.",
-      "Initiate a withdrawal or exchange Gems for exclusive partner perks."
+      "Review the payout method and withdrawal options actually available to your account.",
+      "Request withdrawal only from the balance marked withdrawable, or use eligible Gems for available partner benefits."
     ],
     actionLink: { label: "Open Wallet", href: "/wallet" }
   },
@@ -128,12 +128,12 @@ const guides: HowToGuide[] = [
     categoryLabel: "Venues & Merchants",
     icon: Building2,
     title: "How Venues Set Up & Verify Countertop QRs",
-    summary: "Set up frictionless, tamper-resistant QR check-in stands that automatically authenticate visiting patrons.",
+    summary: "Set up QR check-in points that can record an eligible scan as one part of the venue's configured proof flow.",
     steps: [
       "Log into your Merchant Dashboard and navigate to 'Venues & Check-in'.",
       "Download or print your venue's unique dynamic Countertop QR display.",
       "Place the stand at your host stand, bar, or checkout counter.",
-      "When patrons scan, your dashboard reflects real-time foot traffic and valid redemptions."
+      "When patrons scan, the dashboard records the scan; visit, redemption, purchase, or fulfillment status still depends on the applicable verification and commerce flow."
     ],
     actionLink: { label: "Merchant Dashboard", href: "/dashboard/venues" }
   },
