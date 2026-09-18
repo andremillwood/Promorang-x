@@ -498,3 +498,42 @@ Implementation anchor:
 Authentication should personalize the same world rather than visually teleporting the participant into unrelated software.
 
 For this slice, signed-in participants continue to receive the existing richer Discovery / Moment surfaces while the anonymous layer is overhauled. Future convergence should bring the same world-first visual language and participant semantics into signed-in Discovery without removing role-specific utility.
+
+
+## Public object destinations
+
+Public acquisition does not end at the collection rail. Clicking a real object must deepen the world rather than dropping the visitor into legacy application chrome.
+
+### Discovery detail
+
+`/discoveries/:slug` remains source-backed approved knowledge and now carries:
+- Current trajectory through the hero,
+- Watch / return continuity,
+- linked Scene / place / contributor context only when those records exist,
+- PromoCard as the place the relationship can return,
+- explicit truth boundaries.
+
+### Moment detail
+
+Logged-out `/moments/:id` now uses `PublicMomentDetail` rather than the legacy signed-in Moment workspace.
+
+The anonymous detail reads the canonical public Moment feed and presents:
+- lifecycle,
+- recorded time and place,
+- recorded reward/access copy when present,
+- authentication that returns to the same Moment,
+- PromoCard continuity,
+- Moment ≠ attendance / RSVP ≠ attendance / perk shown ≠ issuance.
+
+Demo / curated Moment fallback is not allowed in this anonymous path.
+
+Signed-in participants continue into the richer existing Moment detail in this slice.
+
+### Rewards / responses
+
+`/discover/rewards` is a public supply-and-response surface:
+- Demand remains recorded interest,
+- public Offers are distinct supply,
+- reward-bearing Moments are distinct responses,
+- source failures are not rendered as empty inventory,
+- PromoCard explains watching → issued access → used / verified consequence.
