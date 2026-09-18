@@ -374,7 +374,7 @@ Exit gate:
 
 ## C12 — Profiles, identity and directories
 
-Status: **In progress; public attendance, rating, venue provenance and creator-directory truth hardened**
+Status: **In progress; public attendance, rating, venue provenance, creator-directory and profile/social truth hardened**
 
 Deliver:
 - participant profile;

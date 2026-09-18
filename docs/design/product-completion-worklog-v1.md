@@ -507,6 +507,7 @@ Latest closed findings:
 - **T-039 — Saved and Activity utilities reported browser-only success / false emptiness.**
 - **T-040 — Following collapsed source failures into empty states and exposed non-functional filters.**
 - **T-041 — Creator directory mixed fabricated identities, verification and performance proof into production.**
+- **T-042 — UserProfile and FollowButton converted source gaps into false identity/social state.**
 
 Closed direction:
 
@@ -534,6 +535,7 @@ Closed direction:
 - personalized Activity source failure stays an error, and the feed no longer invents local read receipts.
 - Following now fails visibly when its graph/Moment/count sources fail, uses the canonical combined going count, and only exposes filters with real semantics.
 - the creator directory is now role/profile-backed only; fabricated creator identities, verification, performance metrics and ranking claims are removed.
+- profile identity/social state now distinguishes unavailable/not-found/empty, keeps private histories owner-only, and verifies follow state before mutation.
 
 ### NEXT ACTION
 

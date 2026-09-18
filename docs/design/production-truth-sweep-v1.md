@@ -1124,6 +1124,33 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-042 — UserProfile and FollowButton converted source gaps into false identity/social state
+
+Files:
+- `apps/web/src/pages/UserProfile.tsx`
+- `apps/web/src/components/FollowButton.tsx`
+
+Finding:
+- profile-source failure was indistinguishable from “profile not found”;
+- the current-user auth fallback invented a default bio and location that had never been saved as profile facts;
+- hosted/attended count query errors were not checked, while follower/following counts were hard-coded to zero;
+- public profiles exposed Attended and Saved tabs even though those histories were not backed by a public contract; Saved always rendered empty;
+- hosted/attended tab query failure was converted to a normal empty section;
+- FollowButton ignored follow-status read errors and treated them as “not following,” allowing the UI to expose the wrong next mutation.
+
+Resolution:
+- profile-source failure has a distinct unavailable state; “not found” is reserved for a successful read with no profile record;
+- auth fallback for the current account supplies only account-backed identity fields and leaves unsaved bio/location empty;
+- public hosted count comes from the public Moment directory and follower/following counts come from `user_follows`; count-source failure is shown as unavailable rather than zero;
+- attended count/history and saved history are account-owner-only on this surface;
+- own Saved history reads the private `saved_moments` ledger;
+- Hosted uses the public Moment directory rather than unrestricted Moment rows;
+- tab loading/source failure is explicit and cannot masquerade as an empty section;
+- FollowButton verifies current follow state before enabling follow/unfollow and disables mutation when that read fails.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
