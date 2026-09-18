@@ -833,6 +833,32 @@ Commits:
 
 Status: **Closed**
 
+#### T-031 — Rewards wishlist fixtures presented as live market demand
+
+Files:
+- `apps/web/src/pages/ExploreRewards.tsx`
+- `apps/web/src/data/rewardsData.ts`
+
+Finding:
+- the Rewards page seeded static merchant/perk requests into a section labelled as live community demand;
+- voting and request creation mutated browser component state only;
+- those local actions could appear to publish market demand and previously implied Point issuance;
+- a `moment.reward` text field was presented as a verified perk / included pass without proving inventory, eligibility, fulfillment or issuance.
+
+Resolution:
+- static reward-demand fixtures are limited to development/test mode;
+- production Rewards does not substitute local merchant requests when canonical demand is absent;
+- production demand creation points to the durable Discover demand flow instead of browser-only state;
+- production empty state explicitly says no authoritative reward-demand requests are recorded on the surface;
+- local vote/request UI no longer claims Point issuance;
+- Moment reward text is labelled as recorded reward terms, with availability and issuance deferred to the Moment's actual rules.
+
+Commits:
+- `5c2b0716bdffdb34e2128ea1acb4084126c2247e`
+- `258fa28244d04a115ced96df2bb0c9a6b10ec307`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
