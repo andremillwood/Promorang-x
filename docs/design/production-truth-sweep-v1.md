@@ -579,6 +579,35 @@ Commits:
 
 Status: **Closed**
 
+#### T-030 — Public profiles manufactured attendance, rating and venue identity
+
+Files:
+- `apps/web/src/pages/UserProfile.tsx`
+- `apps/web/src/pages/VenueProfile.tsx`
+
+Finding:
+- User Profile counted every `moment_participants` row as attended/verified, including RSVP intent;
+- User Profile hard-coded a perfect 5.0 rating with no review source;
+- the Sea Deck venue slug could substitute a static venue marked verified/claimed and a static active AftrHrs Moment when directory reads were empty or failed;
+- Venue Profile also advertised a generic “Claim Perk to Wallet,” “Community Vault Float,” and “100% Guaranteed” benefit without an entitlement/inventory source;
+- a Sea Deck route shortcut could send any recorded next Moment to AftrHrs.
+
+Resolution:
+- attended counts and attended-tab records now require `status = checked_in`;
+- rating is nullable and no rating/review is displayed unless recorded;
+- Sea Deck/AftrHrs fixtures are development-only;
+- production venue identity, verification, active Moments and counts come from public directory records;
+- unsupported guaranteed-perk/value language is removed;
+- venue actions point only to recorded Moment/commerce inventory;
+- next-Moment routing uses the actual recorded Moment slug/id.
+
+Commits:
+- `c6b2e51e8b9f830158009c223d94607b3d8c32a0`
+- `2ed7e5d585fd039e5df1b8a3b24a39457ad16f3e`
+- `436e8de3461afa49ba1916c83841c7938eae3c02`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
