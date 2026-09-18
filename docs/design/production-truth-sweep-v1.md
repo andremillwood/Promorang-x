@@ -468,6 +468,43 @@ Commits:
 
 Status: **Closed**
 
+#### T-025 — PromoShare user-facing synthetic draws and browser-issued rewards
+
+Files:
+- `backend/services/promoShareService.js`
+- `apps/web/src/pages/PromoShare.tsx`
+- `apps/web/src/components/promoshare/PromoShareTicketDrawModal.tsx`
+- `apps/web/src/components/SpinWheelModal.tsx`
+- `apps/web/src/components/DailyRewardsModal.tsx`
+
+Finding:
+- the user-facing PromoShare dashboard returned a complete fake draw economy when Supabase was unavailable;
+- PromoShare hero/cycle controls substituted 14 entries, 3.5x multiplier, 1,000 Gems and 5 tickets when authoritative values were absent;
+- the ticket draw modal locally deducted entries, selected a random prize, declared a win and claimed Vault issuance without a backend draw;
+- Spin Wheel and Daily Rewards generated local Gems/Points/Pieces/boost claims without a server-backed eligibility or issuance record.
+
+Resolution:
+- user-facing PromoShare now fails closed when the authoritative data source is unavailable;
+- no entry, multiplier, jackpot or ticket fallback is substituted;
+- the draw modal is read-only and explains entry → selection → claim → settlement boundaries;
+- browser lottery/winner selection and fake Vault issuance are removed;
+- local spin/streak reward claims are removed globally.
+
+Commits:
+- `6b13df53d6fa7b8a91a0076835c89287d7be879d`
+- `b792c541ae5fbf4c0dd89e71b7e38f1ee23fd54e`
+- `4d5539377ef48e492f1991fd39aaa59fb29f848d`
+- `f1eb12aea70368ac04e92822a6a392bac4b377d9`
+- `f49ba4c8b1a4a2e4714404d1f1dbc1db188814b6`
+
+Status: **Closed**
+
+### T-026 — PromoShare claim/distribution atomicity
+
+Status: **Open contract debt**
+
+`promoShareService.claimPrize()` currently marks a winner record claimed before distributing some prize types. A failed downstream distribution can therefore leave “claimed” ahead of delivered value. Reordering naïvely is also unsafe because cash/coupon paths do not yet expose a verified idempotency key that guarantees retry safety. This needs one idempotent claim/distribution transaction (or explicit claiming → distributed/pending-settlement states) before further mutation.
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
