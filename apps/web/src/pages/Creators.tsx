@@ -1,19 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { 
-  ArrowRight, 
-  Camera, 
-  Music2, 
-  Radio, 
-  Search, 
-  Users, 
-  Sparkles, 
-  Share2, 
-  Ticket, 
-  Gift, 
-  TrendingUp, 
-  Award,
-  CheckCircle2
+import {
+  Search,
+  Users,
+  Sparkles,
+  Share2,
+  Ticket,
+  TrendingUp,
+  AlertTriangle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
@@ -27,7 +21,6 @@ import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBal
 
 export default function Creators() {
   const { t } = useI18n();
-  const [selectedTag, setSelectedTag] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   const creatorsQuery = useQuery({
@@ -40,75 +33,28 @@ export default function Creators() {
       if (roleError) throw roleError;
       const ids = Array.from(new Set((roleRows || []).map((row) => row.user_id)));
       
-      let dbProfiles: any[] = [];
-      if (ids.length) {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("user_id,full_name,avatar_url,bio,location")
-          .in("user_id", ids)
-          .not("full_name", "is", null)
-          .order("full_name");
-        if (!error && data) dbProfiles = data;
-      }
+      if (!ids.length) return [];
 
-      // Sample verified creator seeds to guarantee rich directory experience
-      const seedCreators = [
-        {
-          user_id: "creator-dj-rebel",
-          full_name: "DJ Rebel Sound",
-          avatar_url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=200&auto=format&fit=crop&q=80",
-          bio: "Kingston club & festival DJ. Resident at Fiction & Plantation Cove.",
-          location: "Kingston, Jamaica",
-          tags: ["DJs", "Music"],
-          distributionMetrics: { peopleMoved: 480, claimsDriven: 215, tickets: 48 },
-        },
-        {
-          user_id: "creator-tanya-eats",
-          full_name: "Tanya Eats JA",
-          avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
-          bio: "Food & lifestyle storyteller. Highlighting Jamaica's best hidden kitchens and cocktails.",
-          location: "St. Andrew, Jamaica",
-          tags: ["Foodies", "Visual"],
-          distributionMetrics: { peopleMoved: 320, claimsDriven: 185, tickets: 35 },
-        },
-        {
-          user_id: "creator-marcus-lens",
-          full_name: "Marcus Visuals",
-          avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
-          bio: "Culture photographer & night archivist. Capturing sound systems and creative spaces.",
-          location: "Kingston, Jamaica",
-          tags: ["Visual", "Hosts"],
-          distributionMetrics: { peopleMoved: 190, claimsDriven: 94, tickets: 22 },
-        },
-        {
-          user_id: "creator-campus-pulse",
-          full_name: "UWI Campus Pulse",
-          avatar_url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&auto=format&fit=crop&q=80",
-          bio: "Student community media & promoter network. 12k+ campus reach.",
-          location: "Mona, Kingston",
-          tags: ["Promoters", "Campus"],
-          distributionMetrics: { peopleMoved: 720, claimsDriven: 390, tickets: 64 },
-        },
-      ];
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("user_id,full_name,avatar_url,bio,location")
+        .in("user_id", ids)
+        .not("full_name", "is", null)
+        .order("full_name");
 
-      const combined = [...dbProfiles, ...seedCreators];
-      const seen = new Set();
-      return combined.filter(c => {
-        if (seen.has(c.user_id)) return false;
-        seen.add(c.user_id);
-        return true;
-      });
+      if (error) throw error;
+      return data || [];
     },
   });
 
   const creators = creatorsQuery.data || [];
 
-  const filteredCreators = creators.filter((c: any) => {
-    const matchesSearch = !searchQuery || 
-      c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.bio?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTag = selectedTag === "All" || (c.tags && c.tags.includes(selectedTag));
-    return matchesSearch && matchesTag;
+  const filteredCreators = creators.filter((creator: any) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return creator.full_name?.toLowerCase().includes(query) ||
+      creator.bio?.toLowerCase().includes(query) ||
+      creator.location?.toLowerCase().includes(query);
   });
 
   return (
@@ -137,12 +83,12 @@ export default function Creators() {
               <h1 className="max-w-5xl font-sans text-4xl sm:text-6xl lg:text-7xl font-black uppercase leading-[0.88] tracking-[-0.05em]">
                 Get Discovered. <br />
                 <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                  Build Proof You Move People.
+                  Build Recorded Proof Over Time.
                 </span>
               </h1>
 
               <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-white/70">
-                Find things worth sharing across Kingston culture and verified partner perks. When you move people, earn attribution, PromoPoints, and PromoShare draw tickets.
+                Find things worth sharing and build a record around actions PROMORANG can actually verify. Eligible attribution, rewards, or draw entries appear only when their source records exist.
               </p>
             </div>
 
@@ -159,21 +105,9 @@ export default function Creators() {
                 />
               </div>
 
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {["All", "DJs", "Foodies", "Visual", "Promoters", "Campus"].map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                    className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
-                      selectedTag === tag
-                        ? "bg-purple-500 text-white"
-                        : "border border-white/10 bg-white/5 text-white/60 hover:text-white"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
+              <p className="pt-1 text-[11px] leading-5 text-white/45">
+                Search recorded creator-role profiles by name, bio, or location.
+              </p>
             </div>
           </div>
         </div>
@@ -184,18 +118,18 @@ export default function Creators() {
         <ThingsWorthSharingFeed />
       </section>
 
-      {/* SECTION 2: CREATOR DIRECTORY & DISTRIBUTION PROOF */}
+      {/* SECTION 2: RECORDED CREATOR DIRECTORY */}
       <section className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-purple-400">
-              Verified Distributors
+              Creator Directory
             </p>
             <h2 className="mt-1 text-3xl font-black tracking-tight text-white">
-              Creator Directory &amp; Distribution Proof
+              Recorded Creator Profiles
             </h2>
             <p className="text-xs text-white/60 mt-1">
-              Ranked by verifiable audience movement, perk claims generated, and culture engagement.
+              Accounts with a recorded creator role and profile, ordered by profile name. Performance ranking is not inferred on this surface.
             </p>
           </div>
           <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 rounded-2xl text-xs font-bold">
@@ -205,6 +139,17 @@ export default function Creators() {
 
         {creatorsQuery.isLoading ? (
           <p className="py-12 text-center text-sm text-white/45">Loading creators...</p>
+        ) : creatorsQuery.isError ? (
+          <div role="alert" className="rounded-3xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
+            <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
+            <h3 className="mt-4 text-xl font-black">Creator directory unavailable</h3>
+            <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/50">
+              PROMORANG could not read the creator-role directory, so the failure is not being replaced with sample creators.
+            </p>
+            <button type="button" onClick={() => void creatorsQuery.refetch()} className="mt-4 text-sm font-bold text-purple-300 hover:text-purple-200">
+              Try again
+            </button>
+          </div>
         ) : filteredCreators.length ? (
           <div className="grid gap-6 md:grid-cols-2">
             {filteredCreators.map((creator: any) => (
@@ -223,9 +168,8 @@ export default function Creators() {
 
                 <div className="space-y-2 flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      <span>Verified Distributor</span>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">
+                      Creator role
                     </p>
                     {creator.location && (
                       <span className="text-[10px] text-white/40">{creator.location}</span>
@@ -237,22 +181,11 @@ export default function Creators() {
                   </h3>
 
                   <p className="line-clamp-2 text-xs leading-relaxed text-white/60">
-                    {creator.bio || "Active culture distributor and curator on Promorang."}
+                    {creator.bio || "No profile bio recorded yet."}
                   </p>
 
-                  {/* Distribution Performance Metrics */}
-                  <div className="pt-2 flex items-center gap-3 border-t border-white/10 text-[11px] font-mono">
-                    <span className="text-purple-300 font-bold">
-                      {creator.distributionMetrics?.peopleMoved || 120}+ Moves
-                    </span>
-                    <span className="text-white/30">·</span>
-                    <span className="text-emerald-400 font-bold">
-                      {creator.distributionMetrics?.claimsDriven || 45} Claims
-                    </span>
-                    <span className="text-white/30">·</span>
-                    <span className="text-amber-400 font-bold">
-                      {creator.distributionMetrics?.tickets || 12} 🎟️ Tickets
-                    </span>
+                  <div className="border-t border-white/10 pt-2 text-[11px] leading-5 text-white/40">
+                    Public performance proof is shown only when a dedicated recorded metric source is available.
                   </div>
                 </div>
               </Link>
@@ -263,7 +196,7 @@ export default function Creators() {
             <Users className="mx-auto h-9 w-9 text-purple-400" />
             <h3 className="mt-5 text-2xl font-black">No creators found</h3>
             <p className="mx-auto mt-2 max-w-md text-xs text-white/50">
-              Try adjusting your search query or tag filter.
+              Try adjusting your search query. If the directory source is healthy, only recorded creator-role profiles appear here.
             </p>
           </div>
         )}
@@ -274,9 +207,9 @@ export default function Creators() {
         <div className="grid gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:grid-cols-4">
           {[
             { icon: Sparkles, title: "1. Discover", text: "Find exciting Perks, moments, and cultural drops worth talking about." },
-            { icon: Share2, title: "2. Distribute", text: "1-click PromoShare links that carry persistent single-level referral attribution." },
-            { icon: TrendingUp, title: "3. Build Proof", text: "Verifiable reputation based on real foot traffic and claims, not vanity metrics." },
-            { icon: Ticket, title: "4. Win & Earn", text: "Minted PromoPoints, Gems, and PromoShare tickets for every verified action." },
+            { icon: Share2, title: "2. Distribute", text: "Share links can carry recorded attribution when an eligible referral source exists." },
+            { icon: TrendingUp, title: "3. Build Proof", text: "Build reputation from actions and outcomes PROMORANG can actually record." },
+            { icon: Ticket, title: "4. See Value", text: "See any recorded reward or draw entry when an eligible action qualifies." },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-white/10 bg-black/40 p-5 space-y-2">
               <item.icon className="h-6 w-6 text-purple-400" />

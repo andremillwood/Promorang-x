@@ -1098,6 +1098,32 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-041 — Creator directory mixed fabricated identities, verification and performance proof into production
+
+Files:
+- `apps/web/src/pages/Creators.tsx`
+
+Finding:
+- `/creators` merged four sample creator identities into the live creator-role directory;
+- the sample identities included invented bios, locations, tags, audience-movement counts, claim counts and ticket counts;
+- real creator profiles without metrics received fallback values such as `120+ Moves`, `45 Claims` and `12 Tickets`;
+- every row was labelled **Verified Distributor** even though creator-role membership is not a verification record;
+- the directory claimed it was ranked by verifiable movement/claims/engagement while the actual database query ordered profiles alphabetically;
+- profile-source failure could be replaced by the sample directory instead of remaining unavailable.
+
+Resolution:
+- production creator discovery now contains only accounts with a recorded `creator` role and a recorded profile;
+- profile query failure throws and renders an explicit unavailable state with retry;
+- sample creators and all fallback movement/claim/ticket figures are removed;
+- creator-role membership is labelled as **Creator role**, not verification;
+- the directory states its actual ordering rule and makes no popularity/performance ranking claim;
+- category/tag filters that depended on sample-only tags are removed;
+- public performance proof is withheld until a dedicated recorded metric source exists;
+- creator-value copy now distinguishes eligible recorded attribution/reward/draw outcomes from universal guarantees.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
