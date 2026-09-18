@@ -543,9 +543,10 @@ export default function HowItWorks() {
                   <div className="flex items-center gap-2">
                     <Smartphone className="h-4 w-4 text-primary" />
                     <span className="text-[10px] font-black uppercase tracking-wider text-primary">
-                      {t(currentRole.previewMock.tag)}
+                      Illustrative preview
                     </span>
                   </div>
+                  <p className="mt-1 text-[10px] leading-4 text-white/40">Example interface state · not live account data</p>
                   <div className="mt-2 text-sm font-black text-white">{t(currentRole.previewMock.title)}</div>
                   <div className="text-[11px] text-white/60">{t(currentRole.previewMock.subtitle)}</div>
                   <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-2 text-xs">
