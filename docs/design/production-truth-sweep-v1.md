@@ -505,6 +505,54 @@ Status: **Open contract debt**
 
 `promoShareService.claimPrize()` currently marks a winner record claimed before distributing some prize types. A failed downstream distribution can therefore leave “claimed” ahead of delivered value. Reordering naïvely is also unsafe because cash/coupon paths do not yet expose a verified idempotency key that guarantees retry safety. This needs one idempotent claim/distribution transaction (or explicit claiming → distributed/pending-settlement states) before further mutation.
 
+#### T-027 — Activation closeout snapshots were presented as verified outcomes
+
+Files:
+- `apps/web/src/hooks/useActivationOperations.ts`
+- `apps/mobile/hooks/useActivationOperations.ts`
+- `apps/web/src/pages/ActivationDetail.tsx`
+- `apps/web/src/components/dashboard/StakeholderReturnPanel.tsx`
+- `apps/mobile/app/(tabs)/dashboard.tsx`
+
+Finding:
+- activation return figures such as showed up, returned, stories, collaborations and gross value are entered directly by an operator into `activation_outcome_snapshots`;
+- the web writer hard-coded every snapshot as `stakeholder_type = agency`;
+- report/dashboard surfaces could present those closeout figures without explaining that they may be operator-reported rather than independently verified platform telemetry.
+
+Resolution:
+- web snapshots now record the actual supported workspace role and explicit metadata provenance `operator_reported`, `recorder_role`, and `verified_telemetry: false`;
+- unsupported roles fail instead of being silently relabelled Agency;
+- the unused mobile mutation now requires an explicit schema-supported stakeholder type and records the same provenance;
+- Activation Detail labels closeout/report metrics as reported closeout values;
+- shared web/mobile return cards explain that closeout metrics may be operator-reported while Gems/access come from their ledgers.
+
+Commits:
+- `e8130d94d4f57d662335193feb383d1b6947b9e8`
+- `fec2813c8a66d891a4037aef110f128680107256`
+- `3b16dd2910ad60ac85d2e8713c5232d09d39d09a`
+- `9e36ac8be6e343055a857b44d6637c241fd03f8c`
+- `8f787ea28805ce23ee088987c9793a35b3244de1`
+
+Status: **Closed**
+
+#### T-028 — Mobile dashboard shipped sample streak and merchant deal state
+
+File:
+- `apps/mobile/app/(tabs)/dashboard.tsx`
+
+Finding:
+- the production dashboard unconditionally rendered a hard-coded 5-day streak with four hours remaining;
+- sample merchant deal stories and their claim/scanner path were mounted as if they were current user opportunities.
+
+Resolution:
+- hard-coded streak and sample deal story/scanner surfaces are development-only;
+- production no longer presents those fixtures as live account state.
+
+Commit:
+- `8f787ea28805ce23ee088987c9793a35b3244de1`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
