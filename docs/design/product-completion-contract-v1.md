@@ -96,6 +96,8 @@ Keep their route debt, monolith, and complexity findings as backlog evidence.
 
 Status: **In progress**
 
+Working registry: [`route-readiness-registry-v1.md`](route-readiness-registry-v1.md)
+
 Goal: every live route has an intentional place in the product.
 
 Deliver:
