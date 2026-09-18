@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Gift, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, CalendarDays, Gift, MapPin, RotateCcw, ShieldCheck, Sparkles } from "lucide-react";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
