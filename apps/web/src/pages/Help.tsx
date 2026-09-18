@@ -143,7 +143,7 @@ const guides: HowToGuide[] = [
     categoryLabel: "Creators & Tastemakers",
     icon: Sparkles,
     title: "How Creators Claim & Complete Bounties",
-    summary: "Earn guaranteed cash payouts by creating authentic content and driving real foot traffic to local venues.",
+    summary: "Complete configured creator opportunities and track what was attributed, approved, earned, and eventually settled.",
     steps: [
       "Explore the Bounty Board to view open brand and venue sponsorship opportunities.",
       "Review requirements (e.g. TikTok/Reel coverage, minimum verified check-ins).",
@@ -163,7 +163,7 @@ const guides: HowToGuide[] = [
       "Define your campaign outcome (trial, foot traffic, user-generated content).",
       "Choose target cities, neighborhoods, or venue categories.",
       "Fund the reward pool (PromoKeys, tasting vouchers, creator bounties).",
-      "Monitor live analytics with real-time GPS and receipt verification."
+      "Review recorded analytics and the GPS, receipt, check-in, or other proof actually configured for the activation."
     ],
     actionLink: { label: "Brand Solutions", href: "/for-brands" }
   }
@@ -192,8 +192,8 @@ const faqs: FaqItem[] = [
   },
   {
     category: "venues",
-    q: "How does Promorang guarantee foot traffic for my venue?",
-    a: "Unlike pay-per-click ads, Promorang focuses on pre-committed demand. Hundreds of locals vote on winning spots, claim limited tasting keys, and physically verify their arrival using your countertop QR code."
+    q: "How does Promorang help me turn demand into recorded visits?",
+    a: "Promorang can surface recorded demand, offers, claims, and eligible visit proof. Votes and claims are intent signals; an actual visit is recorded only when the applicable check-in, QR, or proof path succeeds."
   },
   {
     category: "venues",
@@ -203,12 +203,12 @@ const faqs: FaqItem[] = [
   {
     category: "creators",
     q: "How do creator bounties get paid out?",
-    a: "Once you claim a bounty and submit your content or drive the required verified check-ins, funds are automatically released to your Promorang digital wallet, which you can withdraw anytime via Stripe or bank transfer."
+    a: "Submitting creator work or generating attributed actions does not itself mean payment. The opportunity's terms determine review, approval, earning, and settlement; withdrawable value appears only after the relevant earning and payout records are created."
   },
   {
     category: "brands",
     q: "How does Promorang verify that activations actually happened?",
-    a: "Every activation uses a multi-factor proof engine: GPS geofencing, dynamic countertop QR scans, verified receipt uploads, and creator post tracking. You get raw proof data, not estimated impressions."
+    a: "An activation can use GPS geofencing, QR scans, receipt evidence, creator attribution, or other configured proof methods. The evidence shown depends on what the activation required and what was actually recorded."
   },
   {
     category: "safety",
