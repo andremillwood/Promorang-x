@@ -1,26 +1,37 @@
+import { useState } from "react";
 import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import heroMoments from "@/assets/hero-moments.jpg";
+import participantImage from "@/assets/moments/sunset-photo.jpg";
+import merchantImage from "@/assets/moments/coffee-code.jpg";
+import brandImage from "@/assets/moments/street-art.jpg";
+import creatorImage from "@/assets/moments/open-mic.jpg";
+import hostImage from "@/assets/moment-concert.jpg";
+import communityImage from "@/assets/moments/board-games.jpg";
+import agencyImage from "@/assets/moments/pottery.jpg";
+import enterpriseImage from "@/assets/moments/hiking.jpg";
 
 const paths = [
   {
     eyebrow: "I want to find, ask or join",
-    title: "Participate",
+    title: "Participant",
     description: "Discover things worth knowing, put something missing into the market, join what other people want, and keep your place on PromoCard.",
     href: "/auth?mode=signup&role=participant&next=/home",
     cta: "Get my PromoCard",
     icon: UserRound,
-    stub: "JOIN",
+    image: participantImage,
+    proof: "Discovery → Want → PromoCard",
   },
   {
     eyebrow: "I run a place or business",
-    title: "Merchant or venue",
+    title: "Merchant",
     description: "See relevant local demand, publish accurate place information, and respond with supply you can genuinely honor.",
     href: "/for-merchants",
     cta: "See the merchant path",
     icon: Store,
-    stub: "SUPPLY",
+    image: merchantImage,
+    proof: "Demand → Response → Visit",
   },
   {
     eyebrow: "I represent a brand",
@@ -29,7 +40,8 @@ const paths = [
     href: "/for-brands",
     cta: "See the brand path",
     icon: Building2,
-    stub: "MOVE",
+    image: brandImage,
+    proof: "Signal → Activation → Evidence",
   },
   {
     eyebrow: "I create or influence",
@@ -38,25 +50,28 @@ const paths = [
     href: "/for-creators",
     cta: "Explore creator tools",
     icon: Megaphone,
-    stub: "CREATE",
+    image: creatorImage,
+    proof: "Attention → Action → Proof",
   },
   {
     eyebrow: "I bring people together",
-    title: "Host or organizer",
+    title: "Host",
     description: "Turn recurring interest into real Moments, coordinate participation, and keep attendance separate from intent.",
     href: "/hosting",
     cta: "Explore hosting",
     icon: CalendarDays,
-    stub: "HOST",
+    image: hostImage,
+    proof: "Interest → Moment → Attendance",
   },
   {
     eyebrow: "I lead a community",
-    title: "Community or Scene lead",
+    title: "Community",
     description: "Give persistent context to shared interests, local rituals, places and people without forcing everything into one event.",
     href: "/for-communities",
     cta: "Explore community tools",
     icon: Users,
-    stub: "SCENE",
+    image: communityImage,
+    proof: "Scene → Continuity → Return",
   },
   {
     eyebrow: "I manage clients",
@@ -65,7 +80,8 @@ const paths = [
     href: "/for-agencies",
     cta: "Explore agency tools",
     icon: Briefcase,
-    stub: "MANAGE",
+    image: agencyImage,
+    proof: "Client → Response → Evidence",
   },
   {
     eyebrow: "I represent a larger organization",
@@ -74,62 +90,110 @@ const paths = [
     href: "/for-enterprise",
     cta: "Explore enterprise",
     icon: Building2,
-    stub: "SCALE",
+    image: enterpriseImage,
+    proof: "Market → Teams → Governance",
   },
 ];
 
 export default function Join() {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const selected = paths[selectedIndex];
+  const SelectedIcon = selected.icon;
+
   return (
-    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#050505] text-white">
       <SEO
-        title="Build with PROMORANG — Start with the outcome"
-        description="Choose what you are trying to make happen with PROMORANG. Start with the job, then enter the same market through the role that fits."
+        title="Build with PROMORANG — Choose how you enter the market"
+        description="Choose what you are trying to make happen with PROMORANG. Different roles enter the same Discovery, Demand, Response and Proof market through different lenses."
       />
 
-      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(249,115,22,.18),transparent_38%),radial-gradient(circle_at_85%_55%,rgba(255,255,255,.05),transparent_32%)]" />
-        <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.95fr_1.05fr] lg:items-center">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">Build with PROMORANG</p>
-            <h1 className="mt-5 max-w-4xl font-serif text-5xl font-bold leading-[.92] tracking-[-0.055em] sm:text-6xl">What are you trying to make happen?</h1>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">Do not start by learning a platform taxonomy. Start with the job. PROMORANG should route you into the same Discovery → Demand → Response → Proof market through the lens that fits what you are actually trying to do.</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black"><UserRound className="h-4 w-4" /> I want to participate</Link>
-              <Link to="/how-it-works" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80">Show me the loop <ArrowRight className="h-4 w-4" /></Link>
-            </div>
+      <section className="marketing-join-hero relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
+        <img src={heroMoments} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
+        <div className="relative mx-auto max-w-[1440px]">
+          <p className="marketing-kicker">Build with PROMORANG</p>
+          <h1 className="mt-5 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl">What are you trying to make happen?</h1>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">
+            Start with the job, not the platform taxonomy. Every role enters the same market; the lens changes what you need to see, decide and prove.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
+              <UserRound className="h-4 w-4" /> Start as a participant
+            </Link>
+            <Link to="/how-it-works" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/40 px-5 text-xs font-black uppercase tracking-[0.08em] text-white">
+              See the loop <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <PromoCardFace holder="Your entry point" available="One market" limit="Many roles · one history" places="The role changes what you need to see and do. It should not create a different truth underneath." action="Choose your job" variant="membership" interactive={false} />
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">Role imagery is editorial atmosphere · role capabilities are described below</p>
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <div className="max-w-4xl">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Choose by job</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Different doors. Same market underneath.</h2>
+      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="marketing-section-head">
+            <div>
+              <p className="marketing-kicker">Choose your lens</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Who are you here as?</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Different doors. Same market underneath. Choose the role closest to the job you are responsible for.</p>
+            </div>
           </div>
 
-          <div className="marketing-role-grid mt-10 grid gap-4 md:grid-cols-2">
-            {paths.map((path) => {
+          <div className="marketing-role-rail" role="tablist" aria-label="PROMORANG role lenses">
+            {paths.map((path, index) => {
               const Icon = path.icon;
+              const active = index === selectedIndex;
               return (
-                <Link key={path.title} to={path.href} className="group block">
-                  <div className="mb-2 flex items-center justify-between px-1">
-                    <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-white/40"><Icon className="h-3.5 w-3.5 text-orange-300" /> {path.eyebrow}</span>
-                    <span className="inline-flex items-center gap-1 text-xs font-black text-orange-300 transition group-hover:translate-x-1">{path.cta} <ArrowRight className="h-3.5 w-3.5" /></span>
-                  </div>
-                  <TicketPass kicker={path.eyebrow} title={path.title} detail={path.description} stub={path.stub} stubLabel="Path" />
-                </Link>
+                <button
+                  key={path.title}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setSelectedIndex(index)}
+                  className={`marketing-role-card group ${active ? "is-active" : ""}`}
+                >
+                  <img src={path.image} alt="" aria-hidden="true" />
+                  <span className="marketing-role-card__veil" />
+                  <span className="marketing-role-card__copy">
+                    <span className="marketing-role-card__icon"><Icon className="h-4 w-4" /></span>
+                    <strong>{path.title}</strong>
+                    <small>{path.eyebrow}</small>
+                  </span>
+                </button>
               );
             })}
           </div>
+
+          <div className="marketing-role-detail mt-8" role="tabpanel">
+            <div>
+              <p className="marketing-kicker"><SelectedIcon className="h-3.5 w-3.5" /> {selected.eyebrow}</p>
+              <h3 className="mt-4 text-3xl font-black sm:text-4xl">{selected.title}</h3>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">{selected.description}</p>
+            </div>
+            <div className="marketing-role-detail__route">
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/35">Role truth path</p>
+              <p className="mt-2 text-lg font-black text-white">{selected.proof}</p>
+              <Link to={selected.href} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
+                {selected.cta} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-2">
-          <TicketPass kicker="Not sure which role fits?" title="Start as a participant." detail="Explore, react, ask or join first. The quickest way to understand PROMORANG is to experience the market from the human side before choosing an operator path." stub="START" stubLabel="People" />
-          <TicketPass kicker="Already have an outcome in mind?" title="Start with the response you need to create." detail="If you need visits, trials, attendance, referrals, repeat behavior or another measurable outcome, choose the operator role closest to the party responsible for supplying it." stub="BUILD" stubLabel="Operator" />
+      <section className="px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto grid max-w-6xl gap-8 border-y border-white/10 py-10 md:grid-cols-2">
+          <div>
+            <p className="marketing-kicker">Not sure?</p>
+            <h2 className="mt-3 text-3xl font-black">Start from the human side.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Explore, react, ask or join first. The quickest way to understand PROMORANG is to experience the market before operating one side of it.</p>
+            <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Explore PROMORANG <ArrowRight className="h-4 w-4" /></Link>
+          </div>
+          <div>
+            <p className="marketing-kicker">Already responsible for an outcome?</p>
+            <h2 className="mt-3 text-3xl font-black">Choose the party that can actually respond.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Visits, trials, attendance, referrals and repeat behavior should begin with the operator responsible for creating real supply—not with a marketing promise.</p>
+            <Link to="/for-brands" className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">See the business side <ArrowRight className="h-4 w-4" /></Link>
+          </div>
         </div>
       </section>
     </main>
