@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 import heroMoments from "@/assets/hero-moments.jpg";
 import participantImage from "@/assets/moments/sunset-photo.jpg";
 import merchantImage from "@/assets/moments/coffee-code.jpg";
@@ -16,7 +17,7 @@ const paths = [
   {
     eyebrow: "I want to find, ask or join",
     title: "Participant",
-    description: "Discover things worth knowing, put something missing into the market, join what other people want, and keep your place on PromoCard.",
+    description: "Discover things worth knowing, tell PROMORANG what you are looking for, join what other people want, and keep your place on PromoCard.",
     href: "/auth?mode=signup&role=participant&next=/home",
     cta: "Get my PromoCard",
     icon: UserRound,
@@ -108,6 +109,7 @@ export default function Join() {
       />
 
       <section className="marketing-join-hero relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         <img src={heroMoments} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
         <div className="relative mx-auto max-w-[1440px]">
