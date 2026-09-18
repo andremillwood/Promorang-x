@@ -66,7 +66,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   }));
   const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "merchant" | "brand" | "agency" | null>(null);
 
-  const { setActiveRole } = useAuth();
+  const { setActiveRole, activeRole } = useAuth();
   const createPreferences = useCreateUserPreferences();
 
   const steps = [
@@ -155,7 +155,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
         try {
           await createPreferences.mutateAsync(preferences);
         } catch {
-          // ignore save error
+          return;
         }
         setStep(5);
       } else {
@@ -165,10 +165,19 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       try {
         await createPreferences.mutateAsync(preferences);
       } catch {
-        // ignore save error
+        return;
       }
       onComplete(persona || undefined);
     }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await createPreferences.mutateAsync(preferences);
+    } catch {
+      return;
+    }
+    onComplete(persona || (activeRole === "participant" ? "explorer" : activeRole === "host" ? "mayor" : activeRole || undefined));
   };
 
   const handleBack = () => {
@@ -351,7 +360,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
                       <button
                         onClick={() => {
                             setPersona("agency");
-                            setActiveRole("brand");
+                            setActiveRole("agency");
                         }}
                         className={`p-6 rounded-2xl border-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] flex items-center gap-6 text-left ${
                             persona === "agency"
@@ -597,7 +606,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
         {/* Skip option */}
         <div className="text-center mt-6">
           <button
-            onClick={onComplete}
+            onClick={handleSkip}
             className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
           >
             {t("onboarding.skip")}
