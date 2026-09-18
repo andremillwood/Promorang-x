@@ -51,57 +51,7 @@ export default function Creators() {
         if (!error && data) dbProfiles = data;
       }
 
-      // Sample verified creator seeds to guarantee rich directory experience
-      const seedCreators = [
-        {
-          user_id: "creator-dj-rebel",
-          full_name: "DJ Rebel Sound",
-          avatar_url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=200&auto=format&fit=crop&q=80",
-          bio: "Kingston club & festival DJ. Resident at Fiction & Plantation Cove.",
-          location: "Kingston, Jamaica",
-          tags: ["DJs", "Music"],
-          distributionMetrics: { peopleMoved: 480, claimsDriven: 215, tickets: 48 },
-        },
-        {
-          user_id: "creator-tanya-eats",
-          full_name: "Tanya Eats JA",
-          avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
-          bio: "Food & lifestyle storyteller. Highlighting Jamaica's best hidden kitchens and cocktails.",
-          location: "St. Andrew, Jamaica",
-          tags: ["Foodies", "Visual"],
-          distributionMetrics: { peopleMoved: 320, claimsDriven: 185, tickets: 35 },
-        },
-        {
-          user_id: "creator-marcus-lens",
-          full_name: "Marcus Visuals",
-          avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
-          bio: "Culture photographer & night archivist. Capturing sound systems and creative spaces.",
-          location: "Kingston, Jamaica",
-          tags: ["Visual", "Hosts"],
-          distributionMetrics: { peopleMoved: 190, claimsDriven: 94, tickets: 22 },
-        },
-        {
-          user_id: "creator-campus-pulse",
-          full_name: "UWI Campus Pulse",
-          avatar_url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&auto=format&fit=crop&q=80",
-          bio: "Student community media & promoter network. 12k+ campus reach.",
-          location: "Mona, Kingston",
-          tags: ["Promoters", "Campus"],
-          distributionMetrics: { peopleMoved: 720, claimsDriven: 390, tickets: 64 },
-        },
-      ];
-
-      const combined = [...dbProfiles, ...seedCreators];
-      const seen = new Set();
-      return combined.filter(c => {
-        if (seen.has(c.user_id)) return false;
-        seen.add(c.user_id);
-        return true;
-      });
-    },
-  });
-
-  const creators = creatorsQuery.data || [];
+      return dbProfiles;\n    },\n  });\n\n  const creators = creatorsQuery.data || [];
 
   const filteredCreators = creators.filter((c: any) => {
     const matchesSearch = !searchQuery || 
