@@ -11,8 +11,6 @@ import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { buildLocationPath, formatLocationLabel, getSiteUrl } from "@/lib/discovery";
 import { ArrowLeft, CalendarDays, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
-import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
-import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/ValueOutcomes";
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
@@ -202,18 +200,7 @@ export default function VenueProfile() {
   const commerceListings = commerceQuery.data || [];
   const enrichmentOpportunities = enrichmentQuery.data || [];
   const isLoading = venueQuery.isLoading || momentsQuery.isLoading || contentQuery.isLoading || commerceQuery.isLoading;
-  const placeRail = [
-    { label: t("venueProfile.arrive"), body: t("venueProfile.arriveCopy"), icon: MapPin },
-    { label: t("venueProfile.checkIn"), body: t("venueProfile.checkInCopy"), icon: CheckCircle2 },
-    { label: t("venueProfile.unlock"), body: t("venueProfile.unlockCopy"), icon: Gem },
-  ];
-  const areaKey = resolveAreaKey([venue?.name, venue?.address, venue?.location, venue?.city].filter(Boolean).join(" "));
-  const territory = (home.data?.world?.territories || []).find((area: { key: string }) => area.key === areaKey) || null;
-  const venueOutcomes: ValueOutcome[] = [
-    ...(commerceListings.length > 0 ? [{ kind: "reward" as const, label: `${commerceListings.length} offers or services` }] : []),
-    ...(moments.length > 0 ? [{ kind: "access" as const, label: `${moments.length} active Moments` }] : []),
-    ...(content.length > 0 ? [{ kind: "reputation" as const, label: "Proof-visible place" }] : []),
-  ];
+
 
   if (!isLoading && !venue) {
     return (
