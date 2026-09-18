@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Clock, Gift, MapPin, Repeat2, Search, Sparkles, WalletCards } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, Gift, MapPin, Search, Sparkles, WalletCards } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
@@ -84,6 +84,7 @@ export function PublicMomentsExperience() {
     || null;
 
   const heroImage = featured?.image_url || heroMoments;
+  const heroIsEditorial = !featured?.image_url;
   const currentCount = filtered.filter((moment) => ["live", "starting_soon", "upcoming"].includes(moment.lifecycle)).length;
   const withRewards = filtered.filter((moment) => Boolean(moment.reward)).length;
   const recurring = filtered.filter((moment) => Boolean(moment.recurrence_enabled)).length;
@@ -112,6 +113,10 @@ export function PublicMomentsExperience() {
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
               Find what is live, starting soon, coming up or recurring. A Moment is real supply you can act on—not merely interest or an example playbook.
             </p>
+
+            {heroIsEditorial ? (
+              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">Editorial atmosphere · the live calendar begins below</p>
+            ) : null}
 
             {featured ? (
               <Link to={`/moments/${featured.slug || featured.id}`} className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
