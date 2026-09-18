@@ -44,7 +44,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     ];
     const isPublicDiscoveryRoute = !loading && !user && (
         location.pathname === "/discover" ||
-        location.pathname.startsWith("/discover/")
+        location.pathname.startsWith("/discover/") ||
+        location.pathname.startsWith("/discoveries/") ||
+        location.pathname.startsWith("/moments/")
     );
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
