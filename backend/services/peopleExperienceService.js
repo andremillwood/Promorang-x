@@ -1919,11 +1919,19 @@ function createPeopleExperienceService(db = defaultDb) {
     const existing = await maybe(
       db.from('found_listings').select('*').eq('city', city).eq('words_key', key).eq('status', 'unclaimed').maybeSingle(),
     );
+    if (existing.error) throw existing.error;
     if (existing.data) {
       const updated = await maybe(
-        db.from('found_listings').update({ named_count: Number(existing.data.named_count || 1) + 1 }).eq('id', existing.data.id).select().maybeSingle(),
+        db.from('found_listings')
+          .update({ named_count: Number(existing.data.named_count || 1) + 1 })
+          .eq('id', existing.data.id)
+          .eq('status', 'unclaimed')
+          .select()
+          .maybeSingle(),
       );
-      return mapFoundListing(updated.data || existing.data, userId);
+      if (updated.error) throw updated.error;
+      if (!updated.data) throw new Error('Could not record that request yet.');
+      return mapFoundListing(updated.data, userId);
     }
 
     const inserted = await maybe(db.from('found_listings').insert({
@@ -1939,10 +1947,17 @@ function createPeopleExperienceService(db = defaultDb) {
       status: 'unclaimed',
     }).select().maybeSingle());
     if (inserted.error && !String(inserted.error.message || '').includes('duplicate')) throw inserted.error;
-    const saved = inserted.data || (await maybe(
-      db.from('found_listings').select('*').eq('city', city).eq('words_key', key).eq('status', 'unclaimed').maybeSingle(),
-    )).data;
+
+    let saved = inserted.data;
+    if (!saved) {
+      const concurrent = await maybe(
+        db.from('found_listings').select('*').eq('city', city).eq('words_key', key).eq('status', 'unclaimed').maybeSingle(),
+      );
+      if (concurrent.error) throw concurrent.error;
+      saved = concurrent.data;
+    }
     if (!saved) throw new Error('Could not put that up yet.');
+
     await recordVerifiedAction({
       userId,
       actionType: 'CUSTOM',
@@ -1956,12 +1971,14 @@ function createPeopleExperienceService(db = defaultDb) {
     const rows = await maybe(
       db.from('found_listings').select('*').eq('city', hub).order('named_count', { ascending: false }).limit(40),
     );
+    if (rows.error) throw rows.error;
     return (rows.data || []).map((row) => mapFoundListing(row, userId)).filter(Boolean);
   }
 
   async function claimFound(userId, listingId) {
     if (!listingId) throw new Error('Which place or night is yours?');
     const existing = await maybe(db.from('found_listings').select('*').eq('id', listingId).maybeSingle());
+    if (existing.error) throw existing.error;
     if (!existing.data) throw new Error('That find is not on the table.');
     if (existing.data.status === 'claimed') {
       return { ...mapFoundListing(existing.data, userId), keep: 'workspace', alreadyClaimed: true };
@@ -1972,28 +1989,78 @@ function createPeopleExperienceService(db = defaultDb) {
       claimant_user_id: userId,
       claimed_at: new Date().toISOString(),
     }).eq('id', listingId).eq('status', 'unclaimed').select().maybeSingle());
-    const saved = updated.data || existing.data;
+    if (updated.error) throw updated.error;
+
+    if (!updated.data) {
+      const current = await maybe(db.from('found_listings').select('*').eq('id', listingId).maybeSingle());
+      if (current.error) throw current.error;
+      if (current.data?.status === 'claimed') {
+        return { ...mapFoundListing(current.data, userId), keep: 'workspace', alreadyClaimed: true };
+      }
+      throw new Error('Could not claim that find yet.');
+    }
+
+    const saved = updated.data;
     const finderId = saved.finder_user_id;
-    const prospect = finderId && finderId === userId;
-    if (!prospect && (finderId || saved.finder_anon_id)) {
-      const code = `PR-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
-      await maybe(db.from('discovery_card_unlocks').insert({
-        city: saved.city,
-        poll_id: String(saved.id).startsWith('found:') ? saved.id : `found:${saved.id}`,
-        poll_question: saved.title,
-        perk_title: saved.perk_to_finder,
-        query_raw: saved.words,
-        user_id: finderId || null,
-        anonymous_id: finderId ? null : saved.finder_anon_id,
-        redemption_code: code,
-        status: 'claimed',
-      }));
+    const finderAnonId = saved.finder_anon_id;
+    const prospect = Boolean(finderId && finderId === userId);
+    let issuedSlip = false;
+
+    const rollbackClaim = async () => {
+      await maybe(
+        db.from('found_listings')
+          .update({ status: 'unclaimed', claimant_user_id: null, claimed_at: null })
+          .eq('id', saved.id)
+          .eq('claimant_user_id', userId)
+          .eq('status', 'claimed'),
+      );
+    };
+
+    if (!prospect && (finderId || finderAnonId)) {
+      const pollId = String(saved.id).startsWith('found:') ? saved.id : `found:${saved.id}`;
+      let slipQuery = db.from('discovery_card_unlocks').select('id,redemption_code').eq('poll_id', pollId);
+      slipQuery = finderId ? slipQuery.eq('user_id', finderId) : slipQuery.eq('anonymous_id', finderAnonId);
+      const existingSlip = await maybe(slipQuery.maybeSingle());
+      if (existingSlip.error) {
+        await rollbackClaim();
+        throw existingSlip.error;
+      }
+
+      if (existingSlip.data?.redemption_code) {
+        issuedSlip = true;
+      } else {
+        const code = `PR-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+        const insertedSlip = await maybe(db.from('discovery_card_unlocks').insert({
+          city: saved.city,
+          poll_id: pollId,
+          poll_question: saved.title,
+          perk_title: saved.perk_to_finder,
+          query_raw: saved.words,
+          user_id: finderId || null,
+          anonymous_id: finderId ? null : finderAnonId,
+          redemption_code: code,
+          status: 'claimed',
+        }).select('id,redemption_code').maybeSingle());
+
+        if (insertedSlip.error || !insertedSlip.data?.redemption_code) {
+          let retryQuery = db.from('discovery_card_unlocks').select('id,redemption_code').eq('poll_id', pollId);
+          retryQuery = finderId ? retryQuery.eq('user_id', finderId) : retryQuery.eq('anonymous_id', finderAnonId);
+          const confirmedSlip = await maybe(retryQuery.maybeSingle());
+          if (confirmedSlip.error || !confirmedSlip.data?.redemption_code) {
+            await rollbackClaim();
+            throw insertedSlip.error || confirmedSlip.error || new Error('Could not issue the finder PromoCard slip.');
+          }
+        }
+        issuedSlip = true;
+      }
+
       await recordVerifiedAction({
         userId,
         actionType: 'PERK_CLAIM',
         metadata: { kind: 'finder_slip', listing_id: saved.id, perk_title: saved.perk_to_finder },
       });
     }
+
     await recordVerifiedAction({
       userId,
       actionType: 'CUSTOM',
@@ -2001,7 +2068,7 @@ function createPeopleExperienceService(db = defaultDb) {
     });
     return {
       ...mapFoundListing(saved, userId),
-      keep: prospect ? 'workspace' : 'slip',
+      keep: issuedSlip ? 'slip' : 'workspace',
       alreadyClaimed: false,
     };
   }
