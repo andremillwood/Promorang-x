@@ -302,7 +302,7 @@ router.patch('/receipts/:id/status', requireAuth, async (req, res) => {
         const db = req.supabase || global.supabase;
         const { data: existing, error: fetchError } = await db
             .from('commerce_receipts')
-            .select('id, merchant_id, sale_id, attribution, status')
+            .select('id, merchant_id, sale_id, receipt_type, attribution, status')
             .eq('id', id)
             .eq('merchant_id', merchantId)
             .single();
@@ -310,6 +310,26 @@ router.patch('/receipts/:id/status', requireAuth, async (req, res) => {
         if (fetchError || !existing) return res.status(404).json({ error: 'Receipt not found' });
         if (['cancelled', 'refunded'].includes(existing.status)) {
             return res.status(409).json({ error: `Receipt is already ${existing.status}` });
+        }
+
+        const linkedOrderId = existing.attribution?.commerce_order_id || null;
+        if (status === 'fulfilled' && linkedOrderId) {
+            const { data: linkedOrder, error: orderError } = await db
+                .from('commerce_orders')
+                .select('id, merchant_id, payment_status, fulfillment_status')
+                .eq('id', linkedOrderId)
+                .eq('merchant_id', merchantId)
+                .single();
+
+            if (orderError || !linkedOrder) {
+                return res.status(409).json({ error: 'Linked commerce order could not be verified before fulfillment' });
+            }
+            if (linkedOrder.payment_status !== 'paid') {
+                return res.status(409).json({
+                    error: 'Payment must be confirmed before a linked commerce order can be fulfilled',
+                    code: 'PAYMENT_REQUIRED_BEFORE_FULFILLMENT',
+                });
+            }
         }
 
         const { data: receipt, error } = await db
@@ -332,13 +352,16 @@ router.patch('/receipts/:id/status', requireAuth, async (req, res) => {
         if (error) throw error;
 
         if (existing.sale_id && status === 'fulfilled') {
-            if (existing.attribution?.commerce_order_id) {
-                await db.from('commerce_orders').update({
+            if (linkedOrderId) {
+                const { error: orderUpdateError } = await db.from('commerce_orders').update({
                     fulfillment_status: 'delivered',
+                    fulfilled_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
-                }).eq('id', existing.attribution.commerce_order_id);
+                }).eq('id', linkedOrderId).eq('merchant_id', merchantId);
+                if (orderUpdateError) throw orderUpdateError;
+
                 const settlementService = require('../services/merchantSettlementService');
-                await settlementService.releaseOrderSettlement(existing.attribution.commerce_order_id);
+                await settlementService.releaseOrderSettlement(linkedOrderId);
             }
             await db
                 .from('product_sales')
