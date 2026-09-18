@@ -42,5 +42,11 @@
         }
       ]
     }
-  ]
+  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "design/canonical-object-system-v1": false
+    }
+  }
 }

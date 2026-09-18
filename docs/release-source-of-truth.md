@@ -51,9 +51,9 @@ Vercel preview capacity is treated as a release resource.
 
 For the long-running `design/canonical-object-system-v1` branch:
 
-- Git pushes are **ignored by Vercel by default** through `scripts/vercel-ignore-non-web.mjs`;
-- add `[vercel-preview]` to a deliberate checkpoint commit only when fresh browser/visual QA is required;
+- `vercel.json` sets `git.deploymentEnabled["design/canonical-object-system-v1"] = false`, so ordinary Git pushes do not create automatic Vercel deployments;
 - ordinary implementation should be batched and validated with code review, tests and GitHub Actions first;
+- if browser/visual QA requires a fresh preview, deploy the exact checkpoint SHA deliberately and only after explicit user approval;
 - production `main` behavior is unchanged;
 - no manual `vercel deploy`, `vercel --prod`, promotion or redeploy is part of routine implementation.
 

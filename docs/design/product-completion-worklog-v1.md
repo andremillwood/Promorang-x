@@ -519,8 +519,8 @@ Continue C19, but do it in cost-controlled batches:
 2. group fixes into one coherent slice;
 3. create blobs/tree/commit and move the branch ref once;
 4. rely on GitHub CI/static review between slices;
-5. do **not** create a Vercel preview for this design branch unless visual/browser QA is specifically required;
-6. when a preview is required, use a deliberate checkpoint commit containing `[vercel-preview]`;
+5. keep automatic Vercel Git deployments disabled for this design branch;
+6. if visual/browser QA eventually requires a Vercel preview, request explicit approval and deploy only the exact checkpoint SHA;
 7. never deploy/promote production without explicit user instruction.
 
 Highest-value remaining sweep targets:
@@ -643,10 +643,11 @@ The project is on a constrained Hobby plan. Treat Vercel preview capacity as a r
 
 For `design/canonical-object-system-v1`:
 
-- the repo-level Vercel ignored-build script skips previews by default;
-- a deliberate checkpoint commit containing `[vercel-preview]` opts into a fresh preview;
+- `vercel.json` disables automatic Git deployments for `design/canonical-object-system-v1` through `git.deploymentEnabled`;
+- branch pushes therefore should not enter the Vercel preview queue at all;
 - batch code changes before moving the branch;
 - prefer code review, unit tests, GitHub Actions and contract checks before visual deployment;
+- when browser/visual QA genuinely requires a fresh Vercel preview, create one deliberately from the exact checkpoint SHA only after explicit user approval;
 - do not run manual Vercel deploy commands for routine validation;
 - do not promote or deploy production without explicit user instruction.
 
@@ -670,7 +671,7 @@ When the user says **“proceed”**:
 7. Fix only concrete blockers discovered.
 8. Update the truth/completion ledgers as work closes.
 9. Use GitHub CI/static checks for iterative validation.
-10. Keep Vercel quiet on the design branch unless a deliberate `[vercel-preview]` checkpoint is required.
+10. Keep Vercel automatic deployment disabled on the design branch; request explicit approval before any manual preview checkpoint.
 11. Do not open new product families or speculative architecture.
 12. Do not reintroduce sample/demo state to make production look populated.
 13. Do not merge or production-deploy without explicit instruction.
@@ -681,7 +682,7 @@ When the user says **“proceed”**:
 
 Use this if continuity is needed:
 
-> Continue work on `andremillwood/Promorang-x`, branch `design/canonical-object-system-v1`, PR #129. Read `DESIGN.md`, `docs/design/product-completion-contract-v1.md`, `docs/design/product-completion-worklog-v1.md`, `docs/design/production-truth-sweep-v1.md`, and `docs/design/route-readiness-registry-v1.md` first. Respect the authority order and do not start a new roadmap. Resume from the worklog’s CURRENT ACTIVE WORK / NEXT ACTION. Verify the exact PR head before changing code. Batch coherent changes into one branch update wherever possible. Keep Vercel previews disabled for ordinary design-branch iteration; only opt in with `[vercel-preview]` when browser/visual QA is specifically needed. Continue C1–C21 toward release, preserve canonical truth boundaries, never substitute demo/synthetic production state, and do not merge or production-deploy without explicit instruction.
+> Continue work on `andremillwood/Promorang-x`, branch `design/canonical-object-system-v1`, PR #129. Read `DESIGN.md`, `docs/design/product-completion-contract-v1.md`, `docs/design/product-completion-worklog-v1.md`, `docs/design/production-truth-sweep-v1.md`, and `docs/design/route-readiness-registry-v1.md` first. Respect the authority order and do not start a new roadmap. Resume from the worklog’s CURRENT ACTIVE WORK / NEXT ACTION. Verify the exact PR head before changing code. Batch coherent changes into one branch update wherever possible. Keep automatic Vercel deployments disabled for ordinary design-branch iteration; request explicit approval before any manual preview from an exact checkpoint SHA. Continue C1–C21 toward release, preserve canonical truth boundaries, never substitute demo/synthetic production state, and do not merge or production-deploy without explicit instruction.
 
 ---
 
