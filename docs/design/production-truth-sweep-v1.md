@@ -702,6 +702,43 @@ Commits:
 
 Status: **Closed**
 
+#### T-027 — Return snapshots lost provenance and stakeholder scope
+
+Files:
+- `apps/web/src/hooks/useActivationOperations.ts`
+- `apps/mobile/hooks/useActivationOperations.ts`
+- `apps/web/src/pages/ActivationDetail.tsx`
+- `apps/web/src/hooks/useStakeholderReturn.ts`
+- `apps/web/src/components/dashboard/StakeholderReturnPanel.tsx`
+- `apps/mobile/hooks/useStakeholderReturn.ts`
+- `apps/mobile/app/(tabs)/dashboard.tsx`
+
+Finding:
+- activation closeout figures such as showed up, returned, stories, collaborations and gross value are manually entered operator review snapshots, but were presented downstream without preserving that provenance;
+- web and mobile outcome writers hard-coded `stakeholder_type = agency`;
+- return aggregation queried all snapshots owned by a user without stakeholder-role scoping, allowing one role's closeout to bleed into another role's dashboard;
+- participant return could consume operator closeout snapshots even though participant is not a valid snapshot stakeholder type;
+- mobile `gemsMoved` could substitute gross monetary value for Gems, collapsing incompatible units.
+
+Resolution:
+- new closeout snapshots record `operator_reported` provenance, recorder role and `verified_telemetry: false` in metadata;
+- supported stakeholder role is recorded instead of silently relabeling the recorder as Agency;
+- unsupported roles fail closed rather than inventing a stakeholder type;
+- Activation Detail labels entered figures as operator-reported closeout, not independently verified telemetry;
+- web/mobile return aggregation is scoped to the active stakeholder role;
+- participant return excludes operator closeout snapshots;
+- Gems movement remains sourced from the Gems ledger and is no longer substituted from gross value.
+
+Commits:
+- `e8130d94d4f57d662335193feb383d1b6947b9e8`
+- `fec2813c8a66d891a4037aef110f128680107256`
+- `3b16dd2910ad60ac85d2e8713c5232d09d39d09a`
+- `eb8645bb03f963ce607d680b2638962c16bf84da`
+- `62a0b067ad7a3544ace3db3cebb11ae50b3ae173`
+- `99204f5bc3916577c9e7d621322cd99c207d8877`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
