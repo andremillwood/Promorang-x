@@ -249,6 +249,27 @@ Commit: `0588cd6f8e7fa1540bb9328b8cfa729136286097`
 
 Status: **Closed**
 
+#### T-017 — Merchant fulfillment could bypass payment verification
+
+Files:
+- `backend/api/merchant.js`
+- `apps/web/src/components/merchant/MerchantCommerceConsole.tsx`
+
+Finding:
+- the dedicated order-fulfillment route correctly required `payment_status = paid`, but the generic receipt-status route could mark a linked commerce order delivered and release settlement without re-checking payment;
+- the Commerce dashboard also labeled fulfilled purchase receipt value as “Paid revenue,” collapsing payment and fulfillment semantics.
+
+Resolution:
+- linked commerce orders must now be verified as paid before receipt fulfillment can proceed;
+- settlement release remains downstream of verified payment + fulfillment;
+- fulfilled purchase receipt value is labeled descriptively and is no longer presented as a payment-ledger revenue total.
+
+Commits:
+- `a1901df9abd9698130d242c2a53050541c984a26`
+- `ea8f2b906758a5ea297dcaaee314b13e8b49d9b0`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
