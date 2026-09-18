@@ -1930,4 +1930,9 @@ img.promorang-satellite-tiles {
   .marketing-live-card__media img {
     transition: none !important;
   }
+  .marketing-world-card:hover,
+  .marketing-role-card:hover,
+  .marketing-role-card.is-active {
+    transform: none !important;
+  }
 }
