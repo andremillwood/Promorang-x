@@ -249,7 +249,7 @@ const MomentDetail = () => {
       }
 
       // 1. Direct Curated Kingston / Promorang Presents matching (instant, no network lag)
-      const curatedMatch = CURATED_KINGSTON_MOMENTS.find(m => {
+      const curatedMatch = import.meta.env.DEV ? CURATED_KINGSTON_MOMENTS.find(m => {
         if (m.id.toLowerCase() === cleanId) return true;
         if (cleanId.includes("sophisticated") && m.title.toLowerCase().includes("sophisticated")) return true;
         if ((cleanId === "encore-live" || cleanId.includes("capleton") || cleanId.includes("encore-live")) && m.title.toLowerCase().includes("capleton")) return true;
@@ -258,7 +258,7 @@ const MomentDetail = () => {
         const normalizedTitle = m.title.toLowerCase().replace(/[^a-z0-9]/g, '');
         const normalizedInput = cleanId.replace(/[^a-z0-9]/g, '');
         return normalizedTitle.length > 3 && (normalizedTitle.includes(normalizedInput) || normalizedInput.includes(normalizedTitle));
-      });
+      }) : undefined;
 
       if (curatedMatch) {
         const encoreMatch = isEncoreRecord(curatedMatch);
@@ -332,8 +332,8 @@ const MomentDetail = () => {
         }
       }
 
-      // 5. Fallback to demo moments & cultureEvents
-      if (!momentData) {
+      // 5. DEV-only illustrative fallback. Production absence remains absence.
+      if (!momentData && import.meta.env.DEV) {
         const demoMatch = demoMoments.find(m => 
           m.id.toLowerCase() === cleanId || 
           m.title.toLowerCase().includes(cleanId.replace(/[-_]/g, ' ')) ||
@@ -722,7 +722,7 @@ const MomentDetail = () => {
   const isFull = moment?.max_participants ? participantCount >= moment.max_participants : false;
   const accessState = getAccessState(accessQuote);
   const entryFeeJmd = Number(economy?.economics?.entry_fee_jmd || 0);
-  const rewardLabel = moment?.reward || "Complimentary Item & Verified Badge";
+  const rewardLabel = moment?.reward || null;
 
   const isPast = moment ? !occurrence?.hasFutureOccurrence && new Date(moment.starts_at) < new Date() : false;
   const bannerImage = moment?.banner_image_url || moment?.image_url || null;
@@ -1269,25 +1269,32 @@ const MomentDetail = () => {
             {/* TAB 2: PERKS & REWARDS */}
             {activeMomentTab === "perks" && (
               <div className="space-y-8 animate-in fade-in duration-300">
-                {/* Perk Highlight Box */}
-                <section className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#121215] to-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
-                  <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                    <Trophy className="h-4 w-4" /> {t("momentDetail.attendeePerkPoints")}
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-white">{t("momentDetail.whatYouReceive")}</h2>
-
-                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5 flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400">
-                      <Gift className="h-6 w-6" />
+                {/* Perk / consequence truth */}
+                {rewardLabel ? (
+                  <section className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#121215] to-[#121215] p-6 sm:p-8 space-y-4 shadow-xl">
+                    <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+                      <Trophy className="h-4 w-4" /> {t("momentDetail.attendeePerkPoints")}
                     </div>
-                    <div>
-                      <h4 className="font-bold text-white text-lg">{rewardLabel}</h4>
-                      <p className="text-sm text-white/70 mt-1">
-                        {t("momentDetail.seeWhatEarn")}
-                      </p>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-white">{t("momentDetail.whatYouReceive")}</h2>
+                    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5 flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400">
+                        <Gift className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-lg">{rewardLabel}</h4>
+                        <p className="text-sm text-white/70 mt-1">{t("momentDetail.seeWhatEarn")}</p>
+                      </div>
                     </div>
-                  </div>
-                </section>
+                  </section>
+                ) : (
+                  <section className="rounded-3xl border border-dashed border-white/10 bg-white/[.02] p-6 sm:p-8">
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Recorded participant value</p>
+                    <h2 className="mt-2 text-xl font-extrabold text-white">No attendee perk is recorded for this Moment.</h2>
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
+                      PROMORANG will not invent a reward to make this page look complete. Any access, entitlement or retained value will appear only when backed by a recorded source.
+                    </p>
+                  </section>
+                )}
 
                 {/* Missions available inside this Moment */}
                 {(() => {
