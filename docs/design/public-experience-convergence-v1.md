@@ -8,6 +8,7 @@ Authoritative dependencies:
 - `docs/design/promocard-world-experience-v1.md`
 - `docs/design/design-lab-canonical-production-bridge-v1.md`
 - `docs/design/a-plus-platform-execution-plan.md`
+- `docs/design/marketing-current-return-visual-system-v1.md`
 - `.cursor/rules/promorang-object-surfaces.mdc`
 
 ## Thesis
@@ -95,7 +96,7 @@ If related objects are found:
 - the user sees them first,
 - the interface says they are **related**, not exact semantic matches,
 - a new ask is not recorded automatically,
-- the user must explicitly choose **None of these — record my ask** to continue.
+- the user must explicitly choose **None of these — keep looking for this** to continue.
 
 If no useful match is found, the existing authoritative demand-recording path runs as before.
 
@@ -176,7 +177,7 @@ PROMORANG should support three states of desire:
 
 Public copy should therefore use both:
 
-- **Know what you want? Put it up.**
+- **Looking for something? Tell PROMORANG.**
 - **Not sure? See what is moving / worth knowing.**
 
 PROMORANG may infer relevance. The participant confirms whether it matters.
@@ -330,6 +331,44 @@ Recommended public proposition:
 Supporting explanation:
 
 **Find something worth knowing. Show what you want. Join what other people are asking for. Keep your place in what happens next with PromoCard.**
+
+## Marketing physics
+
+The public suite should feel like PROMORANG, not merely explain PROMORANG.
+
+Canonical visual grammar:
+
+`Current → Signal → action → consequence → Return`
+
+The name's boomerang logic is expressed as trajectory and consequence:
+
+`Throw → Flight → Impact → Return`
+
+This is primarily a composition and motion system, not participant jargon.
+
+Use:
+- curved trajectories through hero/media compositions,
+- trails behind Discovery / Moment / Offer rails,
+- state-aware Signal motion,
+- consequence receipts,
+- Return arcs that visually land back at PromoCard,
+- editorial photography as atmosphere only when clearly separated from production inventory.
+
+Do not:
+- use a literal boomerang icon as repeated decoration,
+- animate objects in ways that imply unsupported live state,
+- replace participant actions with lore terms,
+- hide empty production state behind editorial imagery.
+
+Participant CTAs remain human:
+- Explore
+- Tell PROMORANG
+- See what’s out there
+- Keep this
+- Join
+- Use perk
+- Check in
+- See what changed
 
 ## Operator marketing suite
 
