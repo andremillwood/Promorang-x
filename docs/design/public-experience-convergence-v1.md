@@ -451,3 +451,50 @@ A new operator should answer within ten seconds:
 5. Which states must never be collapsed in reporting?
 
 If either journey requires a feature matrix, invents activity to look alive, or makes PromoCard feel like an unrelated rewards wallet, the surface has failed convergence.
+
+
+## Anonymous Discovery and Moments
+
+`/discover` and `/discover/moments` are public product surfaces, not reduced versions of a signed-in dashboard.
+
+### Anonymous `/discover`
+
+Public Discovery should compose:
+1. editorial ways into the world,
+2. approved Discoveries,
+3. canonical current / upcoming Moments,
+4. real public Offers / perks,
+5. recorded shared interest,
+6. a plain-language “Looking for something?” path,
+7. PromoCard continuity.
+
+Truth boundaries:
+- editorial lens ≠ approved Discovery,
+- editorial hero fallback ≠ live Moment,
+- public Offer ≠ issuance / claim / redemption,
+- recorded interest ≠ supply,
+- quiet inventory remains visibly quiet.
+
+Implementation anchor:
+`apps/web/src/components/discovery/PublicDiscoverExperience.tsx`
+
+### Anonymous `/discover/moments`
+
+The public Moment directory is the action/calendar layer of the world.
+
+It must use the canonical Moment feed for current inventory and organize production records by lifecycle:
+- live,
+- starting soon,
+- upcoming,
+- recently happened.
+
+Demo Moments / example playbooks must not be substituted into the anonymous calendar. Editorial imagery may be used only as clearly identified atmosphere when no production Moment can supply the hero image.
+
+Implementation anchor:
+`apps/web/src/components/discovery/PublicMomentsExperience.tsx`
+
+### Signed-in continuity
+
+Authentication should personalize the same world rather than visually teleporting the participant into unrelated software.
+
+For this slice, signed-in participants continue to receive the existing richer Discovery / Moment surfaces while the anonymous layer is overhauled. Future convergence should bring the same world-first visual language and participant semantics into signed-in Discovery without removing role-specific utility.
