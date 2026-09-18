@@ -10,6 +10,7 @@ import { brandAuthHref, readSponsorBrief, rememberBrandEntry } from "@/lib/comme
 import { discoveryHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
   if (votesRemaining === 0) return "threshold_met" as const;
@@ -47,6 +48,7 @@ export default function ForBrands() {
       />
 
       <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_5%,rgba(249,115,22,.2),transparent_36%),radial-gradient(circle_at_85%_35%,rgba(255,255,255,.05),transparent_30%)]" />
         <div className="relative mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
