@@ -642,6 +642,31 @@ Commits:
 
 Status: **Closed**
 
+#### T-032 — Settings reported persistence/deletion that did not exist
+
+File:
+- `apps/web/src/pages/Settings.tsx`
+
+Finding:
+- payout instructions were “saved” by a client-side timeout with no persistence or authoritative payout-method store;
+- the screen collected sensitive payout text despite having nowhere durable to store it;
+- account deletion removed only a handful of application rows, left the authentication account and other dependent records, signed out, then reported “account deleted”;
+- the password-reset button had no action.
+
+Resolution:
+- Settings no longer collects or claims to save payout instructions without an authoritative store;
+- payout setup explicitly routes to recorded Wallet state or Support;
+- partial destructive row deletion is removed;
+- account deletion clearly states that no data is deleted from this screen and routes to Support until an atomic server-side deletion workflow exists;
+- the no-op password reset control is replaced with truthful guidance rather than pretending the action exists.
+
+Commits:
+- `bf7af9cd1ea3719e1982a0c2b4cb4b38157c2063`
+- `df41421a7dc13afb4af6a753e5b0e13a035c74c1`
+- `56ef52c8c2755a28ee92352a283ae826e24cb323`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
