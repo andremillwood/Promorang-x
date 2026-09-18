@@ -49,6 +49,7 @@ export function PublicHomeBar() {
           </Link>
         </div>
       </div>
+      <span className="marketing-current-nav-line" aria-hidden="true" />
     </header>
   );
 }
