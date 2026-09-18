@@ -195,7 +195,7 @@ export default function Creators() {
               Creator Directory &amp; Distribution Proof
             </h2>
             <p className="text-xs text-white/60 mt-1">
-              Ranked by verifiable audience movement, perk claims generated, and culture engagement.
+              Creator-role profiles currently available from PROMORANG.
             </p>
           </div>
           <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 rounded-2xl text-xs font-bold">
@@ -210,7 +210,7 @@ export default function Creators() {
             {filteredCreators.map((creator: any) => (
               <Link
                 key={creator.user_id}
-                to={`/profile/${creator.user_id}`}
+                to={`/creators/${creator.username || creator.user_id}`}
                 className="group flex flex-col sm:flex-row gap-5 rounded-3xl border border-white/10 bg-zinc-900/60 p-6 transition-all hover:border-purple-500/50 hover:bg-zinc-900/90 shadow-xl"
               >
                 <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 text-2xl font-black text-black shadow-lg">
