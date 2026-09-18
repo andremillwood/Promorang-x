@@ -61,7 +61,7 @@ export default function PublicMarketHome() {
 
   const liveSignals = useMemo(() => inbox.questions.slice(0, 4), [inbox.questions]);
   const leadSignal = liveSignals[0];
-  const featuredDiscoveries = discoveries.slice(0, 3);
+  const featuredDiscoveries = discoveries.slice(0, 6);
 
   const relatedDiscoveries = useMemo(() => {
     if (!resolution) return [];
@@ -131,18 +131,18 @@ export default function PublicMarketHome() {
   const marketName = city.name === "All Jamaica" ? "Jamaica" : city.name;
 
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#070707] text-white selection:bg-orange-500 selection:text-black">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white selection:bg-orange-500 selection:text-black">
       <PublicHomeBar />
 
-      <section className="relative border-b border-white/10 px-5 pb-16 pt-10 sm:px-6 md:pb-24 md:pt-16">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_5%,rgba(249,115,22,.2),transparent_34%),radial-gradient(circle_at_85%_22%,rgba(255,255,255,.05),transparent_28%)]" />
+      <section className="marketing-cinematic-hero border-b border-white/10 px-5 pb-16 pt-10 sm:px-6 md:pb-20 md:pt-16" style={featuredDiscoveries[0]?.cover_image ? { backgroundImage: `url("${featuredDiscoveries[0].cover_image}")` } : undefined}>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_5%,rgba(249,115,22,.16),transparent_30%),radial-gradient(circle_at_85%_22%,rgba(255,255,255,.04),transparent_28%)]" />
         <div className="relative mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[minmax(0,.9fr)_minmax(500px,1.1fr)] lg:items-center">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 border-b border-orange-400/40 pb-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
+            <div className="marketing-kicker">
               <Sparkles className="h-3.5 w-3.5" />
               Discover what moves you. Help shape what happens next.
             </div>
-            <h1 className="mt-7 font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-6xl lg:text-7xl xl:text-[5.35rem]">
+            <h1 className="mt-7 max-w-[10ch] font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-6xl lg:text-7xl xl:text-[5.35rem]">
               Find something.
               <br />
               <span className="text-orange-400">Want something.</span>
@@ -154,10 +154,10 @@ export default function PublicMarketHome() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black transition hover:bg-orange-400">
+              <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-orange-400">
                 <Compass className="h-4 w-4" /> See what is out there
               </Link>
-              <a href="#ask" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-black text-white transition hover:bg-white/[0.08]">
+              <a href="#ask" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/18 bg-black/35 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/55">
                 I already want something <ArrowRight className="h-4 w-4" />
               </a>
             </div>
@@ -179,42 +179,41 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
-          <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
+          <div className="marketing-section-head">
             <div>
-              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Do not know what you want yet?</p>
+              <p className="marketing-kicker">Do not know what you want yet?</p>
               <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Start with Discovery.</h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">Discoveries are approved things worth knowing about. They help a preference become visible before a person ever thinks to type it into a search box.</p>
-              <Link to="/discover" className="mt-6 inline-flex items-center gap-2 text-sm font-black text-orange-300">Explore approved Discoveries <ArrowRight className="h-4 w-4" /></Link>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Approved things worth knowing about can help a preference become visible before you ever think to search for it.</p>
             </div>
-
-            {discoveriesLoading ? (
-              <div className="grid gap-4 sm:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="h-64 animate-pulse rounded-[1.6rem] bg-white/[0.04]" />)}</div>
-            ) : featuredDiscoveries.length ? (
-              <div className="grid gap-4 sm:grid-cols-3">
-                {featuredDiscoveries.map((item) => (
-                  <Link key={item.id} to={`/discoveries/${item.slug}`} className="group overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.025] transition hover:border-orange-400/45">
-                    <div className="relative h-36 bg-white/[0.04]">
-                      {item.cover_image ? <img src={item.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="grid h-full place-items-center"><Compass className="h-8 w-8 text-white/15" /></div>}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    </div>
-                    <div className="p-4">
-                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-orange-300">{formatDiscoveryCategory(item.category)}</p>
-                      <h3 className="mt-2 font-serif text-xl font-bold leading-tight text-white">{item.title}</h3>
-                      <p className="mt-3 flex items-start gap-1.5 text-[11px] leading-5 text-white/40"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-300" />{discoveryLocation(item)}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <TicketPass kicker="Nothing approved yet" title="Being early should still be honest." detail="PROMORANG does not invent Discoveries to make a market look alive. Explore, ask for something, or help surface something worth knowing." stub="OPEN" stubLabel="Discovery" />
-            )}
+            <Link to="/discover" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">View all Discoveries <ArrowRight className="h-4 w-4" /></Link>
           </div>
+
+          {discoveriesLoading ? (
+            <div className="marketing-discovery-rail">{[0, 1, 2, 3, 4, 5].map((item) => <div key={item} className="marketing-discovery-card animate-pulse bg-white/[0.04]" />)}</div>
+          ) : featuredDiscoveries.length ? (
+            <div className="marketing-discovery-rail">
+              {featuredDiscoveries.map((item) => (
+                <Link key={item.id} to={`/discoveries/${item.slug}`} className="marketing-discovery-card group">
+                  <div className="marketing-discovery-card__media">
+                    {item.cover_image ? <img src={item.cover_image} alt="" className="transition duration-500 group-hover:scale-105" /> : <div className="grid h-full place-items-center bg-[#111]"><Compass className="h-8 w-8 text-white/15" /></div>}
+                  </div>
+                  <div className="marketing-discovery-card__content">
+                    <span className="marketing-discovery-card__tag">{formatDiscoveryCategory(item.category)}</span>
+                    <h3 className="marketing-discovery-card__title">{item.title}</h3>
+                    <p className="marketing-discovery-card__meta"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-400" />{discoveryLocation(item)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <TicketPass kicker="Nothing approved yet" title="Being early should still be honest." detail="PROMORANG does not invent Discoveries to make a market look alive. Explore, ask for something, or help surface something worth knowing." stub="OPEN" stubLabel="Discovery" />
+          )}
         </div>
       </section>
 
-      <section id="ask" className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section id="ask" className="marketing-stage border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_.8fr] lg:items-start">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Know what is missing?</p>
@@ -319,7 +318,7 @@ export default function PublicMarketHome() {
 
           {isLoading && !liveSignals.length ? <p className="mt-10 text-sm text-white/45">Reading recorded market state…</p> : null}
           {liveSignals.length ? (
-            <div className="mt-10 grid gap-5 xl:grid-cols-2">
+            <div className="marketing-demand-rail mt-8">
               {liveSignals.map((signal) => (
                 <DemandSignalObject key={signal.poll.id} city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment} responseLabel={signal.poll.targetUnlockPerk} href={discoveryHref(signal.poll)} state={signalState(signal.votesRemaining, signal.closeness)} />
               ))}
@@ -349,7 +348,7 @@ export default function PublicMarketHome() {
       </section>
 
       <section className="px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-8 rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10">
+        <div className="marketing-closing-band mx-auto grid max-w-6xl gap-8 border-y border-white/10 p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10">
           <div>
             <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300"><Users className="h-4 w-4" /> PromoCard is the thread</p>
             <h2 className="mt-3 font-serif text-3xl font-bold tracking-[-0.04em] sm:text-4xl">Keep your place in what you discover, want and actually do.</h2>
