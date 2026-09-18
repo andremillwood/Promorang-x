@@ -4,10 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { requestWebPushPermission, urlBase64ToUint8Array, triggerHaptic } from "@/lib/nativeWebApis";
 import { useToast } from "@/hooks/use-toast";
 
-// Public VAPID Key for Promorang Web Push (fallback demo key)
-const DEFAULT_VAPID_PUBLIC_KEY =
-  (import.meta.env.VITE_VAPID_PUBLIC_KEY as string) ||
-  "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U";
+const VAPID_PUBLIC_KEY = (import.meta.env.VITE_VAPID_PUBLIC_KEY as string) || "";
 
 export function usePushNotifications() {
   const { user } = useAuth();
@@ -31,10 +28,24 @@ export function usePushNotifications() {
 
   const checkExistingSubscription = async () => {
     try {
-      if (!("serviceWorker" in navigator)) return;
+      if (!("serviceWorker" in navigator) || !user) {
+        setIsSubscribed(false);
+        return;
+      }
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
-      setIsSubscribed(!!subscription);
+      if (!subscription) {
+        setIsSubscribed(false);
+        return;
+      }
+      const { data, error } = await supabase
+        .from("push_subscriptions")
+        .select("endpoint")
+        .eq("user_id", user.id)
+        .eq("endpoint", subscription.endpoint)
+        .eq("is_active", true)
+        .maybeSingle();
+      setIsSubscribed(!error && Boolean(data?.endpoint));
     } catch {
       setIsSubscribed(false);
     }
@@ -44,7 +55,23 @@ export function usePushNotifications() {
     if (!isSupported) {
       toast({
         title: "Not Supported",
-        description: "Push notifications are not supported on this browser/mode.",
+        description: "Push notifications are not supported on this browser or mode.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Sign in before registering this device for account notifications.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!VAPID_PUBLIC_KEY) {
+      toast({
+        title: "Notifications are not configured",
+        description: "This environment does not have a production push key configured. No subscription was created.",
         variant: "destructive",
       });
       return false;
@@ -59,10 +86,9 @@ export function usePushNotifications() {
 
       if (!granted) {
         toast({
-          title: "Permission Required",
-          description: "Please allow notifications in your browser settings to receive live alerts.",
+          title: "Notifications not enabled",
+          description: "Permission was not granted. You can continue without notifications.",
         });
-        setLoading(false);
         return false;
       }
 
@@ -70,46 +96,48 @@ export function usePushNotifications() {
       let subscription = await registration.pushManager.getSubscription();
 
       if (!subscription) {
-        const applicationServerKey = urlBase64ToUint8Array(DEFAULT_VAPID_PUBLIC_KEY);
+        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: applicationServerKey as BufferSource,
         });
       }
 
-      setIsSubscribed(true);
-
-      // Save subscription to Supabase if authenticated
-      if (user && subscription) {
-        const subJson = subscription.toJSON();
-        if (subJson.keys?.p256dh && subJson.keys?.auth && subJson.endpoint) {
-          await supabase.from("push_subscriptions").upsert(
-            {
-              user_id: user.id,
-              endpoint: subJson.endpoint,
-              p256dh: subJson.keys.p256dh,
-              auth: subJson.keys.auth,
-              user_agent: navigator.userAgent,
-              is_active: true,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "endpoint" }
-          );
-        }
+      const subJson = subscription.toJSON();
+      if (!subJson.keys?.p256dh || !subJson.keys?.auth || !subJson.endpoint) {
+        throw new Error("Browser push subscription is incomplete");
       }
 
+      const { error: persistError } = await supabase.from("push_subscriptions").upsert(
+        {
+          user_id: user.id,
+          endpoint: subJson.endpoint,
+          p256dh: subJson.keys.p256dh,
+          auth: subJson.keys.auth,
+          user_agent: navigator.userAgent,
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "endpoint" }
+      );
+      if (persistError) {
+        await subscription.unsubscribe().catch(() => undefined);
+        throw persistError;
+      }
+
+      setIsSubscribed(true);
       triggerHaptic("success");
       toast({
-        title: "🔔 Notifications Enabled!",
-        description: "You will now receive live alerts for upcoming Moments, Gems, and RSVPs.",
+        title: "Notifications enabled",
+        description: "This device is registered for supported Promorang account and Moment notifications.",
       });
-
       return true;
     } catch (error) {
       console.error("Push subscription error:", error);
+      setIsSubscribed(false);
       toast({
-        title: "Subscription Failed",
-        description: "Could not complete push subscription. Please try again.",
+        title: "Subscription failed",
+        description: "The device was not fully registered for push notifications. Please try again later.",
         variant: "destructive",
       });
       return false;
@@ -117,7 +145,6 @@ export function usePushNotifications() {
       setLoading(false);
     }
   }, [isSupported, user, toast]);
-
   const unsubscribe = useCallback(async () => {
     setLoading(true);
     triggerHaptic("light");
@@ -158,7 +185,7 @@ export function usePushNotifications() {
       }
 
       await registration.showNotification("✨ Promorang Test Alert", {
-        body: "Your device is successfully connected! You'll receive live Moment and Gem alerts here.",
+        body: "This device can display Promorang notifications when a supported account or Moment event is sent.",
         icon: "/apple-touch-icon.png",
         badge: "/favicon.png",
         data: { url: "/wallet" },
