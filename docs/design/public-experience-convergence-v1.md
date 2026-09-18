@@ -537,3 +537,35 @@ Signed-in participants continue into the richer existing Moment detail in this s
 - reward-bearing Moments are distinct responses,
 - source failures are not rendered as empty inventory,
 - PromoCard explains watching → issued access → used / verified consequence.
+
+
+## Public Object System v2
+
+The public reference model is not “make everything an event page.” It is:
+
+`MEDIA → IDENTITY → CONTEXT → ACTION → DEPTH → RELATIONSHIPS → MORE`
+
+Public product destinations should answer the object's human question before explaining PROMORANG:
+- Moment → Why should I show up?
+- Discovery → Why should I know about this?
+- Offer → Why should I claim / use this?
+- Merchant → Why should I visit / buy / book here?
+- Scene → Why should I become part of this?
+
+### Moment
+Media-first destination with real lifecycle, time, place, recorded access/perk, one primary continuation, then related and additional canonical Moments. The old explanatory TicketPass / receipt / giant PromoCard education sections are removed from the anonymous Moment destination.
+
+### Discovery
+Editorial knowledge destination. Watching is the primary retained relationship. Scene, place, contributor, gallery and source links deepen the object only when those records exist. Related approved Discoveries create onward exploration. Public doctrine / truth-boundary cards are not consumer content.
+
+### Offer
+Access destination with the actual benefit, availability window, merchant relationship when known, and a visible `Available → Claim → Use` progression. Claim remains distinct from redemption.
+
+### Merchant
+Living storefront driven by public commerce inventory. The merchant hero is followed by actual Offers, bookable services and products. Missing inventory remains missing. Storefront is not an operator dashboard.
+
+### PromoCard
+PromoCard is the persistent personal layer behind public objects. It should usually appear as a compact “keep / claim / return” continuation on public object pages rather than dominating the page as a large marketing mockup.
+
+### Signature objects
+Use a TicketPass when a pass-like state exists. Use a PaperReceipt when a receiptable consequence exists. Use PromoCard prominently when showing retained personal state. Do not use signature objects as decorative containers for explanatory product doctrine.
