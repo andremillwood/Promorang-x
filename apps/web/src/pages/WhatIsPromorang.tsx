@@ -40,7 +40,7 @@ export default function WhatIsPromorang() {
           </div>
           <div className="mt-9 grid gap-5 md:grid-cols-2">
             <TicketPass kicker="I do not know yet" title="Discovery helps a preference appear." detail="See an approved place, product, experience, idea or local possibility. Something catches your attention. Now you know you care." stub="SEE" stubLabel="Discovery" />
-            <TicketPass kicker="I already know" title="Tell PROMORANG what is missing." detail="Tell PROMORANG the place, offer, product, experience or change you are looking for. If other people feel the same way, shared interest becomes easier to see." stub="ASK" stubLabel="Demand" />
+            <TicketPass kicker="I already know" title="Tell PROMORANG what is missing." detail="Tell PROMORANG the place, offer, product, experience or change you are looking for. If other people feel the same way, shared interest becomes easier to see." stub="LOOK" stubLabel="Interest" />
           </div>
         </div>
       </section>
@@ -49,7 +49,7 @@ export default function WhatIsPromorang() {
         <div className="mx-auto max-w-6xl">
           <NightTrail eyebrow="The simplest explanation" title="Discover → want → join → respond → prove" steps={[
             { label: "Discover", title: "See what exists or what is worth noticing.", text: "A Discovery is approved knowledge, not automatically an offer, event or endorsement." },
-            { label: "Want", title: "Recognize or express a preference.", text: "You can react to something you found or ask for something that is missing." },
+            { label: "Want", title: "Recognize or express a preference.", text: "You can react to something you found or tell PROMORANG what you are still looking for." },
             { label: "Join", title: "See when other people feel the same way.", text: "Recorded demand makes shared interest legible. It still does not mean attendance, inventory or purchase." },
             { label: "Respond", title: "Someone decides what to put up.", text: "A merchant, brand, creator or host can create a distinct response with real terms, limits and supply." },
           ]} />
@@ -87,7 +87,7 @@ export default function WhatIsPromorang() {
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Everybody sees a different job. They should still be acting on the same truth.</h2>
           </div>
           <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <TicketPass kicker="People" title="Find what moves you" detail="Discover, ask, join, act and keep your personal history on PromoCard." stub="JOIN" stubLabel="People" />
+            <TicketPass kicker="People" title="Find what moves you" detail="Discover, look, join, act and keep your personal history on PromoCard." stub="JOIN" stubLabel="People" />
             <TicketPass kicker="Merchants" title="Respond to local demand" detail="See relevant interest and put up only the supply your business can actually honor." stub="SUPPLY" stubLabel="Place" />
             <TicketPass kicker="Brands" title="Read the market first" detail="Observe demand, decide what outcome matters, respond and verify what followed." stub="MOVE" stubLabel="Brand" />
             <TicketPass kicker="Creators & hosts" title="Surface and organize attention" detail="Help people discover something, gather around it and move into real participation." stub="BUILD" stubLabel="Culture" />
