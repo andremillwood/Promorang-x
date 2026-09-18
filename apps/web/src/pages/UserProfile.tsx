@@ -40,7 +40,7 @@ interface ProfileStats {
     momentsAttended: number;
     followers: number;
     following: number;
-    rating: number;
+    rating: number | null;
     reviewCount: number;
 }
 
@@ -49,7 +49,7 @@ const emptyStats: ProfileStats = {
     momentsAttended: 0,
     followers: 0,
     following: 0,
-    rating: 0,
+    rating: null,
     reviewCount: 0,
 };
 
@@ -120,7 +120,7 @@ const UserProfilePage = () => {
                 // Fetch real stats
                 const [{ count: hostedCount }, { count: attendedCount }] = await Promise.all([
                     supabase.from("moments").select("*", { count: "exact", head: true }).eq("host_id", effectiveUserId),
-                    supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+                    supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId).eq("status", "checked_in"),
                 ]);
 
                 setStats({
@@ -128,7 +128,7 @@ const UserProfilePage = () => {
                     momentsAttended: attendedCount || 0,
                     followers: 0,
                     following: 0,
-                    rating: 5.0,
+                    rating: null,
                     reviewCount: 0,
                 });
             } catch (err) {
@@ -163,7 +163,8 @@ const UserProfilePage = () => {
                     const { data, error } = await supabase
                         .from("moment_participants")
                         .select("moment_id, moments(*)")
-                        .eq("user_id", effectiveUserId);
+                        .eq("user_id", effectiveUserId)
+                        .eq("status", "checked_in");
 
                     if (!error && data) {
                         const attendedMoments = data
@@ -348,11 +349,15 @@ const UserProfilePage = () => {
                             <p className="text-sm text-white/40">{t("profile.verifiedMarks")}</p>
                         </div>
                         <div className="border-r border-white/10 px-3 py-6 md:px-6">
-                            <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
-                                {stats?.rating}
-                                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            </p>
-                            <p className="text-sm text-white/40">{t("profile.trustSignals", { count: formatNumber(stats?.reviewCount || 0) })}</p>
+                            {stats?.rating != null ? (
+                                <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
+                                    {stats.rating}
+                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                </p>
+                            ) : (
+                                <p className="text-sm font-bold text-white/55">Not rated</p>
+                            )}
+                            <p className="text-sm text-white/40">{stats?.reviewCount ? t("profile.trustSignals", { count: formatNumber(stats.reviewCount) }) : "No recorded reviews"}</p>
                         </div>
                         <div className="px-3 py-6 md:px-6">
                             <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
