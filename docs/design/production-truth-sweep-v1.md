@@ -739,6 +739,25 @@ Commits:
 
 Status: **Closed**
 
+#### T-028 — Mobile Gems balance presented as USD platform value
+
+File:
+- `apps/mobile/app/(tabs)/dashboard.tsx`
+
+Finding:
+- the participant dashboard rendered a raw Gems balance as `US$… platform value`, collapsing Gems denomination, cash value and withdrawal eligibility into one state.
+
+Resolution:
+- the dashboard now labels the recorded Gems balance as Gems only;
+- cash value and withdrawal eligibility are explicitly separate wallet states;
+- mobile return metrics also keep Gems movement separate from gross monetary value.
+
+Commits:
+- `99204f5bc3916577c9e7d621322cd99c207d8877`
+- `5d85581c9ef8a27f6c05a5c3d181763aec7bb220`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
