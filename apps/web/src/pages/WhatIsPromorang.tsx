@@ -5,7 +5,7 @@ import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/component
 
 export default function WhatIsPromorang() {
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title="What is PROMORANG? — Discovery, demand, response and proof"
         description="PROMORANG helps people discover what matters, show what they want, find others who feel the same way, and keep their place in what happens next through PromoCard."
