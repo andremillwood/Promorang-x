@@ -42,9 +42,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
         "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
+    const isPublicDiscoveryRoute = !user && (
+        location.pathname === "/discover" ||
+        location.pathname.startsWith("/discover/")
+    );
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
-    ) || ["/growth", "/organizer"].includes(location.pathname);
+    ) || ["/growth", "/organizer"].includes(location.pathname) || isPublicDiscoveryRoute;
 
     // Consumer preview routes provide their own canonical participant shell and
     // must not inherit DashboardLayout or the marketing header/footer.
