@@ -2,32 +2,24 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { 
   ArrowRight, 
-  Camera, 
-  Music2, 
-  Radio, 
   Search, 
   Users, 
   Sparkles, 
   Share2, 
   Ticket, 
-  Gift, 
-  TrendingUp, 
-  Award,
+  TrendingUp,
   CheckCircle2
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/i18n/I18nContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 
 export default function Creators() {
-  const { t } = useI18n();
-  const [selectedTag, setSelectedTag] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   const creatorsQuery = useQuery({
@@ -61,8 +53,7 @@ export default function Creators() {
     const matchesSearch = !searchQuery || 
       c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.bio?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTag = selectedTag === "All" || (c.tags && c.tags.includes(selectedTag));
-    return matchesSearch && matchesTag;
+    return matchesSearch;
   });
 
   return (
@@ -113,21 +104,6 @@ export default function Creators() {
                 />
               </div>
 
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {["All", "DJs", "Foodies", "Visual", "Promoters", "Campus"].map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                    className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
-                      selectedTag === tag
-                        ? "bg-purple-500 text-white"
-                        : "border border-white/10 bg-white/5 text-white/60 hover:text-white"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -149,7 +125,7 @@ export default function Creators() {
               Creator Directory
             </h2>
             <p className="text-xs text-white/60 mt-1">
-              Creator-role profiles currently available from PROMORANG.
+              Public creator-role profiles currently available on PROMORANG.
             </p>
           </div>
           <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 rounded-2xl text-xs font-bold">
@@ -179,7 +155,7 @@ export default function Creators() {
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      <span>Verified Distributor</span>
+                      <span>Creator profile</span>
                     </p>
                     {creator.location && (
                       <span className="text-[10px] text-white/40">{creator.location}</span>
