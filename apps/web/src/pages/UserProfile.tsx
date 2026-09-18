@@ -15,14 +15,14 @@ import {
     MessageCircle,
     Settings,
     Grid,
-    Bookmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchProfileRow } from "@/lib/account-profile";
 import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
-import { useI18n } from "@/i18n/I18nContext";\nimport { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { useI18n } from "@/i18n/I18nContext";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 interface UserProfile {
     id: string;
@@ -40,21 +40,12 @@ interface ProfileStats {
     momentsAttended: number;
     followers: number;
     following: number;
-    rating: number;
+    rating?: number;
     reviewCount: number;
 }
 
-const emptyStats: ProfileStats = {
-    momentsHosted: 0,
-    momentsAttended: 0,
-    followers: 0,
-    following: 0,
-    rating: 0,
-    reviewCount: 0,
-};
-
 const UserProfilePage = () => {
-    const { t, formatNumber } = useI18n();
+    const { t } = useI18n();
     const { userId } = useParams<{ userId: string }>();
     const { user } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -62,7 +53,7 @@ const UserProfilePage = () => {
     const [moments, setMoments] = useState<Tables<"moments">[]>([]);
     const [loading, setLoading] = useState(true);
     const [tabLoading, setTabLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<"hosted" | "attended" | "saved">("hosted");
+    const [activeTab, setActiveTab] = useState<"hosted" | "attended">("hosted");
     const [isFollowing, setIsFollowing] = useState(false);
 
     // If userId is not provided, it means we are at /profile, so use the current user's ID
@@ -117,19 +108,33 @@ const UserProfilePage = () => {
                     setProfile(null);
                 }
 
-                // Fetch real stats
-                const [{ count: hostedCount }, { count: attendedCount }] = await Promise.all([
-                    supabase.from("moments").select("*", { count: "exact", head: true }).eq("host_id", effectiveUserId),
+                // Fetch only source-backed public stats.
+                const [hostedResult, attendedResult, followersResult, followingResult] = await Promise.all([
+                    supabase.from("moments").select("id", { count: "exact" }).eq("host_id", effectiveUserId).limit(500),
                     supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+                    supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("following_id", effectiveUserId),
+                    supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("follower_id", effectiveUserId),
                 ]);
+                if (hostedResult.error) throw hostedResult.error;
+                if (attendedResult.error) throw attendedResult.error;
+                if (followersResult.error) throw followersResult.error;
+                if (followingResult.error) throw followingResult.error;
+
+                const hostedMomentIds = (hostedResult.data || []).map((row) => row.id);
+                let ratings: number[] = [];
+                if (hostedMomentIds.length) {
+                    const { data: reviewRows, error: reviewError } = await supabase.from("moment_reviews").select("rating").in("moment_id", hostedMomentIds);
+                    if (!reviewError) ratings = (reviewRows || []).map((row) => row.rating).filter((rating): rating is number => typeof rating === "number" && Number.isFinite(rating));
+                }
+                const rating = ratings.length ? Math.round((ratings.reduce((sum, value) => sum + value, 0) / ratings.length) * 10) / 10 : undefined;
 
                 setStats({
-                    momentsHosted: hostedCount || 0,
-                    momentsAttended: attendedCount || 0,
-                    followers: 0,
-                    following: 0,
-                    rating: 5.0,
-                    reviewCount: 0,
+                    momentsHosted: hostedResult.count || hostedMomentIds.length,
+                    momentsAttended: attendedResult.count || 0,
+                    followers: followersResult.count || 0,
+                    following: followingResult.count || 0,
+                    rating,
+                    reviewCount: ratings.length,
                 });
             } catch (err) {
                 console.error("Error fetching profile:", err);
@@ -173,9 +178,6 @@ const UserProfilePage = () => {
                     } else {
                         setMoments([]);
                     }
-                } else {
-                    // Saved tab
-                    setMoments([]);
                 }
             } catch (err) {
                 console.error("Error fetching moments for tab:", err);
@@ -223,7 +225,8 @@ const UserProfilePage = () => {
     return (
         <div className="marketing-cinematic public-object-page min-h-screen bg-[#050505] text-white">
             <main className="pb-16">
-                <section className="public-object-hero relative overflow-hidden border-b border-white/10">\n                    <CurrentArc variant="hero" className="marketing-hero-current" />
+                <section className="public-object-hero relative overflow-hidden border-b border-white/10">
+                    <CurrentArc variant="hero" className="marketing-hero-current" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(249,115,22,0.3),transparent_34%),linear-gradient(135deg,#20150f,#090909_62%)]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#090909] via-transparent to-black/30" />
@@ -348,24 +351,21 @@ const UserProfilePage = () => {
                             <p className="text-sm text-white/40">{t("profile.verifiedMarks")}</p>
                         </div>
                         <div className="border-r border-white/10 px-3 py-6 md:px-6">
-                            <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
-                                {stats?.rating}
-                                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            </p>
-                            <p className="text-sm text-white/40">{t("profile.trustSignals", { count: formatNumber(stats?.reviewCount || 0) })}</p>
+                            <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
+                            <p className="text-sm text-white/40">Followers</p>
                         </div>
                         <div className="px-3 py-6 md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
-                            <p className="text-sm text-white/40">{t("profile.connected")}</p>
+                            <p className="text-2xl font-black text-white">{stats?.following?.toLocaleString()}</p>
+                            <p className="text-sm text-white/40">Following</p>
                         </div>
                     </div>
+                    {stats?.rating !== undefined ? <p className="mb-8 flex items-center gap-2 text-xs font-bold text-white/50"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400"/>{stats.rating.toFixed(1)} from {stats.reviewCount} recorded rating{stats.reviewCount === 1 ? "" : "s"}</p> : null}
 
                     {/* Tabs */}
                     <div className="public-object-tabs sticky top-14 z-20 mb-6 flex gap-1 overflow-x-auto border-y border-white/10 bg-black/90">
                         {[
                             { id: "hosted" as const, label: t("profile.hosted"), icon: Grid },
                             { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
-                            { id: "saved" as const, label: t("profile.saved"), icon: Bookmark },
                         ].map(tab => (
                             <button
                                 key={tab.id}
@@ -395,11 +395,7 @@ const UserProfilePage = () => {
                             <Grid className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
                             <h3 className="font-medium text-lg mb-2">{t("profile.empty")}</h3>
                             <p className="text-muted-foreground">
-                                {activeTab === "hosted"
-                                    ? t("profile.emptyHosted")
-                                    : activeTab === "attended"
-                                        ? t("profile.emptyAttended")
-                                        : t("profile.emptySaved")}
+                                {activeTab === "hosted" ? t("profile.emptyHosted") : t("profile.emptyAttended")}
                             </p>
                         </div>
                     )}

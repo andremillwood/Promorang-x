@@ -653,6 +653,20 @@ Before coding, check:
 
 ---
 
+### 2026-09-18 — Relationship dead-end repair
+
+**Problem:** canonical destinations still had real graph edges rendered as dead labels, mismatched routes, and one public person surface showing fabricated trust/social values. Iterating file-by-file also risks unnecessary Vercel preview builds on the Hobby plan.
+
+**Decision:** relationship rails expose only source-backed adjacency, route names must round-trip canonically, public trust metrics must be sourced or absent, and convergence changes should be batched before moving the branch ref.
+
+**Implemented:** Discovery now exits to linked Place/Creator; Moment feed/detail carries real Place/Scene/Host relationships; Offer↔Merchant and commerce routes were repaired; Merchant exits to connected Place/Moment; Creator exits to real Moments/Discoveries; Scene now resolves Place/Person adjacency from linked Moments; Venue gains approved Discovery and Merchant exits; public Person stats are sourced and the nonfunctional Saved tab is removed.
+
+**Validation:** source/data relationships and routes were inspected against current repository schema and route definitions. No Vercel deployment was intentionally requested. Existing Vercel status failures were build-rate-limit failures, not successful build verification.
+
+**Remaining:** perform responsive/mobile review, then reconcile PR #131 with its moving base and run a real build only when preparing an intentional integration/release candidate.
+
+---
+
 ## 14. Update protocol
 
 After each meaningful convergence pass, append a dated entry to this file using:

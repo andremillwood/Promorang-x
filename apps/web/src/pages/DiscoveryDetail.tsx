@@ -18,7 +18,8 @@ function realLocation(discovery: { location_address?: string | null; city?: stri
 
 export default function DiscoveryDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const query = useDiscovery(slug);\n  const relatedQuery = useDiscoveries({ limit: 12 });
+  const query = useDiscovery(slug);
+  const relatedQuery = useDiscoveries({ limit: 12 });
 
   if (query.isLoading) {
     return <main className="grid min-h-screen place-items-center bg-black text-white"><div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" /></main>;
@@ -47,7 +48,8 @@ export default function DiscoveryDetail() {
   const website = metadata.website_url || null;
   const instagram = metadata.instagram_handle || null;
   const location = realLocation(discovery);
-  const discoveryHref = `/discoveries/${discovery.slug}`;\n  const relatedDiscoveries = (relatedQuery.data || []).filter((item) => item.id !== discovery.id && (item.category === discovery.category || item.city === discovery.city || item.scene_id === discovery.scene_id)).slice(0, 4);
+  const discoveryHref = `/discoveries/${discovery.slug}`;
+  const relatedDiscoveries = (relatedQuery.data || []).filter((item) => item.id !== discovery.id && (item.category === discovery.category || item.city === discovery.city || item.scene_id === discovery.scene_id)).slice(0, 4);
   const share = () => {
     void trackGrowthEvent({ eventName: "market_object_shared", journey: "participant", stage: "amplified", entityType: "discovery", entityId: String(discovery.id) });
     return navigator.share?.({ title: discovery.title, text: discovery.description || undefined, url: window.location.href }).catch(() => undefined);
@@ -63,7 +65,8 @@ export default function DiscoveryDetail() {
         schema={generateDiscoverySchema(discovery)}
       />
 
-      <section className="marketing-cinematic-hero relative min-h-[660px] overflow-hidden border-b border-white/10 pt-24">\n        <CurrentArc variant="hero" className="marketing-hero-current" />
+      <section className="marketing-cinematic-hero relative min-h-[660px] overflow-hidden border-b border-white/10 pt-24">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         {discovery.cover_image ? <img src={discovery.cover_image} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,.22),transparent_32%),#080808]" />}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.98)_0%,rgba(0,0,0,.76)_55%,rgba(0,0,0,.28)_100%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/35" />

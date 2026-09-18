@@ -189,6 +189,23 @@ export default function VenueProfile() {
     },
     enabled: Boolean(slug),
   });
+  const discoveryQuery = useQuery({
+    queryKey: ["venue-discoveries", venueQuery.data?.id],
+    queryFn: async () => {
+      const venueId = venueQuery.data?.id;
+      if (!venueId) return [];
+      const { data, error } = await (supabase as any)
+        .from("discoveries")
+        .select("id,slug,title,cover_image,category,city,country")
+        .eq("venue_id", venueId)
+        .eq("verification_status", "approved")
+        .order("updated_at", { ascending: false })
+        .limit(8);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: Boolean(venueQuery.data?.id),
+  });
   const enrichmentQuery = useVenueEnrichment(slug);
   const claimEnrichment = useClaimVenueEnrichment(slug);
 
@@ -197,8 +214,10 @@ export default function VenueProfile() {
   const nextMoment = moments.find((item) => item.starts_at && new Date(item.starts_at).getTime() >= Date.now()) || moments[0] || null;
   const content = contentQuery.data || [];
   const commerceListings = commerceQuery.data || [];
+  const discoveries = discoveryQuery.data || [];
+  const merchantsAtVenue = Array.from(new Map(commerceListings.filter((listing) => listing.merchant_user_id).map((listing) => [listing.merchant_user_id, listing])).values()).slice(0, 4);
   const enrichmentOpportunities = enrichmentQuery.data || [];
-  const isLoading = venueQuery.isLoading || momentsQuery.isLoading || contentQuery.isLoading || commerceQuery.isLoading;
+  const isLoading = venueQuery.isLoading || momentsQuery.isLoading || contentQuery.isLoading || commerceQuery.isLoading || discoveryQuery.isLoading;
 
 
   if (!isLoading && !venue) {
@@ -246,7 +265,9 @@ export default function VenueProfile() {
         </div>
       ) : venue ? (
         <>
-          <section className="public-object-hero relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-5 pb-12 pt-20 text-white sm:px-6">\n            <CurrentArc variant="hero" className="marketing-hero-current" />\n            <div className="relative mx-auto max-w-[1320px]">
+          <section className="public-object-hero relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-5 pb-12 pt-20 text-white sm:px-6">
+            <CurrentArc variant="hero" className="marketing-hero-current" />
+            <div className="relative mx-auto max-w-[1320px]">
             <Button asChild variant="ghost" className="mb-5 w-fit">
               <Link to={venue.country_slug ? buildLocationPath(venue.country_slug, venue.city_slug) : "/explore/moments"}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -316,7 +337,8 @@ export default function VenueProfile() {
             </div>
           </section>
 
-          <div id="place-about" className="mx-auto max-w-[1320px] px-5 sm:px-6">\n          {venue.listing_status === "unclaimed" && enrichmentOpportunities.length > 0 ? (
+          <div id="place-about" className="mx-auto max-w-[1320px] px-5 sm:px-6">
+          {venue.listing_status === "unclaimed" && enrichmentOpportunities.length > 0 ? (
             <section className="mt-8 rounded-[2rem] border border-primary/20 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.14),transparent_40%),rgba(255,255,255,0.025)] p-6 sm:p-8">
               <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div><p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-primary"><Telescope className="h-4 w-4"/>Scout enrichment</p><h2 className="mt-2 font-serif text-3xl font-bold">Help complete this Discovery.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Claim one missing fact, submit local proof, and become part of this place’s verification record. This does not claim ownership of the business.</p></div>
@@ -362,6 +384,35 @@ export default function VenueProfile() {
                 </div>
               )}
             </section>
+
+            {discoveries.length > 0 ? (
+              <section id="place-discoveries">
+                <div className="mb-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">More worth knowing</p>
+                    <h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Discoveries around this place</h2>
+                  </div>
+                  <Badge variant="secondary">{discoveries.length}</Badge>
+                </div>
+                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  {discoveries.map((discovery: any) => (
+                    <Link key={discovery.id} to={`/discoveries/${discovery.slug}`} className="group overflow-hidden rounded-3xl border border-border bg-card">
+                      <div className="aspect-[4/3] overflow-hidden bg-muted">{discovery.cover_image ? <img src={discovery.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><MapPin className="h-8 w-8 text-muted-foreground/40"/></div>}</div>
+                      <div className="p-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{discovery.category || "Discovery"}</p><h3 className="mt-2 text-xl font-black text-foreground">{discovery.title}</h3><p className="mt-2 text-xs text-muted-foreground">{[discovery.city, discovery.country].filter(Boolean).join(", ")}</p></div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {merchantsAtVenue.length > 0 ? (
+              <section id="place-merchants">
+                <div className="mb-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available here</p><h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Merchants connected to this place</h2></div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {merchantsAtVenue.map((merchant) => <Link key={merchant.merchant_user_id} to={`/storefront/${merchant.merchant_user_id}`} className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5"><div><p className="text-sm font-black text-foreground">{merchant.merchant_name || "Local merchant"}</p><p className="mt-1 text-xs text-muted-foreground">Open the merchant's real public inventory.</p></div><ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1"/></Link>)}
+                </div>
+              </section>
+            ) : null}
 
             <section id="offers">
               <div className="mb-5 flex items-center justify-between">
