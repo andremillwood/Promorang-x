@@ -112,11 +112,13 @@ export default function DashboardScreen() {
                 </View>
 
                 {/* Snapchat Loss-Aversion Streak Header */}
-                <StreakStatusHeader
-                    currentStreak={5}
-                    hoursRemaining={4}
-                    onPressStreak={() => setStoryVisible(true)}
-                />
+                {__DEV__ ? (
+                    <StreakStatusHeader
+                        currentStreak={5}
+                        hoursRemaining={4}
+                        onPressStreak={() => setStoryVisible(true)}
+                    />
+                ) : null}
 
                 {renderRoleDashboard()}
             </View>
@@ -124,21 +126,23 @@ export default function DashboardScreen() {
             <View style={{ height: 100 }} />
 
             {/* Snapchat Deal Stories Modal */}
-            <DealStoryPlayer
-                visible={storyVisible}
-                stories={sampleStories}
-                onClose={() => setStoryVisible(false)}
-                onClaimDeal={() => {
-                    setStoryVisible(false);
-                    setCameraVisible(true);
-                }}
-            />
-
-            {/* Camera Proof-of-Moment Scanner Modal */}
-            <CameraMomentScanner
-                visible={cameraVisible}
-                onClose={() => setCameraVisible(false)}
-            />
+            {__DEV__ ? (
+                <>
+                    <DealStoryPlayer
+                        visible={storyVisible}
+                        stories={sampleStories}
+                        onClose={() => setStoryVisible(false)}
+                        onClaimDeal={() => {
+                            setStoryVisible(false);
+                            setCameraVisible(true);
+                        }}
+                    />
+                    <CameraMomentScanner
+                        visible={cameraVisible}
+                        onClose={() => setCameraVisible(false)}
+                    />
+                </>
+            ) : null}
 
             {/* Product Tour */}
             <ProductTour tourId="dashboard" autoStart={true} />
@@ -158,7 +162,7 @@ function ParticipantDashboardView({ balance, isDark }: ParticipantViewProps) {
             <View style={[styles.valueReceipt, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
                 <Text style={styles.valueReceiptEyebrow}>WHAT IS AVAILABLE NOW</Text>
                 <Text style={[styles.valueReceiptTitle, { color: isDark ? 'white' : DesignColors.gray[900] }]}>{availableGems.toLocaleString()} Gems</Text>
-                <Text style={styles.valueReceiptCopy}>US${availableGems.toLocaleString()} platform value · {accessSignals ? `${accessSignals} access ${accessSignals === 1 ? 'signal' : 'signals'} ready` : 'no active access yet'}</Text>
+                <Text style={styles.valueReceiptCopy}>{availableGems.toLocaleString()} recorded Gems · {accessSignals ? `${accessSignals} access ${accessSignals === 1 ? 'signal' : 'signals'} ready` : 'no active access yet'}. Cash value and withdrawal eligibility are separate wallet states.</Text>
                 <Pressable onPress={() => router.push('/vault')} style={styles.valueReceiptAction}><Text style={styles.valueReceiptActionText}>Open your Vault</Text><Ionicons name="arrow-forward" size={16} color={DesignColors.black} /></Pressable>
             </View>
 
@@ -476,7 +480,7 @@ function HostDashboardView({ isDark }: RoleViewProps) {
 }
 
 function MobileReturnCard({ role, isDark }: { role: StakeholderReturnRole; isDark: boolean }) {
-    const { data, loading } = useStakeholderReturn();
+    const { data, loading } = useStakeholderReturn(role);
     const blueprint = STAKEHOLDER_RETURN_BLUEPRINTS[role];
     const metricValue: Record<StakeholderReturnMetricId, number> = {
         accessOpened: data.accessCount,
@@ -490,7 +494,7 @@ function MobileReturnCard({ role, isDark }: { role: StakeholderReturnRole; isDar
         peopleReached: data.people,
         storiesCreated: data.stories,
         collaborations: data.collaborations,
-        gemsMoved: Math.max(data.gemsEarned, data.grossValue),
+        gemsMoved: data.gemsEarned,
     };
     const metrics = blueprint.metrics.slice(0, 3).map((id) => ({ ...STAKEHOLDER_RETURN_METRICS[id], value: metricValue[id] }));
 
@@ -530,6 +534,10 @@ function MobileReturnCard({ role, isDark }: { role: StakeholderReturnRole; isDar
             <View style={styles.returnStatement}>
                 <Text style={styles.returnStatementLabel}>COMMERCIAL RETURN</Text>
                 <Text style={styles.returnStatementText}>{blueprint.commercialReturn}</Text>
+            </View>
+            <View style={styles.returnStatement}>
+                <Text style={styles.returnStatementLabel}>SOURCE OF THESE NUMBERS</Text>
+                <Text style={styles.returnStatementText}>People, returns, stories, collaborations and gross value come from activation closeout snapshots and may be operator-reported. Gems and access are read from their ledgers.</Text>
             </View>
             <View style={styles.returnMetrics}>
                 {metrics.map((metric) => (

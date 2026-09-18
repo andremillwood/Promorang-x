@@ -67,14 +67,12 @@ export const CreatorEarningsSimulator: React.FC = () => {
     const arrivalPayout = totalArrivals * selectedNiche.perArrivalRate;
     const contentBounties = dropsPerMonth * selectedNiche.avgBounty;
     const totalMonthlyCash = arrivalPayout + contentBounties;
-    const totalGems = totalMonthlyCash * 10; // 10 Gems per $1
 
     return {
       totalArrivals,
       arrivalPayout,
       contentBounties,
       totalMonthlyCash,
-      totalGems,
     };
   }, [dropsPerMonth, arrivalsPerDrop, selectedNiche]);
 
@@ -89,13 +87,13 @@ export const CreatorEarningsSimulator: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold tracking-wider uppercase mb-2">
             <Gem className="w-3.5 h-3.5" />
-            Tastemaker Payout Simulator
+            Creator Earnings Scenario
           </div>
           <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Predictable Creator Monetization
+            Model a Possible Creator Campaign
           </h3>
           <p className="text-sm text-white/60 mt-1 max-w-xl">
-            Never depend on arbitrary algorithm RPMs or cheap promo codes. Get paid in cash + gems for verified scene curation and guest arrivals.
+            Explore a hypothetical campaign using example rates and assumed verified arrivals. These figures are not current offers, guaranteed earnings, or settled payouts.
           </p>
         </div>
 
@@ -103,8 +101,12 @@ export const CreatorEarningsSimulator: React.FC = () => {
           variant="outline"
           className="self-start md:self-auto border-purple-500/40 bg-purple-500/10 text-purple-300 font-mono text-xs px-3 py-1.5"
         >
-          DIRECT ESCROW PAYOUTS
+          ILLUSTRATIVE RATES
         </Badge>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-purple-400/20 bg-purple-400/[0.06] p-4 text-xs leading-5 text-purple-100/75">
+        <strong>Scenario assumptions:</strong> the base fees and per-arrival rates below are example inputs for this calculator. They are not live bounties, platform averages, or guaranteed payout terms.
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -180,7 +182,7 @@ export const CreatorEarningsSimulator: React.FC = () => {
             </div>
           </div>
 
-          {/* Live Sample Bounty Card */}
+          {/* Illustrative campaign card */}
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
@@ -188,7 +190,7 @@ export const CreatorEarningsSimulator: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs font-bold text-white">
-                  Sample Open Bounty: {selectedNiche.sampleBrand}
+                  Example campaign: {selectedNiche.sampleBrand}
                 </div>
                 <div className="text-[11px] text-white/60">
                   ${selectedNiche.avgBounty} base media drop fee + ${selectedNiche.perArrivalRate} per verified guest
@@ -196,7 +198,7 @@ export const CreatorEarningsSimulator: React.FC = () => {
               </div>
             </div>
             <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px]">
-              AVAILABLE NOW
+              EXAMPLE ONLY
             </Badge>
           </div>
         </div>
@@ -206,10 +208,10 @@ export const CreatorEarningsSimulator: React.FC = () => {
           <div className="p-6 rounded-3xl bg-gradient-to-b from-purple-950/40 via-zinc-900 to-zinc-950 border border-purple-500/30 shadow-2xl space-y-6">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase font-mono tracking-widest text-purple-300">
-                Projected Monthly Income
+                Illustrative Monthly Scenario
               </span>
               <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400">
-                <ShieldCheck className="w-3.5 h-3.5" /> ESCROW SECURED
+                <ShieldCheck className="w-3.5 h-3.5" /> NOT FUNDED OR APPROVED
               </div>
             </div>
 
@@ -219,23 +221,20 @@ export const CreatorEarningsSimulator: React.FC = () => {
                 ${earnings.totalMonthlyCash.toLocaleString()}
                 <span className="text-sm font-semibold text-white/50 ml-1.5">/ month</span>
               </div>
-              <div className="text-xs text-amber-300 font-mono mt-1 flex items-center gap-1">
-                <Gem className="w-3.5 h-3.5" /> +{earnings.totalGems.toLocaleString()} VIP Gems
-              </div>
             </div>
 
             {/* Breakdown List */}
             <div className="space-y-2.5 pt-4 border-t border-white/10 text-xs">
               <div className="flex justify-between text-white/70">
-                <span>Verified Arrival Rewards:</span>
+                <span>Example arrival-rate amount:</span>
                 <span className="font-mono font-bold text-white">${earnings.arrivalPayout.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>Direct Media Drop Retainers:</span>
+                <span>Example content-fee amount:</span>
                 <span className="font-mono font-bold text-white">${earnings.contentBounties.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>Total Monthly Verified Guests:</span>
+                <span>Assumed verified arrivals:</span>
                 <span className="font-mono font-bold text-purple-400">{earnings.totalArrivals} guests</span>
               </div>
             </div>
@@ -248,14 +247,14 @@ export const CreatorEarningsSimulator: React.FC = () => {
               Claim Your Creator Profile
             </div>
             <p className="text-xs text-white/70">
-              Lock in your creator handle and start curating bounties with your projected <strong>${earnings.totalMonthlyCash.toLocaleString()}</strong> monthly earning potential.
+              Use this scenario to understand the mechanics. Actual creator work requires a recorded opportunity, agreed brief/rights, verified outcomes and an approved earnings record.
             </p>
             <Button
               asChild
               className="w-full h-11 bg-purple-500 hover:bg-purple-600 text-white font-black text-sm shadow-xl shadow-purple-500/20"
             >
               <Link to={`/for-creators?projEarn=${earnings.totalMonthlyCash}&niche=${selectedNiche.id}`}>
-                Claim Creator Handle & Access Bounties
+                Explore creator opportunities
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Link>
             </Button>

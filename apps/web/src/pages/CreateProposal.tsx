@@ -103,7 +103,7 @@ const VERTICAL_PRESETS: Record<string, Partial<BuilderForm>> = {
     whatCounts: "Verified checkout orders generated via trackable affiliate links",
     participantReturns: ["reward", "piece"],
     socialReturn: "High-trust unboxing videos and honest product demonstrations.",
-    commercialReturn: "Guaranteed ROAS with commission paid only on completed orders.",
+    commercialReturn: "ROAS can be measured against completed tracked orders; commission applies only to eligible completed orders.",
   },
   fitness: {
     outcome: "community",

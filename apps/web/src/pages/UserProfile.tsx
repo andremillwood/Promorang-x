@@ -111,7 +111,7 @@ const UserProfilePage = () => {
                 // Fetch only source-backed public stats.
                 const [hostedResult, attendedResult, followersResult, followingResult] = await Promise.all([
                     supabase.from("moments").select("id", { count: "exact" }).eq("host_id", effectiveUserId).limit(500),
-                    supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+                    supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId).eq("status", "checked_in"),
                     supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("following_id", effectiveUserId),
                     supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("follower_id", effectiveUserId),
                 ]);
@@ -168,7 +168,8 @@ const UserProfilePage = () => {
                     const { data, error } = await supabase
                         .from("moment_participants")
                         .select("moment_id, moments(*)")
-                        .eq("user_id", effectiveUserId);
+                        .eq("user_id", effectiveUserId)
+                        .eq("status", "checked_in");
 
                     if (!error && data) {
                         const attendedMoments = data

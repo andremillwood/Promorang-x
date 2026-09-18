@@ -11,6 +11,7 @@ interface ListingPollRow {
   threshold_for_moment: number;
   venue_slug: string;
   reward_points: number;
+  user_voted_option_id: string | null;
   options: Array<{ id: string; text: string; votes: number }>;
 }
 
@@ -42,6 +43,7 @@ export function useListingDiscoveryPolls(limit = 6) {
         targetUnlockPerk: "Thanks — you helped confirm this place",
         pointsReward: row.reward_points || 0,
         options: Array.isArray(row.options) ? row.options : [],
+        userVotedOptionId: row.user_voted_option_id || undefined,
         comments: [],
         tags: ["enrichment", "place verification"],
       }));

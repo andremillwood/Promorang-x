@@ -497,7 +497,7 @@ const conceptData: Record<
     eyebrow: "PromoShare's money draws",
     headline: "This is the PromoShare family that pays extra Gems.",
     subhead:
-      "Park Gems. Keep 100% of them. While they sit, you hold tickets in weekly and monthly money draws. If you win, extra Gems land on top — 1 Gem = $1. If you do not, take your parked Gems out whenever.",
+      "Park Gems. Keep 100% of that principal. While they sit, you hold tickets in the named Save & Win draws. If you win, extra Gems land on top. Returning parked Gems follows the pot's exit terms and any applicable wallet hold or withdrawal rules.",
     inPlainEnglish: VALUE_STORY.saveAndWin,
     primaryCta: { label: "See Save & Win pots", href: "/nodes" },
     secondaryCta: { label: "Perk draws pay Keys, not cash", href: "/economy/promoshare" },

@@ -116,11 +116,11 @@ export default function MidasBrandSponsorshipProposal() {
 
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight">
             Stop Paying for Banner Logos. <br />
-            <i className="text-[#ffcf38] font-serif not-italic">Buy Guaranteed Taste Tests & Viral UGC.</i>
+            <i className="text-[#ffcf38] font-serif not-italic">Buy Measurable Product Trial & Attributable UGC.</i>
           </h1>
 
           <p className="text-stone-300 text-sm sm:text-lg max-w-3xl leading-relaxed">
-            Sponsor Jamaica's premier summer finale weekend (<strong>Vanessa Bling</strong> & <strong>Capleton</strong>) with measurable foot traffic, 100+ authentic creator videos, and on-site product trial—tracked in real time on Promorang.
+            Sponsor Jamaica's premier summer finale weekend (<strong>Vanessa Bling</strong> & <strong>Capleton</strong>) with measurable product-trial, visit, redemption, and creator-content targets—then review what was actually recorded on Promorang.
           </p>
 
           {/* Quick Metrics Grid */}
@@ -131,13 +131,13 @@ export default function MidasBrandSponsorshipProposal() {
               <span className="text-[10px] text-[#ffcf38]">High-Income Partygoers</span>
             </div>
             <div className="p-4 bg-[#141210] border border-white/15 rounded-sm space-y-1">
-              <span className="text-[10px] text-stone-400 uppercase block">Guaranteed UGC Stories</span>
+              <span className="text-[10px] text-stone-400 uppercase block">UGC Story Target</span>
               <strong className="text-2xl font-serif font-bold text-[#ff5a1f] block">150+</strong>
               <span className="text-[10px] text-orange-300">IG Reels / TikTok / WhatsApp</span>
             </div>
             <div className="p-4 bg-[#141210] border border-white/15 rounded-sm space-y-1">
-              <span className="text-[10px] text-stone-400 uppercase block">Sponsor Foot Traffic</span>
-              <strong className="text-2xl font-serif font-bold text-[#10b981] block">100%</strong>
+              <span className="text-[10px] text-stone-400 uppercase block">Recorded Sponsor Visits</span>
+              <strong className="text-2xl font-serif font-bold text-[#10b981] block">Measured</strong>
               <span className="text-[10px] text-emerald-300">Verified QR Redemptions</span>
             </div>
             <div className="p-4 bg-[#141210] border border-white/15 rounded-sm space-y-1">
@@ -248,7 +248,7 @@ export default function MidasBrandSponsorshipProposal() {
                 Choose Your Performance Sponsorship Package
               </h2>
               <p className="text-stone-300 text-sm">
-                Every tier combines on-site physical presence with guaranteed digital engagement and creator content.
+                Every tier combines on-site physical presence with defined digital-engagement and creator-content targets; actual output is measured after execution.
               </p>
             </div>
 
@@ -406,7 +406,7 @@ export default function MidasBrandSponsorshipProposal() {
               </div>
 
               <div className="p-3.5 bg-black/40 border border-white/10 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-stone-300">
-                <span className="text-[#ffcf38]">✓ Guaranteed attribution from first impression to on-site bar cup redemption</span>
+                <span className="text-[#ffcf38]">✓ Attribution is recorded where the campaign links a source, eligible action, and on-site redemption</span>
                 <span className="text-stone-400">Powered by PromoPush Smart Escrow</span>
               </div>
             </div>
@@ -499,7 +499,7 @@ export default function MidasBrandSponsorshipProposal() {
                 Simulate Your Sponsorship Return on Investment
               </h2>
               <p className="text-stone-300 text-sm">
-                Adjust your marketing budget to see guaranteed foot-traffic check-ins, creator video volume, and total social reach.
+                Adjust your marketing budget to model target check-ins, creator-video volume, and estimated social reach. These are planning assumptions, not guaranteed outcomes.
               </p>
             </div>
 
@@ -555,10 +555,10 @@ export default function MidasBrandSponsorshipProposal() {
               <div className="lg:col-span-6 p-6 rounded-sm bg-[#161210] border-2 border-[#10b981] space-y-6 shadow-[8px_8px_0_#10b98122]">
                 <div className="flex items-center justify-between border-b border-emerald-500/30 pb-3">
                   <span className="text-xs font-mono font-bold text-emerald-400 uppercase">
-                    Guaranteed Performance Deliverables
+                    Projected Performance Targets
                   </span>
                   <Badge className="bg-emerald-500/20 text-emerald-300 font-mono text-[10px]">
-                    100% Trackable
+                    Measured when recorded
                   </Badge>
                 </div>
 
@@ -568,7 +568,7 @@ export default function MidasBrandSponsorshipProposal() {
                     <strong className="text-2xl font-serif font-black text-white block">
                       {calculatedRedemptions.toLocaleString()}+
                     </strong>
-                    <span className="text-[10px] text-emerald-400">Guaranteed product trial</span>
+                    <span className="text-[10px] text-emerald-400">Product-trial target</span>
                   </div>
 
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">

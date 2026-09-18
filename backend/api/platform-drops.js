@@ -200,24 +200,9 @@ router.post('/community', async (req, res) => {
         const { supabase } = require('../lib/supabase');
 
         if (!supabase) {
-            // Demo mode
-            return res.status(201).json({
-                success: true,
-                drop: {
-                    id: `community-${Date.now()}`,
-                    creator_id: req.user.id,
-                    title,
-                    description,
-                    drop_type: 'community',
-                    drop_source: 'community',
-                    gem_pool_total: gem_pool_amount,
-                    gem_pool_remaining: gem_pool_amount,
-                    max_participants: max_participants || 20,
-                    current_participants: 0,
-                    status: 'active',
-                    created_at: new Date().toISOString()
-                },
-                message: 'Community drop created successfully'
+            return res.status(503).json({
+                success: false,
+                error: 'Authoritative funding and drop storage are unavailable'
             });
         }
 

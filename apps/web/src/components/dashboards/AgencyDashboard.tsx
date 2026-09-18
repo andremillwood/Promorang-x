@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { BrandImpactDashboard } from "@/components/brand/BrandImpactDashboard";
+import { AgencyManagedResultPack } from "@/components/agency/AgencyManagedResultPack";
 import { RoleActivationPanel } from "@/components/activation/RoleActivationPanel";
 import { QuickAddClient } from "@/components/agency/QuickAddClient";
 import { DashboardHero } from "@/components/dashboard/DashboardSurface";
@@ -167,16 +167,16 @@ const AgencyDashboard = () => {
           {
             title: "Launch first activation",
             description: "Open the client account first so ownership, budget, and results stay attached to the correct workspace.",
-            status: "todo",
+            status: clientCampaigns.length > 0 ? "done" : agencyClients.length > 0 ? "current" : "todo",
             onClick: () => setActiveTab("clients"),
-            ctaLabel: "Choose client",
+            ctaLabel: clientCampaigns.length > 0 ? "Review client work" : "Choose client",
           },
           {
-            title: "Export first result",
-            description: "Use the impact layer as the proof artifact for your client relationship.",
-            status: "todo",
-            href: "#agency-impact",
-            ctaLabel: "Review impact",
+            title: "Package first result",
+            description: "Use the managed result pack as the client-facing proof artifact after a recorded outcome exists.",
+            status: provenClientCampaigns.length > 0 ? "done" : clientCampaigns.length > 0 ? "current" : "todo",
+            onClick: () => setActiveTab("impact"),
+            ctaLabel: provenClientCampaigns.length > 0 ? "Open result pack" : "Review impact",
           },
         ]}
       />
@@ -277,7 +277,7 @@ const AgencyDashboard = () => {
       </div>
 
       <div id="agency-impact" className={activeTab === "impact" ? "scroll-mt-28" : "hidden"}>
-        <BrandImpactDashboard />
+        <AgencyManagedResultPack />
       </div>
     </div>
   );

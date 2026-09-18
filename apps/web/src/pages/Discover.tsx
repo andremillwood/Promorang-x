@@ -35,7 +35,7 @@ import { useMarket } from "@/contexts/MarketContext";
 import { getCityHubCenter, getDefaultCityHub, matchesCityHub } from "@/lib/city-hubs";
 import { CURATED_KINGSTON_MOMENTS } from "@/lib/curated-radar";
 import { getMomentStatus } from "@/lib/moment-recurrence";
-import { getActiveDiscoveryPolls, isActiveDiscoveryPoll, type DiscoveryPoll } from "@/data/discoveriesData";
+import type { DiscoveryPoll } from "@/data/discoveriesData";
 import { AimedDiscoverLead } from "@/components/discovery/AimedDiscoverLead";
 import { StakeholderSurfaceLead } from "@/components/people/StakeholderLoop";
 import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
@@ -45,7 +45,6 @@ import { toast } from "sonner";
 import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
-import { VERIFIED_VENUES } from "@/data/venuesData";
 import { useNearbyBenefits } from "@/hooks/usePeopleExperience";
 import { LivePerkCard } from "@/components/perks/LivePerkCard";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
@@ -92,6 +91,23 @@ const CURATED_COORDINATES: Record<string, { lat: number; lng: number }> = {
 };
 
 const DEFAULT_DISCOVER_CENTER = { lat: 18.0179, lng: -76.8099 };
+
+type PublicVenue = {
+  id: string;
+  slug?: string | null;
+  name?: string | null;
+  description?: string | null;
+  location?: string | null;
+  address?: string | null;
+  city?: string | null;
+  country?: string | null;
+  venue_type?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  image_url?: string | null;
+  verification_status?: string | null;
+  listing_status?: string | null;
+};
 
 const formatMomentDate = (value: string | null | undefined, locale: string, tba: string) => {
   if (!value) return tba;
@@ -156,7 +172,7 @@ const SignedInDiscover = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
-  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>(() => getActiveDiscoveryPolls());
+  const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>([]);
 
   const nearby = useNearbyBenefits();
   const contentDrops = useContentDrops("active");
@@ -183,66 +199,36 @@ const SignedInDiscover = () => {
         .limit(100);
 
       if (error) throw error;
-      const dbMoments = (momentsData || []).map((m) => {
-        let lat = Number(m.latitude);
-        let lng = Number(m.longitude);
+      const scheduledDbMoments = (momentsData || []).map((moment) => applyEncoreSchedule(moment));
 
-        const isInvalid = !Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 1 && Math.abs(lng) < 1);
-        if (isInvalid) {
-          const curated = CURATED_COORDINATES[m.id];
-          if (curated) {
-            lat = curated.lat;
-            lng = curated.lng;
-          } else {
-            const venue = VERIFIED_VENUES.find(
-              (v) =>
-                v.name.toLowerCase() === (m.venue_name || "").toLowerCase() ||
-                (m.location || "").toLowerCase().includes(v.name.toLowerCase()) ||
-                (m.title || "").toLowerCase().includes(v.name.toLowerCase())
-            );
-            if (venue) {
-              lat = venue.latitude;
-              lng = venue.longitude;
-            } else {
-              lat = DEFAULT_DISCOVER_CENTER.lat;
-              lng = DEFAULT_DISCOVER_CENTER.lng;
-            }
-          }
-        }
-
-        return {
-          ...m,
-          latitude: lat,
-          longitude: lng,
-        };
-      });
-
-      const scheduledDbMoments = dbMoments.map((moment) => applyEncoreSchedule(moment));
-
-      const curatedAsMoments = CURATED_KINGSTON_MOMENTS.map((cm) => {
-        const coords = CURATED_COORDINATES[cm.id] || DEFAULT_DISCOVER_CENTER;
-        const isEncore = isEncoreRecord(cm);
-        return applyEncoreSchedule({
-          id: cm.id,
-          host_id: "editorial",
-          title: cm.title,
-          description: cm.description,
-          category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
-          location: cm.location,
-          venue_name: cm.venueName,
-          latitude: coords.lat,
-          longitude: coords.lng,
-          starts_at: isEncore ? ENCORE_START_ISO : new Date(Date.now() + 86400000).toISOString(),
-          ends_at: isEncore ? ENCORE_END_ISO : null,
-          max_participants: 50,
-          reward: `${cm.pointsReward} Points + PromoKey`,
-          image_url: cm.image,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          ...(isEncore ? ENCORE_RECURRENCE : {}),
-        });
-      });
+      // Editorial fixtures are a design/dev aid only. Production discovery is
+      // intentionally empty when authoritative Moment inventory is empty.
+      const curatedAsMoments = import.meta.env.DEV
+        ? CURATED_KINGSTON_MOMENTS.map((cm) => {
+            const coords = CURATED_COORDINATES[cm.id] || DEFAULT_DISCOVER_CENTER;
+            const isEncore = isEncoreRecord(cm);
+            return applyEncoreSchedule({
+              id: cm.id,
+              host_id: "editorial",
+              title: cm.title,
+              description: cm.description,
+              category: cm.intentType === "ATTEND" ? "Music & Parties" : cm.intentType === "TRY" ? "Food & Drinks" : "Gatherings & Culture",
+              location: cm.location,
+              venue_name: cm.venueName,
+              latitude: coords.lat,
+              longitude: coords.lng,
+              starts_at: isEncore ? ENCORE_START_ISO : new Date(Date.now() + 86400000).toISOString(),
+              ends_at: isEncore ? ENCORE_END_ISO : null,
+              max_participants: 50,
+              reward: null,
+              image_url: cm.image,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              ...(isEncore ? ENCORE_RECURRENCE : {}),
+            });
+          })
+        : [];
 
       const seenTitles = new Set(scheduledDbMoments.map((m) => m.title.toLowerCase()));
       const hasDbEncore = scheduledDbMoments.some((moment) => isEncoreRecord(moment));
@@ -257,17 +243,30 @@ const SignedInDiscover = () => {
     },
   });
 
+  const venuesQuery = useQuery({
+    queryKey: ["discover-public-venues-v1"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("view_public_venue_directory")
+        .select("*")
+        .order("popularity_score", { ascending: false, nullsFirst: false })
+        .limit(200);
+      if (error) throw error;
+      return (data || []) as PublicVenue[];
+    },
+  });
+
   const moments = useMemo(() => discoveryQuery.data || [], [discoveryQuery.data]);
   const hubMoments = useMemo(
     () => moments.filter((m) => matchesCityHub(m, city)),
     [moments, city],
   );
   const hubVenues = useMemo(
-    () => VERIFIED_VENUES.filter((venue) => matchesCityHub(venue, city)),
-    [city],
+    () => (venuesQuery.data || []).filter((venue) => matchesCityHub(venue, city)),
+    [venuesQuery.data, city],
   );
   const catalog = useMemo(
-    () => mergeDiscoveryPolls(livePolls, listingPolls, getActiveDiscoveryPolls()).filter(isActiveDiscoveryPoll),
+    () => mergeDiscoveryPolls(livePolls, listingPolls),
     [livePolls, listingPolls],
   );
   const hubDiscoveries = useMemo(
@@ -342,23 +341,30 @@ const SignedInDiscover = () => {
     });
 
     hubVenues.forEach((v) => {
+      const lat = Number(v.latitude);
+      const lng = Number(v.longitude);
       const matchesSearch =
         !searchQuery ||
-        v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        v.location.toLowerCase().includes(searchQuery.toLowerCase());
+        String(v.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        String(v.location || v.address || "").toLowerCase().includes(searchQuery.toLowerCase());
 
-      if (matchesSearch && !seenIds.has(v.id)) {
+      if (
+        matchesSearch &&
+        !seenIds.has(v.id) &&
+        Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        !(Math.abs(lat) < 0.5 && Math.abs(lng) < 0.5)
+      ) {
         seenIds.add(v.id);
         markers.push({
           id: v.id,
-          lat: v.latitude,
-          lng: v.longitude,
-          title: v.name,
-          subtitle: `${v.city} · ${v.venue_type_label}`,
-          category: t("discover.verifiedVenue"),
-          reward: t("discover.memberPerks"),
-          imageUrl: v.image_url,
-          url: `/venues/${v.id}`,
+          lat,
+          lng,
+          title: v.name || "Recorded place",
+          subtitle: [v.city, v.venue_type].filter(Boolean).join(" · ") || undefined,
+          category: v.verification_status === "verified" ? t("discover.verifiedVenue") : "Recorded place",
+          imageUrl: v.image_url || undefined,
+          url: `/venues/${v.slug || v.id}`,
           actionLabel: t("discover.viewVenue"),
         });
       }
@@ -389,15 +395,15 @@ const SignedInDiscover = () => {
         setLivePolls((prev) => [newQ as DiscoveryPoll, ...prev]);
       }}
       onCastVote={async (poll, optionId) => {
-        if (!poll.detailUrl) return;
         if (!user) {
           toast.info(t("discover.signInVote"));
-          return;
+          throw new Error("Sign in to record this vote.");
         }
         try {
           await castListingDiscoveryVote(poll.id, optionId);
         } catch (error: any) {
           toast.error(error?.message?.includes("duplicate") ? t("discover.alreadyVoted") : t("discover.voteFailed"));
+          throw error;
         }
       }}
     />
@@ -808,47 +814,51 @@ const SignedInDiscover = () => {
                     <h3 className="text-xl font-bold text-white">{t("discover.placesTitle")}</h3>
                     <p className="text-xs text-white/50">{t("discover.placesCopy", { city: city.name })}</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{t("discover.verifiedSpots", { count: formatNumber(hubVenues.length) })}</span>
+                  <span className="text-xs font-semibold text-white/50">{formatNumber(hubVenues.length)} recorded places</span>
                 </div>
 
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  {hubVenues.map((venue) => (
-                    <div
-                      key={venue.id}
-                      className="group p-5 rounded-3xl border border-white/10 bg-white/5 hover:border-primary/40 transition flex flex-col justify-between space-y-4"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="h-16 w-16 rounded-2xl overflow-hidden bg-black shrink-0 relative">
-                          <img src={venue.image_url} alt={venue.name} className="h-full w-full object-cover" />
-                        </div>
-                        <div className="space-y-1 min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">
-                              {venue.city}
-                            </Badge>
-                            <Badge variant="outline" className="border-white/15 text-white/60 text-[10px]">
-                              {venue.venue_type_label}
-                            </Badge>
+                {venuesQuery.isLoading ? (
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    {[0, 1, 2, 3].map((item) => <Skeleton key={item} className="h-56 rounded-3xl bg-white/5" />)}
+                  </div>
+                ) : venuesQuery.isError ? (
+                  <div role="alert" className="rounded-3xl border border-red-400/20 bg-red-400/5 p-6">
+                    <p className="text-sm font-bold text-white">Places couldn’t load.</p>
+                    <p className="mt-1 text-xs text-white/45">Static venue fixtures are not being substituted.</p>
+                    <button type="button" onClick={() => void venuesQuery.refetch()} className="mt-3 min-h-11 text-primary">Try again</button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    {hubVenues.map((venue) => (
+                      <div
+                        key={venue.id}
+                        className="group p-5 rounded-3xl border border-white/10 bg-white/5 hover:border-primary/40 transition flex flex-col justify-between space-y-4"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="h-16 w-16 rounded-2xl overflow-hidden bg-black shrink-0 relative">
+                            {venue.image_url ? <img src={venue.image_url} alt={venue.name || ""} className="h-full w-full object-cover" /> : <Store className="m-5 h-6 w-6 text-white/20" />}
                           </div>
-                          <h4 className="text-base font-bold text-white truncate">{venue.name}</h4>
-                          <p className="text-xs text-white/60 flex items-center gap-1">
-                            <MapPin className="h-3 w-3 text-primary shrink-0" />
-                            <span className="truncate">{venue.location}</span>
-                          </p>
+                          <div className="space-y-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {venue.city ? <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">{venue.city}</Badge> : null}
+                              {venue.venue_type ? <Badge variant="outline" className="border-white/15 text-white/60 text-[10px] capitalize">{venue.venue_type.replaceAll("_", " ")}</Badge> : null}
+                            </div>
+                            <h4 className="text-base font-bold text-white truncate">{venue.name || "Recorded place"}</h4>
+                            <p className="text-xs text-white/60 flex items-center gap-1">
+                              <MapPin className="h-3 w-3 text-primary shrink-0" />
+                              <span className="truncate">{venue.location || venue.address || "Location not recorded"}</span>
+                            </p>
+                          </div>
                         </div>
+                        {venue.description ? <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">{venue.description}</p> : null}
+                        <Button asChild variant="outline" className="w-full rounded-2xl border-white/15 bg-white/5 text-white hover:bg-primary hover:border-primary font-bold text-xs">
+                          <Link to={`/venues/${venue.slug || venue.id}`}>{t("discover.viewVenue")}</Link>
+                        </Button>
                       </div>
-                      <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">
-                        {venue.vibe}
-                      </p>
-                      <Button asChild variant="outline" className="w-full rounded-2xl border-white/15 bg-white/5 text-white hover:bg-primary hover:border-primary font-bold text-xs">
-                        <a href={`https://maps.google.com/?q=${venue.latitude},${venue.longitude}`} target="_blank" rel="noopener noreferrer">
-                          {t("discover.viewDirections")}
-                        </a>
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                {hubVenues.length === 0 && (
+                    ))}
+                  </div>
+                )}
+                {!venuesQuery.isLoading && !venuesQuery.isError && hubVenues.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
                     noun={t("discover.nounVenues")}

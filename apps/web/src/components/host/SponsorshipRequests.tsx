@@ -56,61 +56,12 @@ export function HostSponsorshipRequests() {
 
   if (!requests || requests.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="bg-card rounded-xl p-8 border border-border text-center">
-          <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="font-semibold text-foreground mb-2">No Active Sponsorships</h3>
-          <p className="text-muted-foreground">
-            Brands will send sponsorship offers here when they're interested in your moments.
-          </p>
-        </div>
-
-        {/* Blueprint/Demo Feature */}
-        <div>
-           <div className="flex items-center gap-2 mb-4">
-               <h3 className="font-semibold text-foreground">Matchmaker Opportunities</h3>
-               <Badge variant="outline" className="text-[10px] text-muted-foreground uppercase tracking-widest bg-muted/50">Coming Soon</Badge>
-           </div>
-           
-           <div className="pointer-events-none rounded-xl border border-border/50 bg-gradient-warm p-4 opacity-80 sepia-[0.2] filter sm:p-6">
-                <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex min-w-0 items-center gap-3">
-                      <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center p-1">
-                          <span className="text-white font-bold text-xs">NIKE</span>
-                      </div>
-                      <div>
-                        <p className="font-bold text-foreground">
-                          Nike Running Club Sponsorship
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Looking for running communities in your area.
-                        </p>
-                      </div>
-                  </div>
-                  <div className="text-left sm:text-right">
-                    <p className="text-2xl font-black text-emerald-600">
-                      $500
-                    </p>
-                    <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">Open Bounty</Badge>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Requirements:</p>
-                  <p className="text-sm text-foreground">Host a 5k run with at least 50 verified attendees. Mention Nike Run Club in the event description and require photo check-ins.</p>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button size="sm" className="flex-1 opacity-50">
-                    <Check className="w-4 h-4 mr-1" />
-                    Accept Offer
-                  </Button>
-                  <Button size="sm" variant="outline" className="flex-1 opacity-50">
-                    View Details
-                  </Button>
-                </div>
-           </div>
-        </div>
+      <div className="rounded-2xl border border-dashed border-white/12 bg-white/[.02] p-8 text-center">
+        <DollarSign className="mx-auto h-10 w-10 text-white/25" />
+        <h3 className="mt-4 text-lg font-black text-white">No sponsorship requests yet.</h3>
+        <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/45">
+          When a real brand request is recorded for one of your Moments, it will appear here with its actual review and funding state.
+        </p>
       </div>
     );
   }
@@ -133,7 +84,7 @@ export function HostSponsorshipRequests() {
                   <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                      <div className="min-w-0 space-y-4">
                         <div>
-                           <Badge className="bg-emerald-500 text-white mb-2 shadow-glow-emerald">USD Funded & Locked</Badge>
+                           <Badge className="bg-emerald-500 text-white mb-2 shadow-glow-emerald">Funded request</Badge>
                            <h4 className="text-2xl font-black italic font-serif">
                               {request.moment?.title || "Community Moment"}
                            </h4>
@@ -141,13 +92,13 @@ export function HostSponsorshipRequests() {
                         </div>
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Moment Budget</p>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Recorded request amount</p>
                               <p className="text-xl font-black text-emerald-600">${request.bid_amount}</p>
                            </div>
                            <div className="hidden h-8 w-px bg-emerald-500/20 sm:block" />
                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Host Liquidity</p>
-                              <p className="text-[10px] font-bold text-foreground uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded">Verified Payouts</p>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Funding state</p>
+                              <p className="text-[10px] font-bold text-foreground uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded">Funded · payout not implied</p>
                            </div>
                         </div>
                      </div>

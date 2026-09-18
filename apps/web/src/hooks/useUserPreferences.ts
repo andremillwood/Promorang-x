@@ -70,8 +70,9 @@ export function useUserPreferences() {
 export function useHasCompletedOnboarding() {
   const { data: preferences, isLoading } = useUserPreferences();
 
-  // User has completed onboarding if they have preferences with at least one category selected
-  const hasCompleted = !isLoading && preferences && preferences.preferred_categories?.length > 0;
+  // A successfully persisted preferences row is the durable onboarding receipt.
+  // Commercial roles can complete onboarding without participant interest categories.
+  const hasCompleted = !isLoading && Boolean(preferences);
 
   return { hasCompleted, isLoading };
 }

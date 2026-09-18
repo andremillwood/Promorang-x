@@ -171,7 +171,6 @@ const PiecePortfolio = lazy(() => import("./pages/PiecePortfolio"));
 const PieceProfile = lazy(() => import("./pages/PieceProfile"));
 const PieceOwnerManage = lazy(() => import("./pages/PieceOwnerManage"));
 const KYCPage = lazy(() => import("./pages/KYCPage"));
-const KYCAdminDashboard = lazy(() => import("./pages/admin/KYCAdminDashboard"));
 const ClaimPages = lazy(() => import("./pages/ClaimPages"));
 const LiquidityDashboard = lazy(() => import("./pages/LiquidityDashboard"));
 const FeaturedBooking = lazy(() => import("./pages/FeaturedBooking"));
@@ -516,7 +515,7 @@ const App = () => (
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/promoshare" element={<PromoShareAdmin />} />
                     <Route path="/admin/featured" element={<FeaturedPlacementsAdmin />} />
-                    <Route path="/admin/kyc" element={<ProtectedRoute><KYCAdminDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/kyc" element={<Navigate to="/admin?tab=verification-hub" replace />} />
                     <Route path="/marketplace" element={<ProtectedRoute><TradingMarketplace /></ProtectedRoute>} />
                     <Route path="/portfolio" element={<ProtectedRoute><PiecePortfolio /></ProtectedRoute>} />
                     <Route path="/pieces/:pieceType/:assetId" element={<ProtectedRoute><PieceProfile /></ProtectedRoute>} />

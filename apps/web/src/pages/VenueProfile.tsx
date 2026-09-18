@@ -17,6 +17,8 @@ import { useI18n } from "@/i18n/I18nContext";
 import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID } from "@promorang/shared";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
+const ALLOW_STATIC_VENUE_FIXTURES = import.meta.env.DEV;
+
 const SEA_DECK_FALLBACK: PublicVenueRow = {
   id: SEA_DECK_VENUE_ID,
   slug: "sea-deck",
@@ -125,14 +127,14 @@ export default function VenueProfile() {
           .maybeSingle();
 
         if (error) throw error;
-        return (data as PublicVenueRow | null) ?? (slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
+        return (data as PublicVenueRow | null) ?? (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
       } catch (error) {
-        if (slug === "sea-deck") return SEA_DECK_FALLBACK;
+        if (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck") return SEA_DECK_FALLBACK;
         throw error;
       }
     },
     enabled: Boolean(slug),
-    retry: slug === "sea-deck" ? 0 : 3,
+    retry: ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? 0 : 3,
   });
 
   const momentsQuery = useQuery({
@@ -148,14 +150,14 @@ export default function VenueProfile() {
 
         if (error) throw error;
         const rows = (data || []) as PublicMomentDirectoryRow[];
-        return rows.length > 0 ? rows : slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
+        return rows.length > 0 ? rows : ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
       } catch (error) {
-        if (slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
+        if (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
         throw error;
       }
     },
     enabled: Boolean(slug),
-    retry: slug === "sea-deck" ? 0 : 3,
+    retry: ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? 0 : 3,
   });
 
   const contentQuery = useQuery({
@@ -313,7 +315,7 @@ export default function VenueProfile() {
                   </span>
                   {venue.address && <span>{venue.address}</span>}
                 </div>
-                {slug === "sea-deck" ? (
+                {ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? (
                   <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
                     <p className="mt-2 text-lg font-black">AftrHrs · {AFTRHRS_COPY.whenLine}</p>
@@ -331,7 +333,7 @@ export default function VenueProfile() {
                 <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">At this place</p>
                 <h2 className="mt-3 font-serif text-3xl font-bold">{nextMoment ? "Something is happening here." : commerceListings.length ? "Something is available here." : "Keep this place on your radar."}</h2>
                 <p className="mt-3 text-sm leading-6 text-white/50">{nextMoment ? nextMoment.title : commerceListings[0]?.name || "Explore the public activity connected to this place."}</p>
-                {nextMoment ? <Link to={nextMoment.slug === "aftrhrs" || slug === "sea-deck" ? "/moments/aftrhrs" : `/moments/${nextMoment.slug || nextMoment.id}`} className="mt-5 inline-flex min-h-12 w-full items-center justify-between bg-primary px-5 text-sm font-black text-black">Open next Moment <ArrowLeft className="h-4 w-4 rotate-180"/></Link> : null}
+                {nextMoment ? <Link to={`/moments/${nextMoment.slug || nextMoment.id}`} className="mt-5 inline-flex min-h-12 w-full items-center justify-between bg-primary px-5 text-sm font-black text-black">Open next Moment <ArrowLeft className="h-4 w-4 rotate-180"/></Link> : null}
                 {commerceListings.length ? <a href="#offers" className="mt-2 inline-flex min-h-11 w-full items-center justify-between border border-white/15 px-5 text-xs font-black uppercase tracking-[.08em]">See what's available <ShoppingBag className="h-4 w-4"/></a> : null}
               </aside>
             </div>

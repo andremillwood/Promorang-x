@@ -27,5 +27,11 @@
       "path": "/api/cron/daily",
       "schedule": "0 8 * * *"
     }
-  ]
+  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "design/canonical-object-system-v1": false
+    }
+  }
 }

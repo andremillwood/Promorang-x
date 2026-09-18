@@ -72,6 +72,9 @@ export function StakeholderReturnPanel({ role, className }: StakeholderReturnPan
             <ReturnStatement label="Social return" value={copy.socialReturn} />
             <ReturnStatement label="Commercial return" value={copy.commercialReturn} />
           </div>
+          <div className="mt-4 rounded-xl border border-amber-400/15 bg-amber-400/[0.05] p-3 text-[10px] leading-4 text-amber-100/65">
+            People, return, story, collaboration and gross-value figures come from recorded activation closeout snapshots and may be operator-reported. Gems and access counts come from their respective ledgers.
+          </div>
           <div className="mt-5 grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr))]">
             {metrics.map((metric) => (
               <div key={metric.id} className="rounded-xl border border-white/10 bg-black/30 p-3">

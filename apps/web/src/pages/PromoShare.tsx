@@ -354,8 +354,8 @@ const PromoShare = () => {
 
       {/* Unified Dynamic PromoShare Hero */}
       <PromoShareHero
-        totalTickets={totalEntries > 0 ? totalEntries : 14}
-        multiplier={3.5}
+        totalTickets={totalEntries}
+        eligibility={primaryCycle ? (primaryCycle.eligible ? 'qualified' : primaryCycle.status === 'not_qualified' ? 'not_qualified' : 'in_progress') : null}
         onOpenSlash={() => setSlashOpen(true)}
       />
       <div className="mb-8 space-y-3">
@@ -731,8 +731,8 @@ const PromoShare = () => {
                   )}
                   <div className="mt-4 flex justify-end pt-2 border-t border-border/40">
                     <PromoShareTicketDrawModal
-                      jackpotAmount={draw.jackpot_amount || 1000}
-                      userTickets={draw.userTickets > 0 ? draw.userTickets : 5}
+                      jackpotAmount={draw.jackpot_amount}
+                      userTickets={draw.userTickets}
                       poolTitle={`${draw.cycle_type.toUpperCase()} Prize Draw`}
                     />
                   </div>
@@ -835,8 +835,8 @@ const PromoShare = () => {
         <TabsContent value="history" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Win History</CardTitle>
-              <CardDescription>Your past PromoShare wins and rewards</CardDescription>
+              <CardTitle>Draw Result History</CardTitle>
+              <CardDescription>Recorded selections and claim state. A selected result or claimed reward does not by itself mean settlement is complete.</CardDescription>
             </CardHeader>
             <CardContent>
               {data.history && data.history.length > 0 ? (
@@ -861,7 +861,7 @@ const PromoShare = () => {
                         </div>
                       </div>
                       <Badge className={win.claimed ? 'bg-green-500' : 'bg-amber-500'}>
-                        {win.claimed ? 'Claimed' : 'Pending'}
+                        {win.claimed ? 'Claim recorded' : 'Selected · claim pending'}
                       </Badge>
                     </div>
                   ))}
@@ -869,7 +869,7 @@ const PromoShare = () => {
               ) : (
                 <div className="text-center py-12">
                   <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Wins Yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">No Recorded Draw Results Yet</h3>
                   <p className="text-muted-foreground mb-4">Keep participating to increase your chances</p>
                   <Button onClick={() => setActiveTab('overview')}>
                     View Active Cycles

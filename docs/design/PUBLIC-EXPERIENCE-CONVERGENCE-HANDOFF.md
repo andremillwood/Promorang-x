@@ -702,3 +702,13 @@ After each meaningful convergence pass, append a dated entry to this file using:
 Update the top-of-file branch/PR/head information when materially useful, but never treat an old SHA as current truth.
 
 This file is the continuity log. `DESIGN.md` remains the broader design-system law; `docs/design/public-experience-convergence-v1.md` remains the deeper convergence specification.
+
+
+### 2026-09-18 — Canonical base reconciliation
+
+- Reconciled the public convergence branch against the current `design/canonical-object-system-v1` base after it moved 201 commits beyond the original merge base.
+- Preserved the newer product-completion / production-truth work from the canonical branch, including the participant-world shell, DEV-only fixture boundaries, checked-in-only attendance semantics, and the admin Moment record lens.
+- Preserved Public Object System v2, anonymous public object destinations, source-backed relationship rails, real follower/review stats, and the public mobile object pass.
+- Marketing/help rewrites remained authoritative where they already superseded legacy pages and already removed the claims the newer truth sweep was correcting.
+- Reconciliation was staged as an unreferenced merge candidate before moving the PR branch.
+- No direct Vercel deployment was invoked. Preview builds remain reserved for an intentional integration checkpoint.

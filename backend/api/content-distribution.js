@@ -56,7 +56,7 @@ router.get('/campaigns/:campaignId/context', optionalAuth, async (req, res) => {
       stakeholders,
       commerce: productsResult.data || [],
       piece: statsResult.data ? { ...statsResult.data, user_quantity: Number(positionResult.data?.pieces_owned || 0) } : null,
-      promoshare: { enabled: campaign.promoshare_config?.enabled !== false, entries_per_action: Number(campaign.promoshare_config?.entries_per_action || 1) },
+      promoshare: { enabled: campaign.promoshare_config?.enabled === true, entries_per_action: Number(campaign.promoshare_config?.entries_per_action ?? 0) },
     } });
   } catch (error) {
     console.error('[Content Distribution] context failed:', error);

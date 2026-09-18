@@ -507,7 +507,7 @@ router.get('/graduation-options', requireAuth, async (req, res) => {
           {
             id: 'paid_activation',
             label: 'Run a Paid Activation',
-            description: 'Same structure as sampling, but with higher limits and guaranteed reach.',
+            description: 'Same structure as sampling, but with higher limits and configurable paid distribution and targeting.',
             action: '/advertiser/campaigns/new'
           },
           {

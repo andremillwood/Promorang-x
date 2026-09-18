@@ -202,10 +202,10 @@ async function recordAction(userId, payload) {
 
   const actionType = payload.action_type || 'engage';
   const pays = !isReleaseCampaign(campaign) || releasePaysForAction(actionType);
-  const verified = pays && Boolean(payload.verified || VERIFIED_ACTIONS.has(actionType) || actionType === 'click' || actionType === 'open');
+  const verified = pays && Boolean(VERIFIED_ACTIONS.has(actionType) || actionType === 'click' || actionType === 'open');
   const pointsAwarded = calculatePoints(actionType, campaign, payload.metadata);
   const promoshareEntries = shouldAwardPromoShare(actionType, campaign)
-    ? Number(campaign.promoshare_config?.entries_by_action?.[actionType] || campaign.promoshare_config?.entries_per_action || 1)
+    ? Number(campaign.promoshare_config?.entries_by_action?.[actionType] ?? campaign.promoshare_config?.entries_per_action ?? 0)
     : 0;
 
   const { data: action, error } = await supabase

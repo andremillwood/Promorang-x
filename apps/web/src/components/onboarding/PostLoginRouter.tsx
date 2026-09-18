@@ -67,10 +67,10 @@ export function PostLoginRouter() {
       if (effectiveRole !== "admin") {
         const { data, error } = await supabase
           .from("user_preferences")
-          .select("onboarding_completed")
+          .select("user_id")
           .eq("user_id", user.id)
           .maybeSingle();
-        onboardingCompleted = error ? true : Boolean(data?.onboarding_completed);
+        onboardingCompleted = !error && Boolean(data?.user_id);
       }
 
       if (!onboardingCompleted) {

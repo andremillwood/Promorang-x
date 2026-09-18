@@ -4,7 +4,6 @@ import { peopleExperienceApi } from "@/services/peopleExperience";
 import {
   perkTitleForPoll,
   readLocalCardUnlocks,
-  unlockFromPoll,
   writeLocalCardUnlock,
   type DiscoveryCardUnlock,
 } from "@/lib/discovery-card";
@@ -16,8 +15,10 @@ export async function unlockDiscoveryOntoCard(input: {
   query?: string;
   aim?: string | null;
 }): Promise<DiscoveryCardUnlock> {
-  const existing = readLocalCardUnlocks().find((row) => row.pollId === input.poll.id) || null;
-  const local = writeLocalCardUnlock(unlockFromPoll({ ...input, existing }));
+  const cached = readLocalCardUnlocks().find((row) => row.pollId === input.poll.id);
+  if (cached?.redemptionCode) return cached;
+
+  const perkTitle = perkTitleForPoll(input.poll);
 
   try {
     const { data: sessionData } = await supabase.auth.getSession();
@@ -27,20 +28,26 @@ export async function unlockDiscoveryOntoCard(input: {
           city: input.city,
           pollId: input.poll.id,
           question: input.poll.question,
-          perkTitle: perkTitleForPoll(input.poll),
+          perkTitle,
           query: input.query,
           aim: input.aim || undefined,
         });
         if (remote?.redemptionCode) {
           return writeLocalCardUnlock({
-            ...local,
-            id: remote.id || local.id,
+            id: remote.id || `unlock:${input.poll.id}`,
+            pollId: input.poll.id,
+            pollQuestion: input.poll.question,
+            perkTitle: remote.perkTitle || perkTitle,
+            city: input.city,
+            query: (input.query || "").trim() || undefined,
             redemptionCode: remote.redemptionCode,
-            perkTitle: remote.perkTitle || local.perkTitle,
+            status: "claimed",
+            createdAt: new Date().toISOString(),
+            source: "discover",
           });
         }
       } catch {
-        // RPC still records the card when the API is down.
+        // Fall through to the durable Supabase RPC.
       }
     }
 
@@ -48,23 +55,30 @@ export async function unlockDiscoveryOntoCard(input: {
       p_city: input.city,
       p_poll_id: input.poll.id,
       p_poll_question: input.poll.question,
-      p_perk_title: local.perkTitle,
+      p_perk_title: perkTitle,
       p_query: input.query || null,
       p_anonymous_id: readDiscoverAnonId() || null,
     });
-    if (!error && Array.isArray(data) && data[0]?.redemption_code) {
+    if (error) throw error;
+    if (Array.isArray(data) && data[0]?.redemption_code) {
       return writeLocalCardUnlock({
-        ...local,
-        id: data[0].unlock_id || local.id,
+        id: data[0].unlock_id || `unlock:${input.poll.id}`,
+        pollId: input.poll.id,
+        pollQuestion: input.poll.question,
+        perkTitle: data[0].perk_title || perkTitle,
+        city: input.city,
+        query: (input.query || "").trim() || undefined,
         redemptionCode: data[0].redemption_code,
-        perkTitle: data[0].perk_title || local.perkTitle,
+        status: "claimed",
+        createdAt: new Date().toISOString(),
+        source: "discover",
       });
     }
-  } catch {
-    // Local slip is enough for this browser.
+  } catch (error) {
+    throw error instanceof Error ? error : new Error("Could not put that perk on your card yet.");
   }
 
-  return local;
+  throw new Error("Could not put that perk on your card yet.");
 }
 
 export function useDiscoveryCard() {

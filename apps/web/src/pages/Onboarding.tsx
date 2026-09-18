@@ -37,14 +37,14 @@ const Onboarding = () => {
     
     // Automatically trigger role pilot HUD co-pilot for the user's chosen persona
     const roleMap: Record<string, string> = {
-      explorer: 'explorer',
-      creator: 'creator',
-      mayor: 'host',
-      merchant: 'merchant',
-      brand: 'brand',
-      agency: 'brand'
+      explorer: "participant",
+      creator: "creator",
+      mayor: "host",
+      merchant: "merchant",
+      brand: "brand",
+      agency: "agency",
     };
-    const roleId = (personaChoice && roleMap[personaChoice]) || 'explorer';
+    const roleId = (personaChoice && roleMap[personaChoice]) || activeRole || "participant";
     sessionStorage.setItem('promorang_role_pilot_active', 'true');
     sessionStorage.setItem('promorang_role_pilot_role', roleId);
     sessionStorage.setItem('promorang_role_pilot_step', '0');

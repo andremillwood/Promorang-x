@@ -175,63 +175,7 @@ const promoShareService = {
      */
     async getDashboardData(userId) {
         if (!supabase) {
-            // Mock data for dev without DB - now includes all 4 draw types
-            const now = Date.now();
-            return {
-                draws: [
-                    {
-                        id: 1,
-                        cycle_type: 'daily',
-                        end_at: new Date(now + 12 * 60 * 60 * 1000).toISOString(), // 12 hours
-                        jackpot_amount: 50,
-                        is_rollover: false,
-                        userTickets: 3,
-                        totalTickets: 89,
-                        poolItems: [{ id: 'd1', reward_type: 'gem', amount: 50, description: 'Daily Gems' }]
-                    },
-                    {
-                        id: 2,
-                        cycle_type: 'weekly',
-                        end_at: new Date(now + 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days
-                        jackpot_amount: 500,
-                        is_rollover: false,
-                        userTickets: 12,
-                        totalTickets: 450,
-                        poolItems: [{ id: 'w1', reward_type: 'gem', amount: 500, description: 'Weekly Jackpot' }]
-                    },
-                    {
-                        id: 3,
-                        cycle_type: 'monthly',
-                        end_at: new Date(now + 18 * 24 * 60 * 60 * 1000).toISOString(), // 18 days
-                        jackpot_amount: 2500,
-                        is_rollover: false,
-                        userTickets: 45,
-                        totalTickets: 2100,
-                        poolItems: [{ id: 'm1', reward_type: 'gem', amount: 2500, description: 'Monthly Grand Prize' }]
-                    },
-                    {
-                        id: 4,
-                        cycle_type: 'grand',
-                        end_at: new Date(now + 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days (weekly)
-                        jackpot_amount: 10000,
-                        is_rollover: true,
-                        userTickets: 12,
-                        totalTickets: 450,
-                        poolItems: [{ id: 'g1', reward_type: 'gem', amount: 10000, description: 'GRAND JACKPOT' }]
-                    }
-                ],
-                // Legacy fields for backward compatibility
-                activeCycle: {
-                    id: 2,
-                    end_at: new Date(now + 4 * 24 * 60 * 60 * 1000).toISOString(),
-                    cycle_type: 'weekly'
-                },
-                userTickets: 12,
-                totalTickets: 450,
-                poolItems: [{ id: 'w1', reward_type: 'gem', amount: 500, description: 'Weekly Jackpot' }],
-                currentJackpot: 500,
-                isRollover: false
-            };
+            throw new Error('PromoShare authoritative data source unavailable');
         }
 
         // Get all active cycles
@@ -1185,18 +1129,7 @@ const promoShareService = {
         const basicData = await this.getDashboardData(userId);
 
         if (!supabase) {
-            return {
-                ...basicData,
-                user_stats: {
-                    total_entries: 12,
-                    verified_actions: 8,
-                    moments_joined: 3,
-                    referrals: 1,
-                    streak_days: 5,
-                    current_weight: 25,
-                    rank: 45
-                }
-            };
+            throw new Error('PromoShare authoritative data source unavailable');
         }
 
         // Get user's stats for all active cycles

@@ -1,5 +1,5 @@
 /* Static weights only — the opsz variable axis collapses word spaces on iOS WebKit. */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 /* DM Sans / Fraunces webfonts sometimes ship a zero-width U+0020, which makes
    every sentence run together on mobile WebKit. Cover only the space glyph. */
@@ -243,6 +243,51 @@
   .dashboard-sidebar-scroll {
     scrollbar-color: hsl(var(--primary) / 0.35) transparent;
     scrollbar-width: thin;
+  }
+
+  /* Canonical admin page frame. Every admin tool inherits the same readable
+     width, outer gutters and section rhythm instead of defining its own edge. */
+  .admin-content-frame {
+    width: min(calc(100% - 2rem), 1500px);
+    margin-inline: auto;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .admin-content-frame {
+      width: min(calc(100% - 3rem), 1500px);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .admin-content-frame {
+      width: min(calc(100% - 5rem), 1500px);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .admin-content-frame {
+      width: min(calc(100% - 6rem), 1500px);
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .admin-content-frame {
+      width: min(calc(100% - 7rem), 1500px);
+    }
+  }
+
+  .admin-tab-stack {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .admin-tab-stack {
+      gap: 3rem;
+    }
   }
 
   .dashboard-sidebar-scroll::-webkit-scrollbar {
