@@ -162,7 +162,7 @@ function ParticipantDashboardView({ balance, isDark }: ParticipantViewProps) {
             <View style={[styles.valueReceipt, { backgroundColor: isDark ? DesignColors.gray[900] : 'white' }]}>
                 <Text style={styles.valueReceiptEyebrow}>WHAT IS AVAILABLE NOW</Text>
                 <Text style={[styles.valueReceiptTitle, { color: isDark ? 'white' : DesignColors.gray[900] }]}>{availableGems.toLocaleString()} Gems</Text>
-                <Text style={styles.valueReceiptCopy}>US${availableGems.toLocaleString()} platform value · {accessSignals ? `${accessSignals} access ${accessSignals === 1 ? 'signal' : 'signals'} ready` : 'no active access yet'}</Text>
+                <Text style={styles.valueReceiptCopy}>{availableGems.toLocaleString()} recorded Gems · {accessSignals ? `${accessSignals} access ${accessSignals === 1 ? 'signal' : 'signals'} ready` : 'no active access yet'}. Cash value and withdrawal eligibility are separate wallet states.</Text>
                 <Pressable onPress={() => router.push('/vault')} style={styles.valueReceiptAction}><Text style={styles.valueReceiptActionText}>Open your Vault</Text><Ionicons name="arrow-forward" size={16} color={DesignColors.black} /></Pressable>
             </View>
 
