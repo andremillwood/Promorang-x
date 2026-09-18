@@ -372,6 +372,43 @@ Commit: `647c2a1de9c45a4b7a3e4fc81b81296b46c66d23`
 
 Status: **Closed**
 
+#### T-023 — Onboarding completion and Agency role routing disagreed
+
+Files:
+- `apps/web/src/hooks/useUserPreferences.ts`
+- `apps/web/src/components/onboarding/PostLoginRouter.tsx`
+- `apps/web/src/pages/Onboarding.tsx`
+- `apps/web/src/components/onboarding/OnboardingSurvey.tsx`
+- `packages/shared/src/promocard-activation.ts`
+- `packages/shared/tests/promocard-activation.test.ts`
+
+Finding:
+- onboarding page completion used “has at least one preferred category” while post-login queried an `onboarding_completed` field that the preference upsert did not write;
+- Agency skipped participant-interest steps, so successful Agency onboarding could still look incomplete;
+- Agency selection wrote the active role as Brand and completion mapped Agency to Brand;
+- Agency had no role-first landing and fell through to the participant PromoCard;
+- preference-save failures were ignored before advancing;
+- Skip could bypass durable preference persistence.
+
+Resolution:
+- a persisted `user_preferences` row is now the durable onboarding receipt for all roles;
+- post-login uses the same source;
+- Agency remains `agency` through selection/completion;
+- Agency first value lands on the client portfolio;
+- save failure blocks progression/completion;
+- Skip persists the minimal preference row and preserves the current stakeholder role;
+- regression coverage locks the Agency landing.
+
+Commits:
+- `aebfcc32e8d1b7869702ee9d3a42f4f86b108b93`
+- `e3b76992e358a5088e4463d42d59122eb561bfcc`
+- `691bd1ac4284346bc5ba7669018bf25689038b32`
+- `33e3bcc3daaa68e74abcd5c36e4ac5f0a7f42736`
+- `28246d3fe99063aa0c2821aefc1c65e728ae0478`
+- `515299f3a1841e5e1f8fe80d0ccb8f75460c4e9a`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
