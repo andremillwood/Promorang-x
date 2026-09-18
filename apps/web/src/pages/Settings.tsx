@@ -750,7 +750,7 @@ const Settings = () => {
                 <Button asChild variant="destructive" className="mt-4">
                   <Link to="/support/tickets">Request account deletion through Support</Link>
                 </Button>
-              </div>>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
