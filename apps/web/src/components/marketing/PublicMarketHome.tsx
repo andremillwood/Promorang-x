@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
-import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
 import { PromoCardValueShowcase } from "@/components/marketing/PromoCardValueShowcase";
+import { CurrentArc, ReturnLoopStory } from "@/components/marketing/MarketingPhysics";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useDiscoveries } from "@/hooks/useDiscoveries";
 import { useMarket } from "@/contexts/MarketContext";
@@ -146,6 +146,7 @@ export default function PublicMarketHome() {
         className="marketing-cinematic-hero marketing-cinematic-hero--world border-b border-white/10 px-5 pb-16 pt-12 sm:px-6 md:pb-20 md:pt-20"
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         <div className="relative mx-auto flex min-h-[32rem] max-w-[1440px] items-end">
           <div className="max-w-4xl pb-4 md:pb-8">
             <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> Find what moves you. Help make more of it happen.</p>
@@ -157,7 +158,7 @@ export default function PublicMarketHome() {
               Help move it.
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
-              Discover things worth knowing about, recognize what you care about, join what other people want, or put something missing into the market.
+              Discover things worth knowing about, recognize what you care about, join what other people want, or tell PROMORANG what you are looking for.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -242,7 +243,7 @@ export default function PublicMarketHome() {
               <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">When private preferences overlap, a market starts to appear.</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are recorded Demand questions—not attendance, purchases or guaranteed supply.</p>
             </div>
-            <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Put something up <ArrowRight className="h-4 w-4" /></a>
+            <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Looking for something? <ArrowRight className="h-4 w-4" /></a>
           </div>
 
           {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Reading recorded market state…</p> : null}
@@ -277,15 +278,15 @@ export default function PublicMarketHome() {
       <section id="ask" className="marketing-stage border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_.62fr] lg:items-start">
           <div>
-            <p className="marketing-kicker">Know what is missing?</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Ask the market.</h2>
+            <p className="marketing-kicker">Looking for something?</p>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Tell PROMORANG.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">
-              Tell PROMORANG what you would like to find, try, attend, buy or experience. We first check related approved Discoveries and recorded Demand. If none fit, you can put your ask into the market.
+              A place. A product. Something to do. An offer. Something you wish existed. PROMORANG first checks what it already knows and whether other people are looking for something similar.
             </p>
 
             <form onSubmit={submitAsk} className="mt-7 max-w-2xl">
               <label htmlFor="public-ask" className="mb-2 block text-[10px] font-black uppercase tracking-[0.18em] text-white/40">
-                What would you like to see in {marketName}?
+                What are you looking for in {marketName}?
               </label>
               <div className="flex flex-col gap-2 border border-white/12 bg-white/[0.055] p-2 sm:flex-row">
                 <div className="flex min-w-0 flex-1 items-center gap-3 px-3">
@@ -303,13 +304,13 @@ export default function PublicMarketHome() {
                   />
                 </div>
                 <button type="submit" disabled={!ask.trim() || submitting} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.12em] text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40">
-                  {submitting ? "Recording…" : "Check the market"}<ArrowRight className="h-4 w-4" />
+                  {submitting ? "Checking…" : "See what’s out there"}<ArrowRight className="h-4 w-4" />
                 </button>
               </div>
 
               {resolution ? (
                 <div className="mt-4 border border-orange-300/20 bg-orange-300/[0.06] p-4 sm:p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">Related market objects</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">Things that might fit</p>
                   <p className="mt-2 text-sm leading-6 text-white/62">These look related to “{resolution.query}”. They are not being claimed as exact matches.</p>
 
                   {relatedDiscoveries.length ? (
@@ -344,7 +345,7 @@ export default function PublicMarketHome() {
 
                   <div className="mt-5 flex flex-wrap gap-3 border-t border-white/10 pt-4">
                     <button type="button" disabled={submitting} onClick={() => recordAskNow(resolution.query)} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-white px-5 text-xs font-black text-black transition hover:bg-orange-100 disabled:opacity-50">
-                      None of these — record my ask
+                      None of these — keep looking for this
                     </button>
                     <button type="button" onClick={() => setResolution(null)} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-white/15 px-5 text-xs font-bold text-white/65 transition hover:text-white">
                       Edit my ask
@@ -354,20 +355,20 @@ export default function PublicMarketHome() {
               ) : null}
 
               {askResult?.recorded ? (
-                <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300"><CheckCircle2 className="h-4 w-4" /> “{askResult.query}” was recorded as interest. It is not attendance, inventory or guaranteed supply.</p>
+                <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300"><CheckCircle2 className="h-4 w-4" /> PROMORANG is keeping an eye on “{askResult.query}”. Behind the scenes this is recorded interest—not attendance, inventory or guaranteed supply.</p>
               ) : askResult ? (
-                <p className="mt-3 inline-flex items-start gap-2 text-sm font-semibold text-amber-300"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> We could not confirm that “{askResult.query}” reached the market. It is not being presented as recorded public demand.</p>
+                <p className="mt-3 inline-flex items-start gap-2 text-sm font-semibold text-amber-300"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> PROMORANG could not confirm that “{askResult.query}” was saved. We are not pretending it is being watched or counted.</p>
               ) : null}
             </form>
           </div>
 
           <aside className="marketing-dark-note">
-            <p className="marketing-kicker">Resolve before record</p>
-            <h3 className="mt-4 text-2xl font-black">PROMORANG should try to help before it asks you to create more demand.</h3>
+            <p className="marketing-kicker">How PROMORANG handles it</p>
+            <h3 className="mt-4 text-2xl font-black">First help me find it. Only then keep looking for what is still missing.</h3>
             <div className="mt-6 space-y-4 text-sm leading-6 text-white/55">
               <p><strong className="text-white">Found something?</strong><br />Open the approved Discovery first.</p>
               <p><strong className="text-white">Others already want it?</strong><br />Join the existing signal instead of fragmenting demand.</p>
-              <p><strong className="text-white">Still missing?</strong><br />Then your ask becomes useful new market information.</p>
+              <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. PROMORANG handles the market record underneath.</p>
             </div>
           </aside>
         </div>
@@ -375,23 +376,7 @@ export default function PublicMarketHome() {
 
       <PromoCardValueShowcase />
 
-      <section className="border-b border-white/10 bg-[#080808] px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          <NightTrail eyebrow="One human loop" title="See → want → join → respond" steps={[
-            { label: "See", title: "Encounter something worth noticing.", text: "An editorial lens can lead you in; an approved Discovery tells you what PROMORANG actually knows." },
-            { label: "Want", title: "Recognize or express interest.", text: "React to what you discover or put something missing into the market yourself." },
-            { label: "Join", title: "Shared interest becomes legible.", text: "Recorded Demand shows overlap without pretending interest is a purchase or attendance." },
-            { label: "Respond", title: "Someone can put real supply behind it.", text: "A merchant, creator, host or brand decides whether to respond. Proof comes later from recorded action." },
-          ]} />
-
-          <PaperReceipt heading={`${inbox.city} market truth`} lines={[
-            { label: "Discovery source", value: "Approved records", strong: true },
-            { label: "Demand questions", value: inbox.questions.length.toLocaleString(), strong: true },
-            { label: "Recorded votes", value: inbox.liveVoteCount.toLocaleString(), strong: true },
-            { label: "Truth gate", value: "Interest ≠ supply", strong: true },
-          ]} footer="When a response becomes an action, verified proof—not marketing language—determines what actually happened." />
-        </div>
-      </section>
+      <ReturnLoopStory />
 
       <section className="marketing-operator-band relative overflow-hidden border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <img src={operatorImage} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-35" />
