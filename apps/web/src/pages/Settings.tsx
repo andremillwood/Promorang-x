@@ -94,9 +94,6 @@ const Settings = () => {
     location: "",
   });
 
-  // Payout Form Data
-  const [payoutInfo, setPayoutInfo] = useState<string>("");
-
   // Notification toggles
   const [notifications, setNotifications] = useState<Record<string, boolean>>({
     marketing: false,
@@ -326,19 +323,6 @@ const Settings = () => {
     }
   };
 
-  const handlePayoutSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    // Mock saving payout info
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    toast({
-      title: t("settings.paymentSaved"),
-      description: t("settings.paymentSavedCopy"),
-    });
-    setSaving(false);
-  }
-
   const toggleChoice = (value: string, current: string[], setter: (values: string[]) => void) => {
     setter(current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
   };
@@ -353,31 +337,11 @@ const Settings = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!user) return;
-    setDeleting(true);
-
-    try {
-      await supabase.from("profiles").delete().eq("user_id", user.id);
-      await supabase.from("user_roles").delete().eq("user_id", user.id);
-      await supabase.from("moment_participants").delete().eq("user_id", user.id);
-      await supabase.from("check_ins").delete().eq("user_id", user.id);
-      await supabase.from("notifications").delete().eq("user_id", user.id);
-
-      await signOut();
-      toast({
-        title: t("settings.accountDeleted"),
-        description: t("settings.accountDeletedCopy"),
-      });
-      navigate("/");
-    } catch (error: any) {
-      toast({
-        title: t("settings.accountDeleteError"),
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setDeleting(false);
-    }
+    toast({
+      title: "Account deletion is not available from this screen",
+      description: "No account data was deleted. Use Support for an account-deletion request until a server-side deletion workflow can remove the authentication account and dependent records atomically.",
+      variant: "destructive",
+    });
   };
 
   if (!user) {
@@ -585,37 +549,18 @@ const Settings = () => {
           {/* --- PAYOUTS TAB --- */}
           <TabsContent value="payouts">
             <div className="max-w-2xl space-y-6">
-              <div className="bg-card border border-border rounded-2xl p-6">
-                <h2 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-primary" />
-                  {t("settings.paymentInstructions")}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <h2 className="mb-2 flex items-center gap-2 font-semibold text-foreground">
+                  <CreditCard className="h-5 w-5 text-primary" />
+                  Payout setup
                 </h2>
-                <p className="text-sm text-muted-foreground mb-6">
-                  {t("settings.paymentCopy")}
+                <p className="text-sm leading-6 text-muted-foreground">
+                  PROMORANG does not currently have an authoritative payout-instructions store connected to this Settings screen. No bank or payout details are collected here, and nothing on this page should be treated as a saved payout method.
                 </p>
-
-                <form onSubmit={handlePayoutSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="payoutInfo">{t("settings.paymentDetails")}</Label>
-                    <Textarea
-                      id="payoutInfo"
-                      value={payoutInfo}
-                      onChange={(e) => setPayoutInfo(e.target.value)}
-                      placeholder={t("settings.payoutPlaceholder")}
-                      rows={6}
-                      className="font-mono text-sm"
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      <Shield className="w-3 h-3 inline mr-1" />
-                      {t("settings.paymentPrivate")}
-                    </p>
-                  </div>
-                  <div className="flex justify-end">
-                    <Button type="submit" disabled={saving}>
-                      {saving ? t("settings.saving") : t("settings.savePayment")}
-                    </Button>
-                  </div>
-                </form>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <Button asChild variant="outline"><Link to="/wallet">View recorded value</Link></Button>
+                  <Button asChild variant="ghost"><Link to="/support/tickets">Contact Support</Link></Button>
+                </div>
               </div>
             </div>
           </TabsContent>
