@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Building2, ChevronLeft, ChevronRight, LayoutGrid, MapPin, Search, Star, Users } from "lucide-react";
+import { ArrowRight, Building2, ChevronLeft, ChevronRight, MapPin, Search, Star } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
 
@@ -66,7 +66,7 @@ const ExploreVenues = () => {
   const totalPages = Math.max(1, Math.ceil(totalVenues / pageSize));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       <SEO
         title={t("venues.seoTitle")}
         description={t("venues.seoCopy")}
@@ -81,64 +81,17 @@ const ExploreVenues = () => {
 
       <section className="px-4 pb-10 pt-24 sm:pt-28">
         <div className="mx-auto max-w-7xl">
-          <Card className="border-primary/10 bg-gradient-to-r from-primary/5 via-background to-background shadow-soft">
-            <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  <Building2 className="h-3.5 w-3.5" />
-                  {t("venues.eyebrow")}
-                </div>
-                <h1 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">
-                  {t("venues.title")}
-                </h1>
-                <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-                  {t("venues.copy")}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="outline">
-                  <Link to="/explore/moments">{t("venues.browseMoments")}</Link>
-                </Button>
-                <Button asChild>
-                  <Link to="/hosts">{t("venues.seeHosts")}</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <header className="border-b border-white/10 pb-9">
+            <p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">Places</p>
+            <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
+              <div><h1 className="font-serif text-6xl font-bold leading-[.88] tracking-[-.055em] sm:text-8xl">Where things<br/><em className="font-normal text-primary">happen.</em></h1><p className="mt-6 max-w-2xl text-base leading-7 text-white/55">Follow PROMORANG through the rooms, venues and physical places connected to Moments, offers and culture.</p></div>
+              <div className="border-y border-white/15 py-5 text-sm text-white/50"><p>A Place is not inventory. It is a destination with activity attached.</p><Link to="/discover?tab=moments" className="mt-4 inline-flex items-center gap-2 font-bold text-primary">See what is happening <ArrowRight className="h-4 w-4"/></Link></div>
+            </div>
+          </header>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <Card className="shadow-soft">
-              <CardContent className="flex items-start gap-3 p-5">
-                <LayoutGrid className="mt-1 h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-semibold text-foreground">Compare by category</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Retail, nightlife, wellness, food, and other venue types each behave differently in discovery.</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="shadow-soft">
-              <CardContent className="flex items-start gap-3 p-5">
-                <Users className="mt-1 h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-semibold text-foreground">Find hostable places</p>
-                  <p className="mt-1 text-sm text-muted-foreground">The venue is infrastructure. Some venues also act as Hosts when they actively operate moments.</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="shadow-soft">
-              <CardContent className="flex items-start gap-3 p-5">
-                <Building2 className="mt-1 h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-semibold text-foreground">Connect place to behavior</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Use venue discovery to understand where check-ins, proofs, spend, and social participation are likely to happen.</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-6 rounded-[1.5rem] border border-border bg-card/80 p-4 shadow-soft">
+          <div className="mt-6 border-y border-white/10 bg-white/[.025] p-4">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
               <Input
                 value={searchQuery}
                 onChange={(event) => { setSearchQuery(event.target.value); setPage(0); }}
@@ -152,7 +105,7 @@ const ExploreVenues = () => {
                   key={venueType.value}
                   type="button"
                   onClick={() => { setActiveVenueType(venueType.value); setPage(0); }}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
+                  className={` px-4 py-2 text-sm font-medium transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] ${
                     activeVenueType === venueType.value
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary hover:bg-secondary/80"
@@ -169,17 +122,17 @@ const ExploreVenues = () => {
                 <option value="all">{t("venues.allParishes")}</option>
                 {jamaicaParishes.map((parish) => <option key={parish} value={parish}>{parish}</option>)}
               </select>
-              <span className="hidden text-xs text-muted-foreground sm:inline">{t("venues.inventory")}</span>
+              <span className="hidden text-xs text-white/45 sm:inline">{t("venues.inventory")}</span>
             </div>
           </div>
 
           <div className="mt-6 flex items-center justify-between">
             <div>
               <h2 className="font-serif text-2xl font-bold">{t("venues.browse")}</h2>
-              <p className="text-sm text-muted-foreground">{t("venues.browseCopy")}</p>
+              <p className="text-sm text-white/45">{t("venues.browseCopy")}</p>
             </div>
             {!venuesQuery.isLoading ? (
-              <Badge variant="outline" className="rounded-full">
+              <Badge variant="outline" className="">
                 {t("venues.count", { count: formatNumber(totalVenues) })}
               </Badge>
             ) : null}
@@ -201,69 +154,69 @@ const ExploreVenues = () => {
                   <Link
                     key={venue.id}
                     to={venuePath}
-                    className="group rounded-[1.75rem] border border-border bg-card p-5 shadow-soft transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:-translate-y-1 hover:border-primary/30"
+                    className="group  border border-white/10 bg-white/[.025] p-5 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] hover:-translate-y-1 hover:border-primary/30"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                        <div className=" bg-primary/10 p-3 text-primary">
                           <Building2 className="h-5 w-5" />
                         </div>
                         <div className="min-w-0">
-                          <p className="truncate font-serif text-2xl font-bold text-foreground group-hover:text-primary">
+                          <p className="truncate font-serif text-2xl font-bold text-white group-hover:text-primary">
                             {venue.name || "Unnamed venue"}
                           </p>
-                          <p className="mt-1 text-sm text-muted-foreground">
+                          <p className="mt-1 text-sm text-white/45">
                             {[venue.city, venue.country].filter(Boolean).join(", ") || venue.location || "Location coming soon"}
                           </p>
                         </div>
                       </div>
                       {venue.verification_status === "verified" ? (
-                        <Badge variant="secondary" className="rounded-full">{t("venues.verified")}</Badge>
+                        <Badge variant="secondary" className="">{t("venues.verified")}</Badge>
                       ) : venue.listing_status === "unclaimed" ? (
-                        <Badge variant="outline" className="rounded-full">{t("venues.unclaimed")}</Badge>
+                        <Badge variant="outline" className="">{t("venues.unclaimed")}</Badge>
                       ) : (
-                        <Badge variant="outline" className="rounded-full">{t("venues.unverified")}</Badge>
+                        <Badge variant="outline" className="">{t("venues.unverified")}</Badge>
                       )}
                     </div>
 
                     {venue.description ? (
-                      <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">{venue.description}</p>
+                      <p className="mt-4 line-clamp-3 text-sm text-white/45">{venue.description}</p>
                     ) : null}
 
                     <div className="mt-4 flex flex-wrap gap-2">
                       {venue.venue_type ? (
-                        <Badge variant="outline" className="rounded-full capitalize">{venue.venue_type.replace(/_/g, " ")}</Badge>
+                        <Badge variant="outline" className=" capitalize">{venue.venue_type.replace(/_/g, " ")}</Badge>
                       ) : null}
                       {typeof venue.active_moments_count === "number" ? (
-                        <Badge variant="outline" className="rounded-full">{venue.active_moments_count} active moments</Badge>
+                        <Badge variant="outline" className="">{venue.active_moments_count} active moments</Badge>
                       ) : null}
                     </div>
 
                     <div className="mt-5 grid grid-cols-2 gap-3">
-                      <div className="rounded-2xl bg-muted/40 p-3">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("venues.hosted")}</p>
-                        <p className="mt-2 text-lg font-semibold text-foreground">{venue.total_moments_hosted || 0}</p>
+                      <div className=" bg-muted/40 p-3">
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/45">{t("venues.hosted")}</p>
+                        <p className="mt-2 text-lg font-semibold text-white">{venue.total_moments_hosted || 0}</p>
                       </div>
-                      <div className="rounded-2xl bg-muted/40 p-3">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t("venues.checkins")}</p>
-                        <p className="mt-2 text-lg font-semibold text-foreground">{venue.total_checkins || 0}</p>
+                      <div className=" bg-muted/40 p-3">
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/45">{t("venues.checkins")}</p>
+                        <p className="mt-2 text-lg font-semibold text-white">{venue.total_checkins || 0}</p>
                       </div>
                     </div>
 
-                    <div className="mt-5 flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="mt-5 flex items-center justify-between text-sm text-white/45">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-primary" />
                         <span className="truncate">{venue.location || venue.address || "View venue"}</span>
                       </div>
                       {ratingValue ? (
-                        <div className="flex items-center gap-1 text-foreground">
+                        <div className="flex items-center gap-1 text-white">
                           <Star className="h-4 w-4 fill-current text-amber-500" />
                           <span>{ratingValue}</span>
                         </div>
                       ) : null}
                     </div>
                     {venue.listing_status === "unclaimed" ? (
-                      <p className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
+                      <p className="mt-4 border-t border-border pt-3 text-xs text-white/45">
                         Public-source listing · {venue.attribution_text || "ownership not yet verified"}
                       </p>
                     ) : null}
@@ -274,12 +227,12 @@ const ExploreVenues = () => {
           ) : (
             <div className="mt-6 rounded-3xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center">
               <h3 className="font-serif text-2xl font-bold">No venues matched</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-white/45">
                 Try a broader search or switch venue types to scan a different slice of the venue network.
               </p>
             </div>
           )}
-          {totalPages > 1 ? (
+          <section className="mt-12 grid gap-px border-y border-white/10 bg-white/10 md:grid-cols-3"><Link to="/scenes" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Scenes</p><p className="mt-2 font-serif text-2xl font-bold">Find the culture around a place.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/discover?tab=moments" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Moments</p><p className="mt-2 font-serif text-2xl font-bold">See what is happening next.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/explore/rewards" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available</p><p className="mt-2 font-serif text-2xl font-bold">Find something you can unlock.</p><ArrowRight className="mt-5 h-4 w-4"/></Link></section>\n          {totalPages > 1 ? (
             <nav aria-label="Venue pages" className="mt-8 flex items-center justify-center gap-3">
               <Button variant="outline" disabled={page === 0 || venuesQuery.isFetching} onClick={() => setPage((value) => Math.max(0, value - 1))}><ChevronLeft className="mr-1 h-4 w-4" />Previous</Button>
               <span className="text-sm font-semibold">Page {page + 1} of {totalPages}</span>
