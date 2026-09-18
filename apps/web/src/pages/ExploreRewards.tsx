@@ -148,7 +148,7 @@ export function ExploreRewards() {
 
     toast({
       title: "Community Vote Recorded! 🔥",
-      description: "Your vote was added to the merchant unlock threshold. You earned +10 PromoPoints!",
+      description: "Your vote was added to this local demand view. No reward is issued by this browser action.",
     });
   };
 
@@ -194,7 +194,7 @@ export function ExploreRewards() {
 
     toast({
       title: "Perk Request Published! 🚀",
-      description: "Your deal request is now live for the community to rally behind. (+25 PromoPoints)",
+      description: "Your deal request was added to this local view. A durable reward or market listing appears only when the platform records it.",
     });
   };
 
@@ -220,7 +220,7 @@ export function ExploreRewards() {
               Rewards & Member Perks
             </h1>
             <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Signal demand for perks at your favorite spots. When enough members vote, Promorang partners with the venue to unlock guaranteed deals.
+              Signal demand for perks at your favorite spots. Strong demand can be presented to a venue, but an offer exists only after a merchant or partner actually records supply and terms.
             </p>
           </div>
 
@@ -269,7 +269,7 @@ export function ExploreRewards() {
                   <span>Verified Perks in Upcoming Moments</span>
                 </h2>
                 <p className="text-xs text-white/50">
-                  Guaranteed rewards, drink tokens, and points waiting for you when you RSVP and check in.
+                  Recorded Moment perks appear here when configured. RSVP is intent; any reward or access follows the Moment's actual eligibility, proof, and issuance rules.
                 </p>
               </div>
             </div>
@@ -345,7 +345,7 @@ export function ExploreRewards() {
                 Top Requested Deals in Kingston
               </h2>
               <p className="text-xs text-white/60">
-                Vote to charge the unlock meter. Once a request reaches its threshold, Promorang presents the guaranteed customer headcount to the merchant!
+                Vote to make demand visible. Reaching a threshold creates a stronger demand signal; it does not guarantee attendance, supply, or a merchant agreement.
               </p>
             </div>
 
@@ -503,7 +503,7 @@ export function ExploreRewards() {
               Own a Venue or Represent a Product in Jamaica?
             </h3>
             <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
-              Activate verified customer demand. Launch a tasting pass, happy hour perk, or sponsored reward with guaranteed attendee attribution.
+              Respond to recorded customer demand. Launch a tasting pass, happy-hour perk, or sponsored offer with explicit eligibility and attribution rules.
             </p>
           </div>
 
@@ -538,7 +538,7 @@ export function ExploreRewards() {
               Request a Perk at Your Favorite Spot
             </DialogTitle>
             <DialogDescription className="text-xs text-white/60">
-              Pick a local spot and select what perk would get you to go. When 50 members rally behind it, Promorang pitches the venue with guaranteed customer foot traffic!
+              Pick a local spot and select what perk would get you to go. When enough members rally behind it, Promorang can present that recorded demand to the venue; actual visits remain downstream behavior.
             </DialogDescription>
           </DialogHeader>
 
