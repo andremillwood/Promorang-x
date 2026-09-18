@@ -372,7 +372,7 @@ Exit gate:
 
 ## C12 — Profiles, identity and directories
 
-Status: **Under-addressed**
+Status: **In progress; public attendance, rating and venue provenance hardened**
 
 Deliver:
 - participant profile;
