@@ -118,7 +118,7 @@ function contributorValueScore({ peopleBrought = 0, activePeople = 0, verifiedAc
 
 function classifyHappenedBucket(actionType) {
   const type = String(actionType || '');
-  if (['MOMENT_ATTENDANCE', 'MERCHANT_VISIT', 'check_in', 'TEST_DRIVE', 'moment_join_verified', 'proof_verified', 'event_rsvp', 'MOMENT_RSVP'].includes(type)) return 'went';
+  if (['MOMENT_ATTENDANCE', 'MERCHANT_VISIT', 'check_in', 'TEST_DRIVE', 'moment_join_verified', 'proof_verified'].includes(type)) return 'went';
   if (['PURCHASE', 'order_paid', 'split_tender'].includes(type)) return 'bought';
   if (['DISCOVERY_RESPONSE', 'discovery_vote'].includes(type)) return 'answered';
   if (['CONTENT_POST', 'share_completed'].includes(type) || type.startsWith('organic_')) return 'shared';
