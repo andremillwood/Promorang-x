@@ -23,8 +23,8 @@ export interface DiscoveryProps {
   userVotedOptionId?: string;
   targetUnlockPerk?: string;
   signalKind?: "demand" | "live_offer";
-  onVote?: (discoveryId: string, optionId: string) => void;
-  onAddOption?: (discoveryId: string, text: string) => void;
+  onVote?: (discoveryId: string, optionId: string) => void | Promise<void>;
+  onAddOption?: (discoveryId: string, text: string) => void | Promise<void>;
   landOnCard?: boolean;
 }
 
@@ -49,30 +49,56 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   const [votedOptionId, setVotedOptionId] = useState<string | undefined>(initialUserVotedOptionId);
   const [newOptionText, setNewOptionText] = useState('');
   const [showAddOption, setShowAddOption] = useState(false);
+  const [votingOptionId, setVotingOptionId] = useState<string | null>(null);
+  const [addingOption, setAddingOption] = useState(false);
   const detailUrl = `/discoveries/${slug || id}`;
 
-  const handleVote = (e: React.MouseEvent, optionId: string) => {
+  const handleVote = async (e: React.MouseEvent, optionId: string) => {
     e.stopPropagation();
-    if (votedOptionId) return;
-    setVotedOptionId(optionId);
-    setTotalVotes((value) => value + 1);
-    setOptions((rows) => rows.map((option) => option.id === optionId ? { ...option, votes: option.votes + 1 } : option));
-    onVote?.(id, optionId);
+    if (votedOptionId || votingOptionId) return;
+    if (!onVote && !import.meta.env.DEV) {
+      toast.error("This signal cannot be recorded from this surface.");
+      return;
+    }
+
+    setVotingOptionId(optionId);
+    try {
+      await onVote?.(id, optionId);
+      setVotedOptionId(optionId);
+      setTotalVotes((value) => value + 1);
+      setOptions((rows) => rows.map((option) => option.id === optionId ? { ...option, votes: option.votes + 1 } : option));
+    } catch {
+      toast.error("This vote was not recorded.");
+    } finally {
+      setVotingOptionId(null);
+    }
   };
 
-  const handleAddOptionSubmit = (e: React.FormEvent) => {
+  const handleAddOptionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const text = newOptionText.trim();
-    if (!text) return;
-    const next = { id: `opt-${Date.now()}`, text, votes: 1 };
-    setOptions((rows) => [...rows, next]);
-    setTotalVotes((value) => value + 1);
-    setVotedOptionId(next.id);
-    setNewOptionText('');
-    setShowAddOption(false);
-    onAddOption?.(id, text);
-    toast.success(t("radar.addedBallot"));
+    if (!text || addingOption) return;
+    if (!onAddOption && !import.meta.env.DEV) {
+      toast.error("New options cannot be recorded from this surface.");
+      return;
+    }
+
+    setAddingOption(true);
+    try {
+      await onAddOption?.(id, text);
+      const next = { id: `opt-${Date.now()}`, text, votes: 1 };
+      setOptions((rows) => [...rows, next]);
+      setTotalVotes((value) => value + 1);
+      setVotedOptionId(next.id);
+      setNewOptionText('');
+      setShowAddOption(false);
+      toast.success(t("radar.addedBallot"));
+    } catch {
+      toast.error("That option was not recorded.");
+    } finally {
+      setAddingOption(false);
+    }
   };
 
   return (
@@ -103,7 +129,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
               key={option.id}
               type="button"
               onClick={(event) => handleVote(event, option.id)}
-              disabled={Boolean(votedOptionId)}
+              disabled={Boolean(votedOptionId || votingOptionId)}
               className={`relative w-full overflow-hidden rounded-2xl border px-4 py-4 text-left transition ${selected ? 'border-[#ff5a1f]/55 bg-[#ff5a1f]/12' : 'border-white/10 bg-white/[.025] hover:border-white/20 hover:bg-white/[.05]'}`}
             >
               {votedOptionId ? <span className="absolute inset-y-0 left-0 bg-white/[.035]" style={{ width: `${percentage}%` }} /> : null}
@@ -137,7 +163,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
       {showAddOption ? (
         <form onSubmit={handleAddOptionSubmit} className="mt-5 flex gap-2" onClick={(event) => event.stopPropagation()}>
           <input value={newOptionText} onChange={(event) => setNewOptionText(event.target.value)} placeholder={t("radar.nominatePlaceholder")} className="min-h-12 flex-1 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#ff5a1f]/60" />
-          <button type="submit" className="pr-world-primary min-h-12">Add</button>
+          <button type="submit" disabled={addingOption} className="pr-world-primary min-h-12 disabled:cursor-not-allowed disabled:opacity-50">{addingOption ? "Adding…" : "Add"}</button>
         </form>
       ) : null}
 
