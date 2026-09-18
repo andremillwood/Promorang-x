@@ -1,87 +1,83 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CalendarDays, Clock, Gift, MapPin, ShieldCheck, WalletCards } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Clock, Gift, MapPin, Share2, Users, WalletCards } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
-import { PromoCardFace, PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
-import { momentLifecycleLabel } from "@/services/moment-feed";
+import { momentLifecycleLabel, type CanonicalMoment } from "@/services/moment-feed";
 import { getSiteUrl } from "@/lib/discovery";
 
 function formatDate(value?: string | null) {
-  if (!value) return "Time held on the Moment";
+  if (!value) return "Time on Moment";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Time held on the Moment";
-  return new Intl.DateTimeFormat("en", { weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
+  if (Number.isNaN(date.getTime())) return "Time on Moment";
+  return new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
+}
+
+function MomentCard({ moment }: { moment: CanonicalMoment }) {
+  return <Link to={`/moments/${moment.slug || moment.id}`} className="public-object-related group">
+    <div className="public-object-related__media">{moment.image_url ? <img src={moment.image_url} alt="" /> : <div className="grid h-full place-items-center bg-white/[.04]"><CalendarDays className="h-7 w-7 text-white/20" /></div>}<span>{momentLifecycleLabel(moment.lifecycle)}</span></div>
+    <div className="p-4"><p className="text-[9px] font-black uppercase tracking-[.14em] text-orange-300">{moment.category || "Moment"}</p><h3 className="mt-2 text-xl font-black leading-tight">{moment.title}</h3><p className="mt-2 flex items-start gap-1.5 text-[11px] text-white/45"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-400" />{moment.venue_name || moment.location || "Location on Moment"}</p></div>
+  </Link>;
 }
 
 export function PublicMomentDetail() {
   const { id } = useParams<{ id: string }>();
   const query = useCanonicalMomentFeed();
-  const moment = (query.data?.moments || []).find((item) => item.id === id || item.slug === id) || null;
+  const moments = query.data?.moments || [];
+  const moment = moments.find((item) => item.id === id || item.slug === id) || null;
 
   if (query.isLoading) return <main className="grid min-h-screen place-items-center bg-[#050505] text-white"><div className="h-9 w-9 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" /></main>;
-
-  if (query.isError) {
-    return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><CalendarDays className="mx-auto h-9 w-9 text-orange-400" /><h1 className="mt-5 text-4xl font-black">Moment unavailable</h1><p className="mt-3 text-sm leading-6 text-white/50">PROMORANG cannot confirm this Moment from the canonical public feed right now. No demo record is being substituted.</p><Link to="/discover/moments" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4" />Back to Moments</Link></div></main>;
-  }
-
-  if (!moment) {
-    return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><CalendarDays className="mx-auto h-9 w-9 text-orange-400" /><h1 className="mt-5 text-4xl font-black">This is not a current public Moment.</h1><p className="mt-3 text-sm leading-6 text-white/50">The URL does not resolve inside the canonical public Moment window. PROMORANG is not filling the gap with a curated or example event.</p><Link to="/discover/moments" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4" />Browse current Moments</Link></div></main>;
-  }
+  if (query.isError || !moment) return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><CalendarDays className="mx-auto h-9 w-9 text-orange-400" /><h1 className="mt-5 text-4xl font-black">{query.isError ? "Moment unavailable" : "This is not a current public Moment."}</h1><p className="mt-3 text-sm leading-6 text-white/50">{query.isError ? "PROMORANG cannot confirm this Moment from the canonical public feed right now." : "The URL does not resolve inside the canonical public Moment window."} No demo record is being substituted.</p><Link to="/discover/moments" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4" />Browse Moments</Link></div></main>;
 
   const href = `/moments/${moment.slug || moment.id}`;
   const authHref = `/auth?mode=signup&next=${encodeURIComponent(href)}`;
+  const related = moments.filter((item) => item.id !== moment.id && (item.category === moment.category || (item.location && item.location === moment.location) || (item.venue_name && item.venue_name === moment.venue_name))).slice(0, 4);
+  const more = moments.filter((item) => item.id !== moment.id && !related.some((r) => r.id === item.id)).slice(0, 4);
+  const share = () => navigator.share?.({ title: moment.title, text: moment.description || undefined, url: window.location.href }).catch(() => undefined);
 
-  return (
-    <main className="marketing-cinematic public-moment-detail min-h-screen bg-[#050505] text-white">
-      <SEO title={`${moment.title} — PROMORANG Moment`} description={moment.description || `Open ${moment.title} on PROMORANG.`} image={moment.image_url || undefined} url={getSiteUrl(href)} />
+  return <main className="marketing-cinematic public-object-page min-h-screen bg-[#050505] text-white">
+    <SEO title={`${moment.title} — PROMORANG Moment`} description={moment.description || `Open ${moment.title} on PROMORANG.`} image={moment.image_url || undefined} url={getSiteUrl(href)} />
 
-      <section className="marketing-cinematic-hero public-moment-detail__hero border-b border-white/10 px-5 pb-14 pt-14 sm:px-6 md:pb-20 md:pt-20" style={moment.image_url ? { backgroundImage: `url("${moment.image_url}")` } : undefined}>
-        <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto flex min-h-[38rem] max-w-[1440px] items-end">
-          <div className="grid w-full gap-10 lg:grid-cols-[1fr_360px] lg:items-end">
-            <div>
-              <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black text-white/55 hover:text-white"><ArrowLeft className="h-4 w-4" />All Moments</Link>
-              <div className="mt-8 flex flex-wrap gap-2"><span className="public-moment-poster__state !static">{momentLifecycleLabel(moment.lifecycle)}</span>{moment.category ? <span className="border border-white/15 bg-black/50 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] text-orange-300">{moment.category}</span> : null}</div>
-              <h1 className="mt-5 max-w-[11ch] text-5xl font-black leading-[.88] tracking-[-.055em] sm:text-7xl lg:text-[6rem]">{moment.title}</h1>
-              {moment.description ? <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">{moment.description}</p> : null}
-              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-white/62"><span className="inline-flex items-center gap-2"><Clock className="h-4 w-4 text-orange-400" />{formatDate(moment.starts_at)}</span><span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-orange-400" />{moment.venue_name || moment.location || "Location on Moment"}</span></div>
+    <section className="public-object-hero border-b border-white/10 px-5 pb-8 pt-12 sm:px-6 md:pb-10 md:pt-16">
+      <CurrentArc variant="hero" className="marketing-hero-current" />
+      <div className="relative mx-auto max-w-[1440px]">
+        <div className="mb-5 flex items-center justify-between"><Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-bold text-white/50 hover:text-white"><ArrowLeft className="h-4 w-4" />All Moments</Link><button type="button" onClick={share} className="grid h-10 w-10 place-items-center border border-white/15 bg-black/40"><Share2 className="h-4 w-4" /></button></div>
+        <div className="grid overflow-hidden border border-white/10 bg-[#090909] lg:grid-cols-[1.08fr_.92fr_330px]">
+          <div className="public-object-hero__media">{moment.image_url ? <img src={moment.image_url} alt="" /> : <div className="grid h-full min-h-[420px] place-items-center bg-[radial-gradient(circle_at_50%_20%,rgba(255,90,0,.18),transparent_40%),#0a0a0a]"><CalendarDays className="h-12 w-12 text-orange-400/35" /></div>}<span className="public-object-hero__state">{momentLifecycleLabel(moment.lifecycle)}</span></div>
+          <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+            <p className="text-[9px] font-black uppercase tracking-[.16em] text-orange-300">{moment.category || "Moment"}</p>
+            <h1 className="mt-4 text-4xl font-black leading-[.9] tracking-[-.05em] sm:text-5xl xl:text-6xl">{moment.title}</h1>
+            {moment.description ? <p className="mt-5 text-sm leading-7 text-white/58">{moment.description}</p> : null}
+            <div className="mt-6 grid gap-3 border-t border-white/10 pt-5 text-xs font-bold text-white/65">
+              <span className="flex items-start gap-2"><CalendarDays className="mt-0.5 h-4 w-4 text-orange-400" />{formatDate(moment.starts_at)}</span>
+              <span className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 text-orange-400" />{moment.venue_name || moment.location || "Location on Moment"}</span>
+              {moment.participant_count > 0 ? <span className="flex items-center gap-2"><Users className="h-4 w-4 text-orange-400" />{moment.participant_count} recorded participant{moment.participant_count === 1 ? "" : "s"}</span> : null}
             </div>
-
-            <aside className="border-t border-white/20 bg-black/45 p-5 backdrop-blur-md">
-              <p className="text-[9px] font-black uppercase tracking-[.18em] text-orange-300">Your next move</p>
-              <h2 className="mt-3 text-2xl font-black">Keep this Moment connected to you.</h2>
-              <p className="mt-3 text-xs leading-6 text-white/52">Sign in continues back to this exact Moment. It does not count as attendance, proof, claim or redemption.</p>
-              {moment.reward ? <div className="mt-5 border-l-2 border-orange-500 bg-orange-500/[.08] p-3"><p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.14em] text-orange-300"><Gift className="h-3.5 w-3.5" />Recorded access / perk</p><p className="mt-2 text-sm font-bold text-white/78">{moment.reward}</p></div> : null}
-              <Link to={authHref} className="mt-5 inline-flex min-h-12 w-full items-center justify-between rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[.08em] text-black">Continue with PromoCard <ArrowRight className="h-4 w-4" /></Link>
-            </aside>
           </div>
+          <aside className="border-t border-white/10 bg-black/35 p-6 lg:border-l lg:border-t-0">
+            <p className="text-[9px] font-black uppercase tracking-[.16em] text-orange-300">Get in</p>
+            <h2 className="mt-3 text-2xl font-black">Keep your place in this Moment.</h2>
+            {moment.reward ? <div className="mt-5 border border-orange-400/25 bg-orange-500/[.08] p-4"><p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.14em] text-orange-300"><Gift className="h-3.5 w-3.5" />Access / perk recorded</p><p className="mt-2 text-sm font-bold text-white/78">{moment.reward}</p></div> : null}
+            <Link to={authHref} className="mt-5 inline-flex min-h-12 w-full items-center justify-between bg-orange-500 px-5 text-xs font-black uppercase tracking-[.08em] text-black">Keep on PromoCard <ArrowRight className="h-4 w-4" /></Link>
+            <p className="mt-3 text-[10px] leading-5 text-white/35">Keeping this does not count as attendance, proof, claim or redemption.</p>
+          </aside>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
-        <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-3">
-          <TicketPass kicker="Moment" title="Something real is available" detail="A Moment is distinct supply with its own time, place and operator-defined conditions." stub="OPEN" stubLabel="Supply" />
-          <TicketPass kicker="Participation" title="Intent is not attendance" detail="Saving, signing in or expressing interest does not prove you arrived or completed the expected action." stub="ACT" stubLabel="Next" />
-          <TicketPass kicker="After" title="Proof can become history" detail="When the required evidence exists, the verified consequence can return to PromoCard rather than disappearing." stub="KEEP" stubLabel="Proof" />
-        </div>
-      </section>
+    <nav className="public-object-tabs border-b border-white/10 bg-black/92 px-5 sm:px-6"><div className="mx-auto flex max-w-[1440px] gap-7 overflow-x-auto py-4 text-[10px] font-black uppercase tracking-[.12em] text-white/48"><a href="#about" className="text-orange-300">About</a>{moment.reward ? <a href="#access">Access</a> : null}<a href="#place">Place</a>{related.length ? <a href="#related">Related</a> : null}<a href="#more">More Moments</a></div></nav>
 
-      <section className="border-b border-white/10 bg-[#090909] px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
-          <div>
-            <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> The Return</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">The useful consequence should come back to you.</h2>
-            <p className="mt-4 text-sm leading-7 text-white/55">PromoCard is where watching, issued access and verified history can remain connected. It never upgrades an unverified action into proof.</p>
-            <PaperReceipt heading="Moment truth" lines={[{label:"Moment",value:"Supply",strong:true},{label:"Interest / RSVP",value:"Intent"},{label:"Check-in / approved evidence",value:"Proof"},{label:"PromoCard",value:"Continuity",strong:true}]} footer="Each state advances only when its own source-backed record exists." />
-          </div>
-          <PromoCardFace holder="Your PromoCard" available={moment.reward || "Keep your place in this Moment"} limit="Watching · Access · Kept" places={moment.venue_name || moment.location || "This Moment stays connected to its recorded place and time."} action="See what changed" variant="membership" interactive={false} />
-        </div>
-      </section>
+    <section id="about" className="px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[1fr_.75fr]">
+      <div><p className="marketing-kicker">About</p><h2 className="mt-3 text-4xl font-black">What you should know.</h2><p className="mt-5 max-w-2xl text-base leading-8 text-white/58">{moment.description || "This Moment is published as current supply on PROMORANG. Open the recorded place and time above to decide whether it is for you."}</p>{moment.associated_brand_names?.length ? <p className="mt-5 text-xs text-white/42">Associated: {moment.associated_brand_names.join(" · ")}</p> : null}</div>
+      <div id="place" className="border border-white/10 bg-white/[.025] p-6"><p className="text-[9px] font-black uppercase tracking-[.15em] text-orange-300">Place & time</p><h3 className="mt-3 text-2xl font-black">{moment.venue_name || moment.location || "Location on Moment"}</h3><p className="mt-4 flex items-center gap-2 text-sm text-white/55"><Clock className="h-4 w-4 text-orange-400" />{formatDate(moment.starts_at)}</p>{moment.ends_at ? <p className="mt-2 text-xs text-white/38">Ends {formatDate(moment.ends_at)}</p> : null}</div>
+    </div></section>
 
-      <section className="px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-4xl text-center"><ShieldCheck className="mx-auto h-6 w-6 text-orange-300" /><h2 className="mt-4 text-3xl font-black">Open the Moment. Keep the truth.</h2><p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-white/50">Moment ≠ attendance · RSVP ≠ attendance · perk shown ≠ issuance · claim ≠ redemption · proof submission ≠ verification.</p><Link to={authHref} className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-6 text-xs font-black uppercase tracking-[.08em] text-black">Continue with PromoCard <ArrowRight className="h-4 w-4" /></Link></div>
-      </section>
-    </main>
-  );
+    {moment.reward ? <section id="access" className="border-y border-white/10 bg-[#090909] px-5 py-14 sm:px-6"><div className="mx-auto max-w-[1180px]"><p className="marketing-kicker"><Gift className="h-3.5 w-3.5" /> Access</p><div className="mt-5 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center"><div><h2 className="text-3xl font-black">{moment.reward}</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/48">This copy is attached to the canonical Moment. Display does not imply that an issuance, claim or redemption has occurred.</p></div><Link to={authHref} className="inline-flex min-h-12 items-center gap-2 bg-orange-500 px-5 text-xs font-black uppercase tracking-[.08em] text-black">Continue <ArrowRight className="h-4 w-4" /></Link></div></div></section> : null}
+
+    {related.length ? <section id="related" className="px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto max-w-[1440px]"><div className="marketing-section-head"><div><p className="marketing-kicker">Related</p><h2 className="mt-3 text-4xl font-black">More around this Moment.</h2></div></div><div className="public-object-related-grid">{related.map((item) => <MomentCard key={item.id} moment={item} />)}</div></div></section> : null}
+
+    <section id="more" className="border-t border-white/10 px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto max-w-[1440px]"><div className="marketing-section-head"><div><p className="marketing-kicker">Keep exploring</p><h2 className="mt-3 text-4xl font-black">Other Moments you might want to know about.</h2></div><Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.1em] text-orange-300">All Moments <ArrowRight className="h-4 w-4" /></Link></div>{more.length ? <div className="public-object-related-grid">{more.map((item) => <MomentCard key={item.id} moment={item} />)}</div> : <p className="text-sm text-white/45">No additional current Moments are available in this feed.</p>}</div></section>
+
+    <section className="border-t border-white/10 bg-[#090909] px-5 py-10 sm:px-6"><div className="mx-auto flex max-w-[1180px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.15em] text-orange-300"><WalletCards className="h-3.5 w-3.5" />PromoCard</p><h2 className="mt-2 text-2xl font-black">Want to remember this?</h2><p className="mt-2 text-xs text-white/42">Keep the relationship. Come back when something actually changes.</p></div><Link to={authHref} className="inline-flex min-h-11 items-center gap-2 border border-orange-400/40 px-5 text-xs font-black uppercase tracking-[.08em] text-orange-300">Keep this Moment <ArrowRight className="h-4 w-4" /></Link></div></section>
+  </main>;
 }
