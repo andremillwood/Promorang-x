@@ -6,6 +6,10 @@ import {
 } from '../src/promocard-activation';
 
 describe('promocard activation landings', () => {
+  it('sends agencies to the client portfolio, not a participant card', () => {
+    expect(landingPathForRole('agency')).toBe('/dashboard?view=studio&tab=clients');
+  });
+
   it('sends merchants to put a perk up, not a Discover tour', () => {
     expect(landingPathForRole('merchant')).toBe('/stock');
     expect(firstActionsForRole('merchant').map((a) => a.href)).toEqual([
