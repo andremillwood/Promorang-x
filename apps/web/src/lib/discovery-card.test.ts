@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   cardsOnAsk,
+  isRecordedCardUnlock,
   mergeUnlockTallies,
   perkTitleForPoll,
   tallyCardUnlocks,
@@ -30,6 +31,14 @@ describe("unlockFromPoll", () => {
     expect(first.redemptionCode).toBe("");
     const again = unlockFromPoll({ poll, city: "Kingston", existing: first });
     expect(again.id).toBe(first.id);
+  });
+});
+
+describe("isRecordedCardUnlock", () => {
+  it("requires a server-issued redemption code before an unlock is authoritative", () => {
+    const draft = unlockFromPoll({ poll, city: "Kingston" });
+    expect(isRecordedCardUnlock(draft)).toBe(false);
+    expect(isRecordedCardUnlock({ ...draft, redemptionCode: "PR-LIVE01" })).toBe(true);
   });
 });
 
