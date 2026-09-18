@@ -327,6 +327,31 @@ Commits:
 
 Status: **Closed**
 
+#### T-021 — Creation-flow silent defaults and partial write truth
+
+Files:
+- `apps/web/src/pages/EditMoment.tsx`
+- `apps/web/src/pages/AddVenue.tsx`
+- `apps/web/src/pages/PutInventoryUp.tsx`
+
+Finding:
+- Edit Moment could assign `Screenshot` proof and `check_in` conversion semantics to older Moments that had no such contract;
+- failed selected media uploads could still allow a Moment/Venue save to report success;
+- invalid inventory quantity input could collapse into an absent/unlimited quantity.
+
+Resolution:
+- absent proof/conversion state remains absent unless the operator explicitly chooses it;
+- selected Moment/Venue media uploads fail closed instead of silently retaining stale/partial state;
+- inventory quantity must be a positive whole number when supplied, otherwise the publish action is rejected;
+- blank quantity remains the only intentional no-fixed-limit state.
+
+Commits:
+- `0aa6fe8cfd3b93905012a84dc81d2f963aeff30d`
+- `e542e2fb0a80ee83d1d7059e40189ceea1b563d1`
+- `19da576fb54cc26aaba2890a7a6089c03c12bae4`
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
