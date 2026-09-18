@@ -57,7 +57,7 @@ const guides: HowToGuide[] = [
     steps: [
       "PromoCard comes off a partner bill. It is not a bank account.",
       "Points are a score. 500 can become 1 PromoKey. They are not money.",
-      "1 Gem = $1. Buy Gems or earn them. Spend them for extras cash cannot buy.",
+      "Gems use a 1 USD platform denomination. Balance, held value, and withdrawable value are separate wallet states.",
       "The Master Key is today's free contribution gate. PromoShare perk draws pay Keys or access. Save & Win is the PromoShare family that pays extra Gems."
     ],
     actionLink: { label: "Open the map", href: "/economy" }
