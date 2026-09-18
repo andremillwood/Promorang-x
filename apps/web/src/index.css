@@ -1565,3 +1565,36 @@ img.promorang-satellite-tiles {
   .marketing-live-card,
   .marketing-offer-card { min-width: 0; }
 }
+
+.marketing-hero-promocard-outcomes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin-top: 1.4rem;
+  max-width: 48rem;
+}
+.marketing-hero-promocard-outcomes > span {
+  display: inline-flex;
+  gap: .3rem;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: .3rem;
+  background: rgba(0,0,0,.48);
+  padding: .42rem .55rem;
+  color: rgba(255,255,255,.62);
+  font-size: .62rem;
+  line-height: 1;
+}
+.marketing-hero-promocard-outcomes > span strong {
+  color: #fff;
+  font-size: .58rem;
+  letter-spacing: .11em;
+}
+.marketing-hero-promocard-outcomes .marketing-hero-promocard-label {
+  border-color: rgba(255,90,0,.5);
+  background: #ff5a00;
+  color: #070707;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
