@@ -42,7 +42,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
         "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
-    const isPublicDiscoveryRoute = !user && (
+    const isPublicDiscoveryRoute = !loading && !user && (
         location.pathname === "/discover" ||
         location.pathname.startsWith("/discover/")
     );
