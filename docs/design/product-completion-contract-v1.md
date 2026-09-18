@@ -326,7 +326,7 @@ Exit gate:
 
 ## C10 — Create/edit workflows
 
-Status: **Under-addressed**
+Status: **In progress; Moment creation truth boundaries and source-backed venue/demand handoff hardened**
 
 Priority:
 1. Create Moment

@@ -1,25 +1,64 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
-import {
-  MapPin,
-  Search,
-  Building2,
-  Compass,
-} from "lucide-react";
-import { VERIFIED_VENUES, VenueItem } from "@/data/venuesData";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Building2, Compass, MapPin, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+
+type PublicVenue = Tables<"view_public_venue_directory"> & {
+  listing_status?: "claimed" | "unclaimed" | null;
+};
+
+type SelectedVenue = {
+  id: string;
+  name: string;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
+  capacity: number | null;
+};
 
 interface SmartVenuePickerProps {
   selectedVenueName: string;
   selectedAddress: string;
-  onSelectVenue: (venue: {
-    id: string;
-    name: string;
-    location: string;
-    latitude: number;
-    longitude: number;
-    capacity: number;
-  }) => void;
+  onSelectVenue: (venue: SelectedVenue) => void;
   onManualNameChange?: (name: string) => void;
   onManualAddressChange?: (address: string) => void;
+}
+
+function firstImage(images: unknown): string | null {
+  if (!images) return null;
+  let value = images;
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value);
+    } catch {
+      return value.startsWith("http") ? value : null;
+    }
+  }
+  if (!Array.isArray(value)) return null;
+  for (const item of value) {
+    if (typeof item === "string" && item.startsWith("http")) return item;
+    if (item && typeof item === "object") {
+      const record = item as Record<string, unknown>;
+      const candidate = String(record.url || record.src || "");
+      if (candidate.startsWith("http")) return candidate;
+    }
+  }
+  return null;
+}
+
+function venueLocation(venue: PublicVenue): string {
+  return String(
+    venue.address ||
+      venue.location ||
+      [venue.city, venue.country].filter(Boolean).join(", "),
+  ).trim();
+}
+
+function venueLabel(venue: PublicVenue): string {
+  if (venue.verification_status === "verified") return "Verified record";
+  if (venue.listing_status === "claimed") return "Claimed record";
+  return "Directory record";
 }
 
 export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
@@ -31,16 +70,30 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState(selectedVenueName || "");
   const [isOpen, setIsOpen] = useState(false);
-  const [activeVibeFilter, setActiveVibeFilter] = useState<string>("all");
+  const [activeType, setActiveType] = useState("all");
   const [showExploreGallery, setShowExploreGallery] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sync internal search term when parent changes
+  const venuesQuery = useQuery({
+    queryKey: ["create-moment-public-venue-directory"],
+    queryFn: async (): Promise<PublicVenue[]> => {
+      const { data, error } = await (supabase as any)
+        .from("view_public_venue_directory")
+        .select("*")
+        .order("popularity_score", { ascending: false, nullsFirst: false })
+        .limit(80);
+      if (error) throw error;
+      return ((data || []) as PublicVenue[]).filter((venue) => Boolean(venue.id && venue.name));
+    },
+    staleTime: 60_000,
+  });
+
+  const directoryVenues = venuesQuery.data || [];
+
   useEffect(() => {
     setSearchTerm(selectedVenueName);
   }, [selectedVenueName]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -52,76 +105,75 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
   }, []);
 
   const filteredSuggestions = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return VERIFIED_VENUES.slice(0, 5);
-    }
-    const query = searchTerm.toLowerCase();
-    return VERIFIED_VENUES.filter(
-      (v) =>
-        v.name.toLowerCase().includes(query) ||
-        v.neighborhood.toLowerCase().includes(query) ||
-        v.location.toLowerCase().includes(query) ||
-        v.vibe.toLowerCase().includes(query)
-    );
-  }, [searchTerm]);
+    const query = searchTerm.trim().toLowerCase();
+    const rows = query
+      ? directoryVenues.filter((venue) =>
+          [venue.name, venue.city, venue.address, venue.location, venue.venue_type]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(query)),
+        )
+      : directoryVenues;
+    return rows.slice(0, 8);
+  }, [directoryVenues, searchTerm]);
 
   const galleryVenues = useMemo(() => {
-    if (activeVibeFilter === "all") return VERIFIED_VENUES;
-    return VERIFIED_VENUES.filter((v) => v.venue_type === activeVibeFilter);
-  }, [activeVibeFilter]);
+    if (activeType === "all") return directoryVenues.slice(0, 16);
+    return directoryVenues.filter((venue) => venue.venue_type === activeType).slice(0, 16);
+  }, [activeType, directoryVenues]);
 
-  const handlePick = (venue: VenueItem) => {
-    setSearchTerm(venue.name);
+  const handlePick = (venue: PublicVenue) => {
+    const name = String(venue.name || "").trim();
+    if (!venue.id || !name) return;
+    setSearchTerm(name);
     setIsOpen(false);
     setShowExploreGallery(false);
     onSelectVenue({
       id: venue.id,
-      name: venue.name,
-      location: venue.location,
-      latitude: venue.latitude,
-      longitude: venue.longitude,
-      capacity: venue.capacity,
+      name,
+      location: venueLocation(venue),
+      latitude: null,
+      longitude: null,
+      capacity: null,
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchTerm(val);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchTerm(value);
     setIsOpen(true);
-    onManualNameChange?.(val);
+    onManualNameChange?.(value);
   };
 
   return (
     <div ref={containerRef} className="space-y-4">
-      {/* 1. Smart Autosuggest Search Input */}
-      <div className="space-y-1.5 relative">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-white/80 flex items-center gap-1.5">
+      <div className="relative space-y-1.5">
+        <div className="flex items-center justify-between gap-3">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-white/80">
             <Building2 className="h-3.5 w-3.5 text-primary" />
-            <span>Venue or Space Name *</span>
+            <span>Venue or space name *</span>
           </label>
           <button
             type="button"
-            onClick={() => setShowExploreGallery((prev) => !prev)}
-            className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1"
+            onClick={() => setShowExploreGallery((previous) => !previous)}
+            className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
           >
             <Compass className="h-3 w-3" />
-            <span>{showExploreGallery ? "Hide Venue Explorer" : "Need Inspiration? Explore Venues"}</span>
+            <span>{showExploreGallery ? "Hide venue directory" : "Browse recorded venues"}</span>
           </button>
         </div>
 
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
           <input
             type="text"
-            placeholder="Type any venue name (e.g. Dub Club, PriceSmart, Sweetwood, Plantation)..."
+            placeholder="Search the recorded venue directory or type a custom venue"
             value={searchTerm}
             onChange={handleInputChange}
             onFocus={() => setIsOpen(true)}
-            className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-10 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition h-11"
+            className="h-11 w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-xs text-white placeholder-white/40 transition focus:border-primary focus:outline-none"
             required
           />
-          {searchTerm && (
+          {searchTerm ? (
             <button
               type="button"
               onClick={() => {
@@ -129,90 +181,98 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
                 onManualNameChange?.("");
                 setIsOpen(true);
               }}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs font-bold"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-white/40 hover:text-white"
             >
               &times;
             </button>
-          )}
+          ) : null}
         </div>
 
-        {/* Live Autosuggest Dropdown */}
-        {isOpen && (
-          <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-white/15 bg-[#14151a] shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in-50 zoom-in-95 duration-150">
-            <div className="p-2.5 border-b border-white/5 bg-white/[0.02] flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider">
-              <span>Verified Partner Venues ({filteredSuggestions.length})</span>
-              <span>1-Tap Auto-Fills Address & Capacity</span>
+        {isOpen ? (
+          <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-white/15 bg-[#14151a] shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-2.5 text-[10px] font-bold uppercase tracking-wider text-white/50">
+              <span>Recorded venue directory</span>
+              <span>No capacity or coordinates are inferred</span>
             </div>
-
-            <div className="max-h-64 overflow-y-auto divide-y divide-white/5">
-              {filteredSuggestions.length === 0 ? (
+            <div className="max-h-64 divide-y divide-white/5 overflow-y-auto">
+              {venuesQuery.isLoading ? (
+                <div className="p-4 text-center text-xs text-white/50">Loading recorded venues…</div>
+              ) : venuesQuery.isError ? (
+                <div className="p-4 text-center text-xs leading-5 text-amber-100/70">
+                  Venue directory is unavailable. You can still enter a venue and address manually.
+                </div>
+              ) : filteredSuggestions.length === 0 ? (
                 <div className="p-4 text-center text-xs text-white/50">
-                  <p>No verified venues matching "{searchTerm}".</p>
-                  <p className="text-[11px] text-primary mt-1">You can proceed with this custom venue name below.</p>
+                  <p>No recorded venue matches “{searchTerm}”.</p>
+                  <p className="mt-1 text-[11px] text-primary">Continue with the custom venue name and address below.</p>
                 </div>
               ) : (
-                filteredSuggestions.map((venue) => (
-                  <button
-                    key={venue.id}
-                    type="button"
-                    onClick={() => handlePick(venue)}
-                    className="w-full p-3 hover:bg-white/5 text-left flex items-start gap-3 transition group"
-                  >
-                    <img
-                      src={venue.image_url}
-                      alt={venue.name}
-                      className="h-11 w-11 rounded-xl object-cover shrink-0 border border-white/10"
-                    />
-                    <div className="min-w-0 flex-1 space-y-0.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-bold text-white group-hover:text-primary transition truncate">
-                          {venue.name}
+                filteredSuggestions.map((venue) => {
+                  const imageUrl = firstImage(venue.images);
+                  return (
+                    <button
+                      key={String(venue.id)}
+                      type="button"
+                      onClick={() => handlePick(venue)}
+                      className="group flex w-full items-start gap-3 p-3 text-left transition hover:bg-white/5"
+                    >
+                      {imageUrl ? (
+                        <img src={imageUrl} alt="" className="h-11 w-11 shrink-0 rounded-xl border border-white/10 object-cover" />
+                      ) : (
+                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04]">
+                          <Building2 className="h-4 w-4 text-white/30" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-xs font-bold text-white transition group-hover:text-primary">{venue.name}</p>
+                          <span className="shrink-0 rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold text-white/50">
+                            {venueLabel(venue)}
+                          </span>
+                        </div>
+                        <p className="flex items-center gap-1 truncate text-[11px] text-white/50">
+                          <MapPin className="h-3 w-3 shrink-0 text-primary" />
+                          <span>{venueLocation(venue) || "Location not recorded"}</span>
                         </p>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
-                          Cap: {venue.capacity}
-                        </span>
+                        <p className="truncate text-[10px] text-white/35">
+                          {venue.venue_type || "Venue"} · {venue.city || venue.country || "Location not recorded"}
+                        </p>
                       </div>
-                      <p className="text-[11px] text-white/50 flex items-center gap-1 truncate">
-                        <MapPin className="h-3 w-3 text-primary shrink-0" />
-                        <span>{venue.location}</span>
-                      </p>
-                      <p className="text-[10px] text-white/40 truncate">{venue.vibe}</p>
-                    </div>
-                  </button>
-                ))
+                    </button>
+                  );
+                })
               )}
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
-      {/* 2. Visual "Explore & Discover Venues" Gallery for Undecided Hosts */}
-      {showExploreGallery && (
-        <div className="p-4 sm:p-5 rounded-3xl border border-primary/30 bg-white/[0.02] space-y-4 animate-in fade-in-50 duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      {showExploreGallery ? (
+        <div className="space-y-4 rounded-3xl border border-primary/30 bg-white/[0.02] p-4 sm:p-5">
+          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
             <div>
-              <h4 className="text-sm font-black text-white flex items-center gap-1.5">
+              <h4 className="flex items-center gap-1.5 text-sm font-black text-white">
                 <Compass className="h-4 w-4 text-primary" />
-                <span>Explore Verified Spaces in Jamaica</span>
+                <span>Browse recorded venues</span>
               </h4>
-              <p className="text-[11px] text-white/50">Pick any space to auto-fill its address, coordinates, and door capacity.</p>
+              <p className="mt-1 text-[11px] text-white/50">
+                These are directory records. Selecting one fills recorded identity/location only; capacity and coordinates remain unset.
+              </p>
             </div>
-
-            {/* Vibe Category Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
               {[
-                { id: "all", label: "All Vibe Types" },
-                { id: "soundstage", label: "🎵 Soundstages" },
-                { id: "culinary", label: "🍹 Dining & Tasting" },
-                { id: "rooftop", label: "👑 Rooftops & Lounges" },
-                { id: "beach", label: "🌴 Beachfront" },
+                { id: "all", label: "All" },
+                { id: "restaurant", label: "Restaurants" },
+                { id: "bar", label: "Bars" },
+                { id: "cafe", label: "Cafes" },
+                { id: "retail", label: "Retail" },
               ].map((pill) => (
                 <button
                   key={pill.id}
                   type="button"
-                  onClick={() => setActiveVibeFilter(pill.id)}
-                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition shrink-0 ${
-                    activeVibeFilter === pill.id
+                  onClick={() => setActiveType(pill.id)}
+                  className={`shrink-0 rounded-xl px-2.5 py-1 text-[11px] font-bold transition ${
+                    activeType === pill.id
                       ? "bg-primary text-white"
                       : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
                   }`}
@@ -223,62 +283,68 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
             </div>
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {galleryVenues.map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => handlePick(v)}
-                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-[#121316] text-left hover:border-primary/40 hover:scale-[1.02] transition duration-200 flex flex-col justify-between h-40"
-              >
-                <img
-                  src={v.image_url}
-                  alt={v.name}
-                  className="absolute inset-0 h-full w-full object-cover opacity-40 group-hover:opacity-60 transition"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-
-                <div className="relative z-10 p-2.5 flex justify-between items-start">
-                  <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-bold text-primary border border-primary/20">
-                    {v.venue_type_label}
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded-full bg-black/60 text-[9px] font-bold text-white/80">
-                    {v.capacity} pax
-                  </span>
-                </div>
-
-                <div className="relative z-10 p-3 space-y-0.5">
-                  <p className="text-xs font-black text-white group-hover:text-primary transition truncate">
-                    {v.name}
-                  </p>
-                  <p className="text-[10px] text-white/60 flex items-center gap-1 truncate">
-                    <MapPin className="h-2.5 w-2.5 text-primary shrink-0" />
-                    <span>{v.neighborhood}</span>
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
+          {venuesQuery.isError ? (
+            <div className="rounded-2xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-amber-100/70">
+              The venue directory could not be loaded. Manual venue entry remains available.
+            </div>
+          ) : galleryVenues.length ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {galleryVenues.map((venue) => {
+                const imageUrl = firstImage(venue.images);
+                return (
+                  <button
+                    key={String(venue.id)}
+                    type="button"
+                    onClick={() => handlePick(venue)}
+                    className="group relative flex h-40 flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#121316] text-left transition duration-200 hover:border-primary/40"
+                  >
+                    {imageUrl ? (
+                      <img src={imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40 transition group-hover:opacity-60" />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
+                    <div className="relative z-10 flex items-start justify-between p-2.5">
+                      <span className="rounded-full border border-white/10 bg-black/60 px-2 py-0.5 text-[9px] font-bold text-white/70 backdrop-blur-md">
+                        {venue.venue_type || "Venue"}
+                      </span>
+                      <span className="rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-white/65">
+                        {venueLabel(venue)}
+                      </span>
+                    </div>
+                    <div className="relative z-10 space-y-0.5 p-3">
+                      <p className="truncate text-xs font-black text-white transition group-hover:text-primary">{venue.name}</p>
+                      <p className="flex items-center gap-1 truncate text-[10px] text-white/60">
+                        <MapPin className="h-2.5 w-2.5 shrink-0 text-primary" />
+                        <span>{venueLocation(venue) || "Location not recorded"}</span>
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-xs text-white/45">
+              No recorded venue directory entries are available for this filter.
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
 
-      {/* 3. Address & Location Field (Auto-Populated) */}
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-white/80 flex items-center gap-1.5">
+        <label className="flex items-center gap-1.5 text-xs font-bold text-white/80">
           <MapPin className="h-3.5 w-3.5 text-primary" />
-          <span>Street Address & Coordinates *</span>
+          <span>Street address or location *</span>
         </label>
         <input
           type="text"
-          placeholder="e.g. Skyline Dr, Jack's Hill, Kingston"
+          placeholder="Enter the location exactly as you want it recorded"
           value={selectedAddress}
-          onChange={(e) => onManualAddressChange?.(e.target.value)}
-          className="w-full rounded-2xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition h-11"
+          onChange={(event) => onManualAddressChange?.(event.target.value)}
+          className="h-11 w-full rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-white/40 transition focus:border-primary focus:outline-none"
           required
         />
       </div>
     </div>
   );
 };
+
 export default SmartVenuePicker;

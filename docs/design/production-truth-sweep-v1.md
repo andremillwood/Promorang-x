@@ -973,6 +973,33 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-036 — Create Moment trusted static venue and browser/URL demand context
+
+Files:
+- `apps/web/src/components/venues/SmartVenuePicker.tsx`
+- `apps/web/src/pages/CreateMoment.tsx`
+- `apps/web/src/lib/discovery-found.ts`
+- `apps/web/src/lib/discovery-found.test.ts`
+
+Finding:
+- Create Moment sourced venue suggestions from the static `VERIFIED_VENUES` design catalogue and labelled them verified partner venues;
+- selecting one could auto-fill address, coordinates and capacity as current facts;
+- a `?found=` URL or browser-cached Found row was enough for the form to say “Claimed demand” and “People already asked…” without re-reading recorded market state;
+- a `?found=` query parameter also bypassed the normal sign-in gate before entering the creation form.
+
+Resolution:
+- venue suggestions now read `view_public_venue_directory`;
+- directory rows are labelled from recorded verification/claim state rather than universally as verified partners;
+- the picker fills only recorded identity/location and does not infer capacity or coordinates that the public directory does not expose;
+- manual venue entry remains available when the directory is empty or unavailable;
+- Found workspace links carry the recorded city so the create flow can re-read the correct market record;
+- Create Moment re-loads the Found record through the experience API and describes it as recorded demand only when that row is returned as claimed;
+- URL title/location values may prefill a draft but are not treated as evidence of demand when the source record cannot be verified;
+- authentication is required for Create Moment even when a `found` parameter is present, while the handoff URL is preserved through sign-in.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
