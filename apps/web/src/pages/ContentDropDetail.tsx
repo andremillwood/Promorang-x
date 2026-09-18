@@ -56,7 +56,7 @@ export default function ContentDropDetail() {
   const assets = drop?.content_distribution_assets || [];
   const primary = assets[0];
   const pointsPerAction = Number(drop?.reward_config?.base_points || 0);
-  const entriesPerAction = Number(drop?.promoshare_config?.entries_per_action || 1);
+  const entriesPerAction = Number(drop?.promoshare_config?.entries_per_action ?? 0);
   const fundedGems = Math.max(...Object.values(drop?.reward_config?.gems_by_action || {}).map(Number), 0);
   const leaderboard = useMemo(() => {
     return leaderboardQuery.data || (id ? seededContentDropLeaderboards[id] : []) || [];
@@ -78,7 +78,6 @@ export default function ContentDropDetail() {
       action_type: actionType,
       asset_id: primary?.id,
       destination_url: primary?.target_url,
-      verified: releasePaysForAction(actionType),
       metadata: {
         source: "content_drop_detail",
       },
@@ -221,7 +220,7 @@ export default function ContentDropDetail() {
                   dark
                   className="mb-2"
                   cost="Free"
-                  reward={`${pointsPerAction} contribution value + ${entriesPerAction} possible reward${entriesPerAction === 1 ? "" : "s"}${fundedGems > 0 ? ` + up to ${fundedGems} Gems` : ""}`}
+                  reward={[pointsPerAction > 0 ? `${pointsPerAction} configured contribution value` : null, entriesPerAction > 0 ? `${entriesPerAction} possible reward entr${entriesPerAction === 1 ? "y" : "ies"}` : null, fundedGems > 0 ? `up to ${fundedGems} Gems after an eligible consequence` : null].filter(Boolean).join(" + ") || "No configured reward"}
                   funding={drop?.linked_moment_id ? "Linked Moment pool" : "Activation allocation"}
                   proof="Attributed contribution"
                   settlement="After review"
