@@ -80,7 +80,6 @@ const Settings = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -336,13 +335,6 @@ const Settings = () => {
     });
   };
 
-  const handleDeleteAccount = async () => {
-    toast({
-      title: "Account deletion is not available from this screen",
-      description: "No account data was deleted. Use Support for an account-deletion request until a server-side deletion workflow can remove the authentication account and dependent records atomically.",
-      variant: "destructive",
-    });
-  };
 
   if (!user) {
     navigate("/auth");
@@ -738,47 +730,27 @@ const Settings = () => {
                   </div>
 
                   <div className="pt-4">
-                    <Button variant="outline" className="w-full sm:w-auto">
-                      {t("settings.resetPassword")}
-                    </Button>
+                    <div className="rounded-xl border border-border bg-muted/30 p-4">
+                      <p className="text-sm font-semibold text-foreground">Password changes are not completed from this screen.</p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">The current web app does not yet have a complete password-recovery destination. Use Support rather than assuming a reset request has been saved or completed.</p>
+                      <Button asChild variant="outline" className="mt-3"><Link to="/support/tickets">Open Support</Link></Button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="border border-destructive/20 bg-destructive/5 rounded-2xl p-6">
-                <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Trash2 className="w-5 h-5 text-destructive" />
-                  {t("settings.danger")}
+              <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6">
+                <h2 className="mb-4 flex items-center gap-2 font-semibold text-foreground">
+                  <Trash2 className="h-5 w-5 text-destructive" />
+                  Account deletion
                 </h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t("settings.dangerCopy")}
+                <p className="text-sm leading-6 text-muted-foreground">
+                  This Settings screen cannot currently delete the authentication account and all dependent records atomically. No data is deleted here. Use Support for an account-deletion request until that server-side workflow exists.
                 </p>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">
-                      {t("settings.delete")}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{t("settings.deleteConfirm")}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("settings.deleteConfirmCopy")}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>{t("wallet.cancel")}</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDeleteAccount}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        disabled={deleting}
-                      >
-                        {deleting ? t("settings.deleting") : t("settings.delete")}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+                <Button asChild variant="destructive" className="mt-4">
+                  <Link to="/support/tickets">Request account deletion through Support</Link>
+                </Button>
+              </div>>
             </div>
           </TabsContent>
         </Tabs>
