@@ -502,6 +502,7 @@ Latest closed findings:
 - **T-034 — Referral and PromoShare distribution could manufacture attribution and performance.**
 - **T-035 — Primary Discover mixed static catalogue state with live market truth.**
 - **T-036 — Create Moment trusted static venue and browser/URL demand context.**
+- **T-037 — PromoShare still advertised synthetic daily, squad and pre-loaded-card mechanics.**
 
 Closed direction:
 
@@ -522,6 +523,8 @@ Closed direction:
 - Create Moment venue suggestions come from the public venue directory rather than a static verified-venue catalogue;
 - a Found → Create Moment handoff is described as recorded demand only after the claimed Found record is re-read from the authoritative source;
 - URL/browser context may prefill a draft but cannot establish market truth or bypass authentication.
+- production PromoShare now exposes recorded cycles/entries/draws/history without mock streak, squad-slash, saved-perk or pre-loaded-card state;
+- unsupported PromoShare gamification/drop components remain development-only rather than production fallbacks.
 
 ### NEXT ACTION
 

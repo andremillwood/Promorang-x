@@ -440,7 +440,7 @@ Exit gate:
 
 ## C15 — Gems, Wallet, PromoShare and advanced economy
 
-Status: **In progress; user-facing value, Save & Win withdrawal language and PromoShare truth hardened; claim/settlement atomicity still open**
+Status: **In progress; user-facing value, Save & Win withdrawal language and PromoShare production truth hardened; synthetic gamification/drop entry points removed; claim/settlement atomicity still open**
 
 Deliver:
 - canonical Gems states per DESIGN.md;

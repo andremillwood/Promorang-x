@@ -25,6 +25,8 @@ export const CardDropCreator: React.FC = () => {
   const [customNote, setCustomNote] = useState<string>("Enjoy your pre-loaded Promorang Card on me!");
   const [copied, setCopied] = useState(false);
 
+  if (!import.meta.env.DEV) return null;
+
   const senderName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "A Promorang Friend";
   const dropCode = `drop_${Date.now().toString(36)}`;
   const shareUrl = `${window.location.origin}/claim-drop?amount=${dropAmount}&from=${encodeURIComponent(

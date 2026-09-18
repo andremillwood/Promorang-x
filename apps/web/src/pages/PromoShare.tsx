@@ -36,14 +36,6 @@ import {
 } from '@/components/promorang/ExperiencePrimitives';
 import { PromoShareTicketDrawModal } from '@/components/promoshare/PromoShareTicketDrawModal';
 import { PromoShareHero } from '@/components/promoshare/PromoShareHero';
-import { CardDropCreator } from '@/components/promoshare/CardDropCreator';
-import { StoryGamificationRail } from '@/components/StoryGamificationRail';
-import { RightUtilityRail } from '@/components/RightUtilityRail';
-import { SocialGraphFacepile } from '@/components/SocialGraphFacepile';
-import { SpinWheelModal } from '@/components/SpinWheelModal';
-import { TeamSlashModal } from '@/components/TeamSlashModal';
-import { DailyRewardsModal } from '@/components/DailyRewardsModal';
-import { cultureEvents } from '@/data/culture-demo';
 import { useI18n } from '@/i18n/I18nContext';
 import { VALUE_INSTRUMENTS, VALUE_STORY } from '@promorang/shared';
 import { PlainEnglish } from '@/components/promorang/SignatureObjects';
@@ -142,10 +134,6 @@ const PromoShare = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [featuredPools, setFeaturedPools] = useState<FeaturedPoolPlacement[]>([]);
   const [sponsorPools, setSponsorPools] = useState<SponsorPool[]>([]);
-
-  const [wheelOpen, setWheelOpen] = useState(false);
-  const [slashOpen, setSlashOpen] = useState(false);
-  const [streakOpen, setStreakOpen] = useState(false);
 
   useEffect(() => {
     fetchFeaturedPools();
@@ -346,29 +334,17 @@ const PromoShare = () => {
           ))}
         </div>
       )}
-      {/* Top Story & Daily Gamification Rail */}
-      <StoryGamificationRail
-        onOpenWheel={() => setWheelOpen(true)}
-        onOpenStreak={() => setStreakOpen(true)}
-      />
-
       {/* Unified Dynamic PromoShare Hero */}
       <PromoShareHero
         totalTickets={totalEntries}
         eligibility={primaryCycle ? (primaryCycle.eligible ? 'qualified' : primaryCycle.status === 'not_qualified' ? 'not_qualified' : 'in_progress') : null}
-        onOpenSlash={() => setSlashOpen(true)}
       />
       <div className="mb-8 space-y-3">
         <PlainEnglish>{VALUE_STORY.namedDrawPays}</PlainEnglish>
         <NamedDrawPays />
       </div>
 
-      {/* Pre-Loaded Card Drop Creator */}
-      <div className="mb-8">
-        <CardDropCreator />
-      </div>
-
-      {/* Main 3-Column Desktop Layout */}
+      {/* Recorded PromoShare activity and outcomes */}
       <div className="flex gap-8 items-start">
         <div className="flex-1 min-w-0 space-y-8">
           {primaryCycle ? (
@@ -883,17 +859,7 @@ const PromoShare = () => {
       </Tabs>
       </div>
 
-      {/* Right Utility Sidebar (Desktop) */}
-      <RightUtilityRail
-        onOpenSlashModal={() => setSlashOpen(true)}
-        onOpenStreakModal={() => setStreakOpen(true)}
-      />
     </div>
-
-    {/* Gamification Modals */}
-    <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
-    <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
-    <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
     </div>
   );
 };

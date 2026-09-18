@@ -1000,6 +1000,33 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-037 — PromoShare still advertised synthetic daily, squad and pre-loaded-card mechanics
+
+Files:
+- `apps/web/src/pages/PromoShare.tsx`
+- `apps/web/src/components/StoryGamificationRail.tsx`
+- `apps/web/src/components/RightUtilityRail.tsx`
+- `apps/web/src/components/TeamSlashModal.tsx`
+- `apps/web/src/components/promoshare/CardDropCreator.tsx`
+- `apps/web/src/pages/CardDropClaim.tsx`
+
+Finding:
+- the production `/promoshare` route still rendered a mock story rail with fictional daily wheel/streak/scene/drop activity;
+- the right utility rail presented a fabricated active squad slash, countdown, friend progress, daily Piece boost and named saved perks;
+- PromoShare opened `TeamSlashModal`, which invented a 15-minute deal, 1/3 joined state, target price and referral URL without a campaign or server record;
+- `CardDropCreator` generated browser-only “pre-loaded” dollar balances and claim links, then promised 5% commission and +25% recharge without funding, issuance or settlement records;
+- the claim receiver itself was already truth-safe: `/claim-drop` ignores legacy amount/from/code parameters and only opens a recorded live drop by slug.
+
+Resolution:
+- production PromoShare no longer mounts the mock story rail, synthetic right rail, squad-slash modal or browser-generated Card Drop creator;
+- the PromoShare hero no longer advertises the unsupported squad-slash action;
+- the legacy mock rail/slash/drop components are explicitly development-only so an accidental future import cannot expose them in production;
+- authoritative PromoShare cycle, entry, draw and history data remain unchanged;
+- generic sharing remains available without implying a reward, funded card balance or attributable conversion.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
