@@ -113,7 +113,6 @@ interface PublicMomentDirectoryRow {
 export default function VenueProfile() {
   const { t } = useI18n();
   const { slug = "" } = useParams<{ slug: string }>();
-  const home = useExperienceHome();
 
   const venueQuery = useQuery({
     queryKey: ["venue-profile", slug],
@@ -306,68 +305,14 @@ export default function VenueProfile() {
                     </div>
                   </div>
                 ) : null}
-                {nextMoment || commerceListings.length ? (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {worldObjectState({
-                      startsAt: nextMoment?.starts_at,
-                      promoCardAccepted: commerceListings.length > 0,
-                    }).map((chip) => (
-                      <span key={chip} className="rounded-full border border-white/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/55">
-                        {chip}
-                      </span>
-                    ))}
-                    {nextMoment ? (
-                      <Link to={nextMoment.slug === "aftrhrs" || slug === "sea-deck" ? "/moments/aftrhrs" : `/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
-                        Next Moment · {nextMoment.title}
-                      </Link>
-                    ) : null}
-                    <Link to="/card" className="text-[10px] font-black uppercase tracking-wider text-white/45">
-                      PromoCard
-                    </Link>
-                    {territory ? (
-                      <Link to="/progress" className="text-[10px] font-black uppercase tracking-wider text-primary">
-                        {territory.title} · {territory.state}
-                      </Link>
-                    ) : null}
-                  </div>
-                ) : null}
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("venueProfile.proof")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/64">
-                  {t("venueProfile.proofCopy")}
-                </p>
-                <div className="mt-5 grid grid-cols-3 gap-2">
-                  {[
-                    [t("venueProfile.moments"), moments.length],
-                    [t("venueProfile.offers"), commerceListings.length],
-                    [t("venueProfile.content"), content.length],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl border border-white/10 bg-black/25 p-3 text-center">
-                      <p className="text-xl font-black">{value}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/42">{label}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  {slug === "sea-deck" ? (
-                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                      <Link to="/moments/aftrhrs">Open AftrHrs</Link>
-                    </Button>
-                  ) : (
-                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                      <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
-                    </Button>
-                  )}
-                  <Button asChild variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold">
-                    <Link to="/rewards">Claim Perk to Wallet</Link>
-                  </Button>
-                </div>
-                <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/50">
-                  <span>⚡ Powered by Community Vault Float</span>
-
-                </div>
-              </div>
+              <aside className="border-t border-white/15 pt-5 lg:border-l lg:border-t-0 lg:pl-7">
+                <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">At this place</p>
+                <h2 className="mt-3 font-serif text-3xl font-bold">{nextMoment ? "Something is happening here." : commerceListings.length ? "Something is available here." : "Keep this place on your radar."}</h2>
+                <p className="mt-3 text-sm leading-6 text-white/50">{nextMoment ? nextMoment.title : commerceListings[0]?.name || "Explore the public activity connected to this place."}</p>
+                {nextMoment ? <Link to={nextMoment.slug === "aftrhrs" || slug === "sea-deck" ? "/moments/aftrhrs" : `/moments/${nextMoment.slug || nextMoment.id}`} className="mt-5 inline-flex min-h-12 w-full items-center justify-between bg-primary px-5 text-sm font-black text-black">Open next Moment <ArrowLeft className="h-4 w-4 rotate-180"/></Link> : null}
+                {commerceListings.length ? <a href="#offers" className="mt-2 inline-flex min-h-11 w-full items-center justify-between border border-white/15 px-5 text-xs font-black uppercase tracking-[.08em]">See what's available <ShoppingBag className="h-4 w-4"/></a> : null}
+              </aside>
             </div>
           </section>
 
@@ -418,10 +363,10 @@ export default function VenueProfile() {
               )}
             </section>
 
-            <section>
+            <section id="offers">
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{t("venueProfile.offersTitle")}</h2>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-white">{t("venueProfile.offersTitle")}</h2>
                   <p className="text-sm text-muted-foreground">{t("venueProfile.offersCopy")}</p>
                 </div>
                 <Badge variant="secondary">{commerceListings.length}</Badge>
