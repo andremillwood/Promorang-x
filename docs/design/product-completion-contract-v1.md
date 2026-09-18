@@ -392,7 +392,7 @@ Exit gate:
 
 ## C13 — Utility surfaces
 
-Status: **Needs propagation**
+Status: **Under active truth/design propagation**
 
 Includes:
 - Search
