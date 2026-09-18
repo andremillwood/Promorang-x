@@ -590,3 +590,21 @@ Scene, Place/Venue and public person/Creator profiles now inherit the same desti
 - Creator/person: identity → follow/share → source-backed public activity/history.
 
 The older demo-only `SceneDetail.tsx` remains non-canonical. Public `/scenes/:slug` resolves through `CommunityDetail.tsx`, which is backed by `useScene` and real Scene/Moment/Discovery relationships. Do not promote `DEMO_SCENES` into the public object graph.
+
+
+### Collection surfaces and relationship rails
+
+Public browse surfaces must behave as entrances into the object graph, not directories that terminate in cards.
+
+- Scenes collection: enter a living cultural context, then continue to Moments, Places, or people.
+- Places collection: browse physical destinations, then continue to Scenes, Moments, or available value.
+- Creators collection: discover people by what they move, then continue to Discoveries, Moments, or Scenes.
+- Moment collection: preserve lifecycle truth and continue into Places, rewards, content, and archive paths.
+
+A collection page must provide at least one meaningful onward path even when inventory is sparse. Empty states must route toward adjacent real objects rather than manufacture supply.
+
+This extends the canonical participant loop:
+
+`DISCOVER → SCENE / MOMENT / PLACE / PERSON → ACT → PROVE → KEEP → RETURN`
+
+The relationship rail is not a recommendation widget. It exposes actual adjacent object families and gives the visitor a reason to continue moving through the world.
