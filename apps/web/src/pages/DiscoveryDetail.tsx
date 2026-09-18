@@ -4,6 +4,8 @@ import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { WatchMarketObjectButton } from "@/components/market/WatchMarketObjectButton";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { useDiscovery } from "@/hooks/useDiscoveries";
 import { getSiteUrl } from "@/lib/discovery";
 import { generateDiscoverySchema } from "@/lib/seo-schemas";
@@ -61,7 +63,7 @@ export default function DiscoveryDetail() {
         schema={generateDiscoverySchema(discovery)}
       />
 
-      <section className="relative min-h-[660px] overflow-hidden border-b border-white/10 pt-24">
+      <section className="marketing-cinematic-hero relative min-h-[660px] overflow-hidden border-b border-white/10 pt-24">\n        <CurrentArc variant="hero" className="marketing-hero-current" />
         {discovery.cover_image ? <img src={discovery.cover_image} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,.22),transparent_32%),#080808]" />}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.98)_0%,rgba(0,0,0,.76)_55%,rgba(0,0,0,.28)_100%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/35" />
@@ -144,6 +146,17 @@ export default function DiscoveryDetail() {
           </div>
         </section>
       ) : null}
+
+      <section className="container px-6 py-12">
+        <div className="grid gap-10 border-y border-white/10 py-10 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
+          <div>
+            <p className="marketing-kicker">PromoCard continuity</p>
+            <h2 className="mt-3 text-4xl font-black">Do not lose the thing you just discovered.</h2>
+            <p className="mt-4 text-sm leading-7 text-white/50">Watching keeps the relationship legible. If a real Moment, Offer or other response appears later, PROMORANG has somewhere truthful to bring you back.</p>
+          </div>
+          <PromoCardFace holder="Your PromoCard" available="Watching this Discovery" limit="Interest · response · proof" places="Only relationships and consequences supported by real records return here." action="See what changed" variant="membership" interactive={false} />
+        </div>
+      </section>
 
       <section className="container px-6 pb-16 pt-8">
         <div className="grid gap-5 rounded-[2rem] border border-white/10 bg-white/[0.02] p-6 sm:grid-cols-[auto_1fr] sm:p-8">
