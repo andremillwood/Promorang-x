@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CalendarDays, Clock, Gift, MapPin, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Clock, Gift, MapPin, ShieldCheck, WalletCards } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
