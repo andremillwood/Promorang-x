@@ -117,8 +117,8 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
   {
     label: "Master Telemetry",
     items: [
-      { value: "command", label: "Master Command", icon: Shield, badge: "Live" },
-      { value: "verification-hub", label: "Verification Hub", icon: ShieldCheck, badge: "3 New" },
+      { value: "command", label: "Master Command", icon: Shield },
+      { value: "verification-hub", label: "Verification Hub", icon: ShieldCheck },
       { value: "overview", label: "Analytics & ROI", icon: BarChart3 },
       { value: "growth", label: "Growth Radar", icon: TrendingUp },
       { value: "discovery", label: "Discovery Loop", icon: Target },
