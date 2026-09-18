@@ -34,7 +34,7 @@ export default function ForMerchants() {
   const leadSignal = liveSignals[0];
 
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title={claimVenue ? `${claimVenue} on PROMORANG` : "PROMORANG for Merchants — Respond to demand with something real"}
         description="See what people are asking for, decide what your business can actually supply, and keep demand, offer and verified outcome separate."
