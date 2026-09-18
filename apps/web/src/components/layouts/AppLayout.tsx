@@ -46,7 +46,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname === "/discover" ||
         location.pathname.startsWith("/discover/") ||
         location.pathname.startsWith("/discoveries/") ||
-        location.pathname.startsWith("/moments/")
+        location.pathname.startsWith("/moments/") ||
+        location.pathname.startsWith("/scenes/") ||
+        location.pathname.startsWith("/venues/") ||
+        location.pathname.startsWith("/creators/")
     );
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
