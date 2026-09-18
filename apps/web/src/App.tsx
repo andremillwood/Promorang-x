@@ -401,6 +401,7 @@ const App = () => (
                     <Route path="/receipts/value/:id" element={<PublicValueReceipt />} />
                     <Route path="/receipts/:id" element={<ProtectedRoute><CommerceReceiptDetail /></ProtectedRoute>} />
                     <Route path="/storefront/:merchantId" element={<MerchantStorefront />} />
+                    <Route path="/offers/:id" element={<OfferDetail />} />
                     <Route path="/activate" element={<ActivatePage />} />
 
                     {/* Campaign Expansion Routes */}
