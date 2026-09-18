@@ -51,7 +51,11 @@ export default function Creators() {
         if (!error && data) dbProfiles = data;
       }
 
-      return dbProfiles;\n    },\n  });\n\n  const creators = creatorsQuery.data || [];
+      return dbProfiles;
+    },
+  });
+
+  const creators = creatorsQuery.data || [];
 
   const filteredCreators = creators.filter((c: any) => {
     const matchesSearch = !searchQuery || 
@@ -139,10 +143,10 @@ export default function Creators() {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-purple-400">
-              Verified Distributors
+              Creators on PROMORANG
             </p>
             <h2 className="mt-1 text-3xl font-black tracking-tight text-white">
-              Creator Directory &amp; Distribution Proof
+              Creator Directory
             </h2>
             <p className="text-xs text-white/60 mt-1">
               Creator-role profiles currently available from PROMORANG.
@@ -187,23 +191,10 @@ export default function Creators() {
                   </h3>
 
                   <p className="line-clamp-2 text-xs leading-relaxed text-white/60">
-                    {creator.bio || "Active culture distributor and curator on Promorang."}
+                    {creator.bio || "Creator on PROMORANG."}
                   </p>
 
-                  {/* Distribution Performance Metrics */}
-                  <div className="pt-2 flex items-center gap-3 border-t border-white/10 text-[11px] font-mono">
-                    <span className="text-purple-300 font-bold">
-                      {creator.distributionMetrics?.peopleMoved || 120}+ Moves
-                    </span>
-                    <span className="text-white/30">·</span>
-                    <span className="text-emerald-400 font-bold">
-                      {creator.distributionMetrics?.claimsDriven || 45} Claims
-                    </span>
-                    <span className="text-white/30">·</span>
-                    <span className="text-amber-400 font-bold">
-                      {creator.distributionMetrics?.tickets || 12} 🎟️ Tickets
-                    </span>
-                  </div>
+
                 </div>
               </Link>
             ))}
