@@ -5,7 +5,7 @@ import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { WatchMarketObjectButton } from "@/components/market/WatchMarketObjectButton";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { useDiscoveries } from "@/hooks/useDiscoveries";
 import { useDiscovery } from "@/hooks/useDiscoveries";
 import { getSiteUrl } from "@/lib/discovery";
 import { generateDiscoverySchema } from "@/lib/seo-schemas";
@@ -18,7 +18,7 @@ function realLocation(discovery: { location_address?: string | null; city?: stri
 
 export default function DiscoveryDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const query = useDiscovery(slug);
+  const query = useDiscovery(slug);\n  const relatedQuery = useDiscoveries({ limit: 12 });
 
   if (query.isLoading) {
     return <main className="grid min-h-screen place-items-center bg-black text-white"><div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" /></main>;
@@ -47,7 +47,7 @@ export default function DiscoveryDetail() {
   const website = metadata.website_url || null;
   const instagram = metadata.instagram_handle || null;
   const location = realLocation(discovery);
-  const discoveryHref = `/discoveries/${discovery.slug}`;
+  const discoveryHref = `/discoveries/${discovery.slug}`;\n  const relatedDiscoveries = (relatedQuery.data || []).filter((item) => item.id !== discovery.id && (item.category === discovery.category || item.city === discovery.city || item.scene_id === discovery.scene_id)).slice(0, 4);
   const share = () => {
     void trackGrowthEvent({ eventName: "market_object_shared", journey: "participant", stage: "amplified", entityType: "discovery", entityId: String(discovery.id) });
     return navigator.share?.({ title: discovery.title, text: discovery.description || undefined, url: window.location.href }).catch(() => undefined);
@@ -81,9 +81,9 @@ export default function DiscoveryDetail() {
             </div>
 
             <aside className="border-t border-white/20 pt-6 backdrop-blur-sm">
-              <p className="text-[10px] font-black uppercase tracking-[.22em] text-primary">What this object means</p>
-              <h2 className="mt-3 font-serif text-3xl font-bold">Local knowledge, not a transaction.</h2>
-              <p className="mt-3 text-sm leading-6 text-white/55">Approval means this Discovery crossed the platform review boundary. It does not mean there is an offer attached, that anyone attended, or that a purchase occurred.</p>
+              <p className="text-[10px] font-black uppercase tracking-[.22em] text-primary">Found something?</p>
+              <h2 className="mt-3 font-serif text-3xl font-bold">Keep it close.</h2>
+              <p className="mt-3 text-sm leading-6 text-white/55">Watch this Discovery so PROMORANG can bring you back if something real changes around it.</p>
               <div className="mt-6 grid gap-2">
                 <WatchMarketObjectButton
                   type="discovery"
@@ -116,9 +116,9 @@ export default function DiscoveryDetail() {
       <section className="container px-6 py-8">
         <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr]">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Market context</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold">Where this belongs.</h2>
-            <p className="mt-4 max-w-lg text-sm leading-7 text-white/50">A Discovery becomes more useful when it connects to a persistent Scene, a real place, and eventually an actionable Moment or offer. Those relationships remain separate records rather than being inferred.</p>
+            <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Around this Discovery</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold">Go deeper.</h2>
+            <p className="mt-4 max-w-lg text-sm leading-7 text-white/50">Open the real Scene, place or contributor already connected to this Discovery. Missing relationships stay missing rather than being invented.</p>
           </div>
           <div className="space-y-3">
             {discovery.scene ? <Link to={`/scenes/${discovery.scene.slug}`} className="group flex items-center justify-between rounded-[1.6rem] border border-white/10 p-5 transition hover:border-primary/40"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Scene</p><h3 className="mt-2 font-serif text-2xl font-bold">{discovery.scene.title}</h3><p className="mt-1 text-xs text-white/45">Persistent context for related people, places, knowledge and Moments.</p></div><ArrowRight className="h-5 w-5 text-white/30 transition group-hover:text-primary" /></Link> : <div className="rounded-[1.6rem] border border-dashed border-white/10 p-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Scene</p><h3 className="mt-2 font-serif text-2xl font-bold">Not linked yet</h3><p className="mt-1 text-xs text-white/45">The platform is not inventing a Scene relationship for this record.</p></div>}
