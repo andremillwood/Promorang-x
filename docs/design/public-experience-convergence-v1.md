@@ -579,3 +579,14 @@ Place is a place-first destination. Lead with where it is, what it is, what is h
 
 ### Creator
 Creator is identity + work + real connected activity. Production creator pages must resolve from creator-role profiles and source-backed public content. No sample creator should stand in for a missing production profile; no fabricated audience, movement, claim or ticket metrics should be used to make the directory look active.
+
+
+### Scene / Place / Creator convergence
+
+Scene, Place/Venue and public person/Creator profiles now inherit the same destination law rather than becoming isolated microsites.
+
+- Scene: atmosphere and identity → join/keep action → Moments → Discoveries → retained Scene relationship.
+- Place/Venue: place identity → what is happening / available → Moments → commerce → gallery → linked content.
+- Creator/person: identity → follow/share → source-backed public activity/history.
+
+The older demo-only `SceneDetail.tsx` remains non-canonical. Public `/scenes/:slug` resolves through `CommunityDetail.tsx`, which is backed by `useScene` and real Scene/Moment/Discovery relationships. Do not promote `DEMO_SCENES` into the public object graph.
