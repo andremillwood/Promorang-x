@@ -17,6 +17,8 @@ import { getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import type { CanonicalMoment, MomentLifecycle } from "@/services/moment-feed";
+import { useAuth } from "@/contexts/AuthContext";
+import { PublicMomentsExperience } from "@/components/discovery/PublicMomentsExperience";
 
 const categories = [
   { value: "all", label: "All categories", emoji: "✨" },
@@ -35,7 +37,7 @@ const exampleMoments = demoMoments.slice(0, 3).map((moment) => ({
   content_origin: "demo" as const,
 }));
 
-const ExploreMoments = () => {
+const SignedInExploreMoments = () => {
   const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -435,6 +437,15 @@ const ExploreMoments = () => {
       </section>
     </div>
   );
+};
+
+
+const ExploreMoments = () => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <div className="min-h-screen bg-[#050505]" />;
+  }
+  return user ? <SignedInExploreMoments /> : <PublicMomentsExperience />;
 };
 
 export default ExploreMoments;
