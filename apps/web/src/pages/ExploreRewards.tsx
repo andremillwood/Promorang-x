@@ -100,9 +100,9 @@ export function ExploreRewards() {
 
         <section className="grid gap-8 border-b border-white/10 py-12 lg:grid-cols-[.72fr_1.28fr]">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Put something into the market</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">What would you like to see?</h2>
-            <p className="mt-3 max-w-lg text-sm leading-6 text-white/50">This records an ask. It does not create an offer, reward Points, or promise that a business will respond.</p>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Looking for something?</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">Tell PROMORANG.</h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/50">Tell PROMORANG what you are looking for. Saving your interest does not create an Offer, reward Points, or promise that somebody will respond.</p>
           </div>
           <form onSubmit={submitAsk} className="self-end">
             <div className="flex flex-col gap-2 rounded-[1.4rem] border border-white/12 bg-white/[0.045] p-2 sm:flex-row">
@@ -116,14 +116,14 @@ export function ExploreRewards() {
                 />
               </div>
               <button type="submit" disabled={!ask.trim() || submitting} className="min-h-12 rounded-[1rem] bg-primary px-5 text-xs font-black uppercase tracking-[0.12em] text-black disabled:opacity-40">
-                {submitting ? "Recording…" : "Record my ask"}
+                {submitting ? "Saving…" : "Keep looking for this"}
               </button>
             </div>
             {result ? (
               <p className={`mt-3 text-xs leading-5 ${result.recorded ? "text-emerald-300" : "text-amber-200"}`}>
                 {result.recorded
-                  ? `Recorded: “${result.query}”. This is demand evidence, not supply.`
-                  : `PROMORANG could not confirm “${result.query}” as recorded public demand. Nothing is being presented as saved.`}
+                  ? `PROMORANG is keeping an eye on “${result.query}”. This is recorded interest behind the scenes, not supply.`
+                  : `PROMORANG could not confirm “${result.query}” was saved. Nothing is being presented as watched or counted.`}
               </p>
             ) : null}
           </form>
