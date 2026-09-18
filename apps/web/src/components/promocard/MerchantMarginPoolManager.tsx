@@ -158,7 +158,7 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
                   className="bg-zinc-900 border-zinc-800 pl-7 text-white"
                 />
               </div>
-              <p className="text-[11px] text-zinc-500">Guarantees profitable ticket size</p>
+              <p className="text-[11px] text-zinc-500">Sets the minimum eligible basket; profitability still depends on your actual margin and redemption mix</p>
             </div>
 
             <div className="space-y-2">
@@ -182,7 +182,7 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
               By offering a <strong>${allowance} perk</strong> on purchases over <strong>${minBasket}</strong> with a <strong>{cap} customer cap</strong>:
             </p>
             <p className="text-emerald-400 font-medium">
-              → You unlock at least <strong>${(minBasket * cap).toFixed(2)} in Gross Customer Sales</strong> and <strong>${((minBasket - allowance) * cap).toFixed(2)} in Guaranteed Net Cash Revenue</strong> with <strong>$0 upfront ad spend</strong>.
+              → At full cap, the model implies up to <strong>${(minBasket * cap).toFixed(2)} in qualifying basket value</strong>. After the stated perk allowance, the remaining basket value would be <strong>${((minBasket - allowance) * cap).toFixed(2)}</strong> before product costs, fees, taxes, refunds, and other expenses. This is a scenario, not guaranteed revenue.
             </p>
           </div>
 
