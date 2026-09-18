@@ -472,7 +472,7 @@ Exit gate:
 
 ## C17 — Public marketing alignment
 
-Status: **Not fully reconciled with new product**
+Status: **In progress; live proof, simulator and example claims reconciled**
 
 Includes:
 - homepage;
