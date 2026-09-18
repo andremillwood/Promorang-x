@@ -415,7 +415,7 @@ export default function VenueProfile() {
                             </Button>
                           ) : (
                             <Button asChild size="sm" variant="outline">
-                              <Link to="/marketplace">View</Link>
+                              <Link to={`/shop/${encodeURIComponent(listing.listing_id || listing.source_id || "")}`}>View</Link>
                             </Button>
                           )}
                         </div>
