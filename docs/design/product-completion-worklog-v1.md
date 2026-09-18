@@ -497,7 +497,9 @@ Remaining C16 work is release/golden-journey QA: every stakeholder journey still
 
 # 16A. CURRENT ACTIVE WORK — C19 Production truth sweep
 
-Latest closed finding: **T-032 — Discover and Found could manufacture durable success in the browser.**
+Latest closed findings:
+- **T-032 — Discover and Found could manufacture durable success in the browser.**
+- **T-034 — Referral and PromoShare distribution could manufacture attribution and performance.**
 
 Closed direction:
 
@@ -509,7 +511,10 @@ Closed direction:
 - Discovery vote UI waits for the durable mutation before reporting success;
 - vote success and PromoCard issuance are separate outcomes;
 - Found create/claim stays failed when the durable mutation fails;
-- Found claim + promised finder slip is transactional/retry-safe at the SQL boundary.
+- Found claim + promised finder slip is transactional/retry-safe at the SQL boundary;
+- referral APIs fail unavailable instead of emitting demo codes/metrics/earnings/validation;
+- PromoShare uses only a recorded referral code and otherwise creates an unattributed generic share URL;
+- referral source failure is not rendered as zero activity.
 
 ### NEXT ACTION
 

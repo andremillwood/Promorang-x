@@ -129,7 +129,7 @@ export function useCreateReferralCode() {
     onSuccess: () => {
       toast({
         title: "Referral code created! 🔗",
-        description: "Share your code to earn rewards.",
+        description: "Share your recorded code. Any reward appears only after the qualifying referral is recorded.",
       });
       queryClient.invalidateQueries({ queryKey: ["referral-codes"] });
     },

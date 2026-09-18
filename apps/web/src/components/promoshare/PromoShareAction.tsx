@@ -49,7 +49,7 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
   buttonLabel,
 }) => {
   const { t } = useI18n();
-  const { generateShareLink, referralCode } = usePromoShareRail();
+  const { generateShareLink, referralCode, referralCodeRecorded } = usePromoShareRail();
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shareSheetCompleted, setShareSheetCompleted] = useState(false);
@@ -203,7 +203,9 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
 
           <div className="space-y-2">
             <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-              {t('promoShare.linkLabel', { code: referralCode || '' })}
+              {referralCodeRecorded
+                ? t('promoShare.linkLabel', { code: referralCode || '' })
+                : 'Share link · no referral attribution code recorded'}
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -221,6 +223,12 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
               </Button>
             </div>
           </div>
+
+          {!referralCodeRecorded && !explicitShareUrl ? (
+            <p className="mt-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.05] p-3 text-[11px] leading-5 text-amber-100/65">
+              This link can still be shared, but it has no referral code attached. No referral credit should be expected unless the platform provides a recorded code.
+            </p>
+          ) : null}
 
           <div className="mt-4 grid grid-cols-2 gap-3">
             <button

@@ -913,6 +913,35 @@ Commits:
 
 Status: **Closed**
 
+
+#### T-034 — Referral and PromoShare distribution could manufacture attribution and performance
+
+Files:
+- `backend/api/referrals.js`
+- `apps/web/src/lib/promoShareRail.ts`
+- `apps/web/src/hooks/usePromoShareRail.ts`
+- `apps/web/src/hooks/useReferrals.ts`
+- `apps/web/src/components/promoshare/PromoShareAction.tsx`
+- `apps/web/src/components/participant/ReferralsSection.tsx`
+- `apps/web/src/lib/promoShareRail.test.ts`
+
+Finding:
+- the referral API returned demo referral codes when its authoritative store was unavailable;
+- the same failure path reported 15 referrals, 80% conversion, USD/Gems/Points earnings, Silver tier status, valid demo referrers and successful tracking;
+- affiliate/share routes could therefore look attributable even though no durable referral code existed;
+- PromoShare independently synthesized a user referral code from the user id or a fixed `PROMO-VIP876` fallback and stored it in the browser;
+- Referral UI rendered missing stats as zero and displayed per-code zero counters even though the code endpoint does not source per-code counters.
+
+Resolution:
+- referral API read/write routes now fail unavailable rather than substituting demo codes, metrics, tiers, validation or mutation success;
+- OAuth signup remains non-blocking, but explicitly returns `tracked: false` when referral storage is unavailable;
+- PromoShare appends `ref=` only when the canonical referral-code endpoint supplied a recorded code;
+- generic sharing remains available without pretending attribution exists;
+- Referral UI distinguishes source failure from zero activity and no longer presents unsupported per-code counters;
+- regression coverage locks the rule that a share URL without a recorded referral code contains no `ref` parameter.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

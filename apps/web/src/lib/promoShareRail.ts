@@ -29,20 +29,6 @@ export interface PromoShareConfig {
 }
 
 const ACTIVE_REFERRER_KEY = 'promorang_active_referrer';
-const USER_REFERRAL_CODE_KEY = 'promorang_my_referral_code';
-
-export function getUserReferralCode(fallbackId?: string): string {
-  try {
-    const stored = localStorage.getItem(USER_REFERRAL_CODE_KEY);
-    if (stored) return stored;
-  } catch {}
-
-  const code = fallbackId ? `PROMO-${fallbackId.slice(0, 5).toUpperCase()}` : 'PROMO-VIP876';
-  try {
-    localStorage.setItem(USER_REFERRAL_CODE_KEY, code);
-  } catch {}
-  return code;
-}
 
 export function captureReferralFromUrl(): string | null {
   try {
@@ -65,7 +51,7 @@ export function buildPromoShareUrl(
   userRefCode?: string
 ): string {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://promorang.co';
-  const refCode = userRefCode || getUserReferralCode();
+  const refCode = String(userRefCode || '').trim();
 
   let basePath = '';
   switch (objectType) {
@@ -91,8 +77,12 @@ export function buildPromoShareUrl(
       basePath = `/discover`;
   }
 
+  const params = new URLSearchParams();
+  if (refCode) params.set('ref', refCode);
+  params.set('ps_src', objectType);
+  params.set('ps_id', objectId);
   const separator = basePath.includes('?') ? '&' : '?';
-  return `${origin}${basePath}${separator}ref=${encodeURIComponent(refCode)}&ps_src=${objectType}&ps_id=${encodeURIComponent(objectId)}`;
+  return `${origin}${basePath}${separator}${params.toString()}`;
 }
 
 export function shareViaWhatsApp(title: string, url: string): void {

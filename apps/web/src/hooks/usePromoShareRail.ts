@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { buildPromoShareUrl, getUserReferralCode, captureReferralFromUrl, ShareableObjectType } from '@/lib/promoShareRail';
+import { buildPromoShareUrl, captureReferralFromUrl, ShareableObjectType } from '@/lib/promoShareRail';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyPromoCard } from '@/hooks/usePeopleExperience';
 import { API_BASE_URL } from '@/lib/api';
 import { toast } from 'sonner';
 import type { RewardEventType } from '@/lib/rewardEvents';
+import { useReferralCodes } from '@/hooks/useReferrals';
 
 export interface PromoShareBalances {
   promoPoints: number;
@@ -36,7 +37,8 @@ function formatNextDraw(draws: PromoShareDashboard['draws']) {
 export function usePromoShareRail() {
   const { user, profile, session } = useAuth();
   const card = useMyPromoCard();
-  const referralCode = getUserReferralCode(user?.id);
+  const referralCodes = useReferralCodes();
+  const referralCode = referralCodes.data?.find((code) => code.is_active)?.code || null;
   const [promoShareStanding, setPromoShareStanding] = useState({
     entries: 0,
     nextDrawDate: '',
@@ -114,7 +116,7 @@ export function usePromoShareRail() {
 
   const generateShareLink = useCallback(
     (objectType: ShareableObjectType, objectId: string, slugOrPath?: string) => {
-      return buildPromoShareUrl(objectType, objectId, slugOrPath, referralCode);
+      return buildPromoShareUrl(objectType, objectId, slugOrPath, referralCode || undefined);
     },
     [referralCode],
   );
@@ -139,6 +141,9 @@ export function usePromoShareRail() {
   return {
     balances,
     referralCode,
+    referralCodeRecorded: Boolean(referralCode),
+    referralCodeLoading: referralCodes.isLoading,
+    referralCodeError: referralCodes.error,
     generateShareLink,
     recordAttributedAction,
     refreshBalances,

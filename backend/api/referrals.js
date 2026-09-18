@@ -21,6 +21,12 @@ const sendError = (res, statusCode, message, code) => {
   return res.status(statusCode).json({ status: 'error', message, code });
 };
 
+const requireReferralStore = (res) => {
+  if (supabase) return true;
+  sendError(res, 503, 'Referral records are temporarily unavailable', 'SERVICE_UNAVAILABLE');
+  return false;
+};
+
 // Auth middleware: use shared JWT validator so req.user is populated consistently
 router.use(requireAuth);
 
@@ -33,12 +39,7 @@ router.get('/my-code', async (req, res) => {
     const userId = req.user.id;
 
     // Check if user already has a code
-    if (!supabase) {
-      return sendSuccess(res, {
-        code: 'PROMO-DEMO1234',
-        share_url: `https://promorang.com/auth?mode=signup&ref=PROMO-DEMO1234`,
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     const { data: user } = await supabase
       .from('users')
@@ -86,11 +87,7 @@ router.post('/generate-code', async (req, res) => {
     const userId = req.user.id;
     const { prefix, display_name } = req.body;
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        code: 'PROMO-CUSTOM1234',
-      }, 'Custom code generated');
-    }
+    if (!requireReferralStore(res)) return;
 
     const code = await referralService.generateReferralCode(
       userId,
@@ -114,31 +111,7 @@ router.get('/stats', async (req, res) => {
   try {
     const userId = req.user.id;
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        summary: {
-          total_referrals: 15,
-          active_referrals: 12,
-          pending_referrals: 3,
-          conversion_rate: '80.0',
-          total_earnings: {
-            usd: 125.50,
-            gems: 2500,
-            points: 5000,
-          },
-          referral_code: 'PROMO-DEMO1234',
-          tier: {
-            tier_name: 'Silver',
-            tier_level: 2,
-            commission_rate: 0.06,
-            badge_icon: '🥈',
-            badge_color: '#C0C0C0',
-          },
-        },
-        referrals: [],
-        recent_commissions: [],
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     const stats = await referralService.getReferralStats(userId);
 
@@ -162,12 +135,7 @@ router.get('/my-referrals', async (req, res) => {
     const userId = req.user.id;
     const { status, limit = 50, offset = 0 } = req.query;
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        referrals: [],
-        total: 0,
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     let query = supabase
       .from('user_referrals')
@@ -215,16 +183,7 @@ router.get('/earnings', async (req, res) => {
     const userId = req.user.id;
     const { start_date, end_date, earning_type, limit = 100 } = req.query;
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        earnings: [],
-        total: {
-          usd: 0,
-          gems: 0,
-          points: 0,
-        },
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     let query = supabase
       .from('referral_commissions')
@@ -280,44 +239,7 @@ router.get('/earnings', async (req, res) => {
  */
 router.get('/tiers', async (req, res) => {
   try {
-    if (!supabase) {
-      return sendSuccess(res, {
-        tiers: [
-          {
-            tier_name: 'Bronze',
-            tier_level: 1,
-            min_referrals: 0,
-            commission_rate: 0.05,
-            badge_icon: '🥉',
-            badge_color: '#CD7F32',
-          },
-          {
-            tier_name: 'Silver',
-            tier_level: 2,
-            min_referrals: 10,
-            commission_rate: 0.06,
-            badge_icon: '🥈',
-            badge_color: '#C0C0C0',
-          },
-          {
-            tier_name: 'Gold',
-            tier_level: 3,
-            min_referrals: 50,
-            commission_rate: 0.075,
-            badge_icon: '🥇',
-            badge_color: '#FFD700',
-          },
-          {
-            tier_name: 'Platinum',
-            tier_level: 4,
-            min_referrals: 100,
-            commission_rate: 0.10,
-            badge_icon: '💎',
-            badge_color: '#E5E4E2',
-          },
-        ],
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     const { data, error } = await supabase
       .from('referral_tiers')
@@ -346,15 +268,7 @@ router.post('/validate-code', async (req, res) => {
       return sendError(res, 422, 'Referral code is required', 'VALIDATION_ERROR');
     }
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        valid: true,
-        referrer: {
-          username: 'demo_user',
-          display_name: 'Demo User',
-        },
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     const { data, error } = await supabase
       .from('referral_codes')
@@ -404,11 +318,7 @@ router.get('/leaderboard', async (req, res) => {
   try {
     const { limit = 50, period = 'all_time' } = req.query;
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        leaderboard: [],
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     let query = supabase
       .from('users')
@@ -461,12 +371,7 @@ router.post('/track-referral', async (req, res) => {
       return sendError(res, 422, 'Missing required fields', 'VALIDATION_ERROR');
     }
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        tracked: true,
-        message: 'Demo mode - referral tracked',
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     const referral = await referralService.trackReferral(
       referred_user_id,
@@ -505,12 +410,7 @@ router.post('/track-earning', async (req, res) => {
       return sendError(res, 422, 'Missing required fields', 'VALIDATION_ERROR');
     }
 
-    if (!supabase) {
-      return sendSuccess(res, {
-        commission_calculated: false,
-        message: 'Demo mode - no commission calculated',
-      });
-    }
+    if (!requireReferralStore(res)) return;
 
     const commission = await referralService.calculateCommission({
       referredUserId: user_id,
@@ -564,8 +464,8 @@ router.post('/track-oauth-signup', async (req, res) => {
 
     if (!supabase) {
       return sendSuccess(res, {
-        tracked: true,
-        message: 'Demo mode - OAuth referral tracked',
+        tracked: false,
+        message: 'Referral tracking is temporarily unavailable; signup was not attributed.',
       });
     }
 
@@ -615,23 +515,18 @@ router.get('/affiliate-link', async (req, res) => {
     const userId = req.user.id;
     const { product_id, store_id, url, type = 'product' } = req.query;
 
-    // Get user's referral code
-    let code;
-    if (!supabase) {
-      code = 'PROMO-DEMO1234';
-    } else {
-      const { data: user } = await supabase
-        .from('users')
-        .select('primary_referral_code')
-        .eq('id', userId)
-        .single();
+    if (!requireReferralStore(res)) return;
 
-      code = user?.primary_referral_code;
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('primary_referral_code')
+      .eq('id', userId)
+      .single();
+    if (userError) throw userError;
 
-      // Generate if doesn't exist
-      if (!code) {
-        code = await referralService.generateReferralCode(userId);
-      }
+    let code = user?.primary_referral_code;
+    if (!code) {
+      code = await referralService.generateReferralCode(userId);
     }
 
     const baseUrl = process.env.APP_URL || 'https://promorang.co';
@@ -675,9 +570,7 @@ router.post('/track-click', async (req, res) => {
       return sendError(res, 422, 'Referral code is required', 'VALIDATION_ERROR');
     }
 
-    if (!supabase) {
-      return sendSuccess(res, { tracked: true });
-    }
+    if (!requireReferralStore(res)) return;
 
     // Find the referrer
     const { data: codeData } = await supabase
