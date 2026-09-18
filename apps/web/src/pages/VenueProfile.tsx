@@ -338,7 +338,7 @@ export default function VenueProfile() {
                       </span>
                     ))}
                     {nextMoment ? (
-                      <Link to={nextMoment.slug === "aftrhrs" || slug === "sea-deck" ? "/moments/aftrhrs" : `/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
+                      <Link to={`/moments/${nextMoment.slug || nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
                         Next Moment · {nextMoment.title}
                       </Link>
                     ) : null}
