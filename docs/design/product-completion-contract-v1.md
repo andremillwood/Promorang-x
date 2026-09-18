@@ -415,7 +415,7 @@ Exit gate:
 
 ## C14 — Commerce and fulfillment
 
-Status: **Needs dedicated convergence**
+Status: **In progress; participant/merchant state boundaries hardened**
 
 Includes:
 - shop;
