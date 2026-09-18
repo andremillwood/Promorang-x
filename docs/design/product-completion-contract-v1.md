@@ -438,7 +438,7 @@ Exit gate:
 
 ## C15 — Gems, Wallet, PromoShare and advanced economy
 
-Status: **In progress; user-facing value truth hardened, claim/settlement atomicity still open**
+Status: **In progress; user-facing value, Save & Win withdrawal language and PromoShare truth hardened; claim/settlement atomicity still open**
 
 Deliver:
 - canonical Gems states per DESIGN.md;
@@ -472,7 +472,7 @@ Exit gate:
 
 ## C17 — Public marketing alignment
 
-Status: **In progress; role promises, live proof, simulator and example claims reconciled**
+Status: **In progress; role promises, guarantee claims, live proof, simulators and commercial examples reconciled**
 
 Includes:
 - homepage;
