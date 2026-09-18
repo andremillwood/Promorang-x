@@ -936,6 +936,7 @@ Resolution:
 - referral API read/write routes now fail unavailable rather than substituting demo codes, metrics, tiers, validation or mutation success;
 - OAuth signup remains non-blocking, but explicitly returns `tracked: false` when referral storage is unavailable;
 - PromoShare appends `ref=` only when the canonical referral-code endpoint supplied a recorded code;
+- reading the current referral code is side-effect free; creation happens only through the explicit create-code mutation;
 - generic sharing remains available without pretending attribution exists;
 - Referral UI distinguishes source failure from zero activity and no longer presents unsupported per-code counters;
 - regression coverage locks the rule that a share URL without a recorded referral code contains no `ref` parameter.

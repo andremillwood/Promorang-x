@@ -47,25 +47,16 @@ router.get('/my-code', async (req, res) => {
       .eq('id', userId)
       .single();
 
-    let code = user?.primary_referral_code;
-
-    // Generate if doesn't exist
+    const code = user?.primary_referral_code || null;
     if (!code) {
-      code = await referralService.generateReferralCode(userId);
+      return sendSuccess(res, {
+        code: null,
+        share_url: null,
+        qr_code_url: null,
+      });
     }
 
     const shareUrl = `${process.env.APP_URL || 'https://promorang.com'}/auth?mode=signup&ref=${encodeURIComponent(code)}`;
-
-    try {
-      await growthOperatingService.recordEvent({
-        eventName: 'share_created', journey: 'participant', stage: 'amplified',
-        userId, referralCode: code, source: 'referral', medium: 'owned_link',
-        entityType: 'referral_code', entityId: code,
-        idempotencyKey: `growth:referral-link-created:${userId}:${code}`,
-      });
-    } catch (growthError) {
-      console.warn('[Referrals API] growth share mirror skipped:', growthError.message);
-    }
 
     return sendSuccess(res, {
       code,
