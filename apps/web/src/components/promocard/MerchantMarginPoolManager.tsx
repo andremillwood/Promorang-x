@@ -26,6 +26,7 @@ export const MerchantMarginPoolManager: React.FC<MerchantMarginPoolManagerProps>
   merchantId = "merchant_demo_1",
   merchantName = "Kinfolk Coffee & Roasters",
 }) => {
+  if (!import.meta.env.DEV) return null;
   const { toast } = useToast();
   const [pool, setPool] = useState<MerchantMarginPool>(
     MarginPoolService.getPoolByMerchantId(merchantId) || {
