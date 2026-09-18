@@ -179,7 +179,7 @@ Exit gate:
 
 ## C4 — Host / organizer convergence
 
-Status: **Partially converged**
+Status: **In progress; primary production surfaces source-backed**
 
 Deliver:
 - Today/current operational move;
@@ -199,7 +199,7 @@ Exit gate:
 
 ## C5 — Merchant convergence
 
-Status: **Dashboard direction established; deep workflows incomplete**
+Status: **In progress; supply, validation, payment and fulfillment boundaries hardened**
 
 Canonical journey:
 `DEMAND → SUPPLY/OFFER → VALIDATION → FULFILLMENT/ORDER → RESULT → RETURN`
@@ -226,7 +226,7 @@ Exit gate:
 
 ## C6 — Creator convergence
 
-Status: **Dashboard/proof direction established; lifecycle incomplete**
+Status: **In progress; proof/value path hardened, acceptance/rights contract still incomplete**
 
 Canonical journey:
 `OPPORTUNITY → BRIEF → ACCEPT → CREATE → RIGHTS/REVIEW → RELEASE → ATTRIBUTION → VERIFIED OUTCOME → EARNING → SETTLEMENT → REPUTATION/RETURN`
