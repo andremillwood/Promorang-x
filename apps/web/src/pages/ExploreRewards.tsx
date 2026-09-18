@@ -45,6 +45,8 @@ const POPULAR_PERK_PILLS = [
   "☕ Free Size Upgrade on Blue Mountain Coffee",
 ];
 
+const ALLOW_REWARDS_FIXTURES = import.meta.env.DEV || import.meta.env.MODE === "test";
+
 const VENUE_IMAGE_FALLBACKS: Record<string, string> = {
   "Tacbar": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
   "Dulce Lounge": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
@@ -72,7 +74,7 @@ export function ExploreRewards() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-  const [dealRequests, setDealRequests] = useState<CommunityDealRequest[]>(INITIAL_DEAL_REQUESTS);
+  const [dealRequests, setDealRequests] = useState<CommunityDealRequest[]>(ALLOW_REWARDS_FIXTURES ? INITIAL_DEAL_REQUESTS : []);
   const [requestModalOpen, setRequestModalOpen] = useState(false);
 
   // New Request Form State
@@ -132,6 +134,13 @@ export function ExploreRewards() {
   }, [dealRequests, activeCategory, searchQuery]);
 
   const handleVote = (id: string) => {
+    if (!ALLOW_REWARDS_FIXTURES) {
+      toast({
+        title: "Demand source unavailable here",
+        description: "Production votes must be recorded through the canonical Discover demand flow.",
+      });
+      return;
+    }
     setDealRequests((prev) =>
       prev.map((req) => {
         if (req.id === id) {
@@ -154,6 +163,14 @@ export function ExploreRewards() {
 
   const handleCreateRequest = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ALLOW_REWARDS_FIXTURES) {
+      toast({
+        title: "Use Discover to record demand",
+        description: "Rewards does not publish browser-only market requests. Record durable demand through the Discover flow instead.",
+      });
+      setRequestModalOpen(false);
+      return;
+    }
     if (!newVenue.trim() || !newPerk.trim()) {
       toast({
         title: "Missing Information",
@@ -226,13 +243,22 @@ export function ExploreRewards() {
 
           {/* Action Hub & Balance */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            <Button
-              onClick={() => setRequestModalOpen(true)}
-              className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/30 h-11 px-5 gap-1.5"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Request a Perk at a Spot</span>
-            </Button>
+            {ALLOW_REWARDS_FIXTURES ? (
+              <Button
+                onClick={() => setRequestModalOpen(true)}
+                className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/30 h-11 px-5 gap-1.5"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Request a Perk at a Spot</span>
+              </Button>
+            ) : (
+              <Button asChild className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/30 h-11 px-5 gap-1.5">
+                <Link to="/discover">
+                  <Plus className="h-4 w-4" />
+                  <span>Record Demand in Discover</span>
+                </Link>
+              </Button>
+            )}
 
             {/* User Points & Keys Capsule */}
             <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-1.5 shrink-0">
@@ -266,10 +292,10 @@ export function ExploreRewards() {
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  <span>Verified Perks in Upcoming Moments</span>
+                  <span>Upcoming Moments with Recorded Reward Terms</span>
                 </h2>
                 <p className="text-xs text-white/50">
-                  Recorded Moment perks appear here when configured. RSVP is intent; any reward or access follows the Moment's actual eligibility, proof, and issuance rules.
+                  These Moments contain reward terms on the Moment record. Availability, eligibility, fulfillment, and issuance still depend on the live Moment rules.
                 </p>
               </div>
             </div>
@@ -319,7 +345,7 @@ export function ExploreRewards() {
                       <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
                           <Check className="h-3 w-3" />
-                          <span>Included with Pass</span>
+                          <span>See Moment terms</span>
                         </span>
                         <ArrowRight className="h-3.5 w-3.5 text-white/40 group-hover:text-primary group-hover:translate-x-1 transition" />
                       </div>
@@ -338,11 +364,11 @@ export function ExploreRewards() {
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5 fill-amber-400" />
-                  Live Community Wishlist
+                  Community Demand Preview
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                Top Requested Deals in Kingston
+                Recorded Demand Requests
               </h2>
               <p className="text-xs text-white/60">
                 Vote to make demand visible. Reaching a threshold creates a stronger demand signal; it does not guarantee attendance, supply, or a merchant agreement.
