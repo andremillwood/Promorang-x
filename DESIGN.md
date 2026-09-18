@@ -2,6 +2,8 @@
 
 This is the canonical design contract for Promorang.
 
+Current completion status and remaining release work are governed by [`docs/design/product-completion-contract-v1.md`](docs/design/product-completion-contract-v1.md). Until that contract is closed, new major product families or parallel redesign tracks should not supersede the listed completion workstreams.
+
 Implementation is governed by [`docs/design/a-plus-platform-execution-plan.md`](docs/design/a-plus-platform-execution-plan.md). `DESIGN.md` defines the product law; the execution plan defines the workstreams, sequence, release gates, and evidence required to meet it.
 
 The PromoCard-centered world layer — Kingston After Dark / The City Wakes — is specified in [`docs/design/promocard-world-experience-v1.md`](docs/design/promocard-world-experience-v1.md). Implementation notes for the first vertical slice live in [`docs/design/world-layer-implementation-2026-09-05.md`](docs/design/world-layer-implementation-2026-09-05.md). The cultural strategy layer (Four Houses, Resonance, Influence, Return Chains) is specified in [`docs/design/promorang-world-system-v2.md`](docs/design/promorang-world-system-v2.md). The world layer must increase PromoCard usefulness. It must never become a second product. PromoCard is never a secondary module: participant entry surfaces must treat it as a primary product object and primary action alongside the person's immediate move.
