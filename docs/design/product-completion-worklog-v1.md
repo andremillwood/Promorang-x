@@ -515,6 +515,7 @@ Latest closed findings:
 - **T-047 — Identity visibility claimed privacy changes without a durable write.**
 - **T-048 — Wallet pass locally forged PromoKeys after ignored conversion failures.**
 - **T-049 — PromoPush turned source/write failure into zero activity, active campaigns and successful attribution.**
+- **T-050 — Marketplace and Piece profile converted source gaps into empty inventory, demo markets and unsupported entitlements.**
 
 Closed direction:
 
@@ -555,7 +556,8 @@ Closed direction:
 - Identity Marker public/private controls now write the recorded owner-scoped visibility field, while source failure remains unavailable rather than becoming empty identity history;
 - legacy public-profile rendering no longer depends on the viewer's private journey/identity queries or enables follow mutations before follow state is known;
 - the Wallet pass no longer owns a second browser-only PromoKey forge; Point → PromoKey conversion now routes through the Wallet's authoritative conversion mutation and refreshes recorded balances;
-- PromoPush owner, creator, promoter and Admin surfaces no longer turn source failure into zero/empty state; campaign creation stages draft → dependencies → requested status, and tracking-link redirect now requires a persisted attribution event.
+- PromoPush owner, creator, promoter and Admin surfaces no longer turn source failure into zero/empty state; campaign creation stages draft → dependencies → requested status, and tracking-link redirect now requires a persisted attribution event;
+- Marketplace now separates source unavailable from empty inventory, while Piece Profile no longer manufactures a market during database failure, coerces missing metrics to zero, or promises holder perks without a recorded entitlement source.
 
 ### NEXT ACTION
 

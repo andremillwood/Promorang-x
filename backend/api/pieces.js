@@ -147,10 +147,7 @@ async function fetchAssetDetails(pieceType, assetId) {
     .eq(config.idColumn, assetId)
     .maybeSingle();
 
-  if (error) {
-    console.warn(`[Pieces API] asset fetch failed for ${pieceType}:${assetId}:`, error.message);
-  }
-
+  if (error) throw error;
   return data || null;
 }
 
@@ -165,12 +162,13 @@ async function fetchPieceStats(pieceType, assetId) {
   };
 
   const config = statsConfig[pieceType];
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from(config.table)
     .select('*')
     .eq(config.idColumn, assetId)
     .maybeSingle();
 
+  if (error) throw error;
   return data || null;
 }
 
@@ -731,7 +729,11 @@ router.get('/:pieceType/:id/profile', async (req, res, next) => {
       return next();
     }
 
-    if (!supabase || USE_DEMO) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Piece source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       const stats = generateDemoPieceStats(12);
       return res.json({
         piece_type: pieceType,
@@ -775,6 +777,7 @@ router.get('/:pieceType/:id/profile', async (req, res, next) => {
       return res.status(404).json({ error: 'Piece asset not found' });
     }
 
+    if (poolResult.error) throw poolResult.error;
     const [pool] = await enrichPoolsWithAssets(poolResult.data || []);
 
     res.json({

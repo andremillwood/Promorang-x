@@ -1335,6 +1335,32 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-050 — Marketplace and Piece profile converted source gaps into empty inventory, demo markets and unsupported entitlements
+
+Files:
+- `apps/web/src/pages/Marketplace.tsx`
+- `apps/web/src/pages/PieceProfile.tsx`
+- `backend/api/pieces.js`
+
+Finding:
+- the public commerce directory treated a failed `view_public_commerce_directory` query as no inventory/no results and continued to mix sample-only categories into the primary category rail;
+- the Piece profile endpoint returned a randomly generated demo Piece, pool and market statistics whenever the database client was unavailable, so a production infrastructure failure could look like live market state;
+- Piece asset/stat reads swallowed database errors into missing data, and the profile UI collapsed every fetch failure into “Piece not found”;
+- absent price, volume, holder and market-cap data were rendered as recorded zero;
+- Piece Profile advertised a static holder-benefit ladder — 15% ticket discounts, guaranteed early-bird access, complimentary VIP/backstage hospitality, drink tokens and governance voting — without an entitlement source in the profile contract.
+
+Resolution:
+- Marketplace now renders commerce-source failure as unavailable with retry; true empty inventory remains a separate state, and sample categories enter navigation only when the explicitly labelled sample catalogue is being viewed;
+- the Piece profile API returns `503` when its database source is unavailable instead of generating a random demo market;
+- demo Piece profiles remain available only behind explicit non-production demo mode;
+- asset, stats and pool query errors now propagate as source failure rather than being converted to missing/zero state;
+- Piece Profile distinguishes source unavailable from a real `404` and provides retry;
+- absent market metrics render unknown rather than zero, and price-dependent trade estimates stay unavailable when no recorded price exists;
+- the unsupported holder-perk ladder was removed; the profile now states that Piece quantity alone does not create discounts, VIP access, hospitality or governance rights and that benefits appear only when a recorded entitlement source exists.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
