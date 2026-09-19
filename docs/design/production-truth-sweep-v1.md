@@ -1309,6 +1309,32 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-049 — PromoPush turned source/write failure into zero activity, active campaigns and successful attribution
+
+Files:
+- `apps/web/src/pages/PromoPush.tsx`
+- `apps/web/src/pages/PromoPushCreator.tsx`
+- `apps/web/src/pages/PromoPushPromoterPortal.tsx`
+- `apps/web/src/components/admin/AdminPromoPushTab.tsx`
+- `backend/api/promopush.js`
+
+Finding:
+- owner, creator, promoter and Admin PromoPush surfaces defaulted failed queries to empty arrays and then rendered zero metrics, no campaigns, no assignments, no applications or no queue work;
+- the campaign builder could still appear usable when its authoritative Moment source had failed;
+- campaign creation inserted the campaign at the requested live status before channel generation and optional creative-task creation completed, so a later write failure could leave an incomplete live campaign behind while the request itself failed;
+- the public `/go/:code` resolution endpoint did not check the attribution-event insert result and could redirect successfully even when the entry event was not recorded.
+
+Resolution:
+- PromoPush owner, creator, promoter and Admin surfaces now distinguish loading, source unavailable, true empty and recorded zero states, with retry controls;
+- aggregate metrics render unknown while their source is unavailable rather than fabricated zero;
+- campaign creation is disabled while the eligible Moment source is unavailable;
+- new campaigns are persisted as `draft`, channels and requested creative tasks are created, and only then is the campaign transitioned to the requested status;
+- a dependency-write failure therefore leaves a non-public draft instead of an incomplete active campaign;
+- `/go/:code` now returns failure when its attribution event cannot be persisted, so the redirect only follows a recorded entry event.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Copy, Loader2, Megaphone, Palette, QrCode, UserPlus } from "lucide-react";
+import { Copy, Loader2, Megaphone, Palette, QrCode, RefreshCcw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,19 @@ export function AdminPromoPushTab() {
       <div className="flex min-h-64 items-center justify-center text-muted-foreground">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
         Loading PromoPush operations
+      </div>
+    );
+  }
+
+  if (adminQuery.error) {
+    return (
+      <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-8 text-center">
+        <p className="text-lg font-black">PromoPush operations are unavailable.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Queue and assignment source failure is not being shown as zero work.</p>
+        <Button type="button" variant="outline" className="mt-5" onClick={() => adminQuery.refetch()}>
+          <RefreshCcw className="mr-2 h-4 w-4" />
+          Retry operations source
+        </Button>
       </div>
     );
   }

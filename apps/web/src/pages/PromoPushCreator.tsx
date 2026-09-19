@@ -1,5 +1,5 @@
 import { QRCodeSVG } from "qrcode.react";
-import { BadgeDollarSign, CheckCircle2, Copy, Link2, Megaphone, MousePointerClick, Plus, ShieldCheck, Users } from "lucide-react";
+import { BadgeDollarSign, CheckCircle2, Copy, Link2, Megaphone, MousePointerClick, Plus, RefreshCcw, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -29,6 +29,7 @@ export default function PromoPushCreator() {
     proof_verified: acc.proof_verified + Number(link.metrics?.proof_verified || 0),
     earnings: acc.earnings + Number(link.earnings?.total || 0),
   }), { clicks: 0, joins: 0, proof_verified: 0, earnings: 0 });
+  const creatorMetricsReady = !creatorLinksQuery.isLoading && !creatorLinksQuery.error;
 
   return (
     <div className="min-h-screen bg-[#080808] text-white">
@@ -48,10 +49,10 @@ export default function PromoPushCreator() {
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: t("promoPushCreatorPage.statClicks"), value: formatNumber(totals.clicks), icon: MousePointerClick },
-            { label: t("promoPushCreatorPage.statJoins"), value: formatNumber(totals.joins), icon: Users },
-            { label: t("promoPushCreatorPage.statVerifiedActions"), value: formatNumber(totals.proof_verified), icon: ShieldCheck },
-            { label: t("promoPushCreatorPage.statEarnings"), value: money(totals.earnings), icon: BadgeDollarSign },
+            { label: t("promoPushCreatorPage.statClicks"), value: creatorMetricsReady ? formatNumber(totals.clicks) : "—", icon: MousePointerClick },
+            { label: t("promoPushCreatorPage.statJoins"), value: creatorMetricsReady ? formatNumber(totals.joins) : "—", icon: Users },
+            { label: t("promoPushCreatorPage.statVerifiedActions"), value: creatorMetricsReady ? formatNumber(totals.proof_verified) : "—", icon: ShieldCheck },
+            { label: t("promoPushCreatorPage.statEarnings"), value: creatorMetricsReady ? money(totals.earnings) : "—", icon: BadgeDollarSign },
           ].map((metric) => (
             <Card key={metric.label} className="border-white/10 bg-white/[0.04] text-white">
               <CardContent className="p-4">
@@ -74,6 +75,14 @@ export default function PromoPushCreator() {
             <CardContent className="space-y-3">
               {activeCampaignsQuery.isLoading ? (
                 <p className="text-sm text-white/60">{t("promoPushCreatorPage.loadingActiveCampaigns")}</p>
+              ) : activeCampaignsQuery.error ? (
+                <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-5 text-sm text-white/60">
+                  <p className="font-bold text-white">Available campaigns are unavailable.</p>
+                  <p className="mt-1">A source failure is not being presented as “no campaigns.”</p>
+                  <Button type="button" size="sm" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => activeCampaignsQuery.refetch()}>
+                    <RefreshCcw className="mr-2 h-4 w-4" />Retry campaign source
+                  </Button>
+                </div>
               ) : availableCampaigns.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-white/20 p-6 text-center text-sm text-white/60">
                   {t("promoPushCreatorPage.noUnclaimedCampaigns")}
@@ -116,6 +125,14 @@ export default function PromoPushCreator() {
             <CardContent className="space-y-4">
               {creatorLinksQuery.isLoading ? (
                 <p className="text-sm text-white/60">{t("promoPushCreatorPage.loadingCreatorLinks")}</p>
+              ) : creatorLinksQuery.error ? (
+                <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-5 text-sm text-white/60">
+                  <p className="font-bold text-white">Creator link and earning records are unavailable.</p>
+                  <p className="mt-1">PROMORANG will not turn that source failure into zero performance or zero earnings.</p>
+                  <Button type="button" size="sm" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => creatorLinksQuery.refetch()}>
+                    <RefreshCcw className="mr-2 h-4 w-4" />Retry creator source
+                  </Button>
+                </div>
               ) : creatorLinks.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-white/20 p-6 text-center text-sm text-white/60">
                   {t("promoPushCreatorPage.noCreatorLinks")}

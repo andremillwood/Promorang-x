@@ -517,7 +517,7 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **In progress; Discover/Found, creator release, developer credential/execution, Brand evidence/social-proof, identity-privacy and Wallet conversion truth hardened**
+Status: **In progress; Discover/Found, creator release, developer credential/execution, Brand evidence/social-proof, identity-privacy, Wallet conversion and PromoPush attribution/write truth hardened**
 
 Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 
