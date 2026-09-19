@@ -1361,6 +1361,60 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-051 — Limited Liquidity surface used wrong APIs, fabricated outage state and exposed non-atomic value writes
+
+Files:
+- `apps/web/src/pages/LiquidityDashboard.tsx`
+- `backend/api/pieces.js`
+- `docs/design/route-readiness-registry-v1.md`
+
+Finding:
+- the limited `/liquidity` page called `/api/pools`, `/api/liquidity/positions` and `/api/gems/balance` even though the recorded Piece APIs are mounted at `/api/pieces/pools`, `/api/pieces/lp/positions` and `/api/pieces/gems/balance`;
+- failed reads were logged and then rendered as zero pools, zero positions and a zero Gems balance;
+- the page projected deposited Gems directly into the same numeric USD value and advertised a universal 0.25% fee share / APR-style return without requiring the pool's recorded fee configuration;
+- opening the backing modal depended on an undefined `userPieces` value, while the modal's position route and add-liquidity payload did not match the backend contract;
+- the backend returned fabricated pools, LP positions and Gems balances whenever the database client was unavailable;
+- production add/remove liquidity currently mutates pool reserves and LP positions in separate server writes, so a failure between those writes can leave partial economic state.
+
+Resolution:
+- `/liquidity` remains a **limited** route and is now a source-backed, read-only review surface;
+- it reads the actual Piece pool, account LP-position and Gems endpoints and treats any source failure as unavailable with retry rather than zero state;
+- Gems remain Gems; the unsupported one-to-one USD projection was removed;
+- fee-rate display comes from each recorded pool, and the optional annualized figure is explicitly described as a simple estimate from recorded 24-hour volume rather than a promised return;
+- the production route no longer mounts the legacy add/remove-liquidity modal;
+- production pool/LP/Gems reads return unavailable when the database source is missing instead of demo records; explicit demo data remains non-production only;
+- production add/remove liquidity endpoints now fail closed with `LIQUIDITY_ATOMICITY_PENDING` until reserve and LP-position changes have an atomic settlement contract;
+- the route registry records the read-only limitation so the legacy mutation component is not treated as an approved production workflow.
+
+Status: **Closed**
+
+
+#### T-052 — Production Economy explainer promised unsupported perks, creator payouts and financial/custody guarantees
+
+Files:
+- `apps/web/src/pages/EconomyConcept.tsx`
+- `docs/design/route-readiness-registry-v1.md`
+
+Finding:
+- the production `/economy` family still taught automatic Piece benefits such as skip-the-line access, yearly discounts and resale cuts even though Piece quantity has no canonical entitlement contract;
+- Creator content was described as pre-funded paid missions whose payout was already set aside, despite the open T-019 acceptance/availability/rights-review contract and the distinction between configured reward, earning and settlement;
+- PromoShare/Save & Win copy collapsed entry, selected result, claim, distribution, principal return and settlement into stronger guarantees than the current T-026 claim/distribution contract supports;
+- Gems were described broadly as money and as an immediate one-to-one cash equivalent without preserving available/bonus/pending/withdrawable distinctions;
+- the sustainability section stated that prize money, merchant earnings and platform fees live in separate protected pots in a way that implied legal custody/segregation rather than recorded product-state separation;
+- browser-only illustrations contained fabricated attendance counts, fixed Points rewards, scarcity, creator payouts, Piece perks and crew bonuses without a persistent “illustration only” boundary.
+
+Resolution:
+- Piece education now describes a recorded asset/position and explicitly refuses to infer discounts, VIP access, governance, royalty, fee share, resale value or a buyer from holding quantity;
+- Creator release education states `open opportunity ≠ accepted commission ≠ approved work ≠ settled payment` and routes creators to the real Content Drop workspace;
+- Gems education separates source, availability, use and settlement instead of treating a displayed balance as cash in hand;
+- PromoShare and Save & Win education preserve entry/result/claim/distribution/settlement and principal/entry/result boundaries;
+- financial/custody copy now says what PROMORANG can defend — provenance and lifecycle records — without claiming that interface categories prove legal fund segregation;
+- all hero demos are persistently labelled **Illustration only · does not read or change your account** and fixed fake social proof/reward/scarcity/payout/perk claims were removed or made explicitly illustrative;
+- the production Economy route remains an explainer, but now previews the same truth boundaries users meet in Wallet, PromoShare, Pieces and Creator release tools.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

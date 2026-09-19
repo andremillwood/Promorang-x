@@ -171,8 +171,8 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/communities/:slug` | production | Primary candidate; still requires experience audit |
 | `/creators` | production | Primary candidate; still requires experience audit |
 | `/creators/:handle` | production | Primary candidate; still requires experience audit |
-| `/economy` | production | Primary candidate; still requires experience audit |
-| `/economy/:concept` | production | Primary candidate; still requires experience audit |
+| `/economy` | production | Public value explainer; illustrative demos are labelled and core value/settlement boundaries aligned |
+| `/economy/:concept` | production | Concept lenses over the same truth-safe Economy explainer; no implied live account state |
 | `/venue-report/:id` | production | Primary candidate; still requires experience audit |
 | `/pricing` | production | Primary candidate; still requires experience audit |
 | `/nodes` | production | Primary candidate; still requires experience audit |
@@ -387,7 +387,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/pieces/:pieceType/:assetId` | production | Primary candidate; still requires experience audit |
 | `/pieces/:pieceType/:assetId/manage` | redirect | Redirects to `/portfolio` |
 | `/kyc` | production | Primary candidate; still requires experience audit |
-| `/liquidity` | limited | Secondary/legacy concept; review against canonical spine |
+| `/liquidity` | limited | Read-only recorded pool/LP/Gems state; production liquidity mutations gated until atomic settlement exists |
 | `/propose/new` | production | Primary candidate; still requires experience audit |
 | `*` | production | Primary candidate; still requires experience audit |
 

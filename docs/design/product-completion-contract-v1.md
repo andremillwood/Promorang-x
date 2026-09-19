@@ -440,7 +440,7 @@ Exit gate:
 
 ## C15 — Gems, Wallet, PromoShare and advanced economy
 
-Status: **In progress; user-facing value, Save & Win withdrawal language, PromoShare production truth and Wallet PromoKey conversion authority hardened; synthetic gamification/drop entry points removed; claim/settlement atomicity still open**
+Status: **In progress; user-facing value, Save & Win withdrawal language, PromoShare production truth, Wallet PromoKey conversion authority and limited Liquidity read-only truth hardened; synthetic gamification/drop entry points removed; claim/settlement atomicity still open**
 
 Deliver:
 - canonical Gems states per DESIGN.md;
@@ -474,7 +474,7 @@ Exit gate:
 
 ## C17 — Public marketing alignment
 
-Status: **In progress; role promises, guarantee claims, live proof, simulators, commercial examples and developer-surface execution claims reconciled**
+Status: **In progress; role promises, guarantee claims, live proof, simulators, commercial examples, developer-surface execution and public Economy/value promises reconciled**
 
 Includes:
 - homepage;
@@ -517,7 +517,7 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **In progress; Discover/Found, creator release, developer credential/execution, Brand evidence/social-proof, identity-privacy, Wallet conversion, PromoPush attribution/write and Marketplace/Piece entitlement truth hardened**
+Status: **In progress; Discover/Found, creator release, developer credential/execution, Brand evidence/social-proof, identity-privacy, Wallet conversion, PromoPush attribution/write, Marketplace/Piece entitlement, limited Liquidity and public Economy/value truth hardened**
 
 Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 

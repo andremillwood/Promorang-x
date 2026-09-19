@@ -13,7 +13,6 @@ import SEO from "@/components/SEO";
 import { TactileButton } from "@/components/ui/TactileButton";
 import {
   CollectibleRelic,
-  MoneyPots,
   NightTrail,
   ObjectShelf,
   PaperReceipt,
@@ -116,7 +115,7 @@ const conceptData: Record<
       {
         role: "If you go out",
         why: "Your time out should turn into something you can actually use.",
-        outcome: "Save at partner shops, build a streak, and unlock limited nights without paying to skip the line.",
+        outcome: "Use recorded partner benefits, keep verified history, and see new eligibility when the underlying action is actually recorded.",
         action: "Find something nearby",
         href: "/explore/moments",
       },
@@ -130,7 +129,7 @@ const conceptData: Record<
       {
         role: "If you run a brand",
         why: "Ads can show clicks without proving anyone walked in.",
-        outcome: "Fund visits, purchases, and creator work, then see proof of what happened. Prize money is set aside first.",
+        outcome: "Fund configured visits, purchases, or creator outcomes and see the recorded evidence. PROMORANG only describes value as funded when a funding record exists.",
         action: "See options for brands",
         href: "/for-brands",
       },
@@ -139,7 +138,7 @@ const conceptData: Record<
       { label: "Tonight", title: "A place puts up a perk", text: "A shop or sponsor supplies something you can actually claim." },
       { label: "At the door", title: "You show the card", text: "A claimed perk flips to a code. Nothing is used until staff records VALID." },
       { label: "After", title: "The Return is eligibility", text: "A verified night is stamped. Value moves when a merchant can honor the next claim." },
-      { label: "Later", title: "Extras open up", text: "Points, Keys, streaks, and Gems are the extras — not the starting point." },
+      { label: "Later", title: "Extras open up", text: "Points, Keys, and Gems can be extras where the recorded rule makes them available — not assumptions attached to every visit." },
     ],
     tagline: "Useful at the register. Earned by being there.",
   },
@@ -186,7 +185,7 @@ const conceptData: Record<
     eyebrow: "Real nights, real places",
     headline: "Moments are the tastings, drops, and nights you actually go to.",
     subhead:
-      "A Moment is something happening in a real place. Checking in proves you were there, so rewards go to people in the room — not someone on the couch.",
+      "A Moment is something happening in a real place. Attendance becomes verified only through that Moment's recorded check-in or proof-review contract; an RSVP or button press is not attendance.",
     inPlainEnglish: "If you can walk there, scan there, and stay awhile, it can count. That is the whole idea.",
     primaryCta: { label: "Find a Moment", href: "/explore/moments" },
     secondaryCta: { label: "Host a Moment", href: "/create/moment" },
@@ -215,8 +214,8 @@ const conceptData: Record<
     ],
     steps: [
       { label: "01", title: "Someone hosts", text: "A venue or sponsor posts the place, time, and what you get for arriving." },
-      { label: "02", title: "You arrive", text: "Scan the live code while you are actually there." },
-      { label: "03", title: "It counts", text: "Points, perks, or a Return stamp can land once the visit is confirmed." },
+      { label: "02", title: "You arrive", text: "Complete the proof the Moment actually requires while you are there." },
+      { label: "03", title: "It counts", text: "Only configured consequences can land after the required attendance or proof state is verified." },
       { label: "04", title: "It stays on your profile", text: "The night becomes part of your history — you were there." },
     ],
     tagline: "Moments matter because real life happens offline.",
@@ -225,7 +224,7 @@ const conceptData: Record<
     eyebrow: "Your score for showing up",
     headline: "Points remember that you showed up.",
     subhead:
-      "You earn Points by checking in, completing missions, and bringing friends. You cannot buy or sell them. Seasons reset so last year does not lock everyone else out.",
+      "Points are a non-cash score issued only when an eligible recorded action has a configured Points rule. They are not money and are not assumed for every check-in, share, referral, or mission.",
     inPlainEnglish: "Points are a score, not money. Trade 500 for a Key when you want a shot at something special.",
     primaryCta: { label: "See standing", href: "/activity" },
     secondaryCta: { label: "Earn Points today", href: "/explore/moments" },
@@ -253,7 +252,7 @@ const conceptData: Record<
       },
     ],
     steps: [
-      { label: "01", title: "Do something real", text: "Check in, finish a mission, or bring a friend." },
+      { label: "01", title: "Do something eligible", text: "Complete an action whose recorded rule actually issues Points." },
       { label: "02", title: "Points land", text: "They stay on your seasonal score. They cannot be traded." },
       { label: "03", title: "Turn them into a Key", text: "500 Points become 1 PromoKey when you choose to convert." },
       { label: "04", title: "Season resets", text: "Everyone gets a fresh start. Status from showing up still matters." },
@@ -264,7 +263,7 @@ const conceptData: Record<
     eyebrow: "Access to the good stuff",
     headline: "Keys open limited offers that should not go to the first bot in line.",
     subhead:
-      "Turn 500 Points into 1 PromoKey. Use it for a prize, a VIP table, or a limited drop. You can earn up to three Keys a day. When you use one, it is gone.",
+      "The Wallet can convert 500 recorded Points into 1 PromoKey, subject to the current daily conversion limit. A PromoKey only opens an opportunity that explicitly accepts it; it is not a universal VIP or prize entitlement.",
     inPlainEnglish: "A Key is a ticket you earn. Spend it to enter something scarce. You cannot buy a stack of them.",
     primaryCta: { label: "Open your Keys", href: "/wallet" },
     secondaryCta: { label: "Browse drops", href: "/missions" },
@@ -294,7 +293,7 @@ const conceptData: Record<
     steps: [
       { label: "01", title: "Earn Points", text: "Show up until you have at least 500." },
       { label: "02", title: "Make a Key", text: "Convert 500 Points into 1 PromoKey. Max three new Keys per day." },
-      { label: "03", title: "Pick an offer", text: "A prize draw, VIP table, or exclusive mission." },
+      { label: "03", title: "Pick an offer", text: "Choose a recorded opportunity that explicitly accepts a PromoKey." },
       { label: "04", title: "Use it", text: "The Key is spent. Access is yours." },
     ],
     tagline: "Keys open the city for people who actually show up.",
@@ -338,199 +337,204 @@ const conceptData: Record<
     tagline: VALUE_INSTRUMENTS["master-key"].marketKnows,
   },
   pieces: {
-    eyebrow: "Keepsakes with perks",
-    headline: "Pieces are limited mementos from nights worth remembering.",
+    eyebrow: "Recorded ownership",
+    headline: "A Piece is a recorded position tied to a specific asset.",
     subhead:
-      "When a big event happens, a small number of Pieces can be claimed. Hold one for skip-the-line perks, or pass it on later. Hosts still earn a little whenever it changes hands.",
-    inPlainEnglish: "Like a limited poster from a night you were at — except this one can still get you in faster next year.",
-    primaryCta: { label: "Browse Pieces", href: "/marketplace" },
-    secondaryCta: { label: "Issue event Pieces", href: "/create/moment" },
+      "Pieces can represent limited supply or ownership history for an approved asset. A holding may have market or pool state when that state is actually recorded, but quantity alone does not create discounts, VIP access, governance rights, resale value, or a guaranteed buyer.",
+    inPlainEnglish:
+      "Keep the Piece because the record matters to you. Check the Piece profile for any real pool, price, benefit, or restriction; PROMORANG does not invent one from the number you hold.",
+    primaryCta: { label: "Review Piece records", href: "/marketplace" },
+    secondaryCta: { label: "Open your portfolio", href: "/portfolio" },
     roles: [
       {
-        role: "If you collect",
-        why: "Tickets expire. The night should not vanish with them.",
-        outcome: "Hold a Piece for venue perks, or trade it later if you are done with it.",
-        action: "Open the marketplace",
+        role: "If you hold a Piece",
+        why: "A recorded holding should be understandable without implying benefits that were never issued.",
+        outcome: "See the asset, recorded supply/position state, and any source-backed market information that actually exists.",
+        action: "Review Piece records",
         href: "/marketplace",
       },
       {
-        role: "If you host",
-        why: "A sold-out night should keep giving after the lights come up.",
-        outcome: "Issue a small run. You still receive a cut if a Piece is resold.",
-        action: "Mint an event collection",
-        href: "/create/moment",
+        role: "If you operate an asset",
+        why: "A Piece should not become a promise simply because an interface can display it.",
+        outcome: "Treat issuance, benefits, pools, fees and settlement as separate contracts and publish only the terms you can honor.",
+        action: "Review your Moment",
+        href: "/dashboard",
       },
       {
-        role: "If you collaborate",
-        why: "Brand merch often has no life after the drop.",
-        outcome: "Co-create a Piece tied to a real night, with a product or perk still attached.",
-        action: "Co-create a collection",
+        role: "If you fund or collaborate",
+        why: "A collectible is not proof of ROI, access, or secondary-market demand.",
+        outcome: "Use recorded evidence and explicit terms rather than assumed perks or resale economics.",
+        action: "See partner options",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "A host issues a small run", text: "Fixed number, clear perks, and a cut for the host if it is resold." },
-      { label: "02", title: "Early guests claim", text: "People who were actually there can pick one up." },
-      { label: "03", title: "Hold for perks", text: "Skip a line, get a yearly discount, or keep it as a memory." },
-      { label: "04", title: "Or pass it on", text: "A 1% fee applies if it is resold. The host still shares in that." },
+      { label: "01", title: "An approved asset exists", text: "The Piece refers to a real source object and recorded supply." },
+      { label: "02", title: "A position is recorded", text: "Ownership comes from the ledger, not a browser-only collectible card." },
+      { label: "03", title: "Benefits stay explicit", text: "No discount, access right, governance vote, royalty, or fee share is inferred from quantity alone." },
+      { label: "04", title: "Market state stays separate", text: "A pool, price, trade or settlement appears only when its own recorded contract exists." },
     ],
-    tagline: "Do not just witness a night. Keep a piece of it.",
+    tagline: "Ownership is a record. Benefits and market value need their own records.",
   },
   content: {
-    eyebrow: "Paid creator missions",
-    headline: "Make a video that actually brings people through the door.",
+    eyebrow: "Creator release opportunities",
+    headline: "An opportunity is not automatically a paid commission.",
     subhead:
-      "A brand posts a short brief and sets the payout aside first. You visit, film, and submit. Once the visit is confirmed, you get paid in Gems.",
-    inPlainEnglish: "You get paid for real content at a real place. The money is waiting before you start.",
-    primaryCta: { label: "Browse missions", href: "/missions" },
-    secondaryCta: { label: "Post a mission", href: "/for-brands" },
+      "A recorded Content Drop can publish an objective, assets and configured contribution rules. Opening it does not mean a creator accepted a job, transferred rights, passed review, earned payment, or reached settlement.",
+    inPlainEnglish:
+      "Check what the opportunity actually records before you create anything. Brief, acceptance, rights, review, earning and settlement are different states.",
+    primaryCta: { label: "Review release opportunities", href: "/content-drops?role=creator" },
+    secondaryCta: { label: "See creator tools", href: "/for-creators" },
     roles: [
       {
         role: "If you create",
-        why: "You should not wait on an agency to get paid for local work.",
-        outcome: "Pick a brief, show up, submit proof, and receive Gems when it checks out.",
-        action: "Find open missions",
-        href: "/missions",
+        why: "An open opportunity should not be mistaken for a guaranteed job or payout.",
+        outcome: "Review the recorded objective, assets and configured consequences. Do not assume acceptance, rights approval or settlement.",
+        action: "Open creator opportunities",
+        href: "/content-drops?role=creator",
       },
       {
         role: "If you run a venue",
-        why: "You want authentic clips from inside the room, not stock footage.",
-        outcome: "Put up a Gem bounty for a cocktail recap or vibe video and watch local feeds fill.",
-        action: "Create a venue mission",
-        href: "/create/moment",
+        why: "Creator work needs explicit terms, not an implied bounty.",
+        outcome: "Use recorded release/distribution tools for what exists today; acceptance and rights-review remain separate requirements.",
+        action: "Review host tools",
+        href: "/dashboard",
       },
       {
         role: "If you run a brand",
-        why: "Follower counts are a weak substitute for foot traffic.",
-        outcome: "Pay creators for verified visits, with the payout sitting aside until the work is real.",
-        action: "Launch a creator campaign",
+        why: "A reward configuration is not the same as an accepted commission or settled creator payment.",
+        outcome: "Fund and review only through recorded terms, then keep attribution, approval, earning and settlement distinct.",
+        action: "Review brand tools",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "The brief is funded", text: "The brand writes what they need and sets Gems aside." },
-      { label: "02", title: "You go and film", text: "Visit the place, make the piece, upload it in the app." },
-      { label: "03", title: "It gets checked", text: "Place, time, and the ask are confirmed." },
-      { label: "04", title: "You get paid", text: "Gems move to you from the money that was already set aside." },
+      { label: "01", title: "The opportunity is published", text: "Objective, source assets and configured action rules are recorded." },
+      { label: "02", title: "Acceptance is separate", text: "Do not treat discovery or opening the brief as creator acceptance or availability." },
+      { label: "03", title: "Rights and review are separate", text: "Submission, approval, attribution and rights terms must not collapse into one state." },
+      { label: "04", title: "Earning is not settlement", text: "Show value only when eligibility is recorded, and settlement only when the settlement record exists." },
     ],
-    tagline: "Content that brings people together in the real world.",
+    tagline: "Open opportunity ≠ accepted commission ≠ approved work ≠ settled payment.",
   },
   gems: {
-    eyebrow: "The money inside Promorang",
-    headline: "1 Gem = $1. Buy it, earn it, spend it for extras.",
+    eyebrow: "Recorded platform value",
+    headline: "Gems have different states. Treat those states as different.",
     subhead:
-      "Gems are platform money. Pay with a card and $25 becomes 25 Gems. Or earn them from funded work. Spending Gems — on Pieces, perks, tips, or Save & Win — opens benefits a cash swipe outside the app cannot.",
-    inPlainEnglish: VALUE_STORY.gemsBuyBenefits,
-    primaryCta: { label: "Buy or earn Gems", href: "/wallet" },
-    secondaryCta: { label: "See Save & Win", href: "/economy/save-and-win" },
+      "Current Gem packs can be purchased through the Wallet, while other Gems may come from eligible recorded outcomes. Available, bonus, pending, secured and withdrawable value are not interchangeable, and a displayed Gem balance is not automatically cash in hand.",
+    inPlainEnglish:
+      "Read the Wallet state that applies to your Gems. Purchase price, spending eligibility and withdrawal eligibility are separate questions.",
+    primaryCta: { label: "Open Wallet", href: "/wallet" },
+    secondaryCta: { label: "Understand the value states", href: "/economy" },
     roles: [
       {
-        role: "If you spend",
-        why: "Cash outside Promorang does not put you in the loop.",
-        outcome: "Buy Gems once, then spend them on Pieces, partner perks, and parked Save & Win pots. Those spends can also drop tickets.",
-        action: "Open your wallet",
+        role: "If you use Gems",
+        why: "One total should not hide whether value is available, pending, bonus, secured or withdrawable.",
+        outcome: "Use the Wallet's recorded state before spending or requesting withdrawal.",
+        action: "Open Wallet",
         href: "/wallet",
       },
       {
-        role: "If you earn",
-        why: "Showing up should be able to pay you in the same unit brands already use.",
-        outcome: "Finish a funded mission or Moment and Gems move from money that was already set aside.",
-        action: "Browse missions",
-        href: "/missions",
+        role: "If you earn Gems",
+        why: "A configured reward is not the same as issued or settled value.",
+        outcome: "Follow the recorded consequence from eligibility to issuance and, where supported, settlement.",
+        action: "Review activity",
+        href: "/activity",
       },
       {
-        role: "If you fund it",
-        why: "You want every prize dollar to stay a prize dollar.",
-        outcome: "Deposit Gems first. People buy, earn, and redeem against a pot you can inspect.",
-        action: "Fund a pot",
+        role: "If you fund value",
+        why: "Funding, issuance and settlement must remain auditable instead of being implied by copy.",
+        outcome: "Configure value only where the platform records the funded source and resulting issuance.",
+        action: "See brand tools",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "Buy", title: "Pay $1, receive 1 Gem", text: "Purchased Gems are spendable right away inside Promorang." },
-      { label: "Earn", title: "Do funded work", text: "Missions, Moments, allowances, and Save & Win winnings can pay Gems. Holding them still earns nothing." },
-      { label: "Spend", title: "Use them for extras", text: "Pieces, tips, boosts, and partner perks. Gem spend can also issue PromoShare tickets." },
-      { label: "Park", title: "Or set them aside", text: "Save & Win keeps 100% of parked Gems and adds draw tickets while they sit." },
+      { label: "Acquire", title: "A Gem record has a source", text: "Purchase, funded issuance or another supported source must be recorded." },
+      { label: "State", title: "Availability matters", text: "Pending, available, bonus, secured and withdrawable states can have different rules." },
+      { label: "Use", title: "Spend only where supported", text: "A live product must explicitly accept Gems before spend is implied." },
+      { label: "Settle", title: "Withdrawal is a separate workflow", text: "A balance is not called settled cash until the withdrawal or settlement record says so." },
     ],
-    tagline: VALUE_STORY.gemsEarn,
+    tagline: "Source, availability, use and settlement are different truths.",
   },
   promoshare: {
-    eyebrow: "The draw names the prize",
-    headline: "A ticket is a chance. The named draw says what you can win.",
+    eyebrow: "Recorded entries and draws",
+    headline: "A PromoShare entry is a chance in a named recorded draw — not a prize.",
     subhead:
-      "Every PromoShare ticket belongs to one published draw. Perk draws pay a Key, access, partner perk, product, or Piece. They do not pay cash. Save & Win is the PromoShare family that pays extra Gems.",
-    inPlainEnglish: VALUE_STORY.namedDrawPays,
-    primaryCta: { label: "See perk draws", href: "/promoshare" },
-    secondaryCta: { label: "See money draws", href: "/economy/save-and-win" },
+      "Entries, draw selection, claim, distribution and settlement are separate records. A share action does not automatically earn an entry, and a selected result is not described as delivered or settled until the corresponding record exists.",
+    inPlainEnglish:
+      "First check that you actually have a recorded entry. If a draw selects you, follow the claim and settlement state instead of assuming the prize already landed.",
+    primaryCta: { label: "Open PromoShare", href: "/promoshare" },
+    secondaryCta: { label: "Review Wallet", href: "/wallet" },
     roles: [
       {
-        role: "If you play along",
-        why: "You should know the prize before you care about the ticket.",
-        outcome: "Read the draw. Perk tickets can win a Key or perk. Save & Win tickets can win extra Gems. Neither is a guarantee.",
-        action: "View PromoShare draws",
+        role: "If you participate",
+        why: "A share, click or visit should not be turned into a fake ticket.",
+        outcome: "See only entries actually issued to your account and the recorded state of each draw.",
+        action: "Open PromoShare",
         href: "/promoshare",
       },
       {
-        role: "If you host a night",
-        why: "A mid-event draw keeps people in the room.",
-        outcome: "Run a perk draw with a Key or tasting already set aside, or point people to Save & Win for money winnings.",
-        action: "Host a draw",
-        href: "/create/moment",
+        role: "If you supply a reward",
+        why: "Selection, claim, distribution and settlement are not the same event.",
+        outcome: "Publish only the funded/configured reward and keep every downstream state explicit.",
+        action: "Review operator tools",
+        href: "/dashboard",
       },
       {
         role: "If you sponsor",
-        why: "You want every prize dollar to stay a prize dollar.",
-        outcome: "Fund a perk, or fund extra Gems in Save & Win. Deposit first. Get a record of what was given out.",
-        action: "Fund a brand pot",
+        why: "A campaign should not promise rewards from unrecorded engagement.",
+        outcome: "Tie eligibility to recorded actions and inspect issuance/settlement rather than assumed reach.",
+        action: "See brand tools",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "The draw is named", text: "It says perk or Save & Win, and it lists the prize before anyone enters." },
-      { label: "02", title: "You earn a ticket", text: "Show up for perk draws. Park Gems for Save & Win money draws." },
-      { label: "03", title: "A fair draw happens", text: "Random among eligible tickets. More tickets, better odds. Not a Points ranking." },
-      { label: "04", title: "You get what that draw published", text: "Perk: Key, access, or a partner perk. Save & Win: extra Gems. Your parked Gems stay yours." },
+      { label: "01", title: "An eligible action is verified", text: "Only a configured recorded rule may issue an entry." },
+      { label: "02", title: "The entry belongs to a named draw", text: "The entry itself is not the prize." },
+      { label: "03", title: "A result is recorded", text: "Selected does not mean claimed, distributed or settled." },
+      { label: "04", title: "Downstream state stays explicit", text: "Claim and settlement are shown only when those records exist." },
     ],
-    tagline: VALUE_INSTRUMENTS["promoshare-tickets"].marketKnows,
+    tagline: "Entry ≠ win ≠ claim ≠ distribution ≠ settlement.",
   },
   "save-and-win": {
-    eyebrow: "PromoShare's money draws",
-    headline: "This is the PromoShare family that pays extra Gems.",
+    eyebrow: "Save & Win",
+    headline: "Parked principal, draw eligibility and settlement are separate states.",
     subhead:
-      "Park Gems. Keep 100% of that principal. While they sit, you hold tickets in the named Save & Win draws. If you win, extra Gems land on top. Returning parked Gems follows the pot's exit terms and any applicable wallet hold or withdrawal rules.",
-    inPlainEnglish: VALUE_STORY.saveAndWin,
-    primaryCta: { label: "See Save & Win pots", href: "/nodes" },
-    secondaryCta: { label: "Perk draws pay Keys, not cash", href: "/economy/promoshare" },
+      "Save & Win can associate parked Gems with named draw eligibility under the recorded pot terms. A draw result does not change the ownership or settlement state of principal by implication, and withdrawal follows the Wallet/pot rules that are actually recorded.",
+    inPlainEnglish:
+      "Read the pot terms, your parked amount, your recorded entries and any result separately. Do not treat selection as settlement or assume an instant exit.",
+    primaryCta: { label: "Open Save & Win", href: "/save-and-win" },
+    secondaryCta: { label: "Review PromoShare", href: "/promoshare" },
     roles: [
       {
-        role: "If you set money aside",
-        why: "A lottery should not be a way to lose the money you walked in with.",
-        outcome: "Park Gems, collect money-draw tickets, and keep the same Gems. A win is extra Gems.",
-        action: "Open the pots",
-        href: "/nodes",
+        role: "If you park Gems",
+        why: "Your principal state and your chance in a draw should never be collapsed.",
+        outcome: "See the parked balance, issued entries, named draw and any settlement state separately.",
+        action: "Open Save & Win",
+        href: "/save-and-win",
       },
       {
-        role: "If you run a shop",
-        why: "Parked community value can back local discounts and check-in perks.",
-        outcome: "People keep their Gems. Your night still gets a float that helps perks land.",
-        action: "See merchant tools",
-        href: "/for-merchants",
+        role: "If you operate a pot",
+        why: "A prize promise needs recorded funding and a clear exit/settlement path.",
+        outcome: "Keep funding, entry issuance, draw result and settlement auditable.",
+        action: "Review operator tools",
+        href: "/dashboard",
       },
       {
-        role: "If you sponsor a pot",
-        why: "You want a prize people can enter without gambling their principal.",
-        outcome: "Fund the extra Gems. Participants park Gems they still own. That is the only PromoShare path that pays money winnings.",
-        action: "Fund a pot",
+        role: "If you sponsor",
+        why: "A funded prize still needs a real claim/distribution lifecycle.",
+        outcome: "Inspect the recorded result and settlement path rather than treating selection as delivery.",
+        action: "See brand tools",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "Set aside", title: "You park some Gems", text: "They still belong to you. Pull them out whenever you want." },
-      { label: "Tickets", title: "Those Gems collect money-draw tickets", text: "This is PromoShare, not a separate casino. The pot is named. The prize is extra Gems." },
-      { label: "Draw", title: "If you win, extra Gems land", text: "1 Gem = $1. Everyday perk draws do not do this." },
-      { label: "Keep", title: "If you do not win, nothing is lost", text: "Your parked Gems are still there. That is the no-loss part." },
+      { label: "Park", title: "Principal is recorded", text: "The pot records the amount and applicable exit terms." },
+      { label: "Entries", title: "Eligibility is issued separately", text: "Only recorded entries participate in a named draw." },
+      { label: "Result", title: "Selection is recorded", text: "A selected result is not yet a distributed or settled reward." },
+      { label: "Exit", title: "Principal follows recorded terms", text: "Return or withdrawal is shown only when the corresponding state changes." },
     ],
-    tagline: VALUE_INSTRUMENTS["save-and-win"].is,
+    tagline: "Principal ≠ entry ≠ selected result ≠ settled reward.",
   },
   network: {
     eyebrow: "Going out with your people",
@@ -572,43 +576,44 @@ const conceptData: Record<
     tagline: "Culture is co-created. Bring your friends.",
   },
   sustainability: {
-    eyebrow: "How money is kept safe",
-    headline: "Prize money is set aside before anyone can win it.",
+    eyebrow: "Value provenance",
+    headline: "PROMORANG should say where value came from and what state it is in.",
     subhead:
-      "Sponsor rewards, shop earnings, and Promorang's fee live in three separate pots. Prize money is not mixed with money used to run the app.",
-    inPlainEnglish: "Promorang cannot dip into the prize pot to pay the lights. Those are different piles of money.",
-    primaryCta: { label: "See plans and pricing", href: "/pricing" },
-    secondaryCta: { label: "Talk with the team", href: "/for-brands" },
+      "Reward allocation, merchant proceeds, platform fees, pending earnings and settled value are different accounting meanings. The product should keep those records distinct and should not describe an allocation as funded, protected or settled unless the supporting record exists.",
+    inPlainEnglish:
+      "A label in the interface is not proof that money is legally segregated. What PROMORANG can defend is the recorded source, status and consequence of value inside the platform.",
+    primaryCta: { label: "Review Wallet records", href: "/wallet" },
+    secondaryCta: { label: "See partner terms", href: "/pricing" },
     roles: [
       {
-        role: "If you win rewards",
-        why: "You need to know the prize is real before you bother.",
-        outcome: "Reward budgets sit aside in advance. They are not operating cash.",
-        action: "Read how funds stay separate",
-        href: "/pricing",
+        role: "If you receive value",
+        why: "Pending, issued and settled should not look like the same money.",
+        outcome: "See the source and current state rather than a broad promise that every allocation is already protected cash.",
+        action: "Open Wallet",
+        href: "/wallet",
       },
       {
-        role: "If you run a shop",
-        why: "Ticket and sales money should not wait on platform bookkeeping.",
-        outcome: "Your proceeds settle on their own path, with fees shown separately.",
-        action: "View commercial terms",
-        href: "/pricing",
+        role: "If you sell",
+        why: "A recorded purchase is not automatically fulfilled or settled.",
+        outcome: "Follow purchase, fulfillment and settlement as separate records.",
+        action: "Review merchant tools",
+        href: "/dashboard",
       },
       {
         role: "If you sponsor",
-        why: "You should see that promotional dollars reached real people.",
-        outcome: "Each committed dollar has a path you can inspect.",
-        action: "Explore brand hub",
+        why: "Configured budget is not the same as issued or settled reward value.",
+        outcome: "Use source records to see what was funded, what was earned, and what remains pending.",
+        action: "Review brand tools",
         href: "/for-brands",
       },
     ],
     steps: [
-      { label: "01", title: "Money arrives into a labeled pot", text: "Sponsor funds go to rewards. Shop sales go to the shop." },
-      { label: "02", title: "A real action releases it", text: "A visit or completed mission is what moves rewards." },
-      { label: "03", title: "Fees stay visible", text: "Promorang's cut is a published software fee, recorded on its own." },
-      { label: "04", title: "Nothing is mixed", text: "Three pots. Three jobs. No blending." },
+      { label: "01", title: "Record the source", text: "Purchase, sponsor funding, reward allocation and platform fee should retain provenance." },
+      { label: "02", title: "Keep lifecycle state", text: "Configured, funded, earned, issued, pending and settled are not synonyms." },
+      { label: "03", title: "Show the consequence", text: "The product should say what actually moved and what is still waiting." },
+      { label: "04", title: "Do not overclaim custody", text: "Operational or legal segregation is not inferred from an interface category." },
     ],
-    tagline: "Trust first. Then the extras.",
+    tagline: "Provenance and lifecycle first. Financial guarantees require evidence.",
   },
 };
 
@@ -678,12 +683,12 @@ function MomentDemo() {
       </div>
       <div className="space-y-3 p-5">
         <p className="text-sm leading-6 text-zinc-300">
-          Arrive, scan the live code, and the drink pass is yours. 142 people already checked in.
+          This illustration shows a possible in-room proof state. It is not live attendance or inventory.
         </p>
         <TactileButton variant={inRoom ? "success" : "primary"} size="lg" fullWidth onClick={() => setInRoom((v) => !v)}>
           {inRoom ? (
             <>
-              <CheckCircle2 className="h-4 w-4" /> Checked in · +150 Points
+              <CheckCircle2 className="h-4 w-4" /> Example verified state
             </>
           ) : (
             <>
@@ -745,7 +750,7 @@ function KeysDemo() {
       <TicketPass
         kicker={used ? "Opened" : "1 Key required"}
         title="VIP tasting pass"
-        detail={used ? "Show this at the door. Your Key is spent." : "Artisan Distillers · 8 seats left tonight."}
+        detail={used ? "Show this at the door. Your Key is spent." : "Illustrative opportunity · availability would come from the live source."}
         stub={used ? "OPEN" : "KEY"}
         stubLabel={used ? "Used" : "Hold"}
       />
@@ -793,10 +798,10 @@ function GemsDemo() {
   const [step, setStep] = useState<"buy" | "earn" | "spend">("buy");
   const receipt =
     step === "buy"
-      ? { heading: "You bought Gems", lines: [{ label: "Card charge", value: "$25.00" }, { label: "You received", value: "25 Gems", strong: true }], footer: "1 Gem = $1. Spendable inside Promorang now." }
+      ? { heading: "Illustrative Gem purchase", lines: [{ label: "Purchase price", value: "$25.00" }, { label: "Example credited amount", value: "25 Gems", strong: true }], footer: "Purchase pricing does not make every Gem immediately withdrawable cash." }
       : step === "earn"
-        ? { heading: "Mission paid out", lines: [{ label: "Cocktail recap", value: "Verified" }, { label: "From funded pot", value: "+120 Gems", strong: true }], footer: "Earned Gems. Holding them still earns nothing." }
-        : { heading: "Gem spend extras", lines: [{ label: "Neon Nights Piece", value: "−50 Gems" }, { label: "PromoShare tickets", value: "+2 this week", strong: true }, { label: "Cash outside would get", value: "Neither" }], footer: "Spending Gems is how extras open." };
+        ? { heading: "Illustrative funded outcome", lines: [{ label: "Eligibility", value: "Would require a recorded rule" }, { label: "Issuance", value: "Shown only after the ledger records it", strong: true }], footer: "Configured reward ≠ earned ≠ issued ≠ settled." }
+        : { heading: "Illustrative Gem use", lines: [{ label: "Spend", value: "Only where a live product accepts Gems" }, { label: "PromoShare", value: "Entry only if an eligibility rule issues one", strong: true }], footer: "No bonus, ticket, or financial consequence is assumed from a Gem spend." };
   return (
     <div className="space-y-4">
       <PaperReceipt heading={receipt.heading} lines={receipt.lines} footer={receipt.footer} />
@@ -831,7 +836,7 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
         <TicketPass
           kicker="Friday 8pm perk draw"
           title="Austin weekend Key"
-          detail="Ticket PS-88219. Prize already published: one PromoKey. This ticket is a chance, not the Key."
+          detail="Illustrative entry. A real entry, draw and prize would come from the recorded PromoShare cycle."
           stub="PS"
           stubLabel="Draw"
         />
@@ -841,11 +846,11 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
         <PaperReceipt
           heading="Local perks pot"
           lines={[
-            { label: "Gems parked", value: "250", strong: true },
-            { label: "Still yours", value: "100%" },
-            { label: "Draw tickets", value: "+25 this week" },
+            { label: "Parked principal", value: "Illustrative", strong: true },
+            { label: "Entries", value: "Only when recorded" },
+            { label: "Result", value: "Separate from settlement" },
           ]}
-          footer="If you win, it is extra. If you do not, the 250 Gems stay."
+          footer="A real pot's exit, draw and settlement terms come from its recorded state."
         />
       );
     case "pieces":
@@ -854,25 +859,25 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
           serial="Piece 042 of 100"
           title="Neon Nights 2026"
           origin="Claimed at the launch gala. Proof you were in the room."
-          perk="Holders skip the partner line and keep a 15% host perk."
+          perk="No benefit is inferred from holding quantity. Check the source record for any real entitlement."
         />
       );
     case "content":
       return (
         <TicketPass
-          kicker="Open mission · 120 Gems"
+          kicker="Illustrative creator opportunity"
           title="15-second cocktail recap"
-          detail="Film the seasonal drink at Velvet Lounge. Payout is already set aside."
-          stub="120"
-          stubLabel="Gems"
+          detail="A real opportunity must state its recorded objective and value terms. Opening it is not acceptance or settlement."
+          stub="OPEN"
+          stubLabel="Example"
         />
       );
     case "network":
       return (
         <article className="rounded-[1.7rem] border border-white/12 bg-[#12151c] p-6">
           <p className="text-[11px] font-bold tracking-[0.16em] text-sky-300">Downtown crew</p>
-          <h3 className="mt-2 font-serif text-2xl font-bold text-white">4 of 5 checked in</h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-300">Arrive together and everyone gets a +50% Points bump.</p>
+          <h3 className="mt-2 font-serif text-2xl font-bold text-white">Illustrative crew state</h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-300">A real crew benefit would require a recorded rule; no fixed attendance or Points bonus is implied here.</p>
           <div className="mt-4 flex -space-x-2">
             {["AM", "SJ", "KL", "MR"].map((n) => (
               <span key={n} className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#12151c] bg-sky-600 text-[11px] font-bold text-white">
@@ -885,13 +890,13 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
     case "sustainability":
       return (
         <PaperReceipt
-          heading="Three separate pots"
+          heading="Value-state example"
           lines={[
-            { label: "Prize money", value: "Set aside", strong: true },
-            { label: "Shop earnings", value: "Goes to the shop" },
-            { label: "Promorang fee", value: "Published, separate" },
+            { label: "Funding", value: "Needs a source record", strong: true },
+            { label: "Earning", value: "Separate lifecycle state" },
+            { label: "Settlement", value: "Shown only when recorded" },
           ]}
-          footer="Prize money is not operating cash."
+          footer="Interface categories do not by themselves prove legal custody or fund segregation."
         />
       );
     case "promocard":
@@ -944,7 +949,10 @@ export default function EconomyConcept() {
                 </TactileButton>
               </div>
             </div>
-            <HeroObject concept={conceptKey} />
+            <div>
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Illustration only · does not read or change your account</p>
+              <HeroObject concept={conceptKey} />
+            </div>
           </div>
         </div>
       </section>
@@ -1033,29 +1041,22 @@ export default function EconomyConcept() {
 
       <section id="three-ledgers" className="border-b border-white/10 bg-[#0a0a0a] py-16 md:py-24">
         <div className="container px-6">
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-            <div>
-              <p className="text-xs font-bold tracking-[0.2em] text-emerald-400">{t("economy.fundsProtected")}</p>
-              <h2 className="mt-2 font-serif text-3xl font-bold md:text-4xl">{t("economy.rewardSeparate")}</h2>
-              <p className="mt-4 text-base leading-7 text-zinc-300">
-                {t("economy.rewardSeparateCopy")}
-              </p>
-              <div className="mt-6">
-                <TactileButton variant="primary" size="lg" asChild>
-                  <Link to="/pricing">
-                    {t("economy.viewPlans")}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </TactileButton>
+          <p className="text-xs font-bold tracking-[0.2em] text-emerald-400">Value truth boundary</p>
+          <h2 className="mt-2 max-w-3xl font-serif text-3xl font-bold md:text-4xl">Configured, funded, earned, issued, pending and settled are different states.</h2>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
+            PROMORANG should preserve the source and lifecycle of value without turning interface categories into a custody or financial guarantee. A reward is called funded only when a funding record supports it; a balance is called settled only when settlement is recorded.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              ["Source", "Where did the value come from — purchase, sponsor funding, earned consequence, refund, or another recorded source?"],
+              ["State", "Is it configured, funded, earned, issued, pending, available, secured, reversed, or settled?"],
+              ["Consequence", "What actually moved, what is still waiting, and which source record proves it?"],
+            ].map(([label, copy]) => (
+              <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{label}</p>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
               </div>
-            </div>
-            <MoneyPots
-              pots={[
-                { label: t("economy.boundaryRevenue"), detail: t("economy.boundaryRevenueDetail"), mark: t("economy.keptSeparate") },
-                { label: t("economy.boundaryCommitted"), detail: t("economy.boundaryCommittedDetail"), mark: t("economy.keptSeparate") },
-                { label: t("economy.boundaryOperator"), detail: t("economy.boundaryOperatorDetail"), mark: t("economy.keptSeparate") },
-              ]}
-            />
+            ))}
           </div>
         </div>
       </section>

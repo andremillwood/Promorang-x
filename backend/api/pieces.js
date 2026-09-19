@@ -1416,7 +1416,11 @@ router.get('/pools', async (req, res) => {
   try {
     const { status = 'active', piece_type } = req.query;
     
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Liquidity pool source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       return res.json({
         pools: Array.from({ length: 5 }, (_, i) => ({
           id: `demo-pool-${i}`,
@@ -1464,7 +1468,11 @@ router.get('/lp/positions', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'LP position source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       const pools = Array.from({ length: 2 }, (_, i) => ({
         id: `demo-pool-${i}`,
         piece_type: i === 0 ? 'moment' : 'content',
@@ -1665,7 +1673,19 @@ router.post('/pools/:id/add-liquidity', requireAuth, async (req, res) => {
     const { pieces_to_add, max_currency, slippage_tolerance } = req.body;
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(503).json({
+        success: false,
+        code: 'LIQUIDITY_ATOMICITY_PENDING',
+        error: 'Liquidity changes are temporarily unavailable while atomic settlement is being hardened',
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({ success: false, error: 'Liquidity write source unavailable' });
+    }
+
+    if (USE_DEMO) {
       return res.json({
         success: true,
         message: 'Liquidity added (demo mode)',
@@ -1698,7 +1718,19 @@ router.post('/pools/:id/remove-liquidity', requireAuth, async (req, res) => {
     const { lp_tokens, min_pieces_out, min_currency_out } = req.body;
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(503).json({
+        success: false,
+        code: 'LIQUIDITY_ATOMICITY_PENDING',
+        error: 'Liquidity changes are temporarily unavailable while atomic settlement is being hardened',
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({ success: false, error: 'Liquidity write source unavailable' });
+    }
+
+    if (USE_DEMO) {
       return res.json({
         success: true,
         message: 'Liquidity removed (demo mode)',
@@ -1829,7 +1861,11 @@ router.get('/pools/:id/lp-position', requireAuth, async (req, res) => {
     const poolId = req.params.id;
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'LP position source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       return res.json({
         user_id: userId,
         pool_id: poolId,
@@ -2421,7 +2457,11 @@ router.get('/gems/balance', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Gems balance source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       return res.json({
         user_id: userId,
         balance: 50,
