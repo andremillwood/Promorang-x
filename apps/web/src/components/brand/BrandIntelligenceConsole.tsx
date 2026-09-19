@@ -6,6 +6,7 @@ export function BrandIntelligenceConsole() {
   const campaigns = campaignsQuery.data || [];
   const activeCampaigns = campaigns.filter((campaign) => campaign.is_active);
   const verifiedResults = campaigns.reduce((total, campaign) => total + Number(campaign.redemptions || 0), 0);
+  const sourceReady = !campaignsQuery.isLoading && !campaignsQuery.error;
 
   return (
     <div className="space-y-6">
@@ -22,20 +23,30 @@ export function BrandIntelligenceConsole() {
         </div>
       </section>
 
+      {campaignsQuery.error ? (
+        <section className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5 text-sm text-white/60">
+          <p className="font-black text-white">Campaign evidence source unavailable.</p>
+          <p className="mt-2">PROMORANG cannot verify campaign counts or recorded results right now, so this surface will not substitute zeroes.</p>
+          <button type="button" className="mt-4 rounded-xl border border-white/15 px-4 py-2 text-xs font-black text-white hover:bg-white/5" onClick={() => campaignsQuery.refetch()}>
+            Retry campaign source
+          </button>
+        </section>
+      ) : null}
+
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <Megaphone className="h-4 w-4 text-primary" />
-          <p className="mt-3 text-3xl font-black text-white">{campaignsQuery.isLoading ? "—" : campaigns.length.toLocaleString()}</p>
+          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? campaigns.length.toLocaleString() : "—"}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Campaign records</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-          <p className="mt-3 text-3xl font-black text-white">{campaignsQuery.isLoading ? "—" : activeCampaigns.length.toLocaleString()}</p>
+          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? activeCampaigns.length.toLocaleString() : "—"}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Active campaigns</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <ShieldCheck className="h-4 w-4 text-cyan-300" />
-          <p className="mt-3 text-3xl font-black text-white">{campaignsQuery.isLoading ? "—" : verifiedResults.toLocaleString()}</p>
+          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? verifiedResults.toLocaleString() : "—"}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Recorded redemptions / results</p>
         </div>
       </div>

@@ -100,7 +100,7 @@ The completion contract defines C1–C21. Current broad status:
 - **C4 Host** — primary production surfaces are source-backed; deep workflow hardening ongoing.
 - **C5 Merchant** — supply, validation, payment and fulfillment boundaries materially hardened.
 - **C6 Creator** — proof/value path hardened; acceptance/availability/rights contract remains open.
-- **C7 Brand** — in progress; generic role shell cleaned, synthetic creator bureau removed.
+- **C7 Brand** — in progress; generic role shell cleaned, synthetic creator bureau removed, and legacy analytics now converges on the canonical source-backed Evidence Pack.
 - **C8 Agency** — in progress; agency-native result pack and real journey progression added.
 - **C9 Admin** — major convergence completed; specialist tabs still need final propagation/QA.
 - **C10 Create/Edit** — in progress; Moment, Venue, Inventory and Offer flow truth boundaries hardened.
@@ -511,6 +511,7 @@ Latest closed findings:
 - **T-043 — Creator share feed published static polls/Moments and invented reward promises.**
 - **T-044 — Creator release routes mixed seeded compatibility, false-zero failures and premature publish success.**
 - **T-045 — Developer console fabricated live credentials and API execution.**
+- **T-046 — Brand analytics and shared media fabricated verification, evidence and performance proof.**
 
 Closed direction:
 
@@ -545,7 +546,9 @@ Closed direction:
 - release publication now stages a non-public draft, attaches the real asset, then activates explicitly; partial failure no longer produces a live incomplete opportunity or a premature “launched” claim;
 - the retired Creator Missions compatibility surface now delegates to the source-backed release workspace instead of carrying fabricated paid bounties;
 - Developer API keys now come from the recorded authenticated key store only; browser-generated “live” secrets, demo revoke success and wildcard mock API-key authentication are removed;
-- the public developer playground is explicitly illustrative rather than claiming static payloads are live API execution.
+- the public developer playground is explicitly illustrative rather than claiming static payloads are live API execution;
+- the legacy Brand analytics route now converges on the canonical source-backed Evidence Pack rather than synthetic verified-action/evidence feeds;
+- Brand evidence source failures stay unavailable/unknown instead of becoming zero, and shared Moment/Discovery galleries no longer invent verification or reaction counts.
 
 ### NEXT ACTION
 

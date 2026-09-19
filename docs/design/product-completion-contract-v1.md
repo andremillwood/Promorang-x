@@ -252,7 +252,7 @@ Exit gate:
 
 ## C7 — Brand convergence
 
-Status: **In progress**
+Status: **In progress; canonical Evidence Pack retained and legacy synthetic analytics/evidence path retired**
 
 Canonical journey:
 `MARKET SIGNAL → SCENE/AUDIENCE FIT → ACTIVATION DECISION → FUND/SUPPLY → EXECUTION → EVIDENCE → OUTCOME → REPEAT/IMPROVE/STOP`
@@ -517,7 +517,7 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **In progress; Discover/Found, creator release and developer credential/execution truth hardened**
+Status: **In progress; Discover/Found, creator release, developer credential/execution and Brand evidence/social-proof truth hardened**
 
 Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 

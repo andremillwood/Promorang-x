@@ -1232,6 +1232,36 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-046 — Brand analytics and shared media fabricated verification, evidence and performance proof
+
+Files:
+- `apps/web/src/components/ImageGallery.tsx`
+- `apps/web/src/components/analytics/BrandAnalyticsDashboard.tsx`
+- `apps/web/src/components/analytics/EvidenceFeed.tsx`
+- `apps/web/src/components/analytics/AutomatedRecap.tsx`
+- `apps/web/src/components/brand/BrandEvidencePack.tsx`
+- `apps/web/src/components/brand/BrandIntelligenceConsole.tsx`
+- `apps/web/src/pages/Analytics.tsx`
+- `backend/migrations/20260114_verified_actions.sql`
+
+Finding:
+- the shared ImageGallery used on Moment and Discovery detail called every image a “verified attendee” upload and generated random heart/flame counts on each render without uploader, verification or reaction records;
+- the production Brand analytics route mounted a legacy dashboard whose EvidenceFeed unconditionally generated fake people, GPS verification, locations and reward issuance and labelled the result “Live Verified Actions / Streaming Evidence”;
+- its recap injected fake visual evidence, called aggregate participants “verified actions,” asserted a fixed “42% better than average ad spend,” projected 500 more verified actions, and exposed unimplemented share/scale controls as if they were supported decisions;
+- the legacy dashboard could also collapse its analytics source failure into zero aggregate metrics and hard-coded every campaign row as Active;
+- the existing `verified_actions` table is user-owned under RLS and is not a valid cross-user Brand visual-evidence feed, so repurposing it would overstate access/provenance.
+
+Resolution:
+- shared media now displays only its recorded caption plus neutral record provenance; random reactions and unsupported attendee-verification language are removed;
+- the historical Brand analytics component now delegates to the canonical `BrandEvidencePack`, preserving one Brand evidence model instead of a second weaker dashboard;
+- the legacy EvidenceFeed remains a compatibility component but renders an honest source-boundary state rather than synthetic evidence;
+- the legacy recap renders only values/evidence supplied by a caller and no longer adds fake benchmarks, projections, agency branding, verified-outcome claims or unsupported share/scale actions;
+- the canonical Brand intelligence summary renders campaign/result counts as unknown on source failure and provides retry rather than substituting zero;
+- no new evidence backend was introduced because the existing production Brand pack already composes authenticated O2O analytics and campaign records.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
