@@ -19,10 +19,10 @@ type DemandSignalObjectProps = {
 };
 
 const stateCopy: Record<DemandSignalState, string> = {
-  early: "Forming",
-  warming: "Gathering",
-  near_threshold: "Near threshold",
-  threshold_met: "Threshold met",
+  early: "Starting",
+  warming: "Growing",
+  near_threshold: "Almost there",
+  threshold_met: "Target reached",
 };
 
 export function DemandSignalObject({
@@ -54,7 +54,7 @@ export function DemandSignalObject({
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dashed border-[#1a120c]/20 pb-4">
             <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#7a6554]">
               <Radio className="h-3.5 w-3.5 text-orange-700" />
-              Demand signal · {city}
+              People want this · {city}
             </div>
             <span className="rounded-full border border-[#1a120c]/15 bg-white/45 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#5f4b3d]">
               {stateCopy[state]}
@@ -71,12 +71,12 @@ export function DemandSignalObject({
               </h3>
               {leadingOption ? (
                 <p className="mt-3 max-w-xl text-sm leading-6 text-[#5a493d]">
-                  Current leading response: <span className="font-bold text-[#1a120c]">{leadingOption}</span>
+                  Most people are saying: <span className="font-bold text-[#1a120c]">{leadingOption}</span>
                 </p>
               ) : null}
               {responseLabel ? (
                 <p className="mt-2 max-w-xl text-sm leading-6 text-[#5a493d]">
-                  Possible operator response: <span className="font-bold text-[#1a120c]">{responseLabel}</span>
+                  What could happen next: <span className="font-bold text-[#1a120c]">{responseLabel}</span>
                 </p>
               ) : null}
             </div>
@@ -86,14 +86,14 @@ export function DemandSignalObject({
                 <div>
                   <div className="flex items-center gap-2 text-[#5a493d]">
                     <Users className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-[0.12em]">Recorded votes</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.12em]">Votes</span>
                   </div>
                   <p className="mt-1 font-mono text-4xl font-black tracking-[-0.06em]">{demandCount.toLocaleString()}</p>
                 </div>
                 {threshold ? (
                   <div className="text-right">
-                    <p className="font-mono text-sm font-black">{remaining === 0 ? "Threshold met" : `${remaining.toLocaleString()} to threshold`}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a6554]">Signal target {threshold.toLocaleString()}</p>
+                    <p className="font-mono text-sm font-black">{remaining === 0 ? "Target reached" : `${remaining.toLocaleString()} more to target`}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a6554]">Target {threshold.toLocaleString()}</p>
                   </div>
                 ) : null}
               </div>
@@ -103,7 +103,7 @@ export function DemandSignalObject({
                   <div className="h-full rounded-full bg-orange-600 transition-[width] duration-500" style={{ width: `${progress}%` }} />
                 </div>
               ) : null}
-              <p className="mt-3 text-[10px] font-medium leading-4 text-[#7a6554]">Demand is a market signal. A threshold does not guarantee an offer, Moment, inventory, or attendance.</p>
+              <p className="mt-3 text-[10px] font-medium leading-4 text-[#7a6554]">Votes show shared interest. What happens next depends on the question and who can respond.</p>
             </div>
           </div>
         </div>

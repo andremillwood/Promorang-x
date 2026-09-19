@@ -42,7 +42,8 @@ export default function ForMerchants() {
         type="website"
       />
 
-      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">\n        <CurrentArc variant="hero" className="marketing-hero-current" />
+      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_5%,rgba(16,185,129,.16),transparent_35%),radial-gradient(circle_at_85%_35%,rgba(249,115,22,.1),transparent_30%)]" />
         <div className="relative mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
@@ -133,7 +134,7 @@ export default function ForMerchants() {
           <PaperReceipt heading={`${inbox.city} merchant snapshot`} lines={[
             { label: "Demand questions", value: inbox.questions.length.toLocaleString(), strong: true },
             { label: "Votes", value: inbox.liveVoteCount.toLocaleString(), strong: true },
-            { label: "Near threshold", value: inbox.unlocking.length.toLocaleString() },
+            { label: "Close to target", value: inbox.unlocking.length.toLocaleString() },
             { label: "Read as", value: "Interest, not sale", strong: true },
           ]} footer="Visible demand helps you make a better decision. It does not guarantee a visit or sale." />
         </div>

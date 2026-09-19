@@ -133,7 +133,7 @@ export default function ForBrands() {
           <PaperReceipt heading={`${inbox.city} demand snapshot`} lines={[
             { label: "Demand questions", value: inbox.questions.length.toLocaleString(), strong: true },
             { label: "Votes", value: inbox.liveVoteCount.toLocaleString(), strong: true },
-            { label: "Near threshold", value: inbox.unlocking.length.toLocaleString() },
+            { label: "Close to target", value: inbox.unlocking.length.toLocaleString() },
             { label: "Read as", value: "Interest, not action", strong: true },
           ]} footer="Use this as a starting point for a smarter brief—not as a promise of sales." />
         </div>

@@ -749,3 +749,14 @@ This file is the continuity log. `DESIGN.md` remains the broader design-system l
 **Implemented:** rewrote the visible homepage copy in PublicMarketHome, EditorialWorldRail, PromoCardValueShowcase and MarketingPhysics. The underlying real-data/empty-state behavior is unchanged; only the customer-facing language changed.
 
 **Copy direction:** discovery should feel curious, PromoCard should feel useful, demand should feel like shared interest, and return should feel personal. Internal rigor remains in the product behavior rather than being narrated to the user.
+
+
+### 2026-09-18 — Shared Moments + demand-ticket copy cleanup
+
+**Trigger:** localhost screenshots exposed remaining internal language in the anonymous Moments experience and the shared demand-ticket component.
+
+**Implemented:** rewrote PublicMomentsExperience around what is happening and what is worth showing up for; rewrote DemandSignalObject around people, votes, targets and what could happen next; removed the literal escaped newline on Wanted; and simplified Offer-loading/availability copy.
+
+**Shared-component effect:** the beige demand tickets now use human language everywhere they appear, including Wanted, Brand and Merchant surfaces.
+
+**No mechanics changed:** canonical Moment sourcing, demand counts, thresholds, routes, availability rules and write paths remain unchanged.

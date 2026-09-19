@@ -93,7 +93,7 @@ export function PublicMomentsExperience() {
     <main className="marketing-cinematic public-moments-world min-h-screen bg-[#050505] text-white">
       <SEO
         title="Moments on PROMORANG — What’s moving now"
-        description="Browse current and upcoming Moments on PROMORANG. Production Moments only—no demo inventory substituted into the public calendar."
+        description="See what is happening now, what is coming up, and what is worth showing up for on PROMORANG."
         url={getSiteUrl("/discover/moments")}
       />
 
@@ -104,18 +104,18 @@ export function PublicMomentsExperience() {
         <CurrentArc variant="hero" className="marketing-hero-current" />
         <div className="relative mx-auto flex min-h-[34rem] max-w-[1440px] items-end">
           <div className="max-w-4xl pb-4 md:pb-8">
-            <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> Moments · production calendar</p>
+            <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> Moments · what’s happening</p>
             <h1 className="mt-6 max-w-[9ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
               Show up to
               <br />
               <span className="text-orange-400">something.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
-              Find what is live, starting soon, coming up or recurring. A Moment is real supply you can act on—not merely interest or an example playbook.
+              Find what is live, starting soon, coming up or recurring—and choose what is worth showing up for.
             </p>
 
             {heroIsEditorial ? (
-              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">Editorial atmosphere · the live calendar begins below</p>
+              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">What’s happening now and what’s coming next</p>
             ) : null}
 
             {featured ? (
@@ -165,7 +165,7 @@ export function PublicMomentsExperience() {
           ) : momentsQuery.isError ? (
             <div className="marketing-compact-empty">
               <Clock className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">PROMORANG can’t confirm the current Moment calendar right now.</p><p className="mt-1 text-xs leading-5 text-white/45">We will not replace it with demo Moments or stale listings.</p></div>
+              <div><p className="text-sm font-black">We couldn’t load Moments right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Try again in a moment.</p></div>
               <button type="button" onClick={() => momentsQuery.refetch()} className="ml-auto hidden text-xs font-black uppercase tracking-[0.1em] text-orange-300 sm:block">Try again</button>
             </div>
           ) : filtered.length ? (
@@ -192,7 +192,7 @@ export function PublicMomentsExperience() {
           ) : (
             <div className="marketing-compact-empty">
               <Search className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">Nothing matches this Moment view yet.</p><p className="mt-1 text-xs leading-5 text-white/45">Clear the filter or try another category. PROMORANG is not inserting examples to make the calendar look full.</p></div>
+              <div><p className="text-sm font-black">Nothing matches this view yet.</p><p className="mt-1 text-xs leading-5 text-white/45">Clear the filter or try another category.</p></div>
               <button type="button" onClick={() => { setQuery(""); setCategory("all"); }} className="ml-auto hidden text-xs font-black uppercase tracking-[0.1em] text-orange-300 sm:block">Clear filters</button>
             </div>
           )}
@@ -202,9 +202,9 @@ export function PublicMomentsExperience() {
       <section className="border-y border-white/10 bg-[#080808] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
           <div>
-            <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> PromoCard continuity</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">A Moment should not disappear from your life when the night ends.</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">Keep what matters, return to the same Moment after sign-in, see access that actually opened, and retain verified history afterward. RSVP still does not equal attendance.</p>
+            <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> Keep the Moment with you</p>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">The night ends. The connection doesn’t have to.</h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">Keep Moments you care about close, carry access with you, and come back to what changed afterward.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link to="/auth?mode=signup&next=/discover/moments" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">Get PromoCard <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/15 px-5 text-xs font-black uppercase tracking-[0.08em] text-white">Back to Discover</Link>
@@ -215,7 +215,7 @@ export function PublicMomentsExperience() {
               holder="Your PromoCard"
               available="Moments that stayed with you"
               limit="Watching · Access · Kept"
-              places="The relationship survives sign-in, attendance and the night itself when the underlying state is real."
+              places="Keep the Moments, access and memories you want to come back to."
               action="See what changed"
               variant="membership"
               interactive={false}

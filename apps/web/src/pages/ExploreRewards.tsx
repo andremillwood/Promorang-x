@@ -79,7 +79,8 @@ export function ExploreRewards() {
   }
 
   return (
-    <main className="marketing-cinematic min-h-screen bg-[#080808] px-5 pb-24 pt-24 text-white sm:px-6">\n      <CurrentArc variant="hero" className="marketing-hero-current" />
+    <main className="marketing-cinematic min-h-screen bg-[#080808] px-5 pb-24 pt-24 text-white sm:px-6">
+      <CurrentArc variant="hero" className="marketing-hero-current" />
       <SEO
         title="Wanted + Responses — PROMORANG"
         description="See what people want, tell PROMORANG what you’re looking for, and discover what businesses and hosts have put up in response."
@@ -161,7 +162,7 @@ export function ExploreRewards() {
                       type="demand"
                       id={question.poll.id}
                       title={question.poll.question}
-                      subtitle={`${question.poll.totalVotes || 0} recorded votes in ${marketName}`}
+                      subtitle={`${question.poll.totalVotes || 0} vote${question.poll.totalVotes === 1 ? "" : "s"} in ${marketName}`}
                       href={href}
                       metadata={{ city: marketName, recordedVotes: question.poll.totalVotes || 0 }}
                       compact
@@ -189,7 +190,7 @@ export function ExploreRewards() {
             <p className="text-xs leading-5 text-white/40">These are live offers and perks. Open one to see the terms before you claim it.</p>
           </div>
 
-          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading public Offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Offers couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : offers.length ? (
+          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Offers couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : offers.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {offers.map((offer) => (
                 <article key={offer.id} className="flex min-h-[250px] flex-col border border-white/10 bg-white/[0.025] p-5">
@@ -200,7 +201,7 @@ export function ExploreRewards() {
                   <div className="mt-auto border-t border-white/10 pt-4 text-[10px] uppercase tracking-[0.1em] text-white/35">
                     {typeof offer.quantity_total === "number"
                       ? `${Math.max(0, offer.quantity_total - offer.quantity_reserved - offer.quantity_redeemed)} available`
-                      : "Availability set by operator"}
+                      : "Check terms"}
                     <span className="mx-2">·</span>
                     {offer.fulfillment_type.replace(/_/g, " ")}
                   </div>
