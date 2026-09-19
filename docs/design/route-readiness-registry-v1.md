@@ -114,9 +114,9 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/access` | production | Primary candidate; still requires experience audit |
 | `/crew` | production | Primary candidate; still requires experience audit |
 | `/passport` | production | Primary candidate; still requires experience audit |
-| `/campaigns/arla-whip-and-cook` | production | Primary candidate; still requires experience audit |
-| `/campaigns/arla` | production | Primary candidate; still requires experience audit |
-| `/arla` | production | Primary candidate; still requires experience audit |
+| `/campaigns/arla-whip-and-cook` | experimental | Branded campaign concept; no live vote, ticket, reward, schedule, availability or price authority |
+| `/campaigns/arla` | experimental | Alias of the labeled ARLA campaign concept |
+| `/arla` | experimental | Alias of the labeled ARLA campaign concept |
 | `/proposals/arla-pro` | production | Primary candidate; still requires experience audit |
 | `/proposals/arla` | production | Primary candidate; still requires experience audit |
 | `/proposals/midas` | production | Primary candidate; still requires experience audit |
@@ -173,7 +173,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/creators/:handle` | production | Primary candidate; still requires experience audit |
 | `/economy` | production | Public value explainer; illustrative demos are labelled and core value/settlement boundaries aligned |
 | `/economy/:concept` | production | Concept lenses over the same truth-safe Economy explainer; no implied live account state |
-| `/venue-report/:id` | production | Primary candidate; still requires experience audit |
+| `/venue-report/:id` | production | C19 truth audit complete; source-backed Moment activity only, with explicit unavailable/not-found states |
 | `/pricing` | production | Primary candidate; still requires experience audit |
 | `/nodes` | production | Primary candidate; still requires experience audit |
 | `/save-and-win` | production | Primary candidate; still requires experience audit |
@@ -227,8 +227,8 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/app-preview/guilds` | hidden | Preview/review harness; not production UX |
 | `/app-preview/start` | hidden | Preview/review harness; not production UX |
 | `/app-preview/stock` | hidden | Preview/review harness; not production UX |
-| `/create/campaign` | production | Primary candidate; still requires experience audit |
-| `/create/bounty` | production | Primary candidate; still requires experience audit |
+| `/create/campaign` | limited | Saves an inactive, unfunded campaign plan; activation, reward funding, eligibility and fulfillment still require review |
+| `/create/bounty` | limited | Creates an open proposal only; funding, escrow, payment and settlement contract remains open |
 | `/create-moment` | redirect | Redirects to `/create/moment` |
 | `/for-you` | limited | Secondary/legacy concept; review against canonical spine |
 | `/live` | limited | Secondary/legacy concept; review against canonical spine |
@@ -237,7 +237,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/d/:slug` | production | Primary candidate; still requires experience audit |
 | `/discoveries/:slug` | production | Primary candidate; still requires experience audit |
 | `/discovery/:slug` | production | Primary candidate; still requires experience audit |
-| `/discover/moments` | production | Primary candidate; still requires experience audit |
+| `/discover/moments` | production | C19 truth audit complete; recorded empty state remains empty and examples require explicit labeled mode |
 | `/discover/venues` | production | Primary candidate; still requires experience audit |
 | `/discover/rewards` | production | Primary candidate; still requires experience audit |
 | `/discover/content` | production | Primary candidate; still requires experience audit |
@@ -249,16 +249,16 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/rewards` | redirect | Redirects to `/discover/rewards` |
 | `/explore/content` | redirect | Redirects to `/discover/content` |
 | `/events` | redirect | Redirects to `/discover/moments` |
-| `/events/:slug` | production | Primary candidate; still requires experience audit |
+| `/events/:slug` | experimental | Explicit non-actionable fixture preview; recorded Moments live under `/discover/moments` and `/moments/:id` |
 | `/momentum` | limited | Secondary/legacy concept; review against canonical spine |
 | `/pulse` | limited | Secondary/legacy concept; review against canonical spine |
 | `/pulse-feed` | redirect | Redirects to `/live` |
-| `/missions` | production | Primary candidate; still requires experience audit |
-| `/missions/:id` | production | Primary candidate; still requires experience audit |
+| `/missions` | production | C19 truth audit complete; source-backed feed with explicit source failure and absent-state semantics |
+| `/missions/:id` | production | C19 truth audit complete; no demo mission, inferred reward/result or dead platform-link fallback |
 | `/watch-unlock` | redirect | Redirects to `/content-drops` |
 | `/watch-unlock/:id` | production | Primary candidate; still requires experience audit |
 | `/search` | production | Primary candidate; still requires experience audit |
-| `/notifications` | production | Primary candidate; still requires experience audit |
+| `/notifications` | production | Canonical Activity lens; recorded notifications only, with source failure distinct from empty state |
 | `/brands` | production | Primary candidate; still requires experience audit |
 | `/brands/:slug` | production | Primary candidate; still requires experience audit |
 | `/merchants` | production | Primary candidate; still requires experience audit |
@@ -310,7 +310,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/growth/pieces` | redirect | Redirects to `/portfolio` |
 | `/growth/analytics` | redirect | Redirects to `/dashboard/analytics` |
 | `/growth/earnings` | redirect | Redirects to `/wallet` |
-| `/organizer` | production | Primary candidate; still requires experience audit |
+| `/organizer` | production | C19 truth audit complete; host operating path is descriptive and planning estimates are explicitly non-authoritative |
 | `/organizer/events` | limited | Operator route family; reconcile with Host/dashboard workspace |
 | `/organizer/events/new` | redirect | Redirects to `/create/moment` |
 | `/organizer/events/:id` | redirect | Redirects to `/dashboard?tab=moments` |
@@ -344,7 +344,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/saved` | production | Primary candidate; still requires experience audit |
 | `/dashboard/settings` | production | Primary candidate; still requires experience audit |
 | `/dashboard/rewards` | redirect | Redirects to `/vault` |
-| `/wallet` | production | Primary candidate; still requires experience audit |
+| `/wallet` | production | C19 truth audit complete; balance/history source failure remains unavailable and affected value actions fail closed |
 | `/promoshare` | production | Primary candidate; still requires experience audit |
 | `/claim-drop` | production | Primary candidate; still requires experience audit |
 | `/content-drops` | production | Primary candidate; still requires experience audit |
@@ -382,7 +382,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/admin/promoshare` | limited | Standalone Admin utility; candidate for main Admin consolidation |
 | `/admin/featured` | limited | Standalone Admin utility; candidate for main Admin consolidation |
 | `/admin/kyc` | redirect | Redirects to `/admin?tab=verification-hub` |
-| `/marketplace` | limited | Secondary/legacy concept; review against canonical spine |
+| `/marketplace` | limited | Production demo fallback removed; keep limited pending end-to-end balance, quote, trade and settlement release QA |
 | `/portfolio` | limited | Secondary/legacy concept; review against canonical spine |
 | `/pieces/:pieceType/:assetId` | production | Primary candidate; still requires experience audit |
 | `/pieces/:pieceType/:assetId/manage` | redirect | Redirects to `/portfolio` |

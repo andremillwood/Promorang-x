@@ -1,7 +1,7 @@
 # PROMORANG Product Completion Worklog v1
 
 Status: **living handoff log**
-Last checkpoint: **2026-09-18**
+Last checkpoint: **2026-09-19**
 Repository: `andremillwood/Promorang-x`
 Branch: `design/canonical-object-system-v1`
 PR: **#129 — Canonical Object System v10: convergence + participant loop hardening**
@@ -518,6 +518,20 @@ Latest closed findings:
 - **T-050 — Marketplace and Piece profile converted source gaps into empty inventory, demo markets and unsupported entitlements.**
 - **T-051 — Limited Liquidity surface used wrong APIs, fabricated outage state and exposed non-atomic value writes.**
 - **T-052 — Production Economy explainer promised unsupported perks, creator payouts and financial/custody guarantees.**
+- **T-053 — Venue report fabricated activity, verified attendance, and comparative performance.**
+- **T-054 — Branded campaign concept issued browser-only votes, tickets, rewards, and live activation claims.**
+- **T-055 — Organizer landing mixed fixture operations with guaranteed funding and attendance claims.**
+- **T-056 — Mission discovery substituted demo inventory and unrecorded rewards/results.**
+- **T-057 — Bounty proposal claimed funding, escrow and payout without a money ledger.**
+- **T-058 — Legacy event detail treated fixture catalogue as actionable production inventory.**
+- **T-059 — Signed-in Moment discovery filled a real empty calendar with demo Moments.**
+- **T-060 — Wallet source failures rendered as zero balances and empty histories.**
+- **T-061 — Pieces market API manufactured production market, ownership and portfolio truth.**
+- **T-062 — Campaign planning prompts implied approved rewards and operational inventory.**
+- **T-063 — Notification APIs and legacy mobile manufactured empty state, identity and successful writes.**
+- **T-064 — Reward and coupon paths manufactured inventory, credentials and completed redemption.**
+- **T-065 — Compatibility preference and headless coupon APIs promised unrecorded value.**
+- **T-066 — Advertiser compatibility APIs manufactured accounts, operations and value settlement.**
 
 Closed direction:
 
@@ -561,7 +575,33 @@ Closed direction:
 - PromoPush owner, creator, promoter and Admin surfaces no longer turn source failure into zero/empty state; campaign creation stages draft → dependencies → requested status, and tracking-link redirect now requires a persisted attribution event;
 - Marketplace now separates source unavailable from empty inventory, while Piece Profile no longer manufactures a market during database failure, coerces missing metrics to zero, or promises holder perks without a recorded entitlement source;
 - the limited Liquidity route is now read-only and source-backed, uses the actual Piece APIs, preserves Gems as Gems, and production add/remove liquidity fails closed until reserve/LP-position settlement is atomic;
-- the production Economy explainer now matches those same contracts: Piece quantity does not imply perks/value, creator opportunities are not guaranteed paid commissions, PromoShare selection is not settlement, Gems preserve state distinctions, and illustrations cannot masquerade as account truth.
+- the production Economy explainer now matches those same contracts: Piece quantity does not imply perks/value, creator opportunities are not guaranteed paid commissions, PromoShare selection is not settlement, Gems preserve state distinctions, and illustrations cannot masquerade as account truth;
+- Venue Report now uses only recorded Moment, participation and media rows; missing records and source failure remain distinct, attendance is not inferred, and synthetic benchmarks/engagement estimates are removed.
+- the ARLA campaign surface is now explicitly experimental: local vote/ticket authority and reward promises are removed, while schedule, price, availability and savings remain labeled proposal assumptions until backed by a recorded activation.
+- the Organizer landing no longer presents fixture Moment activity as live operations, while its shared funding calculator is labeled illustrative and no longer guarantees pre-funding, peer arrivals, ticket sales, or zero-risk production.
+- Mission discovery/detail and the O2O API now fail unavailable instead of returning demo missions in production; missing creator, reward, action, conversion, threshold, metric and platform-link state remains absent, and PromoKey progress uses the shared economy contract.
+- Bounty creation now records an open proposal and proposed value rather than claiming funding or escrow; approval no longer implies payout, and the route remains limited pending an authoritative funding/settlement contract.
+- legacy `/events/:slug` is now a labeled, non-actionable experience preview: unknown slugs stay not found, sample tickets cannot be purchased, and no auth/action path implies a real reservation, proof or reward.
+- signed-in Moment discovery now keeps an empty recorded calendar empty; demo Moments appear only after the participant explicitly selects the labeled Examples mode.
+- Wallet balance, Gem, withdrawal and transaction source failures now remain unavailable rather than becoming zero balances or empty histories; affected value actions are disabled until recorded state can be verified.
+- the Pieces router now fails unavailable across production when its authoritative store is absent or demo mode is configured; randomized market, listing, earning and portfolio responses remain non-production only, while balance/quote failure disables trading instead of becoming zero or an estimated confirmation.
+- campaign starter content is now explicitly proposal/planning language; generated reach is labeled an estimate, rewards/inventory/draw/fulfillment require approval, and saved campaigns remain inactive unfunded drafts.
+- notification list/count/read paths now use verified identity and recorded user-scoped rows across the primary and secondary backends; source absence fails unavailable, and legacy mobile no longer replaces empty/error state with fabricated rewards, followers, approvals, reminders or withdrawals.
+- rewards/coupon reads now remain unavailable instead of becoming demo inventory or statistics; credentials and redemption timestamps must be recorded, mobile preserves failed writes, and claim is kept distinct from credential issuance, validation, fulfillment and settlement.
+- compatibility preference APIs no longer acknowledge missing-store writes or promise unledgered completion Points, while the headless coupon API no longer manufactures receipts, codes, QR payloads, expiry or Gems and keeps claim issuance disabled pending an atomic contract.
+- advertiser compatibility operations now require recorded account membership and storage; missing sources and query failures no longer become demo/empty success, while subscription activation, campaign funding and coupon redemption fail closed instead of manufacturing settlement.
+
+Open contract debt:
+
+- assigned-coupon redemption remains disabled with `REWARD_REDEMPTION_ATOMICITY_PENDING` until assignment state, inventory decrement, redemption record, credential issuance and any value delivery can commit as one retry-safe operation;
+- marketplace coupon usage remains a checkout responsibility and cannot be consumed by viewing or retrieving a coupon;
+- the legacy `Rewards.tsx` account surface is not currently routed; if restored, it must remain source-backed and preserve the claim/redemption boundary established in T-064.
+- headless coupon claims remain disabled with `HEADLESS_COUPON_ATOMICITY_PENDING` until target eligibility, recipient authority, inventory, credential issuance and value delivery are one retry-safe operation;
+- if preference completion should award value later, it must use the shared economy transaction contract rather than directly incrementing a profile/user balance.
+- advertiser subscription upgrades remain disabled with `SUBSCRIPTION_BILLING_PENDING` until billing and entitlement activation are recorded together;
+- advertiser campaign funding remains disabled with `CAMPAIGN_FUNDING_ATOMICITY_PENDING` until payment, budget and economy-ledger settlement are atomic;
+- advertiser-side coupon redemption remains disabled with `COUPON_REDEMPTION_ATOMICITY_PENDING` until validation, inventory and redemption settlement are atomic;
+- bundled advertiser campaign create/update still requires transactional staging/rollback review because campaign, content, drops, coupons, events and PromoShare linkage are currently separate writes.
 
 ### NEXT ACTION
 
@@ -581,6 +621,8 @@ Highest-value remaining sweep targets:
 - T-005 remaining local/browser authority;
 - T-006 hard-coded metrics/social proof;
 - T-007 mutation failure semantics;
+- remaining Pieces portfolio/liquidity UI and authoritative settlement release QA;
+- unreachable synthetic modules such as the legacy Sponsor Analytics dashboard require an explicit connect/rebuild/retire decision under C1;
 - deep stakeholder → create/edit → commerce → economy → utilities/profiles/marketing/mobile.
 
 ---
@@ -638,6 +680,10 @@ No canonical contract in the new content-distribution system yet.
 ## T-026 — PromoShare claim/distribution atomicity
 
 Selected / claimed / distributed / settled needs a retry-safe transactional contract.
+
+## T-057 — Bounty funding / escrow / settlement
+
+The current bounty lifecycle records proposal, assignment, submission and approval state, but has no authoritative funding, escrow, payment or settlement ledger. Keep proposed payout separate from funded and paid state.
 
 ## Earlier follow-up sweep items
 
@@ -760,4 +806,3 @@ Completion requires:
 - real-record cross-role QA passes;
 - rollout/rollback/support docs exist;
 - merge/deploy happens only after explicit approval.
-
