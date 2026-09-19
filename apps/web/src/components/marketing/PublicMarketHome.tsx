@@ -178,7 +178,7 @@ export default function PublicMarketHome() {
               <span><strong>KEEP</strong> proof & history</span>
             </div>
             <p className="mt-4 max-w-xl text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
-              Editorial atmosphere only · source-backed market state begins below
+              Save what matters. Come back when something changes.
             </p>
           </div>
         </div>
@@ -194,10 +194,10 @@ export default function PublicMarketHome() {
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">What the market actually knows</p>
+              <p className="marketing-kicker">Discoveries around you</p>
               <h2 className="mt-3 text-4xl font-black sm:text-5xl">Worth knowing now.</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">
-                Everything in this rail comes from approved Discovery records. Editorial imagery above is not substituted for live inventory.
+                Places, people, ideas and possibilities worth a closer look right now.
               </p>
             </div>
             <Link to="/discover" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">
@@ -226,8 +226,8 @@ export default function PublicMarketHome() {
             <div className="marketing-compact-empty">
               <Compass className="h-5 w-5 text-orange-400" />
               <div>
-                <p className="text-sm font-black text-white">No approved Discoveries are live in this market yet.</p>
-                <p className="mt-1 text-xs leading-5 text-white/45">PROMORANG keeps that absence visible instead of replacing it with sample inventory.</p>
+                <p className="text-sm font-black text-white">Nothing new here yet.</p>
+                <p className="mt-1 text-xs leading-5 text-white/45">Explore the market, tell us what you want, or come back as new Discoveries appear.</p>
               </div>
               <Link to="/discover" className="ml-auto hidden items-center gap-2 text-xs font-black uppercase tracking-[0.08em] text-orange-300 sm:inline-flex">Open Discovery <ArrowRight className="h-3.5 w-3.5" /></Link>
             </div>
@@ -241,12 +241,12 @@ export default function PublicMarketHome() {
             <div>
               <p className="marketing-kicker">What people are asking for · {inbox.city}</p>
               <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">When private preferences overlap, a market starts to appear.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are recorded Demand questions—not attendance, purchases or guaranteed supply.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are things people are asking for. A strong signal can attract a response, but it is still just interest until someone puts something up.</p>
             </div>
             <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Looking for something? <ArrowRight className="h-4 w-4" /></a>
           </div>
 
-          {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Reading recorded market state…</p> : null}
+          {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Loading what people want…</p> : null}
           {liveSignals.length ? (
             <div className="marketing-demand-rail">
               {liveSignals.map((signal) => (
@@ -267,8 +267,8 @@ export default function PublicMarketHome() {
             <div className="marketing-compact-empty">
               <Users className="h-5 w-5 text-orange-400" />
               <div>
-                <p className="text-sm font-black text-white">No recorded Demand questions are live here yet.</p>
-                <p className="mt-1 text-xs leading-5 text-white/45">One legitimate ask can start a signal. PROMORANG does not invent popularity to fill the rail.</p>
+                <p className="text-sm font-black text-white">No one has asked for anything here yet.</p>
+                <p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask—or explore what people are already discovering.</p>
               </div>
             </div>
           ) : null}
@@ -315,7 +315,7 @@ export default function PublicMarketHome() {
 
                   {relatedDiscoveries.length ? (
                     <div className="mt-4 space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">Approved Discoveries</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">Things worth a look</p>
                       {relatedDiscoveries.map((item) => (
                         <Link key={item.id} to={`/discoveries/${item.slug}`} className="flex items-center justify-between gap-3 border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
                           <span>
@@ -330,12 +330,12 @@ export default function PublicMarketHome() {
 
                   {relatedSignals.length ? (
                     <div className="mt-4 space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">Recorded Demand</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">People are asking for</p>
                       {relatedSignals.map((signal) => (
                         <Link key={signal.poll.id} to={discoveryHref(signal.poll)} className="flex items-center justify-between gap-3 border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
                           <span>
                             <span className="block text-sm font-bold text-white">{signal.poll.question}</span>
-                            <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} recorded vote{signal.poll.totalVotes === 1 ? "" : "s"}</span>
+                            <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} vote{signal.poll.totalVotes === 1 ? "" : "s"}</span>
                           </span>
                           <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
                         </Link>
@@ -355,20 +355,20 @@ export default function PublicMarketHome() {
               ) : null}
 
               {askResult?.recorded ? (
-                <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300"><CheckCircle2 className="h-4 w-4" /> PROMORANG is keeping an eye on “{askResult.query}”. Behind the scenes this is recorded interest—not attendance, inventory or guaranteed supply.</p>
+                <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300"><CheckCircle2 className="h-4 w-4" /> Got it. PROMORANG is keeping an eye on “{askResult.query}”.</p>
               ) : askResult ? (
-                <p className="mt-3 inline-flex items-start gap-2 text-sm font-semibold text-amber-300"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> PROMORANG could not confirm that “{askResult.query}” was saved. We are not pretending it is being watched or counted.</p>
+                <p className="mt-3 inline-flex items-start gap-2 text-sm font-semibold text-amber-300"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> We couldn’t save “{askResult.query}” right now. Try again.</p>
               ) : null}
             </form>
           </div>
 
           <aside className="marketing-dark-note">
-            <p className="marketing-kicker">How PROMORANG handles it</p>
+            <p className="marketing-kicker">What happens next</p>
             <h3 className="mt-4 text-2xl font-black">First help me find it. Only then keep looking for what is still missing.</h3>
             <div className="mt-6 space-y-4 text-sm leading-6 text-white/55">
               <p><strong className="text-white">Found something?</strong><br />Open the approved Discovery first.</p>
               <p><strong className="text-white">Others already want it?</strong><br />Join the existing signal instead of fragmenting demand.</p>
-              <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. PROMORANG handles the market record underneath.</p>
+              <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. We’ll keep it together with similar interest so you can see if momentum builds.</p>
             </div>
           </aside>
         </div>
@@ -385,7 +385,7 @@ export default function PublicMarketHome() {
           <div className="max-w-3xl">
             <p className="marketing-kicker"><Building2 className="h-3.5 w-3.5" /> For the people who can respond</p>
             <h2 className="mt-3 text-4xl font-black sm:text-5xl">See what people want before you decide what to put into the market.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Brands, merchants, hosts, creators and communities enter the same market from the supply side. A response stays separate from the Demand that caused it.</p>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Brands, merchants, hosts, creators and communities can see where interest is forming and decide whether to answer it with something people can actually use, join or buy.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link to="/for-brands" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">For business <ArrowRight className="h-4 w-4" /></Link>

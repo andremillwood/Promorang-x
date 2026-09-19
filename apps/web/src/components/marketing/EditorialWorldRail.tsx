@@ -24,7 +24,7 @@ export function EditorialWorldRail() {
           <p className="marketing-kicker">Find your way in</p>
           <h2 id="editorial-world-heading" className="mt-3 text-4xl font-black sm:text-5xl">What could move you?</h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">
-            These are editorial lenses, not claims about live inventory. Use them to enter the market and discover what PROMORANG actually knows.
+            Start anywhere. Follow a craving, a place, a scene, something creative, or something new to learn.
           </p>
         </div>
         <Link to="/discover" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">
@@ -32,13 +32,13 @@ export function EditorialWorldRail() {
         </Link>
       </div>
 
-      <div className="marketing-world-rail" aria-label="Editorial ways to explore PROMORANG">
+      <div className="marketing-world-rail" aria-label="Ways to explore PROMORANG">
         {lenses.map((lens) => (
           <Link key={lens.label} to="/discover" className="marketing-world-card group">
             <img src={lens.image} alt="" aria-hidden="true" />
             <span className="marketing-world-card__veil" />
             <span className="marketing-world-card__copy">
-              <span className="marketing-world-card__eyebrow">Editorial lens</span>
+              <span className="marketing-world-card__eyebrow">Explore</span>
               <strong>{lens.label}</strong>
               <small>{lens.note}</small>
             </span>

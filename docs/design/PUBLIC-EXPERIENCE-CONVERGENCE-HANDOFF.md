@@ -738,3 +738,14 @@ This file is the continuity log. `DESIGN.md` remains the broader design-system l
 **Copy law:** added DESIGN.md section 0.2.1 — “Truth belongs in product behavior. Humanity belongs in the copy.” Internal state-machine and database terminology must not leak into ordinary persuasion or participant copy.
 
 **Release posture:** copy-only convergence layered on top of the green public convergence build. No product mechanics, data sources, eligibility rules, RLS, reward logic, or route structure intentionally changed. Stage and validate before moving the PR branch once.
+
+
+### 2026-09-18 — Homepage copy cleanup
+
+**Trigger:** localhost screenshot showed remaining developer-facing microcopy on the homepage after the broader copy convergence pass.
+
+**Problem phrases:** “editorial atmosphere only,” “source-backed market state,” “editorial lenses,” “recorded market state,” “canonical Moment feed,” “source-backed consequence,” and similar implementation language.
+
+**Implemented:** rewrote the visible homepage copy in PublicMarketHome, EditorialWorldRail, PromoCardValueShowcase and MarketingPhysics. The underlying real-data/empty-state behavior is unchanged; only the customer-facing language changed.
+
+**Copy direction:** discovery should feel curious, PromoCard should feel useful, demand should feel like shared interest, and return should feel personal. Internal rigor remains in the product behavior rather than being narrated to the user.

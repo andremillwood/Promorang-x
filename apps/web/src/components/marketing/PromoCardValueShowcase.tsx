@@ -55,7 +55,7 @@ export function PromoCardValueShowcase() {
               holder={user ? "Your PromoCard" : "Your PromoCard"}
               available="What changed because you joined"
               limit="Watching · Open · Kept"
-              places="Interests, access, Moments, offers and verified history stay connected to one identity."
+              places="The things you care about, the access you have and what you have been part of stay connected to you."
               action={user ? "See what changed" : "Keep your place"}
               variant="membership"
               interactive={false}
@@ -64,11 +64,11 @@ export function PromoCardValueShowcase() {
 
           <div className="marketing-benefit-stack">
             {[
-              ["WATCH", "Do not lose the things you care about.", "Keep a Discovery, Demand signal or Moment attached to you so PROMORANG can show what changed."],
-              ["OPEN", "See when something becomes usable.", "An issued Offer, access window or Moment is different from interest. PromoCard can surface what is actually available."],
-              ["PROVE", "Let real actions count.", "Attendance, claims, purchases or other actions only move forward when their required proof exists."],
-              ["KEEP", "Carry the result forward.", "Verified history, retained access and memories should still be there after the original moment passes."],
-              ["RETURN", "Come back because something changed.", "A watched object can produce a source-backed update when PROMORANG has something materially new to show you."],
+              ["WATCH", "Do not lose the things you care about.", "Keep a Discovery, something people want, or a Moment close so you can see what changes."],
+              ["OPEN", "See when something becomes usable.", "When something opens—an offer, access or a Moment—PromoCard brings it back to you."],
+              ["PROVE", "Let real actions count.", "Check-ins, claims, purchases and other confirmed actions can become part of your history."],
+              ["KEEP", "Carry the result forward.", "Keep the access, memories and history that matter after the original Moment passes."],
+              ["RETURN", "Come back because something changed.", "When something you’re watching changes, PromoCard gives you a reason to come back."],
             ].map(([label, title, copy]) => (
               <article key={label} className="marketing-benefit-row">
                 <span>{label}</span>
@@ -86,7 +86,7 @@ export function PromoCardValueShowcase() {
             <div>
               <p className="marketing-kicker">Moments</p>
               <h2 className="mt-3 text-3xl font-black sm:text-4xl">Things you can actually show up for.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">These come from the canonical Moment feed. No sample Moments are substituted here.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">Upcoming experiences you can actually open, join and show up for.</p>
             </div>
             <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">See all Moments <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -115,7 +115,7 @@ export function PromoCardValueShowcase() {
           ) : (
             <div className="marketing-compact-empty">
               <CalendarDays className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No current Moments are available from the canonical feed.</p><p className="mt-1 text-xs leading-5 text-white/45">PROMORANG will leave this honest rather than fill it with examples.</p></div>
+              <div><p className="text-sm font-black">Nothing is happening here right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Check back soon or explore what else is moving.</p></div>
             </div>
           )}
         </div>
@@ -124,8 +124,8 @@ export function PromoCardValueShowcase() {
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">Perks & access</p>
-              <h2 className="mt-3 text-3xl font-black sm:text-4xl">Things somebody has actually made available.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">Public Offers are supply. Seeing one does not mean it has been issued to you; claiming and fulfillment remain separate states.</p>
+              <h2 className="mt-3 text-3xl font-black sm:text-4xl">Things you can claim or use.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">Open an offer to see what you can get, the terms, and what to do next.</p>
             </div>
             <Link to="/discover/rewards#offers" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Explore perks & responses <ArrowRight className="h-4 w-4" /></Link>
           </div>

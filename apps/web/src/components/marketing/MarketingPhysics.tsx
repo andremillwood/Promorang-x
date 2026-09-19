@@ -65,8 +65,8 @@ const steps = [
     key: "count",
     number: "03",
     label: "IT COUNTS",
-    title: "Something verifiable changes.",
-    copy: "PROMORANG separates intention from proof. Only supported actions advance the story.",
+    title: "Something real happened.",
+    copy: "A check-in, claim, purchase or other confirmed action can become part of your PROMORANG history.",
     icon: CheckCircle2,
   },
   {
@@ -74,7 +74,7 @@ const steps = [
     number: "04",
     label: "RETURN",
     title: "Something useful comes back.",
-    copy: "Access, a perk, proof, memory, reputation, relationship or next opening can return to your PromoCard.",
+    copy: "Access, a perk, a memory, reputation, a relationship or the next opening can come back to your PromoCard.",
     icon: RotateCcw,
   },
 ];
@@ -92,7 +92,7 @@ export function ReturnLoopStory() {
             <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> The Return</p>
             <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">Movement should leave a consequence — and give you a reason to come back.</h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-white/55">
-              PROMORANG's boomerang is product physics, not a button label. You notice something, move, something real changes, and the useful consequence has a path back to you.
+              PROMORANG is built around return: notice something, do something, keep what changed, and know where to go next.
             </p>
           </div>
           <div className="marketing-return-wordmark" aria-hidden="true">↗ ↘ ↩</div>
@@ -127,12 +127,12 @@ export function ReturnLoopStory() {
             <PaperReceipt
               heading="IT COUNTED"
               lines={[
-                { label: "What happened", value: "Verified action", strong: true },
-                { label: "What changed", value: "Source-backed consequence", strong: true },
+                { label: "What happened", value: "You did something", strong: true },
+                { label: "What changed", value: "Something came back", strong: true },
                 { label: "What came back", value: "Access / value / memory" },
                 { label: "What opened next", value: "A reason to return" },
               ]}
-              footer="Illustrative anatomy only. Production receipts must be populated from authoritative records."
+              footer="What comes back depends on what you actually did."
             />
           </div>
 
@@ -145,7 +145,7 @@ export function ReturnLoopStory() {
               holder="Your PromoCard"
               available="What came back"
               limit="Access · Proof · Memory"
-              places="The persistent place where useful consequences stay connected to you."
+              places="One place to keep what changed and what opens next."
               action="See what changed"
               variant="membership"
               interactive={false}
