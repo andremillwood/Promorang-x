@@ -24,7 +24,7 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Test public market continuity
         run: npm run test --workspace apps/web -- src/lib/public-object-continuity.test.ts src/lib/resumable-intent.test.ts
