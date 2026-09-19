@@ -4,27 +4,27 @@ export default function ForCauses() {
   return (
     <MarketRoleLanding
       seoTitle="PROMORANG for Causes — Mobilize around real needs"
-      seoDescription="Use approved context and recorded community demand to create a distinct cause response, then verify participation without inflating intent into impact."
+      seoDescription="See what communities care about, give people a meaningful way to respond, and understand what participation followed."
       eyebrow="FOR CAUSES + PUBLIC-INTEREST INITIATIVES"
       title="Make the need visible. Then give people a real way to respond."
-      intro="A cause does not need another vanity campaign. PROMORANG can help separate what the community says it needs, what your initiative actually offers people to do, and what participation can be verified afterward."
+      intro="A cause does not need another vanity campaign. PROMORANG can help you understand what a community cares about, give people a meaningful next move, and see what participation followed."
       primaryCta={{ label: "Discuss a cause response", href: "/contact" }}
-      secondaryCta={{ label: "See recorded demand", href: "/demand" }}
-      roleJob="Your job is not to manufacture urgency or call every click impact. Start with credible context, create a legitimate response, and keep proof separate from the story you want to tell."
-      discoveryUse="Use approved Discoveries to establish the places, organizations, issues and opportunities that are actually present in the market."
-      demandUse="Use recorded questions, votes and asks to understand what people say they need or are willing to support. Interest is not participation."
+      secondaryCta={{ label: "See what people want", href: "/demand" }}
+      roleJob="Make the need clear, give people a useful way to respond, and report participation without turning every click into impact."
+      discoveryUse="Use Discoveries to understand the places, organizations, issues and opportunities already present in the community."
+      demandUse="Use questions, votes and asks to understand what people say they need or are willing to support before you design the response."
       responseTitle="Create a real participation path"
-      responseDetail="Put a distinct Moment, mission, volunteer action, resource offer, fundraiser or other supported object into market only when the operating capacity behind it is real."
+      responseDetail="Create a Moment, mission, volunteer action, resource offer or fundraiser that your team is actually prepared to deliver."
       responseStub="ACT"
-      proofTitle="Verify the participation you can actually prove"
-      proofDetail="Attendance, submitted evidence, completed actions and retained history should advance only through their authoritative proof paths. Reach or intent should not be renamed impact."
-      promoCardDetail="A participant can watch relevant market objects and retain legitimate issued access or verified history without PROMORANG pretending that interest itself was a contribution."
+      proofTitle="See who actually took part"
+      proofDetail="Use attendance, completed actions and other confirmed participation to understand what happened beyond reach and intent."
+      promoCardDetail="Participants can keep causes, access and completed activity on PromoCard so the relationship can continue after one campaign."
       truthGates={[
-        "Need ≠ campaign claim",
-        "Interest ≠ participation",
-        "Participation ≠ verified impact",
-        "Donation intent ≠ settled donation",
-        "Story ≠ evidence",
+        "Need should come before campaign language",
+        "Interest is not participation",
+        "Participation needs context before it becomes impact",
+        "Donation intent is not a completed donation",
+        "A story is not the whole result",
       ]}
     />
   );

@@ -168,12 +168,12 @@ export default function HelpCenter() {
 
   return (
     <main className="min-h-screen bg-[#070707] px-5 pb-24 pt-24 text-white sm:px-6">
-      <SEO title="PROMORANG Help" description="Plain-English guidance for Discovery, Demand, PromoCard, Moments, proof and operator responses." />
+      <SEO title="PROMORANG Help" description="Plain-English guidance for Discoveries, what people want, PromoCard, Moments, offers and how businesses can respond." />
       <div className="mx-auto max-w-6xl">
         <header className="border-b border-white/10 pb-10">
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-primary">Help · start here</p>
           <h1 className="mt-3 max-w-4xl font-serif text-5xl font-bold leading-[.94] tracking-[-.055em] sm:text-7xl">Find your way around PROMORANG.</h1>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">PROMORANG keeps Discovery, Demand, responses, proof and retained history separate so the product can be useful without overstating what the market has done.</p>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">PROMORANG helps you understand what you found, what people want, what opened up, and what happened next.</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link to="/what-is-promorang" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-black">What is PROMORANG? <ArrowRight className="h-4 w-4" /></Link>
             <Link to="/how-it-works" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black text-white">See the full journey</Link>
@@ -183,7 +183,7 @@ export default function HelpCenter() {
         <section className="grid gap-4 border-b border-white/10 py-8 lg:grid-cols-[1fr_auto] lg:items-center">
           <label className="flex min-h-12 items-center gap-3 rounded-full border border-white/12 bg-white/[0.04] px-5">
             <Search className="h-4 w-4 text-primary" />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Discovery, PromoCard, proof, demand…" className="w-full bg-transparent text-sm outline-none placeholder:text-white/25" />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Discovery, PromoCard, attendance, demand…" className="w-full bg-transparent text-sm outline-none placeholder:text-white/25" />
           </label>
           <div className="flex flex-wrap gap-2">
             {categories.map((item) => {
@@ -210,7 +210,7 @@ export default function HelpCenter() {
         </section>
 
         <section className="border-t border-white/10 py-12">
-          <div className="mb-6"><p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">FAQ</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Keep the states separate.</h2></div>
+          <div className="mb-6"><p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">FAQ</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Common questions.</h2></div>
           <div className="divide-y divide-white/10 border-y border-white/10">
             {visibleFaqs.map((faq) => {
               const open = openFaq === faq.q;
@@ -220,9 +220,9 @@ export default function HelpCenter() {
         </section>
 
         <section className="grid gap-4 border-t border-white/10 pt-10 sm:grid-cols-3">
-          <Link to="/discover" className="rounded-[1.5rem] border border-white/10 p-5"><Compass className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Discover</p><p className="mt-2 text-xs leading-5 text-white/45">Start with approved knowledge.</p></Link>
-          <Link to="/card" className="rounded-[1.5rem] border border-white/10 p-5"><CreditCard className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">PromoCard</p><p className="mt-2 text-xs leading-5 text-white/45">Keep legitimate relationships and issued access.</p></Link>
-          <Link to="/for-brands" className="rounded-[1.5rem] border border-white/10 p-5"><Sparkles className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Respond</p><p className="mt-2 text-xs leading-5 text-white/45">See how operators turn signal into a separate response.</p></Link>
+          <Link to="/discover" className="rounded-[1.5rem] border border-white/10 p-5"><Compass className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Discover</p><p className="mt-2 text-xs leading-5 text-white/45">Start with something worth knowing.</p></Link>
+          <Link to="/card" className="rounded-[1.5rem] border border-white/10 p-5"><CreditCard className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">PromoCard</p><p className="mt-2 text-xs leading-5 text-white/45">Keep what you’re watching, access you have, and what you’ve been part of.</p></Link>
+          <Link to="/for-brands" className="rounded-[1.5rem] border border-white/10 p-5"><Sparkles className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Respond</p><p className="mt-2 text-xs leading-5 text-white/45">See how businesses can respond when people want something.</p></Link>
         </section>
       </div>
     </main>

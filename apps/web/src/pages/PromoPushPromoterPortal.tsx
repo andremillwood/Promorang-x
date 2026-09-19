@@ -1,5 +1,5 @@
 import { QRCodeSVG } from "qrcode.react";
-import { Download, QrCode, ScanLine, ShieldCheck, Users } from "lucide-react";
+import { Download, QrCode, RefreshCcw, ScanLine, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePromoPushPromoterAssignments } from "@/hooks/usePromoPush";
@@ -27,6 +27,7 @@ export default function PromoPushPromoterPortal() {
       verified: acc.verified + Number(metrics.proof_verified || 0),
     };
   }, { scans: 0, joins: 0, verified: 0 });
+  const metricsReady = !assignmentsQuery.isLoading && !assignmentsQuery.error;
 
   return (
     <div className="min-h-screen bg-[#080808] text-white">
@@ -37,7 +38,7 @@ export default function PromoPushPromoterPortal() {
             Promoter Portal
           </div>
           <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Assigned street activations</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">Access campaign QR codes, download printable assets, and review personal scan-to-proof performance.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">Access campaign QR codes, download printable assets, and review your scans and confirmed actions.</p>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -49,7 +50,7 @@ export default function PromoPushPromoterPortal() {
             <Card key={metric.label} className="border-white/10 bg-white/[0.04] text-white">
               <CardContent className="p-4">
                 <metric.icon className="mb-3 h-5 w-5 text-[#FF6A00]" />
-                <p className="text-2xl font-black">{metric.value.toLocaleString()}</p>
+                <p className="text-2xl font-black">{metricsReady ? metric.value.toLocaleString() : "—"}</p>
                 <p className="text-xs font-medium text-white/55">{metric.label}</p>
               </CardContent>
             </Card>
@@ -59,6 +60,16 @@ export default function PromoPushPromoterPortal() {
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
           {assignmentsQuery.isLoading ? (
             <p className="text-white/60">Loading assignments...</p>
+          ) : assignmentsQuery.error ? (
+            <Card className="border-red-500/20 bg-red-500/5 text-white lg:col-span-2">
+              <CardContent className="p-8 text-center">
+                <p className="font-black">Assignment records are unavailable.</p>
+                <p className="mt-2 text-sm text-white/55">PROMORANG will not describe a failed assignment source as no assignments or zero performance.</p>
+                <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => assignmentsQuery.refetch()}>
+                  <RefreshCcw className="mr-2 h-4 w-4" />Retry assignment source
+                </Button>
+              </CardContent>
+            </Card>
           ) : assignments.length === 0 ? (
             <Card className="border-dashed border-white/20 bg-white/[0.03] text-white lg:col-span-2">
               <CardContent className="p-8 text-center text-white/65">No active assignments yet. Approved promoters will see campaign QR codes here.</CardContent>

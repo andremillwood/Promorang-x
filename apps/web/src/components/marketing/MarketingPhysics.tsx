@@ -144,7 +144,7 @@ export function ReturnLoopStory() {
             <PromoCardFace
               holder="Your PromoCard"
               available="What came back"
-              limit="Access · Proof · Memory"
+              limit="Access · Activity · Memory"
               places="One place to keep what changed and what opens next."
               action="See what changed"
               variant="membership"

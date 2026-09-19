@@ -184,15 +184,15 @@ export default function MyPromoCard() {
               {useThis ? (
                 <>
                   <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">{useThis.title}</h2>
-                  <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "This is source-backed access already on your card. The merchant still validates use when required."}</p>
+                  <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "This access is already on your card. The merchant may still need to validate it when you use it."}</p>
                   {primaryIssuance && isPresentablePass(primaryIssuance.offers.fulfillment_type, primaryIssuance.status) && primaryIssuance.offers.fulfillment_type === "qr" ? <OfferIssuancePass issuance={primaryIssuance as OfferIssuance} /> : canShowCode(useThis) ? <button type="button" aria-label={`Show code for ${useThis.title}`} onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>Show this <ArrowRight className="h-4 w-4" /></button> : null}
                 </>
               ) : qrPass ? (
                 <OfferIssuancePass issuance={qrPass as OfferIssuance} />
               ) : (
                 <>
-                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">Nothing issued right now.</h2>
-                  <p className="mt-4 text-sm leading-6 text-white/50">Watching something or joining Demand does not create access. When a real response is issued to you, it can appear here.</p>
+                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">Nothing open right now.</h2>
+                  <p className="mt-4 text-sm leading-6 text-white/50">Nothing new is ready to use right now. Keep watching what matters and new access can appear here when it opens.</p>
                   <Link to={discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{aim ? `Browse ${aim.label}` : "Find something worth watching"}<ArrowRight className="h-4 w-4" /></Link>
                 </>
               )}
@@ -218,7 +218,7 @@ export default function MyPromoCard() {
                   </Link>
                 ))}
               </div>
-            ) : <p className="mt-6 border-y border-white/10 py-6 text-sm text-white/45">No additional access nearby right now. PROMORANG is leaving the state empty rather than inventing an opening.</p>}
+            ) : <p className="mt-6 border-y border-white/10 py-6 text-sm text-white/45">No additional access nearby right now. Check back as new offers and Moments open up.</p>}
           </section>
 
           <section className="grid gap-5 border-t border-white/10 pt-8 lg:grid-cols-2">
@@ -242,9 +242,9 @@ export default function MyPromoCard() {
           <section className="grid gap-6 border-t border-white/10 pt-9 lg:grid-cols-[1fr_.7fr]">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f6d48a]">Return reason</p>
-              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">A new source-backed opening is available to inspect. Availability still has to be confirmed on the object itself.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing new yet.</h2><p className="mt-3 text-sm text-white/45">Your watched objects remain on the card. New supply only appears when a real response exists.</p></>}
+              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Something new is open for you. Check the details before you use it.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing new yet.</h2><p className="mt-3 text-sm text-white/45">The things you’re watching are still here. Come back when something new opens up.</p></>}
             </div>
-            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Kept</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Kept proof, possessed access and recorded chance live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
+            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Kept</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Your saved history, access and things you earned live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
           </section>
 
           <details className="border-t border-white/10 pt-6 text-white/55">

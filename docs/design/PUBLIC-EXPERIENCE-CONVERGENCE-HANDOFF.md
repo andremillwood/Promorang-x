@@ -760,3 +760,20 @@ This file is the continuity log. `DESIGN.md` remains the broader design-system l
 **Shared-component effect:** the beige demand tickets now use human language everywhere they appear, including Wanted, Brand and Merchant surfaces.
 
 **No mechanics changed:** canonical Moment sourcing, demand counts, thresholds, routes, availability rules and write paths remain unchanged.
+
+
+### 2026-09-18 — Branch-wide voice convergence audit
+
+**Trigger:** repeated localhost screenshots showed internal product/data language surviving outside the routes already rewritten.
+
+**Audit scope:** all TS/TSX files changed by PR #131 were scanned for user-visible phrases associated with implementation voice: source-backed, authoritative, recorded object/market, canonical feed, truth gate/boundary, supply/inventory framing, state-transition language, and literal escaped-newline artifacts.
+
+**Decision:** public participant and stakeholder surfaces must speak in the human job: what is happening, what people want, what can be done, and what happened next. Technical precision remains appropriate in developer surfaces, admin record views, internal identifiers and code-only state names.
+
+**Implemented:** rewrote the remaining shared/public/stakeholder copy in DiscoveryDemandInbox, PublicDiscoverExperience, MarketOpportunityInbox, PublicMomentDetail, PromoCardWatchShelf, DiscoveryDetail, DemandInbox, signed-in ExploreMoments, ExploreVenues, ForCauses, ForMerchants, Help, How It Works, MyPromoCard, Pricing, SolutionsHub, What Is PROMORANG and the participant Moment perk empty state. Removed escaped-newline UI artifacts in Communities and ExploreVenues.
+
+**Intentional exceptions:** developer-facing technical copy in ForDevelopers; admin-only canonical record language; internal variable/type names such as threshold/state/taxonomy that are not rendered to users.
+
+**Release posture:** no product mechanics, source queries, writes, thresholds, authorization, reward logic or routes are intentionally changed. Validate the candidate against the same branch-wide voice scan and normal Web Build before treating the pass as complete.
+
+**Validation result:** final strict scan across public/shared participant and stakeholder surfaces returned zero user-visible hits for the targeted internal-language patterns and zero escaped-newline artifacts. Technical terminology remains only in intentional developer/admin/internal-code contexts.

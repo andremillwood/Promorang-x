@@ -100,7 +100,7 @@ The completion contract defines C1–C21. Current broad status:
 - **C4 Host** — primary production surfaces are source-backed; deep workflow hardening ongoing.
 - **C5 Merchant** — supply, validation, payment and fulfillment boundaries materially hardened.
 - **C6 Creator** — proof/value path hardened; acceptance/availability/rights contract remains open.
-- **C7 Brand** — in progress; generic role shell cleaned, synthetic creator bureau removed.
+- **C7 Brand** — in progress; generic role shell cleaned, synthetic creator bureau removed, and legacy analytics now converges on the canonical source-backed Evidence Pack.
 - **C8 Agency** — in progress; agency-native result pack and real journey progression added.
 - **C9 Admin** — major convergence completed; specialist tabs still need final propagation/QA.
 - **C10 Create/Edit** — in progress; Moment, Venue, Inventory and Offer flow truth boundaries hardened.
@@ -509,6 +509,13 @@ Latest closed findings:
 - **T-041 — Creator directory mixed fabricated identities, verification and performance proof into production.**
 - **T-042 — UserProfile and FollowButton converted source gaps into false identity/social state.**
 - **T-043 — Creator share feed published static polls/Moments and invented reward promises.**
+- **T-044 — Creator release routes mixed seeded compatibility, false-zero failures and premature publish success.**
+- **T-045 — Developer console fabricated live credentials and API execution.**
+- **T-046 — Brand analytics and shared media fabricated verification, evidence and performance proof.**
+- **T-047 — Identity visibility claimed privacy changes without a durable write.**
+- **T-048 — Wallet pass locally forged PromoKeys after ignored conversion failures.**
+- **T-049 — PromoPush turned source/write failure into zero activity, active campaigns and successful attribution.**
+- **T-050 — Marketplace and Piece profile converted source gaps into empty inventory, demo markets and unsupported entitlements.**
 
 Closed direction:
 
@@ -537,7 +544,20 @@ Closed direction:
 - Following now fails visibly when its graph/Moment/count sources fail, uses the canonical combined going count, and only exposes filters with real semantics.
 - the creator directory is now role/profile-backed only; fabricated creator identities, verification, performance metrics and ranking claims are removed.
 - profile identity/social state now distinguishes unavailable/not-found/empty, keeps private histories owner-only, and verifies follow state before mutation.
-- creator share inventory now comes from recorded polls, public Moments and live perks; generic sharing no longer carries invented points/ticket promises.
+- creator share inventory now comes from recorded polls, public Moments and live perks; generic sharing no longer carries invented points/ticket promises;
+- Content Drop detail/list/account/context/leaderboard routes now fail visibly instead of becoming seeded inventory, empty markets or zero performance;
+- content-distribution service/database absence and related-context query failures now propagate as unavailable instead of silently becoming empty records;
+- release publication now stages a non-public draft, attaches the real asset, then activates explicitly; partial failure no longer produces a live incomplete opportunity or a premature “launched” claim;
+- the retired Creator Missions compatibility surface now delegates to the source-backed release workspace instead of carrying fabricated paid bounties;
+- Developer API keys now come from the recorded authenticated key store only; browser-generated “live” secrets, demo revoke success and wildcard mock API-key authentication are removed;
+- the public developer playground is explicitly illustrative rather than claiming static payloads are live API execution;
+- the legacy Brand analytics route now converges on the canonical source-backed Evidence Pack rather than synthetic verified-action/evidence feeds;
+- Brand evidence source failures stay unavailable/unknown instead of becoming zero, and shared Moment/Discovery galleries no longer invent verification or reaction counts;
+- Identity Marker public/private controls now write the recorded owner-scoped visibility field, while source failure remains unavailable rather than becoming empty identity history;
+- legacy public-profile rendering no longer depends on the viewer's private journey/identity queries or enables follow mutations before follow state is known;
+- the Wallet pass no longer owns a second browser-only PromoKey forge; Point → PromoKey conversion now routes through the Wallet's authoritative conversion mutation and refreshes recorded balances;
+- PromoPush owner, creator, promoter and Admin surfaces no longer turn source failure into zero/empty state; campaign creation stages draft → dependencies → requested status, and tracking-link redirect now requires a persisted attribution event;
+- Marketplace now separates source unavailable from empty inventory, while Piece Profile no longer manufactures a market during database failure, coerces missing metrics to zero, or promises holder perks without a recorded entitlement source.
 
 ### NEXT ACTION
 

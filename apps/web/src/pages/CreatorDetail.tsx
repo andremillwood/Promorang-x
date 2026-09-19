@@ -55,7 +55,7 @@ export default function CreatorDetail() {
   });
 
   if (profileQuery.isLoading) return <main className="grid min-h-screen place-items-center bg-[#050505] text-white">Opening creator…</main>;
-  if (profileQuery.isError || !creator) return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><UserRound className="mx-auto h-9 w-9 text-orange-400"/><h1 className="mt-5 text-4xl font-black">Creator unavailable.</h1><p className="mt-3 text-sm leading-6 text-white/48">PROMORANG does not have a verified creator-role profile behind this route. No sample creator, audience count, earnings or opportunity is being substituted.</p><Link to="/creators" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4"/>Browse creators</Link></div></main>;
+  if (profileQuery.isError || !creator) return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><UserRound className="mx-auto h-9 w-9 text-orange-400"/><h1 className="mt-5 text-4xl font-black">Creator unavailable.</h1><p className="mt-3 text-sm leading-6 text-white/48">We couldn’t find a public creator profile at this link.</p><Link to="/creators" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4"/>Browse creators</Link></div></main>;
 
   const name=creator.display_name||creator.full_name||creator.username||"Creator";
   const content=contentQuery.data||[];

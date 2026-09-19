@@ -103,7 +103,7 @@ export function PublicDiscoverExperience() {
     <main className="marketing-cinematic public-discover-world min-h-screen bg-[#050505] text-white">
       <SEO
         title="Discover PROMORANG — Find what moves you"
-        description="Explore approved Discoveries, current Moments, real Offers and what people are looking for on PROMORANG."
+        description="Explore Discoveries, current Moments, offers and what people are looking for on PROMORANG."
         url={getSiteUrl("/discover")}
       />
 
@@ -140,7 +140,7 @@ export function PublicDiscoverExperience() {
             </div>
 
             {heroIsEditorial ? (
-              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">Editorial atmosphere · not a live Discovery or Moment</p>
+              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">Start with what catches your attention.</p>
             ) : null}
 
             <div className="marketing-hero-promocard-outcomes">
@@ -164,8 +164,8 @@ export function PublicDiscoverExperience() {
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">Worth knowing now</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Approved Discoveries.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">This is the part PROMORANG has actually approved as public knowledge. Editorial atmosphere above does not count as inventory.</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Discoveries worth a look.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Places, people, ideas and possibilities worth knowing about right now.</p>
             </div>
           </div>
 
@@ -189,7 +189,7 @@ export function PublicDiscoverExperience() {
           ) : (
             <div className="marketing-compact-empty">
               <Compass className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No approved Discoveries match this view yet.</p><p className="mt-1 text-xs leading-5 text-white/45">PROMORANG leaves that absence honest instead of inserting sample knowledge.</p></div>
+              <div><p className="text-sm font-black">Nothing matches this view yet.</p><p className="mt-1 text-xs leading-5 text-white/45">Try another filter or come back as new Discoveries appear.</p></div>
             </div>
           )}
         </div>
@@ -201,7 +201,7 @@ export function PublicDiscoverExperience() {
             <div>
               <p className="marketing-kicker">Happening now & next</p>
               <h2 className="mt-3 text-4xl font-black sm:text-5xl">Moments you can actually enter.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Current supply from the canonical Moment feed—separate from editorial examples or old curated fixtures.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Plans, rooms and experiences happening now or coming up.</p>
             </div>
             <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">See all Moments <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -229,7 +229,7 @@ export function PublicDiscoverExperience() {
           ) : (
             <div className="marketing-compact-empty">
               <CalendarDays className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No current Moments match this view.</p><p className="mt-1 text-xs leading-5 text-white/45">No demo events are substituted for a quiet calendar.</p></div>
+              <div><p className="text-sm font-black">No Moments match this view right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Try another filter or see everything that’s coming up.</p></div>
             </div>
           )}
         </div>
@@ -240,8 +240,8 @@ export function PublicDiscoverExperience() {
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">Perks & access</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Things somebody has actually made available.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">A public Offer is real supply. Seeing it is not the same as receiving an issuance, claiming it or redeeming it.</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Things you can claim or use.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Open an offer to see what’s available, the terms and what to do next.</p>
             </div>
             <Link to="/discover/rewards#offers" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Explore perks <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -249,7 +249,7 @@ export function PublicDiscoverExperience() {
           {offersQuery.isLoading ? (
             <div className="marketing-offer-rail">{[0,1,2,3].map((item) => <div key={item} className="marketing-offer-card animate-pulse bg-white/[0.04]" />)}</div>
           ) : offersQuery.isError ? (
-            <div className="marketing-compact-empty"><Gift className="h-5 w-5 text-orange-400" /><div><p className="text-sm font-black">PROMORANG can’t confirm public Offers right now.</p><p className="mt-1 text-xs leading-5 text-white/45">A source failure is not being presented as “no perks available.”</p></div></div>
+            <div className="marketing-compact-empty"><Gift className="h-5 w-5 text-orange-400" /><div><p className="text-sm font-black">We couldn’t load perks right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Try again in a moment.</p></div></div>
           ) : filteredOffers.length ? (
             <div className="marketing-offer-rail">
               {filteredOffers.slice(0,4).map((offer) => (
@@ -265,7 +265,7 @@ export function PublicDiscoverExperience() {
           ) : (
             <div className="marketing-compact-empty">
               <Gift className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No public direct Offers are available right now.</p><p className="mt-1 text-xs leading-5 text-white/45">PROMORANG does not fill the rail with sample perks.</p></div>
+              <div><p className="text-sm font-black">No direct offers right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Check Moments or come back as new perks open up.</p></div>
             </div>
           )}
         </div>
@@ -277,12 +277,12 @@ export function PublicDiscoverExperience() {
             <div>
               <p className="marketing-kicker">People are looking for</p>
               <h2 className="mt-3 text-4xl font-black sm:text-5xl">Shared interest becoming visible.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are recorded Demand questions underneath, but the participant job is simpler: see if other people want something like you do.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">See what other people are asking for and whether you want the same thing.</p>
             </div>
             <Link to="/#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Looking for something? <ArrowRight className="h-4 w-4" /></Link>
           </div>
 
-          {demand.isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Reading recorded interest…</p> : null}
+          {demand.isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Loading what people want…</p> : null}
           {liveSignals.length ? (
             <div className="marketing-demand-rail">
               {liveSignals.map((signal) => (
@@ -302,7 +302,7 @@ export function PublicDiscoverExperience() {
           ) : !demand.isLoading ? (
             <div className="marketing-compact-empty">
               <Users className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No recorded shared-interest questions are live here yet.</p><p className="mt-1 text-xs leading-5 text-white/45">One legitimate expression can be early without PROMORANG inventing popularity around it.</p></div>
+              <div><p className="text-sm font-black">No shared-interest questions here yet.</p><p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask, or come back as more people speak up.</p></div>
             </div>
           ) : null}
         </div>
@@ -313,7 +313,7 @@ export function PublicDiscoverExperience() {
           <div>
             <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> Keep your place</p>
             <h2 className="mt-3 text-4xl font-black sm:text-5xl">Discovery gets more useful when PROMORANG can remember what matters to you.</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">Watch something, return when it changes, see what actually opened, and keep what really happened. PromoCard carries the relationship without turning interest into entitlement.</p>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">Watch something, come back when it changes, keep access that opens, and remember what you were part of.</p>
             <Link to="/auth?mode=signup&next=/wallet" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">Get my PromoCard <ArrowRight className="h-4 w-4" /></Link>
           </div>
           <div className="marketing-promocard-stage">
@@ -321,7 +321,7 @@ export function PublicDiscoverExperience() {
               holder="Your PromoCard"
               available="What changed because you cared"
               limit="Watching · Open · Kept"
-              places="Discoveries, Moments, access and verified history stay connected to one identity."
+              places="Discoveries, Moments, access and your history stay connected to you."
               action="See what changed"
               variant="membership"
               interactive={false}

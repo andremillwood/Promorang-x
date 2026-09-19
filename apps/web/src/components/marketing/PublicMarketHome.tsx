@@ -175,7 +175,7 @@ export default function PublicMarketHome() {
               <span><strong>WATCH</strong> what matters</span>
               <span><strong>OPEN</strong> Moments & access</span>
               <span><strong>USE</strong> perks that exist</span>
-              <span><strong>KEEP</strong> proof & history</span>
+              <span><strong>KEEP</strong> access & history</span>
             </div>
             <p className="mt-4 max-w-xl text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
               Save what matters. Come back when something changes.
@@ -366,7 +366,7 @@ export default function PublicMarketHome() {
             <p className="marketing-kicker">What happens next</p>
             <h3 className="mt-4 text-2xl font-black">First help me find it. Only then keep looking for what is still missing.</h3>
             <div className="mt-6 space-y-4 text-sm leading-6 text-white/55">
-              <p><strong className="text-white">Found something?</strong><br />Open the approved Discovery first.</p>
+              <p><strong className="text-white">Found something?</strong><br />Open the Discovery first.</p>
               <p><strong className="text-white">Others already want it?</strong><br />Join the existing signal instead of fragmenting demand.</p>
               <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. We’ll keep it together with similar interest so you can see if momentum builds.</p>
             </div>

@@ -68,16 +68,12 @@ const requireApiKeyOrAuth = (requiredScopes = []) => {
       if (rawApiKey) {
         const keyHash = hashApiKey(rawApiKey);
 
-        // Fallback for development/demo without active Supabase DB
         if (!supabase) {
-          req.authType = 'api_key';
-          req.apiKey = {
-            id: 'mock-key-id',
-            scopes: ['*'],
-            environment: 'development'
-          };
-          req.user = { id: '00000000-0000-0000-0000-000000000001', role: 'developer' };
-          return next();
+          return res.status(503).json({
+            success: false,
+            error: 'Developer API key authentication unavailable',
+            code: 'API_KEY_AUTH_UNAVAILABLE'
+          });
         }
 
         const { data: keyRecord, error } = await supabase

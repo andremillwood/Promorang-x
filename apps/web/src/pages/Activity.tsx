@@ -124,8 +124,8 @@ const Activity = () => {
 
         <section>
           <div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
-            <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Broader activity</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">People + proof around you.</h2></div>
-            <div className="flex gap-2">{["all", "social", "proof"].map((value) => <button key={value} type="button" onClick={() => setFilter(value)} className={`min-h-9 rounded-full border px-4 text-xs font-bold capitalize ${filter === value ? "border-primary bg-primary text-black" : "border-white/10 text-white/50"}`}>{value}</button>)}</div>
+            <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Broader activity</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">People + activity around you.</h2></div>
+            <div className="flex gap-2">{["all", "social", "proof"].map((value) => <button key={value} type="button" onClick={() => setFilter(value)} className={`min-h-9 rounded-full border px-4 text-xs font-bold capitalize ${filter === value ? "border-primary bg-primary text-black" : "border-white/10 text-white/50"}`}>{value === "proof" ? "actions" : value}</button>)}</div>
           </div>
 
           <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#111]">

@@ -27,12 +27,12 @@ export function PromoCardWatchShelf() {
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Watching</p>
           <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">What you want to hear about again.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Watching is a relationship, not an entitlement. It keeps Discoveries, Demand and live market objects visible on your PromoCard while supply and outcomes remain separate states.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Keep the things you care about close so you can find them again and see when something changes.</p>
         </div>
         <Link to="/discover" className="text-sm font-bold text-primary">Find something to watch →</Link>
       </div>
 
-      {watched.isLoading ? <p className="mt-6 text-sm text-white/35">Loading watched market objects…</p> : relationships.length ? (
+      {watched.isLoading ? <p className="mt-6 text-sm text-white/35">Loading what you’re watching…</p> : relationships.length ? (
         <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
           {relationships.slice(0, 8).map((item) => {
             const Icon = iconFor(item.object_type);
@@ -53,7 +53,7 @@ export function PromoCardWatchShelf() {
         <div className="mt-6 rounded-[1.4rem] border border-dashed border-white/10 p-6">
           <Bell className="h-5 w-5 text-primary" />
           <p className="mt-3 font-serif text-2xl font-bold text-white">Nothing watched yet.</p>
-          <p className="mt-2 text-sm leading-6 text-white/40">Watch an approved Discovery, a Demand signal, a Moment or eligible market object. PROMORANG will keep the relationship here without pretending anything has been supplied to you.</p>
+          <p className="mt-2 text-sm leading-6 text-white/40">Watch a Discovery, something people want, a Moment or an offer and PROMORANG will keep it here for you.</p>
         </div>
       )}
     </section>

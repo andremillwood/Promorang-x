@@ -85,7 +85,7 @@ const ExploreVenues = () => {
             <p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">Places</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
               <div><h1 className="font-serif text-6xl font-bold leading-[.88] tracking-[-.055em] sm:text-8xl">Where things<br/><em className="font-normal text-primary">happen.</em></h1><p className="mt-6 max-w-2xl text-base leading-7 text-white/55">Follow PROMORANG through the rooms, venues and physical places connected to Moments, offers and culture.</p></div>
-              <div className="border-y border-white/15 py-5 text-sm text-white/50"><p>A Place is not inventory. It is a destination with activity attached.</p><Link to="/discover?tab=moments" className="mt-4 inline-flex items-center gap-2 font-bold text-primary">See what is happening <ArrowRight className="h-4 w-4"/></Link></div>
+              <div className="border-y border-white/15 py-5 text-sm text-white/50"><p>Follow a place to see what happens there, what’s nearby and what might bring you back.</p><Link to="/discover?tab=moments" className="mt-4 inline-flex items-center gap-2 font-bold text-primary">See what is happening <ArrowRight className="h-4 w-4"/></Link></div>
             </div>
           </header>
 
@@ -122,7 +122,7 @@ const ExploreVenues = () => {
                 <option value="all">{t("venues.allParishes")}</option>
                 {jamaicaParishes.map((parish) => <option key={parish} value={parish}>{parish}</option>)}
               </select>
-              <span className="hidden text-xs text-white/45 sm:inline">{t("venues.inventory")}</span>
+              <span className="hidden text-xs text-white/45 sm:inline">Places in this view</span>
             </div>
           </div>
 
@@ -217,7 +217,7 @@ const ExploreVenues = () => {
                     </div>
                     {venue.listing_status === "unclaimed" ? (
                       <p className="mt-4 border-t border-border pt-3 text-xs text-white/45">
-                        Public-source listing · {venue.attribution_text || "ownership not yet verified"}
+                        Listed from public information · {venue.attribution_text || "ownership not yet verified"}
                       </p>
                     ) : null}
                   </Link>
@@ -232,7 +232,8 @@ const ExploreVenues = () => {
               </p>
             </div>
           )}
-          <section className="mt-12 grid gap-px border-y border-white/10 bg-white/10 md:grid-cols-3"><Link to="/scenes" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Scenes</p><p className="mt-2 font-serif text-2xl font-bold">Find the culture around a place.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/discover?tab=moments" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Moments</p><p className="mt-2 font-serif text-2xl font-bold">See what is happening next.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/explore/rewards" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available</p><p className="mt-2 font-serif text-2xl font-bold">Find something you can unlock.</p><ArrowRight className="mt-5 h-4 w-4"/></Link></section>\n          {totalPages > 1 ? (
+          <section className="mt-12 grid gap-px border-y border-white/10 bg-white/10 md:grid-cols-3"><Link to="/scenes" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Scenes</p><p className="mt-2 font-serif text-2xl font-bold">Find the culture around a place.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/discover?tab=moments" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Moments</p><p className="mt-2 font-serif text-2xl font-bold">See what is happening next.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/explore/rewards" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available</p><p className="mt-2 font-serif text-2xl font-bold">Find something you can unlock.</p><ArrowRight className="mt-5 h-4 w-4"/></Link></section>
+          {totalPages > 1 ? (
             <nav aria-label="Venue pages" className="mt-8 flex items-center justify-center gap-3">
               <Button variant="outline" disabled={page === 0 || venuesQuery.isFetching} onClick={() => setPage((value) => Math.max(0, value - 1))}><ChevronLeft className="mr-1 h-4 w-4" />Previous</Button>
               <span className="text-sm font-semibold">Page {page + 1} of {totalPages}</span>

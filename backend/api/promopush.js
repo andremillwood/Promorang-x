@@ -272,6 +272,11 @@ router.post('/campaigns', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Missing required PromoPush campaign fields' });
     }
 
+    const allowedStatuses = new Set(['draft', 'active', 'completed', 'paused']);
+    if (!allowedStatuses.has(status)) {
+      return res.status(400).json({ error: 'Invalid PromoPush campaign status' });
+    }
+
     const { data: moment, error: momentError } = await supabase
       .from('moments')
       .select('id, host_id, organizer_id')
@@ -298,7 +303,7 @@ router.post('/campaigns', requireAuth, async (req, res) => {
         budget,
         reward_rules: reward_rules || {},
         request_creative_support: !!request_creative_support,
-        status,
+        status: 'draft',
         created_by: req.user.id,
       })
       .select()
@@ -340,7 +345,20 @@ router.post('/campaigns', requireAuth, async (req, res) => {
       creativeTasks = tasks || [];
     }
 
-    res.status(201).json({ campaign, channels: insertedChannels || [], creative_tasks: creativeTasks });
+    let publishedCampaign = campaign;
+    if (status !== 'draft') {
+      const { data: transitionedCampaign, error: transitionError } = await supabase
+        .from('promopush_campaigns')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', campaign.id)
+        .eq('created_by', req.user.id)
+        .select()
+        .single();
+      if (transitionError) throw transitionError;
+      publishedCampaign = transitionedCampaign;
+    }
+
+    res.status(201).json({ campaign: publishedCampaign, channels: insertedChannels || [], creative_tasks: creativeTasks });
   } catch (error) {
     console.error('Create PromoPush error:', error);
     res.status(500).json({ error: 'Failed to create PromoPush campaign' });
@@ -646,7 +664,7 @@ router.get('/entry/:code', async (req, res) => {
     }
 
     const eventType = normalizeEventType(req.query.event === 'scan' ? 'scan' : 'click');
-    await supabase.from('promopush_events').insert({
+    const { error: entryEventError } = await supabase.from('promopush_events').insert({
       campaign_id: channel.campaign_id,
       channel_id: channel.id,
       event_type: eventType,
@@ -656,6 +674,7 @@ router.get('/entry/:code', async (req, res) => {
       ip_hash: hashIp(req),
       metadata: { source: 'entry_endpoint' },
     });
+    if (entryEventError) throw entryEventError;
 
     res.json({
       campaign_id: channel.campaign_id,

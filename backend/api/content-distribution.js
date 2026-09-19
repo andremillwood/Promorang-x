@@ -45,6 +45,16 @@ router.get('/campaigns/:campaignId/context', optionalAuth, async (req, res) => {
       contentId ? supabase.from('content_piece_stats').select('current_price,change_24h,volume_24h').eq('content_id', contentId).maybeSingle() : Promise.resolve({ data: null }),
       contentId && userId ? supabase.from('content_piece_positions').select('pieces_owned').eq('content_id', contentId).eq('holder_id', userId).maybeSingle() : Promise.resolve({ data: null }),
     ]);
+    const sourceFailure = [
+      momentResult,
+      ownerResult,
+      sponsorResult,
+      productsResult,
+      statsResult,
+      positionResult,
+    ].find((result) => result?.error)?.error;
+    if (sourceFailure) throw sourceFailure;
+
     const stakeholders = [];
     if (ownerResult.data) stakeholders.push({ id: ownerResult.data.id, role: 'creator', name: ownerResult.data.display_name || ownerResult.data.username || 'Creator', image_url: ownerResult.data.avatar_url });
     if (sponsorResult.data) stakeholders.push({ id: sponsorResult.data.id, role: 'brand', name: sponsorResult.data.company_name || 'Brand partner', image_url: sponsorResult.data.logo_url });
@@ -102,6 +112,31 @@ router.post('/campaigns', async (req, res) => {
   } catch (error) {
     console.error('[Content Distribution] create campaign failed:', error);
     res.status(500).json({ success: false, error: 'Failed to create content distribution campaign' });
+  }
+});
+
+router.patch('/campaigns/:campaignId/status', async (req, res) => {
+  try {
+    const status = req.body?.status;
+    const allowedStatuses = new Set(['draft', 'active', 'paused', 'completed', 'cancelled']);
+    if (!allowedStatuses.has(status)) {
+      return res.status(400).json({ success: false, error: 'valid status is required' });
+    }
+
+    const campaign = await contentDistributionService.updateCampaignStatus(
+      req.params.campaignId,
+      status,
+      req.user.id
+    );
+    res.json({ success: true, data: campaign });
+  } catch (error) {
+    console.error('[Content Distribution] update campaign status failed:', error);
+    const status = error.message === 'Content distribution campaign not found'
+      ? 404
+      : error.message === 'Not authorized to manage this campaign'
+        ? 403
+        : 500;
+    res.status(status).json({ success: false, error: error.message || 'Failed to update content distribution campaign' });
   }
 });
 

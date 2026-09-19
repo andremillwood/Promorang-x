@@ -12,7 +12,7 @@ import { generateDiscoverySchema } from "@/lib/seo-schemas";
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
 
 function realLocation(discovery: { location_address?: string | null; city?: string | null; country?: string | null }) {
-  if (!discovery.location_address && !discovery.city && !discovery.country) return "Location not yet recorded";
+  if (!discovery.location_address && !discovery.city && !discovery.country) return "Location coming soon";
   return discoveryLocation(discovery as any);
 }
 
@@ -28,7 +28,7 @@ export default function DiscoveryDetail() {
   if (query.isError) {
     return (
       <main className="grid min-h-screen place-items-center bg-black px-6 text-center text-white">
-        <div className="max-w-lg"><Compass className="mx-auto h-9 w-9 text-primary" /><h1 className="mt-5 font-serif text-4xl font-bold">Discovery unavailable</h1><p className="mt-3 text-sm leading-6 text-white/50">The approved Discovery source could not be loaded. No curated or demo record is being substituted.</p><Link to="/discover" className="mt-6 inline-flex items-center gap-2 font-bold text-primary"><ArrowLeft className="h-4 w-4" />Back to Discover</Link></div>
+        <div className="max-w-lg"><Compass className="mx-auto h-9 w-9 text-primary" /><h1 className="mt-5 font-serif text-4xl font-bold">Discovery unavailable</h1><p className="mt-3 text-sm leading-6 text-white/50">We couldn’t load this Discovery right now. Try again in a moment.</p><Link to="/discover" className="mt-6 inline-flex items-center gap-2 font-bold text-primary"><ArrowLeft className="h-4 w-4" />Back to Discover</Link></div>
       </main>
     );
   }
@@ -37,7 +37,7 @@ export default function DiscoveryDetail() {
   if (!discovery) {
     return (
       <main className="grid min-h-screen place-items-center bg-black px-6 text-center text-white">
-        <div className="max-w-lg"><Compass className="mx-auto h-9 w-9 text-primary" /><h1 className="mt-5 font-serif text-4xl font-bold">No approved Discovery here</h1><p className="mt-3 text-sm leading-6 text-white/50">This URL does not resolve to an approved public Discovery. A submitted or pending proposal is not published as market knowledge.</p><Link to="/discover" className="mt-6 inline-flex items-center gap-2 font-bold text-primary"><ArrowLeft className="h-4 w-4" />Browse approved Discoveries</Link></div>
+        <div className="max-w-lg"><Compass className="mx-auto h-9 w-9 text-primary" /><h1 className="mt-5 font-serif text-4xl font-bold">Discovery not found</h1><p className="mt-3 text-sm leading-6 text-white/50">This link does not point to a public Discovery.</p><Link to="/discover" className="mt-6 inline-flex items-center gap-2 font-bold text-primary"><ArrowLeft className="h-4 w-4" />Browse Discoveries</Link></div>
       </main>
     );
   }
@@ -59,7 +59,7 @@ export default function DiscoveryDetail() {
     <main data-canonical-family="discovery-market" className="min-h-screen bg-black pb-24 text-white">
       <SEO
         title={`${discovery.title} — Promorang Discovery`}
-        description={discovery.description || `${discovery.title} is an approved Promorang Discovery.`}
+        description={discovery.description || `${discovery.title} on PROMORANG.`}
         image={discovery.cover_image || undefined}
         url={getSiteUrl(discoveryHref)}
         schema={generateDiscoverySchema(discovery)}
@@ -75,7 +75,7 @@ export default function DiscoveryDetail() {
             <div>
               <Link to="/discover" className="inline-flex items-center gap-2 text-xs font-bold text-white/50 transition hover:text-white"><ArrowLeft className="h-4 w-4" />All Discoveries</Link>
               <div className="mt-10 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-200"><CheckCircle2 className="h-3.5 w-3.5" />Approved Discovery</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-200"><CheckCircle2 className="h-3.5 w-3.5" />Discovery</span>
                 <span className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-primary">{formatDiscoveryCategory(discovery.category)}</span>
               </div>
               <h1 className="mt-5 max-w-5xl font-serif text-6xl font-bold leading-[.86] tracking-[-.055em] sm:text-8xl lg:text-[7rem]">{discovery.title}</h1>
@@ -86,7 +86,7 @@ export default function DiscoveryDetail() {
             <aside className="border-t border-white/20 pt-6 backdrop-blur-sm">
               <p className="text-[10px] font-black uppercase tracking-[.22em] text-primary">Found something?</p>
               <h2 className="mt-3 font-serif text-3xl font-bold">Keep it close.</h2>
-              <p className="mt-3 text-sm leading-6 text-white/55">Watch this Discovery so PROMORANG can bring you back if something real changes around it.</p>
+              <p className="mt-3 text-sm leading-6 text-white/55">Watch this Discovery so PROMORANG can bring you back when something changes around it.</p>
               <div className="mt-6 grid gap-2">
                 <WatchMarketObjectButton
                   type="discovery"
@@ -108,10 +108,10 @@ export default function DiscoveryDetail() {
       <section className="container px-6 py-12">
         <div className="grid gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 sm:grid-cols-4">
           {[
-            ["01", "Discovery", "Approved local knowledge"],
-            ["02", "Interest", discovery.save_count > 0 ? `${discovery.save_count} aggregate signal${discovery.save_count === 1 ? "" : "s"}` : "No recorded aggregate interest"],
+            ["01", "Discovery", "Worth knowing"],
+            ["02", "Interest", discovery.save_count > 0 ? `${discovery.save_count} signal${discovery.save_count === 1 ? "" : "s"}` : "No shared interest yet"],
             ["03", "Scene", discovery.scene?.title || "No Scene linked yet"],
-            ["04", "Action", discovery.checkin_count > 0 ? `${discovery.checkin_count} recorded check-in${discovery.checkin_count === 1 ? "" : "s"}` : "No attendance implied"],
+            ["04", "Action", discovery.checkin_count > 0 ? `${discovery.checkin_count} check-in${discovery.checkin_count === 1 ? "" : "s"}` : "No check-ins yet"],
           ].map(([step, title, copy]) => <article key={step} className="bg-black p-5"><p className="text-[10px] font-black text-primary">{step}</p><h3 className="mt-5 font-serif text-xl font-bold">{title}</h3><p className="mt-2 text-xs leading-5 text-white/42">{copy}</p></article>)}
         </div>
       </section>
@@ -133,7 +133,7 @@ export default function DiscoveryDetail() {
 
       {images.length > 1 ? (
         <section className="container px-6 py-12">
-          <div className="mb-6 border-b border-white/10 pb-5"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Recorded media</p><h2 className="mt-2 font-serif text-3xl font-bold">Images on this Discovery</h2></div>
+          <div className="mb-6 border-b border-white/10 pb-5"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Photos</p><h2 className="mt-2 font-serif text-3xl font-bold">Images on this Discovery</h2></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{images.map((image) => <div key={image} className="aspect-[4/3] overflow-hidden rounded-[1.6rem] border border-white/10"><img src={image} alt="" className="h-full w-full object-cover" /></div>)}</div>
         </section>
       ) : null}
@@ -152,7 +152,7 @@ export default function DiscoveryDetail() {
 
       <section className="container px-6 py-14">
         <div className="mb-7 flex items-end justify-between border-b border-white/10 pb-5"><div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Keep exploring</p><h2 className="mt-2 font-serif text-4xl font-bold">More worth knowing.</h2></div><Link to="/discover" className="hidden items-center gap-2 text-sm font-bold text-primary sm:flex">All Discoveries<ArrowRight className="h-4 w-4"/></Link></div>
-        {relatedDiscoveries.length ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{relatedDiscoveries.map((item) => <Link key={item.id} to={`/discoveries/${item.slug}`} className="group overflow-hidden border border-white/10 bg-white/[.025]"><div className="aspect-[4/3] overflow-hidden bg-white/[.04]">{item.cover_image ? <img src={item.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><Compass className="h-7 w-7 text-white/20"/></div>}</div><div className="p-4"><p className="text-[9px] font-black uppercase tracking-[.14em] text-primary">{formatDiscoveryCategory(item.category)}</p><h3 className="mt-2 font-serif text-xl font-bold leading-tight">{item.title}</h3><p className="mt-2 text-[11px] text-white/42">{realLocation(item)}</p></div></Link>)}</div> : <p className="text-sm text-white/45">No related approved Discoveries are available yet.</p>}
+        {relatedDiscoveries.length ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{relatedDiscoveries.map((item) => <Link key={item.id} to={`/discoveries/${item.slug}`} className="group overflow-hidden border border-white/10 bg-white/[.025]"><div className="aspect-[4/3] overflow-hidden bg-white/[.04]">{item.cover_image ? <img src={item.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><Compass className="h-7 w-7 text-white/20"/></div>}</div><div className="p-4"><p className="text-[9px] font-black uppercase tracking-[.14em] text-primary">{formatDiscoveryCategory(item.category)}</p><h3 className="mt-2 font-serif text-xl font-bold leading-tight">{item.title}</h3><p className="mt-2 text-[11px] text-white/42">{realLocation(item)}</p></div></Link>)}</div> : <p className="text-sm text-white/45">No related Discoveries to show yet.</p>}
       </section>
       <section className="border-t border-white/10 bg-white/[.02]"><div className="container flex flex-col gap-5 px-6 py-10 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">PromoCard</p><h2 className="mt-2 font-serif text-2xl font-bold">Want to remember this?</h2><p className="mt-2 text-xs text-white/42">Watch it now. Come back when something real changes.</p></div><WatchMarketObjectButton type="discovery" id={String(discovery.id)} title={discovery.title} subtitle={location} image={discovery.cover_image || null} href={discoveryHref} metadata={{ category: discovery.category || null, city: discovery.city || null }} /></div></section>
       <MobileBottomNav />

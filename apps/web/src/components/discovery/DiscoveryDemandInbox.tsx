@@ -31,21 +31,21 @@ export function DiscoveryDemandInbox({
         <Radio className="h-4 w-4 text-primary" />
       </div>
       {isLoading ? (
-        <p className="mt-3 text-sm text-white/40">Loading recorded market signals…</p>
+        <p className="mt-3 text-sm text-white/40">Loading what people want…</p>
       ) : topMiss ? (
         <>
           <p className="mt-3 font-serif text-2xl font-bold text-white">“{topMiss.query}”</p>
-          <p className="mt-2 text-sm text-white/45">{topMiss.count} recorded ask{topMiss.count === 1 ? "" : "s"} with no matched live question yet.</p>
+          <p className="mt-2 text-sm text-white/45">{topMiss.count} ask{topMiss.count === 1 ? "" : "s"} we haven’t matched yet.</p>
         </>
       ) : topQuestion ? (
         <>
           <p className="mt-3 font-serif text-2xl font-bold text-white">{topQuestion.poll.question}</p>
-          <p className="mt-2 text-sm text-white/45">{topQuestion.poll.totalVotes || 0} recorded votes. Demand is evidence to inspect, not automatic supply.</p>
+          <p className="mt-2 text-sm text-white/45">{topQuestion.poll.totalVotes || 0} vote{topQuestion.poll.totalVotes === 1 ? "" : "s"}. See whether this is worth responding to.</p>
         </>
       ) : (
         <>
-          <p className="mt-3 font-serif text-2xl font-bold text-white">No recorded opportunities yet.</p>
-          <p className="mt-2 text-sm text-white/45">An empty market is valid information. PROMORANG is not substituting seeded activity.</p>
+          <p className="mt-3 font-serif text-2xl font-bold text-white">No opportunities here yet.</p>
+          <p className="mt-2 text-sm text-white/45">Nothing is asking for your attention right now. Check back as the market moves.</p>
         </>
       )}
       <span className="mt-4 inline-flex items-center gap-2 text-xs font-black text-primary">Open inbox <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>

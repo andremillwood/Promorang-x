@@ -1176,6 +1176,191 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-044 — Creator release routes mixed seeded compatibility, false-zero failures and premature publish success
+
+Files:
+- `apps/web/src/hooks/useContentDistribution.ts`
+- `apps/web/src/pages/ContentDrops.tsx`
+- `apps/web/src/pages/ContentDropDetail.tsx`
+- `apps/web/src/components/creator/CreatorMissionsHub.tsx`
+- `backend/api/content-distribution.js`
+- `backend/services/contentDistributionService.js`
+
+Finding:
+- the canonical Content Drop detail hook still consulted the seeded Content Drop and seeded leaderboard modules before the live API, so production truth depended on an environment gate rather than the routed source contract itself;
+- Content Drop list, account-list, context and leaderboard failures could render as an empty market, no releases, no context or zero performance;
+- the publish form created an `active` campaign first and attached its primary asset second, while the campaign mutation announced “Content Drop launched” after only the first write;
+- an asset-write failure could therefore leave an incomplete campaign active while the UI had already reported launch success;
+- the legacy `CreatorMissionsHub` still contained fabricated brands, cash bounties, claim counts, deadlines and browser-only claim success even though the current Creator dashboard no longer mounted it.
+
+Resolution:
+- canonical Content Drop hooks now read only the live content-distribution API; seeded records remain isolated to explicit development/test modules rather than the production route contract;
+- HTTP status is preserved so not-found can remain distinct from source unavailable;
+- live-market, account, context and leaderboard failures render explicit unavailable/retry states; leaderboard-dependent metrics render unknown rather than fabricated zero;
+- content-distribution service reads fail unavailable when the database client is absent, and the context endpoint now propagates individual source-query errors instead of converting them into empty related-object state;
+- release publication is staged `draft → asset attached → active`;
+- the campaign stays non-public if the asset or activation step fails, and the UI reports an incomplete draft rather than successful publication;
+- the generic create hook now reports only that the release record was created; the page reports “Release published” only after the asset write and owner-only activation transition both succeed;
+- the legacy Creator Missions compatibility component delegates to the real release workspace, eliminating the fabricated bounty board if an older import is re-mounted.
+
+Status: **Closed**
+
+
+#### T-045 — Developer console fabricated live credentials and API execution
+
+Files:
+- `apps/web/src/pages/DeveloperConsole.tsx`
+- `apps/web/src/pages/ForDevelopers.tsx`
+- `backend/api/v1/keys.js`
+- `backend/middleware/apiKeyAuth.js`
+- `backend/migrations/20260824_developer_api_keys.sql`
+
+Finding:
+- the production-routed Developer Console initialized with a fabricated `pk_live_` credential, generated new “production” secrets entirely in the browser, and reported revoke/create success without an authoritative key write;
+- the backend key endpoints returned mock key records, mock plaintext credentials and demo revoke success when the database client was unavailable;
+- API-key authentication accepted any supplied API key with wildcard scopes when the key store was unavailable;
+- the public developer page labelled a timer-driven static response generator as a live headless playground and displayed successful claim/operator payloads without executing those actions.
+
+Resolution:
+- the console now lists, creates and revokes only through the authenticated `/api/v1/keys` source;
+- signed-out and source-unavailable states are explicit; no demo key is substituted;
+- plaintext keys are shown only when the server successfully creates a persisted key record, while the list renders masked records only;
+- backend key endpoints fail unavailable when the key store is absent, validate environment/scopes, list active records only, and confirm a matching active record before reporting revoke success;
+- API-key middleware now fails unavailable rather than granting mock wildcard authority when its source is absent;
+- the developer playground is now labelled as illustrative payload examples and does not claim to execute feed, claim, reward or operator mutations.
+
+Status: **Closed**
+
+
+#### T-046 — Brand analytics and shared media fabricated verification, evidence and performance proof
+
+Files:
+- `apps/web/src/components/ImageGallery.tsx`
+- `apps/web/src/components/analytics/BrandAnalyticsDashboard.tsx`
+- `apps/web/src/components/analytics/EvidenceFeed.tsx`
+- `apps/web/src/components/analytics/AutomatedRecap.tsx`
+- `apps/web/src/components/brand/BrandEvidencePack.tsx`
+- `apps/web/src/components/brand/BrandIntelligenceConsole.tsx`
+- `apps/web/src/pages/Analytics.tsx`
+- `backend/migrations/20260114_verified_actions.sql`
+
+Finding:
+- the shared ImageGallery used on Moment and Discovery detail called every image a “verified attendee” upload and generated random heart/flame counts on each render without uploader, verification or reaction records;
+- the production Brand analytics route mounted a legacy dashboard whose EvidenceFeed unconditionally generated fake people, GPS verification, locations and reward issuance and labelled the result “Live Verified Actions / Streaming Evidence”;
+- its recap injected fake visual evidence, called aggregate participants “verified actions,” asserted a fixed “42% better than average ad spend,” projected 500 more verified actions, and exposed unimplemented share/scale controls as if they were supported decisions;
+- the legacy dashboard could also collapse its analytics source failure into zero aggregate metrics and hard-coded every campaign row as Active;
+- the existing `verified_actions` table is user-owned under RLS and is not a valid cross-user Brand visual-evidence feed, so repurposing it would overstate access/provenance.
+
+Resolution:
+- shared media now displays only its recorded caption plus neutral record provenance; random reactions and unsupported attendee-verification language are removed;
+- the historical Brand analytics component now delegates to the canonical `BrandEvidencePack`, preserving one Brand evidence model instead of a second weaker dashboard;
+- the legacy EvidenceFeed remains a compatibility component but renders an honest source-boundary state rather than synthetic evidence;
+- the legacy recap renders only values/evidence supplied by a caller and no longer adds fake benchmarks, projections, agency branding, verified-outcome claims or unsupported share/scale actions;
+- the canonical Brand intelligence summary renders campaign/result counts as unknown on source failure and provides retry rather than substituting zero;
+- no new evidence backend was introduced because the existing production Brand pack already composes authenticated O2O analytics and campaign records.
+
+Status: **Closed**
+
+
+#### T-047 — Identity visibility claimed privacy changes without a durable write
+
+Files:
+- `apps/web/src/components/human/IdentityMarkers.tsx`
+- `apps/web/src/hooks/useStakeholderLeverage.ts`
+- `apps/web/src/components/discovery/PublicProfileView.tsx`
+
+Finding:
+- the confirmed Identity Marker visibility switch changed no database state at all; its handler contained a TODO but still toasted “Made public” / “Made private”;
+- identity-marker source failure was rendered through the same path as an empty identity history;
+- marker confirmation updated by marker id without also scoping the write to the authenticated owner in the client mutation;
+- the legacy PublicProfileView loaded the viewer’s private journeys and identity markers while viewing another profile, waited on those unrelated private queries, then did not use them in the rendered target profile;
+- that public-profile component also treated a profile-source failure as “not found or private” and could expose Follow/Following actions before a reliable follow-state read.
+
+Resolution:
+- Identity Marker visibility now writes `is_public` through an authenticated owner-scoped mutation and reports success only after the database update succeeds;
+- marker confirmation is owner-scoped and now exposes mutation failure instead of silently leaving the editor in an ambiguous state;
+- identity-marker read failure renders unavailable with retry rather than “your identity is forming”;
+- PublicProfileView no longer queries the viewer’s private journeys/markers for another person’s profile;
+- profile-source failure is distinct from not-found/private, and follow mutation controls remain disabled when follow state is loading or unavailable.
+
+Status: **Closed**
+
+
+#### T-048 — Wallet pass locally forged PromoKeys after ignored conversion failures
+
+Files:
+- `apps/web/src/pages/Wallet.tsx`
+- `apps/web/src/components/wallet/DigitalWalletPass3D.tsx`
+- `apps/web/src/components/wallet/PromoKeyForgeModal.tsx`
+
+Finding:
+- the production Wallet mounted a 3D pass with a second PromoKey conversion path separate from the Wallet's canonical conversion mutation;
+- the legacy forge modal attempted a direct RPC but only logged RPC errors, then used a timer to declare “Successfully forged,” subtract Points and add PromoKeys in local React state regardless of whether a durable conversion occurred;
+- its success state described minting as settled and showed a locally calculated new key balance;
+- the 3D pass therefore could disagree with the authoritative Wallet ledger and visually manufacture spendable PromoKeys;
+- the pass also used a fabricated fallback member code and “Verified Member / Active” identity language when those facts were not supplied by an account/pass source.
+
+Resolution:
+- the 3D pass no longer owns local Points/PromoKey balances and renders the recorded balances supplied by Wallet;
+- its conversion CTA opens the Wallet's existing authenticated `/economy/convert/points-to-promokeys` flow, which reports success only after the API accepts the conversion and then refreshes authoritative balances;
+- the duplicate forge modal is retained only as a non-mutating compatibility boundary and cannot mint, settle or alter local balances;
+- fabricated member-id fallback and unsupported verified/active labels were removed from the pass.
+
+Status: **Closed**
+
+
+#### T-049 — PromoPush turned source/write failure into zero activity, active campaigns and successful attribution
+
+Files:
+- `apps/web/src/pages/PromoPush.tsx`
+- `apps/web/src/pages/PromoPushCreator.tsx`
+- `apps/web/src/pages/PromoPushPromoterPortal.tsx`
+- `apps/web/src/components/admin/AdminPromoPushTab.tsx`
+- `backend/api/promopush.js`
+
+Finding:
+- owner, creator, promoter and Admin PromoPush surfaces defaulted failed queries to empty arrays and then rendered zero metrics, no campaigns, no assignments, no applications or no queue work;
+- the campaign builder could still appear usable when its authoritative Moment source had failed;
+- campaign creation inserted the campaign at the requested live status before channel generation and optional creative-task creation completed, so a later write failure could leave an incomplete live campaign behind while the request itself failed;
+- the public `/go/:code` resolution endpoint did not check the attribution-event insert result and could redirect successfully even when the entry event was not recorded.
+
+Resolution:
+- PromoPush owner, creator, promoter and Admin surfaces now distinguish loading, source unavailable, true empty and recorded zero states, with retry controls;
+- aggregate metrics render unknown while their source is unavailable rather than fabricated zero;
+- campaign creation is disabled while the eligible Moment source is unavailable;
+- new campaigns are persisted as `draft`, channels and requested creative tasks are created, and only then is the campaign transitioned to the requested status;
+- a dependency-write failure therefore leaves a non-public draft instead of an incomplete active campaign;
+- `/go/:code` now returns failure when its attribution event cannot be persisted, so the redirect only follows a recorded entry event.
+
+Status: **Closed**
+
+
+#### T-050 — Marketplace and Piece profile converted source gaps into empty inventory, demo markets and unsupported entitlements
+
+Files:
+- `apps/web/src/pages/Marketplace.tsx`
+- `apps/web/src/pages/PieceProfile.tsx`
+- `backend/api/pieces.js`
+
+Finding:
+- the public commerce directory treated a failed `view_public_commerce_directory` query as no inventory/no results and continued to mix sample-only categories into the primary category rail;
+- the Piece profile endpoint returned a randomly generated demo Piece, pool and market statistics whenever the database client was unavailable, so a production infrastructure failure could look like live market state;
+- Piece asset/stat reads swallowed database errors into missing data, and the profile UI collapsed every fetch failure into “Piece not found”;
+- absent price, volume, holder and market-cap data were rendered as recorded zero;
+- Piece Profile advertised a static holder-benefit ladder — 15% ticket discounts, guaranteed early-bird access, complimentary VIP/backstage hospitality, drink tokens and governance voting — without an entitlement source in the profile contract.
+
+Resolution:
+- Marketplace now renders commerce-source failure as unavailable with retry; true empty inventory remains a separate state, and sample categories enter navigation only when the explicitly labelled sample catalogue is being viewed;
+- the Piece profile API returns `503` when its database source is unavailable instead of generating a random demo market;
+- demo Piece profiles remain available only behind explicit non-production demo mode;
+- asset, stats and pool query errors now propagate as source failure rather than being converted to missing/zero state;
+- Piece Profile distinguishes source unavailable from a real `404` and provides retry;
+- absent market metrics render unknown rather than zero, and price-dependent trade estimates stay unavailable when no recorded price exists;
+- the unsupported holder-perk ladder was removed; the profile now states that Piece quantity alone does not create discounts, VIP access, hospitality or governance rights and that benefits appear only when a recorded entitlement source exists.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

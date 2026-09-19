@@ -147,8 +147,8 @@ export default function ForMerchants() {
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Make it obvious what this person can use now.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Your team shouldn’t have to understand the whole system. If someone has valid access, PromoCard should make the offer and next step clear.</p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              <TicketPass kicker="Before the visit" title="Make the terms clear" detail="What is available, when it can be used, how many exist, and what the participant must do." stub="OPEN" stubLabel="Supply" />
-              <TicketPass kicker="After the visit" title="Remember the visit" detail="Validation can become proof of an action without silently claiming a separate purchase or fulfillment." stub="VALID" stubLabel="Proof" />
+              <TicketPass kicker="Before the visit" title="Make the terms clear" detail="What is available, when it can be used, how many exist, and what the participant must do." stub="OPEN" stubLabel="Offer" />
+              <TicketPass kicker="After the visit" title="Remember the visit" detail="A validated visit gives you a reliable record of what happened without assuming a purchase." stub="VISIT" stubLabel="Activity" />
             </div>
           </div>
           <PromoCardFace holder="Participant PromoCard" available="Use this here" limit="Issued offer · terms apply" places="Show the offer, the terms and the next step at a glance." action="Present this" interactive={false} />
@@ -164,7 +164,7 @@ export default function ForMerchants() {
             <Link to={putPerkHref} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-emerald-400 px-6 text-sm font-black text-black transition hover:bg-emerald-300"><Store className="h-4 w-4" /> Put up a response <ArrowRight className="h-4 w-4" /></Link>
             <Link to={registerHref} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80"><MapPin className="h-4 w-4" /> Register your place</Link>
           </div>
-          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/35"><ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> Demand, supply, validation, purchase and fulfillment remain separate states.</p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/35"><ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> Interest, offers, visits, purchases and fulfillment are different parts of the customer journey.</p>
         </div>
       </section>
     </main>

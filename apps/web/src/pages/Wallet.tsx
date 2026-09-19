@@ -318,6 +318,7 @@ const Wallet = () => {
               points={walletBalance?.points || 0}
               promoKeys={walletBalance?.promokeys || 0}
               gems={gems}
+              onConvertPoints={() => setConvertDialogOpen(true)}
             />
             <div className="flex w-full max-w-[420px] gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
@@ -464,7 +465,7 @@ const Wallet = () => {
                 </div>
               )}
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-xs text-muted-foreground">
-                <span className="font-semibold text-primary">Unlocks:</span> Funded Moments, gated drops, and proof-backed experiences.
+                <span className="font-semibold text-primary">Unlocks:</span> Funded Moments, gated drops, and experiences that require confirmation.
               </div>
               <Button
                 className="w-full font-bold text-xs shadow-md"

@@ -40,7 +40,7 @@ export default function PricingPage() {
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-primary">Commercial terms · truth before price</p>
             <h1 className="mt-5 max-w-5xl font-serif text-5xl font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">Pay for a real response. Do not confuse the invoice with the outcome.</h1>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-white/60">PROMORANG can charge for software, operating work, distribution, verification, commerce, or administration around legitimate market objects. A fee does not guarantee demand, attendance, purchase, sales, ROI or verified impact.</p>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-white/60">PROMORANG can charge for software, operating work, distribution, verification, commerce or administration. A fee pays for the agreed service; it does not guarantee demand, attendance, sales or ROI.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/join" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-black text-black">Choose your job <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/contact" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">Discuss commercial scope</Link>
@@ -50,7 +50,7 @@ export default function PricingPage() {
             { label: "Platform", value: "software / workflow" },
             { label: "Operations", value: "configured service" },
             { label: "Distribution", value: "real placement / work" },
-            { label: "Verification", value: "proof workflow", strong: true },
+            { label: "Verification", value: "confirmation workflow", strong: true },
             { label: "Outcome", value: "not guaranteed" },
           ]} footer="The configured order or checkout is the authority for the amount." />
         </div>
@@ -95,23 +95,23 @@ export default function PricingPage() {
             <ol className="mt-7 divide-y divide-white/10 border-y border-white/10">
               {[
                 "Choose the job and role you are trying to accomplish.",
-                "Inspect approved context and recorded demand where relevant.",
-                "Configure the separate response, operating scope and any committed participant value.",
+                "Look at what people are asking for and what is already happening in the market.",
+                "Shape the offer, Moment, service or activation and define what it will take to deliver.",
                 "Review the actual fee and committed-value buckets before funding or approval.",
-                "Execute the response and measure only source-backed consequences afterward.",
+                "Run it, then measure what people actually did afterward.",
               ].map((step, index) => <li key={step} className="grid grid-cols-[36px_1fr] gap-4 py-5 text-sm leading-6 text-white/60"><span className="font-mono font-black text-primary">0{index + 1}</span><span>{step}</span></li>)}
             </ol>
           </div>
           <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6">
             <ShieldCheck className="h-6 w-6 text-primary" />
-            <h3 className="mt-4 font-serif text-2xl font-bold">Commercial truth gates</h3>
+            <h3 className="mt-4 font-serif text-2xl font-bold">Know what each number means</h3>
             <div className="mt-5 space-y-3 text-sm text-white/50">
-              <p>Spend ≠ Demand</p>
-              <p>Demand ≠ Supply</p>
-              <p>Response ≠ Purchase</p>
-              <p>RSVP ≠ Attendance</p>
-              <p>Evidence ≠ ROI without supporting records</p>
-              <p>Queued payout ≠ Paid payout</p>
+              <p>Spending money does not create demand.</p>
+              <p>Interest does not mean something is available.</p>
+              <p>Putting something up does not mean someone bought it.</p>
+              <p>An RSVP is not the same as attendance.</p>
+              <p>Results need context before they become ROI.</p>
+              <p>A queued payout is not the same as a completed payout.</p>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ export default function HowItWorks() {
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
-        title="How PROMORANG works — From discovery to demand to proof"
+        title="How PROMORANG works — From discovery to action and return"
         description="See how PROMORANG helps you discover something, show what you want, act when something opens, and keep what matters on PromoCard."
       />
 
@@ -56,7 +56,7 @@ export default function HowItWorks() {
               <TicketPass kicker="Open" title="Things I can use now" detail="When you get access, PromoCard shows what you have and what to do next." stub="USE" stubLabel="Access" />
             </div>
           </div>
-          <PromoCardFace holder="Your PromoCard" available="Keep the thread" limit="Interest → access → proof" places="One identity across the things you discover, back, receive and actually do." action="See what changed" variant="membership" interactive={false} />
+          <PromoCardFace holder="Your PromoCard" available="Keep the thread" limit="Interest → access → history" places="One identity across the things you discover, back, receive and actually do." action="See what changed" variant="membership" interactive={false} />
         </div>
       </section>
 
@@ -69,8 +69,8 @@ export default function HowItWorks() {
           </div>
           <div className="mt-9 grid gap-4 md:grid-cols-3">
             <TicketPass kicker="PROMORANG can ask" title="Market prompts" detail="Questions can help people recognize preferences without pretending those prompts are existing demand." stub="ASK" stubLabel="Prompt" />
-            <TicketPass kicker="A person can start" title="Be the first" detail="A legitimate first ask can remain small and honest until other people independently join it." stub="1" stubLabel="Early" />
-            <TicketPass kicker="The market can learn" title="Go find it" detail="An unresolved want can guide what PROMORANG, contributors or operators should investigate and publish as approved Discovery." stub="FIND" stubLabel="Scout" />
+            <TicketPass kicker="A person can start" title="Be the first" detail="A first ask can start small and grow as other people join it." stub="1" stubLabel="Early" />
+            <TicketPass kicker="The market can learn" title="Go find it" detail="An unresolved want can guide what PROMORANG, contributors or businesses go looking for next—and turn into a Discovery people can explore." stub="FIND" stubLabel="Scout" />
           </div>
         </div>
       </section>
@@ -83,11 +83,11 @@ export default function HowItWorks() {
             { label: "Respond", title: "Put something useful into market.", text: "An offer, Moment, access window or other response should have clear terms and availability." },
             { label: "Verify", title: "See what happened next.", text: "Use confirmed actions to understand what people actually did after the response." },
           ]} />
-          <PaperReceipt heading="State boundaries" lines={[
+          <PaperReceipt heading="What each step tells you" lines={[
             { label: "Discovery", value: "Knowledge", strong: true },
             { label: "Demand", value: "Interest", strong: true },
-            { label: "Response", value: "Supply", strong: true },
-            { label: "Proof", value: "Outcome", strong: true },
+            { label: "Response", value: "What someone puts up", strong: true },
+            { label: "Outcome", value: "What happened", strong: true },
           ]} footer="Each stage tells you something different: what people noticed, wanted, received and actually did." />
         </div>
       </section>

@@ -42,7 +42,7 @@ const paths = [
     cta: "See the brand path",
     icon: Building2,
     image: brandImage,
-    proof: "Signal → Activation → Evidence",
+    proof: "Signal → Activation → Results",
   },
   {
     eyebrow: "I create or influence",
@@ -52,7 +52,7 @@ const paths = [
     cta: "Explore creator tools",
     icon: Megaphone,
     image: creatorImage,
-    proof: "Attention → Action → Proof",
+    proof: "Attention → Action → Reputation",
   },
   {
     eyebrow: "I bring people together",
@@ -82,7 +82,7 @@ const paths = [
     cta: "Explore agency tools",
     icon: Briefcase,
     image: agencyImage,
-    proof: "Client → Response → Evidence",
+    proof: "Client → Response → Results",
   },
   {
     eyebrow: "I represent a larger organization",

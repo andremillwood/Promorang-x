@@ -940,7 +940,7 @@ const SignedInMomentDetail = () => {
                 {!!user && !isHost && isJoined && (
                   <div className="space-y-4">
                     {journey.isLoading ? <p role="status" className="text-sm text-white/65">Loading your participation…</p> : journey.isError || !journey.data ? (
-                      <div role="status"><p className="text-sm text-white/65">Your reservation is recorded. Your latest participation status couldn’t load.</p><button type="button" onClick={() => void journey.refetch()} className="min-h-11 text-sm underline">Refresh status</button></div>
+                      <div role="status"><p className="text-sm text-white/65">Your reservation is saved. Your latest participation status couldn’t load.</p><button type="button" onClick={() => void journey.refetch()} className="min-h-11 text-sm underline">Refresh status</button></div>
                     ) : <ParticipantProofArtifact journey={journey.data} />}
                     {!isPast && journey.data && !journey.isError && !journey.data.proof_submission_id && !journey.data?.checked_in_at ? <details className="text-xs text-white/60"><summary className="min-h-11 cursor-pointer py-3">Reservation options</summary><button type="button" disabled={isJoining} onClick={handleJoin} className="min-h-11 underline">Cancel my RSVP</button></details> : null}
                   </div>
@@ -1204,7 +1204,7 @@ const SignedInMomentDetail = () => {
                 ) : null}
                 <section className="border-t border-white/10 py-6">
                   <p className="pr-world-kicker">What happens after</p>
-                  <p className="mt-3 text-sm leading-7 text-white/65">RSVP holds your place. Follow the check-in and proof requirements when you arrive. Once reviewed, any issued access or retained memory appears in your Vault.</p>
+                  <p className="mt-3 text-sm leading-7 text-white/65">RSVP holds your place. Follow the check-in steps when you arrive. Once confirmed, any access or memory from the Moment can appear in your Vault.</p>
                   <Link to="/card" className="pr-world-link mt-4 inline-flex min-h-11 items-center">See your PromoCard →</Link>
                 </section>
 
@@ -1289,10 +1289,10 @@ const SignedInMomentDetail = () => {
                   </section>
                 ) : (
                   <section className="rounded-3xl border border-dashed border-white/10 bg-white/[.02] p-6 sm:p-8">
-                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Recorded participant value</p>
-                    <h2 className="mt-2 text-xl font-extrabold text-white">No attendee perk is recorded for this Moment.</h2>
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Attendee perk</p>
+                    <h2 className="mt-2 text-xl font-extrabold text-white">No attendee perk is listed for this Moment.</h2>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
-                      PROMORANG will not invent a reward to make this page look complete. Any access, entitlement or retained value will appear only when backed by a recorded source.
+                      If the host adds a perk or access for attendees, it will appear here with the details.
                     </p>
                   </section>
                 )}

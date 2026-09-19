@@ -11,7 +11,7 @@ export default function DemandInbox() {
     <ExperienceShell
       eyebrow="MARKET OPPORTUNITIES"
       title="What is the market asking for?"
-      description="Inspect recorded demand before deciding what to put into market. A signal is evidence to evaluate, not a promise of conversion."
+      description="See what people are asking for before you decide whether and how to respond. Interest can guide a decision, but it is not a promise of conversion."
       backTo="/dashboard"
     >
       <MarketOpportunityInbox role={role} />

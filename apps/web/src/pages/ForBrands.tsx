@@ -116,7 +116,7 @@ export default function ForBrands() {
                 ))}
               </div>
             ) : (
-              <TicketPass kicker="Right now" title="Quiet here right now." detail="There aren’t any live demand questions in this market yet. Explore Discoveries, watch the market, or come back as interest forms." stub="0" stubLabel="Recorded" />
+              <TicketPass kicker="Right now" title="Quiet here right now." detail="There aren’t any live demand questions in this market yet. Explore Discoveries, watch the market, or come back as interest forms." stub="0" stubLabel="Now" />
             )}
           </div>
         </div>
@@ -147,10 +147,10 @@ export default function ForBrands() {
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">When someone saves, claims, attends or earns access, PromoCard gives them a place to carry that relationship forward—and gives your brand a reason to show up again.</p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               <TicketPass kicker="Before response" title="Where attention is forming" detail="Saved interests and demand signals can show you where attention is building before you activate." stub="SEE" stubLabel="Demand" />
-              <TicketPass kicker="After response" title="What happened next" detail="See the actions that followed your response." stub="PROOF" stubLabel="Outcome" />
+              <TicketPass kicker="After response" title="What happened next" detail="See the actions that followed your response." stub="RESULT" stubLabel="Outcome" />
             </div>
           </div>
-          <PromoCardFace holder="Participant PromoCard" available="A response is open" limit="Issued access only" places="The card can carry a real entitlement or return path when one has actually been created." action="Use this" interactive={false} />
+          <PromoCardFace holder="Participant PromoCard" available="A response is open" limit="Issued access only" places="The card can carry access or a return path when something has actually opened for that person." action="Use this" interactive={false} />
         </div>
       </section>
 
