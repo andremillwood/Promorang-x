@@ -7,7 +7,7 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { demoMoments } from "@/data/demo-moments";
-import { cultureEvents } from "@/data/culture-demo";
+import heroMoments from "@/assets/hero-moments.jpg";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -126,11 +126,6 @@ const SignedInExploreMoments = () => {
   const recurringCount = (momentsQuery.data?.moments || []).filter((moment) => moment.recurrence_enabled).length;
   const activeModeLabel =
     momentMode === "examples" ? "Example playbooks" : momentMode === "recurring" ? "Recurring moments" : "Now and next";
-  const matchingPreviews = exampleMoments.filter(
-    (moment) => activeCategory === "all" || moment.category === activeCategory,
-  );
-  const previewMoments = matchingPreviews.length > 0 ? matchingPreviews : exampleMoments;
-
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -148,7 +143,7 @@ const SignedInExploreMoments = () => {
       <section className="px-4 pb-8 pt-24 sm:pt-28">
         <div className="mx-auto max-w-7xl">
           <div className="relative min-h-[430px] overflow-hidden rounded-[2rem] border border-white/10 bg-black text-white shadow-elevated">
-            <img src={cultureEvents[0].image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
+            <img src={heroMoments} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_30%,rgba(255,106,0,.18),transparent_28%),linear-gradient(90deg,#050505_5%,rgba(5,5,5,.9)_52%,rgba(5,5,5,.28))]" />
             <div className="relative flex min-h-[430px] flex-col justify-end p-6 sm:p-9 lg:p-12">
               <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-black/45 px-3 py-1.5 backdrop-blur">
@@ -349,22 +344,18 @@ const SignedInExploreMoments = () => {
                 </Button>
               </div>
             ) : (
-              <section className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 sm:p-7">
+              <section className="overflow-hidden rounded-[1.75rem] border border-dashed border-border bg-card/50 p-8 text-center sm:p-12">
                 <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
-                      {activeCategory === "all" ? "While the live calendar fills" : `${categories.find((item) => item.value === activeCategory)?.label || activeCategory} inspiration`}
-                    </p>
-                    <h3 className="mt-2 text-3xl font-black tracking-[-0.04em]">Explore what a moment can become.</h3>
-                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">These previews show the kinds of rooms, rituals and rewards a PROMORANG Moment can carry.</p>
+                  <div className="mx-auto">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Recorded calendar</p>
+                    <h3 className="mt-2 text-3xl font-black tracking-[-0.04em]">No matching Moments are recorded.</h3>
+                    <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">The live calendar stays empty until a real Moment matches this view. Examples remain in their separate, labeled mode.</p>
                   </div>
-                  <Button asChild variant="outline">
-                    <Link to="/create/moment">Bring the first one to life <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                  </Button>
                 </div>
-                <MasonryGrid columns={{ sm: 1, md: 2, lg: 3 }} gap={20}>
-                  {previewMoments.map((moment) => <MomentCard key={moment.id} moment={moment as any} />)}
-                </MasonryGrid>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Button variant="outline" onClick={() => setMomentMode("examples")}><BookOpen className="mr-2 h-4 w-4" />View labeled examples</Button>
+                  <Button asChild><Link to="/create/moment">Create a Moment <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+                </div>
               </section>
             )}
           </div>

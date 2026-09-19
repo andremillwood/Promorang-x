@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import {
@@ -43,45 +43,14 @@ export default function ArlaCampaignHub() {
   const [dialPos, setDialPos] = useState<number>(0);
   const [dialState, setDialState] = useState<DialState>('cook');
 
-  // Interactive Taste-Off Ballot State
-  const [ballotVote, setBallotVote] = useState<'pasta' | 'mousse' | null>(() => {
-    try {
-      return localStorage.getItem('arla_tasteoff_vote') as 'pasta' | 'mousse' | null;
-    } catch {
-      return null;
-    }
-  });
-  const [stampActive, setStampActive] = useState<boolean>(false);
-  const [ticketSerial, setTicketSerial] = useState<string>(() => {
-    try {
-      return localStorage.getItem('arla_ticket_serial') || '';
-    } catch {
-      return '';
-    }
-  });
-  const [pastaCount, setPastaCount] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('arla_pasta_votes');
-      return saved ? parseInt(saved, 10) : 0;
-    } catch {
-      return 0;
-    }
-  });
-  const [mousseCount, setMousseCount] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('arla_mousse_votes');
-      return saved ? parseInt(saved, 10) : 0;
-    } catch {
-      return 0;
-    }
-  });
+  // Concept-only preference state. This is not persisted or counted as a vote.
+  const [ballotVote, setBallotVote] = useState<'pasta' | 'mousse' | null>(null);
 
   // Grocery Savings Basket Calculator
   const [cartonQty, setCartonQty] = useState<number>(2);
 
   // Recipe Pack Modal
   const [recipeModalOpen, setRecipeModalOpen] = useState(false);
-  const [activeRecipeTab, setActiveRecipeTab] = useState<number>(0);
 
   // Sound / Micro-feedback mock
   const playHaptic = () => {
@@ -102,34 +71,9 @@ export default function ArlaCampaignHub() {
   const handleVote = (choice: 'pasta' | 'mousse') => {
     if (ballotVote) return;
     playHaptic();
-    setStampActive(true);
     setBallotVote(choice);
-    const randSerial = 'ARLA-' + Math.random().toString(36).substring(2, 7).toUpperCase() + '-KGN';
-    setTicketSerial(randSerial);
-
-    try {
-      localStorage.setItem('arla_tasteoff_vote', choice);
-      localStorage.setItem('arla_ticket_serial', randSerial);
-    } catch { /* ignore */ }
-
-    if (choice === 'pasta') {
-      const newPasta = pastaCount + 1;
-      setPastaCount(newPasta);
-      try { localStorage.setItem('arla_pasta_votes', String(newPasta)); } catch { /* ignore */ }
-      toast.success('PASSPORT STAMPED: Team Spicy Rasta Pasta! 🍝 (+50 Pts)');
-    } else {
-      const newMousse = mousseCount + 1;
-      setMousseCount(newMousse);
-      try { localStorage.setItem('arla_mousse_votes', String(newMousse)); } catch { /* ignore */ }
-      toast.success('PASSPORT STAMPED: Team Chocolate Chip Mousse! 🍫 (+50 Pts)');
-    }
-
-    setTimeout(() => setStampActive(false), 800);
+    toast.success(choice === 'pasta' ? 'Rasta Pasta selected for this preview.' : 'Chocolate Mousse selected for this preview.');
   };
-
-  const totalBallots = pastaCount + mousseCount;
-  const pastaShare = totalBallots > 0 ? Math.round((pastaCount / totalBallots) * 100) : 0;
-  const mousseShare = totalBallots > 0 ? 100 - pastaShare : 0;
 
   // Grocery Savings Math
   const regPriceEach = 2700;
@@ -147,7 +91,7 @@ export default function ArlaCampaignHub() {
   };
 
   const shareWhatsApp = () => {
-    const text = `🔥 Hot Rasta Pasta vs ❄️ Cold Chocolate Mousse! Taste them free at PriceSmart Jamaica & cast your vote here: ${window.location.origin}/campaigns/arla-whip-and-cook`;
+    const text = `🔥 Hot Rasta Pasta vs ❄️ Cold Chocolate Mousse — explore the ARLA campaign concept: ${window.location.origin}/campaigns/arla-whip-and-cook`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -155,7 +99,7 @@ export default function ArlaCampaignHub() {
     <main className="min-h-screen bg-[#0d0c0a] text-[#f4efe5] selection:bg-[#ff5a1f] selection:text-white font-sans pb-36 relative overflow-x-hidden">
       <SEO
         title="PROMORANG × ARLA PRO — Stop Buying Two Different Creams"
-        description="Cook spicy hot dinners and whip fluffy cold desserts from one single carton. Free sampling roadshow active daily at PriceSmart Jamaica (111 Red Hills Road, 10am–8pm). Get 1L for J$1,200."
+        description="Explore a PROMORANG campaign concept for Arla Pro Whip & Cook. Schedule, availability, pricing, voting and rewards require a recorded activation before launch."
         image="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200"
         url={getSiteUrl("/campaigns/arla-whip-and-cook")}
       />
@@ -164,10 +108,10 @@ export default function ArlaCampaignHub() {
       <div className="bg-[#ff5a1f] text-black font-mono font-black text-xs uppercase tracking-wider py-2.5 px-4 border-b-2 border-black flex items-center justify-between overflow-x-auto gap-4 z-40 relative">
         <div className="flex items-center gap-3 shrink-0">
           <span className="h-2.5 w-2.5 bg-black rounded-full animate-ping" />
-          <span>FREE TASTING BOOTH OPEN TODAY AT PRICESMART (111 RED HILLS ROAD) · 10:00 AM – 8:00 PM</span>
+          <span>CAMPAIGN CONCEPT PREVIEW · SCHEDULE AND AVAILABILITY NOT YET RECORDED</span>
         </div>
         <div className="flex items-center gap-4 shrink-0 font-bold">
-          <span className="bg-black text-[#ffcf38] px-2.5 py-0.5 text-[11px]">ROADSHOW SPECIAL: J$1,200</span>
+          <span className="bg-black text-[#ffcf38] px-2.5 py-0.5 text-[11px]">PROPOSED ROADSHOW PRICE: J$1,200</span>
           <Link to="/proposals/arla-pro" className="hover:underline text-[10px]">
             FOR BUSINESS / BRAND PROPOSAL →
           </Link>
@@ -190,7 +134,7 @@ export default function ArlaCampaignHub() {
 
             <div className="flex items-center gap-2 bg-black/60 border border-white/15 px-3 py-1 text-[11px] text-[#25D366]">
               <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse" />
-              <span>CHEF SAMPLING ACTIVE NOW (10AM - 8PM)</span>
+              <span>CONCEPT MODE · NOT A LIVE AVAILABILITY SIGNAL</span>
             </div>
           </div>
 
@@ -350,38 +294,36 @@ export default function ArlaCampaignHub() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-black pb-6">
             <div>
               <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-[#ff5a1f]">
-                OFFICIAL ROADSHOW CITIZEN BALLOT
+                TASTE-OFF INTERACTION PREVIEW
               </p>
               <h2 className="font-serif text-4xl sm:text-6xl font-black text-white mt-1">
-                Which dish won your vote at PriceSmart?
+                Which dish would win your preference?
               </h2>
               <p className="text-xs text-[#d0c5b9] font-mono mt-1">
-                Tap your winner to physically stamp your roadshow ballot and lock in your vote.
+                Choose an option to preview the interaction. This page does not submit or count a vote.
               </p>
             </div>
 
-            <div className="font-mono bg-black border-2 border-black p-4 text-right shrink-0 shadow-[4px_4px_0_#ff5a1f]">
-              <span className="text-3xl font-black text-[#ffcf38]">{totalBallots}</span>
-              <p className="text-[10px] font-bold text-white/50 uppercase">Stamped Ballots Cast</p>
+            <div className="max-w-xs border-2 border-black bg-black p-4 text-right font-mono shadow-[4px_4px_0_#ff5a1f]">
+              <p className="text-[10px] font-bold uppercase leading-5 text-white/60">No ballot ledger is connected. No points, ticket, or aggregate result is issued here.</p>
             </div>
           </div>
 
           {/* Physical Stamped Ballot Board */}
           <div className="bg-[#f4efe5] text-[#11100e] p-6 sm:p-10 border-2 border-black shadow-[16px_16px_0_#ff5a1f] relative overflow-hidden font-mono">
             
-            {/* Ink Stamp Overlay Effect when voted */}
+            {/* Preview selection marker. It is intentionally not a verification stamp. */}
             {ballotVote && (
               <div className="absolute top-8 right-8 z-20 pointer-events-none transform rotate-[-12deg] animate-in zoom-in-50 duration-300">
                 <div className="border-4 border-dashed border-red-700 text-red-700 font-mono font-black text-xl sm:text-2xl px-6 py-2 uppercase tracking-widest bg-red-100/90 shadow-lg">
-                  ★ VERIFIED TASTE VOTE STAMPED ★
-                  <span className="block text-[10px] text-center">{ticketSerial}</span>
+                  ★ PREVIEW PREFERENCE SELECTED ★
                 </div>
               </div>
             )}
 
             <div className="flex justify-between items-center border-b-2 border-black pb-4 text-xs font-black">
-              <span>KINGSTON SAMPLING BALLOT № {ticketSerial || '0823-PENDING'}</span>
-              <span className="bg-black text-white px-2.5 py-1">111 RED HILLS ROAD</span>
+              <span>INTERACTION MOCKUP · NOT A RECORDED BALLOT</span>
+              <span className="bg-black text-white px-2.5 py-1">CONCEPT LOCATION: 111 RED HILLS ROAD</span>
             </div>
 
             {/* Contender 1 vs Contender 2 Split Cards */}
@@ -417,18 +359,6 @@ export default function ArlaCampaignHub() {
                 </div>
 
                 <div className="pt-6 space-y-3">
-                  {ballotVote && (
-                    <div className="space-y-1 text-xs font-bold">
-                      <div className="flex justify-between">
-                        <span>{pastaShare}% FAVOURITE</span>
-                        <span>{pastaCount} VOTES</span>
-                      </div>
-                      <div className="h-3 w-full bg-black/20 border border-black overflow-hidden">
-                        <div className="h-full bg-black transition-all duration-500" style={{ width: `${pastaShare}%` }} />
-                      </div>
-                    </div>
-                  )}
-
                   <button
                     disabled={!!ballotVote}
                     className={`w-full py-3.5 text-xs font-black uppercase tracking-wider border-2 border-black cursor-pointer transition ${
@@ -437,7 +367,7 @@ export default function ArlaCampaignHub() {
                         : 'bg-black text-white hover:bg-[#ff5a1f] hover:text-black'
                     }`}
                   >
-                    {ballotVote === 'pasta' ? '✓ STAMPED AS YOUR WINNER' : 'STAMP BALLOT FOR RASTA PASTA'}
+                    {ballotVote === 'pasta' ? '✓ SELECTED IN THIS PREVIEW' : 'PREVIEW RASTA PASTA SELECTION'}
                   </button>
                 </div>
               </div>
@@ -472,18 +402,6 @@ export default function ArlaCampaignHub() {
                 </div>
 
                 <div className="pt-6 space-y-3">
-                  {ballotVote && (
-                    <div className="space-y-1 text-xs font-bold">
-                      <div className="flex justify-between">
-                        <span>{mousseShare}% FAVOURITE</span>
-                        <span>{mousseCount} VOTES</span>
-                      </div>
-                      <div className="h-3 w-full bg-black/20 border border-black overflow-hidden">
-                        <div className="h-full bg-black transition-all duration-500" style={{ width: `${mousseShare}%` }} />
-                      </div>
-                    </div>
-                  )}
-
                   <button
                     disabled={!!ballotVote}
                     className={`w-full py-3.5 text-xs font-black uppercase tracking-wider border-2 border-black cursor-pointer transition ${
@@ -492,7 +410,7 @@ export default function ArlaCampaignHub() {
                         : 'bg-black text-white hover:bg-[#ffcf38] hover:text-black'
                     }`}
                   >
-                    {ballotVote === 'mousse' ? '✓ STAMPED AS YOUR WINNER' : 'STAMP BALLOT FOR CHOCOLATE MOUSSE'}
+                    {ballotVote === 'mousse' ? '✓ SELECTED IN THIS PREVIEW' : 'PREVIEW CHOCOLATE MOUSSE SELECTION'}
                   </button>
                 </div>
               </div>
@@ -502,8 +420,8 @@ export default function ArlaCampaignHub() {
             {/* Ballot Footer Sharing Bar */}
             <div className="border-t-2 border-black pt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
               <div>
-                <span className="font-black text-black block">PASSPORT CITIZEN ACTION:</span>
-                <p className="text-[#554e45]">Invite family or foodie friends to sample and vote before 8:00 PM.</p>
+                <span className="font-black text-black block">SHARE THE CONCEPT:</span>
+                <p className="text-[#554e45]">Share this campaign preview without representing a live vote or sampling schedule.</p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -511,13 +429,13 @@ export default function ArlaCampaignHub() {
                   onClick={shareWhatsApp}
                   className="px-4 py-2 bg-[#25D366] text-black font-black uppercase text-xs border border-black shadow-[2px_2px_0_#000] cursor-pointer"
                 >
-                  SHARE TO WHATSAPP
+                  SHARE PREVIEW
                 </button>
                 <button
                   onClick={copyShareLink}
                   className="px-4 py-2 bg-black text-white font-black uppercase text-xs border border-black hover:bg-neutral-800 cursor-pointer"
                 >
-                  COPY BALLOT LINK
+                  COPY PREVIEW LINK
                 </button>
               </div>
             </div>
@@ -539,7 +457,7 @@ export default function ArlaCampaignHub() {
               Interactive Grocery Basket Calculator
             </h2>
             <p className="text-xs text-white/60">
-              See what switching to Arla Pro at PriceSmart this week saves your household budget:
+              Model the proposal assumptions below. This is not a live retailer price or savings quote.
             </p>
           </div>
 
@@ -595,7 +513,7 @@ export default function ArlaCampaignHub() {
               </div>
 
               <div className="p-3 bg-emerald-950/40 border border-emerald-500/40">
-                <span className="text-[9px] text-emerald-400 block font-bold">PRICESMART ROADSHOW</span>
+                <span className="text-[9px] text-emerald-400 block font-bold">PROPOSED ROADSHOW PRICE</span>
                 <strong className="text-2xl font-black text-emerald-400 font-sans">J${roadshowTotal.toLocaleString()}</strong>
                 <span className="text-[10px] text-emerald-300 block font-bold mt-0.5">J$1,200 per 1L</span>
               </div>
@@ -605,7 +523,7 @@ export default function ArlaCampaignHub() {
             <div className="p-5 bg-black border-2 border-[#25D366] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block">
-                  YOUR IMMEDIATE GROCERY SAVINGS
+                  ILLUSTRATIVE PRICE DIFFERENCE
                 </span>
                 <p className="text-3xl font-black text-white font-serif font-sans mt-0.5">
                   Save J${savingsTotal.toLocaleString()} In Your Pocket (56%)
@@ -616,7 +534,7 @@ export default function ArlaCampaignHub() {
                 onClick={() => document.getElementById('location-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="px-6 py-3.5 bg-[#25D366] text-black font-black uppercase text-xs tracking-wider border border-black shadow-[3px_3px_0_#fff] cursor-pointer shrink-0"
               >
-                GRAB AT PRICESMART TODAY →
+                REVIEW CONCEPT LOCATION →
               </button>
             </div>
 
@@ -694,7 +612,7 @@ export default function ArlaCampaignHub() {
             <div>
               <span className="text-xs font-black uppercase text-[#ff5a1f] tracking-widest">COORDINATES & SAMPLING STATION</span>
               <h2 className="font-serif text-4xl sm:text-5xl font-black text-white font-sans mt-1">PriceSmart Jamaica</h2>
-              <p className="text-xs text-white/60 mt-1">111 Red Hills Road, Kingston 19 · Daily 10:00 AM – 8:00 PM</p>
+              <p className="text-xs text-white/60 mt-1">Concept location: 111 Red Hills Road, Kingston 19 · proposed hours 10:00 AM – 8:00 PM</p>
             </div>
             <Link
               to="/moments/00000000-0000-0000-0002-000000000060"
@@ -708,22 +626,22 @@ export default function ArlaCampaignHub() {
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#ff5a1f] font-bold">STATION 01</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Hot Rasta Pasta</h4>
-              <p className="text-[11px] text-white/60">Try fresh from the chef skillet (+40 Pts).</p>
+              <p className="text-[11px] text-white/60">Proposed chef-skillet sampling station. No reward is configured.</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#ffcf38] font-bold">STATION 02</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Whipped Mousse</h4>
-              <p className="text-[11px] text-white/60">Sample the fluffy cold dessert (+40 Pts).</p>
+              <p className="text-[11px] text-white/60">Proposed cold-dessert sampling station. No reward is configured.</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#25D366] font-bold">STATION 03</span>
               <h4 className="text-sm font-bold text-white font-serif font-sans">Stamp Passport</h4>
-              <p className="text-[11px] text-white/60">Vote online to unlock 5 recipes (+50 Pts).</p>
+              <p className="text-[11px] text-white/60">Interaction concept only; no vote, unlock, or points are issued.</p>
             </div>
             <div className="p-4 bg-black border border-white/20 space-y-1">
               <span className="text-[10px] text-[#ff5a1f] font-bold">STATION 04</span>
-              <h4 className="text-sm font-bold text-white font-serif font-sans">Get J$1,200 Cartons</h4>
-              <p className="text-[11px] text-white/60">Promoters verify purchase on site (+60 Pts).</p>
+              <h4 className="text-sm font-bold text-white font-serif font-sans">Proposed J$1,200 Cartons</h4>
+              <p className="text-[11px] text-white/60">Purchase verification requires a recorded commerce flow; none is active here.</p>
             </div>
           </div>
 

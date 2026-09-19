@@ -3,6 +3,15 @@ const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { supabase } = require('../lib/supabase');
 
+const ALLOW_DEMO_O2O = process.env.NODE_ENV !== 'production' && process.env.USE_DEMO_CONTENT === 'true';
+
+router.use((req, res, next) => {
+  if (!supabase && !ALLOW_DEMO_O2O) {
+    return res.status(503).json({ success: false, error: 'Mission source unavailable' });
+  }
+  next();
+});
+
 const isMissingRelationError = (error) => {
   if (!error) return false;
   return error.code === '42P01' || /relation .* does not exist/i.test(error.message || '');
@@ -93,27 +102,27 @@ function buildO2OFeedPayload(linkRows = [], contentRows = [], momentRows = []) {
         id: link.id,
         entry_action_types: link.entry_action_types || [],
         physical_unlock_rules: link.physical_unlock_rules || null,
-        o2o_conversion_rate: Number(link.o2o_conversion_rate || 0),
+        o2o_conversion_rate: link.o2o_conversion_rate == null ? null : Number(link.o2o_conversion_rate),
         is_sponsored: !!link.is_sponsored,
         content: {
           id: content.id,
           title: content.title,
           description: content.description,
           platform: content.platform || 'external',
-          media_url: content.media_url || '/assets/demo/tiktok-drop.png',
-          creator_name: content.creator_name || content.creator_display_name || 'Promorang Creator',
-          creator_avatar: content.creator_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
-          platform_url: content.platform_url || content.media_url || 'https://promorang.co',
+          media_url: content.media_url || null,
+          creator_name: content.creator_name || content.creator_display_name || null,
+          creator_avatar: content.creator_avatar || null,
+          platform_url: content.platform_url || content.media_url || null,
         },
         moment: {
           id: moment.id,
           title: moment.title,
           venue_name: moment.venue_name,
           location: moment.location,
-          pulse_state: moment.pulse_state || 'forming',
+          pulse_state: moment.pulse_state || null,
           reward: moment.reward,
           starts_at: moment.starts_at,
-          gathering_threshold: moment.gathering_threshold || 0,
+          gathering_threshold: moment.gathering_threshold ?? null,
         },
       };
     })
@@ -196,7 +205,7 @@ async function getActiveMomentRows() {
 
 router.get('/feed', async (req, res) => {
   try {
-    if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+    if (ALLOW_DEMO_O2O) {
       return res.json({ success: true, feed: DEMO_O2O_FEED });
     }
 
@@ -238,9 +247,9 @@ router.get('/feed', async (req, res) => {
 
     const normalizedContentItems = (contentItems || []).map((item) => ({
       ...item,
-      creator_name: 'Promorang Creator',
-      creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
-      platform_url: item.media_url || 'https://promorang.co',
+      creator_name: null,
+      creator_avatar: null,
+      platform_url: item.media_url || null,
     }));
 
     const feed = buildO2OFeedPayload(links, normalizedContentItems, moments || []).map((item) => {
@@ -258,7 +267,7 @@ router.get('/missions/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+    if (ALLOW_DEMO_O2O) {
       const mission = DEMO_O2O_FEED.find((item) => item.id === id || item.content.id === id || item.moment.id === id) || null;
       if (!mission) {
         return res.status(404).json({ success: false, error: 'Mission not found' });
@@ -298,9 +307,9 @@ router.get('/missions/:id', async (req, res) => {
 
     const [missionBase] = buildO2OFeedPayload([link], [{
       ...content,
-      creator_name: 'Promorang Creator',
-      creator_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=creator',
-      platform_url: content.media_url || 'https://promorang.co',
+      creator_name: null,
+      creator_avatar: null,
+      platform_url: content.media_url || null,
     }], [moment]);
     const { data: contentMission, error: contentMissionError } = await supabase
       .from('content_missions')
@@ -327,7 +336,7 @@ router.use(requireAuth);
 
 router.get('/creator-summary', async (req, res) => {
   try {
-    if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+    if (ALLOW_DEMO_O2O) {
       return res.json({
         success: true,
         summary: {
@@ -527,7 +536,7 @@ router.get('/creator-summary', async (req, res) => {
 
 router.get('/links/mine', async (req, res) => {
   try {
-    if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+    if (ALLOW_DEMO_O2O) {
       return res.json({ success: true, links: DEMO_O2O_FEED });
     }
 
@@ -595,7 +604,7 @@ router.get('/links/mine', async (req, res) => {
 
 router.get('/manage/options', async (req, res) => {
   try {
-    if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+    if (ALLOW_DEMO_O2O) {
       return res.json({
         success: true,
         options: {
@@ -643,7 +652,7 @@ router.post('/links', async (req, res) => {
       return res.status(400).json({ success: false, error: 'content_item_id and moment_id are required' });
     }
 
-    if (!supabase || process.env.USE_DEMO_CONTENT === 'true') {
+    if (ALLOW_DEMO_O2O) {
       return res.status(201).json({
         success: true,
         link: {

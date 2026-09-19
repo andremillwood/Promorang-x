@@ -16,19 +16,14 @@ import { Badge } from '@/components/ui/badge';
 import { GuidanceDisclosure } from '@/components/guidance/GuidanceDisclosure';
 import { 
   Search, 
-  Filter, 
   TrendingUp, 
   Gem, 
   Loader2, 
   TriangleAlert, 
-  Route, 
   WalletCards,
   Layers,
-  ArrowUpDown,
-  Crown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { cultureImages } from '@/data/culture-demo';
 import { useI18n } from '@/i18n/I18nContext';
 
 interface Piece {
@@ -172,6 +167,7 @@ export function TradingMarketplace() {
   const [tradeAction, setTradeAction] = useState<'buy' | 'sell'>('buy');
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [gemsBalance, setGemsBalance] = useState(0);
+  const [gemsBalanceAvailable, setGemsBalanceAvailable] = useState(false);
   const [userPieces, setUserPieces] = useState(0);
 
   const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://api.promorang.co').replace(/\/$/, '');
@@ -215,6 +211,7 @@ export function TradingMarketplace() {
   };
 
   const fetchGemsBalance = async () => {
+    setGemsBalanceAvailable(false);
     try {
       const response = await fetch(apiUrl('/pieces/gems/balance'), {
         headers: {
@@ -224,10 +221,14 @@ export function TradingMarketplace() {
       
       if (response.ok) {
         const data = await response.json();
-        setGemsBalance(data.balance || 0);
+        setGemsBalance(Number(data.balance ?? 0));
+        setGemsBalanceAvailable(true);
+      } else {
+        throw new Error(`Balance request failed with ${response.status}`);
       }
     } catch {
       setGemsBalance(0);
+      setGemsBalanceAvailable(false);
     }
   };
 
@@ -290,8 +291,7 @@ export function TradingMarketplace() {
     <div className="min-h-screen bg-background text-foreground pb-16">
       {/* Header Banner */}
       <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-neutral-900/90 via-black to-background">
-        <img src={cultureImages.momentConcert} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(34,211,238,0.16),transparent_32%),radial-gradient(circle_at_15%_80%,rgba(139,92,246,0.14),transparent_38%)]" />
         
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-10 pt-16 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -303,18 +303,13 @@ export function TradingMarketplace() {
                 Pieces Marketplace
               </h1>
               <p className="max-w-2xl text-sm sm:text-base text-muted-foreground">
-                Discover, trade, and syndicate fractional pieces in premier nightlife moments, cultural venues, creators, and content drops with instant Gem settlement.
+                Review recorded piece pools and request trades through the marketplace. A displayed quote is not a completed settlement.
               </p>
 
               <div className="flex flex-wrap gap-2 pt-2">
                 <Button asChild variant="outline" size="sm" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 font-bold text-xs">
                   <Link to="/portfolio" className="flex items-center gap-1.5">
                     <WalletCards className="w-3.5 h-3.5" /> My Portfolio
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm" className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10 font-bold text-xs">
-                  <Link to="/pieces/moment/iluvhiphop_moment/manage" className="flex items-center gap-1.5">
-                    <Crown className="w-3.5 h-3.5" /> Creator Studio
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="font-bold text-xs">
@@ -449,6 +444,7 @@ export function TradingMarketplace() {
         onClose={() => setIsTradeModalOpen(false)}
         onSuccess={handleTradeSuccess}
         gemsBalance={gemsBalance}
+        gemsBalanceAvailable={gemsBalanceAvailable}
         userPieces={userPieces}
       />
     </div>
