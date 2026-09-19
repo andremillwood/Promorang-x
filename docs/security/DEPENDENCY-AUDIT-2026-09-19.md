@@ -24,6 +24,16 @@ The two critical findings are development/tooling paths, not production runtime 
 4. Upgrade Expo as its own mobile migration. npm's proposed fixes move the application from Expo 54 to Expo 57 and must not be applied as a blind audit fix.
 5. Upgrade Vercel CLI/tooling separately to clear the transitive `tar`, `undici`, and builder findings.
 
+## Runtime exposure map
+
+- Express is the primary backend router and is imported broadly across the API. Its compatible 4.x patch is the highest-priority production update.
+- Axios is used for outbound profile/oEmbed verification in `scoutService` and AI verification calls. Treat its SSRF/proxy advisories as production-relevant.
+- Resend is the active email transport for account, referral, RSVP, campaign, payout and support messages. Upgrade it with the email service test group.
+- `@hono/node-server` and `hono` are declared by the backend package but are not imported anywhere in backend source. Remove those declarations during the next lockfile regeneration rather than upgrading unused runtime code.
+- React Router is central to the web application and therefore requires a dedicated migration rather than an audit-driven major bump.
+
+An offline uninstall of the unused Hono declarations was attempted, but npm could not regenerate the workspace lockfiles because unrelated package metadata was not present in the local cache. No manifest-only edit was left behind.
+
 ## Decision
 
 Do not run `npm audit fix --force`. The suggested remediation includes multiple framework and tooling major upgrades. Each group needs its own compatibility pass and validation surface.
