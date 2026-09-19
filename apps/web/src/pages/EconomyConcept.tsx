@@ -617,8 +617,6 @@ const conceptData: Record<
   },
 };
 
-function PromoCardDemo};
-
 function PromoCardDemo() {
   const [applied, setApplied] = useState(false);
   return (
