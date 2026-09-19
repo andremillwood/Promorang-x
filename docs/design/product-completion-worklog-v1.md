@@ -512,6 +512,7 @@ Latest closed findings:
 - **T-044 — Creator release routes mixed seeded compatibility, false-zero failures and premature publish success.**
 - **T-045 — Developer console fabricated live credentials and API execution.**
 - **T-046 — Brand analytics and shared media fabricated verification, evidence and performance proof.**
+- **T-047 — Identity visibility claimed privacy changes without a durable write.**
 
 Closed direction:
 
@@ -548,7 +549,9 @@ Closed direction:
 - Developer API keys now come from the recorded authenticated key store only; browser-generated “live” secrets, demo revoke success and wildcard mock API-key authentication are removed;
 - the public developer playground is explicitly illustrative rather than claiming static payloads are live API execution;
 - the legacy Brand analytics route now converges on the canonical source-backed Evidence Pack rather than synthetic verified-action/evidence feeds;
-- Brand evidence source failures stay unavailable/unknown instead of becoming zero, and shared Moment/Discovery galleries no longer invent verification or reaction counts.
+- Brand evidence source failures stay unavailable/unknown instead of becoming zero, and shared Moment/Discovery galleries no longer invent verification or reaction counts;
+- Identity Marker public/private controls now write the recorded owner-scoped visibility field, while source failure remains unavailable rather than becoming empty identity history;
+- legacy public-profile rendering no longer depends on the viewer's private journey/identity queries or enables follow mutations before follow state is known.
 
 ### NEXT ACTION
 

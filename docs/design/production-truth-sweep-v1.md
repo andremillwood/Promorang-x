@@ -1262,6 +1262,30 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-047 — Identity visibility claimed privacy changes without a durable write
+
+Files:
+- `apps/web/src/components/human/IdentityMarkers.tsx`
+- `apps/web/src/hooks/useStakeholderLeverage.ts`
+- `apps/web/src/components/discovery/PublicProfileView.tsx`
+
+Finding:
+- the confirmed Identity Marker visibility switch changed no database state at all; its handler contained a TODO but still toasted “Made public” / “Made private”;
+- identity-marker source failure was rendered through the same path as an empty identity history;
+- marker confirmation updated by marker id without also scoping the write to the authenticated owner in the client mutation;
+- the legacy PublicProfileView loaded the viewer’s private journeys and identity markers while viewing another profile, waited on those unrelated private queries, then did not use them in the rendered target profile;
+- that public-profile component also treated a profile-source failure as “not found or private” and could expose Follow/Following actions before a reliable follow-state read.
+
+Resolution:
+- Identity Marker visibility now writes `is_public` through an authenticated owner-scoped mutation and reports success only after the database update succeeds;
+- marker confirmation is owner-scoped and now exposes mutation failure instead of silently leaving the editor in an ambiguous state;
+- identity-marker read failure renders unavailable with retry rather than “your identity is forming”;
+- PublicProfileView no longer queries the viewer’s private journeys/markers for another person’s profile;
+- profile-source failure is distinct from not-found/private, and follow mutation controls remain disabled when follow state is loading or unavailable.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

@@ -240,14 +240,18 @@ export function useStakeholderLeverage() {
   // Confirm identity marker
   const confirmIdentityMarker = useMutation({
     mutationFn: async ({ markerId, reflection }: { markerId: string; reflection: string }) => {
+      if (!user) throw new Error('Sign in to update identity markers');
+
       const { data, error } = await supabase
         .from('user_identity_markers')
-        .update({ 
-          is_user_confirmed: true, 
+        .update({
+          is_user_confirmed: true,
           user_reflection: reflection,
           updated_at: new Date().toISOString()
         })
         .eq('id', markerId)
+        .eq('user_id', user.id)
+        .select()
         .single();
       if (error) throw error;
       return data;
@@ -255,6 +259,36 @@ export function useStakeholderLeverage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-identity-markers'] });
       toast.success('Identity marker confirmed');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Identity marker could not be confirmed');
+    },
+  });
+
+  const setIdentityMarkerVisibility = useMutation({
+    mutationFn: async ({ markerId, isPublic }: { markerId: string; isPublic: boolean }) => {
+      if (!user) throw new Error('Sign in to update identity visibility');
+
+      const { data, error } = await supabase
+        .from('user_identity_markers')
+        .update({
+          is_public: isPublic,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', markerId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as UserIdentityMarker;
+    },
+    onSuccess: (marker) => {
+      queryClient.invalidateQueries({ queryKey: ['user-identity-markers'] });
+      toast.success(marker.is_public ? 'Identity marker is public' : 'Identity marker is private');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Identity visibility could not be updated');
     },
   });
 
@@ -354,6 +388,7 @@ export function useStakeholderLeverage() {
     useUserIdentityMarkers,
     updateJourneyStory,
     confirmIdentityMarker,
+    setIdentityMarkerVisibility,
     // Corporate
     useCorporateAnalytics,
     useCustomerPredictions,

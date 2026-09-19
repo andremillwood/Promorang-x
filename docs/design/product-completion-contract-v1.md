@@ -374,7 +374,7 @@ Exit gate:
 
 ## C12 — Profiles, identity and directories
 
-Status: **In progress; public attendance, rating, venue provenance, creator-directory and profile/social truth hardened**
+Status: **In progress; public attendance, rating, venue provenance, creator-directory, profile/social and identity-visibility truth hardened**
 
 Deliver:
 - participant profile;
@@ -517,7 +517,7 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **In progress; Discover/Found, creator release, developer credential/execution and Brand evidence/social-proof truth hardened**
+Status: **In progress; Discover/Found, creator release, developer credential/execution, Brand evidence/social-proof and identity-privacy truth hardened**
 
 Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 
