@@ -465,7 +465,7 @@ const Wallet = () => {
                 </div>
               )}
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-xs text-muted-foreground">
-                <span className="font-semibold text-primary">Unlocks:</span> Funded Moments, gated drops, and proof-backed experiences.
+                <span className="font-semibold text-primary">Unlocks:</span> Funded Moments, gated drops, and experiences that require confirmation.
               </div>
               <Button
                 className="w-full font-bold text-xs shadow-md"

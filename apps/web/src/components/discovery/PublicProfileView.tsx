@@ -92,9 +92,9 @@ export function PublicProfileView({ userId }: PublicProfileViewProps) {
                 
                 <div className="flex gap-2">
                   {followingLoading ? (
-                    <Button variant="outline" disabled>Checking follow state…</Button>
+                    <Button variant="outline" disabled>Checking follow…</Button>
                   ) : followingError ? (
-                    <Button variant="outline" disabled>Follow state unavailable</Button>
+                    <Button variant="outline" disabled>Follow unavailable</Button>
                   ) : isFollowing ? (
                     <Button variant="outline" onClick={() => unfollowUser.mutate(userId)}>
                       <UserCheck className="w-4 h-4 mr-1" />

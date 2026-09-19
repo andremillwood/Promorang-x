@@ -17,6 +17,8 @@ import { getSiteUrl, slugifySegment } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import type { CanonicalMoment, MomentLifecycle } from "@/services/moment-feed";
+import { useAuth } from "@/contexts/AuthContext";
+import { PublicMomentsExperience } from "@/components/discovery/PublicMomentsExperience";
 
 const categories = [
   { value: "all", label: "All categories", emoji: "✨" },
@@ -35,7 +37,7 @@ const exampleMoments = demoMoments.slice(0, 3).map((moment) => ({
   content_origin: "demo" as const,
 }));
 
-const ExploreMoments = () => {
+const SignedInExploreMoments = () => {
   const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -243,7 +245,7 @@ const ExploreMoments = () => {
               </div>
               <p className="text-sm text-muted-foreground">
                 {momentMode === "examples"
-                  ? "Examples explain how a moment can work without pretending to be live supply."
+                  ? "Examples show how a Moment can work. They are clearly marked so you can tell them apart from what’s live."
                   : momentMode === "recurring"
                     ? "Weekly, monthly, and repeatable moments build familiarity, standing, and return behavior."
                     : "Browse what people can join, attend, prove, and turn into value."}
@@ -295,7 +297,7 @@ const ExploreMoments = () => {
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Example playbook</p>
                     <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-foreground">Learn the pattern before taking action</h2>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                      These examples teach action, proof, reward, and memory patterns. They are not counted as live supply.
+                      Use these examples for inspiration, then build a Moment people can actually join.
                     </p>
                   </div>
                   <Button asChild variant="outline">
@@ -315,7 +317,7 @@ const ExploreMoments = () => {
               <div role="alert" className="rounded-3xl border border-amber-500/25 bg-amber-500/5 px-6 py-12 text-center">
                 <Clock className="mx-auto h-8 w-8 text-amber-500" />
                 <h3 className="mt-4 text-2xl font-black">We can’t confirm the live calendar right now</h3>
-                <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">We will not substitute examples or stale listings. Try again to load verified current moments.</p>
+                <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">Try again in a moment.</p>
                 <Button className="mt-5" variant="outline" onClick={() => momentsQuery.refetch()}>Try again</Button>
               </div>
             ) : filteredMoments.length > 0 ? (
@@ -354,7 +356,7 @@ const ExploreMoments = () => {
                       {activeCategory === "all" ? "While the live calendar fills" : `${categories.find((item) => item.value === activeCategory)?.label || activeCategory} inspiration`}
                     </p>
                     <h3 className="mt-2 text-3xl font-black tracking-[-0.04em]">Explore what a moment can become.</h3>
-                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">These are clearly marked previews, built to show the kinds of rooms, rituals, and rewards Promorang can carry.</p>
+                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">These previews show the kinds of rooms, rituals and rewards a PROMORANG Moment can carry.</p>
                   </div>
                   <Button asChild variant="outline">
                     <Link to="/create/moment">Bring the first one to life <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -416,7 +418,7 @@ const ExploreMoments = () => {
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Linked content</p>
                     <h2 className="mt-2 text-xl font-black tracking-[-0.03em] text-foreground">Media with a moment path</h2>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                      Content belongs here when it points people toward a place, activity, or proof path.
+                      Content belongs here when it points people toward a place, activity or next move.
                     </p>
                   </div>
                   <Button asChild variant="outline" size="sm" className="rounded-full">
@@ -435,6 +437,15 @@ const ExploreMoments = () => {
       </section>
     </div>
   );
+};
+
+
+const ExploreMoments = () => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <div className="min-h-screen bg-[#050505]" />;
+  }
+  return user ? <SignedInExploreMoments /> : <PublicMomentsExperience />;
 };
 
 export default ExploreMoments;

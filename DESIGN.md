@@ -6,7 +6,9 @@ Current completion status and remaining release work are governed by [`docs/desi
 
 Implementation is governed by [`docs/design/a-plus-platform-execution-plan.md`](docs/design/a-plus-platform-execution-plan.md). `DESIGN.md` defines the product law; the execution plan defines the workstreams, sequence, release gates, and evidence required to meet it.
 
-The PromoCard-centered world layer — Kingston After Dark / The City Wakes — is specified in [`docs/design/promocard-world-experience-v1.md`](docs/design/promocard-world-experience-v1.md). Implementation notes for the first vertical slice live in [`docs/design/world-layer-implementation-2026-09-05.md`](docs/design/world-layer-implementation-2026-09-05.md). The cultural strategy layer (Four Houses, Resonance, Influence, Return Chains) is specified in [`docs/design/promorang-world-system-v2.md`](docs/design/promorang-world-system-v2.md). The world layer must increase PromoCard usefulness. It must never become a second product. PromoCard is never a secondary module: participant entry surfaces must treat it as a primary product object and primary action alongside the person's immediate move.
+The PromoCard-centered world layer — Kingston After Dark / The City Wakes — is specified in [`docs/design/promocard-world-experience-v1.md`](docs/design/promocard-world-experience-v1.md).
+
+Public marketing expression is governed by [`docs/design/marketing-current-return-visual-system-v1.md`](docs/design/marketing-current-return-visual-system-v1.md): external references may inform density and art direction, while PROMORANG identity must come from Current, trajectory, Signal, tangible object, consequence receipt and Return physics. Implementation notes for the first vertical slice live in [`docs/design/world-layer-implementation-2026-09-05.md`](docs/design/world-layer-implementation-2026-09-05.md). The cultural strategy layer (Four Houses, Resonance, Influence, Return Chains) is specified in [`docs/design/promorang-world-system-v2.md`](docs/design/promorang-world-system-v2.md). The world layer must increase PromoCard usefulness. It must never become a second product. PromoCard is never a secondary module: participant entry surfaces must treat it as a primary product object and primary action alongside the person's immediate move.
 
 It exists because "better dashboard sections" are not enough. Promorang must not become a polished stack of panels, metrics, and explanatory blocks. It should feel like a living social opportunity marketplace where real-world action creates proof, value, memory, and return behavior.
 
@@ -88,6 +90,30 @@ The sidebar or account menu can provide reliable access to these tools. They mus
 - **Promorang Orange (`#FF5500` / `#F97316`)** is the canonical primary color identifying primary actions, active state glows, and persuasion triggers. It anchors visual hierarchy across all screens.
 - **Unified Hero Architecture**: Never stack separate disconnected banner boxes above a page heading. Always integrate headlines, subheadlines, live proof tickers, primary CTAs, and progress rings into a single, cohesive, high-impact hero container.
 - **Accessible Everyman Language**: User-facing copy must avoid Wall-Street/crypto jargon ("Capital Pool", "Yield Multiplier", "Staking Ledger"). Use warm, everyday words ("Community Treat Vault", "Early Bird 3x Boost", "Post a Perk", "Saved Perks", "Your Wins").
+
+### 0.2.1 User-Facing Copy Law
+
+**Truth belongs in product behavior. Humanity belongs in the copy.**
+
+PROMORANG may use strict internal language for state, proof, eligibility, source records, ownership, inventory, attribution, and verification. Those concepts must not leak into customer-facing copy unless the user genuinely benefits from that precision.
+
+- Never expose database or implementation language such as “source-backed,” “authoritative record,” “production state,” “recorded object,” “directory source,” or “inventory source” in ordinary participant or stakeholder copy.
+- Enforce truth underneath the experience. If nothing exists, say “Nothing here yet,” not “No source-backed records exist.”
+- Participant copy should lead with curiosity, belonging, access, movement, and return.
+- Creator copy should lead with attention, influence, reputation, audience movement, and opportunity.
+- Merchant copy should lead with local demand, visits, offers, capacity, customers, and return behavior.
+- Brand copy should lead with market intelligence, activation, audience response, and measurable outcomes.
+- Host copy should lead with turnout, access, attendance, experience quality, and return.
+- Community copy should lead with belonging, shared interests, rituals, participation, and continuity.
+- Agency copy should lead with client clarity, orchestration, market signals, activation, and results.
+- Enterprise copy should lead with coordination, governance, consistency, roles, reporting, and program outcomes.
+- Error states should say what the person needs to know and what they can do next. Do not explain internal failure semantics.
+- Empty states should be honest, concise, and useful: acknowledge the absence, then offer the next meaningful move.
+- Words such as “verified,” “proof,” “eligibility,” and “attribution” are allowed when they communicate a meaningful user distinction. They should not be used merely to demonstrate that the implementation is rigorous.
+- Detailed state-machine precision belongs in operational surfaces, legal/compliance copy, Help when necessary, and internal documentation—not in persuasion copy.
+
+A useful test: **Would a normal user say this sentence, or is the product team explaining why the database is trustworthy?** If it is the latter, rewrite it.
+
 - Use subtle white borders, controlled amber/orange glows (`box-shadow: 0 0 30px rgba(255, 85, 0, 0.3)`), and restrained status colors.
 - Put editorial culture imagery in the product, not only on marketing pages.
 - Prefer rails, feeds, media cards, compact lists, and active objects over explanatory panel stacks.
@@ -2300,3 +2326,33 @@ Do not bolt uplift modules onto old pages. Recompose the page around the journey
 If a design looks like it could belong to any SaaS dashboard, it is not Promorang yet.
 
 Make it feel like people, places, moments, proof, and value are moving in the same world.
+
+
+## Public object destination law
+
+Collection pages help people browse. Object pages help people care, act, and continue exploring.
+
+Public objects use:
+`MEDIA → IDENTITY → CONTEXT → ACTION → DEPTH → RELATIONSHIPS → MORE`
+
+The primary question changes by object:
+- Discovery: Why should I know about this?
+- Moment: Why should I show up?
+- Offer: Why should I claim / use this?
+- Merchant: Why should I visit / buy / follow?
+- Scene: Why should I become part of this?
+
+### Signature-object semantic rule
+
+Signature objects should represent real product state whenever practical.
+- TicketPass is strongest when a real pass / access state exists.
+- PaperReceipt is strongest when a real consequence can be receipted.
+- PromoCard is strongest when showing a retained participant relationship.
+
+Do not use tickets, receipts, PromoCards, or other holdable objects merely as decorative containers for explanatory marketing copy on consumer object pages.
+
+Marketing surfaces may explain the system. Product object pages should let people experience it.
+
+### Public object density
+
+Object destinations should be information-rich and media-forward. Prefer real imagery, object metadata, host/place context, related objects, and onward discovery over large empty explanatory sections.

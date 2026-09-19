@@ -85,7 +85,7 @@ export default function ContentDropDetail() {
           {
             label: pays ? "Counts" : "Does not pay",
             value: pays
-              ? `+${Number(action.points_awarded ?? 0)} recorded contribution value`
+              ? `+${Number(action.points_awarded ?? 0)} contribution value`
               : "Sharing is not the payday",
             kind: "points",
           },
@@ -211,11 +211,11 @@ export default function ContentDropDetail() {
             </div>
 
             <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/[.045]">
-              <div className="border-b border-white/10 p-5 sm:p-6"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("dropDetail.context")}</p><h2 className="mt-2 font-serif text-3xl font-semibold">{t("dropDetail.contextTitle")}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{t("dropDetail.contextCopy")}</p>{contextQuery.error ? <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white hover:bg-white/10" onClick={() => contextQuery.refetch()}>Retry recorded context</Button> : null}</div>
+              <div className="border-b border-white/10 p-5 sm:p-6"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("dropDetail.context")}</p><h2 className="mt-2 font-serif text-3xl font-semibold">{t("dropDetail.contextTitle")}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{t("dropDetail.contextCopy")}</p>{contextQuery.error ? <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white hover:bg-white/10" onClick={() => contextQuery.refetch()}>Retry context</Button> : null}</div>
               <div className="grid gap-px bg-white/10 sm:grid-cols-2">
                 <div className="bg-[#0d0d0d] p-5">
                   <div className="flex items-center gap-2 text-primary"><MapPin className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.associatedMoment")}</span></div>
-                  {contextQuery.isLoading ? <p className="mt-4 text-sm text-white/40">Loading recorded context…</p> : contextQuery.error ? <p className="mt-4 text-sm text-red-200/70">Moment context unavailable.</p> : context?.moment ? <Link to={`/moments/${context.moment.id}`} className="group mt-4 block"><h3 className="text-xl font-black">{context.moment.title}</h3><p className="mt-1 text-sm text-white/45">{context.moment.location || t("dropDetail.openMoment")}</p><p className="mt-4 text-xs font-black text-primary">{t("dropDetail.fullMoment")}</p></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noMoment")}</p>}
+                  {contextQuery.isLoading ? <p className="mt-4 text-sm text-white/40">Loading context…</p> : contextQuery.error ? <p className="mt-4 text-sm text-red-200/70">Moment context unavailable.</p> : context?.moment ? <Link to={`/moments/${context.moment.id}`} className="group mt-4 block"><h3 className="text-xl font-black">{context.moment.title}</h3><p className="mt-1 text-sm text-white/45">{context.moment.location || t("dropDetail.openMoment")}</p><p className="mt-4 text-xs font-black text-primary">{t("dropDetail.fullMoment")}</p></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noMoment")}</p>}
                 </div>
                 <div className="bg-[#0d0d0d] p-5">
                   <div className="flex items-center gap-2 text-primary"><Users className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.stakeholders")}</span></div>
@@ -291,12 +291,12 @@ export default function ContentDropDetail() {
             </Card>
 
             {leaderboardQuery.isLoading ? (
-              <Card className="border-white/10 bg-white/[0.045] text-white"><CardContent className="p-4 text-sm text-white/50">Loading recorded contribution state…</CardContent></Card>
+              <Card className="border-white/10 bg-white/[0.045] text-white"><CardContent className="p-4 text-sm text-white/50">Loading contribution activity…</CardContent></Card>
             ) : leaderboardQuery.error ? (
               <Card className="border-red-500/20 bg-red-500/5 text-white">
                 <CardContent className="p-4 text-sm text-white/60">
-                  <p className="font-bold text-white">Contribution state unavailable.</p>
-                  <p className="mt-1">PROMORANG will not turn a leaderboard-source failure into zero activity.</p>
+                  <p className="font-bold text-white">Contribution activity unavailable.</p>
+                  <p className="mt-1">We couldn’t load leaderboard activity right now.</p>
                   <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white hover:bg-white/10" onClick={() => leaderboardQuery.refetch()}>Retry contribution source</Button>
                 </CardContent>
               </Card>

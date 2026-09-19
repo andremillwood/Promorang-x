@@ -1,311 +1,111 @@
-import { useState } from "react";
+import { ArrowRight, Building2, Compass, ShieldCheck, Sparkles, Store, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Sparkles,
-  Users,
-  Building2,
-  Megaphone,
-  CheckCircle2,
-  Flame,
-  KeyRound,
-  QrCode,
-  Compass,
-  DollarSign,
-  HelpCircle,
-  BookOpen,
-} from "lucide-react";
 import SEO from "@/components/SEO";
-import { NightPathJourney } from "@/components/marketing/NightPathJourney";
-import { useI18n } from "@/i18n/I18nContext";
-
-const audiences = [
-  {
-    id: "participants",
-    title: "For Foodies & Community Members",
-    subtitle: "Turn useful participation into recorded access, perks, and history",
-    icon: Users,
-    color: "from-amber-500/20 to-orange-500/10 border-amber-500/30 text-amber-400",
-    badge: "Locals & Explorers",
-    points: [
-      "Vote on discoveries and polls so the city names the night.",
-      "Share it with PromoShare. When downstream action is verified and attributed, that contribution can be recorded.",
-      "Walk in with PromoCard. Check in or submit the required proof; verified attendance can become part of your history.",
-      "Keep the access, memories, entries, or other consequences that were actually issued, and build a durable participation history.",
-    ],
-    cta: "Start Exploring",
-    href: "/discover",
-  },
-  {
-    id: "venues",
-    title: "For Venues & Merchants",
-    subtitle: "Turn demand into verifiable visits and repeat behavior",
-    icon: Building2,
-    color: "from-emerald-500/20 to-teal-500/10 border-emerald-500/30 text-emerald-400",
-    badge: "Restaurants, Cafes & Bars",
-    points: [
-      "See recorded local demand and activation opportunities that may be relevant to your place.",
-      "Verify eligible visits with QR, check-in, or proof rules configured for the activation.",
-      "Structure funding or commercial terms around recorded outcomes where the activation contract supports it.",
-      "Use recorded visits, redemptions, and return behavior to shape the next offer or activation.",
-    ],
-    cta: "Partner as a Venue",
-    href: "/for-merchants",
-  },
-  {
-    id: "creators",
-    title: "For Creators & Tastemakers",
-    subtitle: "Connect distribution to attributable real-world outcomes",
-    icon: Sparkles,
-    color: "from-purple-500/20 to-pink-500/10 border-purple-500/30 text-purple-400",
-    badge: "Content Creators & Hosts",
-    points: [
-      "Join configured creator opportunities and briefs when they are available and relevant.",
-      "Host your own activations and seek sponsorship or funding where a real partner commitment exists.",
-      "Earnings follow only when campaign terms, attribution, verification, approval, and settlement support them.",
-      "Build a reusable record of releases, attributed outcomes, approved work, and retained value.",
-    ],
-    cta: "Creator Workspace",
-    href: "/for-creators",
-  },
-  {
-    id: "brands",
-    title: "For Brands & Enterprise Sponsors",
-    subtitle: "Measurable real-world activations at scale",
-    icon: Megaphone,
-    color: "from-blue-500/20 to-indigo-500/10 border-blue-500/30 text-blue-400",
-    badge: "Brands & Marketers",
-    points: [
-      "Fund activations, participant value, or demand tests around a defined audience and outcome.",
-      "Review GPS, receipt, check-in, or other proof where that evidence is configured and actually recorded.",
-      "Invite creator and participant content, then retain only the UGC and recommendations that are actually produced and attributable.",
-      "Add recorded real-world action evidence to campaigns that would otherwise rely mainly on impressions.",
-    ],
-    cta: "Brand Solutions",
-    href: "/for-brands",
-  },
-];
-
-const coreMechanics = [
-  {
-    icon: Flame,
-    titleKey: "about.step1" as const,
-    copyKey: "about.step1Copy" as const,
-  },
-  {
-    icon: KeyRound,
-    titleKey: "about.step2" as const,
-    copyKey: "about.step2Copy" as const,
-  },
-  {
-    icon: QrCode,
-    titleKey: "about.step3" as const,
-    copyKey: "about.step3Copy" as const,
-  },
-  {
-    icon: DollarSign,
-    titleKey: "about.step4" as const,
-    copyKey: "about.step4Copy" as const,
-  },
-];
+import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 export default function WhatIsPromorang() {
-  const { t } = useI18n();
-  const [selectedAudience, setSelectedAudience] = useState(audiences[0].id);
-  const localizedAudiences = audiences.map((audience) => ({
-    ...audience,
-    title: t(`about.${audience.id}Title`),
-    subtitle: t(`about.${audience.id}Subtitle`),
-    badge: t(`about.${audience.id}Badge`),
-    cta: t(`about.${audience.id}Cta`),
-  }));
-  const activeAudience = localizedAudiences.find((a) => a.id === selectedAudience) || localizedAudiences[0];
-
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
-        title={t("about.seoTitle")}
-        description={t("about.seoCopy")}
+        title="What is PROMORANG? — Discovery, demand, action and return"
+        description="PROMORANG helps people discover what matters, show what they want, find others who feel the same way, and keep their place in what happens next through PromoCard."
       />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-white/10 px-5 pt-28 pb-20 md:pt-36 md:pb-28">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,107,0,0.22),transparent_40%),radial-gradient(circle_at_80%_60%,rgba(147,51,234,0.12),transparent_35%)]" />
-        <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.05)_1px,transparent_1px)] [background-size:36px_36px]" />
-        
-        <div className="relative mx-auto max-w-5xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-primary">
-            <Sparkles className="h-3.5 w-3.5" /> {t("about.eyebrow")}
-          </div>
-          
-          <h1 className="mt-6 text-4xl font-black uppercase leading-[0.9] tracking-tight sm:text-6xl md:text-7xl">
-            {t("about.hero1")} <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-primary bg-clip-text text-transparent">{t("about.hero2")}</span>
+      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(249,115,22,.2),transparent_38%),radial-gradient(circle_at_80%_55%,rgba(147,51,234,.1),transparent_34%)]" />
+        <div className="relative mx-auto max-w-6xl">
+          <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300"><Sparkles className="h-4 w-4" /> What is PROMORANG?</p>
+          <h1 className="mt-6 max-w-5xl font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
+            A market for
+            <br />
+            <span className="text-orange-400">what people care about next.</span>
           </h1>
-          
-          <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-white/70 sm:text-xl">
-            {t("about.heroCopy")}
+          <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">
+            PROMORANG helps people discover things worth knowing, express what they want, see when other people feel the same way, and keep their place when someone responds. For businesses, creators and organizers, it makes demand easier to see before they decide what to put into the market.
           </p>
-
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/discover?tab=discoveries"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/25 transition hover:scale-105"
-            >
-              {t("about.explore")} <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/promoshare"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
-            >
-              PromoShare <ArrowRight className="h-4 w-4 text-primary" />
-            </Link>
-            <Link
-              to="/how-it-works"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
-            >
-              {t("about.cycle")} <Compass className="h-4 w-4 text-primary" />
-            </Link>
-            <Link
-              to="/help"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/10 bg-transparent px-5 py-3.5 text-sm font-medium text-white/60 transition hover:text-white"
-            >
-              {t("about.help")} <BookOpen className="h-4 w-4" />
-            </Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black transition hover:bg-orange-400"><Compass className="h-4 w-4" /> Explore PROMORANG</Link>
+            <Link to="/how-it-works" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-black text-white transition hover:bg-white/[0.08]">See the full loop <ArrowRight className="h-4 w-4" /></Link>
           </div>
         </div>
       </section>
 
-      {/* The 60-Second Explanation in 3 Steps */}
-      <section className="border-b border-white/10 px-5 py-16 md:py-24">
+      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-widest text-primary">{t("about.seconds")}</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">{t("about.connects")}</h2>
+          <div className="max-w-4xl">
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">It can begin two ways</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">You do not have to know what you want before PROMORANG can be useful.</h2>
           </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["about.step1", "about.step1Copy", "bg-orange-500/10 text-primary"],
-              ["about.step2", "about.step2Copy", "bg-amber-500/10 text-amber-400"],
-              ["about.step3", "about.step3Copy", "bg-purple-500/10 text-purple-400"],
-              ["about.step4", "about.step4Copy", "bg-emerald-500/10 text-emerald-400"],
-            ].map(([title, copy, tone], index) => (
-              <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:border-primary/40">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl font-black ${tone}`}>
-                  {index + 1}
-                </div>
-                <h3 className="mt-6 text-xl font-black">{t(title as "about.step1")}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/65">{t(copy as "about.step1Copy")}</p>
-              </div>
-            ))}
+          <div className="mt-9 grid gap-5 md:grid-cols-2">
+            <TicketPass kicker="I do not know yet" title="Discovery helps a preference appear." detail="See a place, product, experience, idea or local possibility. Something catches your attention. Now you know you care." stub="SEE" stubLabel="Discovery" />
+            <TicketPass kicker="I already know" title="Tell PROMORANG what is missing." detail="Tell PROMORANG the place, offer, product, experience or change you are looking for. If other people feel the same way, shared interest becomes easier to see." stub="LOOK" stubLabel="Interest" />
           </div>
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 md:py-20">
+      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <NightPathJourney />
+          <NightTrail eyebrow="The simplest explanation" title="Discover → want → join → respond → prove" steps={[
+            { label: "Discover", title: "See what exists or what is worth noticing.", text: "Find a place, person, product, idea or possibility that catches your attention." },
+            { label: "Want", title: "Recognize or express a preference.", text: "You can react to something you found or tell PROMORANG what you are still looking for." },
+            { label: "Join", title: "See when other people feel the same way.", text: "When people care about the same thing, that shared interest becomes easier to see—and easier for someone to respond to." },
+            { label: "Respond", title: "Someone decides what to put up.", text: "A merchant, brand, creator or host can put up an offer, Moment, access or other response with clear terms." },
+          ]} />
+          <div className="mt-10 grid gap-5 md:grid-cols-[1.1fr_.9fr]">
+            <TicketPass kicker="Then" title="What happened becomes part of the story." detail="A visit, check-in, claim or purchase can become part of your PROMORANG history once it is confirmed." stub="DONE" stubLabel="Outcome" />
+            <PaperReceipt heading="What each step means" lines={[
+              { label: "Discovery", value: "What is known", strong: true },
+              { label: "Demand", value: "What is wanted", strong: true },
+              { label: "Response", value: "What is supplied", strong: true },
+              { label: "Outcome", value: "What happened", strong: true },
+            ]} footer="Each step tells you something different. PROMORANG keeps them connected without blurring them together." />
+          </div>
         </div>
       </section>
 
-      {/* Interactive Role Breakdown */}
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-widest text-primary">{t("about.everyone")}</p>
-              <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">{t("about.who")}</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {localizedAudiences.map((aud) => (
-                <button
-                  key={aud.id}
-                  onClick={() => setSelectedAudience(aud.id)}
-                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition ${
-                    selectedAudience === aud.id
-                      ? "bg-primary text-black"
-                      : "border border-white/10 bg-white/[0.04] text-white/60 hover:text-white"
-                  }`}
-                >
-                  <aud.icon className="h-3.5 w-3.5" />
-                  {aud.badge}
-                </button>
-              ))}
+      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+          <div>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">PromoCard is the thread</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">The market is public. Your relationship to it is personal.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">PromoCard keeps the parts of PROMORANG that matter to you in one place: what you are watching, what you want, access you have, and the things you have been part of.</p>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+              <TicketPass kicker="Before something happens" title="Keep your place" detail="A want or signal can stay connected to you so PROMORANG has a reason to bring you back when the market changes." stub="KEEP" stubLabel="Intent" />
+              <TicketPass kicker="After something happens" title="Keep the consequence" detail="Access, completed actions, returns and history can stay with the same person instead of disappearing after one campaign." stub="RETURN" stubLabel="History" />
             </div>
           </div>
-
-          <div className={`mt-8 rounded-3xl border bg-gradient-to-br p-8 md:p-12 ${activeAudience.color}`}>
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-white/50">{activeAudience.badge}</span>
-                <h3 className="mt-1 text-2xl font-black md:text-3xl text-white">{activeAudience.title}</h3>
-                <p className="mt-1 text-base text-white/70">{activeAudience.subtitle}</p>
-              </div>
-              <Link
-                to={activeAudience.href}
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-xs font-black uppercase tracking-wider text-black transition hover:bg-white/90"
-              >
-                {activeAudience.cta} <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {activeAudience.points.map((point, index) => (
-                <div key={index} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/40 p-4">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                  <p className="text-sm leading-6 text-white/80">{point}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <PromoCardFace holder="Your PromoCard" available="What you're part of" limit="Wants · access · history" places="One place for the things you are watching, the access you have, and what you have been part of." action="Keep your place" variant="membership" interactive={false} />
         </div>
       </section>
 
-      {/* Core Mechanics Explained */}
-      <section className="border-b border-white/10 px-5 py-16 md:py-24">
+      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-widest text-primary">{t("about.mechanics")}</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl md:text-5xl">{t("about.engine")}</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/60">
-              {t("about.engineCopy")}
-            </p>
+          <div className="max-w-4xl">
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">One market, different reasons to enter</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Different people come here for different reasons.</h2>
           </div>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {coreMechanics.map((mech) => (
-              <div key={mech.titleKey} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 transition hover:border-white/20">
-                <mech.icon className="h-8 w-8 text-primary" />
-                <h3 className="mt-6 text-lg font-black">{t(mech.titleKey)}</h3>
-                <p className="mt-2 text-xs leading-5 text-white/60">{t(mech.copyKey)}</p>
-              </div>
-            ))}
+          <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <TicketPass kicker="People" title="Find what moves you" detail="Discover, look, join, act and keep your personal history on PromoCard." stub="JOIN" stubLabel="People" />
+            <TicketPass kicker="Merchants" title="Respond to local demand" detail="See what people nearby want and put up something your business can genuinely honor." stub="OFFER" stubLabel="Place" />
+            <TicketPass kicker="Brands" title="Read the market first" detail="See where attention is forming, choose how to show up, and learn what people did next." stub="MOVE" stubLabel="Brand" />
+            <TicketPass kicker="Creators & hosts" title="Surface and organize attention" detail="Help people discover something, gather around it and move into real participation." stub="BUILD" stubLabel="Culture" />
           </div>
         </div>
       </section>
 
-      {/* Quick FAQ / Still Confused Callout */}
-      <section className="px-5 py-16 md:py-24">
-        <div className="mx-auto max-w-5xl rounded-[2.5rem] border border-primary/30 bg-gradient-to-b from-primary/15 to-transparent p-8 md:p-14 text-center">
-          <HelpCircle className="mx-auto h-12 w-12 text-primary" />
-          <h2 className="mt-4 text-3xl font-black uppercase sm:text-4xl md:text-5xl">{t("about.questions")}</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-white/75">
-            {t("about.questionsCopy")}
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/help"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-black text-black transition hover:scale-105"
-            >
-              {t("about.library")} <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/contact"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
-            >
-              {t("about.contact")}
-            </Link>
+      <section className="px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center md:p-12">
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">The short version</p>
+          <h2 className="mx-auto mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">PROMORANG helps a market notice itself.</h2>
+          <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-white/55">It helps people discover possibilities, makes shared wants visible, gives businesses and hosts a reason to respond, and shows what people actually did afterward.</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black"><Users className="h-4 w-4" /> Enter as a participant</Link>
+            <Link to="/for-merchants" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80"><Store className="h-4 w-4" /> I run a business</Link>
+            <Link to="/for-brands" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80"><Building2 className="h-4 w-4" /> I represent a brand</Link>
           </div>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/35"><ShieldCheck className="h-3.5 w-3.5 text-orange-300" /> Interest, access and completed actions tell you different things. PROMORANG keeps them connected without mixing them up.</p>
         </div>
       </section>
     </main>

@@ -1,120 +1,82 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowRight, Play, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, ArrowRight, CalendarDays, Compass, MapPin, Sparkles, UserRound } from "lucide-react";
 import SEO from "@/components/SEO";
-import { cultureCreators, cultureEvents } from "@/data/culture-demo";
-import { ContentProvenanceBadge, SampleContentNotice } from "@/components/content/ContentProvenance";
-
-const ALLOW_DEMO_PROFILE = import.meta.env.DEV || import.meta.env.MODE === "test";
+import { supabase } from "@/integrations/supabase/client";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 
 export default function CreatorDetail() {
-  const { handle } = useParams();
+  const { handle = "" } = useParams<{ handle: string }>();
 
-  if (!ALLOW_DEMO_PROFILE) {
-    return (
-      <main className="min-h-screen bg-black px-6 py-28 text-white">
-        <SEO
-          title="Creator profile | Promorang"
-          description="Creator profiles will show verified creator identity, work, attribution, and opportunities when live profile data is available."
-        />
-        <section className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.035] p-6 sm:p-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">
-            <ShieldCheck className="h-3.5 w-3.5" /> No verified profile loaded
-          </div>
-          <h1 className="mt-5 text-4xl font-black tracking-[-0.04em] sm:text-5xl">
-            This creator profile is not available as a verified production record.
-          </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">
-            PROMORANG will not substitute a sample creator, follower count, check-in history, booking address, or commission offer when the requested creator does not have a real profile source behind this route.
-          </p>
-          {handle && <p className="mt-3 text-xs text-white/35">Requested handle: @{handle}</p>}
+  const profileQuery = useQuery({
+    queryKey: ["public-creator", handle],
+    enabled: Boolean(handle),
+    queryFn: async () => {
+      const { data: roles, error: roleError } = await supabase.from("user_roles").select("user_id").eq("role", "creator");
+      if (roleError) throw roleError;
+      const creatorIds = new Set((roles || []).map((row) => row.user_id));
+      const { data, error } = await supabase.from("profiles").select("id,user_id,full_name,display_name,username,avatar_url,bio,location").or(`username.eq.${handle},user_id.eq.${handle},id.eq.${handle}`).limit(1).maybeSingle();
+      if (error) throw error;
+      if (!data || !creatorIds.has(data.user_id)) return null;
+      return data as any;
+    },
+  });
 
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
-            {[
-              ["Identity", "Creator identity should come from a real account/profile record."],
-              ["Work", "Published releases and deliverables should come from actual creator activity."],
-              ["Proof", "Attributed actions and earnings should appear only when recorded by PROMORANG."],
-            ].map(([title, copy]) => (
-              <div key={title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <h2 className="mt-3 text-sm font-black">{title}</h2>
-                <p className="mt-2 text-xs leading-5 text-white/50">{copy}</p>
-              </div>
-            ))}
-          </div>
+  const creator = profileQuery.data;
+  const contentQuery = useQuery({
+    queryKey: ["public-creator-content", creator?.user_id],
+    enabled: Boolean(creator?.user_id),
+    queryFn: async () => {
+      const { data, error } = await supabase.from("view_public_content_directory").select("*").eq("creator_id", creator.user_id).order("posted_at", { ascending: false, nullsFirst: false }).limit(12);
+      if (error) throw error;
+      return (data || []) as PublicContentItem[];
+    },
+  });
 
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link to="/content-drops" className="inline-flex min-h-11 items-center rounded-xl bg-primary px-5 text-sm font-black text-primary-foreground">
-              Find live creator opportunities <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-            <Link to="/discover" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 px-5 text-sm font-black text-white">
-              Discover live activity
-            </Link>
-          </div>
-        </section>
-      </main>
-    );
-  }
+  const momentsQuery = useQuery({
+    queryKey: ["public-creator-moments", creator?.user_id],
+    enabled: Boolean(creator?.user_id),
+    queryFn: async () => {
+      const { data, error } = await supabase.from("view_public_moment_directory").select("*").eq("host_id", creator.user_id).eq("is_active", true).order("starts_at", { ascending: true, nullsFirst: false }).limit(6);
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-  const creator = cultureCreators.find((item) => item.handle === handle) || cultureCreators[0];
+  const discoveriesQuery = useQuery({
+    queryKey: ["public-creator-discoveries", creator?.user_id],
+    enabled: Boolean(creator?.user_id),
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).from("discoveries").select("id,slug,title,cover_image,city,country,category").eq("creator_id", creator.user_id).eq("verification_status", "approved").order("updated_at", { ascending: false }).limit(6);
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-  return (
-    <main className="min-h-screen bg-black pb-20 pt-24 text-white">
-      <SEO title={`${creator.name} — Sample creator profile`} description={creator.bio} />
-      <section className="container px-6">
-        <SampleContentNotice noun="creator profile, metrics, activity, and opportunities" />
+  if (profileQuery.isLoading) return <main className="grid min-h-screen place-items-center bg-[#050505] text-white">Opening creator…</main>;
+  if (profileQuery.isError || !creator) return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><UserRound className="mx-auto h-9 w-9 text-orange-400"/><h1 className="mt-5 text-4xl font-black">Creator unavailable.</h1><p className="mt-3 text-sm leading-6 text-white/48">We couldn’t find a public creator profile at this link.</p><Link to="/creators" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4"/>Browse creators</Link></div></main>;
 
-        <div className="mt-6 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035]">
-          <div className="relative h-64 overflow-hidden bg-black">
-            <img src={creator.image} alt="" className="h-full w-full object-cover opacity-55" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-            <div className="absolute bottom-5 left-5 right-5">
-              <ContentProvenanceBadge />
-              <h1 className="mt-3 text-4xl font-black">{creator.name}</h1>
-              <p className="mt-1 text-sm text-white/55">@{creator.handle} · sample only</p>
-            </div>
-          </div>
+  const name=creator.display_name||creator.full_name||creator.username||"Creator";
+  const content=contentQuery.data||[];
+  const moments=momentsQuery.data||[];
+  const discoveries=discoveriesQuery.data||[];
 
-          <div className="grid gap-6 p-5 lg:grid-cols-[1fr_300px] lg:p-7">
-            <div>
-              <p className="max-w-2xl text-sm leading-7 text-white/60">{creator.bio}</p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {[
-                  ["Sample audience", creator.followers],
-                  ["Sample events", creator.events],
-                  ["Sample check-ins", creator.checkIns],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <Users className="h-4 w-4 text-primary" />
-                    <p className="mt-3 text-xl font-black">{value}</p>
-                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/35">{label}</p>
-                  </div>
-                ))}
-              </div>
-
-              <h2 className="mt-8 text-xl font-black">Sample upcoming activity</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {cultureEvents.slice(0, 2).map((event) => (
-                  <article key={event.slug} className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
-                    <img src={event.image} alt="" className="h-36 w-full object-cover" />
-                    <div className="p-4">
-                      <Play className="h-4 w-4 text-primary" />
-                      <p className="mt-2 font-black">{event.shortTitle}</p>
-                      <p className="mt-1 text-xs text-white/40">Development fixture — not a live opportunity.</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <aside className="rounded-2xl border border-amber-400/20 bg-amber-400/[0.05] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">Demo behavior only</p>
-              <p className="mt-3 text-sm leading-6 text-white/60">
-                Follow, messaging, commission, booking, earnings, and PromoShare actions are intentionally disabled on this sample profile. Production creator actions require a real creator identity and real offer terms.
-              </p>
-            </aside>
-          </div>
+  return <main className="marketing-cinematic public-object-page min-h-screen bg-[#050505] pb-20 text-white">
+    <SEO title={`${name} — PROMORANG Creator`} description={creator.bio || `Explore ${name} on PROMORANG.`} />
+    <section className="public-object-hero relative border-b border-white/10 px-5 pb-10 pt-16 sm:px-6 md:pt-20">
+      <CurrentArc variant="hero" className="marketing-hero-current"/>
+      <div className="relative mx-auto max-w-[1180px]">
+        <Link to="/creators" className="inline-flex items-center gap-2 text-xs font-bold text-white/48"><ArrowLeft className="h-4 w-4"/>Creators</Link>
+        <div className="mt-6 grid border border-white/10 bg-[#090909] md:grid-cols-[340px_1fr]">
+          <div className="aspect-square overflow-hidden bg-white/[.04]">{creator.avatar_url?<img src={creator.avatar_url} alt="" className="h-full w-full object-cover"/>:<div className="grid h-full place-items-center"><UserRound className="h-16 w-16 text-white/20"/></div>}</div>
+          <div className="flex flex-col justify-center p-7 sm:p-10"><p className="text-[9px] font-black uppercase tracking-[.16em] text-orange-300">Creator on PROMORANG</p><h1 className="mt-4 text-5xl font-black leading-[.9] tracking-[-.05em] sm:text-7xl">{name}</h1>{creator.username?<p className="mt-3 text-sm font-bold text-white/38">@{creator.username}</p>:null}{creator.bio?<p className="mt-5 max-w-2xl text-sm leading-7 text-white/58">{creator.bio}</p>:null}{creator.location?<p className="mt-5 flex items-center gap-2 text-xs text-white/45"><MapPin className="h-4 w-4 text-orange-400"/>{creator.location}</p>:null}</div>
         </div>
-      </section>
-    </main>
-  );
+      </div>
+    </section>
+    <section className="px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto max-w-[1180px]"><div className="marketing-section-head"><div><p className="marketing-kicker">From this creator</p><h2 className="mt-3 text-4xl font-black">Work worth opening.</h2></div><span className="text-[10px] font-black uppercase tracking-[.14em] text-white/35">{content.length} public</span></div>{contentQuery.isLoading?<p className="text-sm text-white/45">Loading public work…</p>:content.length?<div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{content.map((item)=><PublicContentCard key={item.id} item={item}/>)}</div>:<div className="border-y border-white/10 py-12"><Sparkles className="h-6 w-6 text-orange-400"/><h3 className="mt-4 text-2xl font-black">No public work connected yet.</h3><p className="mt-2 text-sm text-white/42">PROMORANG is not filling this profile with sample releases.</p></div>}</div></section>
+    {moments.length?<section className="border-t border-white/10 px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto max-w-[1180px]"><div className="marketing-section-head"><div><p className="marketing-kicker">Moments</p><h2 className="mt-3 text-4xl font-black">More from this host.</h2></div></div><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{moments.map((moment:any)=><Link key={moment.id} to={`/moments/${moment.slug||moment.id}`} className="group border border-white/10 bg-white/[.025] p-5 transition hover:border-orange-400/35"><CalendarDays className="h-5 w-5 text-orange-300"/><h3 className="mt-5 text-xl font-black">{moment.title}</h3><p className="mt-2 text-xs text-white/42">{moment.venue_name||moment.location||"Place on Moment"}</p><div className="mt-5 flex justify-end"><ArrowRight className="h-4 w-4 text-white/30 transition group-hover:text-orange-300"/></div></Link>)}</div></div></section>:null}
+    {discoveries.length?<section className="border-t border-white/10 px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto max-w-[1180px]"><div className="marketing-section-head"><div><p className="marketing-kicker">Discoveries</p><h2 className="mt-3 text-4xl font-black">Knowledge this person put into the market.</h2></div></div><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{discoveries.map((discovery:any)=><Link key={discovery.id} to={`/discoveries/${discovery.slug}`} className="group overflow-hidden border border-white/10 bg-white/[.025]"><div className="aspect-[4/3] overflow-hidden bg-white/[.04]">{discovery.cover_image?<img src={discovery.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/>:<div className="grid h-full place-items-center"><Compass className="h-7 w-7 text-white/20"/></div>}</div><div className="p-5"><p className="text-[9px] font-black uppercase tracking-[.14em] text-orange-300">{discovery.category||"Discovery"}</p><h3 className="mt-2 text-xl font-black">{discovery.title}</h3><p className="mt-2 text-xs text-white/42">{[discovery.city,discovery.country].filter(Boolean).join(", ")}</p></div></Link>)}</div></div></section>:null}
+    <section className="border-t border-white/10 bg-white/[.02] px-5 py-10 sm:px-6"><div className="mx-auto flex max-w-[1180px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[9px] font-black uppercase tracking-[.15em] text-orange-300">Keep exploring</p><h2 className="mt-2 text-2xl font-black">See what else is moving.</h2></div><Link to="/discover" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.08em] text-orange-300">Discover <ArrowRight className="h-4 w-4"/></Link></div></section>
+  </main>;
 }

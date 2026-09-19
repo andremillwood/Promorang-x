@@ -52,6 +52,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { merchantAuthHref } from "@/lib/merchant-demand";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
+import { PublicDiscoverExperience } from "@/components/discovery/PublicDiscoverExperience";
 
 const categoryFilters = [
   { id: "all", key: "discover.filterAllDrops" as const, icon: Sparkles },
@@ -149,7 +150,7 @@ const HubEmptyState = ({
 
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
-const Discover = () => {
+const SignedInDiscover = () => {
   const { t, locale, formatNumber } = useI18n();
   const { user, activeRole } = useAuth();
   const { city, setCity } = useMarket();
@@ -356,9 +357,9 @@ const Discover = () => {
           id: v.id,
           lat,
           lng,
-          title: v.name || "Recorded place",
+          title: v.name || "Place",
           subtitle: [v.city, v.venue_type].filter(Boolean).join(" · ") || undefined,
-          category: v.verification_status === "verified" ? t("discover.verifiedVenue") : "Recorded place",
+          category: v.verification_status === "verified" ? t("discover.verifiedVenue") : "Place",
           imageUrl: v.image_url || undefined,
           url: `/venues/${v.slug || v.id}`,
           actionLabel: t("discover.viewVenue"),
@@ -810,7 +811,7 @@ const Discover = () => {
                     <h3 className="text-xl font-bold text-white">{t("discover.placesTitle")}</h3>
                     <p className="text-xs text-white/50">{t("discover.placesCopy", { city: city.name })}</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{formatNumber(hubVenues.length)} recorded places</span>
+                  <span className="text-xs font-semibold text-white/50">{formatNumber(hubVenues.length)} places</span>
                 </div>
 
                 {venuesQuery.isLoading ? (
@@ -839,10 +840,10 @@ const Discover = () => {
                               {venue.city ? <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">{venue.city}</Badge> : null}
                               {venue.venue_type ? <Badge variant="outline" className="border-white/15 text-white/60 text-[10px] capitalize">{venue.venue_type.replaceAll("_", " ")}</Badge> : null}
                             </div>
-                            <h4 className="text-base font-bold text-white truncate">{venue.name || "Recorded place"}</h4>
+                            <h4 className="text-base font-bold text-white truncate">{venue.name || "Place"}</h4>
                             <p className="text-xs text-white/60 flex items-center gap-1">
                               <MapPin className="h-3 w-3 text-primary shrink-0" />
-                              <span className="truncate">{venue.location || venue.address || "Location not recorded"}</span>
+                              <span className="truncate">{venue.location || venue.address || "Location coming soon"}</span>
                             </p>
                           </div>
                         </div>
@@ -877,6 +878,15 @@ const Discover = () => {
       </div>
     </div>
   );
+};
+
+
+const Discover = () => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <div className="min-h-screen bg-[#050505]" />;
+  }
+  return user ? <SignedInDiscover /> : <PublicDiscoverExperience />;
 };
 
 export default Discover;

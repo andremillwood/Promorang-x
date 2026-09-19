@@ -45,22 +45,22 @@ export function AutomatedRecap({
 
         <div className="max-h-[85vh] overflow-y-auto p-8 md:p-12" id="recap-print-area">
           <DialogHeader className="border-b border-border pb-8 pt-4 text-left">
-            <Badge variant="outline" className="mb-3 w-fit">Recorded campaign summary</Badge>
+            <Badge variant="outline" className="mb-3 w-fit">Campaign summary</Badge>
             <DialogTitle className="font-serif text-4xl font-bold tracking-tight">{campaignName}</DialogTitle>
             <DialogDescription>
-              This recap displays the recorded aggregate values supplied to it. It does not infer incrementality, benchmark lift, verification strength, or future performance.
+              This recap shows the campaign totals available right now. It does not estimate lift or future performance.
             </DialogDescription>
           </DialogHeader>
 
           <div className="my-10 grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-border/50 bg-secondary/30 p-6 text-center">
               <Users className="mx-auto h-6 w-6 text-primary" />
-              <h3 className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Recorded participants</h3>
+              <h3 className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Participants</h3>
               <p className="mt-2 text-4xl font-black text-foreground">{formatCompactNumber(totalParticipants)}</p>
             </div>
             <div className="rounded-2xl border border-border/50 bg-secondary/30 p-6 text-center">
               <DollarSign className="mx-auto h-6 w-6 text-primary" />
-              <h3 className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Total recorded spend</h3>
+              <h3 className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Total spend</h3>
               <p className="mt-2 text-4xl font-black text-foreground">{formatCurrency(totalSpent)}</p>
             </div>
             <div className="rounded-2xl border border-border/50 bg-secondary/30 p-6 text-center">
@@ -82,7 +82,7 @@ export function AutomatedRecap({
                     <img src={item.media_url} alt="" className="aspect-square w-full object-cover" />
                     <div className="p-3">
                       <p className="truncate text-sm font-bold">{item.user_name}</p>
-                      <p className="mt-1 truncate text-xs text-muted-foreground">{item.location || "Location not recorded"}</p>
+                      <p className="mt-1 truncate text-xs text-muted-foreground">{item.location || "Location unavailable"}</p>
                       <Badge variant="outline" className="mt-2 text-[9px] uppercase">
                         {item.verification_status}
                       </Badge>

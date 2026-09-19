@@ -17,7 +17,7 @@ export function BrandIntelligenceConsole() {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Evidence & decisions</p>
             <h2 className="mt-2 text-2xl font-black text-white">Decide what deserves the next dollar.</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-              This surface reports only campaign records and verified outcomes currently available to PROMORANG. Treasury balances, financial yield, ROI, and escrow protection are not shown unless they are backed by a real ledger and settlement flow.
+              See the campaign results PROMORANG can currently confirm. Financial metrics such as treasury balances or ROI appear only when the supporting data exists.
             </p>
           </div>
         </div>
@@ -26,7 +26,7 @@ export function BrandIntelligenceConsole() {
       {campaignsQuery.error ? (
         <section className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5 text-sm text-white/60">
           <p className="font-black text-white">Campaign evidence source unavailable.</p>
-          <p className="mt-2">PROMORANG cannot verify campaign counts or recorded results right now, so this surface will not substitute zeroes.</p>
+          <p className="mt-2">Campaign results couldn’t load right now.</p>
           <button type="button" className="mt-4 rounded-xl border border-white/15 px-4 py-2 text-xs font-black text-white hover:bg-white/5" onClick={() => campaignsQuery.refetch()}>
             Retry campaign source
           </button>
@@ -47,7 +47,7 @@ export function BrandIntelligenceConsole() {
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <ShieldCheck className="h-4 w-4 text-cyan-300" />
           <p className="mt-3 text-3xl font-black text-white">{sourceReady ? verifiedResults.toLocaleString() : "—"}</p>
-          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Recorded redemptions / results</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Redemptions / results</p>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export function BrandIntelligenceConsole() {
             {
               icon: CheckCircle2,
               title: "Repeat, change, or stop",
-              copy: "Use verified movement to decide whether to scale the same approach, revise the offer/audience, or stop investing in it.",
+              copy: "Use confirmed activity to decide whether to scale the approach, revise the offer or audience, or stop investing in it.",
             },
           ].map((item) => {
             const Icon = item.icon;

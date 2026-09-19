@@ -1,133 +1,203 @@
+import { useState } from "react";
+import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { ArrowRight, Building2, CalendarDays, Megaphone, Store, Users, UserRound, Briefcase } from "lucide-react";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import heroMoments from "@/assets/hero-moments.jpg";
+import participantImage from "@/assets/moments/sunset-photo.jpg";
+import merchantImage from "@/assets/moments/coffee-code.jpg";
+import brandImage from "@/assets/moments/street-art.jpg";
+import creatorImage from "@/assets/moments/open-mic.jpg";
+import hostImage from "@/assets/moment-concert.jpg";
+import communityImage from "@/assets/moments/board-games.jpg";
+import agencyImage from "@/assets/moments/pottery.jpg";
+import enterpriseImage from "@/assets/moments/hiking.jpg";
 
 const paths = [
   {
-    eyebrow: "I want in",
-    title: "Participate",
-    description: "Discover things worth doing, show up, contribute, earn recognition, and unlock more from the places and communities around you.",
+    eyebrow: "I want to find, ask or join",
+    title: "Participant",
+    description: "Discover things worth knowing, tell PROMORANG what you are looking for, join what other people want, and keep your place on PromoCard.",
     href: "/auth?mode=signup&role=participant&next=/home",
-    cta: "Join as a participant",
+    cta: "Get my PromoCard",
     icon: UserRound,
+    image: participantImage,
+    proof: "Discovery → Want → PromoCard",
+  },
+  {
+    eyebrow: "I run a place or business",
+    title: "Merchant",
+    description: "See what people nearby want, keep your place accurate, and put up offers, Moments or updates your business can genuinely honor.",
+    href: "/for-merchants",
+    cta: "See the merchant path",
+    icon: Store,
+    image: merchantImage,
+    proof: "Demand → Response → Visit",
+  },
+  {
+    eyebrow: "I represent a brand",
+    title: "Brand",
+    description: "See where attention is forming, choose where your brand should show up, and learn what people do next.",
+    href: "/for-brands",
+    cta: "See the brand path",
+    icon: Building2,
+    image: brandImage,
+    proof: "Signal → Activation → Results",
   },
   {
     eyebrow: "I create or influence",
     title: "Creator",
-    description: "Turn attention into measurable action and build proof of the movement your content creates.",
+    description: "Share what deserves attention, move people toward something real, and build a reputation around what happens next.",
     href: "/for-creators",
     cta: "Explore creator tools",
     icon: Megaphone,
+    image: creatorImage,
+    proof: "Attention → Action → Reputation",
   },
   {
     eyebrow: "I bring people together",
-    title: "Host or organizer",
-    description: "Create Moments, organize experiences, coordinate participation, and build repeat attendance around what you host.",
+    title: "Host",
+    description: "Turn interest into Moments people actually show up for, manage access, and give them a reason to return.",
     href: "/hosting",
     cta: "Explore hosting",
     icon: CalendarDays,
+    image: hostImage,
+    proof: "Interest → Moment → Attendance",
   },
   {
-    eyebrow: "I run a place or business",
-    title: "Merchant or venue",
-    description: "Turn visits, offers, customer actions, and repeat behavior into something you can see and grow.",
-    href: "/for-merchants",
-    cta: "Explore merchant tools",
-    icon: Store,
-  },
-  {
-    eyebrow: "I need an outcome",
-    title: "Brand",
-    description: "Fund actions you can verify across creators, customers, places, communities, and campaigns.",
-    href: "/for-brands",
-    cta: "Explore brand activations",
-    icon: Building2,
+    eyebrow: "I lead a community",
+    title: "Community",
+    description: "Give shared interests, local rituals, places and people a home that can keep growing between Moments.",
+    href: "/for-communities",
+    cta: "Explore community tools",
+    icon: Users,
+    image: communityImage,
+    proof: "Scene → Continuity → Return",
   },
   {
     eyebrow: "I manage clients",
     title: "Agency",
-    description: "Operate campaigns and client growth from one system while keeping each client relationship and result clear.",
+    description: "See what each client market wants, coordinate responses, and keep outcomes clear across accounts.",
     href: "/for-agencies",
     cta: "Explore agency tools",
     icon: Briefcase,
+    image: agencyImage,
+    proof: "Client → Response → Results",
   },
   {
-    eyebrow: "I lead a community",
-    title: "Community or Scene lead",
-    description: "Coordinate people around shared interests, repeat rituals, places, causes, and local culture.",
-    href: "/for-communities",
-    cta: "Explore community tools",
-    icon: Users,
-  },
-  {
-    eyebrow: "I represent an organization",
+    eyebrow: "I represent a larger organization",
     title: "Enterprise",
-    description: "Use Promorang across teams, locations, partners, audiences, and larger operational programs.",
+    description: "Use PROMORANG across teams, locations, communities and programs with consistent roles, reporting and governance.",
     href: "/for-enterprise",
     cta: "Explore enterprise",
     icon: Building2,
+    image: enterpriseImage,
+    proof: "Market → Teams → Governance",
   },
 ];
 
-const Join = () => {
+export default function Join() {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const selected = paths[selectedIndex];
+  const SelectedIcon = selected.icon;
+
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#050505] text-white">
       <SEO
-        title="Build with Promorang"
-        description="Choose what you want to make happen with Promorang — participate, create, host, grow a business, activate a brand, manage clients, or lead a community."
+        title="Build with PROMORANG — Choose how you enter the market"
+        description="Choose what you are trying to make happen with PROMORANG and enter through the role that fits you best."
       />
 
-      <section className="border-b border-white/10 px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-5xl">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Build with Promorang</p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.04em] md:text-6xl">
-            What are you trying to make happen?
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-white/65 md:text-xl">
-            Promorang connects people, places, creators, communities, and organizations around actions that create measurable value. Start with the job you need done — not a platform role you have to understand first.
+      <section className="marketing-join-hero relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
+        <img src={heroMoments} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
+        <div className="relative mx-auto max-w-[1440px]">
+          <p className="marketing-kicker">Build with PROMORANG</p>
+          <h1 className="mt-5 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl">What are you trying to make happen?</h1>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">
+            Start with what you want to make happen. PROMORANG changes around your role so the next useful move is easier to see.
           </p>
-        </div>
-      </section>
-
-      <section className="px-6 py-14 md:py-20">
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2">
-          {paths.map((path) => {
-            const Icon = path.icon;
-            return (
-              <Link
-                key={path.title}
-                to={path.href}
-                className="group rounded-3xl border border-white/10 bg-white/[0.035] p-6 transition hover:border-primary/40 hover:bg-white/[0.06] md:p-8"
-              >
-                <div className="flex items-start justify-between gap-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-white/35 transition group-hover:translate-x-1 group-hover:text-primary" />
-                </div>
-                <p className="mt-7 text-[11px] font-black uppercase tracking-[0.18em] text-white/40">{path.eyebrow}</p>
-                <h2 className="mt-2 text-2xl font-black tracking-[-0.03em]">{path.title}</h2>
-                <p className="mt-3 max-w-xl leading-7 text-white/60">{path.description}</p>
-                <p className="mt-6 text-sm font-black text-primary">{path.cta}</p>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="border-t border-white/10 px-6 py-14">
-        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-6 rounded-3xl border border-white/10 bg-white/[0.035] p-7 md:flex-row md:items-center md:p-9">
-          <div>
-            <p className="text-xl font-black">Not sure which path fits?</p>
-            <p className="mt-2 text-white/55">Start by seeing how Promorang works, then choose when the job becomes clear.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
+              <UserRound className="h-4 w-4" /> Start as a participant
+            </Link>
+            <Link to="/how-it-works" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/40 px-5 text-xs font-black uppercase tracking-[0.08em] text-white">
+              See the loop <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <Link to="/how-it-works" className="inline-flex items-center gap-2 text-sm font-black text-primary">
-            See how Promorang works <ArrowRight className="h-4 w-4" />
-          </Link>
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">Choose a role to see the path that fits you best</p>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="marketing-section-head">
+            <div>
+              <p className="marketing-kicker">Choose your lens</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Who are you here as?</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Choose the role closest to what you are responsible for.</p>
+            </div>
+          </div>
+
+          <div className="marketing-role-rail" role="tablist" aria-label="PROMORANG role lenses">
+            {paths.map((path, index) => {
+              const Icon = path.icon;
+              const active = index === selectedIndex;
+              return (
+                <button
+                  key={path.title}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setSelectedIndex(index)}
+                  className={`marketing-role-card group ${active ? "is-active" : ""}`}
+                >
+                  <img src={path.image} alt="" aria-hidden="true" />
+                  <span className="marketing-role-card__veil" />
+                  <span className="marketing-role-card__copy">
+                    <span className="marketing-role-card__icon"><Icon className="h-4 w-4" /></span>
+                    <strong>{path.title}</strong>
+                    <small>{path.eyebrow}</small>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="marketing-role-detail mt-8" role="tabpanel">
+            <div>
+              <p className="marketing-kicker"><SelectedIcon className="h-3.5 w-3.5" /> {selected.eyebrow}</p>
+              <h3 className="mt-4 text-3xl font-black sm:text-4xl">{selected.title}</h3>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">{selected.description}</p>
+            </div>
+            <div className="marketing-role-detail__route">
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/35">Your path</p>
+              <p className="mt-2 text-lg font-black text-white">{selected.proof}</p>
+              <Link to={selected.href} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
+                {selected.cta} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto grid max-w-6xl gap-8 border-y border-white/10 py-10 md:grid-cols-2">
+          <div>
+            <p className="marketing-kicker">Not sure?</p>
+            <h2 className="mt-3 text-3xl font-black">Start from the human side.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Explore, react, ask or join first. The quickest way to understand PROMORANG is to experience the market before operating one side of it.</p>
+            <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Explore PROMORANG <ArrowRight className="h-4 w-4" /></Link>
+          </div>
+          <div>
+            <p className="marketing-kicker">Already responsible for an outcome?</p>
+            <h2 className="mt-3 text-3xl font-black">Choose the party that can actually respond.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Visits, trials, attendance, referrals and repeat behavior need someone to make a real offer, Moment, invitation or experience people can act on.</p>
+            <Link to="/for-brands" className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">See the business side <ArrowRight className="h-4 w-4" /></Link>
+          </div>
         </div>
       </section>
     </main>
   );
-};
-
-export default Join;
+}

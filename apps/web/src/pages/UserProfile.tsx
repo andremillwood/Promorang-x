@@ -21,9 +21,9 @@ import {
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchProfileRow } from "@/lib/account-profile";
-import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 import { useI18n } from "@/i18n/I18nContext";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 interface UserProfile {
     id: string;
@@ -41,7 +41,7 @@ interface ProfileStats {
     momentsAttended: number | null;
     followers: number;
     following: number;
-    rating: number | null;
+    rating?: number;
     reviewCount: number;
 }
 
@@ -98,8 +98,7 @@ const UserProfilePage = () => {
                         is_superhost: false,
                     });
                 } else if (isOwnProfile && user) {
-                    // The authenticated account record can identify the current user,
-                    // but it must not invent profile facts that have not been saved.
+                    // The account can identify the current user, but it must not invent unsaved profile facts.
                     setProfile({
                         id: user.id,
                         full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || t("profile.user"),
@@ -115,32 +114,13 @@ const UserProfilePage = () => {
                 }
 
                 try {
-                    const hostedPromise = supabase
-                        .from("view_public_moment_directory")
-                        .select("*", { count: "exact", head: true })
-                        .eq("host_id", effectiveUserId)
-                        .eq("is_active", true);
-                    const followersPromise = supabase
-                        .from("user_follows")
-                        .select("*", { count: "exact", head: true })
-                        .eq("following_id", effectiveUserId);
-                    const followingPromise = supabase
-                        .from("user_follows")
-                        .select("*", { count: "exact", head: true })
-                        .eq("follower_id", effectiveUserId);
-                    const attendedPromise = isOwnProfile
-                        ? supabase
-                            .from("moment_participants")
-                            .select("*", { count: "exact", head: true })
-                            .eq("user_id", effectiveUserId)
-                            .eq("status", "checked_in")
-                        : Promise.resolve({ count: null, error: null });
-
                     const [hostedResult, attendedResult, followersResult, followingResult] = await Promise.all([
-                        hostedPromise,
-                        attendedPromise,
-                        followersPromise,
-                        followingPromise,
+                        supabase.from("view_public_moment_directory").select("id", { count: "exact" }).eq("host_id", effectiveUserId).eq("is_active", true).limit(500),
+                        isOwnProfile
+                            ? supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId).eq("status", "checked_in")
+                            : Promise.resolve({ count: null, error: null }),
+                        supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("following_id", effectiveUserId),
+                        supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("follower_id", effectiveUserId),
                     ]);
 
                     const statsQueryError =
@@ -150,13 +130,30 @@ const UserProfilePage = () => {
                         followingResult.error;
                     if (statsQueryError) throw statsQueryError;
 
+                    const hostedMomentIds = (hostedResult.data || []).map((row: any) => row.id).filter(Boolean);
+                    let ratings: number[] = [];
+                    if (hostedMomentIds.length) {
+                        const { data: reviewRows, error: reviewError } = await supabase
+                            .from("moment_reviews")
+                            .select("rating")
+                            .in("moment_id", hostedMomentIds);
+                        if (!reviewError) {
+                            ratings = (reviewRows || [])
+                                .map((row) => row.rating)
+                                .filter((rating): rating is number => typeof rating === "number" && Number.isFinite(rating));
+                        }
+                    }
+                    const rating = ratings.length
+                        ? Math.round((ratings.reduce((sum, value) => sum + value, 0) / ratings.length) * 10) / 10
+                        : undefined;
+
                     setStats({
-                        momentsHosted: hostedResult.count ?? 0,
+                        momentsHosted: hostedResult.count ?? hostedMomentIds.length,
                         momentsAttended: isOwnProfile ? attendedResult.count ?? 0 : null,
                         followers: followersResult.count ?? 0,
                         following: followingResult.count ?? 0,
-                        rating: null,
-                        reviewCount: 0,
+                        rating,
+                        reviewCount: ratings.length,
                     });
                 } catch (statsQueryError) {
                     console.error("Error fetching profile stats:", statsQueryError);
@@ -195,7 +192,6 @@ const UserProfilePage = () => {
                         .eq("host_id", effectiveUserId)
                         .eq("is_active", true)
                         .order("starts_at", { ascending: false });
-
                     if (error) throw error;
                     setMoments(data || []);
                 } else if (activeTab === "attended") {
@@ -204,28 +200,21 @@ const UserProfilePage = () => {
                         .select("moment_id, moments(*)")
                         .eq("user_id", effectiveUserId)
                         .eq("status", "checked_in");
-
                     if (error) throw error;
-                    const attendedMoments = (data || [])
-                        .map((item: any) => item.moments)
-                        .filter(Boolean);
-                    setMoments(attendedMoments);
+                    setMoments((data || []).map((item: any) => item.moments).filter(Boolean));
                 } else {
                     const { data: savedRows, error: savedError } = await (supabase as any)
                         .from("saved_moments")
                         .select("moment_id")
                         .eq("user_id", effectiveUserId)
                         .order("created_at", { ascending: false });
-
                     if (savedError) throw savedError;
+
                     const ids = [...new Set((savedRows || []).map((row: any) => row.moment_id).filter(Boolean))];
                     if (!ids.length) {
                         setMoments([]);
                     } else {
-                        const { data, error } = await supabase
-                            .from("moments")
-                            .select("*")
-                            .in("id", ids);
+                        const { data, error } = await supabase.from("moments").select("*").in("id", ids);
                         if (error) throw error;
                         setMoments(data || []);
                     }
@@ -268,7 +257,7 @@ const UserProfilePage = () => {
                     <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
                     <h1 className="mt-4 font-serif text-2xl font-bold">Profile unavailable</h1>
                     <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
-                        The profile source could not be read, so this is not being presented as “profile not found.”
+                        We couldn’t load this profile right now. Try again in a moment.
                     </p>
                 </div>
             </div>
@@ -289,13 +278,14 @@ const UserProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#090909] text-white">
+        <div className="marketing-cinematic public-object-page min-h-screen bg-[#050505] text-white">
             <main className="pb-16">
-                <section className="relative overflow-hidden border-b border-white/10">
+                <section className="public-object-hero relative overflow-hidden border-b border-white/10">
+                    <CurrentArc variant="hero" className="marketing-hero-current" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(249,115,22,0.3),transparent_34%),linear-gradient(135deg,#20150f,#090909_62%)]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#090909] via-transparent to-black/30" />
-                <div className="relative mx-auto max-w-[1600px] px-5 pb-10 pt-28 sm:px-8 xl:px-12 2xl:px-16">
+                <div className="relative mx-auto max-w-[1320px] px-5 pb-12 pt-28 sm:px-6">
                     {/* Profile Header */}
                     <div className="flex flex-col items-start gap-6 md:flex-row md:items-end">
                         {/* Avatar */}
@@ -401,7 +391,7 @@ const UserProfilePage = () => {
                     </div>
                 </div>
                 </section>
-                <div className="mx-auto max-w-[1600px] px-5 py-10 sm:px-8 xl:px-12 2xl:px-16">
+                <div className="mx-auto max-w-[1320px] px-5 py-10 sm:px-6">
 
                     {/* Stats */}
                     <div className="mb-10 grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
@@ -414,24 +404,18 @@ const UserProfilePage = () => {
                             <p className="text-sm text-white/40">{t("profile.verifiedMarks")}</p>
                         </div>
                         <div className="border-r border-white/10 px-3 py-6 md:px-6">
-                            {stats?.rating != null ? (
-                                <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
-                                    {stats.rating}
-                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                </p>
-                            ) : (
-                                <p className="text-sm font-bold text-white/55">Not rated</p>
-                            )}
-                            <p className="text-sm text-white/40">{stats?.reviewCount ? t("profile.trustSignals", { count: formatNumber(stats.reviewCount) }) : "No recorded reviews"}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.followers) : "—"}</p>
+                            <p className="text-sm text-white/40">Followers</p>
                         </div>
                         <div className="px-3 py-6 md:px-6">
-                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.followers) : "—"}</p>
-                            <p className="text-sm text-white/40">{t("profile.connected")}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.following) : "—"}</p>
+                            <p className="text-sm text-white/40">Following</p>
                         </div>
                     </div>
+                    {stats?.rating !== undefined ? <p className="mb-8 flex items-center gap-2 text-xs font-bold text-white/50"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400"/>{stats.rating.toFixed(1)} from {stats.reviewCount} rating{stats.reviewCount === 1 ? "" : "s"}</p> : null}
 
                     {/* Tabs */}
-                    <div className="mb-6 flex gap-1 overflow-x-auto border-b border-white/10">
+                    <div className="public-object-tabs sticky top-14 z-20 mb-6 flex gap-1 overflow-x-auto border-y border-white/10 bg-black/90">
                         {[
                             { id: "hosted" as const, label: t("profile.hosted"), icon: Grid },
                             ...(isOwnProfile
@@ -460,7 +444,7 @@ const UserProfilePage = () => {
                     {/* Content */}
                     {statsError ? (
                         <div role="status" className="mb-6 rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-white/55">
-                            Profile counts are unavailable. The profile identity and tab content below remain source-backed.
+                            Some profile stats are unavailable right now.
                         </div>
                     ) : null}
                     {tabLoading ? (
@@ -472,7 +456,7 @@ const UserProfilePage = () => {
                         <div role="alert" className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
                             <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
                             <h3 className="mt-4 font-bold">Profile section unavailable</h3>
-                            <p className="mt-2 text-sm text-white/50">The source failed, so this is not being shown as an empty section.</p>
+                            <p className="mt-2 text-sm text-white/50">We couldn’t load this section right now.</p>
                         </div>
                     ) : moments.length > 0 ? (
                         <MasonryGrid>
@@ -485,11 +469,7 @@ const UserProfilePage = () => {
                             <Grid className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
                             <h3 className="font-medium text-lg mb-2">{t("profile.empty")}</h3>
                             <p className="text-muted-foreground">
-                                {activeTab === "hosted"
-                                    ? t("profile.emptyHosted")
-                                    : activeTab === "attended"
-                                        ? t("profile.emptyAttended")
-                                        : t("profile.emptySaved")}
+                                {activeTab === "hosted" ? t("profile.emptyHosted") : activeTab === "attended" ? t("profile.emptyAttended") : t("profile.emptySaved")}
                             </p>
                         </div>
                     )}

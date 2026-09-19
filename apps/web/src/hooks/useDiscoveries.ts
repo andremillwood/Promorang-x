@@ -65,7 +65,7 @@ export function useDiscovery(slug?: string) {
           ? db.from("profiles").select("id,display_name,username,avatar_url,reputation_title").eq("id", discovery.creator_id).maybeSingle()
           : Promise.resolve({ data: null, error: null }),
         discovery.venue_id
-          ? db.from("venues").select("id,name,city").eq("id", discovery.venue_id).maybeSingle()
+          ? db.from("view_public_venue_directory").select("id,slug,name,city").eq("id", discovery.venue_id).maybeSingle()
           : Promise.resolve({ data: null, error: null }),
       ]);
 

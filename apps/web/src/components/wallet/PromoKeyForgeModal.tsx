@@ -34,7 +34,7 @@ export const PromoKeyForgeModal: React.FC<PromoKeyForgeModalProps> = ({ isOpen, 
         <KeyRound className="h-7 w-7 text-amber-400" />
         <h2 className="mt-4 text-xl font-black">Use the Wallet conversion.</h2>
         <p className="mt-2 text-sm leading-6 text-white/55">
-          PromoKey conversion must be completed by the recorded Wallet transaction. This legacy control does not change Points or PromoKey balances.
+          Use Wallet to convert PromoKeys. This older control can’t change your Points or PromoKey balance.
         </p>
         <button
           type="button"
