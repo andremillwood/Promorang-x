@@ -171,8 +171,8 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/communities/:slug` | production | Primary candidate; still requires experience audit |
 | `/creators` | production | Primary candidate; still requires experience audit |
 | `/creators/:handle` | production | Primary candidate; still requires experience audit |
-| `/economy` | production | Primary candidate; still requires experience audit |
-| `/economy/:concept` | production | Primary candidate; still requires experience audit |
+| `/economy` | production | Public value explainer; illustrative demos are labelled and core value/settlement boundaries aligned |
+| `/economy/:concept` | production | Concept lenses over the same truth-safe Economy explainer; no implied live account state |
 | `/venue-report/:id` | production | Primary candidate; still requires experience audit |
 | `/pricing` | production | Primary candidate; still requires experience audit |
 | `/nodes` | production | Primary candidate; still requires experience audit |

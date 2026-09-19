@@ -517,6 +517,7 @@ Latest closed findings:
 - **T-049 — PromoPush turned source/write failure into zero activity, active campaigns and successful attribution.**
 - **T-050 — Marketplace and Piece profile converted source gaps into empty inventory, demo markets and unsupported entitlements.**
 - **T-051 — Limited Liquidity surface used wrong APIs, fabricated outage state and exposed non-atomic value writes.**
+- **T-052 — Production Economy explainer promised unsupported perks, creator payouts and financial/custody guarantees.**
 
 Closed direction:
 
@@ -559,7 +560,8 @@ Closed direction:
 - the Wallet pass no longer owns a second browser-only PromoKey forge; Point → PromoKey conversion now routes through the Wallet's authoritative conversion mutation and refreshes recorded balances;
 - PromoPush owner, creator, promoter and Admin surfaces no longer turn source failure into zero/empty state; campaign creation stages draft → dependencies → requested status, and tracking-link redirect now requires a persisted attribution event;
 - Marketplace now separates source unavailable from empty inventory, while Piece Profile no longer manufactures a market during database failure, coerces missing metrics to zero, or promises holder perks without a recorded entitlement source;
-- the limited Liquidity route is now read-only and source-backed, uses the actual Piece APIs, preserves Gems as Gems, and production add/remove liquidity fails closed until reserve/LP-position settlement is atomic.
+- the limited Liquidity route is now read-only and source-backed, uses the actual Piece APIs, preserves Gems as Gems, and production add/remove liquidity fails closed until reserve/LP-position settlement is atomic;
+- the production Economy explainer now matches those same contracts: Piece quantity does not imply perks/value, creator opportunities are not guaranteed paid commissions, PromoShare selection is not settlement, Gems preserve state distinctions, and illustrations cannot masquerade as account truth.
 
 ### NEXT ACTION
 

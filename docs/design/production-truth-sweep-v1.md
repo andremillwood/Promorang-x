@@ -1389,6 +1389,32 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-052 — Production Economy explainer promised unsupported perks, creator payouts and financial/custody guarantees
+
+Files:
+- `apps/web/src/pages/EconomyConcept.tsx`
+- `docs/design/route-readiness-registry-v1.md`
+
+Finding:
+- the production `/economy` family still taught automatic Piece benefits such as skip-the-line access, yearly discounts and resale cuts even though Piece quantity has no canonical entitlement contract;
+- Creator content was described as pre-funded paid missions whose payout was already set aside, despite the open T-019 acceptance/availability/rights-review contract and the distinction between configured reward, earning and settlement;
+- PromoShare/Save & Win copy collapsed entry, selected result, claim, distribution, principal return and settlement into stronger guarantees than the current T-026 claim/distribution contract supports;
+- Gems were described broadly as money and as an immediate one-to-one cash equivalent without preserving available/bonus/pending/withdrawable distinctions;
+- the sustainability section stated that prize money, merchant earnings and platform fees live in separate protected pots in a way that implied legal custody/segregation rather than recorded product-state separation;
+- browser-only illustrations contained fabricated attendance counts, fixed Points rewards, scarcity, creator payouts, Piece perks and crew bonuses without a persistent “illustration only” boundary.
+
+Resolution:
+- Piece education now describes a recorded asset/position and explicitly refuses to infer discounts, VIP access, governance, royalty, fee share, resale value or a buyer from holding quantity;
+- Creator release education states `open opportunity ≠ accepted commission ≠ approved work ≠ settled payment` and routes creators to the real Content Drop workspace;
+- Gems education separates source, availability, use and settlement instead of treating a displayed balance as cash in hand;
+- PromoShare and Save & Win education preserve entry/result/claim/distribution/settlement and principal/entry/result boundaries;
+- financial/custody copy now says what PROMORANG can defend — provenance and lifecycle records — without claiming that interface categories prove legal fund segregation;
+- all hero demos are persistently labelled **Illustration only · does not read or change your account** and fixed fake social proof/reward/scarcity/payout/perk claims were removed or made explicitly illustrative;
+- the production Economy route remains an explainer, but now previews the same truth boundaries users meet in Wallet, PromoShare, Pieces and Creator release tools.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports
