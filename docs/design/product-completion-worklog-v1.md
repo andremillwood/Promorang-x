@@ -510,6 +510,7 @@ Latest closed findings:
 - **T-042 — UserProfile and FollowButton converted source gaps into false identity/social state.**
 - **T-043 — Creator share feed published static polls/Moments and invented reward promises.**
 - **T-044 — Creator release routes mixed seeded compatibility, false-zero failures and premature publish success.**
+- **T-045 — Developer console fabricated live credentials and API execution.**
 
 Closed direction:
 
@@ -542,7 +543,9 @@ Closed direction:
 - Content Drop detail/list/account/context/leaderboard routes now fail visibly instead of becoming seeded inventory, empty markets or zero performance;
 - content-distribution service/database absence and related-context query failures now propagate as unavailable instead of silently becoming empty records;
 - release publication now stages a non-public draft, attaches the real asset, then activates explicitly; partial failure no longer produces a live incomplete opportunity or a premature “launched” claim;
-- the retired Creator Missions compatibility surface now delegates to the source-backed release workspace instead of carrying fabricated paid bounties.
+- the retired Creator Missions compatibility surface now delegates to the source-backed release workspace instead of carrying fabricated paid bounties;
+- Developer API keys now come from the recorded authenticated key store only; browser-generated “live” secrets, demo revoke success and wildcard mock API-key authentication are removed;
+- the public developer playground is explicitly illustrative rather than claiming static payloads are live API execution.
 
 ### NEXT ACTION
 

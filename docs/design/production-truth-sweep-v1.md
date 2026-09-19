@@ -1206,6 +1206,32 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-045 — Developer console fabricated live credentials and API execution
+
+Files:
+- `apps/web/src/pages/DeveloperConsole.tsx`
+- `apps/web/src/pages/ForDevelopers.tsx`
+- `backend/api/v1/keys.js`
+- `backend/middleware/apiKeyAuth.js`
+- `backend/migrations/20260824_developer_api_keys.sql`
+
+Finding:
+- the production-routed Developer Console initialized with a fabricated `pk_live_` credential, generated new “production” secrets entirely in the browser, and reported revoke/create success without an authoritative key write;
+- the backend key endpoints returned mock key records, mock plaintext credentials and demo revoke success when the database client was unavailable;
+- API-key authentication accepted any supplied API key with wildcard scopes when the key store was unavailable;
+- the public developer page labelled a timer-driven static response generator as a live headless playground and displayed successful claim/operator payloads without executing those actions.
+
+Resolution:
+- the console now lists, creates and revokes only through the authenticated `/api/v1/keys` source;
+- signed-out and source-unavailable states are explicit; no demo key is substituted;
+- plaintext keys are shown only when the server successfully creates a persisted key record, while the list renders masked records only;
+- backend key endpoints fail unavailable when the key store is absent, validate environment/scopes, list active records only, and confirm a matching active record before reporting revoke success;
+- API-key middleware now fails unavailable rather than granting mock wildcard authority when its source is absent;
+- the developer playground is now labelled as illustrative payload examples and does not claim to execute feed, claim, reward or operator mutations.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

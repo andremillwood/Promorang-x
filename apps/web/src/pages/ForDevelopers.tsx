@@ -25,7 +25,6 @@ import {
 export default function ForDevelopers() {
   const [copiedTab, setCopiedTab] = useState<string | null>(null);
   const [playgroundOutput, setPlaygroundOutput] = useState<string | null>(null);
-  const [playgroundLoading, setPlaygroundLoading] = useState(false);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -33,73 +32,45 @@ export default function ForDevelopers() {
     setTimeout(() => setCopiedTab(null), 2000);
   };
 
-  const handleTestPlayground = async (endpoint: string) => {
-    setPlaygroundLoading(true);
-    setPlaygroundOutput(null);
-
-    // Simulate real-time API call response
-    setTimeout(() => {
-      if (endpoint === "feed") {
-        setPlaygroundOutput(JSON.stringify({
-          success: true,
-          data: {
-            items: [
-              {
-                id: "drop_8f92a1",
-                title: "25% Off Kingston Cold Brew & Pastry",
-                type: "coupon",
-                category: "dining",
-                merchant: { id: "m_devon", name: "Devon House Cafe" },
-                rewardGems: 50,
-                remaining: 18,
-                expiresAt: "2026-08-30T23:59:59Z"
-              },
-              {
-                id: "drop_44b0c2",
-                title: "VIP Weekend Food Festival Access",
-                type: "drop",
-                category: "events",
-                merchant: { id: "m_foodies", name: "Kingston Foodies" },
-                rewardGems: 150,
-                remaining: 5
-              }
-            ],
-            total: 2
-          }
-        }, null, 2));
-      } else if (endpoint === "claim") {
-        setPlaygroundOutput(JSON.stringify({
-          success: true,
-          data: {
-            receiptId: "rcpt_99182a",
-            claimCode: "PROMO-XYZ890",
-            opportunityId: "drop_8f92a1",
-            status: "claimed",
-            claimedAt: new Date().toISOString(),
-            rewardGems: 50,
-            qrPayload: "promorang://redeem/rcpt_99182a"
-          },
-          message: "Coupon claimed successfully via Headless API"
-        }, null, 2));
-      } else if (endpoint === "operator") {
-        setPlaygroundOutput(JSON.stringify({
-          success: true,
-          data: {
-            planId: "plan_agent_771",
-            objective: "Launch weekend matcha drop with 20 creators",
-            strategy: "High-density micro-creator mobilization with QR check-in proof",
-            budgetAllocation: {
-              gemRewards: 15000,
-              creatorBounties: 25000,
-              platformFees: 5000
-            },
-            estimatedReach: "4,200 impressions",
-            recommendedDropsCount: 3
-          }
-        }, null, 2));
-      }
-      setPlaygroundLoading(false);
-    }, 600);
+  const showExamplePayload = (endpoint: string) => {
+    if (endpoint === "feed") {
+      setPlaygroundOutput(JSON.stringify({
+        success: true,
+        data: {
+          items: [
+            {
+              id: "example_drop_1",
+              title: "Example dining opportunity",
+              type: "coupon",
+              category: "dining",
+              merchant: { id: "example_merchant", name: "Example Merchant" },
+              remaining: 18
+            }
+          ],
+          total: 1
+        }
+      }, null, 2));
+    } else if (endpoint === "claim") {
+      setPlaygroundOutput(JSON.stringify({
+        success: true,
+        data: {
+          receiptId: "example_receipt_id",
+          claimCode: "EXAMPLE-CODE",
+          opportunityId: "example_drop_1",
+          status: "claimed",
+          claimedAt: "2026-01-01T12:00:00.000Z"
+        }
+      }, null, 2));
+    } else if (endpoint === "operator") {
+      setPlaygroundOutput(JSON.stringify({
+        success: true,
+        data: {
+          planId: "example_plan_id",
+          objective: "Example activation objective",
+          status: "draft"
+        }
+      }, null, 2));
+    }
   };
 
   const mcpConfigSnippet = `{
@@ -374,53 +345,50 @@ if (call) {
         </div>
       </section>
 
-      {/* Live Interactive API Simulator / Playground */}
+      {/* Illustrative API payload examples */}
       <section className="py-20 border-b border-border/40">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Live Headless Playground</h2>
-                <p className="text-muted-foreground text-sm">Test API requests and observe response payloads in real time.</p>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">API Payload Examples</h2>
+                <p className="text-muted-foreground text-sm">Inspect illustrative response shapes. This page does not execute claims, rewards, or operator actions.</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleTestPlayground("feed")}
-                  disabled={playgroundLoading}
+                  onClick={() => showExamplePayload("feed")}
                 >
                   <Play className="w-3.5 h-3.5 mr-1.5" />
-                  Test /feed
+                  View /feed example
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleTestPlayground("claim")}
-                  disabled={playgroundLoading}
+                  onClick={() => showExamplePayload("claim")}
                 >
                   <Zap className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-                  Test /coupons/claim
+                  View claim example
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleTestPlayground("operator")}
-                  disabled={playgroundLoading}
+                  onClick={() => showExamplePayload("operator")}
                 >
                   <Bot className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                  Test AI Operator
+                  View operator example
                 </Button>
               </div>
             </div>
 
             <Card className="bg-black/80 border-border/80 shadow-xl overflow-hidden font-mono text-xs">
               <div className="px-4 py-2.5 bg-muted/30 border-b border-border/60 flex items-center justify-between text-muted-foreground">
-                <span>Response Payload (JSON)</span>
-                {playgroundLoading && <span className="text-primary animate-pulse">Executing request...</span>}
+                <span>Illustrative Payload (JSON)</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Example only</span>
               </div>
               <pre className="p-6 text-cyan-400 overflow-x-auto min-h-[160px] leading-relaxed">
-                {playgroundOutput || '// Click any of the "Test" buttons above to simulate a live headless API response.'}
+                {playgroundOutput || '// Choose an endpoint above to inspect an illustrative payload shape.'}
               </pre>
             </Card>
           </div>
@@ -432,7 +400,7 @@ if (call) {
         <div className="container mx-auto px-4 sm:px-6 text-center space-y-6 max-w-3xl">
           <h2 className="text-3xl sm:text-4xl font-bold">Ready to connect your AI agent or app?</h2>
           <p className="text-muted-foreground">
-            Generate your developer API key in seconds and start dispatching promotions, claiming coupons, and automating merchant live-ops.
+            Sign in to create a scoped developer API key. Calls and mutations are recorded only when the authenticated API accepts them.
           </p>
           <div className="pt-2">
             <Button asChild size="lg" className="rounded-xl">

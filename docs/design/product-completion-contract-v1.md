@@ -474,7 +474,7 @@ Exit gate:
 
 ## C17 — Public marketing alignment
 
-Status: **In progress; role promises, guarantee claims, live proof, simulators and commercial examples reconciled**
+Status: **In progress; role promises, guarantee claims, live proof, simulators, commercial examples and developer-surface execution claims reconciled**
 
 Includes:
 - homepage;
@@ -517,7 +517,7 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **In progress; Discover/Found durable-state and mutation truth hardened**
+Status: **In progress; Discover/Found, creator release and developer credential/execution truth hardened**
 
 Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 

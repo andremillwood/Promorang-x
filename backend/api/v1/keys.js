@@ -4,6 +4,24 @@ const { requireAuth } = require('../../middleware/auth');
 const { generateApiKey } = require('../../middleware/apiKeyAuth');
 const { supabase } = require('../../lib/supabase');
 
+const VALID_ENVIRONMENTS = new Set(['development', 'staging', 'production']);
+const VALID_SCOPES = new Set([
+  'feed:read',
+  'coupons:claim',
+  'campaigns:read',
+  'campaigns:write',
+  'merchants:read',
+  'merchants:write'
+]);
+
+function sourceUnavailable(res) {
+  return res.status(503).json({
+    success: false,
+    error: 'Developer API key store unavailable',
+    code: 'API_KEY_STORE_UNAVAILABLE'
+  });
+}
+
 /**
  * GET /api/v1/keys
  * List active API keys for the authenticated user/organization (masked).
@@ -12,26 +30,13 @@ router.get('/', requireAuth, async (req, res) => {
   try {
     const userId = req.user?.id;
 
-    if (!supabase) {
-      return res.json({
-        success: true,
-        data: [
-          {
-            id: 'mock-key-1',
-            name: 'Production AI Agent Key',
-            maskedKey: 'pk_live_a1b2...9f8e',
-            scopes: ['feed:read', 'coupons:claim', 'campaigns:write'],
-            environment: 'production',
-            createdAt: new Date().toISOString()
-          }
-        ]
-      });
-    }
+    if (!supabase) return sourceUnavailable(res);
 
     const { data: keys, error } = await supabase
       .from('developer_api_keys')
       .select('id, name, masked_key, scopes, is_active, environment, last_used_at, created_at')
       .eq('user_id', userId)
+      .eq('is_active', true)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -50,33 +55,36 @@ router.get('/', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   try {
     const userId = req.user?.id;
-    const { name = 'API Key', scopes = ['feed:read', 'coupons:claim'], environment = 'production', organizationId } = req.body || {};
+    const {
+      name = 'API Key',
+      scopes = ['feed:read', 'coupons:claim'],
+      environment = 'production',
+      organizationId
+    } = req.body || {};
+
+    if (!supabase) return sourceUnavailable(res);
+
+    const normalizedName = String(name || '').trim();
+    const normalizedScopes = Array.isArray(scopes) ? Array.from(new Set(scopes.map(String))) : [];
+    if (!normalizedName) {
+      return res.status(400).json({ success: false, error: 'name is required', code: 'INVALID_KEY_NAME' });
+    }
+    if (!VALID_ENVIRONMENTS.has(environment)) {
+      return res.status(400).json({ success: false, error: 'invalid environment', code: 'INVALID_KEY_ENVIRONMENT' });
+    }
+    if (!normalizedScopes.length || normalizedScopes.some((scope) => !VALID_SCOPES.has(scope))) {
+      return res.status(400).json({ success: false, error: 'invalid permission scopes', code: 'INVALID_KEY_SCOPES' });
+    }
 
     const prefix = environment === 'production' ? 'pk_live_' : 'pk_test_';
     const { rawKey, record } = generateApiKey({
       prefix,
-      name,
-      scopes,
+      name: normalizedName,
+      scopes: normalizedScopes,
       environment,
       userId,
       organizationId
     });
-
-    if (!supabase) {
-      return res.json({
-        success: true,
-        data: {
-          id: 'demo-key-id',
-          name,
-          apiKey: rawKey, // Plaintext returned once!
-          maskedKey: record.masked_key,
-          scopes,
-          environment,
-          createdAt: record.created_at
-        },
-        message: 'API Key generated successfully. Save this secret key now as you will not be able to view it again.'
-      });
-    }
 
     const { data: inserted, error } = await supabase
       .from('developer_api_keys')
@@ -109,17 +117,21 @@ router.delete('/:id', requireAuth, async (req, res) => {
     const userId = req.user?.id;
     const { id } = req.params;
 
-    if (!supabase) {
-      return res.json({ success: true, message: 'API key revoked successfully (demo mode)' });
-    }
+    if (!supabase) return sourceUnavailable(res);
 
-    const { error } = await supabase
+    const { data: revoked, error } = await supabase
       .from('developer_api_keys')
-      .update({ is_active: false })
+      .update({ is_active: false, updated_at: new Date().toISOString() })
       .eq('id', id)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .select('id')
+      .maybeSingle();
 
     if (error) throw error;
+    if (!revoked) {
+      return res.status(404).json({ success: false, error: 'API key not found or already revoked', code: 'API_KEY_NOT_FOUND' });
+    }
 
     return res.json({ success: true, message: 'API key revoked successfully' });
   } catch (err) {
