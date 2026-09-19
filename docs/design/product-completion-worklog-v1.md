@@ -540,6 +540,7 @@ Closed direction:
 - profile identity/social state now distinguishes unavailable/not-found/empty, keeps private histories owner-only, and verifies follow state before mutation.
 - creator share inventory now comes from recorded polls, public Moments and live perks; generic sharing no longer carries invented points/ticket promises;
 - Content Drop detail/list/account/context/leaderboard routes now fail visibly instead of becoming seeded inventory, empty markets or zero performance;
+- content-distribution service/database absence and related-context query failures now propagate as unavailable instead of silently becoming empty records;
 - release publication now stages a non-public draft, attaches the real asset, then activates explicitly; partial failure no longer produces a live incomplete opportunity or a premature “launched” claim;
 - the retired Creator Missions compatibility surface now delegates to the source-backed release workspace instead of carrying fabricated paid bounties.
 

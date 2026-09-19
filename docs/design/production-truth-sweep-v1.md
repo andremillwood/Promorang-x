@@ -1198,6 +1198,7 @@ Resolution:
 - canonical Content Drop hooks now read only the live content-distribution API; seeded records remain isolated to explicit development/test modules rather than the production route contract;
 - HTTP status is preserved so not-found can remain distinct from source unavailable;
 - live-market, account, context and leaderboard failures render explicit unavailable/retry states; leaderboard-dependent metrics render unknown rather than fabricated zero;
+- content-distribution service reads fail unavailable when the database client is absent, and the context endpoint now propagates individual source-query errors instead of converting them into empty related-object state;
 - release publication is staged `draft → asset attached → active`;
 - the campaign stays non-public if the asset or activation step fails, and the UI reports an incomplete draft rather than successful publication;
 - the generic create hook now reports only that the release record was created; the page reports “Release published” only after the asset write and owner-only activation transition both succeed;

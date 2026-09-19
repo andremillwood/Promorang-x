@@ -45,6 +45,16 @@ router.get('/campaigns/:campaignId/context', optionalAuth, async (req, res) => {
       contentId ? supabase.from('content_piece_stats').select('current_price,change_24h,volume_24h').eq('content_id', contentId).maybeSingle() : Promise.resolve({ data: null }),
       contentId && userId ? supabase.from('content_piece_positions').select('pieces_owned').eq('content_id', contentId).eq('holder_id', userId).maybeSingle() : Promise.resolve({ data: null }),
     ]);
+    const sourceFailure = [
+      momentResult,
+      ownerResult,
+      sponsorResult,
+      productsResult,
+      statsResult,
+      positionResult,
+    ].find((result) => result?.error)?.error;
+    if (sourceFailure) throw sourceFailure;
+
     const stakeholders = [];
     if (ownerResult.data) stakeholders.push({ id: ownerResult.data.id, role: 'creator', name: ownerResult.data.display_name || ownerResult.data.username || 'Creator', image_url: ownerResult.data.avatar_url });
     if (sponsorResult.data) stakeholders.push({ id: sponsorResult.data.id, role: 'brand', name: sponsorResult.data.company_name || 'Brand partner', image_url: sponsorResult.data.logo_url });

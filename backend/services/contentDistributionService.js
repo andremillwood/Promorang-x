@@ -65,7 +65,8 @@ function shouldAwardPromoShare(actionType, campaign) {
 }
 
 async function getCampaign(campaignId) {
-  if (!supabase || !isUuid(campaignId)) return null;
+  if (!supabase) throw new Error('Database not available');
+  if (!isUuid(campaignId)) return null;
 
   const { data, error } = await supabase
     .from('content_distribution_campaigns')
@@ -78,7 +79,8 @@ async function getCampaign(campaignId) {
 }
 
 async function getCampaignDetail(campaignId) {
-  if (!supabase || !isUuid(campaignId)) return null;
+  if (!supabase) throw new Error('Database not available');
+  if (!isUuid(campaignId)) return null;
 
   const { data, error } = await supabase
     .from('content_distribution_campaigns')
@@ -197,7 +199,7 @@ async function addAsset(campaignId, payload, actorId) {
 }
 
 async function listCampaigns({ ownerId = null, status = 'active', limit = 25 } = {}) {
-  if (!supabase) return [];
+  if (!supabase) throw new Error('Database not available');
 
   let query = supabase
     .from('content_distribution_campaigns')
@@ -479,7 +481,7 @@ async function issueRewards({ campaign, action, userId, pointsAwarded, promoshar
 }
 
 async function getLeaderboard(campaignId, limit = 25) {
-  if (!supabase) return [];
+  if (!supabase) throw new Error('Database not available');
 
   const { data, error } = await supabase
     .from('content_distribution_user_stats')
