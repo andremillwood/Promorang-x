@@ -440,7 +440,7 @@ Exit gate:
 
 ## C15 — Gems, Wallet, PromoShare and advanced economy
 
-Status: **In progress; user-facing value, Save & Win withdrawal language and PromoShare production truth hardened; synthetic gamification/drop entry points removed; claim/settlement atomicity still open**
+Status: **In progress; user-facing value, Save & Win withdrawal language, PromoShare production truth and Wallet PromoKey conversion authority hardened; synthetic gamification/drop entry points removed; claim/settlement atomicity still open**
 
 Deliver:
 - canonical Gems states per DESIGN.md;
@@ -517,7 +517,7 @@ Exit gate:
 
 ## C19 — Production truth sweep
 
-Status: **In progress; Discover/Found, creator release, developer credential/execution, Brand evidence/social-proof and identity-privacy truth hardened**
+Status: **In progress; Discover/Found, creator release, developer credential/execution, Brand evidence/social-proof, identity-privacy and Wallet conversion truth hardened**
 
 Working ledger: [`production-truth-sweep-v1.md`](production-truth-sweep-v1.md)
 

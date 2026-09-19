@@ -1286,6 +1286,29 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-048 — Wallet pass locally forged PromoKeys after ignored conversion failures
+
+Files:
+- `apps/web/src/pages/Wallet.tsx`
+- `apps/web/src/components/wallet/DigitalWalletPass3D.tsx`
+- `apps/web/src/components/wallet/PromoKeyForgeModal.tsx`
+
+Finding:
+- the production Wallet mounted a 3D pass with a second PromoKey conversion path separate from the Wallet's canonical conversion mutation;
+- the legacy forge modal attempted a direct RPC but only logged RPC errors, then used a timer to declare “Successfully forged,” subtract Points and add PromoKeys in local React state regardless of whether a durable conversion occurred;
+- its success state described minting as settled and showed a locally calculated new key balance;
+- the 3D pass therefore could disagree with the authoritative Wallet ledger and visually manufacture spendable PromoKeys;
+- the pass also used a fabricated fallback member code and “Verified Member / Active” identity language when those facts were not supplied by an account/pass source.
+
+Resolution:
+- the 3D pass no longer owns local Points/PromoKey balances and renders the recorded balances supplied by Wallet;
+- its conversion CTA opens the Wallet's existing authenticated `/economy/convert/points-to-promokeys` flow, which reports success only after the API accepts the conversion and then refreshes authoritative balances;
+- the duplicate forge modal is retained only as a non-mutating compatibility boundary and cannot mint, settle or alter local balances;
+- fabricated member-id fallback and unsupported verified/active labels were removed from the pass.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

@@ -318,6 +318,7 @@ const Wallet = () => {
               points={walletBalance?.points || 0}
               promoKeys={walletBalance?.promokeys || 0}
               gems={gems}
+              onConvertPoints={() => setConvertDialogOpen(true)}
             />
             <div className="flex w-full max-w-[420px] gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
