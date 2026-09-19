@@ -17,7 +17,7 @@ router.use(requireAuth);
 router.get('/', async (req, res) => {
     try {
         if (!supabase) {
-            return res.json({ success: true, notifications: [], unread_count: 0 });
+            return res.status(503).json({ success: false, error: 'Notification source unavailable', code: 'NOTIFICATION_SOURCE_UNAVAILABLE' });
         }
 
         const { data, error } = await supabase
@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
 
         if (error) throw error;
 
-        const unread_count = (data || []).filter(n => !n.read_at).length;
+        const unread_count = (data || []).filter(n => !n.is_read).length;
 
         res.json({
             success: true,
@@ -48,14 +48,14 @@ router.get('/', async (req, res) => {
 router.get('/unread-count', async (req, res) => {
     try {
         if (!supabase) {
-            return res.json({ success: true, count: 0 });
+            return res.status(503).json({ success: false, error: 'Notification source unavailable', code: 'NOTIFICATION_SOURCE_UNAVAILABLE' });
         }
 
         const { count, error } = await supabase
             .from('notifications')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', req.user.id)
-            .is('read_at', null);
+            .eq('is_read', false);
 
         if (error) throw error;
 
@@ -73,16 +73,19 @@ router.get('/unread-count', async (req, res) => {
 router.post('/:id/read', async (req, res) => {
     try {
         if (!supabase) {
-            return res.json({ success: true, message: 'Notification marked as read' });
+            return res.status(503).json({ success: false, error: 'Notification source unavailable', code: 'NOTIFICATION_SOURCE_UNAVAILABLE' });
         }
 
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('notifications')
-            .update({ read_at: new Date().toISOString() })
+            .update({ is_read: true, read_at: new Date().toISOString() })
             .eq('id', req.params.id)
-            .eq('user_id', req.user.id);
+            .eq('user_id', req.user.id)
+            .select('id')
+            .maybeSingle();
 
         if (error) throw error;
+        if (!data) return res.status(404).json({ success: false, error: 'Notification not found' });
 
         res.json({ success: true, message: 'Notification marked as read' });
     } catch (error) {
@@ -97,14 +100,14 @@ router.post('/:id/read', async (req, res) => {
 router.post('/mark-all-read', async (req, res) => {
     try {
         if (!supabase) {
-            return res.json({ success: true, message: 'All notifications marked as read' });
+            return res.status(503).json({ success: false, error: 'Notification source unavailable', code: 'NOTIFICATION_SOURCE_UNAVAILABLE' });
         }
 
         const { error } = await supabase
             .from('notifications')
-            .update({ read_at: new Date().toISOString() })
+            .update({ is_read: true, read_at: new Date().toISOString() })
             .eq('user_id', req.user.id)
-            .is('read_at', null);
+            .eq('is_read', false);
 
         if (error) throw error;
 
@@ -128,7 +131,7 @@ router.post('/push-token', async (req, res) => {
         }
 
         if (!supabase) {
-            return res.json({ success: true, message: 'Push token registered (mock)' });
+            return res.status(503).json({ success: false, error: 'Notification source unavailable', code: 'NOTIFICATION_SOURCE_UNAVAILABLE' });
         }
 
         const { error } = await supabase
