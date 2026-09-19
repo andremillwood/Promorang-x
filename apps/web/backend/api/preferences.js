@@ -13,8 +13,6 @@ const VALID_INTERESTS = [
     'beauty', 'gaming', 'home', 'travel'
 ];
 
-const PREFERENCES_COMPLETION_POINTS = 100;
-
 /**
  * GET /api/preferences
  * Get current user preferences
@@ -22,7 +20,10 @@ const PREFERENCES_COMPLETION_POINTS = 100;
 router.get('/', requireAuth, async (req, res) => {
     try {
         if (!supabase) {
-            return res.json({ preferences: {}, completed: false });
+            return res.status(503).json({
+                error: 'Preference source unavailable',
+                code: 'PREFERENCE_SOURCE_UNAVAILABLE'
+            });
         }
 
         const { data, error } = await supabase
@@ -65,11 +66,10 @@ router.post('/', requireAuth, async (req, res) => {
         }
 
         if (!supabase) {
-            return res.json({
-                success: true,
-                preferences: { interests, location, deal_types },
-                points_awarded: 0,
-                message: 'Preferences saved (mock)'
+            return res.status(503).json({
+                success: false,
+                error: 'Preference source unavailable',
+                code: 'PREFERENCE_SOURCE_UNAVAILABLE'
             });
         }
 
@@ -96,8 +96,8 @@ router.post('/', requireAuth, async (req, res) => {
         res.json({
             success: true,
             preferences: data.preferences,
-            points_awarded: PREFERENCES_COMPLETION_POINTS,
-            message: `Preferences saved! +${PREFERENCES_COMPLETION_POINTS} points`
+            points_awarded: 0,
+            message: 'Preferences saved'
         });
     } catch (error) {
         console.error('Error saving preferences:', error);
@@ -127,7 +127,7 @@ router.get('/options', optionalAuth, (req, res) => {
             { id: 'events', label: 'Exclusive Events', emoji: '🎟️' },
             { id: 'paid', label: 'Paid Opportunities', emoji: '💵' }
         ],
-        points_reward: PREFERENCES_COMPLETION_POINTS
+        points_reward: 0
     });
 });
 
