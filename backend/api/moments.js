@@ -57,30 +57,58 @@ router.get('/feed', async (req, res) => {
             };
         });
 
-        const brandNamesByMoment = {};
+        const brandsByMoment = {};
+        const offersByMoment = {};
         if (momentIds.length > 0) {
-            const { data: associations } = await supabase
-                .from('view_moment_brand_associations')
-                .select('moment_id,brand_id')
-                .in('moment_id', momentIds);
+            const [{ data: associations }, { data: offerDistributions }] = await Promise.all([
+                supabase
+                    .from('view_moment_brand_associations')
+                    .select('moment_id,brand_id')
+                    .in('moment_id', momentIds),
+                supabase
+                    .from('offer_distributions')
+                    .select('offer_id,source_id,source_label,offers!inner(id,title,description,image_url,reward_type,value_amount,value_currency,ends_at,status)')
+                    .eq('channel', 'moment')
+                    .eq('is_active', true)
+                    .in('source_id', momentIds)
+                    .eq('offers.status', 'active'),
+            ]);
 
             const brandIds = [...new Set((associations || []).map((association) => association.brand_id).filter(Boolean))];
             const { data: brands } = brandIds.length
-                ? await supabase.from('organizations').select('id,name').in('id', brandIds)
+                ? await supabase.from('organizations').select('id,name,slug').in('id', brandIds)
                 : { data: [] };
-            const brandNameById = Object.fromEntries((brands || []).map((brand) => [brand.id, brand.name]));
+            const brandById = Object.fromEntries((brands || []).map((brand) => [brand.id, brand]));
 
             (associations || []).forEach((association) => {
-                const brandName = brandNameById[association.brand_id];
-                if (!brandName) return;
-                brandNamesByMoment[association.moment_id] ||= [];
-                if (!brandNamesByMoment[association.moment_id].includes(brandName)) {
-                    brandNamesByMoment[association.moment_id].push(brandName);
+                const brand = brandById[association.brand_id];
+                if (!brand) return;
+                brandsByMoment[association.moment_id] ||= [];
+                if (!brandsByMoment[association.moment_id].some((item) => item.id === brand.id)) {
+                    brandsByMoment[association.moment_id].push(brand);
+                }
+            });
+
+            (offerDistributions || []).forEach((distribution) => {
+                const offer = Array.isArray(distribution.offers) ? distribution.offers[0] : distribution.offers;
+                if (!distribution.source_id || !offer || (offer.ends_at && new Date(offer.ends_at).getTime() <= Date.now())) return;
+                offersByMoment[distribution.source_id] ||= [];
+                if (!offersByMoment[distribution.source_id].some((item) => item.id === offer.id)) {
+                    offersByMoment[distribution.source_id].push({
+                        id: offer.id,
+                        title: offer.title,
+                        description: offer.description || null,
+                        image_url: offer.image_url || null,
+                        reward_type: offer.reward_type,
+                        value_amount: offer.value_amount,
+                        value_currency: offer.value_currency,
+                        source_label: distribution.source_label || null,
+                    });
                 }
             });
         }
 
-        const feed = buildMomentFeed(enrichedMoments, brandNamesByMoment);
+        const feed = buildMomentFeed(enrichedMoments, brandsByMoment, new Date(), offersByMoment);
         res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
         res.json({ success: true, data: feed });
     } catch (err) {

@@ -25,7 +25,18 @@ export interface CanonicalMoment {
   organizer_id?: string | null;
   max_participants?: number | null;
   participant_count: number;
+  associated_brands?: Array<{ id: string | null; name: string; slug: string | null }>;
   associated_brand_names: string[];
+  associated_offers?: Array<{
+    id: string;
+    title: string;
+    description?: string | null;
+    image_url?: string | null;
+    reward_type?: string | null;
+    value_amount?: number | null;
+    value_currency?: string | null;
+    source_label?: string | null;
+  }>;
   data_quality_issues: string[];
   end_time_inferred: boolean;
   sponsorship_ready: boolean;

@@ -1,7 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
-for (const filename of [".env.production", ".env"]) {
+// Match Vite's production precedence so local verification can use pulled
+// deployment credentials without checking them into source control.
+for (const filename of [".env.production.local", ".env.local", ".env.production", ".env"]) {
   try {
     const source = await readFile(join(process.cwd(), filename), "utf8");
     for (const line of source.split(/\r?\n/)) {

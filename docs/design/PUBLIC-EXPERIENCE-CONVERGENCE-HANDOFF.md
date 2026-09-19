@@ -619,6 +619,54 @@ Before coding, check:
 
 ---
 
+### 2026-09-19 — Offer relationship and availability continuation
+
+**Problem:** Offer detail could terminate after claim guidance even when the canonical public reward read model carried a linked Place or Brand. Expired or exhausted Offers also continued to present an active claim action.
+
+**Decision:** Offer availability must control the claim action, while source-backed Place and Brand records should provide clearly explained onward routes.
+
+**Implemented:** linked Place and Brand relationship cards sourced from `view_public_reward_directory`; explicit ended and fully claimed states; current-perk exits when an Offer is unavailable; PromoCard language in the successful claim receipt.
+
+**Validation:** `npm run build --workspace apps/web` passed. Dynamic SEO source fetching was unavailable in the local environment, so the generator skipped dynamic pages and completed the static/localized snapshots and sitemap output.
+
+---
+
+### 2026-09-19 — Moment to Brand relationship continuation
+
+**Problem:** canonical Moment supply retained associated Brand names but discarded the Brand slugs required for a real public relationship route. Moment detail could display attribution text without letting a visitor continue into the linked Brand.
+
+**Decision:** canonical feeds should preserve the minimum identity required to traverse a source-backed relationship; display-only names are insufficient when the public object already has a canonical destination.
+
+**Implemented:** the Moment feed now returns deduplicated associated Brand identity (`id`, `name`, `slug`) while preserving the existing name list for compatibility. Anonymous Moment detail renders linked Brands in the relationship rail as “Made possible by.”
+
+**Validation:** focused Moment feed tests pass, including a regression test for Brand identity preservation. `npm run build --workspace apps/web` passes; dynamic SEO fetching remained unavailable locally and was skipped by the generator.
+
+---
+
+### 2026-09-19 — Creator relationship continuation
+
+**Problem:** the canonical `/creators/:handle` destination exposed public work, hosted Moments and approved Discoveries, but it did not provide the primary follow action or let visitors continue into the real Places and Scenes connected through those Moments.
+
+**Decision:** Creator relationships should be derived from public activity already attached to the person. A profile must not invent a Scene or Place merely from biography or location text.
+
+**Implemented:** Creator detail now exposes the existing follow action; deduplicates linked Places from canonical hosted Moment records; resolves linked Scenes through `moment_scene_links`; and labels both relationship families by why they are relevant to the creator.
+
+**Validation:** `npm run build --workspace apps/web` passes. Dynamic SEO fetching remained unavailable locally and was skipped by the generator.
+
+---
+
+### 2026-09-19 — Follow authentication continuity
+
+**Problem:** anonymous Watch, Claim, Join and Save actions preserved their originating object through authentication, but Follow only displayed a sign-in error and abandoned the action context.
+
+**Decision:** authentication remains a checkpoint. Following must return the visitor to the exact Creator/person destination and require the person to explicitly finish the action after sign-in.
+
+**Implemented:** the shared `FollowButton` now stores a resumable relationship intent and sends anonymous visitors through the canonical `next` return path. This fixes continuity on both Creator detail and public person profiles without auto-following anyone.
+
+**Validation:** all six resumable-intent tests pass. `npm run build --workspace apps/web` passes; dynamic SEO fetching remained unavailable locally and was skipped by the generator.
+
+---
+
 ### 2026-09-18 — Public Object System v2
 
 **Problem:** public object pages risked becoming unrelated bespoke designs.
@@ -777,3 +825,31 @@ This file is the continuity log. `DESIGN.md` remains the broader design-system l
 **Release posture:** no product mechanics, source queries, writes, thresholds, authorization, reward logic or routes are intentionally changed. Validate the candidate against the same branch-wide voice scan and normal Web Build before treating the pass as complete.
 
 **Validation result:** final strict scan across public/shared participant and stakeholder surfaces returned zero user-visible hits for the targeted internal-language patterns and zero escaped-newline artifacts. Technical terminology remains only in intentional developer/admin/internal-code contexts.
+
+
+### 2026-09-19 — Public object relationships, action continuity, and comprehensive verification
+
+**Problem:** the Offer, Moment and Creator destinations still had incomplete relationship context; unavailable Offers could continue presenting a claim action; anonymous Creator follow lost the user's intended destination; and several PromoCard tests described an older wallet/gold-card contract.
+
+**Decision:** only render relationships supported by canonical records, preserve the exact destination across authentication without automatically completing the action, make Offer availability explicit, and remove the unused legacy Scene implementation rather than leave two competing detail surfaces.
+
+**Implemented:** added source-backed Place and Brand relationships plus expired/fully-claimed handling to Offer detail; carried structured Brand identities through the public Moment feed and linked them from Moment detail; added hosted Place and linked Scene relationships to Creator detail; made anonymous Follow store a resumable intent and return to the Creator; aligned claim language and PromoCard tests with the current product contract; and deleted the unreferenced legacy `SceneDetail` while retaining `CommunityDetail` as the canonical `/scenes/:slug` destination.
+
+**Validation:** the complete web test suite passed 205/205 tests across 45 files; Moment feed backend regressions passed 5/5; the resumable-intent suite passed 6/6; lint completed with zero errors (122 existing warnings remain); the production build passed and generated 30 localized snapshots plus 54 sitemap URLs; and the local application responded successfully. Data-connected dynamic SEO pages were skipped because their source was unreachable from the local build environment. Visual mobile traversal could not be completed because the available browser automation runtime failed to start.
+
+**Remaining:** perform a real narrow-screen journey from Discover through Scene, Moment, Place, Offer and Merchant; verify Watch, Keep Moment, Join Scene, Claim Offer, Follow Creator and commerce Save through a real login; verify dynamic SEO with connected data; add a canonical Moment-to-Offer identifier before exposing that relationship; reconcile and recheck PR #131 against its base with authenticated GitHub access; and triage dependency audit findings separately rather than applying an unsafe blanket upgrade.
+
+
+### 2026-09-19 — Connected SEO, Moment-to-Offer identity, and integration triage
+
+**Problem:** dynamic SEO ignored Vite's local production environment files, Moment rewards had descriptive text but no routable Offer identity in the public feed, the checked-in lockfile was not valid JSON, and the earlier audit count understated the full monorepo result.
+
+**Decision:** use the existing `offer_distributions` ledger as the canonical Moment-to-Offer relationship; load environment files with Vite-compatible production precedence; regenerate rather than hand-edit a corrupted lockfile; and separate safe dependency patches from framework/tooling major upgrades.
+
+**Implemented:** the SEO generator now reads `.env.production.local` and `.env.local`; the canonical Moment feed exposes active unified Offer IDs sourced only from `channel = 'moment'` distributions; Moment detail links those Offers; Offer detail supports both unified Offers and legacy coupons; and dependency findings are recorded in `docs/security/DEPENDENCY-AUDIT-2026-09-19.md`.
+
+**Validation:** connected production build passed and generated 3,249 localized snapshots plus 3,273 sitemap URLs; Moment feed tests passed 6/6, including the canonical Offer identity regression; and the regenerated lockfile parses as valid lockfile v3 with 2,280 package records. The remote branch's lockfile begins with a captured truncation warning and is invalid JSON, so the large replacement is a necessary repair rather than ordinary dependency churn.
+
+**PR state:** remote refs and GitHub's public API confirm PR #131 is open, draft, mergeable and clean at remote head `de982ea05`; both Vercel status contexts are successful. The refreshed feature branch is 3 commits behind and 192 commits ahead of `design/canonical-object-system-v1`. A non-checkout merge-tree calculation found no committed-tree conflicts. The actual merge was intentionally not performed because the working tree contains overlapping uncommitted work, including files changed by those three base commits. GitHub CLI authentication was initiated but not completed during this pass.
+
+**Remaining:** preserve or commit the current work in correctly scoped changes, merge the three base commits, then rerun the full suite and push the reconciled PR head; complete real-browser authenticated journeys; and execute dependency upgrades in the staged groups documented by the security triage rather than using `npm audit fix --force`.

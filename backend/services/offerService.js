@@ -115,6 +115,19 @@ async function listPublicOffers(filters = {}) {
   return selectOffersForPlace(active, (offer) => resolveOfferReach(offer), placeFromQuery(filters));
 }
 
+async function getPublicOffer(offerId) {
+  const { data, error } = await supabase
+    .from('offers')
+    .select('*, offer_distributions(*)')
+    .eq('id', offerId)
+    .eq('status', 'active')
+    .lte('starts_at', new Date().toISOString())
+    .maybeSingle();
+  if (error) throw error;
+  if (!data || (data.ends_at && new Date(data.ends_at).getTime() <= Date.now())) throw new Error('Offer not available');
+  return data;
+}
+
 function rulesMatch(rules, context) {
   if (!rules || !Object.keys(rules).length) return true;
   if (rules.required_events && !rules.required_events.includes(context.event)) return false;
@@ -426,6 +439,7 @@ module.exports = {
   listOwnerOffers,
   updateOffer,
   listPublicOffers,
+  getPublicOffer,
   issueForEvent,
   directClaim,
   claimIssuance,

@@ -58,8 +58,8 @@ export const StoryGamificationRail: React.FC<StoryGamificationRailProps> = ({
   onOpenWheel,
   onOpenStreak,
 }) => {
-  if (!import.meta.env.DEV) return null;
   const { t } = useI18n();
+  if (!import.meta.env.DEV) return null;
 
   return (
     <div className="w-full overflow-x-auto no-scrollbar py-3 px-1 flex items-center gap-3">

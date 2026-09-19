@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { authPathForReturn } from "@/lib/post-auth-next";
+import { rememberResumableIntent } from "@/lib/resumable-intent";
 
 interface FollowButtonProps {
     userId: string;
@@ -88,11 +90,17 @@ export function FollowButton({
         }
 
         if (!user) {
-            toast({
-                title: t("followButton.signInRequired"),
-                description: t("followButton.signInDesc"),
-                variant: "destructive"
+            const returnPath = typeof window === "undefined"
+                ? `/profile/${userId}`
+                : `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            rememberResumableIntent({
+                kind: "market_watch",
+                returnPath,
+                targetId: `profile:${userId}`,
             });
+            if (typeof window !== "undefined") {
+                window.location.assign(authPathForReturn(returnPath, { mode: "login", role: "participant" }));
+            }
             return;
         }
 
