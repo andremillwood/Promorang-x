@@ -387,7 +387,7 @@ This count itself is a release concern. Canonical navigation must expose a much 
 | `/pieces/:pieceType/:assetId` | production | Primary candidate; still requires experience audit |
 | `/pieces/:pieceType/:assetId/manage` | redirect | Redirects to `/portfolio` |
 | `/kyc` | production | Primary candidate; still requires experience audit |
-| `/liquidity` | limited | Secondary/legacy concept; review against canonical spine |
+| `/liquidity` | limited | Read-only recorded pool/LP/Gems state; production liquidity mutations gated until atomic settlement exists |
 | `/propose/new` | production | Primary candidate; still requires experience audit |
 | `*` | production | Primary candidate; still requires experience audit |
 

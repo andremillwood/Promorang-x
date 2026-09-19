@@ -1361,6 +1361,34 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-051 — Limited Liquidity surface used wrong APIs, fabricated outage state and exposed non-atomic value writes
+
+Files:
+- `apps/web/src/pages/LiquidityDashboard.tsx`
+- `backend/api/pieces.js`
+- `docs/design/route-readiness-registry-v1.md`
+
+Finding:
+- the limited `/liquidity` page called `/api/pools`, `/api/liquidity/positions` and `/api/gems/balance` even though the recorded Piece APIs are mounted at `/api/pieces/pools`, `/api/pieces/lp/positions` and `/api/pieces/gems/balance`;
+- failed reads were logged and then rendered as zero pools, zero positions and a zero Gems balance;
+- the page projected deposited Gems directly into the same numeric USD value and advertised a universal 0.25% fee share / APR-style return without requiring the pool's recorded fee configuration;
+- opening the backing modal depended on an undefined `userPieces` value, while the modal's position route and add-liquidity payload did not match the backend contract;
+- the backend returned fabricated pools, LP positions and Gems balances whenever the database client was unavailable;
+- production add/remove liquidity currently mutates pool reserves and LP positions in separate server writes, so a failure between those writes can leave partial economic state.
+
+Resolution:
+- `/liquidity` remains a **limited** route and is now a source-backed, read-only review surface;
+- it reads the actual Piece pool, account LP-position and Gems endpoints and treats any source failure as unavailable with retry rather than zero state;
+- Gems remain Gems; the unsupported one-to-one USD projection was removed;
+- fee-rate display comes from each recorded pool, and the optional annualized figure is explicitly described as a simple estimate from recorded 24-hour volume rather than a promised return;
+- the production route no longer mounts the legacy add/remove-liquidity modal;
+- production pool/LP/Gems reads return unavailable when the database source is missing instead of demo records; explicit demo data remains non-production only;
+- production add/remove liquidity endpoints now fail closed with `LIQUIDITY_ATOMICITY_PENDING` until reserve and LP-position changes have an atomic settlement contract;
+- the route registry records the read-only limitation so the legacy mutation component is not treated as an approved production workflow.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

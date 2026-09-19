@@ -516,6 +516,7 @@ Latest closed findings:
 - **T-048 — Wallet pass locally forged PromoKeys after ignored conversion failures.**
 - **T-049 — PromoPush turned source/write failure into zero activity, active campaigns and successful attribution.**
 - **T-050 — Marketplace and Piece profile converted source gaps into empty inventory, demo markets and unsupported entitlements.**
+- **T-051 — Limited Liquidity surface used wrong APIs, fabricated outage state and exposed non-atomic value writes.**
 
 Closed direction:
 
@@ -557,7 +558,8 @@ Closed direction:
 - legacy public-profile rendering no longer depends on the viewer's private journey/identity queries or enables follow mutations before follow state is known;
 - the Wallet pass no longer owns a second browser-only PromoKey forge; Point → PromoKey conversion now routes through the Wallet's authoritative conversion mutation and refreshes recorded balances;
 - PromoPush owner, creator, promoter and Admin surfaces no longer turn source failure into zero/empty state; campaign creation stages draft → dependencies → requested status, and tracking-link redirect now requires a persisted attribution event;
-- Marketplace now separates source unavailable from empty inventory, while Piece Profile no longer manufactures a market during database failure, coerces missing metrics to zero, or promises holder perks without a recorded entitlement source.
+- Marketplace now separates source unavailable from empty inventory, while Piece Profile no longer manufactures a market during database failure, coerces missing metrics to zero, or promises holder perks without a recorded entitlement source;
+- the limited Liquidity route is now read-only and source-backed, uses the actual Piece APIs, preserves Gems as Gems, and production add/remove liquidity fails closed until reserve/LP-position settlement is atomic.
 
 ### NEXT ACTION
 
