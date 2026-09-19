@@ -1176,6 +1176,35 @@ Resolution:
 
 Status: **Closed**
 
+
+#### T-044 — Creator release routes mixed seeded compatibility, false-zero failures and premature publish success
+
+Files:
+- `apps/web/src/hooks/useContentDistribution.ts`
+- `apps/web/src/pages/ContentDrops.tsx`
+- `apps/web/src/pages/ContentDropDetail.tsx`
+- `apps/web/src/components/creator/CreatorMissionsHub.tsx`
+- `backend/api/content-distribution.js`
+- `backend/services/contentDistributionService.js`
+
+Finding:
+- the canonical Content Drop detail hook still consulted the seeded Content Drop and seeded leaderboard modules before the live API, so production truth depended on an environment gate rather than the routed source contract itself;
+- Content Drop list, account-list, context and leaderboard failures could render as an empty market, no releases, no context or zero performance;
+- the publish form created an `active` campaign first and attached its primary asset second, while the campaign mutation announced “Content Drop launched” after only the first write;
+- an asset-write failure could therefore leave an incomplete campaign active while the UI had already reported launch success;
+- the legacy `CreatorMissionsHub` still contained fabricated brands, cash bounties, claim counts, deadlines and browser-only claim success even though the current Creator dashboard no longer mounted it.
+
+Resolution:
+- canonical Content Drop hooks now read only the live content-distribution API; seeded records remain isolated to explicit development/test modules rather than the production route contract;
+- HTTP status is preserved so not-found can remain distinct from source unavailable;
+- live-market, account, context and leaderboard failures render explicit unavailable/retry states; leaderboard-dependent metrics render unknown rather than fabricated zero;
+- release publication is staged `draft → asset attached → active`;
+- the campaign stays non-public if the asset or activation step fails, and the UI reports an incomplete draft rather than successful publication;
+- the generic create hook now reports only that the release record was created; the page reports “Release published” only after the asset write and owner-only activation transition both succeed;
+- the legacy Creator Missions compatibility component delegates to the real release workspace, eliminating the fabricated bounty board if an older import is re-mounted.
+
+Status: **Closed**
+
 ## Findings requiring follow-up
 
 ### T-004 — Production aliases and compatibility fixture imports

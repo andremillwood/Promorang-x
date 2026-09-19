@@ -105,6 +105,31 @@ router.post('/campaigns', async (req, res) => {
   }
 });
 
+router.patch('/campaigns/:campaignId/status', async (req, res) => {
+  try {
+    const status = req.body?.status;
+    const allowedStatuses = new Set(['draft', 'active', 'paused', 'completed', 'cancelled']);
+    if (!allowedStatuses.has(status)) {
+      return res.status(400).json({ success: false, error: 'valid status is required' });
+    }
+
+    const campaign = await contentDistributionService.updateCampaignStatus(
+      req.params.campaignId,
+      status,
+      req.user.id
+    );
+    res.json({ success: true, data: campaign });
+  } catch (error) {
+    console.error('[Content Distribution] update campaign status failed:', error);
+    const status = error.message === 'Content distribution campaign not found'
+      ? 404
+      : error.message === 'Not authorized to manage this campaign'
+        ? 403
+        : 500;
+    res.status(status).json({ success: false, error: error.message || 'Failed to update content distribution campaign' });
+  }
+});
+
 router.post('/campaigns/:campaignId/assets', async (req, res) => {
   try {
     if (!req.body?.title) {

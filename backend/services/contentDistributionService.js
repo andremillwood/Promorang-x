@@ -145,6 +145,28 @@ async function createCampaign(ownerId, payload) {
   return data;
 }
 
+async function updateCampaignStatus(campaignId, status, actorId) {
+  if (!supabase) throw new Error('Database not available');
+
+  const allowedStatuses = new Set(['draft', 'active', 'paused', 'completed', 'cancelled']);
+  if (!allowedStatuses.has(status)) throw new Error('Invalid content distribution campaign status');
+
+  const campaign = await getCampaign(campaignId);
+  if (!campaign) throw new Error('Content distribution campaign not found');
+  if (campaign.owner_id !== actorId) throw new Error('Not authorized to manage this campaign');
+
+  const { data, error } = await supabase
+    .from('content_distribution_campaigns')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', campaignId)
+    .eq('owner_id', actorId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 async function addAsset(campaignId, payload, actorId) {
   if (!supabase) throw new Error('Database not available');
 
@@ -472,6 +494,7 @@ async function getLeaderboard(campaignId, limit = 25) {
 
 module.exports = {
   createCampaign,
+  updateCampaignStatus,
   addAsset,
   getCampaignDetail,
   listCampaigns,
