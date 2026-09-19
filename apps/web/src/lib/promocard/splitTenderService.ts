@@ -38,9 +38,9 @@ export class SplitTenderService {
     const card = PromoCardService.getCardSummary();
     const pool = MarginPoolService.getPoolByMerchantId(merchantId);
 
-    const allowance = pool?.allowancePerUser ?? 10.0;
-    const minBasket = pool?.minBasketSize ?? 25.0;
-    const isEligible = grossAmount >= minBasket && pool?.isActive !== false;
+    const allowance = pool?.allowancePerUser ?? 0;
+    const minBasket = pool?.minBasketSize ?? 0;
+    const isEligible = Boolean(pool?.isActive) && allowance > 0 && grossAmount >= minBasket;
 
     let promoDiscount = 0;
     if (usePromoCredit && isEligible) {

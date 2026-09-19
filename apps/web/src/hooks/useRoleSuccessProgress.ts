@@ -84,7 +84,7 @@ export function useRoleSuccessProgress(role: string) {
         milestones = [
           { label: "Publish a Release", complete: Number(contentCount || 0) > 0 },
           { label: "Attach a room or perk", complete: linkedContent > 0 },
-          { label: "Get paid after a Promorang consequence", complete: current >= 10 },
+          { label: "Generate 10 attributed or verified supporter outcomes", complete: current >= 10 },
         ];
         nextAction = Number(contentCount || 0) === 0
           ? { label: "Publish your first Release", href: "/content-drops" }

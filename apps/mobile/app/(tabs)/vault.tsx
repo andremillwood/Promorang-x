@@ -1,4 +1,4 @@
-import { ActivityIndicator, ImageBackground, Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
@@ -13,12 +13,11 @@ import { PromoCardFace } from '@/components/people/PromoCardFace';
 import { useMyPromoCard } from '@/hooks/usePeopleExperience';
 import { presentPromoCard } from '@/lib/promoCard';
 
-const assetMeta = {
-  token: { label: 'Value', icon: 'sparkles', color: Colors.primary },
-  nft: { label: 'Memories', icon: 'images', color: Colors.purple },
-  coupon: { label: 'Rewards', icon: 'gift', color: Colors.success },
-  ticket: { label: 'Access', icon: 'ticket', color: Colors.warning },
-  key: { label: 'Invitations', icon: 'key', color: Colors.info },
+const collectionMeta = {
+  memory: { label: 'Pieces & Memories', icon: 'images-outline', color: Colors.purple },
+  coupon: { label: 'Perks', icon: 'gift-outline', color: Colors.success },
+  ticket: { label: 'Draw entries', icon: 'ticket-outline', color: Colors.warning },
+  key: { label: 'Access', icon: 'key-outline', color: Colors.info },
 } as const;
 
 function receiptPresentation(receipt: CommerceReceipt) {
@@ -33,11 +32,9 @@ function receiptPresentation(receipt: CommerceReceipt) {
   const icon = type === 'purchase' ? 'bag-check' : type === 'reservation' ? 'bookmark' : type === 'redemption' ? 'checkmark-done' : type === 'claim' ? 'gift' : 'receipt';
   const color = type === 'purchase' ? Colors.success : type === 'reservation' ? Colors.info : type === 'redemption' ? Colors.primary : type === 'claim' ? Colors.warning : Colors.primary;
   const amount = Number(receipt.amount || 0);
-  const value = receipt.redemption_code
-    || (amount > 0 ? `${amount.toLocaleString()} ${receipt.currency || 'USD'}` : status);
-
+  const value = receipt.redemption_code || (amount > 0 ? `${amount.toLocaleString()} ${receipt.currency || 'USD'}` : status);
   const consequence = resolveCommerceReceiptPresentation({ receiptType: type, status, productName, attribution: receipt.attribution as any });
-  return { title, icon, color, value, status, consequence };
+  return { title, icon, color, value, consequence };
 }
 
 export default function VaultScreen() {
@@ -53,44 +50,72 @@ export default function VaultScreen() {
     queryKey: ['guest-attendance-receipts'],
     queryFn: guestRsvpApi.attendanceReceipts,
   });
+
   const attendanceReceipts = attendanceData?.receipts || [];
-  const loading = assetsLoading || summaryLoading || memoriesLoading;
-  const assetCount = memories.length + Object.values(summary?.asset_counts || {}).reduce((sum, count) => sum + Number(count || 0), 0);
-  const retainedGemValue = summary?.total_value_usd || 0;
+  const retainedAssets = assets.filter((asset) => asset.canonical_type !== 'memory');
+  const objectCount = memories.length + retainedAssets.length;
+  const historyScore = Number(summary?.total_legacy_score || 0);
   const featuredMemory = memories[0];
+  const loading = assetsLoading || summaryLoading || memoriesLoading;
+
+  const collectionCounts = {
+    memory: memories.length,
+    coupon: Number(summary?.asset_counts?.coupon || 0),
+    ticket: Number(summary?.asset_counts?.ticket || 0),
+    key: Number(summary?.asset_counts?.key || 0),
+  };
 
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
-        <View><Text style={styles.eyebrow}>WHAT YOU KEEP</Text><Text style={styles.title}>Vault</Text></View>
-        <Pressable accessibilityLabel="Vault settings" style={styles.settings} onPress={() => router.push('/modal')}><Ionicons name="settings-outline" size={20} color={Colors.white} /></Pressable>
+        <View>
+          <Text style={styles.eyebrow}>WHAT YOU KEEP</Text>
+          <Text style={styles.title}>Vault</Text>
+        </View>
+        <Pressable accessibilityLabel="Vault settings" style={styles.settings} onPress={() => router.push('/modal')}>
+          <Ionicons name="settings-outline" size={20} color={Colors.white} />
+        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
           <View style={styles.heroGlow} />
-          <View style={styles.heroTop}><View style={styles.lock}><Ionicons name="lock-closed" size={18} color={Colors.primary} /></View><Text style={styles.heroMeta}>PRIVATE BY DEFAULT</Text></View>
-          <Text style={styles.heroLabel}>RETAINED VALUE & MEMORY</Text>
-          <Text style={styles.heroValue}>{assetCount}</Text>
-          <Text style={styles.heroUnit}>memories, access, and value kept from taking part</Text>
+          <View style={styles.heroTop}>
+            <View style={styles.lock}><Ionicons name="lock-closed" size={18} color={Colors.primary} /></View>
+            <Text style={styles.heroMeta}>PRIVATE BY DEFAULT</Text>
+          </View>
+          <Text style={styles.heroLabel}>RETAINED OBJECTS & VERIFIED HISTORY</Text>
+          <Text style={styles.heroValue}>{objectCount}</Text>
+          <Text style={styles.heroUnit}>Pieces, memories, access and utility that were actually retained.</Text>
           <View style={styles.heroDivider} />
           <View style={styles.heroFoot}>
-            <View><Text style={styles.footValue}>{retainedGemValue.toLocaleString()} Gems</Text><Text style={styles.footLabel}>retained platform value</Text></View>
-            <Pressable style={styles.scanButton} onPress={() => router.push('/check-in')}><Ionicons name="qr-code" size={17} color={Colors.black} /><Text style={styles.scanText}>Use access</Text></Pressable>
+            <View>
+              <Text style={styles.footValue}>{historyScore.toLocaleString()} history score</Text>
+              <Text style={styles.footLabel}>provenance signal · not USD, Gems, or cash value</Text>
+            </View>
+            <Pressable style={styles.scanButton} onPress={() => router.push('/check-in')}>
+              <Ionicons name="qr-code" size={17} color={Colors.black} />
+              <Text style={styles.scanText}>Prove action</Text>
+            </Pressable>
           </View>
         </View>
 
         <Pressable onPress={() => router.push('/card')} style={styles.cardLink}>
-          <PromoCardFace
-            model={cardView.face}
-            tier={cardView.tier}
-            compact
-          />
+          <PromoCardFace model={cardView.face} tier={cardView.tier} compact />
         </Pressable>
 
+        <View style={styles.truthBoundary}>
+          <Ionicons name="shield-checkmark-outline" size={18} color={Colors.success} />
+          <Text style={styles.truthBoundaryText}>A Memory is retained proof. A Piece can be collectible context. Neither is automatically an NFT, financial asset, or cash-equivalent value.</Text>
+        </View>
+
         <View style={styles.tabs}>
-          <Pressable onPress={() => setActiveTab('kept')} style={[styles.tab, activeTab === 'kept' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'kept' && styles.tabTextActive]}>Memories</Text></Pressable>
-          <Pressable onPress={() => setActiveTab('activity')} style={[styles.tab, activeTab === 'activity' && styles.tabActive]}><Text style={[styles.tabText, activeTab === 'activity' && styles.tabTextActive]}>Activity</Text></Pressable>
+          <Pressable onPress={() => setActiveTab('kept')} style={[styles.tab, activeTab === 'kept' && styles.tabActive]}>
+            <Text style={[styles.tabText, activeTab === 'kept' && styles.tabTextActive]}>Kept</Text>
+          </Pressable>
+          <Pressable onPress={() => setActiveTab('activity')} style={[styles.tab, activeTab === 'activity' && styles.tabActive]}>
+            <Text style={[styles.tabText, activeTab === 'activity' && styles.tabTextActive]}>Activity</Text>
+          </Pressable>
         </View>
 
         {loading ? (
@@ -101,87 +126,118 @@ export default function VaultScreen() {
               <Pressable accessibilityRole="button" accessibilityLabel={`Open memory: ${featuredMemory.title}`} style={styles.featuredMemory} onPress={() => router.push(`/memory/${featuredMemory.id}` as any)}>
                 <ImageBackground source={{ uri: featuredMemory.moments.image_url }} style={styles.featuredMemoryImage} imageStyle={styles.featuredMemoryRadius}>
                   <View style={styles.featuredMemoryShade} />
-                  <View style={styles.featuredMemoryBadge}><Text style={styles.featuredMemoryBadgeText}>LATEST MEMORY</Text></View>
-                  <View style={styles.featuredMemoryCopy}><Text style={styles.featuredMemoryPlace}>{featuredMemory.moments.location || 'PROMORANG'}</Text><Text style={styles.featuredMemoryTitle}>{featuredMemory.title}</Text><Text style={styles.featuredMemoryAction}>Open the memory  →</Text></View>
+                  <View style={styles.featuredMemoryBadge}><Text style={styles.featuredMemoryBadgeText}>LATEST KEPT MEMORY</Text></View>
+                  <View style={styles.featuredMemoryCopy}>
+                    <Text style={styles.featuredMemoryPlace}>{featuredMemory.moments.location || 'PROMORANG'}</Text>
+                    <Text style={styles.featuredMemoryTitle}>{featuredMemory.title}</Text>
+                    <Text style={styles.featuredMemoryAction}>Open retained proof →</Text>
+                  </View>
                 </ImageBackground>
               </Pressable>
             ) : null}
+
             <Text style={styles.sectionEyebrow}>COLLECTIONS</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collections}>
-              {(Object.keys(assetMeta) as Array<keyof typeof assetMeta>).map((type) => {
-                const meta = assetMeta[type];
-                const count = type === 'nft' ? memories.length + (summary?.asset_counts?.[type] || 0) : summary?.asset_counts?.[type] || 0;
+              {(Object.keys(collectionMeta) as Array<keyof typeof collectionMeta>).map((type) => {
+                const meta = collectionMeta[type];
                 return (
                   <View key={type} style={styles.collection}>
-                    <View style={[styles.collectionIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon} size={21} color={meta.color} /></View>
-                    <Text style={styles.collectionCount}>{count}</Text><Text style={styles.collectionLabel}>{meta.label}</Text>
+                    <View style={[styles.collectionIcon, { backgroundColor: `${meta.color}18` }]}>
+                      <Ionicons name={meta.icon as any} size={21} color={meta.color} />
+                    </View>
+                    <Text style={styles.collectionCount}>{collectionCounts[type]}</Text>
+                    <Text style={styles.collectionLabel}>{meta.label}</Text>
                   </View>
                 );
               })}
             </ScrollView>
 
-            <View style={styles.sectionRow}><Text style={styles.sectionTitle}>Recently kept</Text><Text style={styles.sectionCount}>{memories.length + assets.length} objects</Text></View>
-            {memories.length === 0 && assets.length === 0 ? (
+            <View style={styles.sectionRow}>
+              <Text style={styles.sectionTitle}>Recently kept</Text>
+              <Text style={styles.sectionCount}>{objectCount} objects</Text>
+            </View>
+
+            {memories.length === 0 && retainedAssets.length === 0 ? (
               <View style={styles.empty}>
                 <View style={styles.emptyIcon}><Ionicons name="archive-outline" size={29} color={Colors.primary} /></View>
-                <Text style={styles.emptyTitle}>Your first object starts outside.</Text>
-                <Text style={styles.emptyDetail}>Show up, take part, or open something new. The memories, access, and useful value will live here.</Text>
-                <Pressable style={styles.emptyAction} onPress={() => router.push('/discover')}><Text style={styles.emptyActionText}>Find something to do</Text><Ionicons name="arrow-forward" size={16} color={Colors.black} /></Pressable>
-              </View>
-            ) : <>
-              {memories.map((memory) => (
-                <Pressable accessibilityRole="button" accessibilityLabel={`Open memory: ${memory.title}`} onPress={() => router.push(`/memory/${memory.id}` as any)} key={memory.id} style={styles.asset}>
-                  <View style={[styles.assetIcon, { backgroundColor: `${Colors.purple}18` }]}><Ionicons name="images" size={20} color={Colors.purple} /></View>
-                  <View style={styles.assetCopy}><Text style={styles.assetType}>{memory.rarity.toUpperCase()} MEMORY</Text><Text style={styles.assetName}>{memory.title}</Text><Text style={styles.assetDetail}>{memory.moments?.location ? `${memory.moments.location} · ` : ''}Kept from being part of it</Text></View>
-                  <View style={styles.assetValue}><Ionicons name="arrow-forward" size={17} color={Colors.gray[500]} /><Text style={styles.assetSymbol}>OPEN</Text></View>
+                <Text style={styles.emptyTitle}>Nothing retained yet.</Text>
+                <Text style={styles.emptyDetail}>Verified participation, claimed utility and recorded access will appear here only after the platform has a durable record.</Text>
+                <Pressable style={styles.emptyAction} onPress={() => router.push('/discover')}>
+                  <Text style={styles.emptyActionText}>Find something to do</Text><Ionicons name="arrow-forward" size={16} color={Colors.black} />
                 </Pressable>
-              ))}
-              {assets.map((asset) => {
-              const meta = assetMeta[asset.asset_type];
-              return (
-                <View key={asset.id} style={styles.asset}>
-                  <View style={[styles.assetIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon} size={20} color={meta.color} /></View>
-                  <View style={styles.assetCopy}><Text style={styles.assetType}>{meta.label.toUpperCase()}</Text><Text style={styles.assetName}>{asset.asset_name}</Text><Text style={styles.assetDetail}>{asset.expires_at ? `Available until ${new Date(asset.expires_at).toLocaleDateString()}` : 'Opened by taking part'}</Text></View>
-                  <View style={styles.assetValue}><Text style={styles.assetAmount}>{asset.balance.toLocaleString()}</Text><Text style={styles.assetSymbol}>{asset.asset_symbol}</Text></View>
-                </View>
-              );
-            })}
-            </>}
+              </View>
+            ) : (
+              <>
+                {memories.map((memory) => (
+                  <Pressable accessibilityRole="button" accessibilityLabel={`Open memory: ${memory.title}`} onPress={() => router.push(`/memory/${memory.id}` as any)} key={memory.id} style={styles.asset}>
+                    <View style={[styles.assetIcon, { backgroundColor: `${Colors.purple}18` }]}><Ionicons name="images-outline" size={20} color={Colors.purple} /></View>
+                    <View style={styles.assetCopy}>
+                      <Text style={styles.assetType}>{memory.rarity.toUpperCase()} · MEMORY</Text>
+                      <Text style={styles.assetName}>{memory.title}</Text>
+                      <Text style={styles.assetDetail}>{memory.moments?.location ? `${memory.moments.location} · ` : ''}Verified history kept from taking part</Text>
+                    </View>
+                    <View style={styles.assetValue}><Ionicons name="arrow-forward" size={17} color={Colors.gray[500]} /><Text style={styles.assetSymbol}>OPEN</Text></View>
+                  </Pressable>
+                ))}
+
+                {retainedAssets.map((asset) => {
+                  const meta = collectionMeta[asset.canonical_type as keyof typeof collectionMeta];
+                  if (!meta) return null;
+                  return (
+                    <View key={asset.id} style={styles.asset}>
+                      <View style={[styles.assetIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon as any} size={20} color={meta.color} /></View>
+                      <View style={styles.assetCopy}>
+                        <Text style={styles.assetType}>{meta.label.toUpperCase()}</Text>
+                        <Text style={styles.assetName}>{asset.asset_name}</Text>
+                        <Text style={styles.assetDetail}>{asset.expires_at ? `Available until ${new Date(asset.expires_at).toLocaleDateString()}` : 'Retained from a recorded action'}</Text>
+                      </View>
+                      <View style={styles.assetValue}><Text style={styles.assetAmount}>{asset.balance.toLocaleString()}</Text><Text style={styles.assetSymbol}>{asset.asset_symbol}</Text></View>
+                    </View>
+                  );
+                })}
+              </>
+            )}
           </>
         ) : (
           <>
             <View style={styles.sectionRow}><Text style={styles.sectionTitle}>Vault activity</Text><Ionicons name="pulse" size={18} color={Colors.primary} /></View>
-            {(transactionsLoading || receiptsLoading || attendanceLoading) ? <View style={styles.state}><ActivityIndicator color={Colors.primary} /></View> : transactions.length === 0 && receipts.length === 0 && attendanceReceipts.length === 0 ? (
-              <View style={styles.empty}><Text style={styles.emptyTitle}>No activity yet.</Text><Text style={styles.emptyDetail}>Unlocks, redemptions, and transfers will leave a clear receipt here.</Text></View>
-            ) : <>{attendanceReceipts.map((receipt: any) => {
-              const outcomes = receipt.outcomes || {};
-              const value = [outcomes.pieces_awarded ? `${outcomes.piece_quantity || 4} Pieces` : null, outcomes.promoshare_ticket_awarded ? '1 PromoShare ticket' : null].filter(Boolean).join(' · ') || 'Attendance verified';
-              return (
-                <View key={`attendance-${receipt.id}`} style={styles.activity}>
-                  <View style={[styles.activityIcon, { backgroundColor: Colors.ambientWash }]}><Ionicons name="checkmark-circle" size={18} color={Colors.primary} /></View>
-                  <View style={styles.activityCopy}><Text style={styles.activityEyebrow}>IT COUNTED · ATTENDANCE RECEIPT</Text><Text style={styles.activityTitle}>{receipt.moments?.title || 'Moment attended'}</Text><Text style={styles.activityDate}>{new Date(receipt.verified_at).toLocaleDateString()} · {receipt.verification_method || 'verified'} · {value}</Text></View>
-                  <Text style={styles.activityAmount}>{receipt.status}</Text>
-                </View>
-              );
-            })}{receipts.map((receipt) => {
-              const meta = receiptPresentation(receipt);
-              return (
-                <Pressable key={receipt.id} style={styles.activity} onPress={() => router.push(`/receipts/${receipt.id}` as any)}>
-                  <View style={[styles.activityIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon as any} size={18} color={meta.color} /></View>
-                  <View style={styles.activityCopy}><Text style={styles.activityEyebrow}>{meta.consequence.headline.toUpperCase()}</Text><Text style={styles.activityTitle}>{meta.title}</Text><Text style={styles.activityDate}>{new Date(receipt.occurred_at).toLocaleDateString()} · {meta.consequence.outcomes.map((outcome) => outcome.value).join(' · ')}</Text></View>
-                  <Text style={styles.activityAmount} numberOfLines={1}>{meta.value}</Text>
-                </Pressable>
-              );
-            })}{transactions.map((transaction) => {
-              const incoming = transaction.amount > 0;
-              return (
-                <View key={transaction.id} style={styles.activity}>
-                  <View style={[styles.activityIcon, { backgroundColor: incoming ? 'rgba(103,197,135,.12)' : Colors.ambientWash }]}><Ionicons name={incoming ? 'arrow-down' : 'arrow-up'} size={18} color={incoming ? Colors.success : Colors.primary} /></View>
-                  <View style={styles.activityCopy}><Text style={styles.activityTitle}>{transaction.transaction_type.replace('_', ' ')}</Text><Text style={styles.activityDate}>{new Date(transaction.created_at).toLocaleDateString()} · {transaction.status}</Text></View>
-                  <Text style={[styles.activityAmount, { color: incoming ? Colors.success : Colors.white }]}>{incoming ? '+' : ''}{transaction.amount}</Text>
-                </View>
-              );
-            })}</>}
+            {(transactionsLoading || receiptsLoading || attendanceLoading) ? (
+              <View style={styles.state}><ActivityIndicator color={Colors.primary} /></View>
+            ) : transactions.length === 0 && receipts.length === 0 && attendanceReceipts.length === 0 ? (
+              <View style={styles.empty}><Text style={styles.emptyTitle}>No activity yet.</Text><Text style={styles.emptyDetail}>Verification, redemption, issuance and settlement leave distinct records here.</Text></View>
+            ) : (
+              <>
+                {attendanceReceipts.map((receipt: any) => {
+                  const outcomes = receipt.outcomes || {};
+                  const value = [outcomes.pieces_awarded ? `${outcomes.piece_quantity || 4} Pieces` : null, outcomes.promoshare_ticket_awarded ? 'PromoShare entry recorded' : null].filter(Boolean).join(' · ') || 'Attendance verified';
+                  return (
+                    <View key={`attendance-${receipt.id}`} style={styles.activity}>
+                      <View style={[styles.activityIcon, { backgroundColor: Colors.ambientWash }]}><Ionicons name="checkmark-circle" size={18} color={Colors.primary} /></View>
+                      <View style={styles.activityCopy}><Text style={styles.activityEyebrow}>VERIFIED ATTENDANCE</Text><Text style={styles.activityTitle}>{receipt.moments?.title || 'Moment attended'}</Text><Text style={styles.activityDate}>{new Date(receipt.verified_at).toLocaleDateString()} · {receipt.verification_method || 'verified'} · {value}</Text></View>
+                      <Text style={styles.activityAmount}>{receipt.status}</Text>
+                    </View>
+                  );
+                })}
+
+                {receipts.map((receipt) => {
+                  const meta = receiptPresentation(receipt);
+                  return (
+                    <Pressable key={receipt.id} style={styles.activity} onPress={() => router.push(`/receipts/${receipt.id}` as any)}>
+                      <View style={[styles.activityIcon, { backgroundColor: `${meta.color}18` }]}><Ionicons name={meta.icon as any} size={18} color={meta.color} /></View>
+                      <View style={styles.activityCopy}><Text style={styles.activityEyebrow}>{meta.consequence.headline.toUpperCase()}</Text><Text style={styles.activityTitle}>{meta.title}</Text><Text style={styles.activityDate}>{new Date(receipt.occurred_at).toLocaleDateString()} · {meta.consequence.outcomes.map((outcome) => outcome.value).join(' · ')}</Text></View>
+                      <Text style={styles.activityAmount} numberOfLines={1}>{meta.value}</Text>
+                    </Pressable>
+                  );
+                })}
+
+                {transactions.map((transaction: any) => (
+                  <View key={transaction.id} style={styles.activity}>
+                    <View style={[styles.activityIcon, { backgroundColor: Colors.ambientWash }]}><Ionicons name="receipt-outline" size={18} color={Colors.primary} /></View>
+                    <View style={styles.activityCopy}><Text style={styles.activityEyebrow}>RETAINED HISTORY</Text><Text style={styles.activityTitle}>{String(transaction.description || transaction.transaction_type || 'record').replaceAll('_', ' ')}</Text><Text style={styles.activityDate}>{transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : 'Date recorded in source'} · {transaction.status || 'recorded'}</Text></View>
+                  </View>
+                ))}
+              </>
+            )}
           </>
         )}
         <View style={{ height: 110 }} />
@@ -204,14 +260,16 @@ const styles = StyleSheet.create({
   heroMeta: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .7 },
   heroLabel: { color: Colors.gray[400], fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: .8, marginTop: 25 },
   heroValue: { color: Colors.white, fontSize: 43, lineHeight: 48, fontWeight: '800', letterSpacing: -1.5, marginTop: 3 },
-  heroUnit: { color: Colors.gray[400], fontSize: 12 },
+  heroUnit: { color: Colors.gray[400], fontSize: 12, lineHeight: 18 },
   heroDivider: { height: StyleSheet.hairlineWidth, backgroundColor: Colors.border, marginVertical: 17 },
-  heroFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'transparent' },
-  footValue: { color: Colors.white, fontSize: 17, fontWeight: '800' },
-  footLabel: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
+  heroFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, backgroundColor: 'transparent' },
+  footValue: { color: Colors.white, fontSize: 15, fontWeight: '800' },
+  footLabel: { color: Colors.gray[500], fontSize: 11, marginTop: 2, maxWidth: 210 },
   scanButton: { flexDirection: 'row', gap: 7, alignItems: 'center', paddingHorizontal: 13, paddingVertical: 10, borderRadius: 18, backgroundColor: Colors.primary },
   scanText: { color: Colors.black, fontSize: 13, fontWeight: '800' },
-  cardLink: { marginBottom: 8 },
+  cardLink: { marginTop: 12, marginBottom: 8 },
+  truthBoundary: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', marginTop: 10, padding: 14, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
+  truthBoundaryText: { flex: 1, color: Colors.gray[400], fontSize: 12, lineHeight: 18 },
   tabs: { flexDirection: 'row', marginVertical: 18, padding: 4, borderRadius: 16, backgroundColor: Colors.gray[900] },
   tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 13, backgroundColor: 'transparent' },
   tabActive: { backgroundColor: Colors.gray[700] },
@@ -229,10 +287,10 @@ const styles = StyleSheet.create({
   featuredMemoryTitle: { color: Colors.white, fontSize: 28, lineHeight: 30, fontWeight: '900', letterSpacing: -.8, marginTop: 6 },
   featuredMemoryAction: { color: Colors.white, fontSize: 12, fontWeight: '800', marginTop: 12 },
   collections: { gap: 9, paddingBottom: 24 },
-  collection: { width: 104, padding: 13, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
+  collection: { width: 118, padding: 13, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
   collectionIcon: { width: 37, height: 37, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   collectionCount: { color: Colors.white, fontSize: 19, fontWeight: '800', marginTop: 14 },
-  collectionLabel: { color: Colors.gray[500], fontSize: 12, marginTop: 2 },
+  collectionLabel: { color: Colors.gray[500], fontSize: 11, marginTop: 2 },
   sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11, backgroundColor: 'transparent' },
   sectionTitle: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   sectionCount: { color: Colors.gray[500], fontFamily: 'SpaceMono', fontSize: 12 },
@@ -257,7 +315,7 @@ const styles = StyleSheet.create({
   activityEyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 9, letterSpacing: .6, marginBottom: 3 },
   activityTitle: { color: Colors.white, fontSize: 13, fontWeight: '700', textTransform: 'capitalize' },
   activityDate: { color: Colors.gray[500], fontSize: 12, marginTop: 3, textTransform: 'capitalize' },
-  activityAmount: { fontSize: 14, fontWeight: '800' },
+  activityAmount: { color: Colors.white, fontSize: 12, fontWeight: '800', maxWidth: 86 },
   state: { minHeight: 260, alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: 'transparent' },
   stateText: { color: Colors.gray[500], fontSize: 12 },
 });

@@ -37,6 +37,15 @@ describe('people experience role and value rules', () => {
     expect(buckets).toMatchObject({ went: 1, bought: 1, answered: 1, shared: 1, brought: 1, claimed: 1 });
   });
 
+  test('RSVP intent never counts as attendance', () => {
+    expect(classifyHappenedBucket('event_rsvp')).toBe('other');
+    expect(classifyHappenedBucket('MOMENT_RSVP')).toBe('other');
+    expect(happenedBuckets([
+      { action_type: 'event_rsvp' },
+      { action_type: 'MOMENT_ATTENDANCE' },
+    ])).toMatchObject({ went: 1, other: 1 });
+  });
+
   test('reads existing live action types without new columns', () => {
     expect(classifyHappenedBucket('moment_join_verified')).toBe('went');
     expect(classifyHappenedBucket('proof_verified')).toBe('went');

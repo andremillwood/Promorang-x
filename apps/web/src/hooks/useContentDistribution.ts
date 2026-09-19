@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { getSeededContentDrop, seededContentDropLeaderboards } from "@/data/seeded-content-drops";
 import type { ContentContext } from "@promorang/shared";
 
 export type ContentDistributionAsset = {
@@ -74,6 +73,16 @@ type ApiOptions = {
   token?: string;
 };
 
+export class ContentDistributionRequestError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ContentDistributionRequestError";
+    this.status = status;
+  }
+}
+
 async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method || "GET",
@@ -87,7 +96,10 @@ async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
 
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(payload.error || `Content distribution request failed with ${response.status}`);
+    throw new ContentDistributionRequestError(
+      payload.error || `Content distribution request failed with ${response.status}`,
+      response.status
+    );
   }
 
   return response.json();
@@ -122,12 +134,9 @@ export function useMyContentDrops(status = "all") {
 }
 
 export function useContentDrop(campaignId?: string) {
-  const seededDrop = getSeededContentDrop(campaignId);
-
   return useQuery({
     queryKey: ["content-drop", campaignId],
     queryFn: async () => {
-      if (seededDrop) return seededDrop;
       const payload = await apiFetch<{ success: boolean; data: ContentDistributionCampaign }>(
         `/content-distribution/campaigns/${campaignId}`
       );
@@ -145,17 +154,14 @@ export function useContentDropContext(campaignId?: string) {
       const payload = await apiFetch<{ success: boolean; data: ContentContext }>(`/content-distribution/campaigns/${campaignId}/context`, { token: session?.access_token });
       return payload.data;
     },
-    enabled: !!campaignId && !getSeededContentDrop(campaignId),
+    enabled: !!campaignId,
   });
 }
 
 export function useContentDropLeaderboard(campaignId?: string) {
-  const seededLeaderboard = campaignId ? seededContentDropLeaderboards[campaignId] : undefined;
-
   return useQuery({
     queryKey: ["content-drop-leaderboard", campaignId],
     queryFn: async () => {
-      if (seededLeaderboard) return seededLeaderboard;
       const payload = await apiFetch<{ success: boolean; data: ContentDistributionLeaderboardRow[] }>(
         `/content-distribution/campaigns/${campaignId}/leaderboard`
       );
@@ -181,8 +187,8 @@ export function useCreateContentDrop() {
       queryClient.invalidateQueries({ queryKey: ["content-drops"] });
       queryClient.invalidateQueries({ queryKey: ["my-content-drops"] });
       toast({
-        title: "Content Drop launched",
-        description: "Your distribution desk is ready for contributors.",
+        title: "Release record created",
+        description: "The release record is saved. Publishing is complete only after its asset is attached and the record is activated.",
       });
     },
     onError: (error: Error) => {
@@ -191,6 +197,28 @@ export function useCreateContentDrop() {
         description: error.message,
         variant: "destructive",
       });
+    },
+  });
+}
+
+export function useUpdateContentDropStatus() {
+  const { session } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ campaignId, status }: { campaignId: string; status: ContentDistributionCampaign["status"] }) =>
+      apiFetch<{ success: boolean; data: ContentDistributionCampaign }>(
+        `/content-distribution/campaigns/${campaignId}/status`,
+        {
+          method: "PATCH",
+          token: session?.access_token,
+          body: { status },
+        }
+      ),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["content-drop", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: ["content-drops"] });
+      queryClient.invalidateQueries({ queryKey: ["my-content-drops"] });
     },
   });
 }

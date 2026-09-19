@@ -31,6 +31,11 @@ export default defineConfig(({ mode }) => {
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
+      "@/components/radar/MomentDetailModal": path.resolve(__dirname, "./src/components/radar/production-safe/MomentDetailModal.tsx"),
+      "@/lib/curated-radar": path.resolve(__dirname, "./src/lib/production-safe/curated-radar.ts"),
+      "@/data/demo-moments": path.resolve(__dirname, "./src/data/production-safe/demo-moments.ts"),
+      "@/data/culture-demo": path.resolve(__dirname, "./src/data/production-safe/culture-demo.ts"),
+      "@/data/discoveriesData": path.resolve(__dirname, "./src/data/production-safe/discoveriesData.ts"),
       "@": path.resolve(__dirname, "./src"),
       "@promorang/shared": path.resolve(__dirname, "../../packages/shared/src/index.ts"),
     },

@@ -15,6 +15,7 @@ export type PathablePoll = {
   totalVotes?: number;
   thresholdForMoment?: number;
   signalKind?: DiscoverySignalKind;
+  userVotedOptionId?: string;
   retired?: boolean;
 };
 
@@ -117,7 +118,6 @@ const PREFERENCE_TO_LENS: Record<string, DiscoverLensId> = {
 const QUERY_STOP_WORDS = new Set(["a", "an", "and", "for", "in", "of", "on", "the", "to", "with"]);
 
 export const DISCOVER_QUERY_STORAGE_KEY = "promorang.discover.query";
-export const DISCOVER_VOTED_STORAGE_KEY = "promorang.discover.voted";
 export const DISCOVER_SKIPPED_STORAGE_KEY = "promorang.discover.skipped";
 export const DISCOVER_LENS_STORAGE_KEY = "promorang.discover.lens";
 

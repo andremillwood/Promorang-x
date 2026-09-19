@@ -1,28 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  ArrowRight,
-  Check,
-  Copy,
-  MapPin,
-  RefreshCw,
-  Sparkles,
-  Ticket,
-} from "lucide-react";
+import { ArrowRight, Check, Copy, RefreshCw } from "lucide-react";
 import {
   discoverHrefForAim,
   firstGivenName,
   getStakeholderLens,
   issuanceFromPromoCardPerk,
   isPresentablePass,
-  ownedBenefitKicker,
-  ownedBenefitStatus,
   fillCardCopy,
   ownedCardCopy,
   PROMOCARD_AIMS,
   resolvePromoCardAim,
   resolvePromoCardFace,
-  resolveWorldInvitation,
   selectOwnedUseThis,
   sortBenefitsByAim,
   type PromoCardAim,
@@ -33,24 +22,14 @@ import { useApplyPromoCardAim } from "@/hooks/usePromoCardAim";
 import { useExperienceHome, useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { resolveStoredPromoCardAim } from "@/lib/promocard-aim";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
-import {
-  ExperienceShell,
-  ExperienceLoading,
-  QuietEmpty,
-} from "@/components/people/ExperienceShell";
+import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { StakeholderPutInPass } from "@/components/people/StakeholderLoop";
-import { PromoCardActions } from "@/components/promocard/PromoCardActions";
 import { CommunityCardLink } from "@/components/community/CommunityCardLink";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import type { OfferIssuance } from "@/hooks/useOffers";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizeLens } from "@/i18n/localize";
 
@@ -60,10 +39,8 @@ type CardPerk = {
   detail?: string;
   redemptionCode?: string | null;
   expiresAt?: string | null;
-  status?: string;
   fulfillmentState?: string;
   fulfillmentType?: string | null;
-  fulfillmentData?: Record<string, unknown>;
   issuer?: { name?: string };
   eligibility?: { who?: string };
   availableQuantity?: number | null;
@@ -72,11 +49,9 @@ type CardPerk = {
   dropSlug?: string;
   href?: string;
   issuance?: PromoCardPerk["issuance"];
-  fromDiscover?: boolean;
 };
 
-const actionClass =
-  "experience-interactive inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-black disabled:opacity-50";
+const actionClass = "experience-interactive inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-black disabled:opacity-50";
 
 function perkCode(perk: CardPerk | null | undefined) {
   return perk?.redemptionCode || perk?.redemption?.code || null;
@@ -91,81 +66,12 @@ function isExpired(perk: CardPerk) {
 function canShowCode(perk: CardPerk | null | undefined) {
   if (!perk || isExpired(perk) || perk.redemption?.recorded) return false;
   const type = perk.fulfillmentType || perk.issuance?.offers?.fulfillment_type || "merchant_validation";
-  if (type === "qr" || type === "shipping" || type === "manual" || type === "automatic") return false;
+  if (["qr", "shipping", "manual", "automatic"].includes(type)) return false;
   return perk.fulfillmentState === "claimed" && Boolean(perkCode(perk));
 }
 
 function issuanceForPerk(perk: CardPerk) {
   return issuanceFromPromoCardPerk(perk as PromoCardPerk);
-}
-
-function journeyIssuance(perk: CardPerk) {
-  const issuance = issuanceForPerk(perk);
-  if (!issuance) return null;
-  const type = issuance.offers?.fulfillment_type || perk.fulfillmentType;
-  if (type === "code" || type === "merchant_validation") return null;
-  return issuance;
-}
-
-function BenefitTicket({
-  perk,
-  action,
-  aim,
-  onShowCode,
-}: {
-  perk: CardPerk;
-  action?: string;
-  aim?: PromoCardAim | null;
-  onShowCode?: (perk: CardPerk, trigger: HTMLButtonElement) => void;
-}) {
-  const { t } = useI18n();
-  const usable = canShowCode(perk);
-  return (
-    <article className="rounded-[1.4rem] border border-white/10 px-4 py-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-            {ownedBenefitKicker(perk, aim)}
-          </p>
-          <p className="mt-1 font-serif text-xl font-bold">{perk.title}</p>
-        </div>
-        <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white/50">
-          {ownedBenefitStatus(perk as PromoCardPerk)}
-        </span>
-      </div>
-      {perk.detail ? <p className="mt-1 text-sm text-white/50">{perk.detail}</p> : null}
-      <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-white/45">
-        <div>
-          <dt className="uppercase tracking-widest">{t("card.eligibility")}</dt>
-          <dd className="mt-0.5 text-white/70">{perk.eligibility?.who || t("card.claimedMembers")}</dd>
-        </div>
-        <div>
-          <dt className="uppercase tracking-widest">{t("card.remaining")}</dt>
-          <dd className="mt-0.5 text-white/70">{perk.availableQuantity == null ? t("card.openQty") : perk.availableQuantity}</dd>
-        </div>
-        <div>
-          <dt className="uppercase tracking-widest">{t("card.expires")}</dt>
-          <dd className="mt-0.5 text-white/70">{perk.expiresAt ? new Date(perk.expiresAt).toLocaleDateString() : t("card.whileSupplies")}</dd>
-        </div>
-        <div>
-          <dt className="uppercase tracking-widest">{t("card.redemption")}</dt>
-          <dd className="mt-0.5 text-white/70">{ownedBenefitStatus(perk as PromoCardPerk)}</dd>
-        </div>
-      </dl>
-      {usable ? (
-        <button
-          type="button"
-          onClick={(event) => onShowCode?.(perk, event.currentTarget)}
-          className="experience-interactive mt-4 flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-100"
-          aria-label={`${perkCode(perk) ? "Show code for" : "View"} ${perk.title}`}
-        >
-          {action || t("card.showCode")}
-          <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" />
-        </button>
-      ) : null}
-      {perk.sharedBy?.name ? <p className="mt-2 text-xs text-white/40">{t("card.sharedBy", { name: perk.sharedBy.name })}</p> : null}
-    </article>
-  );
 }
 
 export default function MyPromoCard() {
@@ -177,14 +83,9 @@ export default function MyPromoCard() {
   const card = useMyPromoCard(previewAim?.id);
   const applied = useApplyPromoCardAim(card.data?.aim);
   const aim = resolvePromoCardAim(applied.aim?.id) || applied.aim;
-  const chooseAim = applied.chooseAim;
   const home = useExperienceHome();
   const to = useExperiencePath();
   const world = home.data?.world;
-  const invitation = world?.invitation || world?.worldSystem?.invitation || resolveWorldInvitation({
-    identityLine: world?.identity?.line,
-    nextHref: "/discover",
-  });
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<CardPerk | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
@@ -198,29 +99,26 @@ export default function MyPromoCard() {
     fallback: "there",
   });
   const perks: CardPerk[] = data?.perks || [];
+  const livePerks = perks.filter((perk) => !isExpired(perk));
+  const expiredPerks = perks.filter(isExpired);
   const useThis = selectOwnedUseThis({
     aim,
     useThis: data?.useThis || null,
     benefits: (data?.benefits || perks || []) as PromoCardPerk[],
   }) || [...(data?.benefits || []), ...perks].find((item: CardPerk) => canShowCode(item)) || null;
+  const primaryIssuance = useThis ? issuanceForPerk(useThis) : null;
   const nearby = sortBenefitsByAim(data?.nearby || [], aim);
   const nextBenefit = data?.nextBenefit || nearby[0] || null;
-  const qrPass = perks
-    .map(issuanceForPerk)
-    .find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
-  const expiredPerks = perks.filter(isExpired);
-  const livePerks = perks.filter((perk) => !isExpired(perk));
+  const qrPass = livePerks.filter((perk) => !perk.redemption?.recorded).map(issuanceForPerk).find((issuance) => issuance && isPresentablePass(issuance.offers.fulfillment_type, issuance.status) && issuance.offers.fulfillment_type === "qr") || null;
   const selectedExpired = selected ? isExpired(selected) : false;
   const selectedCode = perkCode(selected);
   const face = resolvePromoCardFace({
     holder: holder === "there" ? t("people.yourCard") : holder,
-    useThis: useThis,
+    useThis,
     nearbyCount: nearby.length,
     nextBenefitTitle: nextBenefit?.title,
     latestReturn: world?.latestReturn?.heading,
-    latestReturnAt: world?.latestMemory?.issuedAt
-      ? new Date(world.latestMemory.issuedAt).toLocaleDateString()
-      : undefined,
+    latestReturnAt: world?.latestMemory?.issuedAt ? new Date(world.latestMemory.issuedAt).toLocaleDateString() : undefined,
     sceneMark: world?.promoCard?.sceneMark,
     crewMark: world?.promoCard?.crewMark,
     recordedUse: Boolean(useThis?.redemption?.recorded),
@@ -228,6 +126,7 @@ export default function MyPromoCard() {
   });
   const copy = ownedCardCopy({ aim, owned: Boolean(useThis), holder });
   const empty = fillCardCopy(aim);
+
   useEffect(() => {
     if (face.credential) sessionStorage.setItem("promorang.promocard.lastCredential", face.credential);
   }, [face.credential]);
@@ -250,344 +149,139 @@ export default function MyPromoCard() {
 
   return (
     <ExperienceShell
-      eyebrow={t("card.eyebrow")}
+      className="promocard-page"
+      eyebrow="YOUR CREDENTIAL"
       title={copy.title}
       description={stake.promoCard.meaning}
       backTo="/dashboard"
-      actions={
-        data ? (
-          <button
-            type="button"
-            aria-label={t("card.refreshAria")}
-            disabled={card.isFetching}
-            onClick={() => void card.refetch()}
-            className="inline-flex min-h-11 items-center gap-2 self-start rounded-full border border-white/15 px-4 text-sm text-white/70 disabled:opacity-50"
-          >
-            <RefreshCw
-              aria-hidden="true"
-              className={`h-4 w-4 ${card.isFetching ? "motion-safe:animate-spin" : ""}`}
-            />
-            {t("common.refresh")}
-          </button>
-        ) : undefined
-      }
+      actions={data ? (
+        <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
+          <RefreshCw className={`h-3.5 w-3.5 ${card.isFetching ? "motion-safe:animate-spin" : ""}`} /> Refresh
+        </button>
+      ) : undefined}
     >
-      {card.isLoading ? (
-        <ExperienceLoading label={t("card.loading")} />
-      ) : !data && card.isError ? (
-        <QuietEmpty
-          title={t("card.errorTitle")}
-          copy={t("card.errorCopy")}
-          action={
-            <button
-              type="button"
-              className={actionClass}
-              disabled={card.isFetching}
-              onClick={() => void card.refetch()}
-            >
-              {card.isFetching ? "Trying again…" : "Try again"}
-            </button>
-          }
-        />
+      {card.isLoading ? <ExperienceLoading label={t("card.loading")} /> : !data && card.isError ? (
+        <QuietEmpty title={t("card.errorTitle")} copy={t("card.errorCopy")} action={<button type="button" className={actionClass} disabled={card.isFetching} onClick={() => void card.refetch()}>Try again</button>} />
       ) : (
         <>
-          {card.isError ? (
-            <p role="status" className="rounded-2xl border border-amber-200/20 bg-amber-200/5 p-4 text-sm text-amber-100">
-              We couldn’t refresh your card. These are your last loaded details.
-            </p>
-          ) : null}
+          {card.isError ? <p role="status" className="border-y border-amber-200/20 py-3 text-sm text-amber-100">We couldn’t refresh your card. These are your last loaded details.</p> : null}
 
-          <PromoCardFace
-            model={face}
-            flipped={flipped}
-            onFlip={() => setFlipped((value) => !value)}
-            onCopy={() => {
-              if (!face.credential) return;
-              void navigator.clipboard.writeText(face.credential).then(
-                () => setCopyState("copied"),
-                () => setCopyState("failed"),
-              );
-            }}
-            copyState={copyState}
-            lastLoaded={Boolean(card.isError && face.credential)}
-          />
-
-          <CommunityCardLink />
-          {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
-
-          <PromoCardWorldContext
-            scene={data?.memberships?.[0]?.title || null}
-            season={data?.memberships?.length ? world?.slice?.seasonTitle : null}
-            crew={world?.crew?.name}
-            run={
-              world?.crew?.runTitle
-                ? `${world.crew.runTitle} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 0}`
-                : null
-            }
-            pathCue={world?.path?.cue}
-            identityLine={world?.identity?.line}
-            formingLine={invitation.formingLine}
-            latestReturn={world?.latestReturn?.heading}
-            nearestUnlock={world?.promoCard?.nearestUnlock}
-            latestPiece={world?.latestMemory?.title}
-          />
-
-          <PromoCardActions
-            useThis={useThis}
-            nearbyCount={nearby.length}
-            nextBenefit={nextBenefit}
-            aim={aim}
-            onUseThis={face.canFlip ? () => setFlipped(true) : undefined}
-          />
-
-          <section className="rounded-[1.4rem] border border-amber-200/20 bg-amber-200/5 px-4 py-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
-              {aim ? "On your card" : "Optional filter"}
-            </p>
-            <p className="mt-1 font-serif text-2xl font-bold">{aim ? aim.cardLine : "Aim this card"}</p>
-            <p className="mt-1 text-sm text-white/60">
-              {aim
-                ? aim.watchingLine
-                : "Optional. This only filters Discover toward food, tonight, or a neighbourhood. Skip it and browse live perks."}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {PROMOCARD_AIMS.map((item) => {
-                const active = aim?.id === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => chooseAim(item)}
-                    className={`min-h-10 rounded-full border px-3.5 text-sm font-bold ${
-                      active
-                        ? "border-amber-300 bg-amber-300 text-black"
-                        : "border-white/15 bg-white/[0.04] text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="mt-3 text-xs leading-5 text-white/45">
-              Kingston After Dark is one nightlife filter, not the only scene.{" "}
-              <Link to="/scenes" className="font-bold text-primary">Browse scenes</Link>
-              {" "}if you want a room — you do not have to join one to use the card.
-            </p>
-          </section>
-
-          <section id="use-this">
-            <h2 className="flex items-center gap-2 font-serif text-2xl font-bold"><Ticket className="h-5 w-5 text-primary" /> {useThis ? "Show this" : "On your card"}</h2>
-            {useThis ? (
-              <div className="mt-3">
-                <BenefitTicket perk={useThis} aim={aim} action="Show this" onShowCode={openPerk} />
-              </div>
-            ) : qrPass ? (
-              <div className="mt-3">
+          <section className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,.75fr)] lg:items-center">
+            <PromoCardFace
+              className="max-w-none"
+              model={face}
+              flipped={flipped}
+              onFlip={() => setFlipped((value) => !value)}
+              onCopy={() => {
+                if (!face.credential) return;
+                void navigator.clipboard.writeText(face.credential).then(() => setCopyState("copied"), () => setCopyState("failed"));
+              }}
+              copyState={copyState}
+              lastLoaded={Boolean(card.isError && face.credential)}
+            />
+            <div id="use-this" className="scroll-mt-24">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">On your card</p>
+              {useThis ? (
+                <>
+                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">{useThis.title}</h2>
+                  <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "Present the card when you are ready. The merchant will validate your access when you use it."}</p>
+                  {primaryIssuance && isPresentablePass(primaryIssuance.offers.fulfillment_type, primaryIssuance.status) && primaryIssuance.offers.fulfillment_type === "qr" ? <OfferIssuancePass issuance={primaryIssuance as OfferIssuance} /> : canShowCode(useThis) ? <button type="button" aria-label={`Show code for ${useThis.title}`} onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>Show this <ArrowRight className="h-4 w-4" /></button> : null}
+                </>
+              ) : qrPass ? (
                 <OfferIssuancePass issuance={qrPass as OfferIssuance} />
-              </div>
-            ) : (
-              <div className="mt-3">
-                <QuietEmpty
-                  title={empty.title}
-                  copy={empty.description}
-                  action={
-                    <Link to={discoverHrefForAim(aim)} className={actionClass}>
-                      {aim ? `Browse ${aim.label} perks` : "Browse live perks"} <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                    </Link>
-                  }
-                />
-                <FillCardMoves aim={aim} authenticated={Boolean(user)} />
-              </div>
-            )}
+              ) : (
+                <>
+                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">{empty.title}</h2>
+                  <p className="mt-4 text-sm leading-6 text-white/50">{empty.description}</p>
+                  <Link to={discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{aim ? `Browse ${aim.label}` : "Find something for the card"}<ArrowRight className="h-4 w-4" /></Link>
+                </>
+              )}
+            </div>
           </section>
 
-          <section>
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="flex items-center gap-2 font-serif text-2xl font-bold"><MapPin className="h-5 w-5 text-primary" /> Available nearby</h2>
-              <Link to={discoverHrefForAim(aim)} className="text-sm font-bold text-primary">See more</Link>
+          <section className="border-t border-white/10 pt-9">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What this opens</p>
+                <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">Access around you.</h2>
+              </div>
+              <Link to={discoverHrefForAim(aim)} className="text-sm font-bold text-primary">Discover more →</Link>
             </div>
             {nearby.length ? (
-              <div className="mt-3 space-y-2">
-                {nearby.map((perk: CardPerk) => (
-                  <Link key={perk.id} to={perk.dropSlug ? `/drop/${perk.dropSlug}` : perk.href || "/discover"} className="block rounded-[1.4rem] border border-white/10 px-4 py-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{perk.issuer?.name}</p>
-                    <p className="mt-1 font-serif text-xl font-bold">{perk.title}</p>
-                    <p className="mt-1 text-sm text-white/50">
-                      {perk.availableQuantity == null ? "Open quantity" : `${perk.availableQuantity} left`}
-                      {perk.expiresAt ? ` · until ${new Date(perk.expiresAt).toLocaleDateString()}` : ""}
-                    </p>
+              <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
+                {nearby.slice(0, 4).map((perk: CardPerk) => (
+                  <Link key={perk.id} to={perk.dropSlug ? `/drop/${perk.dropSlug}` : perk.href || "/discover"} className="group grid gap-2 py-5 sm:grid-cols-[1fr_auto] sm:items-end">
+                    <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{perk.issuer?.name || "Live access"}</p><p className="mt-1 font-serif text-2xl font-bold text-white group-hover:text-primary">{perk.title}</p></div>
+                    <p className="text-xs text-white/35">{perk.availableQuantity == null ? "Open quantity" : `${perk.availableQuantity} left`}</p>
                   </Link>
                 ))}
               </div>
-            ) : (
-              <div className="mt-3 rounded-[1.4rem] border border-white/10 px-4 py-4">
-                <p className="text-sm text-white/60">
-                  {useThis
-                    ? "Nothing else live nearby right now."
-                    : aim
-                      ? `Nothing live for ${aim.label} right now. You can still fill the card.`
-                      : "No participating businesses are sharing a live benefit right now. You can still fill the card."}
-                </p>
-                <Link to={discoverHrefForAim(aim)} className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-primary">
-                  {aim ? `Find ${aim.label}` : "Open Discover"} <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
+            ) : <p className="mt-6 border-y border-white/10 py-6 text-sm text-white/45">No additional access nearby right now. Check back for new offers.</p>}
+          </section>
+
+          <section className="grid gap-5 border-t border-white/10 pt-8 lg:grid-cols-2">
+            <CommunityCardLink />
+            <PromoCardWorldContext
+              scene={data?.memberships?.[0]?.title || null}
+              season={data?.memberships?.length ? world?.slice?.seasonTitle : null}
+              crew={world?.crew?.name}
+              run={world?.crew?.runTitle ? `${world.crew.runTitle} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 0}` : null}
+              pathCue={world?.path?.cue}
+              identityLine={world?.identity?.line}
+              formingLine={world?.invitation?.formingLine || world?.worldSystem?.invitation?.formingLine}
+              latestReturn={world?.latestReturn?.heading}
+              nearestUnlock={world?.promoCard?.nearestUnlock}
+              latestPiece={world?.latestMemory?.title}
+            />
+          </section>
+
+          {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
+
+          <section className="grid gap-6 border-t border-white/10 pt-9 lg:grid-cols-[1fr_.7fr]">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f6d48a]">Next opening</p>
+              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Explore this opportunity to see its availability and access requirements.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing queued yet.</h2><p className="mt-3 text-sm text-white/45">Check Discover for opportunities as they become available.</p></>}
+            </div>
+            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">What stayed with you</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Kept proof, possessed access and recorded chance live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
+          </section>
+
+          <details className="border-t border-white/10 pt-6 text-white/55">
+            <summary className="cursor-pointer py-3 text-xs font-black uppercase tracking-[0.18em] text-white/40">Card controls & history</summary>
+            <div className="grid gap-6 py-5 lg:grid-cols-2">
+              <div>
+                {livePerks.filter((perk) => perk.id !== useThis?.id).length ? <div className="mb-6 space-y-3"><h2 className="font-serif text-2xl text-white">Also on your card</h2>{livePerks.filter((perk) => perk.id !== useThis?.id).map((perk) => {
+                  const issuance = issuanceForPerk(perk);
+                  return <article key={perk.id} className="border-b border-white/10 py-3"><h3 className="font-bold text-white">{perk.title}</h3>{issuance ? <OfferIssuancePass issuance={issuance as OfferIssuance} /> : canShowCode(perk) ? <button type="button" aria-label={`Show code for ${perk.title}`} onClick={(event) => openPerk(perk, event.currentTarget)} className="min-h-11 text-primary">Show code →</button> : <p className="mt-2 text-xs">{perk.redemption?.recorded ? "Already used" : "No presentable code"}</p>}</article>;
+                })}</div> : null}
+                <p className="text-sm font-bold text-white">Aim Discover</p>
+                <p className="mt-1 text-xs leading-5 text-white/40">Optional. Choose what you would like to see more of in Discover.</p>
+                <div className="mt-3 flex flex-wrap gap-2">{PROMOCARD_AIMS.map((item) => <button key={item.id} type="button" aria-pressed={aim?.id === item.id} onClick={() => applied.chooseAim(item)} className={`min-h-9 rounded-full border px-3 text-xs font-bold ${aim?.id === item.id ? "border-[#f6d48a] bg-[#f6d48a] text-black" : "border-white/15 text-white/60"}`}>{item.label}</button>)}</div>
+                {!useThis ? <div className="mt-5"><FillCardMoves aim={aim} authenticated={Boolean(user)} /></div> : null}
               </div>
-            )}
-          </section>
-
-          <section>
-            <h2 className="flex items-center gap-2 font-serif text-2xl font-bold"><Sparkles className="h-5 w-5 text-primary" /> Get your next benefit</h2>
-            {nextBenefit ? (
-              <article className="mt-3 rounded-[1.4rem] border border-primary/30 bg-primary/10 px-4 py-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{nextBenefit.issuer?.name || "Next visit"}</p>
-                <p className="mt-1 font-serif text-2xl font-bold">{nextBenefit.title}</p>
-                <p className="mt-2 text-sm text-white/60">Use the one on your card. The next one is why you come back.</p>
-                <Link to={discoverHrefForAim(aim)} className="mt-4 inline-flex min-h-11 items-center text-sm font-black text-primary">Find it nearby</Link>
-              </article>
-            ) : (
-              <p className="mt-3 text-sm text-white/50">
-                {useThis
-                  ? "Use the one on your card. The next benefit appears after a merchant records it."
-                  : "Nothing to unlock next until something lands on the card. Answer, ask, or host to fill it."}
-              </p>
-            )}
-          </section>
-
-          <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.04] px-4 py-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Points and membership</p>
-            <p className="mt-2 font-serif text-3xl font-bold">{Number(data?.points || 0).toLocaleString()} PromoPoints</p>
-            <p className="mt-1 text-sm text-white/55">{Number(data?.keys || 0)} PromoKeys · earned only after verified use</p>
-            {data?.repeatUse ? (
-              <dl className="mt-4 grid grid-cols-2 gap-3 text-xs text-white/50">
-                <div><dt>First redemptions</dt><dd className="text-white">{data.repeatUse.firstRedemptions}</dd></div>
-                <div><dt>Second uses</dt><dd className="text-white">{data.repeatUse.secondUses}</dd></div>
-                <div><dt>Referred users who redeemed</dt><dd className="text-white">{data.repeatUse.referredUsersWhoRedeem}</dd></div>
-                <div><dt>Contributor rewards</dt><dd className="text-white">{data.repeatUse.contributorRewards?.pointsAwarded || 0} pts</dd></div>
-              </dl>
-            ) : null}
-          </section>
-
-          <section>
-            <h2 className="font-serif text-2xl font-bold">On the card</h2>
-            {perks.filter((perk) => !isExpired(perk)).length ? (
-              <div className="mt-3 space-y-2">
-                {perks.filter((perk) => !isExpired(perk)).map((perk) => {
-                  const journey = journeyIssuance(perk);
-                  return journey ? (
-                    <OfferIssuancePass key={perk.id} issuance={journey as OfferIssuance} />
-                  ) : (
-                    <BenefitTicket key={perk.id} perk={perk} aim={aim} onShowCode={openPerk} />
-                  );
-                })}
+              <div className="space-y-4 text-sm">
+                <p><span className="text-white/35">PromoPoints</span><br/><strong className="font-serif text-2xl text-white">{Number(data?.points || 0).toLocaleString()}</strong></p>
+                <p><span className="text-white/35">PromoKeys</span><br/><strong className="text-white">{Number(data?.keys || 0).toLocaleString()}</strong></p>
+                <p><span className="text-white/35">Memberships</span><br/><strong className="text-white">{data?.memberships?.length || 0}</strong></p>
+                {expiredPerks.length ? <p className="text-white/35">{expiredPerks.length} expired perk{expiredPerks.length === 1 ? "" : "s"} retained in history.</p> : null}
               </div>
-            ) : (
-              <div className="mt-3">
-                <QuietEmpty title="Nothing on the card yet" copy={aim ? `${aim.watchingLine} Unlocking puts it here.` : "When you unlock a benefit, it lands here."} />
-              </div>
-            )}
-          </section>
-
-          {expiredPerks.length ? (
-            <details className="rounded-2xl border border-white/10 p-4 text-white/65">
-              <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold">
-                Expired perks ({expiredPerks.length})
-              </summary>
-              <ul className="mt-3 space-y-3">
-                {expiredPerks.map((perk) => (
-                  <li key={perk.id} className="border-t border-white/10 pt-3 text-sm">
-                    {perk.title}
-                    <span className="ml-2 text-xs text-white/50">Expired</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          ) : null}
-
-          <section>
-            <h2 className="font-serif text-2xl font-bold">Memberships</h2>
-            {data?.memberships?.length ? (
-              <div className="mt-3 space-y-2">
-                {data.memberships.map((item: { id: string; slug?: string; title: string; role: string }) => (
-                  <Link key={item.id} to={item.slug ? `/scenes/${item.slug}` : "/scenes"} className="block rounded-[1.4rem] border border-white/10 px-4 py-4">
-                    <p className="font-serif text-xl font-bold">{item.title}</p>
-                    <p className="text-xs uppercase tracking-widest text-white/40">{item.role}</p>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <Link to="/scenes" className="mt-3 block text-sm font-bold text-primary">Find a community</Link>
-            )}
-          </section>
-
-          <Link
-            to={to("/dashboard")}
-            className="inline-flex min-h-11 items-center text-sm text-white/65 hover:text-white"
-          >
-            Back to your home
-          </Link>
+            </div>
+          </details>
         </>
       )}
 
-      <Dialog
-        open={Boolean(selected)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelected(null);
-            setCopyState("idle");
-          }
-        }}
-      >
-        <DialogContent
-          onCloseAutoFocus={(event) => {
-            event.preventDefault();
-            triggerRef.current?.focus();
-          }}
-          className="max-h-[90dvh] overflow-y-auto rounded-3xl border-white/15 bg-[#141313] text-white sm:max-w-md"
-        >
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            On your PromoCard
-          </p>
-          <DialogTitle className="break-words pr-5 font-serif text-3xl">
-            {selected?.title}
-          </DialogTitle>
-          <DialogDescription className="text-sm leading-6 text-white/70">
-            {selected?.detail || "Show this to the merchant. Nothing is used until they validate it."}
-          </DialogDescription>
+      <Dialog open={Boolean(selected)} onOpenChange={(open) => { if (!open) { setSelected(null); setCopyState("idle"); } }}>
+        <DialogContent onCloseAutoFocus={(event) => { event.preventDefault(); triggerRef.current?.focus(); }} className="max-h-[90dvh] overflow-y-auto rounded-3xl border-white/15 bg-[#141313] text-white sm:max-w-md">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">On your PromoCard</p>
+          <DialogTitle className="break-words pr-5 font-serif text-3xl">{selected?.title}</DialogTitle>
+          <DialogDescription className="text-sm leading-6 text-white/70">{selected?.detail || "Show this to the merchant. Nothing is used until they validate it."}</DialogDescription>
           {selectedCode && !selectedExpired && canShowCode(selected) ? (
             <div className="mt-2 rounded-2xl border border-primary/30 bg-primary/10 p-5 text-center">
               <p className="text-sm text-white/80">Show this code to redeem</p>
-              <code className="my-5 block select-all break-all font-mono text-3xl font-bold tracking-wider">
-                {selectedCode}
-              </code>
-              <button
-                type="button"
-                onClick={() => void copyCode()}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 px-4 text-sm font-semibold"
-              >
-                {copyState === "copied" ? (
-                  <Check aria-hidden="true" className="h-4 w-4" />
-                ) : (
-                  <Copy aria-hidden="true" className="h-4 w-4" />
-                )}
-                {copyState === "copied" ? "Copied" : "Copy code"}
-              </button>
-              <p role="status" className="mt-2 text-xs text-white/65">
-                {copyState === "failed"
-                  ? "Couldn’t copy. You can select the code or show this screen."
-                  : copyState === "copied"
-                    ? "Code copied to clipboard."
-                    : "Only share this code when redeeming your perk."}
-              </p>
+              <code className="my-5 block select-all break-all font-mono text-3xl font-bold tracking-wider">{selectedCode}</code>
+              <button type="button" onClick={() => void copyCode()} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 px-4 text-sm font-semibold">{copyState === "copied" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}{copyState === "copied" ? "Copied" : "Copy code"}</button>
+              <p role="status" className="mt-2 text-xs text-white/65">{copyState === "failed" ? "Couldn’t copy. You can select the code or show this screen." : copyState === "copied" ? "Code copied to clipboard." : "Only share this code when redeeming your perk."}</p>
             </div>
-          ) : (
-            <p className="rounded-2xl bg-white/5 p-4 text-sm leading-6 text-white/70">
-              {selectedExpired
-                ? "This perk has expired. Explore Discover for something new."
-                : "This perk has no usable code yet. A claimed, unexpired benefit is the only thing a merchant can validate."}
-            </p>
-          )}
+          ) : <p className="rounded-2xl bg-white/5 p-4 text-sm leading-6 text-white/70">{selectedExpired ? "This perk has expired. Explore Discover for something new." : "This perk has no usable code yet. A claimed, unexpired benefit is the only thing a merchant can validate."}</p>}
         </DialogContent>
       </Dialog>
     </ExperienceShell>

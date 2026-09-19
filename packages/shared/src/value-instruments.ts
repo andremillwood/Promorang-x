@@ -69,8 +69,8 @@ export const PROMOSHARE_DRAW_FAMILIES: Record<PromoShareDrawFamilyId, PromoShare
   "save-and-win": {
     id: "save-and-win",
     name: "Save & Win",
-    pays: "Extra Gems. 1 Gem = $1. That is PromoShare's money draw. A win is more Gems on top of what you parked.",
-    doesNotPay: "A chance to lose the Gems you set aside. Those stay yours until you take them out.",
+    pays: "Extra Gems. Gems use a 1 USD platform denomination; withdrawal eligibility is a separate wallet state. A win is more Gems on top of what you parked.",
+    doesNotPay: "A chance to lose the Gems you set aside. Parked principal remains yours, subject to the pot's exit rules and any applicable wallet hold or withdrawal rules.",
     howYouEnter: "Park Gems in a Save & Win pot. While they sit, you collect tickets for that pot's weekly and monthly draws.",
   },
 };
@@ -78,7 +78,7 @@ export const PROMOSHARE_DRAW_FAMILIES: Record<PromoShareDrawFamilyId, PromoShare
 export const VALUE_STORY = {
   loop:
     "PromoCard is what you use. Points prove you showed up. Gems are the money. Pieces are keepsakes. Keys open doors. PromoShare tickets are chances in a named draw that already says the prize. Save & Win is the PromoShare family that pays extra Gems.",
-  gemsPay: `1 Gem = ${GEM_USD} USD of platform value. Gems pay. Points do not. Keys do not.`,
+  gemsPay: `1 Gem uses a ${GEM_USD} USD platform denomination. Spendable, held, and withdrawable Gem states are separate. Points do not pay. Keys do not pay.`,
   gemsBuyBenefits:
     "Buying and spending Gems is better than paying cash outside Promorang. Gem spend can unlock Pieces, Save & Win tickets, standing, and partner perks that a card swipe outside the app cannot.",
   gemsEarn:
@@ -90,7 +90,7 @@ export const VALUE_STORY = {
   namedDrawPays:
     "Read the ticket. Perk draws pay Keys, access, or a perk already set aside. Save & Win pays extra Gems. Everyday PromoShare does not print cash.",
   saveAndWin:
-    "Save & Win is PromoShare's money draw. Park Gems, keep 100% of them, and compete for extra Gems. Take your parked Gems out whenever you want. A win is winnings — not a way to lose the pot.",
+    "Save & Win is PromoShare's money draw. Park Gems, keep 100% of that principal, and compete for extra Gems. Returning parked Gems follows the pot's exit terms and the wallet's applicable hold or withdrawal rules. A win adds Gems; it does not make the parked principal a wager.",
 } as const;
 
 export const VALUE_LAYERS: ValueLayer[] = [
@@ -270,11 +270,11 @@ export const VALUE_INSTRUMENTS: Record<ValueInstrumentId, ValueInstrument> = {
     layer: "chances",
     job: "PromoShare's money draw: park Gems, keep them, and compete for extra Gems.",
     like: "Money in a jar that also buys raffle tickets. The jar is still yours. A win adds more Gems to the jar.",
-    is: "The no-loss PromoShare family that pays money. You keep 100% of parked Gems. Winnings are extra Gems (1 Gem = $1).",
+    is: "The no-loss PromoShare family that pays extra Gems. You keep 100% of parked principal. Gems use a 1 USD platform denomination, while withdrawal eligibility remains a separate wallet state.",
     isNot: "Not a perk draw, not investing, and not a way to lose what you parked.",
     getIt: [
       "Move Gems into a Save & Win pot. Membership can multiply tickets.",
-      "Take the parked Gems back out whenever you want.",
+      "Return parked Gems according to the pot's exit terms and any applicable wallet hold or withdrawal rules.",
     ],
     useIt: [
       "Stay in that pot's weekly and monthly money draws.",

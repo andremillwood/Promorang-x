@@ -99,8 +99,10 @@ describe("unlockFromFoundListing", () => {
 });
 
 describe("foundWorkspacePath", () => {
-  it("sends a night to the host stage and a place to the perk table", () => {
-    expect(foundWorkspacePath(hike, "host")).toContain(`/create/moment?found=${encodeURIComponent(FOUND_SEED_IDS.hike)}`);
+  it("sends a night to the host stage and preserves the recorded city context", () => {
+    const hostPath = foundWorkspacePath(hike, "host");
+    expect(hostPath).toContain(`/create/moment?found=${encodeURIComponent(FOUND_SEED_IDS.hike)}`);
+    expect(new URLSearchParams(hostPath.split("?")[1]).get("city")).toBe(hike.city);
     expect(foundWorkspacePath({ ...hike, kind: "place" }, "creator")).toContain("/give?found=");
     expect(foundWorkspacePath(hike, "merchant")).toContain("/give?found=");
   });

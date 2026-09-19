@@ -1,3 +1,5 @@
+import { useMomentJourney } from "@/hooks/useMomentJourney";
+import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams, useParams, Link } from "react-router-dom";
@@ -44,6 +46,9 @@ const CheckIn = () => {
   const [code, setCode] = useState(codeFromUrl);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const journey = useMomentJourney(id);
+  const [previewUrl, setPreviewUrl] = useState<string>();
   const [moment, setMoment] = useState<any>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [locationVerified, setLocationVerified] = useState(false);
@@ -55,6 +60,20 @@ const CheckIn = () => {
   const [proofSubmissionId, setProofSubmissionId] = useState<string | null>(null);
   const [consequence, setConsequence] = useState<ReturnType<typeof resolveWorldConsequence> | null>(null);
   const [keptMemory, setKeptMemory] = useState<{ title: string; origin: string; perk: string; scene?: string; place?: string; date?: string } | null>(null);
+
+  useEffect(() => {
+    if (!imageFile) { setPreviewUrl(undefined); return; }
+    const url = URL.createObjectURL(imageFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
+
+  const requiredTypes = proofRequirements
+    .filter((requirement) => requirement.is_required !== false)
+    .map((requirement) => String(requirement.requirement_type || "").toLowerCase());
+  const requiresCode = requiredTypes.some((type) => type === "venue_qr" || type === "rotating_code");
+  const requiresMedia = requiredTypes.some((type) => type === "timestamped_media" || type === "receipt");
+  const requiresGeofence = requiredTypes.includes("geofence");
 
   useEffect(() => {
     if (id) {
@@ -92,6 +111,7 @@ const CheckIn = () => {
 
   const fetchMoment = async () => {
     if (!id) return;
+    setLoadError(false);
     if (id.startsWith('m') && id.length <= 4) {
       const demoMoment = demoMoments.find(m => m.id === id);
       if (demoMoment) {
@@ -108,6 +128,7 @@ const CheckIn = () => {
 
     if (data) setMoment(data);
     if (error) {
+      setLoadError(true);
       console.error("Error fetching moment:", error);
       toast({ title: t("checkIn.toastEventNotFound"), description: t("checkIn.toastEventNotFoundDesc"), variant: "destructive" });
     }
@@ -129,7 +150,7 @@ const CheckIn = () => {
   };
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -155,10 +176,10 @@ const CheckIn = () => {
         setLocationVerified(true);
         setLoading(false);
 
-        if (moment?.latitude && moment?.longitude) {
-          const dist = calculateDistance(uLat, uLng, moment.latitude, moment.longitude);
+        if (Number.isFinite(Number(moment?.latitude)) && Number.isFinite(Number(moment?.longitude))) {
+          const dist = calculateDistance(uLat, uLng, Number(moment.latitude), Number(moment.longitude));
           setDistanceKm(dist);
-          const inside = dist <= 0.2; // 200 meter geofence
+          const inside = dist <= 0.2;
           setIsWithinGeofence(inside);
           if (inside) {
             toast({ title: t("checkIn.toastGpsVerifiedOnSite"), description: t("checkIn.toastGpsVerifiedOnSiteDesc", { meters: (dist * 1000).toFixed(0) }) });
@@ -166,8 +187,12 @@ const CheckIn = () => {
             toast({ title: t("checkIn.toastLocationCaptured"), description: t("checkIn.toastLocationCapturedDesc", { km: dist.toFixed(2) }) });
           }
         } else {
-          setIsWithinGeofence(true);
-          toast({ title: t("checkIn.toastLocationVerified"), description: t("checkIn.toastLocationVerifiedDesc") });
+          setIsWithinGeofence(false);
+          toast({
+            title: "Venue location unavailable",
+            description: "Your location was captured, but this Moment has no recorded geofence to verify against.",
+            variant: "destructive",
+          });
         }
       },
       (err) => {
@@ -181,6 +206,19 @@ const CheckIn = () => {
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !moment) return;
+
+    if (requiresCode && !code.trim()) {
+      toast({ title: "Code required", description: "This Moment requires a venue or rotating code before proof can be submitted.", variant: "destructive" });
+      return;
+    }
+    if (requiresMedia && !imageFile) {
+      toast({ title: "Evidence required", description: "This Moment requires photo or receipt evidence before proof can be submitted.", variant: "destructive" });
+      return;
+    }
+    if (requiresGeofence && (!userCoords || !isWithinGeofence)) {
+      toast({ title: "On-site verification required", description: "Verify your location within the Moment geofence before submitting proof.", variant: "destructive" });
+      return;
+    }
 
     setLoading(true);
 
@@ -206,6 +244,12 @@ const CheckIn = () => {
       }
 
       if (session) {
+        const proofBundle = {
+          proof_code: code || null,
+          evidence_url: evidenceUrl || null,
+          ...(userCoords ? { latitude: userCoords.lat, longitude: userCoords.lng } : {}),
+          client_geofence_inside: userCoords ? isWithinGeofence : null,
+        };
         const response = await fetch(`${API_URL}/api/participation/moments/${id}/complete`, {
           method: "POST",
           headers: {
@@ -213,6 +257,7 @@ const CheckIn = () => {
             Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
+            proof_bundle: proofBundle,
             proof_code: code || null,
             evidence_url: evidenceUrl,
             promopush_campaign_id: promoPushCampaignId,
@@ -223,7 +268,10 @@ const CheckIn = () => {
 
         const payload = await response.json();
         if (!response.ok) {
-          throw new Error(payload?.error || "Check-in failed");
+          const missing = Array.isArray(payload?.missing_requirements)
+            ? payload.missing_requirements.map((item: any) => item.label || item.type).filter(Boolean).join(", ")
+            : null;
+          throw new Error(missing ? `${payload?.error || "Proof incomplete"}: ${missing}` : (payload?.error || "Check-in failed"));
         }
 
         setProofSubmissionId(payload?.submission?.id || payload?.checkin?.participation?.id || null);
@@ -254,6 +302,14 @@ const CheckIn = () => {
             date: new Date().toLocaleDateString(),
           });
         }
+
+        const verificationPending = payload?.checkin?.verification_status === "pending" || Boolean(payload?.submission?.id);
+        toast({
+          title: verificationPending ? "Proof submitted" : t("checkIn.toastComplete"),
+          description: verificationPending
+            ? "Your proof is recorded and waiting for verification. No reward, memory, or payout is implied yet."
+            : t("checkIn.toastCompleteDesc"),
+        });
       }
 
       setSuccess(true);
@@ -266,12 +322,6 @@ const CheckIn = () => {
       if ('vibrate' in navigator) {
         navigator.vibrate([10, 30, 10, 30]);
       }
-
-      toast({
-        title: t("checkIn.toastComplete"),
-        description: t("checkIn.toastCompleteDesc"),
-      });
-
     } catch (error: any) {
       toast({ title: t("checkIn.toastFailed"), description: error.message, variant: "destructive" });
     } finally {
@@ -310,6 +360,8 @@ const CheckIn = () => {
     );
   }
 
+  if (loadError) return <main className="participant-world min-h-screen p-8 text-white"><h1 className="font-serif text-3xl">This Moment couldn’t load.</h1><button type="button" onClick={() => void fetchMoment()} className="pr-world-primary mt-5">Try again</button><Link to="/discover" className="ml-5 underline">Back to Discover</Link></main>;
+
   if (!moment) {
     return (
       <div className="min-h-screen bg-[#0a0a0b] text-white flex items-center justify-center">
@@ -322,14 +374,16 @@ const CheckIn = () => {
     <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white">
       <SEO title={t("checkIn.seoTitle", { title: moment.title })} description={t("checkIn.seoDescription", { title: moment.title })} />
 
-      <main className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
-        {success ? (
+      <main className="proof-world mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
+        {!success && journey.data && ["pending", "verified"].includes(journey.data.proof_state || "") ? (
+          <div className="mx-auto max-w-xl space-y-6"><ParticipantProofArtifact journey={journey.data} /><Link to={`/moments/${id}`} className="inline-flex min-h-11 items-center text-sm underline">Back to Moment</Link><button type="button" onClick={() => void journey.refetch()} className="ml-6 min-h-11 text-sm underline">Refresh status</button></div>
+        ) : success ? (
           <div className="mx-auto max-w-xl space-y-6 pt-8 animate-in fade-in duration-300">
             <div className="text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
-                {consequence?.eyebrow || "It counted"}
+                {consequence?.eyebrow || "Proof recorded"}
               </p>
-              <h1 className="mt-2 font-serif text-4xl font-bold text-white">{consequence?.heading || t("checkIn.successTitle")}</h1>
+              <h1 className="mt-2 font-serif text-4xl font-bold text-white">{consequence?.heading || "Waiting for verification"}</h1>
               <p className="mt-2 text-white/70">
                 {moment.title}{moment.venue_name || moment.location ? ` · ${moment.venue_name || moment.location}` : ""}
               </p>
@@ -342,15 +396,17 @@ const CheckIn = () => {
               ) : null}
             </div>
 
-            {consequence ? (
+            {consequence && !consequence.counted ? (
+              <section className="pr-proof-artifact" data-proof-state="pending"><p className="pr-proof-stamp">Awaiting decision</p><h2 className="mt-4 font-serif text-3xl font-bold">Evidence received.</h2><p className="mt-3 text-sm leading-6">Your proof is under review. Attendance and any rewards await approval.</p></section>
+            ) : consequence ? (
               <ConsequenceReceipt receipt={consequence} reveal={keptMemory} />
             ) : (
               <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4">
                 <div className="flex items-center gap-3">
-                  <Gift className="h-6 w-6 text-amber-400" />
+                  <ShieldCheck className="h-6 w-6 text-amber-400" />
                   <div>
-                    <h4 className="font-bold text-white text-base">{t("checkIn.rewardUnlocked")}</h4>
-                    <p className="text-xs text-white/60">{moment.reward || t("checkIn.complimentaryPerk")}</p>
+                    <h4 className="font-bold text-white text-base">Proof submitted</h4>
+                    <p className="text-xs text-white/60">Waiting for verification. Nothing has been issued or settled yet.</p>
                   </div>
                 </div>
               </div>
@@ -370,8 +426,7 @@ const CheckIn = () => {
           </div>
         ) : (
           <div className="grid gap-8 lg:grid-cols-[1fr_420px] items-start pt-4">
-            {/* Left Cover & Event Info Card */}
-            <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#121214]">
+            <div className="overflow-hidden border-t border-white/15">
               {(moment.image_url || moment.banner_image_url) ? (
                 <img src={moment.image_url || moment.banner_image_url} alt={moment.title} className="h-56 w-full object-cover" />
               ) : null}
@@ -392,7 +447,7 @@ const CheckIn = () => {
                 <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
                   <Gift className="h-6 w-6 text-amber-400 shrink-0" />
                   <div>
-                    <h4 className="font-bold text-white text-sm">{t("checkIn.rewardForCheckingIn")}</h4>
+                    <h4 className="font-bold text-white text-sm">Potential consequence after verification</h4>
                     <p className="text-xs text-white/70">{moment.reward}</p>
                   </div>
                 </div>
@@ -400,65 +455,70 @@ const CheckIn = () => {
               </div>
             </div>
 
-            {/* Right Check-in Input Form */}
-            <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 sm:p-8 space-y-6">
+            <div className="pr-proof-artifact space-y-6" data-proof-state="ready">
               <div className="space-y-1">
-                <h2 className="text-xl font-bold text-white">{t("checkIn.enterCodeTitle")}</h2>
-                <p className="text-xs text-white/50">{t("checkIn.enterCodeCopy")}</p>
+                <p className="pr-proof-stamp">Evidence · not yet submitted</p>
+                <h2 className="mt-3 font-serif text-3xl font-bold">Make your participation count.</h2>
+                <p className="text-xs text-white/50">The platform records your evidence first. Verification and any downstream consequence happen separately.</p>
               </div>
 
+              {journey.data?.proof_state === "rejected" || journey.data?.proof_state === "expired" ? <p role="status" className="border-l-2 border-red-500 pl-3 text-sm">Your previous proof was not approved. Check the requirements below.</p> : null}
+              {proofRequirements.length ? <ul className="divide-y divide-current/15 border-y border-current/15">{proofRequirements.map((requirement) => <li key={requirement.id} className="py-3 text-sm"><strong>{requirement.label || requirement.requirement_type.replace(/_/g, " ")}</strong><span className="ml-2 text-xs opacity-60">{requirement.is_required === false ? "Optional" : "Required"}</span>{requirement.instructions ? <p className="mt-1 leading-6 opacity-75">{requirement.instructions}</p> : null}</li>)}</ul> : null}
               <form onSubmit={handleCheckIn} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="code" className="text-xs uppercase font-bold text-white/70">{t("checkIn.codeLabel")}</Label>
-                  <Input
-                    id="code"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    placeholder={t("checkIn.codePlaceholder")}
-                    className="text-center text-2xl font-mono tracking-widest h-14 bg-white/5 border-white/15 text-white uppercase rounded-2xl"
-                    maxLength={8}
-                  />
-                </div>
+                {(requiresCode || proofRequirements.length === 0) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="code" className="text-xs uppercase font-bold text-white/70">{t("checkIn.codeLabel")}{requiresCode ? " · required" : ""}</Label>
+                    <Input
+                      id="code"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.toUpperCase())}
+                      placeholder={t("checkIn.codePlaceholder")}
+                      className="text-center text-2xl font-mono tracking-widest h-14 bg-white/5 border-white/15 text-white uppercase rounded-2xl"
+                      maxLength={8}
+                    />
+                  </div>
+                )}
 
-                {/* GPS Location Verification Card */}
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-white/70 flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-[#ff5500]" /> {t("checkIn.geofenceVerification")}
-                    </span>
-                    {locationVerified && (
-                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
-                        isWithinGeofence ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      }`}>
-                        <ShieldCheck className="h-3.5 w-3.5" />
-                        {isWithinGeofence ? t("checkIn.verifiedOnSite") : t("checkIn.remoteCheckIn")}
+                {(requiresGeofence || proofRequirements.length === 0) && (
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-white/70 flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4 text-[#ff5500]" /> {t("checkIn.geofenceVerification")}{requiresGeofence ? " · required" : ""}
                       </span>
+                      {locationVerified && (
+                        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
+                          isWithinGeofence ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        }`}>
+                          <ShieldCheck className="h-3.5 w-3.5" />
+                          {isWithinGeofence ? "Location captured" : "Outside venue range"}
+                        </span>
+                      )}
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full rounded-xl border-white/15 text-white hover:bg-white/10 py-4 text-xs font-bold"
+                      onClick={handleGPSVerify}
+                      disabled={loading}
+                    >
+                      {locationVerified ? t("checkIn.recheckGps") : t("checkIn.verifyGps")}
+                    </Button>
+
+                    {distanceKm !== null && (
+                      <p className="text-[11px] text-white/50 text-center">
+                        {t("checkIn.distanceToVenue")} <span className="text-white font-mono">{distanceKm < 1 ? `${(distanceKm * 1000).toFixed(0)}m` : `${distanceKm.toFixed(2)} km`}</span>
+                      </p>
                     )}
                   </div>
+                )}
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full rounded-xl border-white/15 text-white hover:bg-white/10 py-4 text-xs font-bold"
-                    onClick={handleGPSVerify}
-                    disabled={loading}
-                  >
-                    {locationVerified ? t("checkIn.recheckGps") : t("checkIn.verifyGps")}
-                  </Button>
-
-                  {distanceKm !== null && (
-                    <p className="text-[11px] text-white/50 text-center">
-                      {t("checkIn.distanceToVenue")} <span className="text-white font-mono">{distanceKm < 1 ? `${(distanceKm * 1000).toFixed(0)}m` : `${distanceKm.toFixed(2)} km`}</span>
-                    </p>
-                  )}
-                </div>
-
-                {moment.proof_type === 'Photo' && (
+                {(requiresMedia || moment.proof_type === 'Photo') && (
                   <div className="space-y-2">
-                    <Label className="text-xs uppercase font-bold text-white/70">{t("checkIn.photoEvidence")}</Label>
+                    <Label className="text-xs uppercase font-bold text-white/70">{t("checkIn.photoEvidence")}{requiresMedia ? " · required" : ""}</Label>
                     <ImageUpload
                       onImageSelect={(file) => setImageFile(file)}
-                      previewUrl={imageFile ? URL.createObjectURL(imageFile) : undefined}
+                      previewUrl={previewUrl}
                     />
                   </div>
                 )}
@@ -471,7 +531,7 @@ const CheckIn = () => {
                   {loading || uploading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <>{t("checkIn.submitButton")} <Sparkles className="ml-2 h-5 w-5" /></>
+                    <>Submit evidence</>
                   )}
                 </Button>
               </form>

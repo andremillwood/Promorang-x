@@ -40,11 +40,21 @@ export default function PutInventoryUp() {
   const [opened, setOpened] = useState<{ title: string; remaining: number | null; offerId?: string; fulfillmentType?: string } | null>(null);
 
   const submit = async () => {
+    const normalizedQuantity = quantity.trim() ? Number(quantity) : null;
+    if (normalizedQuantity !== null && (!Number.isInteger(normalizedQuantity) || normalizedQuantity < 1)) {
+      toast({
+        title: "Enter a real available quantity",
+        description: "Use a whole number of 1 or more, or leave quantity blank only when the inventory genuinely has no fixed limit.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const result = await provideInventory.mutateAsync({
         kind,
         title: title.trim(),
-        quantity: quantity ? Number(quantity) : null,
+        quantity: normalizedQuantity,
         peopleGet: title.trim(),
         youEarn: youEarn.trim() || undefined,
         fulfillment_type: fulfillment.fulfillmentType,
@@ -157,6 +167,9 @@ export default function PutInventoryUp() {
         <input
           value={quantity}
           onChange={(event) => setQuantity(event.target.value)}
+          type="number"
+          min="1"
+          step="1"
           inputMode="numeric"
           placeholder="Leave blank only if there is genuinely no fixed limit"
           className="mt-2 min-h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-white outline-none placeholder:text-white/30"

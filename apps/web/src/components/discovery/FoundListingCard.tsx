@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
@@ -26,6 +27,7 @@ export function FoundListingCard({
   const { user } = useAuth();
   const navigate = useNavigate();
   const to = useExperiencePath();
+  const [claimError, setClaimError] = useState<string | null>(null);
   const youFound = youFoundListing(listing, { anonId: readDiscoverAnonId(), userId: user?.id });
   const workspace = to(foundWorkspacePath(listing, role));
   const openLabel = listing.kind === "place" || role === "merchant" || role === "brand"
@@ -52,6 +54,11 @@ export function FoundListingCard({
             ? t("found.youFound", { perk: listing.perkToFinder })
             : t("found.waitingCopy")}
       </p>
+      {claimError ? (
+        <p className="mt-3 rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-3 text-xs leading-5 text-amber-100/70">
+          {claimError}
+        </p>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
         {listing.status === "claimed" ? (
           <TactileButton variant="primary" asChild>
@@ -65,9 +72,14 @@ export function FoundListingCard({
             variant="primary"
             disabled={claiming}
             onClick={async () => {
-              const result = await onClaim(listing);
-              if (result.listing.status === "claimed") {
-                navigate(to(foundWorkspacePath(result.listing, role)));
+              setClaimError(null);
+              try {
+                const result = await onClaim(listing);
+                if (result.listing.status === "claimed") {
+                  navigate(to(foundWorkspacePath(result.listing, role)));
+                }
+              } catch (error) {
+                setClaimError(error instanceof Error ? error.message : "That claim was not recorded.");
               }
             }}
           >

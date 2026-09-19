@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { TiltCard3D } from "@/components/ui/TiltCard3D";
-import { Sparkles, ShieldCheck, Gem, KeyRound, Coins, Flame } from "lucide-react";
-import PromoKeyForgeModal from "@/components/wallet/PromoKeyForgeModal";
+import { Sparkles, Gem, KeyRound, Coins } from "lucide-react";
 
 interface DigitalWalletPass3DProps {
   displayName?: string | null;
@@ -11,7 +9,7 @@ interface DigitalWalletPass3DProps {
   gems?: number;
   userId?: string | null;
   userTier?: string;
-  onBalanceUpdate?: (newPoints: number, newKeys: number) => void;
+  onConvertPoints?: () => void;
 }
 
 export function DigitalWalletPass3D({
@@ -22,23 +20,14 @@ export function DigitalWalletPass3D({
   gems = 0,
   userId,
   userTier = "Starter",
-  onBalanceUpdate,
+  onConvertPoints,
 }: DigitalWalletPass3DProps) {
-  const [isForgeOpen, setIsForgeOpen] = useState(false);
-  const [localPoints, setLocalPoints] = useState(points);
-  const [localKeys, setLocalKeys] = useState(promoKeys);
+  const passIdRaw = userId?.replace(/[^a-zA-Z0-9]/g, "").padEnd(12, "0").toUpperCase() || "";
+  const passFormatted = passIdRaw
+    ? `PROMO • ${passIdRaw.slice(0, 4)} • ${passIdRaw.slice(4, 8)} • ${passIdRaw.slice(8, 12)}`
+    : "PROMO • ACCOUNT ID UNAVAILABLE";
 
-  // Format simulated member pass code from user ID or default
-  const passIdRaw = (userId || "876049210038").replace(/[^a-zA-Z0-9]/g, "").padEnd(12, "0").toUpperCase();
-  const passFormatted = `PROMO • ${passIdRaw.slice(0, 4)} • ${passIdRaw.slice(4, 8)} • ${passIdRaw.slice(8, 12)}`;
-
-  const nameToShow = displayName || (userEmail ? userEmail.split("@")[0] : "Verified Member");
-
-  const handleForgeSuccess = (newPoints: number, newKeys: number) => {
-    setLocalPoints(newPoints);
-    setLocalKeys(newKeys);
-    if (onBalanceUpdate) onBalanceUpdate(newPoints, newKeys);
-  };
+  const nameToShow = displayName || (userEmail ? userEmail.split("@")[0] : "PROMORANG Member");
 
   return (
     <div className="flex flex-col items-center gap-3 w-full max-w-[420px]">
@@ -71,9 +60,8 @@ export function DigitalWalletPass3D({
                 Promorang Pass
               </span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-300">
-              <ShieldCheck className="h-3 w-3" />
-              Active
+            <div className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-white/60">
+              Account pass
             </div>
           </div>
 
@@ -87,14 +75,14 @@ export function DigitalWalletPass3D({
                   <Coins className="h-2.5 w-2.5" />
                   Pts
                 </div>
-                <p className="mt-0.5 text-sm font-black text-white">{localPoints.toLocaleString()}</p>
+                <p className="mt-0.5 text-sm font-black text-white">{points.toLocaleString()}</p>
               </div>
               <div className="text-left border-l border-white/10 pl-2.5">
                 <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-primary">
                   <KeyRound className="h-2.5 w-2.5" />
                   Keys
                 </div>
-                <p className="mt-0.5 text-sm font-black text-white">{localKeys.toLocaleString()}</p>
+                <p className="mt-0.5 text-sm font-black text-white">{promoKeys.toLocaleString()}</p>
               </div>
               <div className="text-left border-l border-white/10 pl-2.5">
                 <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-violet-400">
@@ -120,22 +108,17 @@ export function DigitalWalletPass3D({
         </div>
       </TiltCard3D>
 
-      {/* Quick Action: Forge Keys */}
-      <button
-        onClick={() => setIsForgeOpen(true)}
-        className="w-full py-2.5 px-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
-      >
-        <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-        <span>Forge PromoKeys (500 Pts = 1 Key)</span>
-      </button>
-
-      <PromoKeyForgeModal
-        isOpen={isForgeOpen}
-        onClose={() => setIsForgeOpen(false)}
-        userPoints={localPoints}
-        currentPromoKeys={localKeys}
-        onForgeSuccess={handleForgeSuccess}
-      />
+      {onConvertPoints ? (
+        <button
+          onClick={onConvertPoints}
+          className="w-full rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs font-bold text-amber-300 transition-all hover:bg-amber-500/20 hover:scale-[1.01]"
+        >
+          <span className="inline-flex items-center justify-center gap-2">
+            <KeyRound className="h-3.5 w-3.5 text-amber-400" />
+            Convert Points to PromoKeys
+          </span>
+        </button>
+      ) : null}
     </div>
   );
 }

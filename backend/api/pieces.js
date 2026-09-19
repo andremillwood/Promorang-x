@@ -147,10 +147,7 @@ async function fetchAssetDetails(pieceType, assetId) {
     .eq(config.idColumn, assetId)
     .maybeSingle();
 
-  if (error) {
-    console.warn(`[Pieces API] asset fetch failed for ${pieceType}:${assetId}:`, error.message);
-  }
-
+  if (error) throw error;
   return data || null;
 }
 
@@ -165,12 +162,13 @@ async function fetchPieceStats(pieceType, assetId) {
   };
 
   const config = statsConfig[pieceType];
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from(config.table)
     .select('*')
     .eq(config.idColumn, assetId)
     .maybeSingle();
 
+  if (error) throw error;
   return data || null;
 }
 
@@ -731,7 +729,11 @@ router.get('/:pieceType/:id/profile', async (req, res, next) => {
       return next();
     }
 
-    if (!supabase || USE_DEMO) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Piece source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       const stats = generateDemoPieceStats(12);
       return res.json({
         piece_type: pieceType,
@@ -775,6 +777,7 @@ router.get('/:pieceType/:id/profile', async (req, res, next) => {
       return res.status(404).json({ error: 'Piece asset not found' });
     }
 
+    if (poolResult.error) throw poolResult.error;
     const [pool] = await enrichPoolsWithAssets(poolResult.data || []);
 
     res.json({
@@ -1413,7 +1416,11 @@ router.get('/pools', async (req, res) => {
   try {
     const { status = 'active', piece_type } = req.query;
     
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Liquidity pool source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       return res.json({
         pools: Array.from({ length: 5 }, (_, i) => ({
           id: `demo-pool-${i}`,
@@ -1461,7 +1468,11 @@ router.get('/lp/positions', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'LP position source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       const pools = Array.from({ length: 2 }, (_, i) => ({
         id: `demo-pool-${i}`,
         piece_type: i === 0 ? 'moment' : 'content',
@@ -1662,7 +1673,19 @@ router.post('/pools/:id/add-liquidity', requireAuth, async (req, res) => {
     const { pieces_to_add, max_currency, slippage_tolerance } = req.body;
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(503).json({
+        success: false,
+        code: 'LIQUIDITY_ATOMICITY_PENDING',
+        error: 'Liquidity changes are temporarily unavailable while atomic settlement is being hardened',
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({ success: false, error: 'Liquidity write source unavailable' });
+    }
+
+    if (USE_DEMO) {
       return res.json({
         success: true,
         message: 'Liquidity added (demo mode)',
@@ -1695,7 +1718,19 @@ router.post('/pools/:id/remove-liquidity', requireAuth, async (req, res) => {
     const { lp_tokens, min_pieces_out, min_currency_out } = req.body;
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(503).json({
+        success: false,
+        code: 'LIQUIDITY_ATOMICITY_PENDING',
+        error: 'Liquidity changes are temporarily unavailable while atomic settlement is being hardened',
+      });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({ success: false, error: 'Liquidity write source unavailable' });
+    }
+
+    if (USE_DEMO) {
       return res.json({
         success: true,
         message: 'Liquidity removed (demo mode)',
@@ -1826,7 +1861,11 @@ router.get('/pools/:id/lp-position', requireAuth, async (req, res) => {
     const poolId = req.params.id;
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'LP position source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       return res.json({
         user_id: userId,
         pool_id: poolId,
@@ -2418,7 +2457,11 @@ router.get('/gems/balance', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
-    if (USE_DEMO || !supabase) {
+    if (!supabase) {
+      return res.status(503).json({ error: 'Gems balance source unavailable' });
+    }
+
+    if (USE_DEMO && process.env.NODE_ENV !== 'production') {
       return res.json({
         user_id: userId,
         balance: 50,

@@ -37,7 +37,6 @@ const Dashboard = () => {
   const { activeDraft, dismissDraft } = useUserIntentContinuity();
   const [params] = useSearchParams();
   const studioView = params.get("view") === "studio";
-  const peopleView = params.get("view") === "people";
 
   if (loading) {
     return (
@@ -56,26 +55,19 @@ const Dashboard = () => {
   }
 
   const resolvedRole = activeRole || "participant";
-  const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
-  const showStudio = studioView || (!peopleView && commercialStudio);
+  // Today is the canonical entry surface for every role. Operational role
+  // dashboards remain available as an explicit Studio view instead of
+  // silently replacing the cross-role experience after a workspace switch.
+  const showStudio = studioView;
   const ResolvedDashboard = showStudio
     ? (dashboardByRole[resolvedRole] || ParticipantDashboardV2)
     : PeopleHome;
 
   if (!showStudio) {
     return (
-      <>
-        <MobileNotificationBridgeBanner />
-        {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
-        {resolvedRole === "participant" && (
-          <div className="w-full px-4 pt-4 sm:px-6 lg:px-8">
-            <RoleJobFirstGuide role="participant" />
-          </div>
-        )}
-        <Suspense fallback={dashboardFallback}>
-          <PeopleHome />
-        </Suspense>
-      </>
+      <Suspense fallback={dashboardFallback}>
+        <PeopleHome />
+      </Suspense>
     );
   }
 

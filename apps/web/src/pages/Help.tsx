@@ -57,7 +57,7 @@ const guides: HowToGuide[] = [
     steps: [
       "PromoCard comes off a partner bill. It is not a bank account.",
       "Points are a score. 500 can become 1 PromoKey. They are not money.",
-      "1 Gem = $1. Buy Gems or earn them. Spend them for extras cash cannot buy.",
+      "Gems use a 1 USD platform denomination. Balance, held value, and withdrawable value are separate wallet states.",
       "The Master Key is today's free contribution gate. PromoShare perk draws pay Keys or access. Save & Win is the PromoShare family that pays extra Gems."
     ],
     actionLink: { label: "Open the map", href: "/economy" }
@@ -98,7 +98,7 @@ const guides: HowToGuide[] = [
     categoryLabel: "Locals & Members",
     icon: QrCode,
     title: "How to Verify Your Visit & Earn Gems",
-    summary: "Prove you showed up to claim your rewards, build your Access Rank, and earn redeemable Gems.",
+    summary: "Submit the required visit proof. Any reward, rank change, or Gem consequence appears only after the applicable verification and issuance rules succeed.",
     steps: [
       "Arrive at the participating venue during operating hours.",
       "Open your Promorang app and tap 'Check In' or open your active pass.",
@@ -113,12 +113,12 @@ const guides: HowToGuide[] = [
     categoryLabel: "Locals & Members",
     icon: Wallet,
     title: "How to Withdraw Earnings & Manage Gems",
-    summary: "Convert your earned bounties and rewards into cash or spend Gems in the marketplace.",
+    summary: "Review recorded Gem states, withdrawable value, pending value, and the payout actions currently available to your account.",
     steps: [
       "Navigate to your Wallet from the navigation menu or dashboard.",
       "Review your Withdrawable Balance and pending Gem rewards.",
-      "Connect your payout method (Stripe / Bank / PayPal) for direct deposits.",
-      "Initiate a withdrawal or exchange Gems for exclusive partner perks."
+      "Review the payout method and withdrawal options actually available to your account.",
+      "Request withdrawal only from the balance marked withdrawable, or use eligible Gems for available partner benefits."
     ],
     actionLink: { label: "Open Wallet", href: "/wallet" }
   },
@@ -128,12 +128,12 @@ const guides: HowToGuide[] = [
     categoryLabel: "Venues & Merchants",
     icon: Building2,
     title: "How Venues Set Up & Verify Countertop QRs",
-    summary: "Set up frictionless, tamper-resistant QR check-in stands that automatically authenticate visiting patrons.",
+    summary: "Set up QR check-in points that can record an eligible scan as one part of the venue's configured proof flow.",
     steps: [
       "Log into your Merchant Dashboard and navigate to 'Venues & Check-in'.",
       "Download or print your venue's unique dynamic Countertop QR display.",
       "Place the stand at your host stand, bar, or checkout counter.",
-      "When patrons scan, your dashboard reflects real-time foot traffic and valid redemptions."
+      "When patrons scan, the dashboard records the scan; visit, redemption, purchase, or fulfillment status still depends on the applicable verification and commerce flow."
     ],
     actionLink: { label: "Merchant Dashboard", href: "/dashboard/venues" }
   },
@@ -143,7 +143,7 @@ const guides: HowToGuide[] = [
     categoryLabel: "Creators & Tastemakers",
     icon: Sparkles,
     title: "How Creators Claim & Complete Bounties",
-    summary: "Earn guaranteed cash payouts by creating authentic content and driving real foot traffic to local venues.",
+    summary: "Complete configured creator opportunities and track what was attributed, approved, earned, and eventually settled.",
     steps: [
       "Explore the Bounty Board to view open brand and venue sponsorship opportunities.",
       "Review requirements (e.g. TikTok/Reel coverage, minimum verified check-ins).",
@@ -163,7 +163,7 @@ const guides: HowToGuide[] = [
       "Define your campaign outcome (trial, foot traffic, user-generated content).",
       "Choose target cities, neighborhoods, or venue categories.",
       "Fund the reward pool (PromoKeys, tasting vouchers, creator bounties).",
-      "Monitor live analytics with real-time GPS and receipt verification."
+      "Review recorded analytics and the GPS, receipt, check-in, or other proof actually configured for the activation."
     ],
     actionLink: { label: "Brand Solutions", href: "/for-brands" }
   }
@@ -183,7 +183,7 @@ const faqs: FaqItem[] = [
   {
     category: "members",
     q: "What are Gems and how do I get them?",
-    a: "1 Gem = $1 of platform value. Buy Gems with a card or earn them from funded missions, Moments, allowances, and Save & Win winnings. Holding Gems earns nothing. Spending them on Pieces, perks, or Save & Win opens extras cash outside the app cannot."
+    a: "Gems use a 1 USD platform denomination, but balance, held value, and withdrawable value are separate states. You can buy Gems or receive them from eligible funded activity and Save & Win winnings. Holding Gems alone earns nothing."
   },
   {
     category: "members",
@@ -192,8 +192,8 @@ const faqs: FaqItem[] = [
   },
   {
     category: "venues",
-    q: "How does Promorang guarantee foot traffic for my venue?",
-    a: "Unlike pay-per-click ads, Promorang focuses on pre-committed demand. Hundreds of locals vote on winning spots, claim limited tasting keys, and physically verify their arrival using your countertop QR code."
+    q: "How does Promorang help me turn demand into recorded visits?",
+    a: "Promorang can surface recorded demand, offers, claims, and eligible visit proof. Votes and claims are intent signals; an actual visit is recorded only when the applicable check-in, QR, or proof path succeeds."
   },
   {
     category: "venues",
@@ -203,12 +203,12 @@ const faqs: FaqItem[] = [
   {
     category: "creators",
     q: "How do creator bounties get paid out?",
-    a: "Once you claim a bounty and submit your content or drive the required verified check-ins, funds are automatically released to your Promorang digital wallet, which you can withdraw anytime via Stripe or bank transfer."
+    a: "Submitting creator work or generating attributed actions does not itself mean payment. The opportunity's terms determine review, approval, earning, and settlement; withdrawable value appears only after the relevant earning and payout records are created."
   },
   {
     category: "brands",
     q: "How does Promorang verify that activations actually happened?",
-    a: "Every activation uses a multi-factor proof engine: GPS geofencing, dynamic countertop QR scans, verified receipt uploads, and creator post tracking. You get raw proof data, not estimated impressions."
+    a: "An activation can use GPS geofencing, QR scans, receipt evidence, creator attribution, or other configured proof methods. The evidence shown depends on what the activation required and what was actually recorded."
   },
   {
     category: "safety",
@@ -248,7 +248,7 @@ const faqs: FaqItem[] = [
   {
     category: "members",
     q: "What is Save & Win?",
-    a: "Save & Win is PromoShare's money draw. Park Gems, keep 100% of them, and compete for extra Gems (1 Gem = $1). Take the parked Gems out whenever. Everyday perk draws do not pay cash."
+    a: "Save & Win is PromoShare's money draw. Park Gems, keep 100% of that principal, and compete for extra Gems from a committed pot. Returning parked Gems follows the pot's exit terms and any applicable wallet hold or withdrawal rules. Everyday perk draws do not pay cash."
   }
 ];
 

@@ -5,8 +5,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
-import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState, useEffect } from "react";
+import { ParticipantWorldLayout } from "@/components/layouts/ParticipantWorldLayout";
+import { isParticipantWorldRoute } from "@/lib/participant-world-route";
+import "@/styles/stakeholder-production-world.css";
 
 interface AppLayoutProps {
     children?: React.ReactNode;
@@ -52,7 +54,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname.startsWith("/app-preview/") ||
         (location.pathname === "/" && previewMode === "consumer");
 
-    const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
     const isDropLanding = location.pathname.startsWith("/drop/");
     const isAftrHrsLanding =
         location.pathname === "/aftrhrs" ||
@@ -63,7 +64,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
     const isPrivateCommunity = location.pathname === "/community" || location.pathname.startsWith("/community/");
-    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding || isAftrHrsLanding || isPrivateCommunity) {
+    if (isConsumerPreview || isDropLanding || isAftrHrsLanding || isPrivateCommunity) {
         return <>{children || <Outlet />}</>;
     }
 
@@ -87,12 +88,28 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         );
     }
 
-    if (user && !isCleanPage) {
+    const isParticipantWorld = isParticipantWorldRoute(
+        location.pathname,
+        location.search,
+        activeRole,
+    );
+
+    if (user && isParticipantWorld) {
         return (
-            <DashboardLayout currentRole={(activeRole || "participant") as any}>
+            <ParticipantWorldLayout>
                 {children || <Outlet />}
-                <PWAInstallPrompt />
-            </DashboardLayout>
+            </ParticipantWorldLayout>
+        );
+    }
+
+    if (user && !isCleanPage) {
+        const stakeholderRole = activeRole || "participant";
+        return (
+            <div data-stakeholder-world data-stakeholder-role={stakeholderRole}>
+                <DashboardLayout currentRole={stakeholderRole as any}>
+                    {children || <Outlet />}
+                </DashboardLayout>
+            </div>
         );
     }
 
@@ -109,7 +126,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 currentRank={currentRank || 0}
                 onClose={() => setShowRankCelebration(false)}
             />
-            <PWAInstallPrompt />
         </div>
     );
 };

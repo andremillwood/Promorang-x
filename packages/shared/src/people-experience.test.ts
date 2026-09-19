@@ -3,6 +3,7 @@ import {
   accountStakeholderOutcomes,
   classifyExperienceRole,
   classifyHappenedBucket,
+  humanActionLabel,
   contributorValueScore,
   dropShareCopy,
   firstGivenName,
@@ -41,6 +42,13 @@ describe("people experience mapping", () => {
       went: 1,
       bought: 1,
     });
+  });
+
+  it("keeps RSVP intent and unknown actions out of attendance", () => {
+    expect(classifyHappenedBucket("event_rsvp")).toBe("other");
+    expect(classifyHappenedBucket("MOMENT_RSVP")).toBe("other");
+    expect(humanActionLabel("event_rsvp")).toBe("said they are going");
+    expect(humanActionLabel("UNRECOGNIZED_ACTION")).toBe("activity recorded");
   });
 
   it("maps live product action types into the same human buckets", () => {

@@ -12,7 +12,6 @@ import {
   UserIdentityMarker, 
   getIdentityDimensionDescription 
 } from '@/hooks/useStakeholderLeverage';
-import { toast } from 'sonner';
 
 const IDENTITY_DIMENSIONS: Record<string, { icon: string; color: string }> = {
   explorer: { icon: '🧭', color: 'bg-blue-500/10 text-blue-600' },
@@ -24,8 +23,8 @@ const IDENTITY_DIMENSIONS: Record<string, { icon: string; color: string }> = {
 };
 
 export function IdentityMarkers() {
-  const { useUserIdentityMarkers, confirmIdentityMarker } = useStakeholderLeverage();
-  const { data: markers, isLoading } = useUserIdentityMarkers();
+  const { useUserIdentityMarkers, confirmIdentityMarker, setIdentityMarkerVisibility } = useStakeholderLeverage();
+  const { data: markers, isLoading, error, refetch } = useUserIdentityMarkers();
   const [editingMarker, setEditingMarker] = useState<string | null>(null);
   const [reflectionDraft, setReflectionDraft] = useState('');
 
@@ -40,6 +39,23 @@ export function IdentityMarkers() {
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-32" />
           ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-8 text-center">
+          <Fingerprint className="mx-auto h-8 w-8 text-primary" />
+          <h3 className="mt-4 font-serif text-xl font-semibold">Identity markers are unavailable.</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            PROMORANG could not read your recorded identity markers, so this is not being shown as an empty identity history.
+          </p>
+          <Button type="button" variant="outline" className="mt-5" onClick={() => refetch()}>
+            Retry identity source
+          </Button>
         </CardContent>
       </Card>
     );
@@ -107,6 +123,8 @@ export function IdentityMarkers() {
               }}
               onCancel={() => setEditingMarker(null)}
               onReflectionChange={setReflectionDraft}
+              onVisibilityChange={(isPublic) => setIdentityMarkerVisibility.mutate({ markerId: marker.id, isPublic })}
+              visibilityPending={setIdentityMarkerVisibility.isPending && setIdentityMarkerVisibility.variables?.markerId === marker.id}
             />
           ))}
         </div>
@@ -138,6 +156,8 @@ export function IdentityMarkers() {
               }}
               onCancel={() => setEditingMarker(null)}
               onReflectionChange={setReflectionDraft}
+              onVisibilityChange={(isPublic) => setIdentityMarkerVisibility.mutate({ markerId: marker.id, isPublic })}
+              visibilityPending={setIdentityMarkerVisibility.isPending && setIdentityMarkerVisibility.variables?.markerId === marker.id}
               isSuggested
             />
           ))}
@@ -155,6 +175,8 @@ interface IdentityCardProps {
   onSave: () => void;
   onCancel: () => void;
   onReflectionChange: (text: string) => void;
+  onVisibilityChange: (isPublic: boolean) => void;
+  visibilityPending: boolean;
   isSuggested?: boolean;
 }
 
@@ -166,6 +188,8 @@ function IdentityCard({
   onSave,
   onCancel,
   onReflectionChange,
+  onVisibilityChange,
+  visibilityPending,
   isSuggested = false,
 }: IdentityCardProps) {
   const meta = IDENTITY_DIMENSIONS[marker.dimension] || { icon: '✨', color: 'bg-muted text-muted-foreground' };
@@ -294,12 +318,10 @@ function IdentityCard({
           <div className="flex items-center justify-between pt-2 border-t">
             <span className="text-sm text-muted-foreground">Visibility</span>
             <div className="flex items-center gap-2">
-              <Switch 
+              <Switch
                 checked={marker.is_public}
-                onCheckedChange={(checked) => {
-                  // TODO: Implement visibility toggle mutation
-                  toast.success(checked ? 'Made public' : 'Made private');
-                }}
+                disabled={visibilityPending}
+                onCheckedChange={onVisibilityChange}
               />
               <span className="text-sm">
                 {marker.is_public ? 'Public' : 'Private'}

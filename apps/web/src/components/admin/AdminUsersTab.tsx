@@ -147,24 +147,6 @@ export function AdminUsersTab() {
     });
   };
 
-  useEffect(() => {
-    const updateWidth = () => {
-      if (tableScrollRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = tableScrollRef.current;
-        setTableScrollWidth(scrollWidth);
-        setCanScrollLeft(scrollLeft > 10);
-        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-      }
-    };
-    updateWidth();
-    const timer = setTimeout(updateWidth, 100);
-    window.addEventListener("resize", updateWidth);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", updateWidth);
-    };
-  }, [filteredUsers]);
-
   const filteredUsers = useMemo(() => {
     return (users || []).filter((user) => {
       const query = searchQuery.trim().toLowerCase();
@@ -185,6 +167,24 @@ export function AdminUsersTab() {
       return searchMatches && roleMatches && stateMatches;
     });
   }, [roleFilter, searchQuery, stateFilter, users]);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (tableScrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = tableScrollRef.current;
+        setTableScrollWidth(scrollWidth);
+        setCanScrollLeft(scrollLeft > 10);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+      }
+    };
+    updateWidth();
+    const timer = setTimeout(updateWidth, 100);
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, [filteredUsers]);
 
   const summary = useMemo(() => {
     const rows = users || [];
@@ -234,31 +234,39 @@ export function AdminUsersTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <div className="rounded-xl border border-border bg-card p-4">
+    <div className="admin-tab-stack">
+      <section className="space-y-5">
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#ff7a35]">People & access</p>
+          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Who is on the platform, and what needs attention?</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">Start with account state and trust. Roles, KYC and moderation controls are secondary details, not the page hierarchy.</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Users</p>
           <p className="mt-2 text-2xl font-semibold">{summary.total}</p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Suspended</p>
           <p className="mt-2 text-2xl font-semibold text-destructive">{summary.suspended}</p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Limited</p>
           <p className="mt-2 text-2xl font-semibold text-amber-600">{summary.limited}</p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Flagged</p>
           <p className="mt-2 text-2xl font-semibold text-orange-600">{summary.flagged}</p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Open Support</p>
           <p className="mt-2 text-2xl font-semibold">{summary.openSupport}</p>
         </div>
-      </div>
+        </div>
+      </section>
 
-      <div className="flex flex-col gap-4">
+      <section className="space-y-5 rounded-2xl border border-white/10 bg-black/20 p-5 sm:p-6">
+        <div className="flex flex-col gap-4">
         <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -308,9 +316,18 @@ export function AdminUsersTab() {
             ))}
           </div>
         </div>
-      </div>
+        </div>
+      </section>
 
-      <div className="relative rounded-xl border border-border bg-card shadow-sm">
+      <section className="space-y-4">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-[.18em] text-white/35">Accounts</p>
+            <h3 className="mt-1 text-xl font-black text-white">Review people and permissions.</h3>
+          </div>
+          <p className="text-xs text-white/30">Showing {filteredUsers.length} of {users?.length || 0}</p>
+        </div>
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[.02] shadow-sm">
         <div
           ref={tableScrollRef}
           onScroll={handleTableScroll}
@@ -617,9 +634,7 @@ export function AdminUsersTab() {
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        Showing {filteredUsers.length} of {users?.length || 0} users
-      </p>
+      </section>
 
       <Dialog open={!!roleDialog} onOpenChange={() => setRoleDialog(null)}>
         <DialogContent>

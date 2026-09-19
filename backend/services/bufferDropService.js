@@ -28,15 +28,7 @@ const DEFAULT_BUFFER_CONFIG = {
  */
 async function getBufferPool() {
     if (!supabase) {
-        return {
-            id: 'demo-buffer-pool',
-            pool_type: 'buffer',
-            name: 'Platform Buffer Pool',
-            total_funded: 10000,
-            available_balance: 8500,
-            spent_amount: 1500,
-            is_active: true
-        };
+        return null;
     }
 
     try {
@@ -96,23 +88,7 @@ async function getBufferConfig() {
  */
 async function getActiveBufferDrops() {
     if (!supabase) {
-        // Return demo buffer drops
-        return Array.from({ length: 5 }, (_, i) => ({
-            id: `buffer-${i + 1}`,
-            title: `Platform Daily Drop #${i + 1}`,
-            description: 'Complete this simple task to earn Gems. Platform-guaranteed payout.',
-            drop_type: 'engagement',
-            difficulty: 'easy',
-            key_cost: 1,
-            gem_reward_base: 0.7,
-            gem_pool_total: 100,
-            gem_pool_remaining: 85,
-            drop_source: 'platform',
-            is_buffer_drop: true,
-            status: 'active',
-            platform: 'any',
-            created_at: new Date().toISOString()
-        }));
+        return [];
     }
 
     try {
@@ -137,8 +113,7 @@ async function getActiveBufferDrops() {
  */
 async function createDailyBufferDrops() {
     if (!supabase) {
-        console.log('[Buffer Drop] Demo mode - skipping buffer drop creation');
-        return { success: true, drops_created: 0, demo: true };
+        return { success: false, drops_created: 0, error: 'Authoritative platform funding source unavailable' };
     }
 
     try {
@@ -186,7 +161,7 @@ async function createDailyBufferDrops() {
 
             drops.push({
                 title: dropTitles[i % dropTitles.length],
-                description: 'Complete this task to earn guaranteed Gems from the platform pool. Low effort, consistent payout.',
+                description: 'Complete the stated task and required proof. Eligible approved completion can receive the configured Gem reward while the funded platform pool remains available.',
                 drop_type: 'engagement',
                 difficulty: 'easy',
                 key_cost: config.keyCost,
@@ -293,8 +268,8 @@ async function getPoolAvailability() {
             pool_balance: pool?.available_balance || 0
         },
         message: pool?.available_balance > 0
-            ? 'Platform drops always available'
-            : 'Buffer pool depleted - advertiser drops only'
+            ? 'Funded platform drops are currently available'
+            : 'No funded platform buffer drops are currently available'
     };
 }
 

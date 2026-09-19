@@ -46,12 +46,14 @@ export function PutUpFoundModal({
   const [whereHint, setWhereHint] = useState("");
   const [perkToFinder, setPerkToFinder] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const nextTitle = title.trim() || defaultTitle.trim();
     if (nextTitle.length < 3) return;
     setBusy(true);
+    setError(null);
     try {
       await onPutUp({
         kind,
@@ -61,6 +63,8 @@ export function PutUpFoundModal({
         perkToFinder: perkToFinder.trim() || defaultFinderPerk(kind),
       });
       setOpen(false);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "That request was not recorded.");
     } finally {
       setBusy(false);
     }
@@ -120,6 +124,11 @@ export function PutUpFoundModal({
             />
             <span className="mt-2 block text-xs leading-5 text-white/45">{t("found.perkHint")}</span>
           </label>
+          {error ? (
+            <p className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-3 text-xs leading-5 text-amber-100/70">
+              {error}
+            </p>
+          ) : null}
           <TactileButton type="submit" variant="primary" disabled={busy} className="w-full">
             {busy ? t("found.puttingUp") : t("found.submit")}
           </TactileButton>

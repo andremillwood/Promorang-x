@@ -53,18 +53,20 @@ export function StickyJoinBar({
     const { toast } = useToast();
 
     useEffect(() => {
-        const handleScroll = () => {
-            // Show sticky bar after scrolling past 400px
-            const shouldShow = window.scrollY > 400;
-            setIsVisible(shouldShow);
-        };
-
+        const action = document.getElementById("moment-primary-action");
+        if (action && typeof IntersectionObserver !== "undefined") {
+            const observer = new IntersectionObserver(([entry]) => setIsVisible(!entry.isIntersecting && entry.boundingClientRect.bottom < 0));
+            observer.observe(action);
+            return () => observer.disconnect();
+        }
+        const handleScroll = () => setIsVisible(window.scrollY > 400);
+        handleScroll();
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     const handlePingSquad = async () => {
-        const text = `I'm going to ${title}! Download Promorang and join me so we can unlock the Squad Bounty 🔒🔥`;
+        const text = `I'm going to ${title}! Download Promorang and see the Moment details and join me`;
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -105,6 +107,8 @@ export function StickyJoinBar({
         if (accessState?.key === "needs_keys") return "default" as const;
         return "hero" as const;
     };
+
+    if (!isVisible) return null;
 
     return (
         <div
@@ -170,12 +174,6 @@ export function StickyJoinBar({
                                         <span className="flex items-center gap-1 text-xs font-medium text-red-500 animate-pulse">
                                             <Flame className="h-3 w-3" />
                                             {spotsLeft} spots left
-                                        </span>
-                                    )}
-                                    {participantCount > 10 && !isAlmostFull && (
-                                        <span className="flex items-center gap-1 text-xs font-medium text-orange-500">
-                                            <Flame className="h-3 w-3" />
-                                            Trending
                                         </span>
                                     )}
                                 </div>

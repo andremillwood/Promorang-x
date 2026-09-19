@@ -14,7 +14,6 @@ import {
   DISCOVER_LENS_STORAGE_KEY,
   DISCOVER_QUERY_STORAGE_KEY,
   DISCOVER_SKIPPED_STORAGE_KEY,
-  DISCOVER_VOTED_STORAGE_KEY,
   discoverPathHref,
   discoveryHref,
   inferLensesFromPreferences,
@@ -125,12 +124,22 @@ export function DiscoveryPath({
     return window.localStorage.getItem(DISCOVER_QUERY_STORAGE_KEY) || "";
   });
   const [draftQuery, setDraftQuery] = useState(query);
-  const [votedIds, setVotedIds] = useState<string[]>(() => readStoredIdList(DISCOVER_VOTED_STORAGE_KEY));
+  const [sessionVotedIds, setSessionVotedIds] = useState<string[]>([]);
+  const recordedVotedIds = useMemo(
+    () => polls.filter((poll) => Boolean(poll.userVotedOptionId)).map((poll) => poll.id),
+    [polls],
+  );
+  const votedIds = useMemo(
+    () => Array.from(new Set([...recordedVotedIds, ...sessionVotedIds])),
+    [recordedVotedIds, sessionVotedIds],
+  );
   const [skippedIds, setSkippedIds] = useState<string[]>(() => readStoredIdList(DISCOVER_SKIPPED_STORAGE_KEY));
   const [justVotedId, setJustVotedId] = useState<string | null>(null);
   const [browseOpen, setBrowseOpen] = useState(false);
   const [intentTick, setIntentTick] = useState(0);
   const [lastUnlock, setLastUnlock] = useState<DiscoveryCardUnlock | null>(null);
+  const [unlockingPollId, setUnlockingPollId] = useState<string | null>(null);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
   const [lastPick, setLastPick] = useState<string | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
   const found = useDiscoveryFound(cityName);
@@ -228,9 +237,14 @@ export function DiscoveryPath({
   );
 
   useEffect(() => {
-    if (!current) return;
-    const existing = readLocalCardUnlocks().find((row) => row.pollId === current.poll.id);
-    if (existing) setLastUnlock(existing);
+    if (!current) {
+      setLastUnlock(null);
+      setUnlockError(null);
+      return;
+    }
+    const existing = readLocalCardUnlocks().find((row) => row.pollId === current.poll.id) || null;
+    setLastUnlock(existing);
+    setUnlockError(null);
   }, [current?.poll.id]);
 
   const chooseLens = (next: DiscoverLensId) => {
@@ -279,10 +293,9 @@ export function DiscoveryPath({
 
   const markVoted = (pollId: string) => {
     setJustVotedId(pollId);
-    setVotedIds((prev) => {
+    setSessionVotedIds((prev) => {
       if (prev.includes(pollId)) return prev;
       const next = [...prev, pollId];
-      writeStoredIdList(DISCOVER_VOTED_STORAGE_KEY, next);
       onVoted?.(pollId);
       return next;
     });
@@ -300,6 +313,34 @@ export function DiscoveryPath({
   };
 
   const continuePath = () => setJustVotedId(null);
+
+  const putCurrentPerkOnCard = async () => {
+    if (!current || !pollHasRedeemablePerk(current.poll)) return null;
+    setUnlockingPollId(current.poll.id);
+    setUnlockError(null);
+    try {
+      const unlock = await unlockDiscoveryOntoCard({
+        city: cityName,
+        poll: current.poll,
+        query,
+        aim: aim?.id,
+      });
+      setLastUnlock(unlock);
+      return unlock;
+    } catch (error) {
+      setLastUnlock(null);
+      setUnlockError(error instanceof Error ? error.message : "The perk was not added to your card.");
+      return null;
+    } finally {
+      setUnlockingPollId(null);
+    }
+  };
+
+  const currentUnlockRecorded = Boolean(
+    current &&
+    lastUnlock?.pollId === current.poll.id &&
+    lastUnlock.redemptionCode,
+  );
 
   const putUpFound = async (input: Parameters<typeof found.putUp>[0]) => {
     await recordDiscoveryNamedIntent(cityName, input.title);
@@ -417,24 +458,26 @@ export function DiscoveryPath({
             key={current.poll.id}
             {...current.poll}
             landOnCard
-            onVote={(pollId, optionId) => {
+            onVote={async (pollId, optionId) => {
               const picked = current.poll.options.find((option) => option.id === optionId)?.text || null;
               setLastPick(picked);
-              void onCastVote?.(current.poll, optionId);
+              setUnlockError(null);
+
+              if (!onCastVote && !import.meta.env.DEV) {
+                throw new Error("Vote recording is unavailable.");
+              }
+              await onCastVote?.(current.poll, optionId);
               markVoted(pollId);
-              if (!pollHasRedeemablePerk(current.poll)) return;
-              void unlockDiscoveryOntoCard({
-                city: cityName,
-                poll: current.poll,
-                query,
-                aim: aim?.id,
-              }).then(setLastUnlock);
+
+              if (pollHasRedeemablePerk(current.poll)) {
+                await putCurrentPerkOnCard();
+              }
             }}
           />
 
           {votedIds.includes(current.poll.id) ? (
             <div className="grid gap-4 lg:grid-cols-[minmax(0,280px)_1fr] lg:items-center">
-              {pollHasRedeemablePerk(current.poll) ? (
+              {pollHasRedeemablePerk(current.poll) && currentUnlockRecorded ? (
                 <PaperReceipt
                   heading={aim ? "On your card" : t("discover.pathReceiptHeading")}
                   lines={[
@@ -477,18 +520,38 @@ export function DiscoveryPath({
               <div className="space-y-3">
                 <p className="text-sm leading-6 text-white/60">
                   {pollHasRedeemablePerk(current.poll)
-                    ? aim
-                      ? "It's on your card now. Show it where it works."
-                      : t("discover.pathOnCardCopy")
+                    ? currentUnlockRecorded
+                      ? aim
+                        ? "It's on your card now. Show it where it works."
+                        : t("discover.pathOnCardCopy")
+                      : unlockingPollId === current.poll.id
+                        ? "Your signal is recorded. The perk is being added to your card."
+                        : unlockError
+                          ? "Your signal is recorded, but the perk was not added to your card."
+                          : "Your signal is recorded. The perk is not on your card yet."
                     : t("discover.pathVoteCopy")}
                 </p>
+                {unlockError && pollHasRedeemablePerk(current.poll) && !currentUnlockRecorded ? (
+                  <p className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-3 text-xs leading-5 text-amber-100/70">
+                    {unlockError}
+                  </p>
+                ) : null}
                 <div className="flex flex-wrap gap-3">
-                  {pollHasRedeemablePerk(current.poll) ? (
+                  {pollHasRedeemablePerk(current.poll) && currentUnlockRecorded ? (
                     <TactileButton variant="primary" asChild>
                       <Link to={cardHref}>
                         {aim ? (user ? "Show this on your card" : "Unlock this") : t("discover.pathOpenCard")}
                         <ArrowRight className="h-4 w-4" />
                       </Link>
+                    </TactileButton>
+                  ) : pollHasRedeemablePerk(current.poll) ? (
+                    <TactileButton
+                      variant="primary"
+                      disabled={unlockingPollId === current.poll.id}
+                      onClick={() => void putCurrentPerkOnCard()}
+                    >
+                      {unlockingPollId === current.poll.id ? "Adding to card…" : "Try card again"}
+                      <ArrowRight className="h-4 w-4" />
                     </TactileButton>
                   ) : (
                     <TactileButton variant="primary" asChild>

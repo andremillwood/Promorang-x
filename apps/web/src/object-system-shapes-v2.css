@@ -1,0 +1,392 @@
+/* PROMORANG Canonical Object System — Shape Grammar V2
+   Rectangles define layout. Objects define personality.
+   Object identity must remain legible by silhouette/composition even without color or copy. */
+
+.cos-specimen {
+  position: relative;
+  overflow: visible;
+  display: grid;
+  place-items: center;
+  min-height: 430px;
+}
+
+.cos-specimen > .cos-section-label {
+  position: absolute;
+  z-index: 8;
+  top: 18px;
+  left: 18px;
+}
+
+.cos-moment,
+.cos-key,
+.cos-draw,
+.cos-vault,
+.cos-discovery,
+.cos-brief,
+.cos-scene,
+.cos-object-generic,
+.pr-ticket,
+.pr-receipt,
+.pr-relic,
+.cos-value {
+  position: relative;
+  isolation: isolate;
+  max-width: 100%;
+}
+
+/* 01 — MOMENT · poster/pass hybrid */
+.cos-root:has(.cos-object-nav button:nth-of-type(1).active) .cos-moment {
+  width: min(760px, 92%);
+  height: 350px;
+  grid-template-columns: 1.15fr .85fr;
+  clip-path: polygon(0 0, 92% 0, 100% 11%, 100% 100%, 8% 100%, 0 89%);
+  border: 0;
+  box-shadow: 0 30px 70px rgba(0,0,0,.34);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(1).active) .cos-moment::after {
+  content: "MOMENT";
+  position: absolute;
+  right: -26px;
+  top: 50%;
+  transform: rotate(90deg) translateY(-50%);
+  transform-origin: center;
+  font: 800 9px/1 ui-monospace, monospace;
+  letter-spacing: .22em;
+  color: rgba(255,255,255,.48);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(1).active) .cos-paper { border-left: 1px dashed rgba(26,18,12,.32); }
+
+/* 02 — SCENE · spatial field / constellation */
+.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene {
+  width: min(660px, 88%);
+  min-height: 360px;
+  border: 0;
+  border-radius: 46% 54% 38% 62% / 54% 38% 62% 46%;
+  padding: 70px 72px;
+  background:
+    radial-gradient(circle at 25% 25%, rgba(255,106,0,.17), transparent 22%),
+    radial-gradient(circle at 72% 34%, rgba(181,140,255,.16), transparent 24%),
+    radial-gradient(circle at 56% 78%, rgba(76,198,240,.1), transparent 24%),
+    #0b0b0c;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.055), 0 28px 70px rgba(0,0,0,.25);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::before,
+.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::after {
+  content: "";
+  position: absolute;
+  border: 1px dashed rgba(255,255,255,.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::before { inset: 34px 86px 58px 42px; transform: rotate(-8deg); }
+.cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene::after { inset: 90px 28px 28px 120px; transform: rotate(14deg); }
+
+/* 03 — DISCOVERY · signal field */
+.cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-discovery {
+  width: min(720px, 92%);
+  min-height: 330px;
+  border: 0;
+  padding: 54px 64px 48px;
+  border-radius: 160px 34px 160px 34px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,106,0,.7) 0 3px, transparent 4px),
+    radial-gradient(circle at 24% 72%, rgba(246,196,83,.55) 0 4px, transparent 5px),
+    radial-gradient(circle at 82% 22%, rgba(181,140,255,.48) 0 3px, transparent 4px),
+    radial-gradient(circle at 70% 80%, rgba(76,198,240,.45) 0 4px, transparent 5px),
+    radial-gradient(circle at 50% 50%, rgba(255,106,0,.12), transparent 42%),
+    #0b0b0c;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-discovery::after {
+  content: "812 SIGNALS";
+  position: absolute;
+  right: 28px;
+  top: 28px;
+  font: 800 9px/1 ui-monospace, monospace;
+  letter-spacing: .16em;
+  color: rgba(255,255,255,.34);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-progress { height: 2px; overflow: visible; position: relative; }
+.cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-progress span::after {
+  content: "";
+  position: absolute;
+  right: 28%;
+  top: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--cos-gold);
+  background: #0b0b0c;
+}
+
+/* 04 — PERK · benefit token/chip */
+.cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key {
+  width: 330px;
+  height: 330px;
+  min-height: 330px;
+  border-radius: 50%;
+  clip-path: none;
+  justify-content: center;
+  text-align: center;
+  padding: 54px 42px;
+  background: radial-gradient(circle at 50% 42%, rgba(246,196,83,.14), transparent 38%), #15120d;
+  box-shadow: inset 0 0 0 1px rgba(246,196,83,.28), inset 0 0 0 10px #080809, inset 0 0 0 11px rgba(246,196,83,.14), 0 30px 70px rgba(0,0,0,.3);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key::before {
+  content: "BENEFIT";
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  font: 900 8px/1 ui-monospace, monospace;
+  letter-spacing: .22em;
+  color: var(--cos-gold);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key h3 { font-size: 34px; }
+.cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key footer { justify-content: center; gap: 12px; border-top: 0; border-radius: 999px; background: rgba(255,255,255,.04); padding: 9px 14px; }
+.cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key-notch { display:none; }
+
+/* 05 — OFFER · long ruled commercial instrument */
+.cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key {
+  width: min(760px, 94%);
+  height: 300px;
+  min-height: 300px;
+  clip-path: polygon(0 0, 97% 0, 100% 10%, 100% 90%, 97% 100%, 0 100%, 1.5% 84%, 0 68%, 1.5% 52%, 0 36%, 1.5% 20%);
+  padding: 34px 42px;
+  background: linear-gradient(105deg,#111 0 68%,#15120d 68% 100%);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key::before {
+  content: "COMMERCIAL RULES";
+  position:absolute;
+  right: 30px;
+  top: 32px;
+  width: 130px;
+  border-top: 1px dashed rgba(246,196,83,.35);
+  padding-top: 10px;
+  font: 800 8px/1.45 ui-monospace, monospace;
+  letter-spacing:.14em;
+  color: rgba(246,196,83,.6);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key h3 { max-width: 62%; font-size: 44px; }
+.cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key footer { max-width: 64%; }
+.cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key-notch { top:auto; bottom:36px; }
+
+/* 06 — PROMOKEY · carried entitlement fob */
+.cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key {
+  width: 360px;
+  height: 390px;
+  min-height: 390px;
+  clip-path: polygon(18% 0,82% 0,100% 18%,100% 100%,0 100%,0 18%);
+  padding: 74px 34px 30px;
+  background: linear-gradient(160deg,#17130d,#0e0e0f 68%);
+  box-shadow: 0 32px 80px rgba(0,0,0,.4);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key::before {
+  content:"";
+  position:absolute;
+  top:19px;
+  left:50%;
+  width:34px;
+  height:34px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  border:1px solid rgba(246,196,83,.35);
+  box-shadow: inset 0 0 0 9px #080809;
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key::after {
+  content:"ENTITLEMENT";
+  position:absolute;
+  right:18px;
+  top:86px;
+  writing-mode:vertical-rl;
+  font:800 8px/1 ui-monospace,monospace;
+  letter-spacing:.2em;
+  color:rgba(246,196,83,.5);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key h3 { font-size: 38px; }
+.cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key-notch { display:none; }
+
+/* 07 — PASS / TICKET · detachable stub */
+.cos-root:has(.cos-object-nav button:nth-of-type(7).active) .pr-ticket { width: min(760px, 94%); min-height: 260px; transform: rotate(-1deg); box-shadow: 0 28px 70px rgba(0,0,0,.32); }
+.cos-root:has(.cos-object-nav button:nth-of-type(7).active) .pr-ticket-stub { min-width: 92px; border-left-style: dashed; }
+
+/* 08 — OPPORTUNITY / MISSION · commission folder */
+.cos-root:has(.cos-object-nav button:nth-of-type(8).active) .cos-brief {
+  width: min(760px, 94%);
+  min-height: 340px;
+  border: 0;
+  padding: 38px 38px 30px;
+  clip-path: polygon(0 8%,26% 8%,30% 0,55% 0,58% 8%,100% 8%,100% 100%,0 100%);
+  box-shadow: 10px 12px 0 rgba(122,46,23,.18), 20px 22px 0 rgba(255,255,255,.035), 0 34px 70px rgba(0,0,0,.24);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(8).active) .cos-brief::after {
+  content:"COMMISSION";
+  position:absolute;
+  top:13px;
+  left:33%;
+  font:900 8px/1 ui-monospace,monospace;
+  letter-spacing:.18em;
+  color:#7a2e17;
+}
+
+/* 09 — PROOF · clipped evidence certificate/seal */
+.cos-root:has(.cos-object-nav button:nth-of-type(9).active) .pr-receipt {
+  width: min(620px, 88%);
+  min-height: 330px;
+  clip-path: polygon(7% 0,93% 0,100% 7%,100% 82%,88% 100%,12% 100%,0 82%,0 7%);
+  border: 1px solid rgba(26,18,12,.2);
+  transform: rotate(.5deg);
+  box-shadow: 0 30px 70px rgba(0,0,0,.3);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(9).active) .pr-receipt::before {
+  content:"PROOF";
+  position:absolute;
+  right:24px;
+  top:24px;
+  width:68px;
+  height:68px;
+  display:grid;
+  place-items:center;
+  border:2px solid rgba(122,46,23,.55);
+  border-radius:50%;
+  transform:rotate(-10deg);
+  font:900 9px/1 ui-monospace,monospace;
+  letter-spacing:.16em;
+  color:rgba(122,46,23,.72);
+}
+
+/* 10 — RECEIPT · narrow paper roll */
+.cos-root:has(.cos-object-nav button:nth-of-type(10).active) .pr-receipt { width: 340px; min-height: 390px; transform: rotate(-1.2deg); box-shadow: 0 24px 60px rgba(0,0,0,.3); }
+.cos-root:has(.cos-object-nav button:nth-of-type(10).active) .pr-receipt::after {
+  content:"";
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:-6px;
+  height:12px;
+  background:linear-gradient(135deg,transparent 50%,#eadcc6 51%) 0 0/12px 12px repeat-x;
+}
+
+/* 11 — PIECE · framed collectible/relic */
+.cos-root:has(.cos-object-nav button:nth-of-type(11).active) .pr-relic {
+  width: 350px;
+  min-height: 350px;
+  aspect-ratio:1;
+  border-radius: 30% 8% 30% 8%;
+  transform: rotate(1.5deg);
+  padding: 46px 38px;
+  box-shadow: inset 0 0 0 8px rgba(181,140,255,.045), 0 34px 80px rgba(0,0,0,.36);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(11).active) .pr-relic::before {
+  content:"KEPT";
+  position:absolute;
+  left:-18px;
+  top:52px;
+  padding:8px 14px;
+  border:1px solid rgba(181,140,255,.28);
+  border-radius:999px;
+  background:#080809;
+  font:800 8px/1 ui-monospace,monospace;
+  letter-spacing:.16em;
+  color:rgba(220,198,255,.72);
+}
+
+/* 12 — PROMOSHARE · serialized ticket family/fan */
+.cos-root:has(.cos-object-nav button:nth-of-type(12).active) .cos-draw {
+  width: min(650px, 86%);
+  min-height: 310px;
+  border:0;
+  clip-path: polygon(0 0,100% 0,100% 42%,97% 50%,100% 58%,100% 100%,0 100%,0 58%,3% 50%,0 42%);
+  background:#111;
+  box-shadow: 14px 12px 0 rgba(246,196,83,.08), 28px 24px 0 rgba(255,255,255,.03), 0 32px 70px rgba(0,0,0,.32);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(12).active) .cos-draw::before {
+  content:"TICKET 06 OF 06";
+  position:absolute;
+  right:24px;
+  top:24px;
+  padding:8px 10px;
+  border:1px dashed rgba(246,196,83,.34);
+  font:800 8px/1 ui-monospace,monospace;
+  letter-spacing:.16em;
+  color:var(--cos-gold);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(12).active) .cos-draw::after { content:""; position:absolute; top:0; bottom:0; right:112px; border-left:1px dashed rgba(255,255,255,.14); }
+
+/* 13 — SAVE & WIN · protected reserve/vault pod */
+.cos-root:has(.cos-object-nav button:nth-of-type(13).active) .cos-vault {
+  width: 390px;
+  min-height: 390px;
+  border: 0;
+  border-radius: 50% 50% 42% 42% / 44% 44% 56% 56%;
+  justify-content:center;
+  text-align:center;
+  padding:64px 44px 48px;
+  background: radial-gradient(circle at 50% 38%,rgba(76,198,240,.16),transparent 34%),#0c1112;
+  box-shadow: inset 0 0 0 1px rgba(76,198,240,.22), inset 0 0 0 12px #080809, inset 0 0 0 13px rgba(76,198,240,.08), 0 34px 80px rgba(0,0,0,.36);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(13).active) .cos-vault::before {
+  content:"PROTECTED RESERVE";
+  position:absolute;
+  top:34px;
+  left:50%;
+  transform:translateX(-50%);
+  font:900 8px/1 ui-monospace,monospace;
+  letter-spacing:.18em;
+  color:rgba(76,198,240,.7);
+}
+.cos-root:has(.cos-object-nav button:nth-of-type(13).active) .cos-vault strong { margin-top:34px; }
+
+/* 14 — VALUE SPECIES · deliberately different silhouettes */
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value { width:min(740px,92%); height:330px; gap:34px; align-items:center; }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div { min-height:220px; border:0; justify-content:center; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.24); }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(1) { aspect-ratio:1; transform:rotate(45deg); background:linear-gradient(145deg,rgba(76,198,240,.16),#0d1112); border:1px solid rgba(76,198,240,.28); }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(1) > * { transform:rotate(-45deg); }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(2) { aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,rgba(246,196,83,.12),#0d0d0e 70%); border:1px solid rgba(246,196,83,.25); }
+.cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div:nth-child(3) { min-height:190px; clip-path:polygon(0 0,100% 0,100% 40%,94% 50%,100% 60%,100% 100%,0 100%,0 60%,6% 50%,0 40%); background:#111; border-top:1px solid rgba(181,140,255,.28); border-bottom:1px solid rgba(181,140,255,.28); }
+
+/* Lifecycle becomes a connected journey instead of five rectangular cells. */
+.cos-lifecycle { position:relative; border:0; gap:0; padding-top:30px; }
+.cos-lifecycle::before { content:""; position:absolute; left:10%; right:10%; top:48px; height:1px; background:linear-gradient(90deg,rgba(255,106,0,.25),rgba(246,196,83,.6),rgba(181,140,255,.26)); }
+.cos-life-step { position:relative; min-height:170px; border:0; padding:18px 22px; background:transparent; }
+.cos-life-step > div { position:relative; z-index:2; width:max-content; gap:8px; padding-right:8px; background:var(--cos-bg); }
+.cos-life-step > b { margin-top:18px; }
+
+/* Role lens: preserve information structure, remove card-within-card visual noise. */
+.cos-role-card { border:0; border-top:1px solid rgba(246,196,83,.18); border-bottom:1px solid rgba(246,196,83,.18); background:linear-gradient(90deg,rgba(122,46,23,.06),transparent 38%); }
+.cos-role-title { border-right:0; }
+.cos-role-fields > div { border-right:0; border-left:1px solid var(--cos-line); }
+
+/* Cross-role contract becomes a continuous ledger strip. */
+.cos-cross-grid { border-top:1px solid var(--cos-line); border-bottom:1px solid var(--cos-line); }
+.cos-cross-grid article,
+.cos-cross-grid article:last-child { border:0; border-right:1px solid var(--cos-line); background:transparent; }
+.cos-cross-grid article:last-child { border-right:0; }
+
+@media (max-width: 1100px) {
+  .cos-specimen { min-height:390px; }
+  .cos-root:has(.cos-object-nav button:nth-of-type(4).active) .cos-key,
+  .cos-root:has(.cos-object-nav button:nth-of-type(6).active) .cos-key,
+  .cos-root:has(.cos-object-nav button:nth-of-type(11).active) .pr-relic,
+  .cos-root:has(.cos-object-nav button:nth-of-type(13).active) .cos-vault { width:min(360px,88vw); height:auto; }
+  .cos-lifecycle::before { display:none; }
+  .cos-life-step { border-bottom:1px solid var(--cos-line); }
+  .cos-role-fields > div { border-left:0; border-top:1px solid var(--cos-line); }
+  .cos-cross-grid { border:0; }
+  .cos-cross-grid article,
+  .cos-cross-grid article:last-child { border-right:0; border-bottom:1px solid var(--cos-line); }
+}
+
+@media (max-width: 720px) {
+  .cos-root:has(.cos-object-nav button:nth-of-type(1).active) .cos-moment { height:auto; min-height:420px; grid-template-columns:1fr; clip-path:polygon(0 0,94% 0,100% 5%,100% 100%,6% 100%,0 95%); }
+  .cos-root:has(.cos-object-nav button:nth-of-type(2).active) .cos-scene { border-radius:34% 66% 42% 58% / 44% 36% 64% 56%; padding:52px 36px; }
+  .cos-root:has(.cos-object-nav button:nth-of-type(3).active) .cos-discovery { border-radius:80px 24px 80px 24px; padding:48px 34px; }
+  .cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key { height:auto; min-height:360px; clip-path:polygon(0 0,94% 0,100% 6%,100% 94%,94% 100%,0 100%,2% 80%,0 60%,2% 40%,0 20%); }
+  .cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key h3,
+  .cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key footer { max-width:100%; }
+  .cos-root:has(.cos-object-nav button:nth-of-type(5).active) .cos-key::before { display:none; }
+  .cos-root:has(.cos-object-nav button:nth-of-type(8).active) .cos-brief { clip-path:polygon(0 6%,22% 6%,26% 0,60% 0,64% 6%,100% 6%,100% 100%,0 100%); padding:34px 24px 24px; }
+  .cos-root:has(.cos-object-nav button:nth-of-type(9).active) .pr-receipt { clip-path:polygon(5% 0,95% 0,100% 5%,100% 88%,90% 100%,10% 100%,0 88%,0 5%); }
+  .cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value { grid-template-columns:1fr; height:auto; }
+  .cos-root:has(.cos-object-nav button:nth-of-type(14).active) .cos-value > div { width:min(220px,72vw); min-height:180px; margin:auto; }
+}

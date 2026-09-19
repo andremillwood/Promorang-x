@@ -66,9 +66,15 @@ const AddVenue = () => {
     // Upload image if selected
     if (imageFile) {
       const uploadedUrl = await uploadImage(imageFile, "moment-images", user.id);
-      if (uploadedUrl) {
-        imageUrl = uploadedUrl;
+      if (!uploadedUrl) {
+        toast({
+          title: "Venue photo was not uploaded",
+          description: "The venue has not been created. Try the image upload again or remove the selected photo.",
+          variant: "destructive",
+        });
+        return;
       }
+      imageUrl = uploadedUrl;
     }
 
     await createVenue.mutateAsync({

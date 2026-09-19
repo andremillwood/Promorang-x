@@ -63,13 +63,6 @@ const ForMerchants = () => {
         },
     ];
 
-    const stats: Array<{ valKey: TranslationKey; labelKey: TranslationKey }> = [
-        { valKey: "forMerchants.statVisits", labelKey: "forMerchants.statVisitsLabel" },
-        { valKey: "forMerchants.statOffers", labelKey: "forMerchants.statOffersLabel" },
-        { valKey: "forMerchants.statProof", labelKey: "forMerchants.statProofLabel" },
-        { valKey: "forMerchants.statCost", labelKey: "forMerchants.statCostLabel" },
-    ];
-
     return (
         <div className="marketing-refined min-h-screen bg-background">
             <SEO
@@ -308,20 +301,6 @@ const ForMerchants = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Stats Dashboard */}
-            <section className="py-16 bg-muted/30 border-y border-border">
-                <div className="container px-4 sm:px-6">
-                    <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-12">
-                        {stats.map((stat) => (
-                            <div key={stat.valKey} className="text-center group">
-                                <p className="mb-2 text-4xl font-black text-foreground transition-colors group-hover:text-emerald-600">{t(stat.valKey)}</p>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t(stat.labelKey)}</p>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </section>

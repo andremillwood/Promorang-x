@@ -12,6 +12,7 @@ export type CityDiscoveryPoll = {
   country_slug: string;
   city: string;
   city_slug: string;
+  user_voted_option_id: string | null;
   options: Array<{ id: string; text: string; votes: number }>;
 };
 

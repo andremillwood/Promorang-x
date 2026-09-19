@@ -119,8 +119,13 @@ export function useCreateReferralCode() {
       if (!user) throw new Error("Not authenticated");
 
       const { data: sessionData } = await supabase.auth.getSession();
-      const response = await fetch(`${API_BASE_URL}/referrals/my-code`, {
-        headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
+      const response = await fetch(`${API_BASE_URL}/referrals/generate-code`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sessionData.session?.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message || payload.error || "Failed to create referral code");
@@ -129,7 +134,7 @@ export function useCreateReferralCode() {
     onSuccess: () => {
       toast({
         title: "Referral code created! 🔗",
-        description: "Share your code to earn rewards.",
+        description: "Share your recorded code. Any reward appears only after the qualifying referral is recorded.",
       });
       queryClient.invalidateQueries({ queryKey: ["referral-codes"] });
     },

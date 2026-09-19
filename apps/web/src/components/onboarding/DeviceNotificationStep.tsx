@@ -65,26 +65,26 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
   const notificationBenefits = [
     {
       icon: Ticket,
-      title: "Door Passes & Start Countdowns",
-      desc: "1-hour countdowns before your live Moments start and instant QR passes at the door.",
+      title: "Moment & Access Updates",
+      desc: "Receive supported reminders and access updates when those notifications are configured for a recorded Moment.",
       color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
     },
     {
       icon: MapPin,
-      title: "Nearby Member Perks",
-      desc: "Geofenced alerts when walking near partner restaurants, clubs, and cultural venues.",
+      title: "Nearby Activity Updates",
+      desc: "Receive location-related activity alerts only where a recorded campaign and notification rule exist.",
       color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
     },
     {
       icon: Sparkles,
-      title: "Creator Drops & VIP Passes",
-      desc: "Instant notice when favorite tastemakers release unreleased tracks, videos, or tickets.",
+      title: "Creator & Content Updates",
+      desc: "Receive supported notices for creator/content activity you follow when a notification is actually published.",
       color: "text-primary bg-primary/10 border-primary/20",
     },
     {
       icon: Gem,
-      title: "Real-Time Earnings & Commissions",
-      desc: "Instant cash and Gem payout notifications whenever friends RSVP through your PromoShare.",
+      title: "Value & Account Updates",
+      desc: "Receive supported account notifications for recorded value or PromoShare state changes. RSVP alone does not imply earnings or payout.",
       color: "text-sky-400 bg-sky-500/10 border-sky-500/20",
     },
   ];
@@ -101,7 +101,7 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
         </h2>
         <p className="text-sm text-white/60 max-w-md mx-auto">
           {isMobile
-            ? "Enable real-time phone alerts for door access, nearby perks, and PromoShare payouts."
+            ? "Optionally register this device for supported Promorang account and Moment notifications."
             : "Scan this code with your phone camera to take your door passes and live alerts on the go."}
         </p>
       </div>
@@ -136,7 +136,7 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
               <span>
                 Tap <Share className="h-3.5 w-3.5 inline text-primary mx-0.5" /> then{" "}
                 <strong className="text-white">Add to Home Screen</strong>{" "}
-                <PlusSquare className="h-3.5 w-3.5 inline text-primary mx-0.5" /> for full lock-screen alerts.
+                <PlusSquare className="h-3.5 w-3.5 inline text-primary mx-0.5" /> to run Promorang as an installed web app where your device supports it.
               </span>
             </div>
           )}
@@ -182,9 +182,9 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
               <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-bold">
                 <QrCode className="h-3 w-3" /> Scan with Camera
               </div>
-              <h4 className="text-sm font-bold text-white">Instant Mobile Sync</h4>
+              <h4 className="text-sm font-bold text-white">Open Promorang on Mobile</h4>
               <p className="text-xs text-white/60 leading-relaxed">
-                Open your phone camera, point it at this QR code, and tap the link to enable your mobile passes & alerts.
+                Open your phone camera, point it at this QR code, and tap the link to open Promorang on mobile. Notification permission is requested separately on the device.
               </p>
               <Button
                 variant="outline"

@@ -1,26 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  HelpCircle, 
-  Vote, 
-  CheckCircle2, 
-  TrendingUp, 
-  Sparkles, 
-  PlusCircle, 
-  Share2, 
-  Copy, 
-  Gift, 
-  ArrowRight, 
-  ArrowUpRight,
-  MessageSquare,
-  Flame,
-  Zap,
-  Tag
-} from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle2, PlusCircle, Share2, Signal, Users } from 'lucide-react';
 import { toast } from 'sonner';
-import { usePromoShareRail } from '@/hooks/usePromoShareRail';
-import { useNearbyBenefits } from '@/hooks/usePeopleExperience';
-import { livePerkHref } from '@/components/perks/LivePerkCard';
 import { PromoShareAction } from '@/components/promoshare/PromoShareAction';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -42,8 +23,8 @@ export interface DiscoveryProps {
   userVotedOptionId?: string;
   targetUnlockPerk?: string;
   signalKind?: "demand" | "live_offer";
-  onVote?: (discoveryId: string, optionId: string) => void;
-  onAddOption?: (discoveryId: string, text: string) => void;
+  onVote?: (discoveryId: string, optionId: string) => void | Promise<void>;
+  onAddOption?: (discoveryId: string, text: string) => void | Promise<void>;
   landOnCard?: boolean;
 }
 
@@ -57,346 +38,138 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   totalVotes: initialTotalVotes,
   thresholdForMoment = 100,
   userVotedOptionId: initialUserVotedOptionId,
-  targetUnlockPerk,
   signalKind = "demand",
   onVote,
   onAddOption,
-  landOnCard = false,
 }) => {
   const navigate = useNavigate();
   const { t, formatNumber } = useI18n();
-  const { recordAttributedAction } = usePromoShareRail();
-  const nearby = useNearbyBenefits();
   const [options, setOptions] = useState<DiscoveryOption[]>(initialOptions);
-  const [totalVotes, setTotalVotes] = useState<number>(initialTotalVotes);
+  const [totalVotes, setTotalVotes] = useState(initialTotalVotes);
   const [votedOptionId, setVotedOptionId] = useState<string | undefined>(initialUserVotedOptionId);
   const [newOptionText, setNewOptionText] = useState('');
   const [showAddOption, setShowAddOption] = useState(false);
-
+  const [votingOptionId, setVotingOptionId] = useState<string | null>(null);
+  const [addingOption, setAddingOption] = useState(false);
   const detailUrl = `/discoveries/${slug || id}`;
 
-  // Find related perk for this discovery
-  const relatedPerk = (nearby.data || []).find((p: { title?: string; issuer?: { name?: string } }) => {
-    const hay = `${p.title || ""} ${p.issuer?.name || ""}`.toLowerCase();
-    return hay.includes(category.toLowerCase());
-  }) || (nearby.data || [])[0];
-
-  const navigateToDetail = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    navigate(detailUrl);
-  };
-
-  const handleVote = (e: React.MouseEvent, optionId: string) => {
+  const handleVote = async (e: React.MouseEvent, optionId: string) => {
     e.stopPropagation();
-    if (votedOptionId) return; // Prevent multi-voting in UI demo
-    
-    setVotedOptionId(optionId);
-    setTotalVotes(prev => prev + 1);
-    setOptions(prev =>
-      prev.map(opt => (opt.id === optionId ? { ...opt, votes: opt.votes + 1 } : opt))
-    );
+    if (votedOptionId || votingOptionId) return;
+    if (!onVote && !import.meta.env.DEV) {
+      toast.error("This signal cannot be recorded from this surface.");
+      return;
+    }
 
-    recordAttributedAction('discovery.completed', question);
-
-    if (onVote) {
-      onVote(id, optionId);
+    setVotingOptionId(optionId);
+    try {
+      await onVote?.(id, optionId);
+      setVotedOptionId(optionId);
+      setTotalVotes((value) => value + 1);
+      setOptions((rows) => rows.map((option) => option.id === optionId ? { ...option, votes: option.votes + 1 } : option));
+    } catch {
+      toast.error("This vote was not recorded.");
+    } finally {
+      setVotingOptionId(null);
     }
   };
 
-  const handleAddOptionSubmit = (e: React.FormEvent) => {
+  const handleAddOptionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!newOptionText.trim()) return;
-
-    const newOpt: DiscoveryOption = {
-      id: `opt-${Date.now()}`,
-      text: newOptionText.trim(),
-      votes: 1
-    };
-
-    setOptions(prev => [...prev, newOpt]);
-    setTotalVotes(prev => prev + 1);
-    setVotedOptionId(newOpt.id);
-    setNewOptionText('');
-    setShowAddOption(false);
-
-    if (onAddOption) {
-      onAddOption(id, newOptionText.trim());
+    const text = newOptionText.trim();
+    if (!text || addingOption) return;
+    if (!onAddOption && !import.meta.env.DEV) {
+      toast.error("New options cannot be recorded from this surface.");
+      return;
     }
-    toast.success(t("radar.addedBallot"));
+
+    setAddingOption(true);
+    try {
+      await onAddOption?.(id, text);
+      const next = { id: `opt-${Date.now()}`, text, votes: 1 };
+      setOptions((rows) => [...rows, next]);
+      setTotalVotes((value) => value + 1);
+      setVotedOptionId(next.id);
+      setNewOptionText('');
+      setShowAddOption(false);
+      toast.success(t("radar.addedBallot"));
+    } catch {
+      toast.error("That option was not recorded.");
+    } finally {
+      setAddingOption(false);
+    }
   };
 
-  const progressPercentage = Math.min(100, Math.round((totalVotes / thresholdForMoment) * 100));
-
   return (
-    <div 
-      className="group relative rounded-2xl bg-gradient-to-br from-gray-900/95 via-gray-950 to-gray-900 p-5 text-white border border-gray-800/80 shadow-xl hover:border-orange-500/40 hover:shadow-2xl hover:shadow-orange-500/5 transition-all duration-300 flex flex-col justify-between"
-    >
-      <div>
-        {/* Top Meta Header - Clickable to page */}
-        <div className="flex items-center justify-between text-xs mb-3">
-          <button
-            onClick={navigateToDetail}
-            className="px-2.5 py-0.5 bg-orange-500/15 text-orange-400 hover:bg-orange-500/25 border border-orange-500/30 rounded-full font-semibold transition-colors flex items-center gap-1 text-left"
-          >
-            <span>{t("radar.discoveryBadge", { category })}</span>
+    <article className="pr-world-panel overflow-hidden p-5 sm:p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="pr-world-kicker">{category} · signal</p>
+          <button type="button" onClick={() => navigate(detailUrl)} className="mt-3 block max-w-2xl text-left">
+            <h3 className="font-serif text-[1.9rem] font-bold leading-[.98] tracking-[-.04em] text-white transition hover:text-[#f4c66c] sm:text-[2.35rem]">{question}</h3>
           </button>
-          
-          <button
-            onClick={navigateToDetail}
-            className="text-gray-400 hover:text-white text-[11px] font-medium flex items-center gap-1 transition-colors"
-          >
-            <span>{t("radar.byAuthor", { name: authorName })}</span>
-            <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 text-orange-400 transition-opacity" />
-          </button>
+          <p className="mt-2 text-xs text-white/35">Started by {authorName}</p>
         </div>
-
-        {/* Main Question - Clickable to page */}
-        <div 
-          onClick={navigateToDetail}
-          className="cursor-pointer mb-4 group/title"
-        >
-          <h3 className="text-base font-bold text-white group-hover/title:text-orange-300 leading-snug flex items-start transition-colors">
-            <HelpCircle className="w-5 h-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5 group-hover/title:scale-110 transition-transform" />
-            <span className="flex-1">{question}</span>
-            <span className="ml-2 text-xs font-semibold text-orange-400/0 group-hover/title:text-orange-400 flex items-center shrink-0 transition-all">
-              <span className="hidden sm:inline text-[11px]">{t("radar.viewDetails")}</span>
-              <ArrowUpRight className="w-4 h-4 ml-0.5" />
-            </span>
-          </h3>
-        </div>
-
-        {/* City Unlock Progress Bar */}
-        <div 
-          onClick={navigateToDetail}
-          className="cursor-pointer mb-5 bg-black/50 hover:bg-black/70 p-3.5 rounded-2xl border border-white/10 hover:border-orange-500/40 transition-all shadow-inner group/meter"
-        >
-          <div className="flex items-center justify-between text-xs mb-2 font-medium">
-            <span className="text-white flex items-center font-bold tracking-tight">
-              <Zap className="w-4 h-4 text-amber-400 mr-1.5 animate-bounce" />
-              <span>{signalKind === "live_offer" ? t("radar.cityUnlock") : t("radar.cityVote")}</span>
-            </span>
-            <span className="text-orange-400 font-black text-xs px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30">
-              {t("radar.votes", { current: formatNumber(totalVotes), needed: formatNumber(thresholdForMoment) })}
-            </span>
-          </div>
-          <div className="w-full bg-gray-800/90 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
-            <div
-              className="bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 h-full rounded-full transition-all duration-700 shadow-md shadow-orange-500/30"
-              style={{ width: `${progressPercentage}%` }}
-            />
-          </div>
-          {signalKind === "live_offer" && progressPercentage >= 100 ? (
-            <p className="text-[11px] text-emerald-400 font-bold mt-2 flex items-center">
-              <Sparkles className="w-3.5 h-3.5 mr-1" /> {t("radar.housePassLive")}
-            </p>
-          ) : (
-            <div className="flex items-center justify-between text-[11px] text-white/60 mt-1.5">
-              <span>
-                {signalKind === "live_offer"
-                  ? t("radar.moreVotesDrop", { count: formatNumber(thresholdForMoment - totalVotes) })
-                  : t("radar.moreAnswers", { count: formatNumber(Math.max(0, thresholdForMoment - totalVotes)) })}
-              </span>
-              <span className="text-orange-400 font-extrabold ml-1 group-hover/meter:translate-x-0.5 transition-transform">
-                {signalKind === "live_offer" ? t("radar.chargeMeter") : t("radar.voteArrow")}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Options List */}
-        <div className="space-y-2.5 mb-4">
-          {options.map(option => {
-            const votePercentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
-            const isSelected = votedOptionId === option.id;
-
-            return (
-              <button
-                key={option.id}
-                onClick={(e) => handleVote(e, option.id)}
-                disabled={!!votedOptionId}
-                className={`w-full relative overflow-hidden p-3.5 rounded-2xl text-left border transition-all duration-200 active:scale-[0.99] ${
-                  isSelected
-                    ? 'border-orange-500 bg-orange-500/20 text-white font-bold shadow-lg shadow-orange-500/10 ring-1 ring-orange-500/40'
-                    : 'border-white/10 bg-white/[0.03] text-gray-200 hover:border-white/25 hover:bg-white/[0.07]'
-                }`}
-              >
-                {/* Voting percentage background bar */}
-                {votedOptionId && (
-                  <div
-                    className={`absolute left-0 top-0 bottom-0 transition-all duration-700 ${
-                      isSelected ? 'bg-orange-500/25' : 'bg-white/[0.04]'
-                    }`}
-                    style={{ width: `${votePercentage}%` }}
-                  />
-                )}
-
-                <div className="relative z-10 flex items-center justify-between gap-2.5 text-xs">
-                  <span className="flex items-center min-w-0 flex-1">
-                    {isSelected && <CheckCircle2 className="w-4 h-4 text-orange-400 mr-2 flex-shrink-0" />}
-                    <span className="truncate">{option.text}</span>
-                  </span>
-                  {votedOptionId && (
-                    <span className="font-black text-white ml-2 shrink-0 font-mono text-[11px]">
-                      {votePercentage}% ({option.votes})
-                    </span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {votedOptionId && !landOnCard && (
-          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-purple-950/80 via-zinc-900 to-orange-950/80 border border-purple-500/40 shadow-xl space-y-3 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-start space-x-2.5 min-w-0">
-                <div className="p-2 rounded-xl bg-orange-500/20 text-orange-400 shrink-0">
-                  <Gift className="w-5 h-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-black text-white">{t("radar.signalRecorded")}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-orange-500 text-black text-[9px] font-black uppercase">
-                      +25 Pts
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded-full bg-purple-500/30 text-purple-300 text-[9px] font-mono font-bold">
-                      +1 🎟️
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-zinc-300 mt-1">
-                    {relatedPerk
-                      ? t("radar.perkAvailable")
-                      : t("radar.noPerk")}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Related Perk Micro-Card */}
-            {relatedPerk ? (
-              <div className="p-3 rounded-xl bg-black/60 border border-orange-500/30 flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <span className="text-[9px] font-mono uppercase tracking-wider text-orange-400 font-bold block">
-                    {t("radar.livePerk", { name: relatedPerk.issuer?.name || t("radar.participatingBiz") })}
-                  </span>
-                  <p className="text-xs font-bold text-white truncate">{relatedPerk.title}</p>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(livePerkHref(relatedPerk));
-                  }}
-                  className="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-black transition-all shadow-md"
-                >
-                  {relatedPerk.dropSlug ? t("radar.claimDrop") : t("radar.takePerk")}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/earn");
-                }}
-                className="w-full px-3 py-2 rounded-xl border border-white/15 text-xs font-black text-white"
-              >
-                {t("radar.seeLive")}
-              </button>
-            )}
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2 border-t border-white/10">
-              <PromoShareAction
-                objectType="discovery"
-                objectId={id}
-                slugOrPath={slug}
-                title={question}
-                potentialReward={{ promoPoints: 25, tickets: 1, condition: t("radar.whenFriendsVote") }}
-                buttonLabel={t("radar.rallyChat")}
-                variant="compact"
-              />
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(detailUrl);
-                }}
-                className="text-xs font-bold text-white hover:text-orange-300 px-3 py-1.5 rounded-xl flex items-center justify-center space-x-1 transition-colors"
-              >
-                <span>{t("radar.liveArena")}</span>
-                <ArrowRight className="w-3 h-3 ml-1" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Add Custom Option Trigger */}
-        {!votedOptionId && !showAddOption && (
-          <div className="flex items-center justify-between pt-1">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddOption(true);
-              }}
-              className="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center space-x-1"
-            >
-              <PlusCircle className="w-4 h-4 mr-1 text-orange-400" />
-              <span>{t("radar.putSpot")}</span>
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const url = `${window.location.origin}${detailUrl}`;
-                navigator.clipboard.writeText(url);
-                toast.success(t("radar.copiedBattle"));
-              }}
-              className="text-[11px] text-white/50 hover:text-white flex items-center space-x-1 transition-colors"
-            >
-              <Share2 className="w-3.5 h-3.5 mr-1 text-purple-400" />
-              <span>{t("common.share")}</span>
-            </button>
-          </div>
-        )}
-
-        {showAddOption && (
-          <form onSubmit={handleAddOptionSubmit} className="mt-3 flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-            <input
-              type="text"
-              value={newOptionText}
-              onChange={e => setNewOptionText(e.target.value)}
-              placeholder={t("radar.nominatePlaceholder")}
-              className="flex-1 bg-black/60 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500"
-            />
-            <button
-              type="submit"
-              className="px-3.5 py-2 bg-orange-500 hover:bg-orange-400 text-black text-xs font-black rounded-xl whitespace-nowrap"
-            >
-              {t("radar.nominateVote")}
-            </button>
-          </form>
-        )}
+        <Signal className="mt-1 h-5 w-5 shrink-0 text-[#ff5a1f]" />
       </div>
 
-      {/* Footer link to dedicated page */}
-      <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px]">
-        <button
-          onClick={navigateToDetail}
-          className="text-orange-400 hover:text-orange-300 font-black flex items-center gap-1 group/btn transition-colors"
-        >
-          <Flame className="w-3.5 h-3.5 text-orange-400" />
-          <span>{t("radar.enterArena")}</span>
-          <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-        </button>
-
-        {votedOptionId ? (
-          <span className="text-emerald-400 font-bold flex items-center gap-1 text-[10px]">
-            <CheckCircle2 className="w-3 h-3" /> {t("radar.voteRecorded")}
-          </span>
-        ) : (
-          <span className="text-white/40 text-[10px] font-medium">
-            {t("radar.tapDebate")}
-          </span>
-        )}
+      <div className="mt-6 flex flex-wrap items-center gap-4 border-y border-white/10 py-3 text-[10px] font-black uppercase tracking-[.13em] text-white/38">
+        <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{formatNumber(totalVotes)} recorded</span>
+        <span>{signalKind === "live_offer" ? "Offer signal" : "Demand signal"}</span>
+        <span className="ml-auto text-white/26">Threshold ≠ guaranteed supply</span>
       </div>
-    </div>
+
+      <div className="mt-5 space-y-2">
+        {options.map((option) => {
+          const selected = votedOptionId === option.id;
+          const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              onClick={(event) => handleVote(event, option.id)}
+              disabled={Boolean(votedOptionId || votingOptionId)}
+              className={`relative w-full overflow-hidden rounded-2xl border px-4 py-4 text-left transition ${selected ? 'border-[#ff5a1f]/55 bg-[#ff5a1f]/12' : 'border-white/10 bg-white/[.025] hover:border-white/20 hover:bg-white/[.05]'}`}
+            >
+              {votedOptionId ? <span className="absolute inset-y-0 left-0 bg-white/[.035]" style={{ width: `${percentage}%` }} /> : null}
+              <span className="relative flex items-center justify-between gap-4">
+                <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white/82">{selected ? <CheckCircle2 className="h-4 w-4 shrink-0 text-[#ff5a1f]" /> : null}<span className="truncate">{option.text}</span></span>
+                {votedOptionId ? <span className="shrink-0 font-mono text-[10px] text-white/42">{percentage}% · {option.votes}</span> : <ArrowRight className="h-4 w-4 shrink-0 text-white/25" />}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {votedOptionId ? (
+        <div className="mt-5 rounded-2xl border border-emerald-300/15 bg-emerald-300/[.045] p-4">
+          <p className="text-sm font-black text-emerald-200">Your signal is recorded.</p>
+          <p className="mt-1 text-xs leading-5 text-white/42">A vote is interest. It is not attendance, supply, a reward issuance, or a purchase.</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <PromoShareAction objectType="discovery" objectId={id} slugOrPath={slug} title={question} buttonLabel={t("radar.rallyChat")} variant="compact" />
+            <button type="button" onClick={() => navigate(detailUrl)} className="pr-world-chip">Open signal <ArrowUpRight className="h-3.5 w-3.5" /></button>
+          </div>
+        </div>
+      ) : null}
+
+      {!votedOptionId && !showAddOption ? (
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <button type="button" onClick={(event) => { event.stopPropagation(); setShowAddOption(true); }} className="pr-world-link inline-flex items-center gap-1.5"><PlusCircle className="h-4 w-4" />{t("radar.putSpot")}</button>
+          <button type="button" onClick={(event) => { event.stopPropagation(); navigator.clipboard.writeText(`${window.location.origin}${detailUrl}`); toast.success(t("radar.copiedBattle")); }} className="inline-flex items-center gap-1.5 text-xs font-bold text-white/40 transition hover:text-white"><Share2 className="h-3.5 w-3.5" />{t("common.share")}</button>
+        </div>
+      ) : null}
+
+      {showAddOption ? (
+        <form onSubmit={handleAddOptionSubmit} className="mt-5 flex gap-2" onClick={(event) => event.stopPropagation()}>
+          <input value={newOptionText} onChange={(event) => setNewOptionText(event.target.value)} placeholder={t("radar.nominatePlaceholder")} className="min-h-12 flex-1 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#ff5a1f]/60" />
+          <button type="submit" disabled={addingOption} className="pr-world-primary min-h-12 disabled:cursor-not-allowed disabled:opacity-50">{addingOption ? "Adding…" : "Add"}</button>
+        </form>
+      ) : null}
+
+      <button type="button" onClick={() => navigate(detailUrl)} className="mt-5 flex w-full items-center justify-between border-t border-white/10 pt-4 text-left text-xs font-black text-white/50 transition hover:text-white">
+        <span>Read the full Discovery</span><ArrowRight className="h-4 w-4" />
+      </button>
+    </article>
   );
 };

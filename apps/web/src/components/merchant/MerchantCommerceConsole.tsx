@@ -242,7 +242,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
   const pendingSales = sales.filter((sale) => sale.status === "pending").slice(0, 6);
   const pendingReceipts = receipts.filter((receipt) => ["issued", "pending"].includes(receipt.status)).slice(0, 6);
   const fulfilledReceipts = receipts.filter((receipt) => receipt.status === "fulfilled");
-  const paidRevenue = receipts
+  const fulfilledPurchaseValue = receipts
     .filter((receipt) => receipt.receipt_type === "purchase" && receipt.status === "fulfilled")
     .reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0);
   const recentActivity = receipts.slice(0, 8);
@@ -253,9 +253,9 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
   const stats = useMemo(() => [
     { label: "Open reservations", value: pendingSales.length.toLocaleString(), icon: Bookmark, helper: "Awaiting validation" },
     { label: "Fulfilled receipts", value: fulfilledReceipts.length.toLocaleString(), icon: BadgeCheck, helper: "Purchases/redemptions completed" },
-    { label: "Paid revenue", value: money(paidRevenue), icon: ShoppingBag, helper: "Stripe and paid product receipts" },
+    { label: "Fulfilled purchase value", value: money(fulfilledPurchaseValue), icon: ShoppingBag, helper: "Value on fulfilled purchase receipts; not a payment-ledger total" },
     { label: "Needs attention", value: pendingReceipts.length.toLocaleString(), icon: QrCode, helper: "Issued receipts and claims" },
-  ], [fulfilledReceipts.length, paidRevenue, pendingReceipts.length, pendingSales.length]);
+  ], [fulfilledPurchaseValue, fulfilledReceipts.length, pendingReceipts.length, pendingSales.length]);
 
   const isLoading = salesQuery.isLoading || receiptsQuery.isLoading;
 

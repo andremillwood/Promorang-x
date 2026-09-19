@@ -99,8 +99,8 @@ const EditMoment = () => {
     category: "",
     venueCategory: "",
     momentArchetype: "",
-    conversionType: "check_in",
-    proofType: "Screenshot",
+    conversionType: "",
+    proofType: "",
     location: "",
     venueName: "",
     startsAt: "",
@@ -152,8 +152,8 @@ const EditMoment = () => {
         category: data.category,
         venueCategory: recurrenceData.venue_category || "",
         momentArchetype: recurrenceData.moment_archetype || "",
-        conversionType: recurrenceData.conversion_type || "check_in",
-        proofType: toMomentProofEnum(recurrenceData.proof_type || "Screenshot"),
+        conversionType: recurrenceData.conversion_type || "",
+        proofType: recurrenceData.proof_type ? toMomentProofEnum(recurrenceData.proof_type) : "",
         location: data.location,
         venueName: data.venue_name || "",
         startsAt: data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : "",
@@ -188,27 +188,29 @@ const EditMoment = () => {
 
       if (imageFile && user) {
         const uploadedUrl = await uploadImage(imageFile, "moment-images", user.id);
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl;
-        }
+        if (!uploadedUrl) throw new Error("Cover image upload failed. No Moment changes were saved.");
+        imageUrl = uploadedUrl;
       }
 
       if (bannerImageFile && user) {
         const uploadedUrl = await uploadImage(bannerImageFile, "moment-images", user.id);
-        if (uploadedUrl) {
-          bannerImageUrl = uploadedUrl;
-        }
+        if (!uploadedUrl) throw new Error("Banner image upload failed. No Moment changes were saved.");
+        bannerImageUrl = uploadedUrl;
       }
 
       if (galleryFiles.length > 0 && user) {
         const uploadedGallery = await Promise.all(
           galleryFiles.map((file) => uploadImage(file, "moment-images", user.id))
         );
+        if (uploadedGallery.some((url) => !url)) {
+          throw new Error("One or more gallery uploads failed. No Moment changes were saved.");
+        }
         let uploadIndex = 0;
         galleryImages = galleryImages.map((image) => {
           if (!image.url.startsWith("data:")) return image;
           const uploadedUrl = uploadedGallery[uploadIndex++];
-          return uploadedUrl ? { ...image, url: uploadedUrl, media_type: "image" as const } : image;
+          if (!uploadedUrl) throw new Error("Gallery upload could not be resolved.");
+          return { ...image, url: uploadedUrl, media_type: "image" as const };
         });
       }
 
@@ -229,7 +231,7 @@ const EditMoment = () => {
           venue_category: formData.venueCategory || null,
           moment_archetype: formData.momentArchetype || null,
           conversion_type: formData.conversionType || null,
-          proof_type: toMomentProofEnum(formData.proofType || "Screenshot"),
+          proof_type: formData.proofType ? toMomentProofEnum(formData.proofType) : null,
           location: formData.location,
           city: resolvePlaceGeo({ location: formData.location }).city,
           country: resolvePlaceGeo({ location: formData.location }).country,

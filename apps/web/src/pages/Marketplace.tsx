@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Store, ShoppingBag, MapPin, Search, Filter, ArrowRight, Sparkles, Eye } from "lucide-react";
+import { Store, ShoppingBag, MapPin, Search, Filter, ArrowRight, Sparkles, Eye, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -136,11 +136,13 @@ const Marketplace = () => {
             .filter(Boolean)
             .map((category) => String(category));
 
-        const seedValues = KINGSTON_EXPERIENCE_LISTINGS.map((l) => l.category).filter(Boolean) as string[];
-        const values = new Set([...dbValues, ...seedValues]);
+        const sampleValues = showSamples
+            ? KINGSTON_EXPERIENCE_LISTINGS.map((listing) => listing.category).filter(Boolean) as string[]
+            : [];
+        const values = new Set([...dbValues, ...sampleValues]);
 
         return ["All", "Products", "Services", ...Array.from(values).slice(0, 8)];
-    }, [commerceQuery.data]);
+    }, [commerceQuery.data, showSamples]);
 
     const realListings = useMemo(() => {
         return (commerceQuery.data || []).filter((listing) => !isSampleCommerceListing(listing));
@@ -254,7 +256,16 @@ const Marketplace = () => {
                 ))}
             </nav>
 
-            {realListings.length === 0 && !commerceQuery.isLoading ? (
+            {commerceQuery.error ? (
+                <section className="rounded-3xl border border-red-500/20 bg-red-500/[0.06] px-6 py-10 text-center">
+                    <ShoppingBag className="mx-auto h-10 w-10 text-red-200" />
+                    <h2 className="mt-4 text-2xl font-black text-white">Marketplace inventory is unavailable.</h2>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/55">PROMORANG could not read the recorded commerce directory, so this is not being shown as an empty market.</p>
+                    <Button type="button" variant="outline" className="mt-6 rounded-full border-white/15 bg-black/20 text-white" onClick={() => commerceQuery.refetch()}>
+                        <RefreshCw className="mr-2 h-4 w-4" />Retry inventory source
+                    </Button>
+                </section>
+            ) : realListings.length === 0 && !commerceQuery.isLoading ? (
                 <section className="rounded-3xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-10 text-center">
                     <ShoppingBag className="mx-auto h-10 w-10 text-primary" />
                     <h2 className="mt-4 text-2xl font-black text-white">{t("market.noInventory")}</h2>
@@ -280,7 +291,7 @@ const Marketplace = () => {
                     Array.from({ length: 8 }).map((_, i) => (
                         <div key={i} className="bg-card rounded-2xl p-4 border border-border/40 animate-pulse h-80" />
                     ))
-                ) : listings.length === 0 ? (
+                ) : commerceQuery.error ? null : listings.length === 0 ? (
                     <div className="col-span-full py-20 text-center">
                         <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                         <h3 className="text-lg font-semibold">{t("market.noResults")}</h3>
