@@ -10,6 +10,7 @@ import MerchantStorefrontConsole from "@/components/merchant/MerchantStorefrontC
 import { MerchantCommerceConsole } from "@/components/merchant/MerchantCommerceConsole";
 import MerchantVenueStudio from "@/components/merchant/MerchantVenueStudio";
 import MerchantYieldAnalytics from "@/components/merchant/MerchantYieldAnalytics";
+import { BusinessOutcomeEntry } from "@/components/business/BusinessOutcomeEntry";
 import coffeeCode from "@/assets/moments/coffee-code.jpg";
 
 export function MerchantDashboardV2() {
