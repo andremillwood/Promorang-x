@@ -119,8 +119,8 @@ export default function SolutionsHub() {
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_360px]">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Zero → Hero</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">The work is not finished when the campaign goes live.</h2>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">PROMORANG is designed to carry the business from problem → programme → response → participant action → evidence → next decision. Signup and dashboard entry are not success states.</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">The work is not finished when the response goes live.</h2>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">PROMORANG is designed to carry the business from problem → programme → real supply or access → participant action → transaction, attendance or validation where applicable → fulfillment → evidence → next decision. Signup and dashboard entry are not success states.</p>
             <div className="mt-7 flex flex-wrap gap-3"><Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">Start with my outcome <ArrowRight className="h-4 w-4" /></Link><Link to="/pricing" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">See commercial scope</Link></div>
           </div>
           <PaperReceipt heading="The loop" lines={[
