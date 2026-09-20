@@ -32,10 +32,16 @@ function nextActions(brief: NonNullable<ReturnType<typeof readBusinessOutcomeBri
         secondary: { label: "Plan distribution around it", href: planner },
       };
     }
-    if (commerceOwnedHere || currentMerchant) {
+    if (currentMerchant) {
       return {
         primary: { label: "Create or select sellable supply", href: "/dashboard/products/add?from=business-outcome" },
         secondary: { label: "Open merchant commerce", href: "/dashboard?tab=storefront" },
+      };
+    }
+    if (commerceOwnedHere) {
+      return {
+        primary: { label: "Switch to the Merchant workspace first", href: "/dashboard" },
+        secondary: { label: "Review merchant responsibilities", href: "/for-merchants" },
       };
     }
     return {
@@ -76,10 +82,16 @@ function nextActions(brief: NonNullable<ReturnType<typeof readBusinessOutcomeBri
     };
   }
 
-  if (executionNeedsCommerce(brief) && (commerceOwnedHere || currentMerchant)) {
+  if (executionNeedsCommerce(brief) && currentMerchant) {
     return {
       primary: { label: "Establish the commerce supply first", href: "/dashboard/products/add?from=business-outcome" },
       secondary: { label: "Plan the wider activation", href: planner },
+    };
+  }
+  if (executionNeedsCommerce(brief) && commerceOwnedHere) {
+    return {
+      primary: { label: "Switch to the Merchant workspace first", href: "/dashboard" },
+      secondary: { label: "Review merchant responsibilities", href: "/for-merchants" },
     };
   }
 
@@ -137,7 +149,7 @@ export default function BusinessProgramme() {
   const seller = getSellerResponsibility(brief.sellerResponsibilityId);
   const subject = getCommerceSubject(brief.commerceSubjectId);
   const actions = nextActions(brief, activeRole);
-  const expectedRole = roleForBusinessType(brief.businessType);
+  const expectedRole = brief.sellerResponsibilityId === "current-org-merchant" ? "merchant" : roleForBusinessType(brief.businessType);
   const missingExistingMerchant = executionNeedsCommerce(brief) && brief.sellerResponsibilityId === "existing-merchant" && !brief.sellerMerchantId;
   const primaryHref = user ? actions.primary.href : authPathForReturn("/business/programme?resume=1", { mode: "signup", role: expectedRole });
 
