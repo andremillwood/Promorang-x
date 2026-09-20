@@ -39,7 +39,7 @@ export default function ForBrands() {
             <p className="mt-7 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">Try this product. Choose between options. Visit somewhere. Buy. Register. Review. Refer. Come back. Start with the customer movement, then let PROMORANG help shape the route.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">Choose a brand outcome <ArrowRight className="h-4 w-4" /></Link>
-              <Link to="/demand" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">See what people want</Link>
+              <Link to="/#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">See what people want</Link>
             </div>
           </div>
           <div className="rounded-[2rem] border border-orange-300/15 bg-orange-300/[0.055] p-6 sm:p-7">
