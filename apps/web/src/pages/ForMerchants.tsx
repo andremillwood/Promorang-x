@@ -47,7 +47,7 @@ export default function ForMerchants() {
             <p className="mt-7 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">More people through the door. A busier slow period. Movement around one item. First-time customers coming back. Start there—not with campaign mechanics.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-emerald-400 px-6 text-sm font-black text-black">Choose a business outcome <ArrowRight className="h-4 w-4" /></Link>
-              <Link to="/demand" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">See what people nearby want</Link>
+              <Link to="/#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">See what people nearby want</Link>
             </div>
 
             {claimVenue ? (
