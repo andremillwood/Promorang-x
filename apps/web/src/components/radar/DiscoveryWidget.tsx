@@ -68,7 +68,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
       setTotalVotes((value) => value + 1);
       setOptions((rows) => rows.map((option) => option.id === optionId ? { ...option, votes: option.votes + 1 } : option));
     } catch {
-      toast.error("This vote was not recorded.");
+      toast.error("We couldn’t add your voice.");
     } finally {
       setVotingOptionId(null);
     }
@@ -105,7 +105,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
     <article className="pr-world-panel overflow-hidden p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="pr-world-kicker">{category} · signal</p>
+          <p className="pr-world-kicker">{category} · people want</p>
           <button type="button" onClick={() => navigate(detailUrl)} className="mt-3 block max-w-2xl text-left">
             <h3 className="font-serif text-[1.9rem] font-bold leading-[.98] tracking-[-.04em] text-white transition hover:text-[#f4c66c] sm:text-[2.35rem]">{question}</h3>
           </button>
@@ -115,9 +115,9 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4 border-y border-white/10 py-3 text-[10px] font-black uppercase tracking-[.13em] text-white/38">
-        <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{formatNumber(totalVotes)} recorded</span>
-        <span>{signalKind === "live_offer" ? "Offer signal" : "Demand signal"}</span>
-        <span className="ml-auto text-white/26">Threshold ≠ guaranteed supply</span>
+        <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{formatNumber(totalVotes)} voices</span>
+        <span>{signalKind === "live_offer" ? "Something is open" : "People want this"}</span>
+        <span className="ml-auto text-white/26">A strong want can invite a response. It does not create one.</span>
       </div>
 
       <div className="mt-5 space-y-2">
@@ -144,11 +144,11 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
 
       {votedOptionId ? (
         <div className="mt-5 rounded-2xl border border-emerald-300/15 bg-emerald-300/[.045] p-4">
-          <p className="text-sm font-black text-emerald-200">Your signal is recorded.</p>
-          <p className="mt-1 text-xs leading-5 text-white/42">A vote is interest. It is not attendance, supply, a reward issuance, or a purchase.</p>
+          <p className="text-sm font-black text-emerald-200">You’re in.</p>
+          <p className="mt-1 text-xs leading-5 text-white/42">You added your voice. If something real opens from this, PROMORANG will show it separately.</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <PromoShareAction objectType="discovery" objectId={id} slugOrPath={slug} title={question} buttonLabel={t("radar.rallyChat")} variant="compact" />
-            <button type="button" onClick={() => navigate(detailUrl)} className="pr-world-chip">Open signal <ArrowUpRight className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={() => navigate(detailUrl)} className="pr-world-chip">See what’s moving <ArrowUpRight className="h-3.5 w-3.5" /></button>
           </div>
         </div>
       ) : null}
