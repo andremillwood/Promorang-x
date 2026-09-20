@@ -239,9 +239,9 @@ export default function PublicMarketHome() {
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">What people are asking for · {inbox.city}</p>
-              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">When private preferences overlap, a market starts to appear.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are things people are asking for. A strong signal can attract a response, but it is still just interest until someone puts something up.</p>
+              <p className="marketing-kicker">What people want · {inbox.city}</p>
+              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">When enough people lean the same way, something can happen.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are wants taking shape in public. A clear want can invite a response, but something only opens when a real person, place, brand or creator makes it possible.</p>
             </div>
             <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Looking for something? <ArrowRight className="h-4 w-4" /></a>
           </div>
@@ -267,11 +267,34 @@ export default function PublicMarketHome() {
             <div className="marketing-compact-empty">
               <Users className="h-5 w-5 text-orange-400" />
               <div>
-                <p className="text-sm font-black text-white">No one has asked for anything here yet.</p>
+                <p className="text-sm font-black text-white">No one has put a want on the table here yet.</p>
                 <p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask—or explore what people are already discovering.</p>
               </div>
             </div>
           ) : null}
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#050505] px-5 py-12 sm:px-6 md:py-16">
+        <div className="mx-auto max-w-[1440px]">
+          <p className="marketing-kicker">How the market moves</p>
+          <div className="mt-6 grid gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              ["WANT", "People put what they’re into on the table."],
+              ["MOMENTUM", "More people join in and the pull gets clearer."],
+              ["OPEN", "Someone answers with something real."],
+              ["PICKED UP", "People take the spots, perks or access that opened."],
+              ["FOLLOW-THROUGH", "People actually show up, use it, buy or complete the move."],
+            ].map(([label, copy]) => (
+              <div key={label} className="bg-[#080808] px-5 py-6">
+                <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{label}</p>
+                <p className="mt-3 text-sm leading-6 text-white/55">{copy}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 max-w-3xl text-[11px] leading-5 text-white/35">
+            PROMORANG only calls something momentum when there is real change over time. A target being met does not mean anything has opened yet.
+          </p>
         </div>
       </section>
 
@@ -330,12 +353,12 @@ export default function PublicMarketHome() {
 
                   {relatedSignals.length ? (
                     <div className="mt-4 space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">People are asking for</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">People want this too</p>
                       {relatedSignals.map((signal) => (
                         <Link key={signal.poll.id} to={discoveryHref(signal.poll)} className="flex items-center justify-between gap-3 border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
                           <span>
                             <span className="block text-sm font-bold text-white">{signal.poll.question}</span>
-                            <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} vote{signal.poll.totalVotes === 1 ? "" : "s"}</span>
+                            <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} voice{signal.poll.totalVotes === 1 ? "" : "s"}</span>
                           </span>
                           <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
                         </Link>
@@ -348,7 +371,7 @@ export default function PublicMarketHome() {
                       None of these — keep looking for this
                     </button>
                     <button type="button" onClick={() => setResolution(null)} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-white/15 px-5 text-xs font-bold text-white/65 transition hover:text-white">
-                      Edit my ask
+                      Change what I’m looking for
                     </button>
                   </div>
                 </div>
@@ -367,8 +390,8 @@ export default function PublicMarketHome() {
             <h3 className="mt-4 text-2xl font-black">First help me find it. Only then keep looking for what is still missing.</h3>
             <div className="mt-6 space-y-4 text-sm leading-6 text-white/55">
               <p><strong className="text-white">Found something?</strong><br />Open the Discovery first.</p>
-              <p><strong className="text-white">Others already want it?</strong><br />Join the existing signal instead of fragmenting demand.</p>
-              <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. We’ll keep it together with similar interest so you can see if momentum builds.</p>
+              <p><strong className="text-white">Others already want it?</strong><br />Join the same want instead of splitting the crowd.</p>
+              <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. We’ll keep similar wants together so you can see whether more people join.</p>
             </div>
           </aside>
         </div>
