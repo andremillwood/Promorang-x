@@ -15,7 +15,7 @@ export default function Hosting() {
       discoveryUse="Discoveries help you understand what already exists around a place, audience or cultural pattern before you add another Moment."
       demandUse="Demand shows what people say they want and how quickly interest is forming, helping you decide whether it is time to move."
       responseTitle="Create the Moment you are actually prepared to host"
-      responseDetail="Set the place, time, capacity and access clearly. Give people everything they need to decide whether to show up."
+      responseDetail="Set the place, time, capacity and access clearly. Commerce can live inside the Moment—tickets, products, bookings or merchant offers—but each seller keeps responsibility for its own price, payment and fulfillment."
       responseStub="HOST"
       proofTitle="Know who actually showed up"
       proofDetail="RSVPs show intent. Check-in or the configured attendance method shows who actually made it into the room."
@@ -25,6 +25,7 @@ export default function Hosting() {
         "A strong signal does not create an event by itself",
         "Submitted proof still needs confirmation",
         "A claim is not the same as confirmation",
+        "Hosting a product does not make the Host its seller",
       ]}
     />
   );
