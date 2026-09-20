@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
+import { CommerceResponsibilityMap } from "@/components/business/CommerceResponsibilityMap";
 
 const roleTone = {
   brand: {
@@ -80,6 +81,7 @@ const AgencyDashboard = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      <CommerceResponsibilityMap highlight="agency" compact />
       <DashboardHero
         badge={t("agencyDash.badge")}
         title={t("agencyDash.title")}
