@@ -38,7 +38,7 @@ export default function SolutionsHub() {
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/60">More visits. Product trial. A stronger launch. Repeat customers. Proof of demand. Start with the business change and let PROMORANG help construct the route.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">Choose an outcome <ArrowRight className="h-4 w-4" /></Link>
-              <Link to="/demand" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black"><Compass className="h-4 w-4" /> Show me what people want</Link>
+              <Link to="/#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black"><Compass className="h-4 w-4" /> Show me what people want</Link>
               <Link to="/create/campaign" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black"><Megaphone className="h-4 w-4" /> I know what I want to run</Link>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function SolutionsHub() {
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Or start from the market</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">People may already be telling you where to look.</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/50">A Want is not a sale and a target is not supply. It is evidence that a question is worth investigating before you decide what to put into market.</p>
-            <Link to="/demand" className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Open market pulse <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/#wanted" className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Open market pulse <ArrowRight className="h-4 w-4" /></Link>
           </div>
           {signal ? <DemandSignalObject city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text || null} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment || null} responseLabel={signal.poll.targetUnlockPerk || null} href={discoveryHref(signal.poll)} state={signalState(signal.votesRemaining, signal.closeness)} actionLabel="Open Want" /> : <TicketPass kicker={isLoading ? "Reading the market" : "Quiet here right now"} title={isLoading ? "Checking the market…" : "No strong Want yet."} detail={isLoading ? "Looking for live interest in this market." : "Nothing strong is gathering here right now. You can still start from your business outcome."} stub="NOW" stubLabel="Market" />}
         </div>
