@@ -1,12 +1,30 @@
 import { Package, Route } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { ProductForm } from "@/components/merchant/ProductForm";
 import { readBusinessOutcomeBrief, saveBusinessOutcomeBrief } from "@/lib/business-outcomes";
 
 export default function AddProduct() {
   const [params] = useSearchParams();
+  const { activeRole } = useAuth();
   const fromOutcome = params.get("from") === "business-outcome";
   const brief = fromOutcome ? readBusinessOutcomeBrief() : null;
+
+  if (fromOutcome && activeRole !== "merchant") {
+    return (
+      <div className="mx-auto max-w-2xl space-y-5">
+        <div className="rounded-2xl border border-amber-500/25 bg-amber-500/[0.07] p-6">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-amber-600">Merchant responsibility required</p>
+          <h1 className="mt-3 font-serif text-3xl font-bold">Switch into the Merchant workspace before creating sellable supply.</h1>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">A Brand, Creator, Host or Agency can help move commerce, but this product record controls price, stock and availability and therefore belongs to Merchant responsibility.</p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/dashboard" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-black text-primary-foreground">Open workspace switcher</Link>
+            <Link to="/business/programme?resume=1" className="inline-flex min-h-11 items-center rounded-full border px-5 text-sm font-black">Back to programme</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
