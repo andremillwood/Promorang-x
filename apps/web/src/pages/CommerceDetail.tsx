@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Bookmark, CalendarClock, MapPin, ShieldCheck, ShoppingBag, Store, CreditCard, Sparkles } from 'lucide-react';
+import { ArrowLeft, Bookmark, CalendarClock, MapPin, ShieldCheck, ShoppingBag, Store, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -191,13 +191,12 @@ export default function CommerceDetail() {
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <Button
                 size="lg"
-                asChild
+                disabled={!!actions.busy}
+                onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: sourceId, title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined })}
                 className="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 gap-2"
               >
-                <Link to="/card">
-                  <CreditCard className="h-5 w-5 fill-black" />
-                  <span>Use this on PromoCard</span>
-                </Link>
+                <Bookmark className="h-5 w-5" />
+                <span>Save to PromoCard</span>
               </Button>
               <Button size="lg" disabled={isSample || !!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
                 {isSample ? t("commerce.sampleOnly") : actions.busy ? t("commerce.working") : x.discount_value ? t("commerce.reserveOffer") : t("commerce.reserve")}
