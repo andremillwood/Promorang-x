@@ -7,6 +7,7 @@ import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useMarket } from "@/contexts/MarketContext";
 import { discoveryHref } from "@/lib/discovery-path";
 import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
+import CommerceResponsibilityMap from "@/components/business/CommerceResponsibilityMap";
 
 const sectors = [
   { icon: Store, title: "Places + merchants", copy: "Visits, quiet periods, product movement and repeat business.", href: "/for-merchants" },
@@ -92,6 +93,15 @@ export default function SolutionsHub() {
             <Link to="/#wanted" className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Open market pulse <ArrowRight className="h-4 w-4" /></Link>
           </div>
           {signal ? <DemandSignalObject city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text || null} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment || null} responseLabel={signal.poll.targetUnlockPerk || null} href={discoveryHref(signal.poll)} state={signalState(signal.votesRemaining, signal.closeness)} actionLabel="Open Want" /> : <TicketPass kicker={isLoading ? "Reading the market" : "Quiet here right now"} title={isLoading ? "Checking the market…" : "No strong Want yet."} detail={isLoading ? "Looking for live interest in this market." : "Nothing strong is gathering here right now. You can still start from your business outcome."} stub="NOW" stubLabel="Market" />}
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Commerce is a network, not a separate island</p>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">Brand, Creator, Host, Community and Agency can move commerce. Merchant owns the sale and fulfillment.</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">A Programme can distribute a product through creators, place it inside a Moment, fund it through a Brand or contextualize it inside a Scene. That does not transfer price, stock, payment or fulfillment responsibility away from the seller.</p>
+          <div className="mt-8"><CommerceResponsibilityMap /></div>
         </div>
       </section>
 
