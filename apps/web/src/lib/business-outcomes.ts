@@ -293,6 +293,7 @@ export function buildBusinessOutcomePrompt(brief: BusinessOutcomeBrief) {
     `Recommended programme direction: ${programme?.title || brief.programmeId}.`,
     `Primary execution rail: ${execution?.title || brief.executionRailId}. ${execution?.boundary || ""}`,
     brief.commerceSubjectId ? `Commercial subject: ${subject?.title || brief.commerceSubjectId}${brief.subjectLabel ? ` — ${brief.subjectLabel}` : ""}.` : "",
+    brief.commerceSourceId ? `Linked authoritative merchant product source: ${brief.commerceSourceId}. Keep this product reference attached; do not substitute invented supply.` : "",
     brief.sellerResponsibilityId ? `Seller / fulfillment responsibility: ${seller?.title || brief.sellerResponsibilityId}. ${seller?.description || ""}` : "",
     `Success should be measured as ${target} using ${success?.title || brief.successAction} where the underlying system can authoritatively record or verify it.`,
     brief.timeframe ? `Timing: ${brief.timeframe}.` : "",
