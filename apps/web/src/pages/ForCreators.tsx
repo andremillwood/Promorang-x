@@ -15,7 +15,7 @@ export default function ForCreators() {
       discoveryUse="Use Discoveries as material: places, people, patterns and things worth knowing that deserve attention."
       demandUse="Demand shows where curiosity or desire is already forming. Use it to decide what deserves your voice."
       responseTitle="Create the story, Moment or invitation people can act on"
-      responseDetail="Introduce a place, lead people into a Moment, support an offer, or rally your audience around something they can actually join or use."
+      responseDetail="Introduce a place, lead people into a Moment, support an offer or product, or rally your audience around something people can actually join, reserve or buy. If commerce is involved, the Merchant still owns price, stock, payment and fulfillment."
       responseStub="MOVE"
       proofTitle="See what moved after you shared it"
       proofDetail="Shares and clicks show reach. Check-ins, claims or purchases show deeper movement when they happen."
@@ -23,7 +23,8 @@ export default function ForCreators() {
       truthGates={[
         "Views are not participation",
         "Sharing is not the same as showing up",
-        "Credit follows confirmed actions",
+        "Credit follows the governing attributed action—not views alone",
+        "Creator is not automatically the seller",
         "Interest does not mean availability",
       ]}
     />
