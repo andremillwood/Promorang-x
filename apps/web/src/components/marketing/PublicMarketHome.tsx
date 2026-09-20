@@ -407,12 +407,12 @@ export default function PublicMarketHome() {
         <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
             <p className="marketing-kicker"><Building2 className="h-3.5 w-3.5" /> For the people who can respond</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">See what people want before you decide what to put into the market.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Brands, merchants, hosts, creators and communities can see where interest is forming and decide whether to answer it with something people can actually use, join or buy.</p>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Know what your business needs to change? Start there.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">More visits. Product trial. A stronger launch. Repeat customers. Tell PROMORANG what needs to change—or start from what people already want.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link to="/for-brands" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">For business <ArrowRight className="h-4 w-4" /></Link>
-            <Link to="/join" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white">Choose a role</Link>
+            <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">Start from an outcome <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/solutions" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white">For business</Link>
           </div>
         </div>
       </section>
