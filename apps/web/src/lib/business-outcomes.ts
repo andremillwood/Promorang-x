@@ -78,6 +78,7 @@ export type BusinessOutcomeBrief = {
   commerceSubjectId: CommerceSubjectId | null;
   subjectLabel: string;
   sellerResponsibilityId: SellerResponsibilityId | null;
+  commerceSourceId?: string | null;
 };
 
 export const BUSINESS_OUTCOME_BRIEF_KEY = "promorang_business_outcome_brief_v2";
@@ -259,6 +260,7 @@ export function readBusinessOutcomeBrief(): BusinessOutcomeBrief | null {
       commerceSubjectId: null,
       subjectLabel: "",
       sellerResponsibilityId: null,
+      commerceSourceId: null,
     };
     saveBusinessOutcomeBrief(migrated);
     return migrated;
