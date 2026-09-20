@@ -11,6 +11,7 @@ import { MerchantCommerceConsole } from "@/components/merchant/MerchantCommerceC
 import MerchantVenueStudio from "@/components/merchant/MerchantVenueStudio";
 import MerchantYieldAnalytics from "@/components/merchant/MerchantYieldAnalytics";
 import { BusinessOutcomeEntry } from "@/components/business/BusinessOutcomeEntry";
+import { CommerceResponsibilityMap } from "@/components/business/CommerceResponsibilityMap";
 import coffeeCode from "@/assets/moments/coffee-code.jpg";
 
 export function MerchantDashboardV2() {
@@ -47,6 +48,7 @@ export function MerchantDashboardV2() {
   return (
     <div className="space-y-8 pb-16 text-white animate-in fade-in-50 duration-300">
       <BusinessOutcomeEntry role="merchant" />
+      <CommerceResponsibilityMap highlight="merchant" compact />
       <section className="group relative min-h-[420px] overflow-hidden rounded-[1.4rem] border border-white/10 bg-black">
         <img src={coffeeCode} alt="" className="absolute inset-0 h-full w-full object-cover opacity-42 transition duration-700 group-hover:scale-[1.015]" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.84)_52%,rgba(0,0,0,.36)_100%),linear-gradient(0deg,rgba(0,0,0,.94),transparent_62%)]" />
