@@ -7,7 +7,7 @@ import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
 import { AFTRHRS_PATHS } from "@promorang/shared";
 import { hasAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
-import { consumePostAuthNext, peekPostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
+import { consumePostAuthNext, peekPostAuthNext, persistPostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 import { resolveSavedLandingPreference } from "@/lib/landing-page-preference";
 
@@ -44,8 +44,25 @@ export function PostLoginRouter() {
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
       const effectiveRole = appliedRole || activeRole;
 
-      // Explicit deep-link intent always wins. This preserves interrupted jobs
-      // such as claim, proposal, card, campaign and RSVP flows.
+      // Outcome-led business acquisition is allowed to show the recommendation
+      // before signup, but a new operator still needs minimum workspace setup
+      // before continuing into the campaign planner.
+      if (requestedNext?.startsWith("/business/") && effectiveRole !== "admin") {
+        const { data, error } = await supabase
+          .from("user_preferences")
+          .select("user_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        const onboardingCompleted = !error && Boolean(data?.user_id);
+        if (!onboardingCompleted) {
+          persistPostAuthNext(requestedNext);
+          navigate(effectiveRole === "brand" ? "/onboarding/brand" : "/onboarding", { replace: true });
+          return;
+        }
+      }
+
+      // Explicit deep-link intent wins after required account setup. This
+      // preserves interrupted jobs such as claim, proposal, card and RSVP flows.
       if (requestedNext) {
         const aimed = promoCardAimFromNext(requestedNext);
         if (aimed) writePromoCardAim(aimed);
