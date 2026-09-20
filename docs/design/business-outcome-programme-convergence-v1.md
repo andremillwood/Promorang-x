@@ -173,3 +173,20 @@ A cold business visitor can:
 5. authenticate without losing that brief;
 6. continue into the existing campaign compiler;
 7. retain direct access to power-user and market-led paths.
+
+## Commerce convergence addendum
+
+This contract is extended by `business-outcome-commerce-convergence-v1.md`.
+
+A Programme is **not** synonymous with a Campaign. After the business outcome and success action are known, PROMORANG must choose or confirm the execution rail:
+
+- Commerce
+- Offer / access
+- Moment / attendance
+- Demand test
+- Distribution / word of mouth
+- Mixed
+
+Where Commerce is involved, Merchant responsibility owns the commercial truth: price, stock, accepted payment, fulfillment, refund/cancellation and customer commerce cases. Brand, Creator, Host, Community and Agency may contribute to demand, distribution or context without automatically becoming the seller.
+
+The existing PromoPilot compiler remains useful for programme/distribution planning, but it must compose around authoritative commerce, Offer and Moment records rather than becoming a replacement for them.
