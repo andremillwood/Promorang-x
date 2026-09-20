@@ -202,6 +202,7 @@ export function BrandDashboardV2() {
 
   return (
     <div className="space-y-6 text-white pb-16 animate-in fade-in-50 duration-300">
+      <BusinessOutcomeEntry role="brand" />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-black backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
