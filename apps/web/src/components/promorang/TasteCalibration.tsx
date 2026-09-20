@@ -164,11 +164,157 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
     else await createPreferences.mutateAsync(payload);
   }
 
+  if (isHero) {
+    const done = stage === "done";
+    const activeItems = stage === "motivation" ? MOTIVATION_TRIGGERS : TASTE_CATEGORIES;
+    const activeIndex = stage === "motivation" ? motivationIndex : tasteIndex;
+    const activeItem = stage === "motivation" ? currentMotivation : currentTaste;
+    const activeImage = activeItem
+      ? (stage === "motivation" ? MOTIVATION_IMAGES[activeItem.value] : CATEGORY_IMAGES[activeItem.value])
+      : heroMoments;
+
+    if (done) {
+      return (
+        <section className="relative z-20">
+          <div className="overflow-hidden rounded-[2rem] border border-white/15 bg-black/75 p-6 shadow-[0_28px_90px_rgba(0,0,0,.46)] backdrop-blur-xl sm:p-7">
+            <div className="flex items-center justify-between gap-4">
+              <p className="marketing-kicker">Your taste is taking shape</p>
+              <button type="button" onClick={reset} className="inline-flex min-h-9 items-center gap-1.5 text-xs font-bold text-white/45 hover:text-white">
+                <RotateCcw className="h-3.5 w-3.5" /> Run again
+              </button>
+            </div>
+            <h2 className="mt-4 max-w-xl text-3xl font-black leading-[.95] sm:text-4xl">Now tell PROMORANG what deserves to come back to you.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/55">Your choices shape personalization. Public Wants are still separate, so liking something does not pretend the market has demand that was never expressed.</p>
+            <div className="mt-5 flex max-h-24 flex-wrap gap-2 overflow-hidden">
+              {[...pickedTaste.map((item) => ({ key: "taste:" + item.value, label: item.emoji + " " + item.label })), ...pickedMotivations.map((item) => ({ key: "motivation:" + item.value, label: item.emoji + " " + item.label }))].map((item) => (
+                <span key={item.key} className="inline-flex items-center rounded-full border border-white/12 bg-white/[0.05] px-3 py-2 text-xs font-bold text-white/70">{item.label}</span>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {user ? (
+                <button type="button" onClick={() => void saveTaste()} disabled={createPreferences.isPending || updatePreferences.isPending} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black disabled:opacity-50">
+                  <Check className="h-4 w-4" /> Save to my PromoCard
+                </button>
+              ) : (
+                <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black">
+                  Keep this on my PromoCard <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
+              <Link to="/discover" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black text-white/75">
+                Explore with my taste
+              </Link>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    return (
+      <section className="relative z-20">
+        <div className="overflow-hidden rounded-[2rem] border border-white/15 bg-black/78 shadow-[0_28px_90px_rgba(0,0,0,.46)] backdrop-blur-xl">
+          <div className="grid md:grid-cols-[.96fr_1.04fr]">
+            <div className="relative min-h-[270px] overflow-hidden md:min-h-[430px]">
+              <img src={activeImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-85" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-black/10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/25" />
+              <div className="relative flex min-h-[270px] flex-col justify-between p-5 md:min-h-[430px] md:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="inline-flex items-center rounded-full border border-white/18 bg-black/45 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-white/80 backdrop-blur">
+                    {stage === "motivation" ? "02 · Motivation" : "01 · Desire"}
+                  </p>
+                  <p className="rounded-full bg-black/45 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.14em] text-orange-200 backdrop-blur">
+                    {activeIndex + 1} / {activeItems.length}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">
+                    {stage === "motivation" ? "What would move you?" : "What are you into?"}
+                  </p>
+                  <h2 className="mt-3 max-w-[12ch] text-4xl font-black leading-[.9] tracking-[-.04em] text-white">
+                    {stage === "motivation" ? currentMotivation?.label : currentTaste?.label}
+                  </h2>
+                  <p className="mt-3 max-w-sm text-sm leading-6 text-white/72">
+                    {stage === "motivation"
+                      ? currentMotivation?.detail
+                      : currentTaste?.prompt}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between p-5 sm:p-6">
+              <div>
+                <p className="marketing-kicker">{stage === "motivation" ? "What actually changes the decision?" : "Teach PROMORANG your taste"}</p>
+                <h3 className="mt-3 text-2xl font-black leading-tight sm:text-3xl">
+                  {stage === "motivation"
+                    ? "Would this make you more likely to act?"
+                    : "More like this—or not for me?"}
+                </h3>
+                <p className="mt-3 text-xs leading-5 text-white/48">
+                  {stage === "motivation"
+                    ? "This is private motivation data. It helps PROMORANG understand what kind of value turns interest into action."
+                    : "This is private personalization. It trains what you see without adding a vote to the public market."}
+                </p>
+
+                <div className="mt-5 grid grid-cols-4 gap-2">
+                  {activeItems.map((item, index) => {
+                    const image = stage === "motivation" ? MOTIVATION_IMAGES[item.value] : CATEGORY_IMAGES[item.value];
+                    const chosen = stage === "motivation" ? motivations.includes(item.value) : selected.includes(item.value);
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => stage === "motivation" ? setMotivationIndex(index) : setTasteIndex(index)}
+                        aria-label={item.label}
+                        className={"group relative aspect-square overflow-hidden rounded-xl border transition " + (index === activeIndex ? "border-orange-400 ring-2 ring-orange-400/20" : chosen ? "border-white/30" : "border-white/10 hover:border-white/30")}
+                      >
+                        <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-300 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                        {chosen ? <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-orange-500 text-black"><Check className="h-3 w-3" /></span> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-white/10 pt-5">
+                <div className="flex flex-wrap gap-2">
+                  {(stage === "motivation" || tasteIndex > 0) ? (
+                    <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50">
+                      <ArrowLeft className="h-3.5 w-3.5" /> Back
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => stage === "motivation" ? chooseMotivation(false) : chooseTaste(false)}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/15 px-4 text-xs font-black text-white/72"
+                  >
+                    <X className="h-4 w-4" /> {stage === "motivation" ? "Not really" : "Not for me"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => stage === "motivation" ? chooseMotivation(true) : chooseTaste(true)}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-orange-500 px-4 text-xs font-black text-black"
+                  >
+                    {stage === "motivation" ? <Check className="h-4 w-4" /> : <span>♥</span>}
+                    {stage === "motivation" ? "Yes, that moves me" : "More like this"}
+                  </button>
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-4 text-[9px] font-black uppercase tracking-[0.14em] text-white/30">
+                  <span>Taste trains your feed</span>
+                  <span>Wants move the market</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const shellClass = compact
     ? ""
-    : isHero
-      ? "relative z-20 mt-8 border-t border-white/10 pt-8"
-      : "border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20";
+    : "border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20";
   const innerClass = compact || isHero ? "" : "mx-auto max-w-[1440px]";
 
   return (

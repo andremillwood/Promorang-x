@@ -3,7 +3,6 @@ import { ArrowRight, Building2, CheckCircle2, Compass, MapPin, Search, Sparkles,
 import { Link } from "react-router-dom";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { TasteCalibration } from "@/components/promorang/TasteCalibration";
 import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
@@ -150,7 +149,7 @@ export default function PublicMarketHome() {
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto grid min-h-[36rem] max-w-[1440px] gap-12 lg:grid-cols-[minmax(0,.92fr)_minmax(390px,.68fr)] lg:items-center">
+        <div className="relative mx-auto grid min-h-[36rem] max-w-[1440px] gap-10 lg:grid-cols-[minmax(0,.78fr)_minmax(520px,1.02fr)] lg:items-center">
           <div className="max-w-4xl py-6 md:py-10">
             <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> PromoCard · your place in PROMORANG</p>
             <h1 className="mt-6 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.6rem]">
@@ -172,39 +171,24 @@ export default function PublicMarketHome() {
               </a>
             </div>
             <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
-              Start with desire: what are you into? Then tell PROMORANG what would actually make you move. The network can use both to bring back better opportunities without turning private taste into a public vote.
+              Start right here. Teach PROMORANG what you like, then what would actually make you move. Your private taste shapes your experience; explicit Wants shape the public market.
             </p>
           </div>
-          <div className="relative pb-4 lg:pb-0">
+          <div className="relative pb-2 lg:pb-0">
             <div className="pointer-events-none absolute -inset-10 rounded-full bg-orange-500/10 blur-3xl" />
-            <PromoCardFace
-              holder="Your PromoCard"
-              available="What opens for you"
-              limit="Wanted · Open · Active · Kept"
-              places="The things you want, the access that becomes real, the moves you make and the history worth carrying stay connected to you."
-              action="See what changed"
-              variant="membership"
-              interactive={false}
-            />
-            <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden border border-white/10 bg-white/10 text-left sm:grid-cols-4">
-              {[
-                ["WANTED", "What you care about"],
-                ["OPEN", "What became available"],
-                ["ACTIVE", "What you picked up"],
-                ["KEPT", "What you did or earned"],
-              ].map(([label, copy]) => (
-                <div key={label} className="bg-black/80 px-3 py-4">
-                  <p className="font-mono text-[9px] font-black tracking-[0.16em] text-orange-300">{label}</p>
-                  <p className="mt-1 text-[11px] leading-5 text-white/45">{copy}</p>
-                </div>
-              ))}
+            <TasteCalibration marketLabel={marketName} variant="hero" />
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 backdrop-blur">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-orange-300">This becomes your PromoCard</p>
+                <p className="mt-1 text-xs leading-5 text-white/48">Desire and motivation shape what comes back. Real access, actions, Points and Keys accumulate from there.</p>
+              </div>
+              <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 px-4 text-[10px] font-black uppercase tracking-[0.1em] text-white/75">
+                Keep my profile <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
           </div>
         </div>
 
-        <div className="relative mx-auto max-w-[1440px]">
-          <TasteCalibration marketLabel={marketName} variant="hero" />
-        </div>
       </section>
 
       <section id="wanted" className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
