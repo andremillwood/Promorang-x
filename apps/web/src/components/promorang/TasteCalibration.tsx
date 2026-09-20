@@ -29,6 +29,7 @@ type TasteCalibrationProps = {
   marketLabel?: string;
   compact?: boolean;
   variant?: "default" | "hero";
+  mode?: "full" | "taste" | "motivation";
 };
 
 const CATEGORY_IMAGES: Record<string, string> = {
@@ -53,13 +54,13 @@ const MOTIVATION_IMAGES: Record<string, string> = {
   special_experience: hiking,
 };
 
-export function TasteCalibration({ marketLabel = "your market", compact = false, variant = "default" }: TasteCalibrationProps) {
+export function TasteCalibration({ marketLabel = "your market", compact = false, variant = "default", mode = "full" }: TasteCalibrationProps) {
   const { user } = useAuth();
   const { data: preferences } = useUserPreferences();
   const createPreferences = useCreateUserPreferences();
   const updatePreferences = useUpdateUserPreferences();
   const recordSignal = useRecordPreferenceSignal();
-  const [stage, setStage] = useState<"taste" | "motivation" | "done">("taste");
+  const [stage, setStage] = useState<"taste" | "motivation" | "done">(() => mode === "motivation" ? "motivation" : "taste");
   const [tasteIndex, setTasteIndex] = useState(0);
   const [motivationIndex, setMotivationIndex] = useState(0);
   const [selected, setSelected] = useState<string[]>(() => readStoredTasteCategories());
@@ -119,8 +120,11 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
       signalType: like ? "more_like_this" : "not_for_me",
       sourceSurface: isHero ? "homepage_hero_taste" : "taste_calibration",
     });
-    if (tasteIndex >= TASTE_CATEGORIES.length - 1) setStage("motivation");
-    else setTasteIndex((value) => value + 1);
+    if (tasteIndex >= TASTE_CATEGORIES.length - 1) {
+      setStage(mode === "taste" ? "done" : "motivation");
+    } else {
+      setTasteIndex((value) => value + 1);
+    }
   }
 
   function chooseMotivation(like: boolean) {
@@ -144,8 +148,10 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
 
   function back() {
     if (stage === "motivation" && motivationIndex === 0) {
-      setStage("taste");
-      setTasteIndex(TASTE_CATEGORIES.length - 1);
+      if (mode === "full") {
+        setStage("taste");
+        setTasteIndex(TASTE_CATEGORIES.length - 1);
+      }
       return;
     }
     if (stage === "motivation") setMotivationIndex((value) => Math.max(0, value - 1));
@@ -153,7 +159,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
   }
 
   function reset() {
-    setStage("taste");
+    setStage(mode === "motivation" ? "motivation" : "taste");
     setTasteIndex(0);
     setMotivationIndex(0);
   }
@@ -244,7 +250,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
 
             <div className="flex flex-col justify-between p-5 sm:p-6">
               <div>
-                <p className="marketing-kicker">{stage === "motivation" ? "What actually changes the decision?" : "Teach PROMORANG your taste"}</p>
+                <p className="marketing-kicker">{stage === "motivation" ? "What could change the decision?" : "Teach PROMORANG your taste"}</p>
                 <h3 className="mt-3 text-2xl font-black leading-tight sm:text-3xl">
                   {stage === "motivation"
                     ? "Would this make you more likely to act?"
@@ -279,7 +285,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
 
               <div className="mt-6 border-t border-white/10 pt-5">
                 <div className="flex flex-wrap gap-2">
-                  {(stage === "motivation" || tasteIndex > 0) ? (
+                  {((stage === "motivation" && motivationIndex > 0) || (stage === "taste" && tasteIndex > 0)) ? (
                     <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50">
                       <ArrowLeft className="h-3.5 w-3.5" /> Back
                     </button>
@@ -324,7 +330,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
           <div>
             <p className="marketing-kicker">{stage === "motivation" ? "What would move you?" : "Make it personal"}</p>
             <h2 className={isHero ? "mt-3 max-w-3xl text-3xl font-black sm:text-4xl" : "mt-3 max-w-3xl text-4xl font-black sm:text-5xl"}>
-              {stage === "taste" ? "What are you in the mood for?" : stage === "motivation" ? "What actually makes you move?" : "PROMORANG has a better starting point."}
+              {stage === "taste" ? "What are you in the mood for?" : stage === "motivation" ? "What could move you?" : "PROMORANG has a better starting point."}
             </h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">
               {stage === "taste"
@@ -403,7 +409,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                     <p className="mt-2 font-serif text-2xl font-bold sm:text-3xl">Would {currentMotivation.label.toLowerCase()} make you more likely to act?</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50"><ArrowLeft className="h-3.5 w-3.5" /> Back</button>
+                    {motivationIndex > 0 ? <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50"><ArrowLeft className="h-3.5 w-3.5" /> Back</button> : null}
                     <button type="button" onClick={() => chooseMotivation(false)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-black text-white/70"><X className="h-4 w-4" /> Not really</button>
                     <button type="button" onClick={() => chooseMotivation(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black"><Check className="h-4 w-4" /> Yes, that moves me</button>
                   </div>

@@ -171,12 +171,12 @@ export default function PublicMarketHome() {
               </a>
             </div>
             <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
-              Start right here. Teach PROMORANG what you like, then what would actually make you move. Your private taste shapes your experience; explicit Wants shape the public market.
+              Start right here. Teach PROMORANG what you like. Right underneath, tell us what could actually move you. Your private taste shapes your experience; explicit Wants shape the public market.
             </p>
           </div>
           <div className="relative pb-2 lg:pb-0">
             <div className="pointer-events-none absolute -inset-10 rounded-full bg-orange-500/10 blur-3xl" />
-            <TasteCalibration marketLabel={marketName} variant="hero" />
+            <TasteCalibration marketLabel={marketName} variant="hero" mode="taste" />
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 backdrop-blur">
               <div>
                 <p className="text-[9px] font-black uppercase tracking-[0.18em] text-orange-300">This becomes your PromoCard</p>
@@ -189,6 +189,12 @@ export default function PublicMarketHome() {
           </div>
         </div>
 
+      </section>
+
+      <section className="border-b border-white/10 bg-[#090909] px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <TasteCalibration marketLabel={marketName} mode="motivation" />
+        </div>
       </section>
 
       <section id="wanted" className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
