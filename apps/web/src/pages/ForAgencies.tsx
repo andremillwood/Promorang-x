@@ -14,7 +14,7 @@ export default function ForAgencies() {
       discoveryUse="Discoveries give planners and creatives context about places, people, patterns and opportunities already in the market."
       demandUse="Demand gives clients a clearer view of what people are asking for before they spend, helping shape targeting, offers and activation design."
       responseTitle="Translate demand into a client response with a clear owner"
-      responseDetail="Turn the signal into a campaign, offer, Moment, creator brief or merchant action with a clear owner, terms and next step."
+      responseDetail="Turn the signal into a campaign, commerce programme, offer, Moment, creator brief or merchant action with a clear owner. If a client outcome depends on purchase, the merchant seller and fulfillment responsibility must stay explicit."
       responseStub="ORCH"
       proofTitle="Show the client what happened next"
       proofDetail="Separate reach, attributed actions and confirmed outcomes so the client can see what changed without overstating ROI."
@@ -24,6 +24,7 @@ export default function ForAgencies() {
         "Results need context before they become ROI",
         "Interest is not availability",
         "Approval and settlement are different steps",
+        "Agency coordination does not transfer seller responsibility",
       ]}
     />
   );
