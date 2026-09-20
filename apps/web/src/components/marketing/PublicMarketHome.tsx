@@ -3,6 +3,7 @@ import { ArrowRight, Building2, CheckCircle2, Compass, MapPin, Search, Sparkles,
 import { Link } from "react-router-dom";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
 import { PromoCardValueShowcase } from "@/components/marketing/PromoCardValueShowcase";
 import { CurrentArc, ReturnLoopStory } from "@/components/marketing/MarketingPhysics";
@@ -147,42 +148,60 @@ export default function PublicMarketHome() {
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto flex min-h-[32rem] max-w-[1440px] items-end">
-          <div className="max-w-4xl pb-4 md:pb-8">
-            <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> Find what moves you. Help make more of it happen.</p>
-            <h1 className="mt-6 max-w-[9.5ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.6rem]">
-              Find what
+        <div className="relative mx-auto grid min-h-[36rem] max-w-[1440px] gap-12 lg:grid-cols-[minmax(0,.92fr)_minmax(390px,.68fr)] lg:items-center">
+          <div className="max-w-4xl py-6 md:py-10">
+            <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> PromoCard · your place in PROMORANG</p>
+            <h1 className="mt-6 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.6rem]">
+              Your wants.
               <br />
-              <span className="text-orange-400">moves you.</span>
+              Your access.
               <br />
-              Help move it.
+              <span className="text-orange-400">Your PromoCard.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
-              Discover things worth knowing about, recognize what you care about, join what other people want, or tell PROMORANG what you are looking for.
+              PROMORANG is the network underneath it. PromoCard is the product you carry: tell us what you want, keep what matters close, see when something opens, and carry what you actually did forward.
             </p>
-
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-orange-400">
-                <Compass className="h-4 w-4" /> Explore PROMORANG
+              <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-orange-400">
+                Get my PromoCard <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href="#ask" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
-                I know what I want <ArrowRight className="h-4 w-4" />
+              <a href="#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
+                See what people want <Users className="h-4 w-4" />
               </a>
             </div>
-
-            <div className="marketing-hero-promocard-outcomes" aria-label="What PromoCard does for you">
-              <span className="marketing-hero-promocard-label">PromoCard</span>
-              <span><strong>WATCH</strong> what matters</span>
-              <span><strong>OPEN</strong> Moments & access</span>
-              <span><strong>USE</strong> perks that exist</span>
-              <span><strong>KEEP</strong> access & history</span>
-            </div>
-            <p className="mt-4 max-w-xl text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
-              Save what matters. Come back when something changes.
+            <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
+              Start with one useful move. Add your voice to something people want, tell PROMORANG what is missing, or discover something worth keeping.
             </p>
+          </div>
+          <div className="relative pb-4 lg:pb-0">
+            <div className="pointer-events-none absolute -inset-10 rounded-full bg-orange-500/10 blur-3xl" />
+            <PromoCardFace
+              holder="Your PromoCard"
+              available="What opens for you"
+              limit="Wanted · Open · Active · Kept"
+              places="The things you want, the access that becomes real, the moves you make and the history worth carrying stay connected to you."
+              action="See what changed"
+              variant="membership"
+              interactive={false}
+            />
+            <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden border border-white/10 bg-white/10 text-left sm:grid-cols-4">
+              {[
+                ["WANTED", "What you care about"],
+                ["OPEN", "What became available"],
+                ["ACTIVE", "What you picked up"],
+                ["KEPT", "What you did or earned"],
+              ].map(([label, copy]) => (
+                <div key={label} className="bg-black/80 px-3 py-4">
+                  <p className="font-mono text-[9px] font-black tracking-[0.16em] text-orange-300">{label}</p>
+                  <p className="mt-1 text-[11px] leading-5 text-white/45">{copy}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
+      <PromoCardValueShowcase />
 
       <section className="px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
@@ -240,8 +259,8 @@ export default function PublicMarketHome() {
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">What people want · {inbox.city}</p>
-              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">When enough people lean the same way, something can happen.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are wants taking shape in public. A clear want can invite a response, but something only opens when a real person, place, brand or creator makes it possible.</p>
+              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">Put what you want into the market. Keep your place when it changes.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are wants taking shape in public. Add your voice to one that matters. If you keep it on PromoCard, PROMORANG has a personal place to bring you back when something real opens.</p>
             </div>
             <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Looking for something? <ArrowRight className="h-4 w-4" /></a>
           </div>
@@ -260,6 +279,7 @@ export default function PublicMarketHome() {
                   responseLabel={signal.poll.targetUnlockPerk}
                   href={discoveryHref(signal.poll)}
                   state={signalState(signal.votesRemaining, signal.closeness)}
+                  actionLabel="Add my voice"
                 />
               ))}
             </div>
@@ -277,14 +297,14 @@ export default function PublicMarketHome() {
 
       <section className="border-b border-white/10 bg-[#050505] px-5 py-12 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">
-          <p className="marketing-kicker">How the market moves</p>
+          <p className="marketing-kicker">How your PromoCard changes</p>
           <div className="mt-6 grid gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              ["WANT", "People put what they’re into on the table."],
-              ["MOMENTUM", "More people join in and the pull gets clearer."],
-              ["OPEN", "Someone answers with something real."],
-              ["PICKED UP", "People take the spots, perks or access that opened."],
-              ["FOLLOW-THROUGH", "People actually show up, use it, buy or complete the move."],
+              ["WANTED", "Things you have told PROMORANG you care about."],
+              ["WATCHING", "Things you want PROMORANG to bring you back to."],
+              ["OPEN", "Real access, offers or Moments available to you."],
+              ["ACTIVE", "Things you claimed, reserved or committed to."],
+              ["KEPT", "What you used, earned, completed or want in your history."],
             ].map(([label, copy]) => (
               <div key={label} className="bg-[#080808] px-5 py-6">
                 <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{label}</p>
@@ -293,7 +313,7 @@ export default function PublicMarketHome() {
             ))}
           </div>
           <p className="mt-4 max-w-3xl text-[11px] leading-5 text-white/35">
-            PROMORANG only calls something momentum when there is real change over time. A target being met does not mean anything has opened yet.
+            PromoCard reflects the market without blurring the truth: wanting something does not make it available, and picking something up does not mean you used it.
           </p>
         </div>
       </section>
@@ -302,9 +322,9 @@ export default function PublicMarketHome() {
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_.62fr] lg:items-start">
           <div>
             <p className="marketing-kicker">Looking for something?</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Tell PROMORANG.</h2>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Tell PROMORANG what belongs on your radar.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">
-              A place. A product. Something to do. An offer. Something you wish existed. PROMORANG first checks what it already knows and whether other people are looking for something similar.
+              A place. A product. Something to do. Access. An experience. Something you wish existed. PROMORANG first checks what it already knows and whether other people want something similar. Signed-in participants can keep the things that matter on PromoCard.
             </p>
 
             <form onSubmit={submitAsk} className="mt-7 max-w-2xl">
@@ -397,8 +417,6 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
-      <PromoCardValueShowcase />
-
       <ReturnLoopStory />
 
       <section className="marketing-operator-band relative overflow-hidden border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
@@ -407,8 +425,8 @@ export default function PublicMarketHome() {
         <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
             <p className="marketing-kicker"><Building2 className="h-3.5 w-3.5" /> For the people who can respond</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Know what your business needs to change? Start there.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">More visits. Product trial. A stronger launch. Repeat customers. Tell PROMORANG what needs to change—or start from what people already want.</p>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">See what people want. Make something worth opening on PromoCard.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Brands, merchants, hosts, creators and communities can see where interest is forming, answer with something real, and give people a reason to carry that relationship forward on PromoCard.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">Start from an outcome <ArrowRight className="h-4 w-4" /></Link>
