@@ -54,6 +54,13 @@ export interface DiscoveryPoll {
   thresholdForMoment: number;
   /** Demand is a city vote. live_offer is a house-backed pass you can actually show. */
   signalKind?: DiscoverySignalKind;
+  /** Why this question exists. Presentation only; canonical vote state remains separate. */
+  purpose?: string;
+  purposeLabel?: string;
+  /** What the creator says answers will be used to influence. */
+  consequence?: string;
+  /** Who is expected to use the result. */
+  decisionOwner?: string;
   targetUnlockPerk: string;
   pointsReward: number;
   options: DiscoveryOption[];

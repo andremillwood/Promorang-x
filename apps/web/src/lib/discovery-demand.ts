@@ -7,6 +7,10 @@ export type DemandPoll = PathablePoll & {
   slug?: string;
   options?: Array<{ id?: string; text: string; votes: number }>;
   connectedScene?: { title: string; slug: string };
+  purpose?: string;
+  purposeLabel?: string;
+  consequence?: string;
+  decisionOwner?: string;
 };
 
 export type NamedIntent = {
@@ -202,6 +206,10 @@ export function demandPollFromDiscovery(poll: {
   options?: Array<{ id?: string; text: string; votes: number }>;
   connectedScene?: { title: string; slug: string };
   userVotedOptionId?: string;
+  purpose?: string;
+  purposeLabel?: string;
+  consequence?: string;
+  decisionOwner?: string;
 }): DemandPoll {
   return {
     id: poll.id,
@@ -216,5 +224,9 @@ export function demandPollFromDiscovery(poll: {
     options: poll.options,
     connectedScene: poll.connectedScene,
     userVotedOptionId: poll.userVotedOptionId,
+    purpose: poll.purpose,
+    purposeLabel: poll.purposeLabel,
+    consequence: poll.consequence,
+    decisionOwner: poll.decisionOwner,
   };
 }

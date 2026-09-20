@@ -14,6 +14,7 @@ import { mergeUnlockTallies, readLocalCardUnlocks, tallyCardUnlocks, type Unlock
 import { intentWords, mergeDiscoveryPolls } from "@/lib/discovery-path";
 import { useCityDiscoveryPolls } from "@/hooks/useCityDiscoveryPolls";
 import { useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
+import { useCommunityDemandPolls } from "@/hooks/useCommunityDemandPolls";
 
 const ANON_KEY = "promorang.discover.anon";
 const LOCAL_INTENTS_KEY = "promorang.discover.named-intents";
@@ -86,6 +87,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   const queryClient = useQueryClient();
   const cityPolls = useCityDiscoveryPolls(countrySlug, citySlug, 12);
   const listingPolls = useListingDiscoveryPolls(8);
+  const communityPolls = useCommunityDemandPolls(cityName, 12);
 
   const intentsQuery = useQuery({
     queryKey: ["discovery-named-intents", cityName],
@@ -127,8 +129,9 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
             userVotedOptionId: poll.user_voted_option_id || undefined,
           }),
         ),
+        (communityPolls.data || []).map(demandPollFromDiscovery),
       ]),
-    [listingPolls.data, cityPolls.data],
+    [listingPolls.data, cityPolls.data, communityPolls.data],
   );
 
   const unlocksQuery = useQuery({
@@ -176,7 +179,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
 
   return {
     inbox,
-    isLoading: cityPolls.isLoading || listingPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
+    isLoading: cityPolls.isLoading || listingPolls.isLoading || communityPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
     recordAsk: record.mutateAsync,
   };
 }

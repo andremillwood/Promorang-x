@@ -18,7 +18,7 @@ const stages = [
   { label: "MOTIVATION", title: "What would move you?", copy: "Access, a complimentary extra, savings, Points, a Key, a paid Gig or a special experience can change the decision.", icon: Gift },
   { label: "OPPORTUNITY", title: "What can you do?", copy: "Offers, Moments, Challenges, Gigs and Content Drops turn interest into a real next move.", icon: Target },
   { label: "ACTION", title: "What did you actually do?", copy: "Claim, reserve, visit, attend, create, distribute, buy or complete—with proof where the opportunity requires it.", icon: CheckCircle2 },
-  { label: "DISTRIBUTION", title: "What can you help move?", copy: "Share, refer, remix or distribute things worth spreading. PROMORANG can attribute the movement when the path is real.", icon: Share2 },
+  { label: "DISTRIBUTION", title: "What can you help move?", copy: "Share because it is useful. Use a recorded route when you want credit. Earn only when a funded rule pays for the verified action.", icon: Share2 },
 ];
 
 const opportunityTypes = [
@@ -108,7 +108,7 @@ export function ParticipationEconomy({ variant = "public", points = null, promoK
           <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.035] p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">How value circulates</p>
             <p className="mt-2 font-serif text-2xl font-bold text-white">Move → prove → earn → unlock → spread → return.</p>
-            <p className="mt-3 text-xs leading-5 text-white/45">A Challenge may award Points. Points can progress toward Keys. A Key can unlock access. A Content Drop can spread the opportunity. PromoCard keeps the relationship connected.</p>
+            <p className="mt-3 text-xs leading-5 text-white/45">A Challenge may award Points. Points can progress toward Keys. A Key can unlock access. A Content Drop can spread the opportunity. Referral credit can follow a recorded route. Affiliate commission is only one funded commercial outcome—not the reason every share exists.</p>
           </div>
         </div>
       </div>
