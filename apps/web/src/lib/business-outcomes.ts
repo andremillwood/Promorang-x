@@ -79,6 +79,8 @@ export type BusinessOutcomeBrief = {
   subjectLabel: string;
   sellerResponsibilityId: SellerResponsibilityId | null;
   commerceSourceId?: string | null;
+  sellerMerchantId?: string | null;
+  sellerMerchantName?: string | null;
 };
 
 export const BUSINESS_OUTCOME_BRIEF_KEY = "promorang_business_outcome_brief_v2";
@@ -261,6 +263,8 @@ export function readBusinessOutcomeBrief(): BusinessOutcomeBrief | null {
       subjectLabel: "",
       sellerResponsibilityId: null,
       commerceSourceId: null,
+      sellerMerchantId: null,
+      sellerMerchantName: null,
     };
     saveBusinessOutcomeBrief(migrated);
     return migrated;
@@ -295,6 +299,7 @@ export function buildBusinessOutcomePrompt(brief: BusinessOutcomeBrief) {
     brief.commerceSubjectId ? `Commercial subject: ${subject?.title || brief.commerceSubjectId}${brief.subjectLabel ? ` — ${brief.subjectLabel}` : ""}.` : "",
     brief.commerceSourceId ? `Linked authoritative merchant product source: ${brief.commerceSourceId}. Keep this product reference attached; do not substitute invented supply.` : "",
     brief.sellerResponsibilityId ? `Seller / fulfillment responsibility: ${seller?.title || brief.sellerResponsibilityId}. ${seller?.description || ""}` : "",
+    brief.sellerMerchantId ? `Selected merchant seller: ${brief.sellerMerchantName || brief.sellerMerchantId} (${brief.sellerMerchantId}).` : "",
     `Success should be measured as ${target} using ${success?.title || brief.successAction} where the underlying system can authoritatively record or verify it.`,
     brief.timeframe ? `Timing: ${brief.timeframe}.` : "",
     brief.geography ? `Geography / place: ${brief.geography}.` : "",
