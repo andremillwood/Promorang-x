@@ -508,7 +508,7 @@ const App = () => (
                     <Route path="/dashboard/venues/add" element={<ProtectedRoute><AddVenue /></ProtectedRoute>} />
                     <Route path="/dashboard/proposals" element={<ProtectedRoute><ProposalWorkspace /></ProtectedRoute>} />
                     <Route path="/dashboard/proposals/:id" element={<ProtectedRoute><ActivationDetail /></ProtectedRoute>} />
-                    <Route path="/dashboard/products/add" element={<AddProduct />} />
+                    <Route path="/dashboard/products/add" element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
                     <Route path="/dashboard/catalog" element={<ProtectedRoute><ServiceCatalog /></ProtectedRoute>} />
                     <Route path="/dashboard/brand/campaigns/create" element={<Navigate to="/create/campaign" replace />} />
                     <Route path="/dashboard/brand/hosts" element={<HostDiscovery />} />
