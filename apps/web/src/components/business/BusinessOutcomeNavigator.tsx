@@ -173,7 +173,7 @@ export function BusinessOutcomeNavigator() {
                 <Link to={authPath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">Save and continue <ArrowRight className="h-4 w-4" /></Link>
               )}
               <div className="mt-4 grid gap-2 text-center">
-                <Link to="/demand" className="text-xs font-bold text-white/55 hover:text-white">Show me what people want instead</Link>
+                <Link to="/#wanted" className="text-xs font-bold text-white/55 hover:text-white">Show me what people want instead</Link>
                 <Link to={user ? "/create/campaign" : authPathForReturn("/create/campaign", { mode: "signup", role: roleForBusinessType(brief.businessType) })} className="text-xs font-bold text-white/55 hover:text-white">I already know what I want to run</Link>
               </div>
             </aside>
