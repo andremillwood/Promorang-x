@@ -38,8 +38,31 @@ export type ProgrammeId =
   | "what-do-they-want"
   | "tell-somebody";
 
+export type ExecutionRailId =
+  | "commerce"
+  | "offer"
+  | "moment"
+  | "demand-test"
+  | "distribution"
+  | "mixed";
+
+export type CommerceSubjectId =
+  | "product"
+  | "service"
+  | "offer"
+  | "ticket"
+  | "booking"
+  | "experience"
+  | "other";
+
+export type SellerResponsibilityId =
+  | "existing-merchant"
+  | "merchant-to-onboard"
+  | "current-org-merchant"
+  | "undecided";
+
 export type BusinessOutcomeBrief = {
-  version: 1;
+  version: 2;
   id: string;
   createdAt: string;
   outcomeId: BusinessOutcomeId;
@@ -51,9 +74,14 @@ export type BusinessOutcomeBrief = {
   audience: string;
   availableValue: string;
   programmeId: ProgrammeId;
+  executionRailId: ExecutionRailId;
+  commerceSubjectId: CommerceSubjectId | null;
+  subjectLabel: string;
+  sellerResponsibilityId: SellerResponsibilityId | null;
 };
 
-export const BUSINESS_OUTCOME_BRIEF_KEY = "promorang_business_outcome_brief_v1";
+export const BUSINESS_OUTCOME_BRIEF_KEY = "promorang_business_outcome_brief_v2";
+const LEGACY_BUSINESS_OUTCOME_BRIEF_KEY = "promorang_business_outcome_brief_v1";
 
 export const BUSINESS_OUTCOMES: Array<{
   id: BusinessOutcomeId;
@@ -94,6 +122,32 @@ export const SUCCESS_ACTIONS: Array<{ id: SuccessActionId; title: string; unit: 
   { id: "other", title: "Another measurable action", unit: "actions" },
 ];
 
+export const EXECUTION_RAILS: Array<{ id: ExecutionRailId; title: string; description: string; boundary: string }> = [
+  { id: "commerce", title: "Commerce", description: "A real product, service, ticket or booking must be available to reserve or buy.", boundary: "Reserved ≠ paid ≠ fulfilled." },
+  { id: "offer", title: "Offer / access", description: "A defined customer benefit or access rule needs to open.", boundary: "Offer ≠ claim ≠ redemption ≠ purchase." },
+  { id: "moment", title: "Moment / attendance", description: "The response is a time-bound experience people can join or attend.", boundary: "RSVP ≠ attendance." },
+  { id: "demand-test", title: "Demand test", description: "The first job is to learn what people want before supply is committed.", boundary: "Interest ≠ supply." },
+  { id: "distribution", title: "Distribution / word of mouth", description: "Creators, participants or communities help move attention toward something real.", boundary: "Share or click ≠ attributed outcome." },
+  { id: "mixed", title: "Mixed programme", description: "The outcome needs more than one execution rail—for example trial + commerce + creator distribution.", boundary: "Each rail keeps its own authoritative state." },
+];
+
+export const COMMERCE_SUBJECTS: Array<{ id: CommerceSubjectId; title: string }> = [
+  { id: "product", title: "Product / SKU" },
+  { id: "service", title: "Service" },
+  { id: "offer", title: "Offer / perk" },
+  { id: "ticket", title: "Ticket / pass" },
+  { id: "booking", title: "Booking / reservation" },
+  { id: "experience", title: "Experience" },
+  { id: "other", title: "Something else" },
+];
+
+export const SELLER_RESPONSIBILITIES: Array<{ id: SellerResponsibilityId; title: string; description: string }> = [
+  { id: "existing-merchant", title: "An existing PROMORANG merchant", description: "A merchant already owns the price, inventory/payment and fulfillment." },
+  { id: "merchant-to-onboard", title: "A merchant we need to bring in", description: "The seller exists, but their commerce supply still needs to be represented on PROMORANG." },
+  { id: "current-org-merchant", title: "My organization is the seller / fulfiller", description: "This organization is accepting Merchant responsibility for price, stock, payment and fulfillment." },
+  { id: "undecided", title: "Not sure yet", description: "Keep seller responsibility unresolved until a real merchant is chosen." },
+];
+
 export const PROGRAMMES: Array<{
   id: ProgrammeId;
   title: string;
@@ -101,30 +155,36 @@ export const PROGRAMMES: Array<{
   designedFor: string;
   path: string[];
 }> = [
-  { id: "first-50", title: "First 50", promise: "Create the first measurable customer actions around one clear business goal.", designedFor: "Launches, early tests and businesses that need a concrete first proof point.", path: ["Define one action", "Give people a reason", "Distribute", "Measure what happened"] },
+  { id: "first-50", title: "First 50", promise: "Create the first measurable customer actions around one clear business goal.", designedFor: "Launches, early tests and businesses that need a concrete first proof point.", path: ["Define one action", "Make a real response available", "Distribute", "Measure what happened"] },
   { id: "fill-the-room", title: "Fill the Room", promise: "Turn relevant interest into attendance, reservations or real arrivals.", designedFor: "Events, venues, restaurants and experiences.", path: ["Read interest", "Open access", "Invite", "Confirm arrivals"] },
-  { id: "try-this", title: "Try This", promise: "Get a product or experience into people's hands and learn what follows.", designedFor: "Sampling, product trial, menu items and new services.", path: ["Find the audience", "Create trial", "Capture proof", "Learn"] },
-  { id: "move-this", title: "Move This", promise: "Concentrate customer action around one product, service or commercial priority.", designedFor: "Specific SKUs, menu items, offers or services.", path: ["Choose the priority", "Build the reason", "Distribute", "Measure action"] },
+  { id: "try-this", title: "Try This", promise: "Get a product or experience into people's hands and learn what follows.", designedFor: "Sampling, product trial, menu items and new services.", path: ["Find the audience", "Make trial fulfillable", "Distribute", "Capture proof"] },
+  { id: "move-this", title: "Move This", promise: "Concentrate customer action around one product, service or commercial priority.", designedFor: "Specific SKUs, menu items, offers or services.", path: ["Choose the commercial object", "Confirm seller and availability", "Distribute", "Measure action"] },
   { id: "quiet-hours", title: "Quiet Hours", promise: "Create a reason to visit during a period that needs more movement.", designedFor: "Restaurants, retail, hospitality and local services.", path: ["Choose the window", "Shape the reason", "Reach nearby people", "Validate visits"] },
   { id: "bring-them-back", title: "Bring Them Back", promise: "Turn a first interaction into another meaningful one.", designedFor: "Repeat visits, repeat purchases and relationship-building.", path: ["Identify the first action", "Create return value", "Carry it on PromoCard", "Measure return"] },
-  { id: "what-do-they-want", title: "What Do They Want?", promise: "Test interest before committing heavily to the response.", designedFor: "Product decisions, launches, stock, concepts and market discovery.", path: ["Ask", "Gather", "Read the signal", "Decide whether to respond"] },
-  { id: "tell-somebody", title: "Tell Somebody", promise: "Give people a reason to review, refer, share or create around something real.", designedFor: "Word of mouth, advocacy, creator participation and referrals.", path: ["Choose the story", "Create a reason", "Invite participation", "Verify the action"] },
+  { id: "what-do-they-want", title: "What Do They Want?", promise: "Test interest before committing heavily to the response.", designedFor: "Product decisions, launches, stock, concepts and market discovery.", path: ["Ask", "Gather", "Read the signal", "Decide whether to supply"] },
+  { id: "tell-somebody", title: "Tell Somebody", promise: "Give people a reason to review, refer, share or create around something real.", designedFor: "Word of mouth, advocacy, creator participation and referrals.", path: ["Choose the real object", "Create a reason", "Distribute", "Verify attributable action"] },
 ];
 
 export function getOutcome(id?: string | null) {
   return BUSINESS_OUTCOMES.find((item) => item.id === id) || null;
 }
-
 export function getBusinessType(id?: string | null) {
   return BUSINESS_TYPES.find((item) => item.id === id) || null;
 }
-
 export function getSuccessAction(id?: string | null) {
   return SUCCESS_ACTIONS.find((item) => item.id === id) || null;
 }
-
 export function getProgramme(id?: string | null) {
   return PROGRAMMES.find((item) => item.id === id) || null;
+}
+export function getExecutionRail(id?: string | null) {
+  return EXECUTION_RAILS.find((item) => item.id === id) || null;
+}
+export function getCommerceSubject(id?: string | null) {
+  return COMMERCE_SUBJECTS.find((item) => item.id === id) || null;
+}
+export function getSellerResponsibility(id?: string | null) {
+  return SELLER_RESPONSIBILITIES.find((item) => item.id === id) || null;
 }
 
 export function recommendProgramme(outcomeId: BusinessOutcomeId, businessType: BusinessTypeId): ProgrammeId {
@@ -138,14 +198,28 @@ export function recommendProgramme(outcomeId: BusinessOutcomeId, businessType: B
   return "tell-somebody";
 }
 
+export function recommendExecutionRail(outcomeId: BusinessOutcomeId, successAction: SuccessActionId, businessType: BusinessTypeId): ExecutionRailId {
+  if (outcomeId === "learn-demand") return "demand-test";
+  if (outcomeId === "word-of-mouth" || successAction === "reviews" || successAction === "referrals") return "distribution";
+  if (successAction === "purchases") return "commerce";
+  if (successAction === "trials") return "mixed";
+  if (successAction === "attendance") return "moment";
+  if (successAction === "reservations") return businessType === "event" ? "moment" : "commerce";
+  if (successAction === "visits" || successAction === "repeat-visits") return "offer";
+  if (outcomeId === "launch") return "mixed";
+  return "distribution";
+}
+
 export function roleForBusinessType(type: BusinessTypeId): "brand" | "merchant" {
   return type === "place" || type === "service" ? "merchant" : "brand";
 }
 
-export function createBusinessOutcomeBrief(input: Omit<BusinessOutcomeBrief, "version" | "id" | "createdAt" | "programmeId">): BusinessOutcomeBrief {
+export function createBusinessOutcomeBrief(
+  input: Omit<BusinessOutcomeBrief, "version" | "id" | "createdAt" | "programmeId">
+): BusinessOutcomeBrief {
   return {
     ...input,
-    version: 1,
+    version: 2,
     id: `business-${Date.now()}`,
     createdAt: new Date().toISOString(),
     programmeId: recommendProgramme(input.outcomeId, input.businessType),
@@ -159,19 +233,46 @@ export function saveBusinessOutcomeBrief(brief: BusinessOutcomeBrief) {
   try { localStorage.setItem(BUSINESS_OUTCOME_BRIEF_KEY, payload); } catch { /* session continuity remains available */ }
 }
 
-export function readBusinessOutcomeBrief(): BusinessOutcomeBrief | null {
+function readRawBrief() {
   if (typeof window === "undefined") return null;
-  const raw = sessionStorage.getItem(BUSINESS_OUTCOME_BRIEF_KEY) || (() => {
-    try { return localStorage.getItem(BUSINESS_OUTCOME_BRIEF_KEY); } catch { return null; }
+  const read = (key: string) => sessionStorage.getItem(key) || (() => {
+    try { return localStorage.getItem(key); } catch { return null; }
   })();
+  return read(BUSINESS_OUTCOME_BRIEF_KEY) || read(LEGACY_BUSINESS_OUTCOME_BRIEF_KEY);
+}
+
+export function readBusinessOutcomeBrief(): BusinessOutcomeBrief | null {
+  const raw = readRawBrief();
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as BusinessOutcomeBrief;
-    if (parsed?.version !== 1 || !getOutcome(parsed.outcomeId) || !getProgramme(parsed.programmeId)) return null;
-    return parsed;
+    const parsed = JSON.parse(raw) as Partial<BusinessOutcomeBrief> & { version?: number };
+    if (!getOutcome(parsed.outcomeId) || !getProgramme(parsed.programmeId)) return null;
+    if (parsed.version === 2 && parsed.executionRailId) return parsed as BusinessOutcomeBrief;
+
+    const outcomeId = parsed.outcomeId as BusinessOutcomeId;
+    const businessType = parsed.businessType as BusinessTypeId;
+    const successAction = parsed.successAction as SuccessActionId;
+    const migrated: BusinessOutcomeBrief = {
+      ...(parsed as any),
+      version: 2,
+      executionRailId: recommendExecutionRail(outcomeId, successAction, businessType),
+      commerceSubjectId: null,
+      subjectLabel: "",
+      sellerResponsibilityId: null,
+    };
+    saveBusinessOutcomeBrief(migrated);
+    return migrated;
   } catch {
     return null;
   }
+}
+
+export function executionNeedsCommerce(brief: Pick<BusinessOutcomeBrief, "executionRailId">) {
+  return brief.executionRailId === "commerce" || brief.executionRailId === "mixed";
+}
+
+export function businessProgrammePrimaryPath(brief: BusinessOutcomeBrief) {
+  return "/business/programme?resume=1";
 }
 
 export function buildBusinessOutcomePrompt(brief: BusinessOutcomeBrief) {
@@ -179,17 +280,25 @@ export function buildBusinessOutcomePrompt(brief: BusinessOutcomeBrief) {
   const businessType = getBusinessType(brief.businessType);
   const success = getSuccessAction(brief.successAction);
   const programme = getProgramme(brief.programmeId);
+  const execution = getExecutionRail(brief.executionRailId);
+  const subject = getCommerceSubject(brief.commerceSubjectId);
+  const seller = getSellerResponsibility(brief.sellerResponsibilityId);
   const target = brief.target ? `${brief.target} ${success?.unit || "actions"}` : "a measurable target we can confirm before launch";
 
   return [
     `Desired business outcome: ${outcome?.title || brief.outcomeId}.`,
     `Business context: ${businessType?.title || brief.businessType}.`,
     `Recommended programme direction: ${programme?.title || brief.programmeId}.`,
+    `Primary execution rail: ${execution?.title || brief.executionRailId}. ${execution?.boundary || ""}`,
+    brief.commerceSubjectId ? `Commercial subject: ${subject?.title || brief.commerceSubjectId}${brief.subjectLabel ? ` — ${brief.subjectLabel}` : ""}.` : "",
+    brief.sellerResponsibilityId ? `Seller / fulfillment responsibility: ${seller?.title || brief.sellerResponsibilityId}. ${seller?.description || ""}` : "",
     `Success should be measured as ${target} using ${success?.title || brief.successAction} where the underlying system can authoritatively record or verify it.`,
     brief.timeframe ? `Timing: ${brief.timeframe}.` : "",
     brief.geography ? `Geography / place: ${brief.geography}.` : "",
     brief.audience ? `Audience: ${brief.audience}.` : "",
     brief.availableValue ? `Possible participant reason to act: ${brief.availableValue}. Treat this as a proposal until terms, funding, inventory and fulfillment are approved.` : "",
-    "Create a practical PROMORANG activation plan. Keep demand, response, claim, attendance, purchase and verified evidence distinct. Do not invent inventory, funding, prices, product claims or guaranteed outcomes.",
+    "Use existing PROMORANG commerce, Offer, Moment, distribution and evidence systems as applicable. Do not invent a parallel checkout or product database.",
+    "Keep demand, availability, reservation, payment, fulfillment, claim, attendance, purchase, attribution and verified evidence distinct. Merchant responsibility owns price, inventory, payment acceptance and fulfillment unless another organization explicitly accepts Merchant responsibility.",
+    "Do not invent inventory, funding, prices, product claims, seller relationships, creator earnings or guaranteed outcomes.",
   ].filter(Boolean).join("\n");
 }
