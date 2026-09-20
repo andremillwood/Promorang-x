@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
+import { TasteCalibration } from "@/components/promorang/TasteCalibration";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
 import { PromoCardValueShowcase } from "@/components/marketing/PromoCardValueShowcase";
 import { CurrentArc, ReturnLoopStory } from "@/components/marketing/MarketingPhysics";
@@ -201,6 +202,49 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
+      <section id="wanted" className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="marketing-section-head">
+            <div>
+              <p className="marketing-kicker">What {marketName} wants</p>
+              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">See where people are leaning right now.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are real Wants taking shape in public. Add your voice when you genuinely want the same thing. The stronger the pattern becomes, the clearer the opportunity is for someone to respond.</p>
+            </div>
+            <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Put something else on the table <ArrowRight className="h-4 w-4" /></a>
+          </div>
+
+          {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Loading what people want…</p> : null}
+          {liveSignals.length ? (
+            <div className="marketing-demand-rail">
+              {liveSignals.map((signal) => (
+                <DemandSignalObject
+                  key={signal.poll.id}
+                  city={inbox.city}
+                  title={signal.poll.question}
+                  leadingOption={signal.leading?.text}
+                  demandCount={signal.poll.totalVotes || 0}
+                  threshold={signal.poll.thresholdForMoment}
+                  responseLabel={signal.poll.targetUnlockPerk}
+                  href={discoveryHref(signal.poll)}
+                  state={signalState(signal.votesRemaining, signal.closeness)}
+                  actionLabel="I want this too"
+                />
+              ))}
+            </div>
+          ) : !isLoading ? (
+            <div className="marketing-compact-empty">
+              <Users className="h-5 w-5 text-orange-400" />
+              <div>
+                <p className="text-sm font-black text-white">No one has put a want on the table here yet.</p>
+                <p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask—or explore what people are already discovering.</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <TasteCalibration marketLabel={marketName} />
+
       <PromoCardValueShowcase />
 
       <section className="px-5 py-14 sm:px-6 md:py-20">
@@ -254,46 +298,7 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
-      <section id="wanted" className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="marketing-section-head">
-            <div>
-              <p className="marketing-kicker">What people want · {inbox.city}</p>
-              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">Put what you want into the market. Keep your place when it changes.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are wants taking shape in public. Add your voice to one that matters. If you keep it on PromoCard, PROMORANG has a personal place to bring you back when something real opens.</p>
-            </div>
-            <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Looking for something? <ArrowRight className="h-4 w-4" /></a>
-          </div>
-
-          {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Loading what people want…</p> : null}
-          {liveSignals.length ? (
-            <div className="marketing-demand-rail">
-              {liveSignals.map((signal) => (
-                <DemandSignalObject
-                  key={signal.poll.id}
-                  city={inbox.city}
-                  title={signal.poll.question}
-                  leadingOption={signal.leading?.text}
-                  demandCount={signal.poll.totalVotes || 0}
-                  threshold={signal.poll.thresholdForMoment}
-                  responseLabel={signal.poll.targetUnlockPerk}
-                  href={discoveryHref(signal.poll)}
-                  state={signalState(signal.votesRemaining, signal.closeness)}
-                  actionLabel="Add my voice"
-                />
-              ))}
-            </div>
-          ) : !isLoading ? (
-            <div className="marketing-compact-empty">
-              <Users className="h-5 w-5 text-orange-400" />
-              <div>
-                <p className="text-sm font-black text-white">No one has put a want on the table here yet.</p>
-                <p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask—or explore what people are already discovering.</p>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </section>
+      
 
       <section className="border-b border-white/10 bg-[#050505] px-5 py-12 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">

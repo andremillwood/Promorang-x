@@ -9,17 +9,8 @@ import { useI18n } from "@/i18n/I18nContext";
 import { DeviceNotificationStep } from "./DeviceNotificationStep";
 import type { TranslationKey } from "@/i18n/translations";
 import { readPromoCardAim } from "@/lib/promocard-aim";
+import { readStoredTasteCategories, TASTE_CATEGORIES } from "@/lib/taste-profile";
 
-const CATEGORIES = [
-  { value: "social", label: "Social Gatherings", emoji: "🎉" },
-  { value: "food", label: "Food & Drink", emoji: "🍽️" },
-  { value: "fitness", label: "Fitness & Wellness", emoji: "🧘" },
-  { value: "music", label: "Music & Entertainment", emoji: "🎵" },
-  { value: "arts", label: "Arts & Culture", emoji: "🎨" },
-  { value: "outdoor", label: "Outdoor Adventures", emoji: "🏕️" },
-  { value: "networking", label: "Networking", emoji: "🤝" },
-  { value: "workshop", label: "Workshops & Learning", emoji: "📚" },
-];
 
 const LIFESTYLE_TAGS = [
   { value: "active", label: "Active Lifestyle", emoji: "⚡" },
@@ -56,7 +47,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   const [step, setStep] = useState(0);
   const storedAim = readPromoCardAim();
   const [preferences, setPreferences] = useState<UserPreferencesInput>(() => ({
-    preferred_categories: storedAim?.categories ?? [],
+    preferred_categories: Array.from(new Set([...(storedAim?.categories ?? []), ...readStoredTasteCategories()])),
     lifestyle_tags: storedAim?.lifestyleTags ?? [],
     age_range: null,
     preferred_times: storedAim?.preferredTimes ?? [],
@@ -427,7 +418,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
               {step === 1 && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {CATEGORIES.map((category) => (
+                  {TASTE_CATEGORIES.map((category) => (
                     <button
                       key={category.value}
                       onClick={() => toggleArrayItem("preferred_categories", category.value)}
