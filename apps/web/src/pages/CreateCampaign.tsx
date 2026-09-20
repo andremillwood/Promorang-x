@@ -21,6 +21,7 @@ import type { DemandPlan } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
+import { buildBusinessOutcomePrompt, getProgramme, readBusinessOutcomeBrief } from "@/lib/business-outcomes";
 
 type ActivationPlan = CompiledCampaign & { metadata: CompilerMetadata };
 
@@ -32,7 +33,8 @@ const CreateCampaign = () => {
   const lensRole = params.get("role") || activeRole;
   const createCampaign = useCreateCampaign();
   const { compile, isCompiling } = useCampaignCompiler();
-  const [prompt, setPrompt] = useState("");
+  const [sourceBrief] = useState(() => params.get("from") === "business-outcome" ? readBusinessOutcomeBrief() : null);
+  const [prompt, setPrompt] = useState(() => sourceBrief ? buildBusinessOutcomePrompt(sourceBrief) : "");
   const [plan, setPlan] = useState<ActivationPlan | null>(null);
 
   const proofLanguage = {
@@ -130,6 +132,14 @@ const CreateCampaign = () => {
                 <div className="mt-8 max-w-2xl">
                   <StakeholderHowLead role={lensRole} surface="campaign" variant="light" />
                 </div>
+
+                {sourceBrief && (
+                  <div className="mt-8 border-l-2 border-[#d85b24] bg-white/55 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#d85b24]">Outcome brief loaded</p>
+                    <p className="mt-2 text-lg font-black">{getProgramme(sourceBrief.programmeId)?.title || "Recommended programme"}</p>
+                    <p className="mt-1 text-sm leading-6 text-black/50">PROMORANG carried your business goal into the planner. Review the brief below, then compile it into an editable PromoPilot.</p>
+                  </div>
+                )}
 
                 <div className="mt-10 border-y border-black/15 py-6">
                   <div className="flex items-center justify-between">
