@@ -3,6 +3,7 @@ import { inferStakeholderRoleFromPath } from "@promorang/shared";
 export const POST_AUTH_NEXT_KEY = "promorang_post_auth_next";
 
 const COMMERCIAL_PREFIXES = [
+  "/business",
   "/propose",
   "/create",
   "/hosting",
