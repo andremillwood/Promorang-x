@@ -82,6 +82,7 @@ const CreateCampaign = () => {
         value_unit: "GEM",
         funding_status: "unfunded",
         activation_status: "draft",
+        business_outcome_brief: sourceBrief || undefined,
       },
     });
 
