@@ -787,7 +787,10 @@ function createPeopleExperienceService(db = defaultDb) {
       db.from('offers').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30),
     );
     const campaigns = await maybe(
-      db.from('campaigns').select('id, name, title, description, status, budget, metadata, brand_id').in('status', ['active', 'live', 'published']).limit(20),
+      db.from('campaigns')
+        .select('id, name, title, description, status, budget, metadata, compiler_metadata, brand_id, reward_value, creator_reward_per_verified_action_jmd, payout_per_scan_signup_jmd, payout_per_verified_post_jmd, payout_per_purchase_proof_jmd')
+        .in('status', ['active', 'live', 'published'])
+        .limit(20),
     );
     const missions = await maybe(
       db.from('content_missions').select('id, title, description, reward_type, reward_points, moment_id, owner_id').limit(20),
@@ -810,19 +813,41 @@ function createPeopleExperienceService(db = defaultDb) {
         youEarn: offer.metadata?.you_earn || offer.metadata?.contributor_earn || (offer.value_amount
           ? 'Earn when people use this'
           : 'Earn from verified use'),
+        participationKind: 'offer',
         remaining,
         sceneId: sceneId || null,
       });
     }
     for (const campaign of campaigns.data || []) {
+      const explicitKind = campaign.compiler_metadata?.participation_kind
+        || campaign.metadata?.participation_kind
+        || null;
+      const payoutValues = [
+        campaign.creator_reward_per_verified_action_jmd,
+        campaign.payout_per_scan_signup_jmd,
+        campaign.payout_per_verified_post_jmd,
+        campaign.payout_per_purchase_proof_jmd,
+      ].map((value) => Number(value || 0)).filter((value) => Number.isFinite(value) && value > 0);
+      const maxPayout = payoutValues.length ? Math.max(...payoutValues) : 0;
+      const participationKind = explicitKind === 'challenge' || explicitKind === 'gig'
+        ? explicitKind
+        : maxPayout > 0
+          ? 'gig'
+          : 'campaign';
+      const compensation = participationKind === 'gig' && maxPayout > 0
+        ? `Up to J${Math.round(maxPayout).toLocaleString()} per verified deliverable`
+        : campaign.reward_value || campaign.metadata?.you_earn || 'Value shown in the opportunity terms';
+
       items.push({
         id: `campaign:${campaign.id}`,
         sourceKind: 'campaign',
         sourceId: campaign.id,
         title: campaign.title || campaign.name,
         description: campaign.description,
-        peopleGet: campaign.metadata?.people_get || 'A perk for your people',
-        youEarn: campaign.metadata?.you_earn || 'Earn from verified activity',
+        peopleGet: campaign.metadata?.people_get || (participationKind === 'gig' ? 'A defined piece of paid work' : 'A participation opportunity'),
+        youEarn: compensation,
+        participationKind,
+        compensation,
         sceneId: sceneId || null,
       });
     }
@@ -834,7 +859,8 @@ function createPeopleExperienceService(db = defaultDb) {
         title: mission.title,
         description: mission.description,
         peopleGet: mission.reward_points ? `${mission.reward_points} PromoPoints` : 'A reward for completing it',
-        youEarn: 'Credit for the people who finish it',
+        youEarn: mission.reward_points ? `${mission.reward_points} PromoPoints after verified completion` : 'Value shown in the Challenge terms',
+        participationKind: 'challenge',
         sceneId: sceneId || null,
       });
     }

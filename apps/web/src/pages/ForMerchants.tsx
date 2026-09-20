@@ -10,6 +10,7 @@ import { discoveryHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
@@ -129,6 +130,8 @@ export default function ForMerchants() {
           <PromoCardFace holder="Participant PromoCard" available="Use this here" limit="Issued offer · terms apply" places="Show the offer, the terms and the next step at a glance." action="Present this" interactive={false} />
         </div>
       </section>
+
+      <ParticipationEconomy variant="operator" />
 
       <section className="px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center md:p-12">

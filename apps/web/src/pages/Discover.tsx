@@ -53,6 +53,7 @@ import { merchantAuthHref } from "@/lib/merchant-demand";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 import { PublicDiscoverExperience } from "@/components/discovery/PublicDiscoverExperience";
+import { TasteCalibration } from "@/components/promorang/TasteCalibration";
 
 const categoryFilters = [
   { id: "all", key: "discover.filterAllDrops" as const, icon: Sparkles },
@@ -445,7 +446,11 @@ const SignedInDiscover = () => {
           <div id="discovery-signals" className="mt-8 scroll-mt-8 sm:mt-10 space-y-6">
             <DiscoveriesFeedSection />
             {aim ? <details className="border-t border-white/10 py-4"><summary className="cursor-pointer min-h-11 py-3 text-sm">Explore your interests · {aim.label}</summary><AimedDiscoverLead aim={aim} authenticated={Boolean(user)} />{path}</details> : null}
-            <LiveReleaseSignal drops={releaseDrops} />
+            <div className="border-b border-white/10 pb-8">
+          <TasteCalibration marketLabel={city.name} compact />
+        </div>
+
+        <LiveReleaseSignal drops={releaseDrops} />
           </div>
         </div>
       </div>

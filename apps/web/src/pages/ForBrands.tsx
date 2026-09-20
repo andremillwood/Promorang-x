@@ -7,6 +7,7 @@ import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { discoveryHref } from "@/lib/discovery-path";
 import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
 
@@ -102,6 +103,8 @@ export default function ForBrands() {
           <PromoCardFace holder="Participant PromoCard" available="A response is open" limit="Issued access only" places="The card can carry access or a return path when something has actually opened for that person." action="Use this" interactive={false} />
         </div>
       </section>
+
+      <ParticipationEconomy variant="operator" />
 
       <section className="px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center md:p-12">

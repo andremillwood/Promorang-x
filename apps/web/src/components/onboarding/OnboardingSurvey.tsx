@@ -9,17 +9,9 @@ import { useI18n } from "@/i18n/I18nContext";
 import { DeviceNotificationStep } from "./DeviceNotificationStep";
 import type { TranslationKey } from "@/i18n/translations";
 import { readPromoCardAim } from "@/lib/promocard-aim";
+import { MOTIVATION_TRIGGERS, readStoredMotivations, readStoredTasteCategories, TASTE_CATEGORIES } from "@/lib/taste-profile";
+import { useRecordPreferenceSignal } from "@/hooks/usePreferenceSignals";
 
-const CATEGORIES = [
-  { value: "social", label: "Social Gatherings", emoji: "🎉" },
-  { value: "food", label: "Food & Drink", emoji: "🍽️" },
-  { value: "fitness", label: "Fitness & Wellness", emoji: "🧘" },
-  { value: "music", label: "Music & Entertainment", emoji: "🎵" },
-  { value: "arts", label: "Arts & Culture", emoji: "🎨" },
-  { value: "outdoor", label: "Outdoor Adventures", emoji: "🏕️" },
-  { value: "networking", label: "Networking", emoji: "🤝" },
-  { value: "workshop", label: "Workshops & Learning", emoji: "📚" },
-];
 
 const LIFESTYLE_TAGS = [
   { value: "active", label: "Active Lifestyle", emoji: "⚡" },
@@ -56,7 +48,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   const [step, setStep] = useState(0);
   const storedAim = readPromoCardAim();
   const [preferences, setPreferences] = useState<UserPreferencesInput>(() => ({
-    preferred_categories: storedAim?.categories ?? [],
+    preferred_categories: Array.from(new Set([...(storedAim?.categories ?? []), ...readStoredTasteCategories()])),
     lifestyle_tags: storedAim?.lifestyleTags ?? [],
     age_range: null,
     preferred_times: storedAim?.preferredTimes ?? [],
@@ -69,6 +61,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
   const { setActiveRole, activeRole } = useAuth();
   const createPreferences = useCreateUserPreferences();
+  const recordPreference = useRecordPreferenceSignal();
 
   const steps = [
     {
@@ -148,6 +141,21 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     });
   };
 
+  const syncStoredMotivations = async () => {
+    const stored = readStoredMotivations();
+    await Promise.all(stored.map((value) => {
+      const item = MOTIVATION_TRIGGERS.find((candidate) => candidate.value === value);
+      if (!item) return Promise.resolve(null);
+      return recordPreference.mutateAsync({
+        objectType: "motivation",
+        objectKey: item.value,
+        label: item.label,
+        signalType: "motivation",
+        sourceSurface: "onboarding_import",
+      }).catch(() => null);
+    }));
+  };
+
   const handleNext = async () => {
     if (step < steps.length - 1) {
       if (step === 0 && persona === "agency") {
@@ -155,6 +163,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       } else if (step === 4) {
         try {
           await createPreferences.mutateAsync(preferences);
+          await syncStoredMotivations();
         } catch {
           return;
         }
@@ -165,6 +174,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     } else {
       try {
         await createPreferences.mutateAsync(preferences);
+        await syncStoredMotivations();
       } catch {
         return;
       }
@@ -175,6 +185,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   const handleSkip = async () => {
     try {
       await createPreferences.mutateAsync(preferences);
+      await syncStoredMotivations();
     } catch {
       return;
     }
@@ -427,7 +438,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
               {step === 1 && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {CATEGORIES.map((category) => (
+                  {TASTE_CATEGORIES.map((category) => (
                     <button
                       key={category.value}
                       onClick={() => toggleArrayItem("preferred_categories", category.value)}

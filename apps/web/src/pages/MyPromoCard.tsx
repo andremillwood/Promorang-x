@@ -25,6 +25,7 @@ import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/peo
 import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { PromoCardWatchShelf } from "@/components/promocard/PromoCardWatchShelf";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { StakeholderPutInPass } from "@/components/people/StakeholderLoop";
 import { CommunityCardLink } from "@/components/community/CommunityCardLink";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
@@ -152,7 +153,7 @@ export default function MyPromoCard() {
       className="promocard-page"
       eyebrow="YOUR CREDENTIAL"
       title={copy.title}
-      description="What you are watching, what is actually open to you, and what legitimately stayed with you."
+      description="What you want, what would move you, what is open, what you are doing, what you have earned, and what legitimately stayed with you."
       backTo="/dashboard"
       actions={data ? (
         <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
@@ -198,6 +199,13 @@ export default function MyPromoCard() {
               )}
             </div>
           </section>
+
+          <ParticipationEconomy
+            variant="card"
+            points={Number(data?.points || 0)}
+            promoKeys={Number(data?.keys || 0)}
+            className="border-y border-white/10 py-8"
+          />
 
           <PromoCardWatchShelf />
 

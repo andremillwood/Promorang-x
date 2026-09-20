@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 
 export default function HowItWorks() {
   return (
@@ -23,7 +24,7 @@ export default function HowItWorks() {
               <span className="text-orange-400"> PromoCard. </span>
               Let the network do the rest.
             </h1>
-            <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">Tell PROMORANG what you want, keep what matters close, see when something actually opens, and carry your next move and history in one personal place.</p>
+            <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">Tell PROMORANG what you want and what would actually move you. Then see Offers, Moments, Challenges, Gigs and Content Drops as they become real—and carry the useful parts of participation on PromoCard.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black">Get my PromoCard <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/#ask" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-black text-white"><Search className="h-4 w-4" /> Tell PROMORANG what I want</Link>
@@ -47,6 +48,8 @@ export default function HowItWorks() {
           </div>
         </div>
       </section>
+
+      <ParticipationEconomy variant="public" />
 
       <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.92fr_1.08fr] lg:items-center">
