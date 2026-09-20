@@ -14,7 +14,7 @@ export default function ForCommunities() {
       discoveryUse="Discoveries help the Scene surface places, people, patterns and opportunities members should know about."
       demandUse="Demand shows what members are asking for or moving toward, helping you shape programming, partnerships and the next Moment."
       responseTitle="Turn recurring interest into something people can join"
-      responseDetail="A Scene can lead into a Moment, offer, gathering or member-led action when someone is ready to make it real."
+      responseDetail="A Scene can lead into a Moment, offer, merchant product, gathering or member-led action when someone is ready to make it real. Community relevance can distribute commerce without becoming inventory or fulfillment."
       responseStub="GATHER"
       proofTitle="Let real participation become community history"
       proofDetail="Attendance and completed actions can become part of the Scene’s memory, so the community grows around what people actually did."
@@ -24,6 +24,7 @@ export default function ForCommunities() {
         "Joining a Scene is not attendance",
         "Votes show interest, not turnout",
         "Ideas become public when they are ready",
+        "Community interest does not create merchant inventory",
       ]}
     />
   );
