@@ -26,7 +26,8 @@ const corsOptions = {
     'X-Requested-With',
     'Accept',
     'X-Api-Version',
-    'X-CSRF-Token'
+    'X-CSRF-Token',
+    'X-Promorang-Locale'
   ],
   exposedHeaders: [
     'Content-Length',

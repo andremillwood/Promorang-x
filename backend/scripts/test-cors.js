@@ -81,7 +81,7 @@ async function testCORSPreflight() {
       headers: {
         'Origin': FRONTEND_ORIGIN,
         'Access-Control-Request-Method': requestedMethod,
-        'Access-Control-Request-Headers': 'Content-Type, Authorization'
+        'Access-Control-Request-Headers': 'Content-Type, Authorization, X-Promorang-Locale'
       }
     });
     
@@ -99,16 +99,21 @@ async function testCORSPreflight() {
     const allowedMethods = (allowMethods || '')
       .split(',')
       .map((method) => method.trim().toUpperCase());
+    const allowedHeaders = (allowHeaders || '')
+      .split(',')
+      .map((header) => header.trim().toLowerCase());
     const originAllowed = allowOrigin && (allowOrigin === FRONTEND_ORIGIN || allowOrigin === '*');
     const methodAllowed = allowedMethods.includes(requestedMethod);
+    const localeHeaderAllowed = allowedHeaders.includes('x-promorang-locale');
 
-    if (originAllowed && methodAllowed) {
+    if (originAllowed && methodAllowed && localeHeaderAllowed) {
       log('✅ CORS preflight passed', 'green');
       return true;
     }
 
     if (!originAllowed) log('❌ CORS preflight failed - origin not allowed', 'red');
     if (!methodAllowed) log(`❌ CORS preflight failed - ${requestedMethod} not allowed`, 'red');
+    if (!localeHeaderAllowed) log('❌ CORS preflight failed - X-Promorang-Locale not allowed', 'red');
     return false;
   } catch (error) {
     log(`❌ CORS preflight failed: ${error.message}`, 'red');
