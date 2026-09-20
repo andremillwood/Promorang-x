@@ -29,6 +29,7 @@ import BrandOpportunityRadar from "@/components/brand/BrandOpportunityRadar";
 import BrandCreatorBureau from "@/components/brand/BrandCreatorBureau";
 import BrandCorrelationMap from "@/components/brand/BrandCorrelationMap";
 import BrandIntelligenceConsole from "@/components/brand/BrandIntelligenceConsole";
+import { BusinessOutcomeEntry } from "@/components/business/BusinessOutcomeEntry";
 
 export function BrandDashboardV2() {
   const { user, organizations, activeOrgId, profile, agencyClients } = useAuth();
@@ -68,6 +69,7 @@ export function BrandDashboardV2() {
 
     return (
       <div className="space-y-6 pb-16 text-white animate-in fade-in-50 duration-300">
+        <BusinessOutcomeEntry role="brand" />
         <section className="rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-black to-black p-5 sm:p-7">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-3xl">
