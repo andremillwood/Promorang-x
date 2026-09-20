@@ -45,7 +45,8 @@ type ProductFormValues = z.infer<typeof productSchema>;
 
 interface ProductFormProps {
   initialData?: Partial<ProductFormValues> & { id?: string };
-  onSuccess?: () => void;
+  onSuccess?: (product?: { id?: string; name?: string }) => void;
+  returnTo?: string;
 }
 
 const categories = [
@@ -59,7 +60,7 @@ const categories = [
   "Other",
 ];
 
-export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
+export function ProductForm({ initialData, onSuccess, returnTo = "/dashboard" }: ProductFormProps) {
   const navigate = useNavigate();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
@@ -105,17 +106,20 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
       inventory_policy: "deny",
     };
 
+    let savedProduct: { id?: string; name?: string } | undefined;
     if (isEditing && initialData?.id) {
       await updateProduct.mutateAsync({
         productId: initialData.id,
         updates: productData,
       });
+      savedProduct = { id: initialData.id, name: data.name };
     } else {
-      await createProduct.mutateAsync(productData);
+      const created = await createProduct.mutateAsync(productData);
+      savedProduct = { id: created?.id, name: created?.name || data.name };
     }
 
-    onSuccess?.();
-    navigate("/dashboard");
+    onSuccess?.(savedProduct);
+    navigate(returnTo);
   };
 
   const isPending = createProduct.isPending || updateProduct.isPending;
