@@ -82,7 +82,7 @@ function DropCard({ drop }: { drop: ContentDistributionCampaign }) {
           </div>
           <div className="flex min-w-0 flex-col justify-between p-5">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Release opportunity</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Content Drop</p>
               <h2 className="mt-2 line-clamp-2 text-2xl font-black tracking-tight">{drop.title}</h2>
               <p className="mt-2 line-clamp-3 text-sm leading-6 text-white/50">{drop.description || "Open the release to see what action is expected and what counts as proof."}</p>
             </div>
@@ -109,7 +109,7 @@ function DropCard({ drop }: { drop: ContentDistributionCampaign }) {
               settlement={t("drops.settlement")}
             />
             <Button asChild className="mt-5 w-full justify-between">
-              <Link to={`/content-drops/${drop.id}`}>{t("drops.openOpportunity")}<ArrowRight className="h-4 w-4" /></Link>
+              <Link to={`/content-drops/${drop.id}`}>Open Drop<ArrowRight className="h-4 w-4" /></Link>
             </Button>
           </div>
         </div>
@@ -124,6 +124,9 @@ export default function ContentDrops() {
   const { toast } = useToast();
   const [params] = useSearchParams();
   const lensRole = params.get("role") || activeRole;
+  const canOwnDrop = ["brand", "merchant", "agency", "host", "admin"].includes(String(activeRole || ""));
+  const requestedTab = params.get("tab");
+  const defaultTab = canOwnDrop && requestedTab === "create" ? "create" : requestedTab === "mine" && canOwnDrop ? "mine" : "discover";
   const dropsQuery = useContentDrops("active");
   const myDropsQuery = useMyContentDrops("all");
   const createDrop = useCreateContentDrop();
@@ -212,9 +215,11 @@ export default function ContentDrops() {
     <div className="min-h-screen bg-[#070707] text-white">
       <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
         <section className="rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-black to-black p-6 sm:p-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Creator distribution</p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-5xl">Choose useful work. Publish it. Prove what it caused.</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-white/60">A release should exist because there is a real audience action worth creating or measuring. Promorang records the live opportunities that actually exist; when none are live, this page stays honestly empty.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Distribution · Content Drops</p>
+          <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-5xl">{canOwnDrop ? "Put content into motion." : "Find something worth helping move."}</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-white/60">
+            Content Drops are distribution opportunities: watch, share, refer, remix or create around real content when the Drop asks for it. Points, entries or funded value only follow actions the Drop actually records and verifies.
+          </p>
           <div className="mt-5 max-w-2xl"><StakeholderHowLead role={lensRole} surface="drops" /></div>
           <div className="mt-6 grid max-w-2xl grid-cols-3 gap-2">
             {[
@@ -231,13 +236,16 @@ export default function ContentDrops() {
           </div>
         </section>
 
-        <Tabs defaultValue="discover" className="mt-6">
+        <Tabs defaultValue={defaultTab} className="mt-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Release workspace</p><h2 className="mt-1 text-3xl font-black">What do you need to do?</h2></div>
-            <TabsList className="grid w-full grid-cols-3 bg-white/[0.06] sm:w-[420px]">
-              <TabsTrigger value="discover">Find work</TabsTrigger>
-              <TabsTrigger value="create">Publish release</TabsTrigger>
-              <TabsTrigger value="mine">My releases</TabsTrigger>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Content distribution</p>
+              <h2 className="mt-1 text-3xl font-black">{canOwnDrop ? "Find movement—or publish the next Drop." : "Choose a live Drop to help distribute."}</h2>
+            </div>
+            <TabsList className={`grid w-full bg-white/[0.06] ${canOwnDrop ? "grid-cols-3 sm:w-[420px]" : "grid-cols-1 sm:w-[180px]"}`}>
+              <TabsTrigger value="discover">Find Drops</TabsTrigger>
+              {canOwnDrop ? <TabsTrigger value="create">Publish Drop</TabsTrigger> : null}
+              {canOwnDrop ? <TabsTrigger value="mine">My Drops</TabsTrigger> : null}
             </TabsList>
           </div>
 
@@ -266,15 +274,15 @@ export default function ContentDrops() {
             )}
           </TabsContent>
 
-          <TabsContent value="create" className="mt-5">
+          {canOwnDrop ? <TabsContent value="create" className="mt-5">
             <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><Plus className="h-5 w-5 text-primary" />Publish a release with a clear purpose</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Plus className="h-5 w-5 text-primary" />Publish a Content Drop with a clear distribution job</CardTitle></CardHeader>
               <CardContent>
                 {!session?.access_token ? (
                   <div className="rounded-md border bg-muted p-5"><p className="font-semibold">{t("drops.signInTitle")}</p><p className="mt-1 text-sm text-muted-foreground">{t("drops.signInCopy")}</p></div>
                 ) : (
                   <form onSubmit={submit} className="grid gap-4 lg:grid-cols-2">
-                    <div className="lg:col-span-2 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">Before publishing, be able to answer: who should act, what should they do, what counts as proof, and what value do they receive?</div>
+                    <div className="lg:col-span-2 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">Before publishing, be able to answer: who should this reach, what distribution action matters, what counts as proof, and what value—if any—does the participant receive?</div>
                     <div><Label htmlFor="drop-title">{t("drops.dropTitle")}</Label><Input id="drop-title" required value={draft.title} onChange={(e) => updateDraft("title", e.target.value)} className="mt-2" placeholder={t("drops.dropPlaceholder")} /></div>
                     <div><Label>What is this?</Label><Select value={draft.release_kind} onValueChange={(value) => updateDraft("release_kind", value)}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent>{RELEASE_KINDS.map((kind) => <SelectItem key={kind} value={kind}>{RELEASE_KIND_META[kind].label}</SelectItem>)}</SelectContent></Select></div>
                     <div><Label>{t("drops.platform")}</Label><Select value={draft.platform} onValueChange={(value) => updateDraft("platform", value)}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent>{platformOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select></div>
@@ -290,9 +298,9 @@ export default function ContentDrops() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> : null}
 
-          <TabsContent value="mine" className="mt-5">
+          {canOwnDrop ? <TabsContent value="mine" className="mt-5">
             {!session?.access_token ? (
               <Card><CardContent className="p-8 text-center text-muted-foreground">{t("drops.signInCopy")}</CardContent></Card>
             ) : myDropsQuery.isLoading ? (
@@ -313,7 +321,7 @@ export default function ContentDrops() {
                 {!myDrops.length && <Card><CardContent className="p-8 text-center text-muted-foreground">You have not published a release yet. Publish one only when there is a real action worth creating or measuring.</CardContent></Card>}
               </div>
             )}
-          </TabsContent>
+          </TabsContent> : null}
         </Tabs>
       </div>
     </div>

@@ -10,6 +10,7 @@ import { discoveryHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
   if (votesRemaining === 0) return "threshold_met" as const;
@@ -140,6 +141,8 @@ export default function ForMerchants() {
         </div>
       </section>
 
+      <ParticipationEconomy variant="operator" />
+
       <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
@@ -159,7 +162,7 @@ export default function ForMerchants() {
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center md:p-12">
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Start with one response</p>
           <h2 className="mx-auto mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">What can your business make available that people would genuinely value?</h2>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/55">It does not have to be a discount. Access, a trial, an upgrade, a sample, a time-bound perk, accurate place information or a Moment can be enough to begin.</p>
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/55">It does not have to be a discount. Access, a complimentary extra, a trial, an upgrade, a sample, a Challenge, a Gig, a time-bound perk, a Content Drop or a Moment can be enough to begin.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to={putPerkHref} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-emerald-400 px-6 text-sm font-black text-black transition hover:bg-emerald-300"><Store className="h-4 w-4" /> Make something available <ArrowRight className="h-4 w-4" /></Link>
             <Link to={registerHref} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80"><MapPin className="h-4 w-4" /> Register your place</Link>

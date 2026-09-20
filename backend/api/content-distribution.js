@@ -103,6 +103,16 @@ router.get('/me/campaigns', async (req, res) => {
 
 router.post('/campaigns', async (req, res) => {
   try {
+    const publishRoles = new Set(['brand', 'merchant', 'agency', 'host', 'admin', 'administrator', 'master_admin']);
+    const userRoles = new Set([req.user?.role, req.user?.user_type, ...(req.user?.roles || [])].filter(Boolean));
+    const canPublish = [...userRoles].some((role) => publishRoles.has(role));
+    if (!canPublish) {
+      return res.status(403).json({
+        success: false,
+        error: 'Publishing Content Drops is limited to approved brand, merchant, agency, host or platform operator accounts. Participants and creators can distribute live Drops.',
+      });
+    }
+
     if (!req.body?.title) {
       return res.status(400).json({ success: false, error: 'title is required' });
     }

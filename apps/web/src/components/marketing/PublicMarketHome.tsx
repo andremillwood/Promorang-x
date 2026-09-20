@@ -5,6 +5,7 @@ import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { TasteCalibration } from "@/components/promorang/TasteCalibration";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
 import { PromoCardValueShowcase } from "@/components/marketing/PromoCardValueShowcase";
 import { CurrentArc, ReturnLoopStory } from "@/components/marketing/MarketingPhysics";
@@ -171,7 +172,7 @@ export default function PublicMarketHome() {
               </a>
             </div>
             <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
-              Start with one useful move. Add your voice to something people want, tell PROMORANG what is missing, or discover something worth keeping.
+              Start with desire: what are you into? Then tell PROMORANG what would actually make you move. The network can use both to bring back better opportunities without turning private taste into a public vote.
             </p>
           </div>
           <div className="relative pb-4 lg:pb-0">
@@ -199,6 +200,10 @@ export default function PublicMarketHome() {
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="relative mx-auto max-w-[1440px]">
+          <TasteCalibration marketLabel={marketName} variant="hero" />
         </div>
       </section>
 
@@ -243,7 +248,7 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
-      <TasteCalibration marketLabel={marketName} />
+      <ParticipationEconomy variant="public" />
 
       <PromoCardValueShowcase />
 

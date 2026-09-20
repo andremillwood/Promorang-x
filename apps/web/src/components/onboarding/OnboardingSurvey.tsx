@@ -9,7 +9,8 @@ import { useI18n } from "@/i18n/I18nContext";
 import { DeviceNotificationStep } from "./DeviceNotificationStep";
 import type { TranslationKey } from "@/i18n/translations";
 import { readPromoCardAim } from "@/lib/promocard-aim";
-import { readStoredTasteCategories, TASTE_CATEGORIES } from "@/lib/taste-profile";
+import { MOTIVATION_TRIGGERS, readStoredMotivations, readStoredTasteCategories, TASTE_CATEGORIES } from "@/lib/taste-profile";
+import { useRecordPreferenceSignal } from "@/hooks/usePreferenceSignals";
 
 
 const LIFESTYLE_TAGS = [
@@ -60,6 +61,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
   const { setActiveRole, activeRole } = useAuth();
   const createPreferences = useCreateUserPreferences();
+  const recordPreference = useRecordPreferenceSignal();
 
   const steps = [
     {
@@ -139,6 +141,21 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     });
   };
 
+  const syncStoredMotivations = async () => {
+    const stored = readStoredMotivations();
+    await Promise.all(stored.map((value) => {
+      const item = MOTIVATION_TRIGGERS.find((candidate) => candidate.value === value);
+      if (!item) return Promise.resolve(null);
+      return recordPreference.mutateAsync({
+        objectType: "motivation",
+        objectKey: item.value,
+        label: item.label,
+        signalType: "motivation",
+        sourceSurface: "onboarding_import",
+      }).catch(() => null);
+    }));
+  };
+
   const handleNext = async () => {
     if (step < steps.length - 1) {
       if (step === 0 && persona === "agency") {
@@ -146,6 +163,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       } else if (step === 4) {
         try {
           await createPreferences.mutateAsync(preferences);
+          await syncStoredMotivations();
         } catch {
           return;
         }
@@ -156,6 +174,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     } else {
       try {
         await createPreferences.mutateAsync(preferences);
+        await syncStoredMotivations();
       } catch {
         return;
       }
@@ -166,6 +185,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   const handleSkip = async () => {
     try {
       await createPreferences.mutateAsync(preferences);
+      await syncStoredMotivations();
     } catch {
       return;
     }

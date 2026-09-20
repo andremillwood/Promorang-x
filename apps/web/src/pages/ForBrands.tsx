@@ -11,6 +11,7 @@ import { discoveryHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
   if (votesRemaining === 0) return "threshold_met" as const;
@@ -138,6 +139,8 @@ export default function ForBrands() {
           ]} footer="Use this as a starting point for a smarter brief—not as a promise of sales." />
         </div>
       </section>
+
+      <ParticipationEconomy variant="operator" />
 
       <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
