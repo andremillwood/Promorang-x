@@ -10,6 +10,7 @@ import CreatorEarningsVault from "@/components/creator/CreatorEarningsVault";
 import CreatorReputationDeck from "@/components/creator/CreatorReputationDeck";
 import CreatorProofDossier from "@/components/creator/CreatorProofDossier";
 import openMic from "@/assets/moments/open-mic.jpg";
+import { CommerceResponsibilityMap } from "@/components/business/CommerceResponsibilityMap";
 
 export function CreatorDashboardV2() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -43,6 +44,7 @@ export function CreatorDashboardV2() {
 
   return (
     <div className="space-y-8 pb-16 text-white animate-in fade-in-50 duration-300">
+      <CommerceResponsibilityMap highlight="creator" compact />
       <section className="group relative min-h-[420px] overflow-hidden rounded-[1.4rem] border border-white/10 bg-black">
         <img src={openMic} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-[1.015]" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.84)_52%,rgba(0,0,0,.38)_100%),linear-gradient(0deg,rgba(0,0,0,.94),transparent_62%)]" />
