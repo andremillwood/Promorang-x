@@ -1,8 +1,11 @@
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, CheckCircle2, CircleAlert, Package, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { authPathForReturn } from "@/lib/post-auth-next";
+import { supabase } from "@/integrations/supabase/client";
 import {
   executionNeedsCommerce,
   getCommerceSubject,
@@ -13,6 +16,7 @@ import {
   getSuccessAction,
   readBusinessOutcomeBrief,
   roleForBusinessType,
+  saveBusinessOutcomeBrief,
 } from "@/lib/business-outcomes";
 import CommerceResponsibilityMap from "@/components/business/CommerceResponsibilityMap";
 
@@ -87,7 +91,31 @@ function nextActions(brief: NonNullable<ReturnType<typeof readBusinessOutcomeBri
 
 export default function BusinessProgramme() {
   const { user, activeRole } = useAuth();
-  const brief = readBusinessOutcomeBrief();
+  const [brief, setBrief] = useState(() => readBusinessOutcomeBrief());
+  const merchantQuery = useQuery({
+    queryKey: ["business-programme-commerce-merchants"],
+    enabled: Boolean(brief && executionNeedsCommerce(brief) && brief.sellerResponsibilityId === "existing-merchant"),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("view_public_commerce_directory")
+        .select("merchant_user_id,merchant_name,merchant_slug,merchant_logo_url,is_active")
+        .eq("is_active", true)
+        .limit(200);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+  const commerceMerchants = useMemo(() => {
+    const map = new Map<string, { id: string; name: string }>();
+    for (const item of merchantQuery.data || []) {
+      if (!item.merchant_user_id) continue;
+      if (!map.has(item.merchant_user_id)) map.set(item.merchant_user_id, {
+        id: item.merchant_user_id,
+        name: item.merchant_name || "PROMORANG merchant",
+      });
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [merchantQuery.data]);
 
   if (!brief) {
     return (
@@ -134,6 +162,26 @@ export default function BusinessProgramme() {
                 <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex justify-between gap-6 border-b border-white/10 pb-3"><dt className="text-white/38">Subject</dt><dd className="text-right font-black">{subject?.title || "Commerce"}{brief.subjectLabel ? ` · ${brief.subjectLabel}` : ""}</dd></div>
                   <div className="flex justify-between gap-6 border-b border-white/10 pb-3"><dt className="text-white/38">Seller / fulfiller</dt><dd className="max-w-sm text-right font-black">{seller?.title || "Still unresolved"}</dd></div>
+                  {brief.sellerResponsibilityId === "existing-merchant" ? (
+                    <div className="border-b border-white/10 pb-4">
+                      <div className="flex items-center justify-between gap-5"><span className="text-white/38">Selected merchant</span><span className="text-right font-black">{brief.sellerMerchantName || "Choose a commerce-ready merchant"}</span></div>
+                      <select
+                        value={brief.sellerMerchantId || ""}
+                        onChange={(event) => {
+                          const merchant = commerceMerchants.find((item) => item.id === event.target.value);
+                          const next = { ...brief, sellerMerchantId: merchant?.id || null, sellerMerchantName: merchant?.name || null };
+                          saveBusinessOutcomeBrief(next);
+                          setBrief(next);
+                        }}
+                        className="mt-3 h-11 w-full rounded-xl border border-white/10 bg-black/45 px-3 text-sm text-white outline-none"
+                      >
+                        <option value="">Choose merchant seller…</option>
+                        {commerceMerchants.map((merchant) => <option key={merchant.id} value={merchant.id}>{merchant.name}</option>)}
+                      </select>
+                      {merchantQuery.isLoading ? <p className="mt-2 text-xs text-white/30">Reading merchants with live public commerce…</p> : null}
+                      {!merchantQuery.isLoading && !commerceMerchants.length ? <p className="mt-2 text-xs text-white/35">No commerce-ready merchant is visible yet. Use “merchant we need to bring in” instead of inventing one.</p> : null}
+                    </div>
+                  ) : null}
                   <div className="flex justify-between gap-6 border-b border-white/10 pb-3"><dt className="text-white/38">Supply record</dt><dd className="max-w-sm text-right font-black">{brief.commerceSourceId ? `Linked · ${brief.commerceSourceId.slice(0, 8)}…` : "Not linked yet"}</dd></div>
                   <div className="flex justify-between gap-6"><dt className="text-white/38">Merchant law</dt><dd className="max-w-sm text-right text-white/65">Price, stock, accepted payment, fulfillment, refund/cancel and customer cases belong to Merchant responsibility.</dd></div>
                 </dl>
