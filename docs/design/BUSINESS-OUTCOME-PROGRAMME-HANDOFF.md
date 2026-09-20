@@ -181,3 +181,139 @@ Run the local verification below before treating the slice as build-verified.
 8. Save an inactive plan and verify no publication, funding or reward is implied.
 9. Check Brand and Merchant dashboards for the outcome layer above the existing operating tools.
 10. Check mobile widths on `/solutions`, `/for-brands`, `/for-merchants`, `/join`, `/pricing`, and `/business/start`.
+
+# Commerce convergence update
+
+The original outcome/programme slice has now been extended so **Programme ≠ Campaign**.
+
+## New execution layer
+
+The guided flow is now:
+
+```
+Outcome
+→ Business context
+→ Success action
+→ Context
+→ Execution rail
+→ Programme recommendation
+→ Programme workspace
+→ Authoritative supply / access / Moment / demand test
+→ Distribution
+→ Participant action
+→ Transaction / validation / attendance
+→ Fulfillment where applicable
+→ Evidence
+→ PromoCard
+→ Return
+```
+
+Execution rails:
+- Commerce
+- Offer / access
+- Moment / attendance
+- Demand test
+- Distribution / word of mouth
+- Mixed
+
+## Commerce authority
+
+Merchant responsibility explicitly owns:
+- price;
+- stock / capacity;
+- availability;
+- accepted payment methods;
+- confirmation of direct merchant payments;
+- pickup / delivery / service fulfillment;
+- refund / cancellation operations supported by commerce;
+- customer commerce cases.
+
+Brand, Creator, Host, Community and Agency can move or contextualize commerce without silently inheriting these seller duties.
+
+## New product surfaces / components
+
+- `apps/web/src/pages/BusinessProgramme.tsx`
+- `apps/web/src/components/business/CommerceResponsibilityMap.tsx`
+- `docs/design/business-outcome-commerce-convergence-v1.md`
+
+## Real commerce handoffs
+
+For a Merchant-owned commerce programme:
+- Programme routes into the existing Merchant product creation flow.
+- The real `merchant_products` ID is written back to the saved Business Outcome Brief.
+- The user returns to `/business/programme?resume=1`.
+- The programme then recognizes that authoritative supply is linked.
+
+For an existing external merchant:
+- the programme reads real active/public sellers from `view_public_commerce_directory`;
+- the user must select a real commerce-ready Merchant;
+- the user must then select an actual public product/service record;
+- the linked source ID is retained in the outcome brief and supplied to the existing planner;
+- the programme cannot proceed on a fabricated merchant or unnamed supply object.
+
+If the user says their own organization is the seller, the product now requires the Merchant workspace before merchant supply writes. Brand mode alone is not treated as merchant authority.
+
+## PromoCard commerce continuity
+
+Commerce saving now writes a real `saved_objects` relationship using the public listing identity and canonical `/shop/:listingId` href.
+
+PromoCard already reads saved product/offer relationships through `PromoCardWatchShelf`.
+
+Copy was corrected from stale **Open now** language to:
+- Saved product
+- Saved offer
+
+A saved product is not represented as currently available merely because the participant saved it.
+
+## Stakeholder convergence
+
+Commerce responsibility is now surfaced in:
+- Brand workspace
+- Merchant workspace
+- Creator workspace
+- Host workspace
+- Agency workspace
+- Business Solutions marketing
+- Brand marketing
+- Merchant marketing
+
+Creator commerce is deliberately limited to attributable distribution unless an authoritative payout/settlement contract exists. No generic purchase commission was invented.
+
+## Additional truth laws
+
+- reserved ≠ paid
+- paid ≠ fulfilled
+- referral ≠ attributed purchase
+- attributed purchase ≠ creator paid
+- hosting commerce ≠ becoming seller
+- Brand-funded demand ≠ merchant payment
+- community relevance ≠ inventory
+- agency coordination ≠ seller responsibility
+
+## Local QA additions
+
+In addition to the original checklist:
+
+1. Open `/business/start`.
+2. Choose **Move this** → **Recorded purchases**.
+3. Confirm Commerce is suggested as the execution rail.
+4. Choose **Product / SKU**.
+5. Test each seller path:
+   - existing PROMORANG merchant;
+   - merchant to onboard;
+   - my organization already operates as Merchant;
+   - undecided.
+6. For existing merchant:
+   - choose a real merchant from live public commerce;
+   - choose a real public product/service;
+   - confirm the programme is blocked before both selections are made.
+7. For Merchant workspace:
+   - create a product from the programme;
+   - confirm it returns to `/business/programme?resume=1`;
+   - confirm **Supply record** becomes linked.
+8. Open a real `/shop/:listingId`:
+   - Save to PromoCard;
+   - open `/card`;
+   - confirm it appears under Watching with the correct public commerce route.
+9. Check Brand, Merchant, Creator, Host and Agency workspaces for the commerce responsibility strip.
+10. Confirm no stakeholder other than Merchant is implied to own price, inventory, payment or fulfillment merely by participating in the programme.
