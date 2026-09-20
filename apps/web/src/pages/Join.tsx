@@ -17,12 +17,12 @@ const paths = [
   {
     eyebrow: "I want to find, ask or join",
     title: "Participant",
-    description: "Discover things worth knowing, tell PROMORANG what you are looking for, join what other people want, and keep your place on PromoCard.",
-    href: "/auth?mode=signup&role=participant&next=/home",
+    description: "Get your PromoCard, tell PROMORANG what you want, keep what matters close, and come back when something real opens for you.",
+    href: "/auth?mode=signup&role=participant&next=/card",
     cta: "Get my PromoCard",
     icon: UserRound,
     image: participantImage,
-    proof: "Discovery → Want → PromoCard",
+    proof: "Want → Open → Active → Kept",
   },
   {
     eyebrow: "I run a place or business",
@@ -32,7 +32,7 @@ const paths = [
     cta: "See the merchant path",
     icon: Store,
     image: merchantImage,
-    proof: "Demand → Response → Visit",
+    proof: "Want → Open → Visit → Return",
   },
   {
     eyebrow: "I represent a brand",
@@ -42,7 +42,7 @@ const paths = [
     cta: "See the brand path",
     icon: Building2,
     image: brandImage,
-    proof: "Signal → Activation → Results",
+    proof: "Want → Activation → Follow-through",
   },
   {
     eyebrow: "I create or influence",
@@ -104,8 +104,8 @@ export default function Join() {
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#050505] text-white">
       <SEO
-        title="Build with PROMORANG — Choose how you enter the market"
-        description="Choose what you are trying to make happen with PROMORANG and enter through the role that fits you best."
+        title="Join PROMORANG — Get a PromoCard or choose the side you operate"
+        description="People enter PROMORANG through PromoCard. Brands, merchants, creators, hosts and organizations enter by choosing what they want to make possible."
       />
 
       <section className="marketing-join-hero relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
@@ -113,20 +113,20 @@ export default function Join() {
         <img src={heroMoments} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
         <div className="relative mx-auto max-w-[1440px]">
-          <p className="marketing-kicker">Build with PROMORANG</p>
-          <h1 className="mt-5 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl">What are you trying to make happen?</h1>
+          <p className="marketing-kicker">Enter PROMORANG</p>
+          <h1 className="mt-5 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl">People get a PromoCard. Everyone else helps make something happen.</h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">
-            Start with what you want to make happen. PROMORANG changes around your role so the next useful move is easier to see.
+            If you are here for yourself, start with PromoCard. If you represent a business, brand, audience, community or organization, choose the side of the market you operate.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
-              <UserRound className="h-4 w-4" /> Start as a participant
+            <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">
+              <UserRound className="h-4 w-4" /> Get my PromoCard
             </Link>
             <Link to="/how-it-works" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/40 px-5 text-xs font-black uppercase tracking-[0.08em] text-white">
               See the loop <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">Choose a role to see the path that fits you best</p>
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">PromoCard for people · operating paths for everyone who can make something possible</p>
         </div>
       </section>
 
@@ -134,9 +134,9 @@ export default function Join() {
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">Choose your lens</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Who are you here as?</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Choose the role closest to what you are responsible for.</p>
+              <p className="marketing-kicker">Choose the side you operate</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">How are you entering PROMORANG?</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Participant is the personal product path. The other roles are the people and organizations that create, distribute or fulfill what can become useful on PromoCard.</p>
             </div>
           </div>
 
@@ -186,9 +186,9 @@ export default function Join() {
         <div className="mx-auto grid max-w-6xl gap-8 border-y border-white/10 py-10 md:grid-cols-2">
           <div>
             <p className="marketing-kicker">Not sure?</p>
-            <h2 className="mt-3 text-3xl font-black">Start from the human side.</h2>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Explore, react, ask or join first. The quickest way to understand PROMORANG is to experience the market before operating one side of it.</p>
-            <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Explore PROMORANG <ArrowRight className="h-4 w-4" /></Link>
+            <h2 className="mt-3 text-3xl font-black">Start with PromoCard.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-white/55">Get a PromoCard, add a Want, keep something close, and see what happens when the market changes. That is the simplest way to understand the network from the participant side.</p>
+            <Link to="/auth?mode=signup&role=participant&next=/card" className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Get my PromoCard <ArrowRight className="h-4 w-4" /></Link>
           </div>
           <div>
             <p className="marketing-kicker">Already responsible for an outcome?</p>

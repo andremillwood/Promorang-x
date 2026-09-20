@@ -2,7 +2,7 @@ import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
-import { NightTrail, PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
+import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { useMarket } from "@/contexts/MarketContext";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { discoveryHref } from "@/lib/discovery-path";
@@ -77,7 +77,7 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
                 threshold={leadSignal.poll.thresholdForMoment}
                 responseLabel={leadSignal.poll.targetUnlockPerk}
                 href={discoveryHref(leadSignal.poll)}
-                actionLabel="Open signal"
+                actionLabel="See what people want"
                 state={signalState(leadSignal.votesRemaining, leadSignal.closeness)}
               />
             ) : (
@@ -95,8 +95,8 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
 
       <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">The market · your role</p>
-          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">See what is happening. Decide where you fit.</h2>
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">PROMORANG around PromoCard · your role</p>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">People carry PromoCard. Your role is to help something worthwhile happen around it.</h2>
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
             <TicketPass
               kicker="Discovery"
@@ -106,11 +106,11 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
               stubLabel="Knowledge"
             />
             <TicketPass
-              kicker="Demand"
-              title="See what people are asking for"
+              kicker="Want"
+              title="See what people want"
               detail={props.demandUse}
               stub="HEAR"
-              stubLabel="Signal"
+              stubLabel="Want"
             />
             <TicketPass
               kicker="Response"
@@ -127,11 +127,11 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <NightTrail
             eyebrow="A simple way to work"
-            title="See → decide → respond → learn"
+            title="Listen → decide → open → learn"
             steps={[
-              { label: "See", title: "Start with what people are noticing and asking for.", text: "Use what is happening in the market as context, then decide whether it matters to your role." },
+              { label: "Listen", title: "Start with what people are noticing and asking for.", text: "Use what people want as context, then decide whether it matters to your role." },
               { label: "Decide", title: "Choose whether it deserves your move.", text: "You can watch, research, respond—or do nothing. A signal is a reason to look closer, not a promise of results." },
-              { label: "Respond", title: props.responseTitle, text: props.responseDetail },
+              { label: "Open", title: props.responseTitle, text: props.responseDetail },
               { label: "Learn", title: props.proofTitle, text: props.proofDetail },
             ]}
           />
@@ -144,15 +144,24 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
       </section>
 
       <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-8 rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
-            <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300"><ShieldCheck className="h-4 w-4" /> Why PromoCard matters</p>
-            <h2 className="mt-3 font-serif text-3xl font-bold tracking-[-0.04em] sm:text-4xl">Give the relationship somewhere to continue.</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">{props.promoCardDetail} The goal is simple: make the next relevant move easier to find.</p>
+            <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300"><ShieldCheck className="h-4 w-4" /> Where your move meets the participant</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.04em] sm:text-5xl">PromoCard is the participant product. PROMORANG is the network around it.</h2>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/55">{props.promoCardDetail} Your response should give a participant something real to want, open, act on or keep—not another dashboard to understand.</p>
+            <Link to="/what-is-promorang" className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-orange-100">
+              See the PromoCard side <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <Link to="/what-is-promorang" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-orange-100">
-            See the participant side <ArrowRight className="h-4 w-4" />
-          </Link>
+          <PromoCardFace
+            holder="Participant PromoCard"
+            available="What your move makes possible"
+            limit="Want · Open · Active · Kept"
+            places="The participant sees the relationship in one place while PROMORANG keeps the underlying market states distinct."
+            action="See what changed"
+            variant="membership"
+            interactive={false}
+          />
         </div>
       </section>
 

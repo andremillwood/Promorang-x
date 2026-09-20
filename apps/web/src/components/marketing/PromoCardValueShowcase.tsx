@@ -36,13 +36,13 @@ export function PromoCardValueShowcase() {
       <div className="mx-auto max-w-[1440px]">
         <div className="marketing-section-head">
           <div>
-            <p className="marketing-kicker">Why PromoCard matters</p>
-            <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">The card should change what becomes possible for you.</h2>
+            <p className="marketing-kicker">The participant product</p>
+            <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">PromoCard is your place in PROMORANG.</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">
-              PromoCard is not valuable because it is a card. It is valuable because it keeps your relationship to things you care about, carries real access when it opens, and preserves what actually happened afterward.
+              PROMORANG is the network. PromoCard is the product you carry through it. It keeps what you want, brings back what opens, gives active access somewhere to live, and preserves the parts of your participation worth keeping.
             </p>
           </div>
-          <Link to={user ? "/wallet" : "/auth?mode=signup&next=/wallet"} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">
+          <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">
             {user ? "Open my PromoCard" : "Get my PromoCard"} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -50,13 +50,13 @@ export function PromoCardValueShowcase() {
         <div className="marketing-card-value-grid relative">
           <CurrentArc variant="return" className="marketing-promocard-return-arc" />
           <div className="marketing-promocard-stage">
-            <div className="marketing-return-landing__label mb-4"><RotateCcw className="h-4 w-4" /> THE RETURN LANDS HERE</div>
+            <div className="marketing-return-landing__label mb-4"><RotateCcw className="h-4 w-4" /> YOUR PROMORANG, IN ONE PLACE</div>
             <PromoCardFace
               holder={user ? "Your PromoCard" : "Your PromoCard"}
-              available="What changed because you joined"
-              limit="Watching · Open · Kept"
-              places="The things you care about, the access you have and what you have been part of stay connected to you."
-              action={user ? "See what changed" : "Keep your place"}
+              available="What opens for you"
+              limit="Wanted · Open · Active · Kept"
+              places="What you want, what becomes available, what you pick up and what you actually do stay connected to you."
+              action={user ? "Open my PromoCard" : "Get my PromoCard"}
               variant="membership"
               interactive={false}
             />
@@ -64,11 +64,11 @@ export function PromoCardValueShowcase() {
 
           <div className="marketing-benefit-stack">
             {[
-              ["WATCH", "Do not lose the things you care about.", "Keep a Discovery, something people want, or a Moment close so you can see what changes."],
-              ["OPEN", "See when something becomes usable.", "When something opens—an offer, access or a Moment—PromoCard brings it back to you."],
-              ["PROVE", "Let real actions count.", "Check-ins, claims, purchases and other confirmed actions can become part of your history."],
-              ["KEEP", "Carry the result forward.", "Keep the access, memories and history that matter after the original Moment passes."],
-              ["RETURN", "Come back because something changed.", "When something you’re watching changes, PromoCard gives you a reason to come back."],
+              ["WANTED", "Keep track of what you care about.", "A Want can stay connected to you without pretending it is already available."],
+              ["WATCHING", "Ask PROMORANG to bring you back.", "Watch a Discovery, Want, Moment or Offer when you want to hear about meaningful changes."],
+              ["OPEN", "See what became real.", "When access, an Offer or a Moment actually opens, PromoCard gives it a clear place to live."],
+              ["ACTIVE", "Know what you picked up.", "Reservations, claims and commitments stay separate from completed actions so you always know where you stand."],
+              ["KEPT", "Carry the result forward.", "Used access, completed actions, memories and earned value can remain part of your history."],
             ].map(([label, title, copy]) => (
               <article key={label} className="marketing-benefit-row">
                 <span>{label}</span>
@@ -84,9 +84,9 @@ export function PromoCardValueShowcase() {
         <div className="mt-16">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">Moments</p>
-              <h2 className="mt-3 text-3xl font-black sm:text-4xl">Things you can actually show up for.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">Upcoming experiences you can actually open, join and show up for.</p>
+              <p className="marketing-kicker">Open on PromoCard</p>
+              <h2 className="mt-3 text-3xl font-black sm:text-4xl">Real things you can decide to join.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">Moments are one kind of thing that can move from interesting to actionable on your PromoCard.</p>
             </div>
             <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">See all Moments <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -123,9 +123,9 @@ export function PromoCardValueShowcase() {
         <div className="mt-16">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">Perks & access</p>
-              <h2 className="mt-3 text-3xl font-black sm:text-4xl">Things you can claim or use.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">Open an offer to see what you can get, the terms, and what to do next.</p>
+              <p className="marketing-kicker">Offers & access</p>
+              <h2 className="mt-3 text-3xl font-black sm:text-4xl">Things that can become usable.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">Open an Offer to see what exists, how much is available, the terms, and whether it belongs on your PromoCard.</p>
             </div>
             <Link to="/discover/rewards#offers" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Explore perks & responses <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -145,7 +145,7 @@ export function PromoCardValueShowcase() {
                     <span>{offer.fulfillment_type.replace(/_/g, " ")}</span>
                   </div>
                   <div className="mt-auto border-t border-white/10 pt-3">
-                    <p className="flex items-center gap-1.5 text-[10px] leading-5 text-white/42"><ShieldCheck className="h-3.5 w-3.5 text-orange-300" />Offer ≠ issuance ≠ redemption</p>
+                    <p className="flex items-center gap-1.5 text-[10px] leading-5 text-white/42"><ShieldCheck className="h-3.5 w-3.5 text-orange-300" />Check the terms and availability before you use it</p>
                   </div>
                 </article>
               ))}
@@ -153,7 +153,7 @@ export function PromoCardValueShowcase() {
           ) : (
             <div className="marketing-compact-empty">
               <Gift className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No public direct Offers are available in this market right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Reward-bearing Moments may still exist below the responses surface.</p></div>
+              <div><p className="text-sm font-black">Nothing is open here right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Keep exploring or come back when something new opens.</p></div>
             </div>
           )}
         </div>
