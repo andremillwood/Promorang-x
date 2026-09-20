@@ -51,7 +51,7 @@ export function IdentityMarkers() {
           <Fingerprint className="mx-auto h-8 w-8 text-primary" />
           <h3 className="mt-4 font-serif text-xl font-semibold">Identity markers are unavailable.</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            PROMORANG could not read your recorded identity markers, so this is not being shown as an empty identity history.
+            We couldn’t load your identity history right now.
           </p>
           <Button type="button" variant="outline" className="mt-5" onClick={() => refetch()}>
             Retry identity source

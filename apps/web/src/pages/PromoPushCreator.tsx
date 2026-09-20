@@ -78,7 +78,7 @@ export default function PromoPushCreator() {
               ) : activeCampaignsQuery.error ? (
                 <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-5 text-sm text-white/60">
                   <p className="font-bold text-white">Available campaigns are unavailable.</p>
-                  <p className="mt-1">A source failure is not being presented as “no campaigns.”</p>
+                  <p className="mt-1">We couldn’t load campaigns right now.</p>
                   <Button type="button" size="sm" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => activeCampaignsQuery.refetch()}>
                     <RefreshCcw className="mr-2 h-4 w-4" />Retry campaign source
                   </Button>
@@ -128,7 +128,7 @@ export default function PromoPushCreator() {
               ) : creatorLinksQuery.error ? (
                 <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-5 text-sm text-white/60">
                   <p className="font-bold text-white">Creator link and earning records are unavailable.</p>
-                  <p className="mt-1">PROMORANG will not turn that source failure into zero performance or zero earnings.</p>
+                  <p className="mt-1">We couldn’t load performance or earnings right now.</p>
                   <Button type="button" size="sm" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => creatorLinksQuery.refetch()}>
                     <RefreshCcw className="mr-2 h-4 w-4" />Retry creator source
                   </Button>

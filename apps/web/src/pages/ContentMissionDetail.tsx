@@ -49,6 +49,9 @@ export default function ContentMissionDetail() {
     queryFn: async () => {
       const response = await fetch(`${API_URL}/api/content/${missionQuery.data.content.id}/metrics`);
       const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to load mission metrics");
+      }
       return payload?.data || payload || null;
     },
   });
@@ -105,8 +108,8 @@ export default function ContentMissionDetail() {
     mission?.moment?.image_url;
   const galleryImages = Array.isArray(mission?.content?.gallery_images) ? mission.content.gallery_images : [];
   const actionCount = useMemo(() => {
-    if (!metrics) return 0;
-    return Number(metrics.total_engagement || 0);
+    if (!metrics || metrics.total_engagement == null) return null;
+    return Number(metrics.total_engagement);
   }, [metrics]);
   const archetype = MISSION_ARCHETYPES[(mission?.archetype as MissionArchetype) || "side_quest"];
   const ArchetypeIcon = archetype.icon;
@@ -130,7 +133,8 @@ export default function ContentMissionDetail() {
     );
   }
 
-  const pulseClass = pulseTone[(mission.moment?.pulse_state as keyof typeof pulseTone) || "dormant"];
+  const pulseState = mission.moment?.pulse_state as keyof typeof pulseTone | undefined;
+  const pulseClass = pulseState ? pulseTone[pulseState] : "bg-muted text-muted-foreground";
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 text-white sm:space-y-8">
@@ -154,12 +158,12 @@ export default function ContentMissionDetail() {
               {mission.content?.platform}
             </Badge>
             <Badge className={pulseClass}>
-              {mission.moment?.pulse_state || "forming"}
+              {pulseState || "State not recorded"}
             </Badge>
           </div>
           <div className="absolute bottom-8 left-6 right-6">
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-white/70">
-              {mission.content?.creator_name}
+              {mission.content?.creator_name || "Creator not recorded"}
             </p>
             <h1 className="mt-2 max-w-4xl font-sans text-5xl font-black uppercase leading-[0.86] tracking-[-0.06em] text-white sm:text-7xl">
               {mission.content?.title}
@@ -216,7 +220,7 @@ export default function ContentMissionDetail() {
           <div className="rounded-3xl border border-primary/15 bg-primary/5 p-5 sm:p-6">
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{t("contentMission.whatToDo")}</p>
             <p className="mt-3 text-sm font-medium text-foreground">
-              {mission.physical_unlock_rules?.summary || t("contentMission.whatToDoDefault")}
+              {mission.physical_unlock_rules?.summary || "No action or unlock contract is recorded for this mission."}
             </p>
             {mission.physical_unlock_rules?.perk_hint && (
               <p className="mt-3 text-sm text-muted-foreground">
@@ -239,7 +243,7 @@ export default function ContentMissionDetail() {
                 <p className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("contentMission.helpStoryTravel")}</p>
                 <h2 className="mt-2 font-serif text-2xl font-bold text-foreground">{t("contentMission.bringPeople")}</h2>
               </div>
-              <span className="text-sm font-semibold text-primary">{t("contentMission.trackedActions", { count: actionCount })}</span>
+              <span className="text-sm font-semibold text-primary">{metricsQuery.isError ? "Action metrics unavailable" : actionCount == null ? "No action total recorded" : t("contentMission.trackedActions", { count: actionCount })}</span>
             </div>
             {user ? <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <Button variant="outline" onClick={() => engage.mutate("like")} disabled={engage.isPending}>
@@ -272,10 +276,10 @@ export default function ContentMissionDetail() {
                 {mission.moment?.venue_name || mission.moment?.location}
               </p>
               <p>
-                {t("contentMission.rewardLabel")} <span className="font-semibold text-foreground">{mission.moment?.reward || t("contentMission.memoryUnlock")}</span>
+                {t("contentMission.rewardLabel")} <span className="font-semibold text-foreground">{mission.moment?.reward || "No reward recorded"}</span>
               </p>
               <p>
-                {t("contentMission.o2oConversionLabel")} <span className="font-semibold text-foreground">{Number(mission.o2o_conversion_rate || 0).toFixed(1)}%</span>
+                {t("contentMission.o2oConversionLabel")} <span className="font-semibold text-foreground">{mission.o2o_conversion_rate == null ? "Not recorded" : `${Number(mission.o2o_conversion_rate).toFixed(1)}%`}</span>
               </p>
             </div>
             <div className="mt-5 flex flex-col gap-3">
@@ -285,12 +289,7 @@ export default function ContentMissionDetail() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline">
-                <a href={mission.content?.platform_url || "#"} target="_blank" rel="noreferrer">
-                  {t("contentMission.watchOnPlatform")}
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
+              {mission.content?.platform_url ? <Button asChild variant="outline"><a href={mission.content.platform_url} target="_blank" rel="noreferrer">{t("contentMission.watchOnPlatform")}<ExternalLink className="ml-2 h-4 w-4" /></a></Button> : <Button variant="outline" disabled>Platform link unavailable</Button>}
             </div>
           </div>
 

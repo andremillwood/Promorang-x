@@ -259,17 +259,17 @@ const Marketplace = () => {
             {commerceQuery.error ? (
                 <section className="rounded-3xl border border-red-500/20 bg-red-500/[0.06] px-6 py-10 text-center">
                     <ShoppingBag className="mx-auto h-10 w-10 text-red-200" />
-                    <h2 className="mt-4 text-2xl font-black text-white">Marketplace inventory is unavailable.</h2>
-                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/55">PROMORANG could not read the recorded commerce directory, so this is not being shown as an empty market.</p>
+                    <h2 className="mt-4 text-2xl font-black text-white">We couldn’t load the marketplace right now.</h2>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/55">Try again in a moment.</p>
                     <Button type="button" variant="outline" className="mt-6 rounded-full border-white/15 bg-black/20 text-white" onClick={() => commerceQuery.refetch()}>
-                        <RefreshCw className="mr-2 h-4 w-4" />Retry inventory source
+                        <RefreshCw className="mr-2 h-4 w-4" />Try again
                     </Button>
                 </section>
             ) : realListings.length === 0 && !commerceQuery.isLoading ? (
                 <section className="rounded-3xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-10 text-center">
                     <ShoppingBag className="mx-auto h-10 w-10 text-primary" />
-                    <h2 className="mt-4 text-2xl font-black text-white">{t("market.noInventory")}</h2>
-                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/50">{t("market.noInventoryCopy")}</p>
+                    <h2 className="mt-4 text-2xl font-black text-white">Nothing here right now.</h2>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/50">Try another search or come back as new products and offers appear.</p>
                     <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                         <Link to="/for-merchants">
                             <Button variant="hero" className="rounded-full">Claim a Merchant Profile <ArrowRight className="ml-2 h-4 w-4" /></Button>

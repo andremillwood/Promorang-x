@@ -6,52 +6,16 @@
 
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
+const { requireAuth } = require('../middleware/auth');
+const { supabase } = require('../lib/supabase');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
-const decodeToken = (token) => {
-    try {
-        return jwt.verify(token, JWT_SECRET);
-    } catch (error) {
-        return null;
+router.use(requireAuth);
+router.use((req, res, next) => {
+    if (!supabase) {
+        return res.status(503).json({ success: false, error: 'Notification source unavailable', code: 'NOTIFICATION_SOURCE_UNAVAILABLE' });
     }
-};
-
-// Auth middleware
-const authMiddleware = async (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization || req.headers.Authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.substring(7);
-            const decoded = decodeToken(token);
-            if (decoded) {
-                req.user = {
-                    ...decoded,
-                    id: decoded.userId || decoded.id || decoded.sub
-                };
-                return next();
-            }
-        }
-
-        if (process.env.NODE_ENV === 'development') {
-            req.user = {
-                id: 'demo-creator-id',
-                email: 'creator@demo.com',
-                username: 'demo_creator',
-                display_name: 'Demo Creator',
-                user_type: 'creator'
-            };
-            return next();
-        }
-
-        return res.status(401).json({ success: false, error: 'Unauthorized' });
-    } catch (error) {
-        res.status(401).json({ success: false, error: 'Authentication failed' });
-    }
-};
-
-router.use(authMiddleware);
+    next();
+});
 
 /**
  * GET /api/notifications/unread-count
@@ -59,11 +23,9 @@ router.use(authMiddleware);
  */
 router.get('/unread-count', async (req, res) => {
     try {
-        // For now, return a demo count
-        res.json({
-            success: true,
-            count: 0
-        });
+        const { count, error } = await supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', req.user.id).eq('is_read', false);
+        if (error) throw error;
+        res.json({ success: true, count: count || 0 });
     } catch (error) {
         console.error('Error fetching unread count:', error);
         res.status(500).json({ success: false, error: 'Failed to fetch unread count' });
@@ -76,11 +38,13 @@ router.get('/unread-count', async (req, res) => {
  */
 router.get('/', async (req, res) => {
     try {
-        // Return empty array for now - can be implemented with real notifications later
+        const { data, error } = await supabase.from('notifications').select('*').eq('user_id', req.user.id).order('created_at', { ascending: false }).limit(50);
+        if (error) throw error;
+        const notifications = data || [];
         res.json({
             success: true,
-            notifications: [],
-            unread_count: 0
+            notifications,
+            unread_count: notifications.filter(notification => !notification.is_read).length
         });
     } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -94,6 +58,9 @@ router.get('/', async (req, res) => {
  */
 router.post('/:id/read', async (req, res) => {
     try {
+        const { data, error } = await supabase.from('notifications').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', req.params.id).eq('user_id', req.user.id).select('id').maybeSingle();
+        if (error) throw error;
+        if (!data) return res.status(404).json({ success: false, error: 'Notification not found' });
         res.json({
             success: true,
             message: 'Notification marked as read'
@@ -110,6 +77,8 @@ router.post('/:id/read', async (req, res) => {
  */
 router.post('/mark-all-read', async (req, res) => {
     try {
+        const { error } = await supabase.from('notifications').update({ is_read: true, read_at: new Date().toISOString() }).eq('user_id', req.user.id).eq('is_read', false);
+        if (error) throw error;
         res.json({
             success: true,
             message: 'All notifications marked as read'

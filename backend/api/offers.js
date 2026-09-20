@@ -10,6 +10,10 @@ router.get('/public', async (req, res) => {
   try { return ok(res, await offerService.listPublicOffers(req.query)); } catch (error) { return fail(res, error, 500); }
 });
 
+router.get('/public/:id', async (req, res) => {
+  try { return ok(res, await offerService.getPublicOffer(req.params.id)); } catch (error) { return fail(res, error, 404); }
+});
+
 router.use(requireAuth);
 
 router.get('/mine', async (req, res) => {

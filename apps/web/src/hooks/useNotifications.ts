@@ -10,6 +10,8 @@ export interface Notification {
   title: string;
   message: string | null;
   related_id: string | null;
+  route?: string | null;
+  metadata?: Record<string, unknown> | null;
   is_read: boolean;
   created_at: string;
 }
@@ -18,12 +20,11 @@ export function useNotifications() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Realtime subscription
   useEffect(() => {
     if (!user) return;
 
     const channel = supabase
-      .channel("notifications")
+      .channel(`notifications:${user.id}`)
       .on(
         "postgres_changes",
         {
@@ -34,6 +35,7 @@ export function useNotifications() {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+          queryClient.invalidateQueries({ queryKey: ["unread-notifications", user.id] });
         }
       )
       .subscribe();
@@ -56,7 +58,7 @@ export function useNotifications() {
         .limit(50);
 
       if (error) throw error;
-      return data as Notification[];
+      return data as unknown as Notification[];
     },
     enabled: !!user,
   });
@@ -92,7 +94,8 @@ export function useMarkAsRead() {
       const { error } = await supabase
         .from("notifications")
         .update({ is_read: true })
-        .eq("id", notificationId);
+        .eq("id", notificationId)
+        .eq("user_id", user?.id || "");
 
       if (error) throw error;
     },

@@ -2,6 +2,7 @@ import { I18nProvider } from "@/i18n/I18nContext";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MyPromoCard from "./MyPromoCard";
 
@@ -46,11 +47,12 @@ const click = async (label: string) => {
   });
 };
 const renderCard = async () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   await act(async () => {
     root.render(
-      <I18nProvider><MemoryRouter initialEntries={["/app-preview/card"]}>
+      <QueryClientProvider client={queryClient}><I18nProvider><MemoryRouter initialEntries={["/app-preview/card"]}>
         <MyPromoCard />
-      </MemoryRouter></I18nProvider>,
+      </MemoryRouter></I18nProvider></QueryClientProvider>,
     );
   });
 };
@@ -207,8 +209,8 @@ describe("PromoCard journey", () => {
     query.data = { points: 0, keys: 0, perks: [], nearby: [] };
     await renderCard();
     expect(container).toHaveTextContent("Your card is set for Kingston After Dark");
-    expect(container).toHaveTextContent("Nothing for Kingston After Dark yet");
-    expect(container).toHaveTextContent("On your card");
+    expect(container).toHaveTextContent("No live benefit is on this card");
+    expect(container).toHaveTextContent("Open for you");
     expect(container).not.toHaveTextContent("Available to spend");
     expect(container).not.toHaveTextContent("From Discover");
     expect(container).not.toHaveTextContent("A merchant supplied it");
@@ -260,7 +262,8 @@ describe("PromoCard journey", () => {
       ],
     };
     await renderCard();
-    expect(container).toHaveTextContent("On your card");
+    expect(container).toHaveTextContent("Open for you");
+    expect(container).toHaveTextContent("This access is already on your card");
     expect(container).toHaveTextContent("Show this");
     expect(container).toHaveTextContent("Your Food");
     expect(container.querySelector(".pr-card-back")).toHaveTextContent("PR-FOOD01");
@@ -271,14 +274,16 @@ describe("PromoCard journey", () => {
 
   it("shows the merchant put-in when the card is opened as a merchant", async () => {
     query.data = { perks: [], givenName: "Ada" };
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     await act(async () => {
       root.render(
-        <I18nProvider><MemoryRouter initialEntries={["/card?role=merchant"]}>
+        <QueryClientProvider client={queryClient}><I18nProvider><MemoryRouter initialEntries={["/card?role=merchant"]}>
           <MyPromoCard />
-        </MemoryRouter></I18nProvider>,
+        </MemoryRouter></I18nProvider></QueryClientProvider>,
       );
     });
-    expect(container).toHaveTextContent("The card people show at your counter");
+    expect(container).toHaveTextContent("This is your PromoCard");
+    expect(container).toHaveTextContent("What to put in");
     expect(container).toHaveTextContent("Put up");
     expect(container).toHaveTextContent("Supply one real benefit");
   });

@@ -186,7 +186,7 @@ export default function PromoPush() {
                     <Label>{t("promoPush.linkedMomentLabel")}</Label>
                     <Select required value={form.linked_moment_id} onValueChange={(value) => updateForm("linked_moment_id", value)} disabled={momentsQuery.isLoading || !!momentsQuery.error}>
                       <SelectTrigger className="mt-2 bg-black/40">
-                        <SelectValue placeholder={momentsQuery.isLoading ? "Loading recorded Moments…" : t("promoPush.linkedMomentPlaceholder")} />
+                        <SelectValue placeholder={momentsQuery.isLoading ? "Loading Moments…" : t("promoPush.linkedMomentPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(momentsQuery.data || []).map((moment) => (
@@ -196,7 +196,7 @@ export default function PromoPush() {
                     </Select>
                     {momentsQuery.error ? (
                       <div className="mt-2 flex items-center justify-between gap-3 rounded-md border border-red-500/20 bg-red-500/5 p-3 text-xs text-red-100/80">
-                        <span>Recorded Moment options are unavailable. Campaign creation is disabled until the source recovers.</span>
+                        <span>Moments couldn’t load. Campaign creation is disabled until they’re available again.</span>
                         <Button type="button" size="sm" variant="outline" className="border-white/15 bg-black/20 text-white" onClick={() => momentsQuery.refetch()}>
                           <RefreshCcw className="mr-2 h-3.5 w-3.5" />Retry
                         </Button>

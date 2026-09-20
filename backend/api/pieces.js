@@ -20,6 +20,20 @@ const simpleKYCService = require('../services/simpleKYCService');
 
 const supabase = global.supabase || serviceSupabase || null;
 const USE_DEMO = process.env.USE_DEMO_CONTENT === 'true';
+const ALLOW_DEMO_PIECES = process.env.NODE_ENV !== 'production' && USE_DEMO;
+
+// The pieces API contains an extensive local demonstration mode. It must never
+// become a successful production response when the authoritative store is
+// unavailable or a stale deployment flag is present.
+router.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && (USE_DEMO || !supabase)) {
+    return res.status(503).json({
+      error: 'Pieces market source unavailable',
+      code: 'PIECES_SOURCE_UNAVAILABLE',
+    });
+  }
+  next();
+});
 
 // Cache helpers (simple in-memory with TTL)
 const cache = new Map();
@@ -52,7 +66,7 @@ async function recordPoolAuditLog({
   newStatus = null,
   metadata = {},
 }) {
-  if (!supabase || USE_DEMO || !action) return null;
+  if (!supabase || ALLOW_DEMO_PIECES || !action) return null;
 
   try {
     const { data, error } = await supabase

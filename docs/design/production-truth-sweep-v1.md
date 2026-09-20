@@ -36,6 +36,305 @@ Forbidden:
 
 Production absence remains absence.
 
+### T-066 — Advertiser compatibility APIs manufactured accounts, operations and value settlement
+
+File: `backend/api/advertisers.js`
+
+Finding:
+- missing storage or account membership could resolve to a seeded demo advertiser and expose fabricated campaigns, coupons, drops, metrics and verified account state;
+- dashboard query failures were converted into successful empty operations;
+- suggested content exposed hard-coded creators and performance estimates outside production and returned an indistinguishable empty success in production;
+- subscription upgrade returned activation and renewal timestamps without billing or an entitlement write;
+- campaign funding directly increased a budget without payment or ledger settlement;
+- coupon redemption separately inserted a redemption and decremented inventory, reported success when inventory update failed, and defaulted missing recipients to a demo identity.
+
+Resolution:
+- every operational advertiser route now requires an authoritative advertiser membership and source; the static plan catalogue remains readable only for a recorded advertiser account;
+- missing storage fails unavailable rather than entering the in-memory demo branches, and missing membership no longer resolves to the seeded advertiser UUID;
+- dashboard/coupon dependency failures remain failures rather than empty operational state;
+- unsupported suggested-content production reads fail unavailable;
+- subscription activation, campaign funding and advertiser-side coupon redemption fail closed pending their respective billing/entitlement and atomic settlement contracts.
+
+Status: **Closed production fallback and false settlement; bundled campaign mutation atomicity remains in review**
+
+### T-065 — Compatibility preference and headless coupon APIs promised unrecorded value
+
+Files:
+- `apps/web/backend/api/preferences.js`
+- `backend/api/preferences.js`
+- `backend/api/v1/coupons.js`
+
+Finding:
+- the secondary preferences API reported successful mock saves when its store was absent;
+- both preference compatibility APIs advertised 100 completion Points, but one never wrote value and the other directly changed a balance without an economy transaction or retry-safe award contract;
+- the headless coupon API minted random receipts, coupon codes, expiry, QR payloads and Gems when its store was absent;
+- its source-backed path inserted a generic participation row and described that as a completed coupon claim without proving eligibility, inventory, credential issuance or value delivery;
+- coupon detail source errors were collapsed into not-found.
+
+Resolution:
+- preference reads and writes fail unavailable when their authoritative store is missing;
+- preference completion remains a durable preference write but no longer advertises or directly issues Points;
+- the public preference option contract reports no completion reward;
+- headless coupon detail returns recorded data only and keeps source failure distinct from not-found;
+- headless coupon claims fail closed pending an atomic eligibility, inventory, credential and value-delivery contract; demo receipts, codes, QR payloads and Gems were removed.
+
+Status: **Closed production fabrication; headless coupon claim atomicity remains release-blocking**
+
+### T-064 — Reward and coupon paths manufactured inventory, credentials and completed redemption
+
+Files:
+- `backend/api/rewards.js`
+- `apps/web/src/hooks/useRewards.ts`
+- `apps/web/src/pages/Rewards.tsx`
+- `apps/legacy-mobile/store/couponStore.ts`
+
+Finding:
+- the rewards API returned demo coupons and statistics when its source was absent and generated random coupon credentials in production-capable code;
+- assigned-coupon redemption separately changed assignment state, inventory, redemption history and account value, but still reported success when downstream writes failed;
+- opening a marketplace coupon consumed usage without a checkout or order record;
+- coupon detail invented a redemption code from the assignment identifier, while exhausted marketplace inventory invented a current redemption timestamp;
+- the legacy mobile store hid redemption and detail failures, and the dormant web rewards surface treated claim as redemption while displaying static rank, referral, community-standing and social-proof outcomes.
+
+Resolution:
+- rewards endpoints now fail unavailable without the authoritative store and return only recorded coupon/statistic rows;
+- generated credentials, invented timestamps and demo inventory were removed;
+- assigned-coupon redemption now fails closed pending one atomic settlement contract, and marketplace usage can only be consumed by the recorded checkout path;
+- mobile coupon state changes only after confirmed API success and preserves source/write failures;
+- reward claims are owner- and state-scoped, and claim, credential, merchant validation, fulfillment and settlement remain visibly distinct;
+- static rank, referral, community-standing and “others claimed” claims were removed from the dormant compatibility surface.
+
+Status: **Closed production fabrication; coupon redemption atomicity remains release-blocking**
+
+### T-063 — Notification APIs and legacy mobile manufactured empty state, identity and successful writes
+
+Files:
+- `backend/api/notifications.js`
+- `backend/api/index.js`
+- `apps/web/backend/api/notifications.js`
+- `apps/legacy-mobile/store/notificationStore.ts`
+
+Finding:
+- the primary notification API used a locally decoded token and silently installed a demo creator identity in development;
+- unread count and notification list endpoints returned successful zero/empty state without reading the notification ledger;
+- read and mark-all-read endpoints returned success without a durable update;
+- the serverless backend entrypoint replaced the entire notification API with unconditional empty success;
+- the secondary web backend treated missing storage as successful empty/read/push-token writes;
+- the legacy mobile client replaced both real empty state and source failure with fabricated rewards, followers, approvals, event reminders and a completed cash withdrawal.
+
+Resolution:
+- notification requests use the shared verified authentication middleware and require the authoritative notification store;
+- list and unread-count endpoints read user-scoped notification rows, while source absence returns `503` rather than zero/empty success;
+- individual and bulk read operations update user-scoped rows and a missing notification returns `404`;
+- the serverless entrypoint mounts the real notification router;
+- the secondary backend fails unavailable instead of acknowledging missing-store reads or writes;
+- legacy mobile preserves a true empty list, exposes source/write errors and mutates local read state only after API success;
+- fabricated notification fixtures were removed from the production-capable store.
+
+Status: **Closed**
+
+### T-061 — Pieces market API manufactured production market and portfolio truth
+
+Files:
+- `backend/api/pieces.js`
+- `apps/web/src/pages/TradingMarketplace.tsx`
+- `apps/web/src/components/trading/TradeModal.tsx`
+- `apps/web/src/components/trading/GemsBalance.tsx`
+
+Finding:
+- the Pieces API contained broad demo fallbacks for prices, volume, market indices, holders, listings, earnings, watchlists and portfolio value whenever the source client was absent or a demo flag was set;
+- a production deployment could therefore return successful randomized financial/ownership state instead of source unavailable;
+- the marketplace promised instant settlement, linked to a fixture-specific creator asset and treated balance failure as zero;
+- quote failure left the confirmation path dependent on estimates rather than an authoritative quote.
+
+Resolution:
+- production requests across the Pieces router now fail `503` when the authoritative store is unavailable or demo mode is configured;
+- demo market generators remain reachable only outside production;
+- the marketplace no longer promises instant settlement or links to a fixture-specific asset;
+- balance failure remains unavailable and disables purchases rather than becoming zero;
+- a current recorded quote is required before trade confirmation, and success copy describes a recorded trade rather than a broader settlement guarantee;
+- decorative fixture imagery was removed.
+
+Status: **Closed production fallback; broader Pieces product/settlement release contract remains limited**
+
+### T-062 — Campaign planning prompts implied approved rewards and operational inventory
+
+File: `apps/web/src/pages/CreateCampaign.tsx`
+
+Finding:
+- starter “proven blueprints” described automated cash entries, fixed cash prizes, free VIP inventory and attendee perks before funding, eligibility, inventory or fulfillment had been approved;
+- compiler output reach was visually presented without an explicit planning-estimate qualifier;
+- decorative imagery depended on the demo event catalogue.
+
+Resolution:
+- starter content is labeled as planning prompts and describes proposed mechanics whose funding, eligibility, inventory, draw and fulfillment terms still require approval;
+- generated reach is explicitly labeled as a planning estimate;
+- decorative fixture imagery was removed;
+- saved campaigns remain inactive, unfunded drafts through the existing durable campaign write.
+
+Status: **Closed UI truth; activation/funding review remains required**
+
+### T-053 — Venue report fabricated activity and verification
+
+File: `apps/web/src/pages/VenueReportTeaser.tsx`
+
+Finding:
+- short or missing IDs could resolve to demo Moment records and invented venue/location/event details;
+- missing participation and media totals were replaced with promotional numbers;
+- media totals were inflated from participant rows;
+- participant rows were presented as verified attendance;
+- unsupported intent, peer benchmarks and performance multipliers were presented as recorded venue insight.
+
+Resolution:
+- the route now reads one recorded Moment and its exact participation/media row counts only;
+- missing records remain not found, while source failures remain unavailable and retryable;
+- participation is explicitly not treated as verified attendance;
+- media rows are not expanded into estimated photos, sentiment or conversion;
+- synthetic benchmarking and unsupported performance claims were removed;
+- the merchant continuation preserves the recorded Moment context without claiming ownership or verification.
+
+Status: **Closed**
+
+### T-054 — Branded campaign concept issued browser-only votes, tickets, rewards and live claims
+
+File: `apps/web/src/pages/ArlaCampaignHub.tsx`
+
+Finding:
+- the public campaign route stored a visitor's selection and aggregate vote counters in `localStorage`;
+- it minted a random ballot/ticket serial and called the browser-only selection a verified vote;
+- the interaction promised Points without an eligibility or issuance source;
+- static schedule, availability, price and savings assumptions were presented as current live facts.
+
+Resolution:
+- the route is explicitly an experimental campaign concept rather than a live activation;
+- preference selection is ephemeral UI preview state and is not persisted, counted or called verified;
+- random tickets, browser vote totals and reward promises were removed;
+- schedule, location, price and savings are clearly labeled concept/proposal assumptions;
+- sharing describes the page as a preview rather than inviting participation in an unrecorded live ballot.
+
+Status: **Closed**
+
+### T-055 — Organizer landing mixed fixture operations with guaranteed funding and attendance claims
+
+Files:
+- `apps/web/src/pages/OrganizerLanding.tsx`
+- `apps/web/src/components/value/HostSyndicateSimulator.tsx`
+
+Finding:
+- the primary Organizer landing displayed demo Moment title, attendance and proof as a current operating view;
+- the shared calculator claimed zero-risk production and 100% pre-funding;
+- it converted a modeled backer count into guaranteed peer arrivals and implied that continuing would open real pre-sales.
+
+Resolution:
+- fixture operational records were replaced with a truthful description of the host operating path;
+- decorative imagery no longer depends on the culture-event fixture catalogue;
+- the calculator is explicitly an illustrative planning estimate, not operational or financial authority;
+- modeled commitments no longer imply funding, payment, attendance, sales or settlement;
+- synthetic peer-arrival projections and zero-risk guarantees were removed;
+- the continuation routes to hosting without claiming that passes or pre-sales were issued.
+
+Status: **Closed**
+
+### T-056 — Mission discovery substituted demo inventory and unrecorded rewards/results
+
+Files:
+- `backend/api/o2o.js`
+- `apps/web/src/pages/WatchUnlock.tsx`
+- `apps/web/src/pages/ContentMissionDetail.tsx`
+
+Finding:
+- production O2O endpoints returned a complete demo mission feed whenever the source client was unavailable or a demo flag was set;
+- normalized records invented creator identity/media, pulse state, conversion zero and threshold zero when those fields were absent;
+- mission list/detail views converted missing rewards into a “Memory unlock,” missing conversion into `0.0%`, and absent platform links into `#`;
+- mission metrics source failure could render as a recorded zero total;
+- the mission page duplicated the Point-to-PromoKey rate instead of using the canonical shared economy contract.
+
+Resolution:
+- demo O2O inventory is available only through an explicit non-production flag;
+- production source absence returns `503` across the O2O router instead of sample success;
+- missing creator/media/pulse/conversion/threshold fields remain absent rather than being synthesized;
+- mission UI now distinguishes missing values and unavailable metrics from recorded zero;
+- absent rewards, action contracts and platform links remain explicitly unrecorded/unavailable;
+- Point-to-PromoKey progress uses the canonical shared economy rate.
+
+Status: **Closed**
+
+### T-057 — Bounty proposal claimed funding, escrow and payout without a money ledger
+
+Files:
+- `apps/web/src/pages/CreateBounty.tsx`
+- `apps/web/src/hooks/useBounties.ts`
+
+Finding:
+- creating an open `moment_bounties` row was presented as publishing a funded brief;
+- the form claimed a platform fee was added and funds were held until proof review, despite no funding or escrow write;
+- approval copy claimed the host would receive payout, although the mutation only changed bounty review status;
+- minimum participants silently began at ten instead of requiring an explicit operator choice.
+
+Resolution:
+- the flow now publishes an open proposal with a proposed value, not a funded opportunity;
+- funding, escrow, payment and settlement claims were removed;
+- approval copy states that review was recorded without implying payment;
+- minimum participants requires an explicit value;
+- decorative imagery no longer depends on the culture-event fixture catalogue;
+- the route is limited until an authoritative funding/settlement contract exists.
+
+Status: **Closed UI truth; funding/settlement contract remains open**
+
+### T-058 — Legacy event detail treated fixture catalogue as actionable production inventory
+
+File: `apps/web/src/pages/EventExperienceDetail.tsx`
+
+Finding:
+- `/events/:slug` rendered demo Moment, Scene, attendance, proof, reward and ticket-price fixtures;
+- unknown slugs silently fell back to the first demo event;
+- sample ticket options linked into authentication as if a real action or save could follow.
+
+Resolution:
+- the route is classified and described as an illustrative experience preview;
+- unknown slugs render a real not-found state instead of unrelated fixture inventory;
+- sample tickets are explicitly non-purchasable;
+- action/save entry points were removed, and the page states that it creates no checkout, reservation, attendance, proof or reward;
+- recorded Moment discovery remains the production continuation.
+
+Status: **Closed**
+
+### T-059 — Signed-in Moment discovery filled a real empty calendar with demo Moments
+
+File: `apps/web/src/pages/ExploreMoments.tsx`
+
+Finding:
+- the explicit Examples mode was labeled, but the normal recorded-calendar empty state also rendered demo Moment cards;
+- a participant could therefore encounter fixture inventory without choosing the preview context;
+- the hero image depended on the same demo event catalogue.
+
+Resolution:
+- live/current and recurring modes now remain honestly empty when no recorded Moment matches;
+- the empty state offers a deliberate transition into the separately labeled Examples mode;
+- demo cards render only after Examples is explicitly selected;
+- decorative hero imagery no longer depends on the demo event catalogue.
+
+Status: **Closed**
+
+### T-060 — Wallet source failures rendered as zero balances and empty histories
+
+File: `apps/web/src/pages/Wallet.tsx`
+
+Finding:
+- wallet, Gem-balance and withdrawal source failures flowed through zero-valued presentation;
+- Gem transaction failure cleared into the same UI as a real empty history;
+- withdrawal failure could appear as an empty request queue;
+- missing transaction `balance_after` was displayed as zero;
+- the wallet hero depended on a demo-event image catalogue.
+
+Resolution:
+- wallet, Gem and withdrawal source failures now render explicit unavailable state and disable affected actions;
+- the wallet pass is withheld when authoritative balances cannot be verified;
+- transaction and withdrawal failures remain distinct from real empty histories;
+- missing post-transaction balance remains “Not recorded” rather than zero;
+- decorative imagery no longer depends on the demo event catalogue.
+
+Status: **Closed**
+
 ## Sweep 01 — primary web/stakeholder surfaces
 
 Initial files reviewed:

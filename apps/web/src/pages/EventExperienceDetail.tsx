@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowRight, CalendarDays, CheckCircle2, Clock, MapPin, ShieldCheck, Ticket, Users } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, MapPin, ShieldCheck, Ticket, Users } from "lucide-react";
 import SEO from "@/components/SEO";
 import { ExperienceCard, MobileBottomNav } from "@/components/culture/CultureCards";
 import { cultureScenes, cultureEvents } from "@/data/culture-demo";
@@ -15,14 +15,27 @@ const ticketOptions = [
 export default function EventExperienceDetail() {
   const { t } = useI18n();
   const { slug } = useParams();
-  const event = cultureEvents.find((item) => item.slug === slug) || cultureEvents[0];
+  const event = cultureEvents.find((item) => item.slug === slug);
   const host = cultureScenes[0];
+
+  if (!event) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-black px-6 text-white">
+        <SEO title="Experience preview not found" description="This illustrative experience preview does not exist." />
+        <section className="max-w-xl rounded-3xl border border-white/10 bg-white/[0.05] p-8 text-center">
+          <h1 className="font-serif text-3xl font-bold">Preview not found.</h1>
+          <p className="mt-3 text-sm leading-6 text-white/55">This route contains labeled sample experiences only. An unknown URL is not replaced with another event.</p>
+          <Link to="/discover/moments" className="mt-6 inline-flex items-center rounded-xl border border-white/15 px-4 py-2 text-sm font-bold">Browse recorded Moments</Link>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-black pb-24 text-white">
       <SEO
-        title={`${event.title} - Promorang Moment`}
-        description={`Join ${event.title} at ${event.place}. Show up, prove the moment, and unlock what comes next.`}
+        title={`${event.title} - Illustrative experience preview`}
+        description="A non-actionable sample showing how a PROMORANG Moment detail could be composed."
       />
 
       <section className="container grid gap-5 px-6 pb-10 pt-28 lg:grid-cols-[1.2fr_0.8fr_280px]">
@@ -73,8 +86,8 @@ export default function EventExperienceDetail() {
         </div>
 
         <aside className="rounded-3xl border border-white/10 bg-white/[0.06] p-4">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/50">{t("event.getIn")}</p>
-          <p className="mt-2 text-sm text-white/60">{t("event.chooseEntry")}</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-white/50">Illustrative ticket design</p>
+          <p className="mt-2 text-sm text-white/60">These options and prices are sample content and cannot be purchased.</p>
           <div className="mt-4 space-y-3">
             {ticketOptions.map((ticket) => (
               <div key={ticket.label} className="rounded-2xl border border-white/10 bg-black/35 p-4">
@@ -88,15 +101,10 @@ export default function EventExperienceDetail() {
               </div>
             ))}
           </div>
-          <Link to="/auth" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-primary px-5 py-4 text-sm font-black text-white">
-            {t("event.act")}
-          </Link>
-          <Link to="/auth" className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-primary px-5 py-4 text-sm font-black text-white">
-            {t("event.save")}
-          </Link>
+          <button type="button" disabled className="mt-4 inline-flex w-full cursor-not-allowed items-center justify-center rounded-xl bg-white/10 px-5 py-4 text-sm font-black text-white/45">Sample only · unavailable</button>
           <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45">
             <ShieldCheck className="h-4 w-4" />
-            {t("event.secure")}
+            No checkout, reservation, attendance, proof, or reward is created.
           </p>
         </aside>
       </section>

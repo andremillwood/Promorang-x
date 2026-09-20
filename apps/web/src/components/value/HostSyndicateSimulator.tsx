@@ -38,9 +38,6 @@ export const HostSyndicateSimulator: React.FC = () => {
     const totalGross = productionCost + projectedGaRevenue;
     const netProducerProfit = totalGross - productionCost;
     
-    // Social street team amplification: each backer drives ~3.5 peer arrivals
-    const guaranteedPeerArrivals = Math.round(backersNeededForBreakeven * 3.5);
-
     return {
       backersNeededForBreakeven,
       remainingCap,
@@ -48,7 +45,6 @@ export const HostSyndicateSimulator: React.FC = () => {
       projectedGaRevenue,
       totalGross,
       netProducerProfit,
-      guaranteedPeerArrivals,
     };
   }, [productionCost, venueCapacity, ticketPrice, coProducerTierPrice]);
 
@@ -63,13 +59,13 @@ export const HostSyndicateSimulator: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-wider uppercase mb-2">
             <Ticket className="w-3.5 h-3.5" />
-            Event Producer & Syndicate Simulator
+            Illustrative production planner
           </div>
           <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            De-Risk Production Costs Before Doors Open
+            Explore a production scenario before doors open
           </h3>
           <p className="text-sm text-white/60 mt-1 max-w-xl">
-            Never risk personal savings on venue deposits or talent. Calculate how many Co-Producer Backers you need to achieve 100% breakeven before opening night.
+            Adjust assumptions to understand one possible funding shape. This calculator does not create passes, record commitments, guarantee sales, or provide financial advice.
           </p>
         </div>
 
@@ -77,7 +73,7 @@ export const HostSyndicateSimulator: React.FC = () => {
           variant="outline"
           className="self-start md:self-auto border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-mono text-xs px-3 py-1.5"
         >
-          ZERO-RISK PRODUCTION
+          PLANNING ESTIMATE
         </Badge>
       </div>
 
@@ -160,7 +156,7 @@ export const HostSyndicateSimulator: React.FC = () => {
             </div>
           </div>
 
-          {/* Social Proof Amplifier Box */}
+          {/* Explicit model boundary */}
           <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
@@ -168,15 +164,15 @@ export const HostSyndicateSimulator: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs font-bold text-white">
-                  Built-in Viral Street Team
+                  No attendance assumption
                 </div>
                 <div className="text-[11px] text-white/70">
-                  Your {syndicateMetrics.backersNeededForBreakeven} Co-Producers will organically drive ~{syndicateMetrics.guaranteedPeerArrivals} peer ticket sales.
+                  Backer count does not predict peer arrivals, ticket sales, attendance, or verified turnout.
                 </div>
               </div>
             </div>
             <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px]">
-              ORGANIC FLYWHEEL
+              MODEL BOUNDARY
             </Badge>
           </div>
         </div>
@@ -189,7 +185,7 @@ export const HostSyndicateSimulator: React.FC = () => {
                 Syndicate Breakeven Target
               </span>
               <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400">
-                <ShieldCheck className="w-3.5 h-3.5" /> 100% PRE-FUNDED
+                <ShieldCheck className="w-3.5 h-3.5" /> TARGET ONLY
               </div>
             </div>
 
@@ -200,7 +196,7 @@ export const HostSyndicateSimulator: React.FC = () => {
                 <span className="text-base font-semibold text-white/50 ml-2">Co-Producer Backers</span>
               </div>
               <div className="text-xs text-cyan-300 font-mono mt-1">
-                at ${coProducerTierPrice}/pass = ${productionCost.toLocaleString()} (100% Breakeven)
+                at ${coProducerTierPrice}/pass = ${productionCost.toLocaleString()} in modeled commitments
               </div>
             </div>
 
@@ -227,17 +223,17 @@ export const HostSyndicateSimulator: React.FC = () => {
           <div className="p-5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 space-y-3">
             <div className="flex items-center gap-2 text-cyan-300 text-xs font-bold uppercase tracking-wider">
               <CheckCircle2 className="w-4 h-4" />
-              Open Your Syndicate in Minutes
+              Continue with a recorded Moment
             </div>
             <p className="text-xs text-white/70">
-              Create your event page and issue Co-Producer passes to fund your <strong>${productionCost.toLocaleString()}</strong> budget with zero out-of-pocket risk.
+              Create a Moment to continue planning. Funding, issued access, payment, attendance, and settlement remain separate recorded states.
             </p>
             <Button
               asChild
               className="w-full h-11 bg-cyan-500 hover:bg-cyan-600 text-gray-950 font-black text-sm shadow-xl shadow-cyan-500/20"
             >
               <Link to={`/hosting?budget=${productionCost}&cap=${venueCapacity}`}>
-                Launch Syndicate & Open Pre-Sales
+                Continue to hosting
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Link>
             </Button>

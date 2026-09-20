@@ -63,8 +63,12 @@ function classifyMomentLifecycle(moment, referenceDate = new Date()) {
   };
 }
 
-function normalizeMoment(moment, brandNames = [], referenceDate = new Date()) {
+function normalizeMoment(moment, brands = [], referenceDate = new Date(), offers = []) {
   const state = classifyMomentLifecycle(moment, referenceDate);
+  const associatedBrands = brands.map((brand) => typeof brand === 'string'
+    ? { id: null, name: brand, slug: null }
+    : { id: brand.id || null, name: brand.name, slug: brand.slug || null })
+    .filter((brand) => Boolean(brand.name));
   return {
     ...moment,
     starts_at: state.effectiveStartsAt || moment.starts_at,
@@ -72,7 +76,9 @@ function normalizeMoment(moment, brandNames = [], referenceDate = new Date()) {
     lifecycle: state.lifecycle,
     data_quality_issues: state.issues,
     end_time_inferred: Boolean(state.endTimeInferred),
-    associated_brand_names: brandNames,
+    associated_brands: associatedBrands,
+    associated_brand_names: associatedBrands.map((brand) => brand.name),
+    associated_offers: offers.filter((offer) => Boolean(offer?.id && offer?.title)),
     participant_count: Number(moment.participant_count || 0),
     sponsorship_ready: ['upcoming', 'starting_soon'].includes(state.lifecycle)
       && Boolean(moment.host_id || moment.organizer_id)
@@ -80,14 +86,14 @@ function normalizeMoment(moment, brandNames = [], referenceDate = new Date()) {
   };
 }
 
-function buildMomentFeed(moments, brandNamesByMoment = {}, referenceDate = new Date()) {
+function buildMomentFeed(moments, brandNamesByMoment = {}, referenceDate = new Date(), offersByMoment = {}) {
   const assessed = (moments || []).map((moment) => ({
     source: moment,
     state: classifyMomentLifecycle(moment, referenceDate),
   }));
   const normalized = assessed
     .filter(({ state }) => state.publicEligible)
-    .map(({ source }) => normalizeMoment(source, brandNamesByMoment[source.id] || [], referenceDate))
+    .map(({ source }) => normalizeMoment(source, brandNamesByMoment[source.id] || [], referenceDate, offersByMoment[source.id] || []))
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
 
   const buckets = { live: [], starting_soon: [], upcoming: [], recently_ended: [] };

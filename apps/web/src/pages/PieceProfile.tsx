@@ -278,13 +278,13 @@ export function PieceProfile() {
           <div className="space-y-8">
             <Card className="border-amber-500/20 bg-amber-950/10">
               <CardHeader>
-                <CardTitle className="text-lg font-bold">Recorded holder benefits</CardTitle>
+                <CardTitle className="text-lg font-bold">Holder benefits</CardTitle>
                 <CardDescription>
                   Piece quantity does not create discounts, VIP access, hospitality or governance rights by itself.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm leading-6 text-muted-foreground">
-                No holder-benefit entitlement source is attached to this profile. PROMORANG will show a benefit here only when the underlying asset records the entitlement and its conditions.
+                No holder benefits are listed for this Piece yet.
               </CardContent>
             </Card>
 
@@ -400,7 +400,7 @@ export function PieceProfile() {
                       : 'bg-rose-600 hover:bg-rose-500 text-white'
                   }`}
                 >
-                  {isSwapping ? "Executing Trade..." : estimatedSwapCost == null ? "Recorded price unavailable" : `${swapTab === 'buy' ? 'Buy' : 'Sell'} for ${estimatedSwapCost.toFixed(2)} Gems`}
+                  {isSwapping ? "Executing Trade..." : estimatedSwapCost == null ? "Price unavailable" : `${swapTab === 'buy' ? 'Buy' : 'Sell'} for ${estimatedSwapCost.toFixed(2)} Gems`}
                 </Button>
               </CardContent>
             </Card>

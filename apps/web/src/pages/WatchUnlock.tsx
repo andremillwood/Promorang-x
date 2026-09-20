@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayCircle, Sparkles, ExternalLink, MapPin, Activity, ArrowRight, KeyRound, Coins, ShieldCheck, Clock3 } from "lucide-react";
-import { cultureEvents } from "@/data/culture-demo";
 import SEO from "@/components/SEO";
 import { CAMERA_CONSENT, MISSION_ARCHETYPES, type MissionArchetype } from "@/lib/mission-archetypes";
 import { getSafeMediaUrl } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
+import { PARTICIPANT_ECONOMY } from "@promorang/shared";
+import heroMoments from "@/assets/hero-moments.jpg";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -49,7 +50,7 @@ const WatchUnlock = () => {
   const feed = selectedRole ? allFeed.filter((item: any) => item.archetype === selectedRole) : allFeed;
   const points = Number(profile?.points_balance || 0);
   const keys = Number(profile?.keys_balance || 0);
-  const pointsPerKey = 500;
+  const pointsPerKey = PARTICIPANT_ECONOMY.pointsPerPromoKey;
   const keyProgress = Math.min((points / pointsPerKey) * 100, 100);
   const openMissions = feed.filter((item: any) => !item.is_sponsored);
   const keyMissions = feed.filter((item: any) => item.is_sponsored);
@@ -62,7 +63,7 @@ const WatchUnlock = () => {
         url={`https://promorang.co/missions${selectedRole ? `?role=${selectedRole}` : ""}`}
       />
       <section className="relative min-h-[460px] overflow-hidden rounded-3xl border border-white/10 bg-black">
-        <img src={cultureEvents[1]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
+        <img src={heroMoments} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/82 to-black/20" />
         <div className="relative flex min-h-[460px] items-end p-6 sm:p-8">
           <div>
@@ -176,19 +177,17 @@ const WatchUnlock = () => {
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
           {feed.map((item: any) => {
-            const pulseClass = pulseTone[(item.moment?.pulse_state as keyof typeof pulseTone) || "dormant"];
+            const pulseState = item.moment?.pulse_state as keyof typeof pulseTone | undefined;
+            const pulseClass = pulseState ? pulseTone[pulseState] : "bg-muted text-muted-foreground";
             const isKeyMission = Boolean(item.is_sponsored);
             const archetype = MISSION_ARCHETYPES[(item.archetype as MissionArchetype) || "side_quest"];
             const ArchetypeIcon = archetype.icon;
+            const mediaUrl = getSafeMediaUrl(item.content?.media_url);
 
             return (
               <article key={item.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] shadow-soft">
                 <div className="relative h-56 overflow-hidden bg-muted">
-                  <img
-                    src={getSafeMediaUrl(item.content?.media_url) || "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=800"}
-                    alt={item.content?.title}
-                    className="h-full w-full object-cover"
-                  />
+                  {mediaUrl ? <img src={mediaUrl} alt={item.content?.title || ""} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No mission media recorded</div>}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                     <Badge className={`border ${archetype.tone}`}><ArchetypeIcon className="mr-1 h-3 w-3" />{archetype.label}</Badge>
@@ -199,12 +198,12 @@ const WatchUnlock = () => {
                       {item.content?.platform || "content"}
                     </Badge>
                     <Badge className={pulseClass}>
-                      {item.moment?.pulse_state || "forming"}
+                      {pulseState || "State not recorded"}
                     </Badge>
                   </div>
                   <div className="absolute bottom-4 left-4 right-4">
                     <p className="text-[11px] font-black uppercase tracking-[0.24em] text-white/70">
-                      {item.content?.creator_name}
+                      {item.content?.creator_name || "Creator not recorded"}
                     </p>
                     <h2 className="mt-2 font-serif text-2xl font-bold text-white">
                       {item.content?.title}
@@ -243,7 +242,7 @@ const WatchUnlock = () => {
                       {item.moment?.venue_name || item.moment?.location}
                     </span>
                     <span className="font-medium text-white">
-                      {item.moment?.reward || t("watchUnlock.memoryUnlock")}
+                      {item.moment?.reward || "No reward recorded"}
                     </span>
                     {item.moment?.starts_at && <span className="flex items-center gap-1.5"><Clock3 className="h-4 w-4 text-primary" />{formatMissionDate(item.moment.starts_at, locale)}</span>}
                   </div>
@@ -252,24 +251,19 @@ const WatchUnlock = () => {
                     <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("watchUnlock.o2oConversion")}</p>
                       <p className="mt-2 text-2xl font-bold text-foreground">
-                        {Number(item.o2o_conversion_rate || 0).toFixed(1)}%
+                        {item.o2o_conversion_rate == null ? "Not recorded" : `${Number(item.o2o_conversion_rate).toFixed(1)}%`}
                       </p>
                     </div>
                     <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("watchUnlock.threshold")}</p>
                       <p className="mt-2 text-2xl font-bold text-foreground">
-                        {item.moment?.gathering_threshold || 0}
+                        {item.moment?.gathering_threshold ?? "Not recorded"}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-3 sm:flex-row">
-                    <Button asChild variant="outline" className="sm:flex-1">
-                      <a href={item.content?.platform_url || "#"} target="_blank" rel="noreferrer">
-                        {t("watchUnlock.watchStory")}
-                        <ExternalLink className="ml-2 h-4 w-4" />
-                      </a>
-                    </Button>
+                    {item.content?.platform_url ? <Button asChild variant="outline" className="sm:flex-1"><a href={item.content.platform_url} target="_blank" rel="noreferrer">{t("watchUnlock.watchStory")}<ExternalLink className="ml-2 h-4 w-4" /></a></Button> : <Button variant="outline" className="sm:flex-1" disabled>Story link unavailable</Button>}
                     <Button asChild variant="hero" className="sm:flex-1">
                       <Link to={`/missions/${item.id}`}>
                         {isKeyMission ? t("watchUnlock.viewKeyOpportunity") : t("watchUnlock.openMissionButton")}

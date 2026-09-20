@@ -14,7 +14,6 @@ import {
   resolvePromoCardFace,
   selectOwnedUseThis,
   sortBenefitsByAim,
-  type PromoCardAim,
   type PromoCardPerk,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,6 +24,7 @@ import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty } from "@/components/people/ExperienceShell";
 import { PromoCardFace, PromoCardWorldContext } from "@/components/promorang/SignatureObjects";
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
+import { PromoCardWatchShelf } from "@/components/promocard/PromoCardWatchShelf";
 import { StakeholderPutInPass } from "@/components/people/StakeholderLoop";
 import { CommunityCardLink } from "@/components/community/CommunityCardLink";
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
@@ -152,7 +152,7 @@ export default function MyPromoCard() {
       className="promocard-page"
       eyebrow="YOUR CREDENTIAL"
       title={copy.title}
-      description={stake.promoCard.meaning}
+      description="What you are watching, what is actually open to you, and what legitimately stayed with you."
       backTo="/dashboard"
       actions={data ? (
         <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
@@ -180,29 +180,31 @@ export default function MyPromoCard() {
               lastLoaded={Boolean(card.isError && face.credential)}
             />
             <div id="use-this" className="scroll-mt-24">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">On your card</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Open for you</p>
               {useThis ? (
                 <>
                   <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">{useThis.title}</h2>
-                  <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "Present the card when you are ready. The merchant will validate your access when you use it."}</p>
+                  <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "This access is already on your card. The merchant may still need to validate it when you use it."}</p>
                   {primaryIssuance && isPresentablePass(primaryIssuance.offers.fulfillment_type, primaryIssuance.status) && primaryIssuance.offers.fulfillment_type === "qr" ? <OfferIssuancePass issuance={primaryIssuance as OfferIssuance} /> : canShowCode(useThis) ? <button type="button" aria-label={`Show code for ${useThis.title}`} onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>Show this <ArrowRight className="h-4 w-4" /></button> : null}
                 </>
               ) : qrPass ? (
                 <OfferIssuancePass issuance={qrPass as OfferIssuance} />
               ) : (
                 <>
-                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">{empty.title}</h2>
-                  <p className="mt-4 text-sm leading-6 text-white/50">{empty.description}</p>
-                  <Link to={discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{aim ? `Browse ${aim.label}` : "Find something for the card"}<ArrowRight className="h-4 w-4" /></Link>
+                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">Nothing open right now.</h2>
+                  <p className="mt-4 text-sm leading-6 text-white/50">Nothing new is ready to use right now. Keep watching what matters and new access can appear here when it opens.</p>
+                  <Link to={discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{aim ? `Browse ${aim.label}` : "Find something worth watching"}<ArrowRight className="h-4 w-4" /></Link>
                 </>
               )}
             </div>
           </section>
 
+          <PromoCardWatchShelf />
+
           <section className="border-t border-white/10 pt-9">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">What this opens</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Open</p>
                 <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">Access around you.</h2>
               </div>
               <Link to={discoverHrefForAim(aim)} className="text-sm font-bold text-primary">Discover more →</Link>
@@ -216,7 +218,7 @@ export default function MyPromoCard() {
                   </Link>
                 ))}
               </div>
-            ) : <p className="mt-6 border-y border-white/10 py-6 text-sm text-white/45">No additional access nearby right now. Check back for new offers.</p>}
+            ) : <p className="mt-6 border-y border-white/10 py-6 text-sm text-white/45">No additional access nearby right now. Check back as new offers and Moments open up.</p>}
           </section>
 
           <section className="grid gap-5 border-t border-white/10 pt-8 lg:grid-cols-2">
@@ -239,17 +241,17 @@ export default function MyPromoCard() {
 
           <section className="grid gap-6 border-t border-white/10 pt-9 lg:grid-cols-[1fr_.7fr]">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f6d48a]">Next opening</p>
-              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Explore this opportunity to see its availability and access requirements.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing queued yet.</h2><p className="mt-3 text-sm text-white/45">Check Discover for opportunities as they become available.</p></>}
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f6d48a]">Return reason</p>
+              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Something new is open for you. Check the details before you use it.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing new yet.</h2><p className="mt-3 text-sm text-white/45">The things you’re watching are still here. Come back when something new opens up.</p></>}
             </div>
-            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">What stayed with you</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Kept proof, possessed access and recorded chance live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
+            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Kept</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Your saved history, access and things you earned live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
           </section>
 
           <details className="border-t border-white/10 pt-6 text-white/55">
             <summary className="cursor-pointer py-3 text-xs font-black uppercase tracking-[0.18em] text-white/40">Card controls & history</summary>
             <div className="grid gap-6 py-5 lg:grid-cols-2">
               <div>
-                {livePerks.filter((perk) => perk.id !== useThis?.id).length ? <div className="mb-6 space-y-3"><h2 className="font-serif text-2xl text-white">Also on your card</h2>{livePerks.filter((perk) => perk.id !== useThis?.id).map((perk) => {
+                {livePerks.filter((perk) => perk.id !== useThis?.id).length ? <div className="mb-6 space-y-3"><h2 className="font-serif text-2xl text-white">Also open on your card</h2>{livePerks.filter((perk) => perk.id !== useThis?.id).map((perk) => {
                   const issuance = issuanceForPerk(perk);
                   return <article key={perk.id} className="border-b border-white/10 py-3"><h3 className="font-bold text-white">{perk.title}</h3>{issuance ? <OfferIssuancePass issuance={issuance as OfferIssuance} /> : canShowCode(perk) ? <button type="button" aria-label={`Show code for ${perk.title}`} onClick={(event) => openPerk(perk, event.currentTarget)} className="min-h-11 text-primary">Show code →</button> : <p className="mt-2 text-xs">{perk.redemption?.recorded ? "Already used" : "No presentable code"}</p>}</article>;
                 })}</div> : null}
@@ -271,7 +273,7 @@ export default function MyPromoCard() {
 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => { if (!open) { setSelected(null); setCopyState("idle"); } }}>
         <DialogContent onCloseAutoFocus={(event) => { event.preventDefault(); triggerRef.current?.focus(); }} className="max-h-[90dvh] overflow-y-auto rounded-3xl border-white/15 bg-[#141313] text-white sm:max-w-md">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">On your PromoCard</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Open on your PromoCard</p>
           <DialogTitle className="break-words pr-5 font-serif text-3xl">{selected?.title}</DialogTitle>
           <DialogDescription className="text-sm leading-6 text-white/70">{selected?.detail || "Show this to the merchant. Nothing is used until they validate it."}</DialogDescription>
           {selectedCode && !selectedExpired && canShowCode(selected) ? (

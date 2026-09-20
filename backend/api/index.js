@@ -325,7 +325,7 @@ app.use('/api/guest-rsvp', require('./guest-rsvp'));
 app.use('/api/aftrhrs', require('./aftrhrs'));
 app.use('/api/discovery-acquisition', require('./discovery-acquisition'));
 app.use('/api/d', require('./discovery-acquisition'));
-app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
+app.use('/api/notifications', require('./notifications'));
 const errorHandlers = require('./errors');
 app.post('/api/report-error', errorHandlers.handleReportError);
 app.post('/api/log-error', errorHandlers.handleLogError);

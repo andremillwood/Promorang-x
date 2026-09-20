@@ -60,6 +60,7 @@ export type Discovery = {
   };
   venue?: {
     id: string;
+    slug?: string;
     name: string;
     city?: string;
   };

@@ -38,7 +38,7 @@ export default function PromoPushPromoterPortal() {
             Promoter Portal
           </div>
           <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Assigned street activations</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">Access campaign QR codes, download printable assets, and review personal scan-to-proof performance.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">Access campaign QR codes, download printable assets, and review your scans and confirmed actions.</p>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">

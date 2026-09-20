@@ -34,4 +34,29 @@ describe('canonical moment lifecycle', () => {
     expect(feed.counts.starting_soon).toBe(1);
     expect(feed.counts.recently_ended).toBe(1);
   });
+
+  test('preserves source-backed brand identity for public relationship routes', () => {
+    const feed = buildMomentFeed([
+      { ...base, id: 'sponsored', starts_at: '2026-09-12T14:00:00Z', ends_at: '2026-09-12T18:00:00Z' },
+    ], {
+      sponsored: [{ id: 'brand-1', name: 'Midas', slug: 'midas' }],
+    }, NOW);
+
+    expect(feed.moments[0].associated_brands).toEqual([
+      { id: 'brand-1', name: 'Midas', slug: 'midas' },
+    ]);
+    expect(feed.moments[0].associated_brand_names).toEqual(['Midas']);
+  });
+
+  test('preserves canonical offer ids from Moment distributions', () => {
+    const feed = buildMomentFeed([
+      { ...base, id: 'rewarded', starts_at: '2026-09-12T14:00:00Z', ends_at: '2026-09-12T18:00:00Z' },
+    ], {}, NOW, {
+      rewarded: [{ id: 'offer-1', title: 'First drink included', reward_type: 'voucher' }],
+    });
+
+    expect(feed.moments[0].associated_offers).toEqual([
+      { id: 'offer-1', title: 'First drink included', reward_type: 'voucher' },
+    ]);
+  });
 });

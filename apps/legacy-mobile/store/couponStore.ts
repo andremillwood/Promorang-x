@@ -31,6 +31,19 @@ interface CouponState {
     getCoupon: (id: string | string[] | undefined) => Promise<UserCoupon | undefined>;
 }
 
+interface CouponListResponse {
+    coupons: UserCoupon[];
+}
+
+interface CouponDetailResponse {
+    coupon?: UserCoupon;
+    success?: boolean;
+    data?: UserCoupon;
+}
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error ? error.message : fallback;
+
 export const useCouponStore = create<CouponState>((set, get) => ({
     coupons: [],
     isLoading: false,
@@ -39,19 +52,19 @@ export const useCouponStore = create<CouponState>((set, get) => ({
     fetchCoupons: async () => {
         set({ isLoading: true, error: null });
         try {
-            const response = await api.get<any>('/api/rewards/coupons');
-            const data = Array.isArray(response) ? response : (response.data?.coupons || response.coupons || []);
-            set({ coupons: data });
-        } catch (error: any) {
+            const response = await api.get<UserCoupon[] | CouponListResponse>('/api/rewards/coupons');
+            const coupons = Array.isArray(response) ? response : response.coupons;
+            set({ coupons });
+        } catch (error: unknown) {
             console.error('Fetch coupons error:', error);
-            set({ error: error.message || 'Failed to fetch coupons' });
+            set({ coupons: [], error: getErrorMessage(error, 'Failed to fetch coupons') });
         } finally {
             set({ isLoading: false });
         }
     },
 
     redeemCoupon: async (id: string) => {
-        set({ isLoading: true });
+        set({ isLoading: true, error: null });
         try {
             const response = await api.post<{ success: boolean }>(`/api/rewards/coupons/${id}/redeem`, {});
             if (response.success) {
@@ -62,9 +75,11 @@ export const useCouponStore = create<CouponState>((set, get) => ({
                 });
                 return true;
             }
+            set({ error: 'Coupon redemption was not confirmed' });
             return false;
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Redeem coupon error:', error);
+            set({ error: getErrorMessage(error, 'Failed to redeem coupon') });
             return false;
         } finally {
             set({ isLoading: false });
@@ -81,11 +96,12 @@ export const useCouponStore = create<CouponState>((set, get) => ({
 
         // Otherwise fetch specifically
         try {
-            const response = await api.get<any>(`/api/rewards/coupons/${stringId}`);
+            const response = await api.get<CouponDetailResponse>(`/api/rewards/coupons/${stringId}`);
             // The backend returns { coupon: { ... } }
             return response.coupon || (response.success ? response.data : undefined);
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Fetch single coupon error:', error);
+            set({ error: getErrorMessage(error, 'Failed to fetch coupon') });
             return undefined;
         }
     }

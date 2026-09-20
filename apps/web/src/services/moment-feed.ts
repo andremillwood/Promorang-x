@@ -10,6 +10,11 @@ export interface CanonicalMoment {
   category?: string | null;
   location?: string | null;
   venue_name?: string | null;
+  venue_id?: string | null;
+  venue_slug?: string | null;
+  scene_id?: string | null;
+  scene_slug?: string | null;
+  scene_title?: string | null;
   starts_at: string;
   ends_at?: string | null;
   effective_ends_at: string;
@@ -20,7 +25,18 @@ export interface CanonicalMoment {
   organizer_id?: string | null;
   max_participants?: number | null;
   participant_count: number;
+  associated_brands?: Array<{ id: string | null; name: string; slug: string | null }>;
   associated_brand_names: string[];
+  associated_offers?: Array<{
+    id: string;
+    title: string;
+    description?: string | null;
+    image_url?: string | null;
+    reward_type?: string | null;
+    value_amount?: number | null;
+    value_currency?: string | null;
+    source_label?: string | null;
+  }>;
   data_quality_issues: string[];
   end_time_inferred: boolean;
   sponsorship_ready: boolean;

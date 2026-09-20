@@ -24,7 +24,20 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
+
+      - name: Test public market continuity
+        shell: bash
+        run: |
+          set +e
+          output=$(npm run test --workspace apps/web -- --maxWorkers=1 --minWorkers=1 src/lib/public-object-continuity.test.ts src/lib/resumable-intent.test.ts 2>&1)
+          status=$?
+          printf '%s\n' "$output"
+          if [ "$status" -ne 0 ]; then
+            annotation=$(printf '%s' "$output" | tail -c 6000 | sed -e 's/%/%25/g' -e 's/\r/%0D/g' -e ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error title=Public market continuity failure::$annotation"
+            exit "$status"
+          fi
 
       - name: Build web
         run: npm run build --workspace apps/web

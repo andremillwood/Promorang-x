@@ -168,7 +168,9 @@ export function getUnifiedBalances(): UnifiedBalances {
   try {
     const raw = localStorage.getItem(GLOBAL_WALLET_BALANCES_KEY);
     if (raw) return JSON.parse(raw);
-  } catch {}
+  } catch {
+    // Storage may be unavailable in private or restricted browser contexts.
+  }
 
   // Next Friday default
   const nextFriday = new Date();

@@ -32,7 +32,7 @@ export function EvidenceFeed(_props: EvidenceFeedProps) {
       <FileCheck2 className="h-5 w-5 text-primary" />
       <h3 className="mt-3 text-base font-bold text-foreground">Visual evidence feed not available here.</h3>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Use the Brand Evidence Pack for recorded attribution and campaign evidence. PROMORANG will not substitute sample people, verification, locations, or rewards for a missing evidence source.
+        Use the Brand Evidence Pack to review attribution and campaign evidence. If evidence is unavailable, PROMORANG will say so clearly.
       </p>
     </section>
   );
