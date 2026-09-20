@@ -92,7 +92,11 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
     initialData: () => import.meta.env.DEV ? readLocalIntents(cityName) : undefined,
     queryFn: async (): Promise<NamedIntent[]> => {
       const local = import.meta.env.DEV ? readLocalIntents(cityName) : [];
-      const { data, error } = await (supabase as any).rpc("list_discovery_named_intent_counts", {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const rpcName = sessionData.session
+        ? "list_discovery_named_intent_counts"
+        : "list_public_discovery_named_intent_counts";
+      const { data, error } = await (supabase as any).rpc(rpcName, {
         p_city: cityName,
       });
       if (error) {
