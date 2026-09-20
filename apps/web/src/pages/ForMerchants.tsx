@@ -11,6 +11,7 @@ import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
+import CommerceResponsibilityMap from "@/components/business/CommerceResponsibilityMap";
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
   if (votesRemaining === 0) return "threshold_met" as const;
@@ -94,6 +95,15 @@ export default function ForMerchants() {
           <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {programmes.map((programme) => <article key={programme.id} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-5"><Sparkles className="h-5 w-5 text-emerald-300" /><h3 className="mt-4 font-serif text-2xl font-bold">{programme.title}</h3><p className="mt-3 text-sm leading-6 text-white/45">{programme.promise}</p><div className="mt-5 flex flex-wrap gap-2">{programme.path.map((step) => <span key={step} className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-bold text-white/45">{step}</span>)}</div></article>)}
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">When your business is the seller</p>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-5xl">PROMORANG can move the customer. Your business still owns the commercial promise.</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">Price, stock, availability, payment acceptance, pickup or delivery, refunds and customer issues remain merchant responsibilities. PROMORANG can connect demand, distribution, transaction state, evidence and return without inventing supply your team cannot fulfill.</p>
+          <div className="mt-8"><CommerceResponsibilityMap highlight="merchant" compact /></div>
         </div>
       </section>
 
