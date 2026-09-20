@@ -30,6 +30,8 @@ const CreateCampaign = () => {
   const [params] = useSearchParams();
   const { activeRole } = useAuth();
   const lensRole = params.get("role") || activeRole;
+  const participationParam = params.get("participation");
+  const participationKind = participationParam === "challenge" || participationParam === "gig" ? participationParam : null;
   const createCampaign = useCreateCampaign();
   const { compile, isCompiling } = useCampaignCompiler();
   const [prompt, setPrompt] = useState("");
@@ -80,6 +82,7 @@ const CreateCampaign = () => {
         value_unit: "GEM",
         funding_status: "unfunded",
         activation_status: "draft",
+        participation_kind: participationKind || plan.metadata?.participation_kind || null,
       },
     });
 
@@ -120,12 +123,22 @@ const CreateCampaign = () => {
               </button>
 
               <div className="my-auto max-w-3xl py-16">
-                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#d85b24]">{t("createCampaign.eyebrow")}</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#d85b24]">
+                  {participationKind === "challenge" ? "Challenge Studio" : participationKind === "gig" ? "Gig Studio" : t("createCampaign.eyebrow")}
+                </p>
                 <h1 className="mt-5 text-5xl font-black leading-[0.92] tracking-[-0.055em] sm:text-6xl xl:text-7xl">
-                  {t("createCampaign.heroTitle")}
+                  {participationKind === "challenge"
+                    ? "Create a Challenge people can actually complete."
+                    : participationKind === "gig"
+                      ? "Create paid work with a clear deliverable."
+                      : t("createCampaign.heroTitle")}
                 </h1>
                 <p className="mt-7 max-w-2xl text-lg leading-8 text-black/58">
-                  {t("createCampaign.heroSubtitle")}
+                  {participationKind === "challenge"
+                    ? "Define the objective, who it is for, what counts as proof, what value follows, and when completion is actually complete."
+                    : participationKind === "gig"
+                      ? "Define the work, compensation, eligibility, available slots, deadline and the evidence required before payment or reward is earned."
+                      : t("createCampaign.heroSubtitle")}
                 </p>
                 <div className="mt-8 max-w-2xl">
                   <StakeholderHowLead role={lensRole} surface="campaign" variant="light" />
@@ -133,7 +146,9 @@ const CreateCampaign = () => {
 
                 <div className="mt-10 border-y border-black/15 py-6">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="activation-intent" className="text-sm font-black">{t("createCampaign.intentLabel")}</label>
+                    <label htmlFor="activation-intent" className="text-sm font-black">
+                      {participationKind === "challenge" ? "What do you want people to complete?" : participationKind === "gig" ? "What paid work do you need done?" : t("createCampaign.intentLabel")}
+                    </label>
                     <span className="text-xs font-bold uppercase tracking-wider text-[#d85b24]">Planning prompts</span>
                   </div>
 
@@ -168,7 +183,11 @@ const CreateCampaign = () => {
                     id="activation-intent"
                     value={prompt}
                     onChange={(event) => setPrompt(event.target.value)}
-                    placeholder={t("createCampaign.intentPlaceholder")}
+                    placeholder={participationKind === "challenge"
+                      ? "Example: Complete three verified visits to independent restaurants this month and earn 500 PromoPoints plus a Key."
+                      : participationKind === "gig"
+                        ? "Example: We need 10 creators to produce two vertical videos each. J$5,000 per accepted deliverable. Proof: approved files + post link."
+                        : t("createCampaign.intentPlaceholder")}
                     className="mt-4 min-h-[130px] resize-none rounded-none border-0 bg-transparent p-0 text-xl leading-8 shadow-none placeholder:text-black/25 focus-visible:ring-0 sm:text-2xl"
                     autoFocus
                   />
@@ -181,7 +200,7 @@ const CreateCampaign = () => {
                     className="h-14 rounded-full bg-[#191816] px-7 text-base font-black text-white hover:bg-[#d85b24]"
                   >
                     <Sparkles className={`mr-2 h-5 w-5 ${isCompiling ? "animate-spin" : ""}`} />
-                    {isCompiling ? t("createCampaign.compilingButton") : t("createCampaign.planButton")}
+                    {isCompiling ? t("createCampaign.compilingButton") : participationKind === "challenge" ? "Plan Challenge" : participationKind === "gig" ? "Plan Gig" : t("createCampaign.planButton")}
                   </Button>
                   <p className="max-w-xs text-xs leading-5 text-black/45">{t("createCampaign.draftNotice")}</p>
                 </div>

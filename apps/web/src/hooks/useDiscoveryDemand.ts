@@ -14,6 +14,7 @@ import { mergeUnlockTallies, readLocalCardUnlocks, tallyCardUnlocks, type Unlock
 import { intentWords, mergeDiscoveryPolls } from "@/lib/discovery-path";
 import { useCityDiscoveryPolls } from "@/hooks/useCityDiscoveryPolls";
 import { useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
+import { useCommunityDemandPolls } from "@/hooks/useCommunityDemandPolls";
 
 const ANON_KEY = "promorang.discover.anon";
 const LOCAL_INTENTS_KEY = "promorang.discover.named-intents";
@@ -86,13 +87,18 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   const queryClient = useQueryClient();
   const cityPolls = useCityDiscoveryPolls(countrySlug, citySlug, 12);
   const listingPolls = useListingDiscoveryPolls(8);
+  const communityPolls = useCommunityDemandPolls(cityName, 12);
 
   const intentsQuery = useQuery({
     queryKey: ["discovery-named-intents", cityName],
     initialData: () => import.meta.env.DEV ? readLocalIntents(cityName) : undefined,
     queryFn: async (): Promise<NamedIntent[]> => {
       const local = import.meta.env.DEV ? readLocalIntents(cityName) : [];
-      const { data, error } = await (supabase as any).rpc("list_discovery_named_intent_counts", {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const rpcName = sessionData.session
+        ? "list_discovery_named_intent_counts"
+        : "list_public_discovery_named_intent_counts";
+      const { data, error } = await (supabase as any).rpc(rpcName, {
         p_city: cityName,
       });
       if (error) {
@@ -123,8 +129,9 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
             userVotedOptionId: poll.user_voted_option_id || undefined,
           }),
         ),
+        (communityPolls.data || []).map(demandPollFromDiscovery),
       ]),
-    [listingPolls.data, cityPolls.data],
+    [listingPolls.data, cityPolls.data, communityPolls.data],
   );
 
   const unlocksQuery = useQuery({
@@ -172,7 +179,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
 
   return {
     inbox,
-    isLoading: cityPolls.isLoading || listingPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
+    isLoading: cityPolls.isLoading || listingPolls.isLoading || communityPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
     recordAsk: record.mutateAsync,
   };
 }

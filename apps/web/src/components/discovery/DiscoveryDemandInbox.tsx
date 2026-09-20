@@ -27,7 +27,7 @@ export function DiscoveryDemandInbox({
   return (
     <Link to="/demand" className="group block rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-5 transition hover:border-primary/30">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Opportunity inbox · {inbox.city}</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Market pulse · {inbox.city}</p>
         <Radio className="h-4 w-4 text-primary" />
       </div>
       {isLoading ? (
@@ -35,20 +35,20 @@ export function DiscoveryDemandInbox({
       ) : topMiss ? (
         <>
           <p className="mt-3 font-serif text-2xl font-bold text-white">“{topMiss.query}”</p>
-          <p className="mt-2 text-sm text-white/45">{topMiss.count} ask{topMiss.count === 1 ? "" : "s"} we haven’t matched yet.</p>
+          <p className="mt-2 text-sm text-white/45">Asked for {topMiss.count} time{topMiss.count === 1 ? "" : "s"}. No live want matches it yet.</p>
         </>
       ) : topQuestion ? (
         <>
           <p className="mt-3 font-serif text-2xl font-bold text-white">{topQuestion.poll.question}</p>
-          <p className="mt-2 text-sm text-white/45">{topQuestion.poll.totalVotes || 0} vote{topQuestion.poll.totalVotes === 1 ? "" : "s"}. See whether this is worth responding to.</p>
+          <p className="mt-2 text-sm text-white/45">{topQuestion.poll.totalVotes || 0} voice{topQuestion.poll.totalVotes === 1 ? "" : "s"}. Decide whether you can make something real happen.</p>
         </>
       ) : (
         <>
-          <p className="mt-3 font-serif text-2xl font-bold text-white">No opportunities here yet.</p>
-          <p className="mt-2 text-sm text-white/45">Nothing is asking for your attention right now. Check back as the market moves.</p>
+          <p className="mt-3 font-serif text-2xl font-bold text-white">Nothing is gathering here yet.</p>
+          <p className="mt-2 text-sm text-white/45">When people start leaning the same way, PROMORANG will bring it here.</p>
         </>
       )}
-      <span className="mt-4 inline-flex items-center gap-2 text-xs font-black text-primary">Open inbox <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
+      <span className="mt-4 inline-flex items-center gap-2 text-xs font-black text-primary">Open market pulse <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
     </Link>
   );
 }

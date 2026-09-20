@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ArrowRight, BadgeDollarSign, Route, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useExperienceNetwork, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { ExperienceShell, QuietEmpty, StatPile } from "@/components/people/ExperienceShell";
@@ -33,18 +34,41 @@ export default function MyPeople() {
       title={t("peopleNet.title")}
       description={t("peopleNet.copy")}
     >
+      <section className="rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-5">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">How people move through you</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            { icon: Share2, title: "Share", copy: "Send something useful because it fits the person." },
+            { icon: Route, title: "Credit", copy: "Use a recorded route when you want later referral activity attributed to you." },
+            { icon: BadgeDollarSign, title: "Earn — when configured", copy: "A reward or commission only exists when the qualifying action has a funded rule." },
+          ].map((item) => (
+            <div key={item.title} className="rounded-2xl border border-white/10 bg-black/25 p-4">
+              <item.icon className="h-4 w-4 text-primary" />
+              <p className="mt-3 text-sm font-black">{item.title}</p>
+              <p className="mt-1 text-[11px] leading-5 text-white/45">{item.copy}</p>
+            </div>
+          ))}
+        </div>
+        <Link to="/referrals" className="mt-5 inline-flex items-center gap-2 text-xs font-black text-primary">
+          See tracked referrals & rewards <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </section>
+
       <section className="grid grid-cols-2 gap-3">
         <StatPile label={t("people.people")} value={data?.people || 0} hint={data?.thisMonth ? t("peopleNet.hintMonth", { count: data.thisMonth }) : t("peopleNet.hintStart")} />
         <StatPile label={t("peopleNet.broughtByYou")} value={data?.direct || 0} hint={t("peopleNet.throughNetwork", { count: data?.throughNetwork || 0 })} />
       </section>
 
-      <button
-        type="button"
-        onClick={handleInvite}
-        className="min-h-14 w-full rounded-full bg-primary text-sm font-black text-black"
-      >
-        {copied ? t("peopleNet.inviteCopied") : t("peopleNet.inviteFriend")}
-      </button>
+      <div>
+        <button
+          type="button"
+          onClick={handleInvite}
+          className="min-h-14 w-full rounded-full bg-primary text-sm font-black text-black"
+        >
+          {copied ? t("peopleNet.inviteCopied") : "Invite someone who would actually value this"}
+        </button>
+        <p className="mt-2 text-center text-[10px] leading-4 text-white/35">An invite can help someone join. Use your tracked referral route when you need attribution; rewards are never implied by the share alone.</p>
+      </div>
 
       <section>
         <h2 className="font-serif text-2xl font-bold">{t("peopleNet.topContributors")}</h2>

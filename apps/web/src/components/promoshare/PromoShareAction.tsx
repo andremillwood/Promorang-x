@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Share2, Copy, Check, Sparkles, MessageCircle, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { usePromoShareRail } from '@/hooks/usePromoShareRail';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCreateReferralCode } from '@/hooks/useReferrals';
 import { ShareableObjectType, shareViaWhatsApp, shareViaTwitter } from '@/lib/promoShareRail';
 import { toast } from 'sonner';
 import { useI18n } from '@/i18n/I18nContext';
@@ -24,6 +27,8 @@ export interface PromoShareActionProps {
   variant?: 'button' | 'icon' | 'compact' | 'badge';
   className?: string;
   buttonLabel?: string;
+  /** Human reason to distribute this object. Sharing remains optional. */
+  shareReason?: string;
 }
 
 const OBJECT_TYPE_KEYS: Record<ShareableObjectType, TranslationKey> = {
@@ -34,6 +39,16 @@ const OBJECT_TYPE_KEYS: Record<ShareableObjectType, TranslationKey> = {
   piece: 'promoShare.typePiece',
   campaign: 'promoShare.typeCampaign',
   creator: 'promoShare.typeCreator',
+};
+
+const DEFAULT_SHARE_REASON: Record<ShareableObjectType, string> = {
+  perk: 'Send useful access to someone who may genuinely want to use it.',
+  discovery: 'Bring more real voices into the choice so the result is more useful.',
+  moment: 'Help someone discover a Moment they may actually want to join.',
+  mission: 'Invite someone into a Challenge that is worth completing.',
+  piece: 'Help a useful piece of content reach the people it was made for.',
+  campaign: 'Help this activation reach people who fit the opportunity.',
+  creator: 'Help someone discover a creator whose work may matter to them.',
 };
 
 export const PromoShareAction: React.FC<PromoShareActionProps> = ({
@@ -47,14 +62,18 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
   variant = 'button',
   className = '',
   buttonLabel,
+  shareReason,
 }) => {
   const { t } = useI18n();
+  const { user } = useAuth();
   const { generateShareLink, referralCode, referralCodeRecorded } = usePromoShareRail();
+  const createReferralCode = useCreateReferralCode();
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shareSheetCompleted, setShareSheetCompleted] = useState(false);
 
-  const label = buttonLabel ?? t('promoShare.promote');
+  const label = buttonLabel ?? 'Share this';
+  const whyShare = shareReason || DEFAULT_SHARE_REASON[objectType];
   const finalShareUrl = explicitShareUrl || generateShareLink(objectType, objectId, slugOrPath);
   const hasRewardRule = Boolean(
     potentialReward &&
@@ -186,19 +205,39 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="my-3 space-y-1 rounded-2xl border border-orange-500/20 bg-zinc-900 p-3.5">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-white">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Attribution boundary</span>
+          <div className="my-3 space-y-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>Why move this?</span>
+              </div>
+              <p className="mt-2 text-[11px] leading-5 text-zinc-400">{whyShare}</p>
             </div>
-            <p className="text-[11px] leading-5 text-zinc-400">
-              Sharing creates a trackable route. It does not prove a visit, referral, conversion, or reward. Those states require their own recorded event.
-            </p>
-            {hasRewardRule ? (
-              <p className="pt-1 text-[11px] leading-5 text-orange-300">
-                Recorded rule: {rewardSummary}. {potentialReward?.condition || 'Eligibility applies only when the configured attributed action is verified.'}
+
+            <div className="rounded-2xl border border-orange-500/20 bg-zinc-900 p-3.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                <Share2 className="w-4 h-4 text-orange-400" />
+                <span>How credit works</span>
+              </div>
+              <div className="mt-3 grid grid-cols-5 gap-1 text-center">
+                {['Share', 'Arrive', 'Act', 'Credit', 'Earn*'].map((step, index) => (
+                  <div key={step} className="rounded-lg border border-white/8 bg-black/30 px-1 py-2">
+                    <p className="text-[8px] font-black text-orange-300">{index + 1}</p>
+                    <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.08em] text-white/55">{step}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-zinc-400">
+                A share can help something move without paying anything. Referral credit requires a recorded link. Affiliate or referral earnings only exist when a funded rule names the qualifying action and that action is verified.
               </p>
-            ) : null}
+              {hasRewardRule ? (
+                <p className="pt-2 text-[11px] font-bold leading-5 text-orange-300">
+                  This object has a recorded rule: {rewardSummary}. {potentialReward?.condition || 'The configured attributed action must be verified.'}
+                </p>
+              ) : (
+                <p className="pt-2 text-[11px] leading-5 text-white/35">*No reward rule is attached to this share right now.</p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -225,8 +264,34 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
           </div>
 
           {!referralCodeRecorded && !explicitShareUrl ? (
-            <p className="mt-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.05] p-3 text-[11px] leading-5 text-amber-100/65">
-              This link can still be shared, but it has no referral code attached. No referral credit should be expected unless the platform provides a recorded code.
+            <div className="mt-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.05] p-3">
+              <p className="text-[11px] leading-5 text-amber-100/65">
+                This link is shareable, but PROMORANG cannot credit later referral activity to you until you create a recorded referral code.
+              </p>
+              {user ? (
+                <button
+                  type="button"
+                  disabled={createReferralCode.isPending}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    createReferralCode.mutate();
+                  }}
+                  className="mt-3 inline-flex min-h-9 items-center rounded-full bg-amber-300 px-4 text-[10px] font-black uppercase tracking-[0.1em] text-black disabled:opacity-50"
+                >
+                  {createReferralCode.isPending ? 'Creating…' : 'Create my tracked link'}
+                </button>
+              ) : (
+                <Link
+                  to={`/auth?mode=signup&next=${encodeURIComponent(window.location.pathname)}`}
+                  className="mt-3 inline-flex min-h-9 items-center rounded-full bg-amber-300 px-4 text-[10px] font-black uppercase tracking-[0.1em] text-black"
+                >
+                  Sign in for tracked credit
+                </Link>
+              )}
+            </div>
+          ) : referralCodeRecorded ? (
+            <p className="mt-3 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] p-3 text-[11px] leading-5 text-emerald-100/65">
+              Your recorded referral code is attached. PROMORANG can attribute later eligible referral activity when the linked journey is actually recorded.
             </p>
           ) : null}
 

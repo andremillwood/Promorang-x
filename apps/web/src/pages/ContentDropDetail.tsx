@@ -86,7 +86,7 @@ export default function ContentDropDetail() {
             label: pays ? "Counts" : "Does not pay",
             value: pays
               ? `+${Number(action.points_awarded ?? 0)} contribution value`
-              : "Sharing is not the payday",
+              : "Distribution recorded; this action has no configured payout",
             kind: "points",
           },
         ];
@@ -285,7 +285,7 @@ export default function ContentDropDetail() {
                     {t("dropDetail.signIn")}
                   </p>
                 ) : (
-                  <p className="text-xs leading-5 text-white/40">Sharing, reposting, or commenting does not pay. Opening the original and finishing a Promorang move does.</p>
+                  <p className="text-xs leading-5 text-white/40">Distribution can still matter even when it does not pay. This Drop only awards value for the actions its terms explicitly configure; opening, sharing, referral and the final consequence remain separate records.</p>
                 )}
               </CardContent>
             </Card>

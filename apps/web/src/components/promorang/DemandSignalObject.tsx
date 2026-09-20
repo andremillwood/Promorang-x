@@ -19,10 +19,10 @@ type DemandSignalObjectProps = {
 };
 
 const stateCopy: Record<DemandSignalState, string> = {
-  early: "Starting",
-  warming: "Growing",
-  near_threshold: "Almost there",
-  threshold_met: "Target reached",
+  early: "Just starting",
+  warming: "Gathering",
+  near_threshold: "Close to target",
+  threshold_met: "Target met",
 };
 
 export function DemandSignalObject({
@@ -34,7 +34,7 @@ export function DemandSignalObject({
   matchedAsk,
   responseLabel,
   href,
-  actionLabel = "Open signal",
+  actionLabel = "Add my voice",
   state = "early",
   className,
 }: DemandSignalObjectProps) {
@@ -86,13 +86,13 @@ export function DemandSignalObject({
                 <div>
                   <div className="flex items-center gap-2 text-[#5a493d]">
                     <Users className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-[0.12em]">Votes</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.12em]">Voices</span>
                   </div>
                   <p className="mt-1 font-mono text-4xl font-black tracking-[-0.06em]">{demandCount.toLocaleString()}</p>
                 </div>
                 {threshold ? (
                   <div className="text-right">
-                    <p className="font-mono text-sm font-black">{remaining === 0 ? "Target reached" : `${remaining.toLocaleString()} more to target`}</p>
+                    <p className="font-mono text-sm font-black">{remaining === 0 ? "Target met" : `${remaining.toLocaleString()} more voices to target`}</p>
                     <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#7a6554]">Target {threshold.toLocaleString()}</p>
                   </div>
                 ) : null}
@@ -103,7 +103,7 @@ export function DemandSignalObject({
                   <div className="h-full rounded-full bg-orange-600 transition-[width] duration-500" style={{ width: `${progress}%` }} />
                 </div>
               ) : null}
-              <p className="mt-3 text-[10px] font-medium leading-4 text-[#7a6554]">Votes show shared interest. What happens next depends on the question and who can respond.</p>
+              <p className="mt-3 text-[10px] font-medium leading-4 text-[#7a6554]">Every voice adds to the picture. Reaching the target shows the want is clear — it does not mean anything has opened yet.</p>
             </div>
           </div>
         </div>

@@ -3,6 +3,8 @@ import { ArrowRight, Building2, CheckCircle2, Compass, MapPin, Search, Sparkles,
 import { Link } from "react-router-dom";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
+import { TasteCalibration } from "@/components/promorang/TasteCalibration";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
 import { PromoCardValueShowcase } from "@/components/marketing/PromoCardValueShowcase";
 import { CurrentArc, ReturnLoopStory } from "@/components/marketing/MarketingPhysics";
@@ -147,42 +149,98 @@ export default function PublicMarketHome() {
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto flex min-h-[32rem] max-w-[1440px] items-end">
-          <div className="max-w-4xl pb-4 md:pb-8">
-            <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> Find what moves you. Help make more of it happen.</p>
-            <h1 className="mt-6 max-w-[9.5ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.6rem]">
-              Find what
+        <div className="relative mx-auto grid min-h-[36rem] max-w-[1440px] gap-10 lg:grid-cols-[minmax(0,.78fr)_minmax(520px,1.02fr)] lg:items-center">
+          <div className="max-w-4xl py-6 md:py-10">
+            <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> PromoCard · your place in PROMORANG</p>
+            <h1 className="mt-6 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.6rem]">
+              Your wants.
               <br />
-              <span className="text-orange-400">moves you.</span>
+              Your access.
               <br />
-              Help move it.
+              <span className="text-orange-400">Your PromoCard.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
-              Discover things worth knowing about, recognize what you care about, join what other people want, or tell PROMORANG what you are looking for.
+              PROMORANG is the network underneath it. PromoCard is the product you carry: tell us what you want, keep what matters close, see when something opens, and carry what you actually did forward.
             </p>
-
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/discover" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-orange-400">
-                <Compass className="h-4 w-4" /> Explore PROMORANG
+              <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black transition hover:bg-orange-400">
+                Get my PromoCard <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href="#ask" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
-                I know what I want <ArrowRight className="h-4 w-4" />
+              <a href="#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
+                See what people want <Users className="h-4 w-4" />
               </a>
             </div>
-
-            <div className="marketing-hero-promocard-outcomes" aria-label="What PromoCard does for you">
-              <span className="marketing-hero-promocard-label">PromoCard</span>
-              <span><strong>WATCH</strong> what matters</span>
-              <span><strong>OPEN</strong> Moments & access</span>
-              <span><strong>USE</strong> perks that exist</span>
-              <span><strong>KEEP</strong> access & history</span>
-            </div>
-            <p className="mt-4 max-w-xl text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
-              Save what matters. Come back when something changes.
+            <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
+              Start right here. Teach PROMORANG what you like. Right underneath, tell us what could actually move you. Your private taste shapes your experience; explicit Wants shape the public market.
             </p>
           </div>
+          <div className="relative pb-2 lg:pb-0">
+            <div className="pointer-events-none absolute -inset-10 rounded-full bg-orange-500/10 blur-3xl" />
+            <TasteCalibration marketLabel={marketName} variant="hero" mode="taste" />
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 backdrop-blur">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-orange-300">This becomes your PromoCard</p>
+                <p className="mt-1 text-xs leading-5 text-white/48">Desire and motivation shape what comes back. Real access, actions, Points and Keys accumulate from there.</p>
+              </div>
+              <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 px-4 text-[10px] font-black uppercase tracking-[0.1em] text-white/75">
+                Keep my profile <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section className="border-b border-white/10 bg-[#090909] px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <TasteCalibration marketLabel={marketName} mode="motivation" />
         </div>
       </section>
+
+      <section id="wanted" className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="marketing-section-head">
+            <div>
+              <p className="marketing-kicker">What {marketName} wants</p>
+              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">See where people are leaning right now.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are real Wants taking shape in public. Add your voice when you genuinely want the same thing. The stronger the pattern becomes, the clearer the opportunity is for someone to respond.</p>
+            </div>
+            <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Put something else on the table <ArrowRight className="h-4 w-4" /></a>
+          </div>
+
+          {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Loading what people want…</p> : null}
+          {liveSignals.length ? (
+            <div className="marketing-demand-rail">
+              {liveSignals.map((signal) => (
+                <DemandSignalObject
+                  key={signal.poll.id}
+                  city={inbox.city}
+                  title={signal.poll.question}
+                  leadingOption={signal.leading?.text}
+                  demandCount={signal.poll.totalVotes || 0}
+                  threshold={signal.poll.thresholdForMoment}
+                  responseLabel={signal.poll.targetUnlockPerk}
+                  href={discoveryHref(signal.poll)}
+                  state={signalState(signal.votesRemaining, signal.closeness)}
+                  actionLabel="I want this too"
+                />
+              ))}
+            </div>
+          ) : !isLoading ? (
+            <div className="marketing-compact-empty">
+              <Users className="h-5 w-5 text-orange-400" />
+              <div>
+                <p className="text-sm font-black text-white">No one has put a want on the table here yet.</p>
+                <p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask—or explore what people are already discovering.</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <ParticipationEconomy variant="public" />
+
+      <PromoCardValueShowcase />
 
       <section className="px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
@@ -235,43 +293,28 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
-      <section id="wanted" className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="marketing-section-head">
-            <div>
-              <p className="marketing-kicker">What people are asking for · {inbox.city}</p>
-              <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">When private preferences overlap, a market starts to appear.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are things people are asking for. A strong signal can attract a response, but it is still just interest until someone puts something up.</p>
-            </div>
-            <a href="#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Looking for something? <ArrowRight className="h-4 w-4" /></a>
-          </div>
+      
 
-          {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Loading what people want…</p> : null}
-          {liveSignals.length ? (
-            <div className="marketing-demand-rail">
-              {liveSignals.map((signal) => (
-                <DemandSignalObject
-                  key={signal.poll.id}
-                  city={inbox.city}
-                  title={signal.poll.question}
-                  leadingOption={signal.leading?.text}
-                  demandCount={signal.poll.totalVotes || 0}
-                  threshold={signal.poll.thresholdForMoment}
-                  responseLabel={signal.poll.targetUnlockPerk}
-                  href={discoveryHref(signal.poll)}
-                  state={signalState(signal.votesRemaining, signal.closeness)}
-                />
-              ))}
-            </div>
-          ) : !isLoading ? (
-            <div className="marketing-compact-empty">
-              <Users className="h-5 w-5 text-orange-400" />
-              <div>
-                <p className="text-sm font-black text-white">No one has asked for anything here yet.</p>
-                <p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask—or explore what people are already discovering.</p>
+      <section className="border-b border-white/10 bg-[#050505] px-5 py-12 sm:px-6 md:py-16">
+        <div className="mx-auto max-w-[1440px]">
+          <p className="marketing-kicker">How your PromoCard changes</p>
+          <div className="mt-6 grid gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              ["WANTED", "Things you have told PROMORANG you care about."],
+              ["WATCHING", "Things you want PROMORANG to bring you back to."],
+              ["OPEN", "Real access, offers or Moments available to you."],
+              ["ACTIVE", "Things you claimed, reserved or committed to."],
+              ["KEPT", "What you used, earned, completed or want in your history."],
+            ].map(([label, copy]) => (
+              <div key={label} className="bg-[#080808] px-5 py-6">
+                <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{label}</p>
+                <p className="mt-3 text-sm leading-6 text-white/55">{copy}</p>
               </div>
-            </div>
-          ) : null}
+            ))}
+          </div>
+          <p className="mt-4 max-w-3xl text-[11px] leading-5 text-white/35">
+            PromoCard reflects the market without blurring the truth: wanting something does not make it available, and picking something up does not mean you used it.
+          </p>
         </div>
       </section>
 
@@ -279,9 +322,9 @@ export default function PublicMarketHome() {
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_.62fr] lg:items-start">
           <div>
             <p className="marketing-kicker">Looking for something?</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Tell PROMORANG.</h2>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Tell PROMORANG what belongs on your radar.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">
-              A place. A product. Something to do. An offer. Something you wish existed. PROMORANG first checks what it already knows and whether other people are looking for something similar.
+              A place. A product. Something to do. Access. An experience. Something you wish existed. PROMORANG first checks what it already knows and whether other people want something similar. Signed-in participants can keep the things that matter on PromoCard.
             </p>
 
             <form onSubmit={submitAsk} className="mt-7 max-w-2xl">
@@ -330,12 +373,12 @@ export default function PublicMarketHome() {
 
                   {relatedSignals.length ? (
                     <div className="mt-4 space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">People are asking for</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">People want this too</p>
                       {relatedSignals.map((signal) => (
                         <Link key={signal.poll.id} to={discoveryHref(signal.poll)} className="flex items-center justify-between gap-3 border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
                           <span>
                             <span className="block text-sm font-bold text-white">{signal.poll.question}</span>
-                            <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} vote{signal.poll.totalVotes === 1 ? "" : "s"}</span>
+                            <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} voice{signal.poll.totalVotes === 1 ? "" : "s"}</span>
                           </span>
                           <ArrowRight className="h-4 w-4 shrink-0 text-orange-300" />
                         </Link>
@@ -348,7 +391,7 @@ export default function PublicMarketHome() {
                       None of these — keep looking for this
                     </button>
                     <button type="button" onClick={() => setResolution(null)} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-white/15 px-5 text-xs font-bold text-white/65 transition hover:text-white">
-                      Edit my ask
+                      Change what I’m looking for
                     </button>
                   </div>
                 </div>
@@ -367,14 +410,12 @@ export default function PublicMarketHome() {
             <h3 className="mt-4 text-2xl font-black">First help me find it. Only then keep looking for what is still missing.</h3>
             <div className="mt-6 space-y-4 text-sm leading-6 text-white/55">
               <p><strong className="text-white">Found something?</strong><br />Open the Discovery first.</p>
-              <p><strong className="text-white">Others already want it?</strong><br />Join the existing signal instead of fragmenting demand.</p>
-              <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. We’ll keep it together with similar interest so you can see if momentum builds.</p>
+              <p><strong className="text-white">Others already want it?</strong><br />Join the same want instead of splitting the crowd.</p>
+              <p><strong className="text-white">Still missing?</strong><br />Keep looking for it. We’ll keep similar wants together so you can see whether more people join.</p>
             </div>
           </aside>
         </div>
       </section>
-
-      <PromoCardValueShowcase />
 
       <ReturnLoopStory />
 
@@ -384,8 +425,8 @@ export default function PublicMarketHome() {
         <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
             <p className="marketing-kicker"><Building2 className="h-3.5 w-3.5" /> For the people who can respond</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">See what people want before you decide what to put into the market.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Brands, merchants, hosts, creators and communities can see where interest is forming and decide whether to answer it with something people can actually use, join or buy.</p>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">See what people want. Make something worth opening on PromoCard.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Brands, merchants, hosts, creators and communities can see where interest is forming, answer with something real, and give people a reason to carry that relationship forward on PromoCard.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link to="/for-brands" className="inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">For business <ArrowRight className="h-4 w-4" /></Link>

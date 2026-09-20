@@ -1,19 +1,40 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { BadgeDollarSign, Gift, Megaphone, Target, Trophy } from "lucide-react";
 import { getStakeholderHowLead } from "@promorang/shared";
 import { useOpportunities, useExperienceActions } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+
+type ParticipationKind = "challenge" | "gig" | "offer" | "content" | "campaign";
+
+function opportunityKind(item: any): ParticipationKind {
+  if (item.participationKind === "challenge" || item.sourceKind === "mission") return "challenge";
+  if (item.participationKind === "gig") return "gig";
+  if (item.sourceKind === "offer") return "offer";
+  if (item.sourceKind === "content" || item.sourceKind === "drop") return "content";
+  return "campaign";
+}
+
+const kindMeta: Record<ParticipationKind, { label: string; icon: typeof Target; tone: string }> = {
+  challenge: { label: "Challenge", icon: Trophy, tone: "text-amber-300" },
+  gig: { label: "Gig", icon: BadgeDollarSign, tone: "text-emerald-300" },
+  offer: { label: "Offer", icon: Gift, tone: "text-orange-300" },
+  content: { label: "Content Drop", icon: Megaphone, tone: "text-fuchsia-300" },
+  campaign: { label: "Activation", icon: Target, tone: "text-sky-300" },
+};
 
 export default function EarnOpportunities() {
   const { t } = useI18n();
   const [params] = useSearchParams();
   const { activeRole } = useAuth();
   const lensRole = params.get("role") || activeRole;
+  const requestedKind = params.get("kind") as ParticipationKind | null;
   const how = getStakeholderHowLead(lensRole, "earn");
   const sceneId = params.get("hub") || undefined;
   const to = useExperiencePath();
@@ -21,6 +42,12 @@ export default function EarnOpportunities() {
   const { takeOpportunity } = useExperienceActions();
   const { toast } = useToast();
   const [taken, setTaken] = useState<{ title: string; slug: string; url: string } | null>(null);
+
+  const filtered = useMemo(() => {
+    const rows = opportunities.data || [];
+    if (!requestedKind || !["challenge", "gig", "offer", "content", "campaign"].includes(requestedKind)) return rows;
+    return rows.filter((item: any) => opportunityKind(item) === requestedKind);
+  }, [opportunities.data, requestedKind]);
 
   const take = async (id: string, title: string) => {
     try {
@@ -36,11 +63,32 @@ export default function EarnOpportunities() {
 
   return (
     <ExperienceShell
-      eyebrow={how.eyebrow}
-      title={how.title}
-      description={how.body}
+      eyebrow="Ways to participate"
+      title={requestedKind === "challenge" ? "Challenges worth completing." : requestedKind === "gig" ? "Paid Gigs worth taking." : "Things worth doing."}
+      description="Offers, Challenges, paid Gigs and other live opportunities should tell you what the move is, what counts, and what value follows."
     >
       <StakeholderHowLead role={lensRole} surface="earn" />
+
+      <div className="flex flex-wrap gap-2 border-y border-white/10 py-4">
+        {(["challenge", "gig", "offer", "campaign"] as ParticipationKind[]).map((kind) => {
+          const meta = kindMeta[kind];
+          const Icon = meta.icon;
+          const active = requestedKind === kind;
+          return (
+            <Link
+              key={kind}
+              to={to(`/earn?kind=${kind}`)}
+              className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-4 text-xs font-black transition ${active ? "border-primary bg-primary text-black" : "border-white/12 text-white/60 hover:border-white/30 hover:text-white"}`}
+            >
+              <Icon className="h-3.5 w-3.5" /> {meta.label}
+            </Link>
+          );
+        })}
+        <Link to={to("/content-drops")} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-black text-white/60 hover:border-white/30 hover:text-white">
+          <Megaphone className="h-3.5 w-3.5" /> Content Drops
+        </Link>
+      </div>
+
       {taken ? (
         <div className="rounded-[1.6rem] border border-primary/40 bg-primary/10 px-5 py-5">
           <p className="font-serif text-2xl font-bold">{t("earn.shareTitle", { title: taken.title })}</p>
@@ -50,48 +98,66 @@ export default function EarnOpportunities() {
             <Link to={to(`/drop/${taken.slug}`)} className="grid min-h-12 place-items-center rounded-full bg-primary text-sm font-black text-black">
               {t("earn.openDrop")}
             </Link>
-            <Link to={to("/give")} className="grid min-h-12 place-items-center rounded-full border border-white/20 text-sm font-black">
-              {t("earn.shareAnother")}
-            </Link>
             <Link to={to("/card")} className="block text-center text-sm text-white/40">{t("earn.seeCard")}</Link>
           </div>
         </div>
       ) : null}
+
       {opportunities.isLoading ? (
         <div className="h-40 animate-pulse rounded-[1.6rem] bg-white/5" />
-      ) : opportunities.data?.length ? (
-        <div className="space-y-3">
-          {opportunities.data.map((item) => (
-            <article key={item.id} className="rounded-[1.7rem] border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{item.sourceKind}</p>
-              <h2 className="mt-2 font-serif text-3xl font-bold leading-tight">{item.title}</h2>
-              {item.description ? <p className="mt-2 text-sm leading-6 text-white/55">{item.description}</p> : null}
-              <div className="mt-4 grid gap-2 text-sm">
-                <p><span className="text-white/40">{t("earn.peopleGet")}</span> · {item.peopleGet}</p>
-                <p><span className="text-white/40">{t("earn.youEarn")}</span> · {item.youEarn}</p>
-              </div>
-              <button
-                type="button"
-                disabled={takeOpportunity.isPending}
-                onClick={() => take(item.id, item.title)}
-                className="mt-5 min-h-12 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
-              >
-                {t("earn.take")}
-              </button>
-            </article>
-          ))}
+      ) : filtered.length ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {filtered.map((item: any) => {
+            const kind = opportunityKind(item);
+            const meta = kindMeta[kind];
+            const Icon = meta.icon;
+            return (
+              <article key={item.id} className="rounded-[1.7rem] border border-white/10 bg-white/[0.04] p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <p className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${meta.tone}`}>
+                    <Icon className="h-4 w-4" /> {meta.label}
+                  </p>
+                  {item.remaining != null ? <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/35">{item.remaining} left</span> : null}
+                </div>
+                <h2 className="mt-3 font-serif text-3xl font-bold leading-tight">{item.title}</h2>
+                {item.description ? <p className="mt-2 text-sm leading-6 text-white/55">{item.description}</p> : null}
+
+                <div className="mt-5 grid gap-3 border-y border-white/10 py-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/30">{kind === "gig" ? "The work" : "The move"}</p>
+                    <p className="mt-1 text-sm text-white/75">{item.peopleGet}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/30">{kind === "gig" ? "Compensation" : "Value"}</p>
+                    <p className="mt-1 text-sm font-bold text-white">{item.compensation || item.youEarn}</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={takeOpportunity.isPending}
+                  onClick={() => take(item.id, item.title)}
+                  className="mt-5 min-h-12 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
+                >
+                  {kind === "gig" ? "Take this Gig" : kind === "challenge" ? "Join Challenge" : "Take this opportunity"}
+                </button>
+              </article>
+            );
+          })}
         </div>
       ) : (
         <QuietEmpty
-          title={t("earn.emptyTitle")}
-          copy={t("earn.emptyCopy")}
+          title={requestedKind === "gig" ? "No paid Gigs are live right now." : requestedKind === "challenge" ? "No Challenges are live right now." : t("earn.emptyTitle")}
+          copy={requestedKind ? "PROMORANG will not substitute demo work for a quiet market. Explore other opportunity types or come back when something real opens." : t("earn.emptyCopy")}
           action={
-            <Link to={to(how.nextHref || "/discover?tab=perks")} className="text-sm font-bold text-primary">
-              {how.nextLabel || t("earn.browsePerks")}
+            <Link to={to("/discover")} className="text-sm font-bold text-primary">
+              Explore the market
             </Link>
           }
         />
       )}
+
+      <ParticipationEconomy variant="participant" />
     </ExperienceShell>
   );
 }

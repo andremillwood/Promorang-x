@@ -20,6 +20,7 @@ import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbo
 import { resolveDemandRole } from "@/lib/discovery-demand";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
+import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
@@ -210,6 +211,13 @@ export default function PeopleHome() {
           </nav>
         ) : null}
 
+        <ParticipationEconomy
+          variant="participant"
+          points={Number((data as any)?.card?.points || (data as any)?.wallet?.points || 0)}
+          promoKeys={Number((data as any)?.card?.keys || (data as any)?.wallet?.promokeys || 0)}
+          className="border-y border-white/10 py-8"
+        />
+
         <section aria-labelledby="vibe-title">
           <div className="flex items-end justify-between gap-4">
             <div><p className="pr-world-kicker">Find your vibe</p><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">What moves you?</h2></div>
@@ -314,6 +322,8 @@ export default function PeopleHome() {
       )}
     >
       {isPreview ? <nav aria-label={t("people.previewRoles")} className="pr-world-strip">{PREVIEW_ROLES.map((item) => <Link key={item} to={`/app-preview?role=${item}`} data-active={lens.role === item} className="pr-world-chip">{item}</Link>)}</nav> : null}
+
+      <ParticipationEconomy variant="operator" className="border-y border-white/10 py-8" />
 
       <section aria-labelledby="objects-in-play">
         <div className="flex items-end justify-between gap-4"><div><p className="pr-world-kicker">Canonical objects</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What is in play.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">The same objects, seen through the work this role must perform.</p></div>

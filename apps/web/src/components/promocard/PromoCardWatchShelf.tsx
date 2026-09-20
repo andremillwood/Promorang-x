@@ -17,6 +17,14 @@ function iconFor(type: string) {
   return Sparkles;
 }
 
+function labelFor(type: string) {
+  if (type === "demand") return "Want";
+  if (type === "discovery") return "Discovery";
+  if (type === "moment") return "Moment";
+  if (type === "offer" || type === "product") return "Open now";
+  return "Saved";
+}
+
 export function PromoCardWatchShelf() {
   const watched = useSavedMarketObjects();
   const relationships = watched.items.filter((item) => ["discovery", "demand", "moment", "offer", "product"].includes(item.object_type));
@@ -26,8 +34,8 @@ export function PromoCardWatchShelf() {
       <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Watching</p>
-          <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">What you want to hear about again.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Keep the things you care about close so you can find them again and see when something changes.</p>
+          <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">Things you want to come back to.</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Keep what matters close. If a want grows, something opens, or a Moment changes, this is where you return.</p>
         </div>
         <Link to="/discover" className="text-sm font-bold text-primary">Find something to watch →</Link>
       </div>
@@ -40,7 +48,7 @@ export function PromoCardWatchShelf() {
               <Link key={item.id} to={hrefFor(item)} className="group grid gap-3 py-5 sm:grid-cols-[auto_1fr_auto] sm:items-center">
                 <div className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.03]"><Icon className="h-4 w-4 text-primary" /></div>
                 <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/32">{item.object_type}</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/32">{labelFor(item.object_type)}</p>
                   <p className="mt-1 truncate font-serif text-2xl font-bold text-white transition group-hover:text-primary">{item.title}</p>
                   {item.subtitle ? <p className="mt-1 truncate text-xs text-white/38">{item.subtitle}</p> : null}
                 </div>
@@ -52,8 +60,8 @@ export function PromoCardWatchShelf() {
       ) : (
         <div className="mt-6 rounded-[1.4rem] border border-dashed border-white/10 p-6">
           <Bell className="h-5 w-5 text-primary" />
-          <p className="mt-3 font-serif text-2xl font-bold text-white">Nothing watched yet.</p>
-          <p className="mt-2 text-sm leading-6 text-white/40">Watch a Discovery, something people want, a Moment or an offer and PROMORANG will keep it here for you.</p>
+          <p className="mt-3 font-serif text-2xl font-bold text-white">Nothing kept close yet.</p>
+          <p className="mt-2 text-sm leading-6 text-white/40">Keep a Discovery, a Want, a Moment or something that is open and PROMORANG will bring you back to it.</p>
         </div>
       )}
     </section>
