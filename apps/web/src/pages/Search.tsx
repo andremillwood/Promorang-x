@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,18 +44,6 @@ const SearchPage = () => {
 
   const [inputValue, setInputValue] = useState(query);
   const [activeTab, setActiveTab] = useState(initialCategory);
-  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
-
-  // Auto detect user location for distance ranking
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => null
-      );
-    }
-  }, []);
-
   const { data: results, isLoading } = useQuery({
     queryKey: ["global-search", query],
     enabled: query.length >= 2,
@@ -72,7 +60,7 @@ const SearchPage = () => {
   const { data: trendingMoments } = useQuery({
     queryKey: ["trending-moments-search-hub"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("moments").select("id, title, location, venue_name, reward, image_url, category").limit(4);
+      const { data, error } = await supabase.from("moments").select("id, title, location, venue_name, reward, image_url, category, starts_at").eq("is_active", true).gte("starts_at", new Date().toISOString()).order("starts_at", { ascending: true }).limit(4);
       if (error) return [];
       return data || [];
     }
@@ -223,11 +211,11 @@ const SearchPage = () => {
                         </div>
                         <h4 className="font-bold text-white text-base truncate group-hover:text-[#ff5500]">{item.title}</h4>
                         <p className="text-xs text-white/50 truncate flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3 text-[#ff5500]" /> {item.venue_name || item.location || "Kingston"}
+                          <MapPin className="h-3 w-3 text-[#ff5500]" /> {item.venue_name || item.location || "Location not recorded"}
                         </p>
                         {item.reward && (
-                          <span className="inline-block mt-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                            🏆 ${item.reward} Reward
+                          <span className="mt-2 inline-block rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400">
+                            Configured value: {item.reward}
                           </span>
                         )}
                       </Link>

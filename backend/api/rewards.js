@@ -11,6 +11,12 @@ const couponService = require('../services/couponService');
 
 // All routes require authentication
 router.use(requireAuth);
+router.use((req, res, next) => {
+  if (!supabase) {
+    return res.status(503).json({ error: 'Reward source unavailable', code: 'REWARD_SOURCE_UNAVAILABLE' });
+  }
+  next();
+});
 
 /**
  * GET /api/rewards/coupons
@@ -20,16 +26,9 @@ router.use(requireAuth);
 router.get('/coupons', async (req, res) => {
   try {
     const userId = req.user.id;
-    const { status = 'all', limit = 50, offset = 0 } = req.query;
-
-    if (!supabase) {
-      // Return demo data when Supabase is unavailable
-      return res.json({
-        coupons: getDemoCoupons(userId, status),
-        total: 3,
-        has_more: false,
-      });
-    }
+    const { status = 'all' } = req.query;
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 50, 1), 100);
+    const offset = Math.max(Number.parseInt(req.query.offset, 10) || 0, 0);
 
     // Fetch BOTH user-assigned coupons AND available marketplace coupons
     const [assignmentsResult, marketplaceCouponsResult] = await Promise.all([
@@ -83,22 +82,23 @@ router.get('/coupons', async (req, res) => {
     const { data: marketplaceCoupons, error: marketplaceError } = marketplaceCouponsResult;
 
     if (assignmentsError) {
-      console.error('Error fetching user coupon assignments:', assignmentsError);
+      throw assignmentsError;
     }
     if (marketplaceError) {
-      console.error('Error fetching marketplace coupons:', marketplaceError);
+      throw marketplaceError;
     }
 
     // Get user's usage counts for marketplace coupons to filter out maxed-out ones
     let userCouponUsage = {};
     if (marketplaceCoupons && marketplaceCoupons.length > 0) {
       const couponIds = marketplaceCoupons.map(c => c.id);
-      const { data: usageData } = await supabase
+      const { data: usageData, error: usageError } = await supabase
         .from('coupon_usage')
         .select('coupon_id')
         .eq('user_id', userId)
         .in('coupon_id', couponIds);
 
+      if (usageError) throw usageError;
       if (usageData) {
         // Count usage per coupon
         usageData.forEach(u => {
@@ -109,6 +109,7 @@ router.get('/coupons', async (req, res) => {
 
     // Format user-assigned coupons
     const assignedCoupons = (assignments || []).map(assignment => ({
+      id: assignment.id,
       assignment_id: assignment.id,
       coupon_id: assignment.coupon_id,
       code: null, // User-assigned coupons don't have codes yet
@@ -137,6 +138,7 @@ router.get('/coupons', async (req, res) => {
         const hasMaxedOut = coupon.max_uses_per_user && userUsage >= coupon.max_uses_per_user;
 
         return {
+          id: coupon.id,
           assignment_id: coupon.id, // Use coupon ID as assignment ID for marketplace coupons
           coupon_id: coupon.id,
           code: coupon.code,
@@ -151,10 +153,10 @@ router.get('/coupons', async (req, res) => {
           source: coupon.source_type,
           source_label: coupon.campaign_id ? 'Campaign Reward' : 'Platform Offer',
           earned_at: coupon.created_at,
-          is_redeemed: hasMaxedOut,
-          redeemed_at: hasMaxedOut ? new Date().toISOString() : null,
+          is_redeemed: false,
+          redeemed_at: null,
           expires_at: coupon.expires_at,
-          status: hasMaxedOut ? 'used' : 'available',
+          status: hasMaxedOut ? 'usage_limit_reached' : 'available',
           metadata: coupon.metadata || {},
           conditions: {},
           coupon_source: 'marketplace',
@@ -202,10 +204,6 @@ router.get('/coupons/:assignmentId', async (req, res) => {
     const userId = req.user.id;
     const { assignmentId } = req.params;
 
-    if (!supabase) {
-      return res.json(getDemoCoupons(userId, 'all')[0] || {});
-    }
-
     const { data: assignment, error } = await supabase
       .from('advertiser_coupon_assignments')
       .select(`
@@ -228,9 +226,10 @@ router.get('/coupons/:assignmentId', async (req, res) => {
       `)
       .eq('id', assignmentId)
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
-    if (error || !assignment) {
+    if (error) throw error;
+    if (!assignment) {
       return res.status(404).json({ error: 'Coupon not found' });
     }
 
@@ -242,7 +241,7 @@ router.get('/coupons/:assignmentId', async (req, res) => {
         redeemed_at: assignment.redeemed_at,
         assigned_at: assignment.assigned_at,
         target_label: assignment.target_label,
-        redemption_code: assignment.id.slice(0, 8).toUpperCase(),
+        redemption_code: assignment.redemption_code || null,
         advertiser_coupons: {
           ...assignment.advertiser_coupons,
           redemption_instructions: getRedemptionInstructions(assignment.advertiser_coupons),
@@ -257,20 +256,13 @@ router.get('/coupons/:assignmentId', async (req, res) => {
 
 /**
  * POST /api/rewards/coupons/:assignmentId/redeem
- * Redeem a coupon (mark as claimed by user)
+ * Validate a coupon redemption request. Assigned-coupon settlement remains disabled
+ * until every resulting write can be committed atomically.
  */
 router.post('/coupons/:assignmentId/redeem', async (req, res) => {
   try {
     const userId = req.user.id;
     const { assignmentId } = req.params;
-
-    if (!supabase) {
-      return res.json({
-        success: true,
-        message: 'Coupon redeemed successfully (demo mode)',
-        code: 'DEMO-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
-      });
-    }
 
     // 1. Try fetching from advertiser_coupon_assignments first
     const { data: assignment, error: fetchError } = await supabase
@@ -291,6 +283,8 @@ router.post('/coupons/:assignmentId/redeem', async (req, res) => {
       .eq('user_id', userId)
       .single();
 
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
     if (assignment) {
       // Validate assigned coupon can be redeemed
       if (assignment.is_redeemed) {
@@ -309,57 +303,10 @@ router.post('/coupons/:assignmentId/redeem', async (req, res) => {
         return res.status(400).json({ error: 'Coupon has expired' });
       }
 
-      // Mark assignment as redeemed
-      const { error: updateError } = await supabase
-        .from('advertiser_coupon_assignments')
-        .update({
-          is_redeemed: true,
-          redeemed_at: new Date().toISOString(),
-        })
-        .eq('id', assignmentId);
-
-      if (updateError) {
-        console.error('Error updating assignment:', updateError);
-        return res.status(500).json({ error: 'Failed to redeem coupon' });
-      }
-
-      // Decrement coupon quantity
-      const { error: decrementError } = await supabase
-        .from('advertiser_coupons')
-        .update({
-          quantity_remaining: assignment.advertiser_coupons.quantity_remaining - 1,
-        })
-        .eq('id', assignment.coupon_id);
-
-      if (decrementError) {
-        console.error('Error decrementing coupon quantity:', decrementError);
-      }
-
-      // Create redemption record
-      const { error: redemptionError } = await supabase
-        .from('advertiser_coupon_redemptions')
-        .insert({
-          coupon_id: assignment.coupon_id,
-          user_id: userId,
-          reward_value: assignment.advertiser_coupons.value,
-          reward_unit: assignment.advertiser_coupons.value_unit,
-          status: 'completed',
-        });
-
-      if (redemptionError) {
-        console.error('Error creating redemption record:', redemptionError);
-      }
-
-      // Generate coupon code or apply in-app reward
-      const redemptionResult = await processRedemption(
-        userId,
-        assignment.advertiser_coupons
-      );
-
-      return res.json({
-        success: true,
-        message: 'Coupon redeemed successfully',
-        ...redemptionResult,
+      return res.status(503).json({
+        success: false,
+        error: 'Coupon redemption is unavailable until assignment, inventory, credential and value delivery settle atomically',
+        code: 'REWARD_REDEMPTION_ATOMICITY_PENDING',
       });
     }
 
@@ -369,6 +316,8 @@ router.post('/coupons/:assignmentId/redeem', async (req, res) => {
       .select('*')
       .eq('id', assignmentId)
       .single();
+
+    if (marketplaceError && marketplaceError.code !== 'PGRST116') throw marketplaceError;
 
     if (marketplaceCoupon) {
       console.log('[Rewards API] Found marketplace coupon:', {
@@ -392,22 +341,10 @@ router.post('/coupons/:assignmentId/redeem', async (req, res) => {
         return res.status(400).json({ error: validation.error || 'Coupon validation failed' });
       }
 
-      // Increment usage count via couponService
-      await couponService.trackCouponUsage(
-        marketplaceCoupon.id,
-        userId,
-        null, // No order ID yet
-        {},   // Empty discount (since it's a preview/redemption)
-        {},   // Empty original total
-        {}    // Empty final total
-      );
-
-      return res.json({
-        success: true,
-        message: 'Marketplace coupon retrieved successfully',
-        code: marketplaceCoupon.code,
-        instructions: `Use code "${marketplaceCoupon.code}" at checkout to receive your ${marketplaceCoupon.discount_type === 'percentage' ? marketplaceCoupon.discount_value + '%' : '$' + marketplaceCoupon.discount_value} discount.`,
-        expires_at: marketplaceCoupon.expires_at,
+      return res.status(409).json({
+        success: false,
+        error: 'Marketplace coupons are redeemed only as part of a recorded checkout; viewing a coupon does not consume it',
+        code: 'CHECKOUT_REDEMPTION_REQUIRED',
       });
     }
 
@@ -426,15 +363,6 @@ router.post('/coupons/:assignmentId/redeem', async (req, res) => {
 router.get('/stats', async (req, res) => {
   try {
     const userId = req.user.id;
-
-    if (!supabase) {
-      return res.json({
-        total_earned: 5,
-        total_redeemed: 2,
-        total_value: 125.50,
-        available_count: 3,
-      });
-    }
 
     const { data: assignments, error } = await supabase
       .from('advertiser_coupon_assignments')
@@ -481,132 +409,11 @@ function getCouponStatus(assignment) {
 
 function getRedemptionInstructions(coupon) {
   const instructions = {
-    coupon: 'Click "Redeem" to generate your unique coupon code. Apply it at checkout on the advertiser\'s website.',
-    giveaway: 'Click "Claim" to enter the giveaway. Winners will be notified via email.',
-    credit: 'Click "Claim" to instantly add credits to your account balance.',
+    coupon: 'A recorded issuer credential is required before this coupon can be used at checkout.',
+    giveaway: 'A recorded entry is separate from selection, claim, distribution and fulfillment.',
+    credit: 'Claiming records intent; value is available only after a corresponding economy transaction succeeds.',
   };
-  return instructions[coupon.reward_type] || 'Click "Redeem" to claim your reward.';
-}
-
-async function processRedemption(userId, coupon) {
-  // For coupon codes, generate a unique code
-  if (coupon.reward_type === 'coupon') {
-    const code = generateCouponCode(coupon.title);
-    return {
-      code,
-      instructions: `Use code "${code}" at checkout to receive ${coupon.value}${coupon.value_unit === 'percentage' ? '%' : ' ' + coupon.value_unit} off.`,
-    };
-  }
-
-  // For in-app credits (gems/keys), credit the user's account
-  if (coupon.reward_type === 'credit') {
-    if (supabase) {
-      try {
-        const economyService = require('../services/economyService');
-        const currency = coupon.value_unit === 'gems' ? 'gems' : 'promokeys';
-        await economyService.addCurrency(
-          userId,
-          currency,
-          Number(coupon.value),
-          'reward_redemption',
-          coupon.id,
-          `Redeemed reward: ${coupon.title}`
-        );
-      } catch (error) {
-        console.error('Error crediting user account:', error);
-      }
-    }
-    return {
-      credited: true,
-      amount: coupon.value,
-      currency: coupon.value_unit,
-      instructions: `${coupon.value} ${coupon.value_unit} have been added to your account!`,
-    };
-  }
-
-  // For giveaways, just confirm entry
-  if (coupon.reward_type === 'giveaway') {
-    return {
-      entered: true,
-      instructions: 'You\'ve been entered into the giveaway! Winners will be announced soon.',
-    };
-  }
-
-  return {
-    instructions: 'Reward claimed successfully!',
-  };
-}
-
-function generateCouponCode(title) {
-  const prefix = title.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '');
-  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return `${prefix}-${random}`;
-}
-
-function getDemoCoupons(userId, status) {
-  const allCoupons = [
-    {
-      assignment_id: 'demo-assign-1',
-      coupon_id: 'demo-coupon-1',
-      title: '25% Off Premium Upgrade',
-      description: 'Unlock premium features at a discounted rate',
-      reward_type: 'coupon',
-      value: 25,
-      value_unit: 'percentage',
-      source: 'user_drop_completion',
-      source_label: 'Drop completion reward',
-      earned_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      is_redeemed: false,
-      redeemed_at: null,
-      expires_at: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'available',
-      metadata: {},
-      conditions: {},
-    },
-    {
-      assignment_id: 'demo-assign-2',
-      coupon_id: 'demo-coupon-2',
-      title: '100 Bonus Gems',
-      description: 'Free gems to boost your progress',
-      reward_type: 'credit',
-      value: 100,
-      value_unit: 'gems',
-      source: 'user_leaderboard',
-      source_label: 'Leaderboard Rank #5',
-      earned_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      is_redeemed: false,
-      redeemed_at: null,
-      expires_at: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'available',
-      metadata: { rank: 5, period: 'weekly' },
-      conditions: {},
-    },
-    {
-      assignment_id: 'demo-assign-3',
-      coupon_id: 'demo-coupon-3',
-      title: 'Creator Merch Pack',
-      description: 'Exclusive merchandise from your favorite creator',
-      reward_type: 'giveaway',
-      value: 1,
-      value_unit: 'item',
-      source: 'user_drop_completion',
-      source_label: 'Drop completion reward',
-      earned_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      is_redeemed: true,
-      redeemed_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-      expires_at: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-      status: 'redeemed',
-      metadata: {},
-      conditions: {},
-    },
-  ];
-
-  if (status === 'available') {
-    return allCoupons.filter(c => !c.is_redeemed && c.status === 'available');
-  } else if (status === 'redeemed') {
-    return allCoupons.filter(c => c.is_redeemed);
-  }
-  return allCoupons;
+  return instructions[coupon.reward_type] || 'A recorded claim is required before redemption or fulfillment can proceed.';
 }
 
 module.exports = router;

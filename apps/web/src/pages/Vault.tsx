@@ -1,45 +1,47 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Gift, Ticket, Trophy, Sparkles, Zap, Gem, ReceiptText, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Gift,
-  Ticket,
-  Trophy,
-  CheckCircle2,
-  Sparkles,
-  ArrowRight,
-  QrCode,
-  Calendar,
-  Clock,
-  Zap,
-  Gem,
-  Bookmark,
-  Share2,
-} from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { LiquidityVaultDashboard } from "@/components/LiquidityVaultDashboard";
-import { useI18n } from "@/i18n/I18nContext";
 import { useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 import { LivePerkCard } from "@/components/perks/LivePerkCard";
-import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
+import { PaperReceipt } from "@/components/promorang/SignatureObjects";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 type VaultTab = "perks" | "tickets" | "memories" | "liquidity";
 
+type VaultMemory = {
+  id: string;
+  title?: string | null;
+  rarity?: string | null;
+  issued_at?: string | null;
+  legacy_score?: number | null;
+  metadata?: {
+    moment_title?: string | null;
+    venue_name?: string | null;
+    location?: string | null;
+    scene_title?: string | null;
+    proof_submission_id?: string | null;
+    [key: string]: unknown;
+  } | null;
+};
+
+function readableDate(value?: string | null) {
+  if (!value) return "Date retained in source record";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
 const Vault = () => {
-  const { t, formatNumber } = useI18n();
   const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState<VaultTab>("perks");
-
   const card = useMyPromoCard();
-  const { balances } = usePromoShareRail();
+  const { balances, refreshBalances } = usePromoShareRail();
   const claimedPerks = card.data?.benefits || [];
   const usedPerks = card.data?.used || [];
 
@@ -48,283 +50,148 @@ const Vault = () => {
     enabled: Boolean(user && session),
     queryFn: async () => {
       if (!session?.access_token) return null;
-      try {
-        const response = await fetch(`${API_URL}/api/vault`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
-        if (!response.ok) return null;
-        return await response.json();
-      } catch (error) {
-        console.error("Error fetching vault:", error);
-        return null;
-      }
+      const response = await fetch(`${API_URL}/api/vault`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(payload?.error || "Failed to load retained history");
+      return payload;
     },
   });
 
-  const vaultData = vaultQuery.data || {};
-  const memories = vaultData?.memories || [
-    {
-      id: "demo-m1",
-      title: "I LUV HIP HOP — VIP Pass",
-      moment_title: "I LUV HIP HOP",
-      verified_date: "Aug 4, 2026",
-      rarity: "Verified Guest",
-    },
-    {
-      id: "demo-m2",
-      title: "Kingston Dub Club — Sunday Sound",
-      moment_title: "Dub Club Gathering",
-      verified_date: "Aug 18, 2026",
-      rarity: "Sound Regular",
-    },
+  const vaultData = vaultQuery.data?.vault || vaultQuery.data || {};
+  const memories: VaultMemory[] = Array.isArray(vaultData?.memories) ? vaultData.memories : [];
+
+  const tabs: Array<{ id: VaultTab; label: string; note: string; icon: typeof Gift; count?: number }> = [
+    { id: "perks", label: "Use", note: "Perks on your card", icon: Gift, count: card.data ? claimedPerks.length : undefined },
+    { id: "tickets", label: "Chance", note: "PromoShare entries", icon: Ticket, count: balances.promoShareSourceRecorded ? balances.promoShareTickets : undefined },
+    { id: "memories", label: "Keep", note: "Pieces & memories", icon: Trophy, count: vaultQuery.data ? memories.length : undefined },
+    { id: "liquidity", label: "Backing", note: "Inspect reserves", icon: Sparkles },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-[#ff5500] selection:text-white pb-16">
-      <SEO title="My Retained Value & Vault — Promorang" description="Your unlocked perks, claimed vouchers, PromoShare draw tickets, and event memory badges." />
+    <div className="participant-world pb-20 text-white" data-proof-family="participant-kept-proof">
+      <SEO title="Your Vault — Promorang" description="The things Promorang has actually kept for you: usable perks, draw entries, verified memories and backing." />
 
-      <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-
-        {/* Header Title & Stat Summary */}
-        <div className="space-y-6 border-b border-white/10 pb-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none">
-                Retained Value &amp; Vault
-              </Badge>
-              <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-                {t("vaultPage.title")}
-              </h1>
-              <p className="text-white/60 text-sm max-w-xl">
-                The proof, perks, draw tickets, and platform economic value that stays with you.
-              </p>
-            </div>
-
-            <GlobalTicketBalancePill />
+      <header className="pr-world-wrap pr-world-header">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <div>
+            <p className="pr-world-kicker">Your Vault</p>
+            <h1 className="pr-world-display mt-4 max-w-4xl">What stayed with you.</h1>
+            <p className="pr-world-copy mt-5 max-w-2xl">
+              Access for your next visit. Entries in the draw. Pieces and memories from the things you took part in.
+            </p>
           </div>
-
-          {/* 4 Economic Dimensions Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {/* PromoPoints: Progress */}
-            <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">PromoPoints</span>
-                <Zap className="w-3.5 h-3.5 text-orange-400" />
-              </div>
-              <p className="text-2xl font-black text-orange-400">{balances.promoPoints} pts</p>
-              <span className="text-[10px] text-zinc-500 block">Progress &amp; Rank Tier</span>
-            </div>
-
-            {/* Perks: Utility */}
-            <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Active Perks</span>
-                <Gift className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <p className="text-2xl font-black text-emerald-400">{claimedPerks.length}</p>
-              <span className="text-[10px] text-zinc-500 block">Ready to use at the counter</span>
-            </div>
-
-            {/* PromoShare Tickets: Possibility */}
-            <div className="rounded-2xl border border-purple-500/30 bg-purple-950/20 p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-purple-300 font-bold uppercase tracking-wider">Draw Tickets</span>
-                <Ticket className="w-3.5 h-3.5 text-purple-400" />
-              </div>
-              <p className="text-2xl font-black text-purple-300">{balances.promoShareTickets} 🎟️</p>
-              <span className="text-[10px] text-purple-400 block">Draw: {balances.nextDrawDate}</span>
-            </div>
-
-            {/* Gems: Economic Value */}
-            <div className="rounded-2xl border border-white/10 bg-[#121214] p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-white/50 font-bold uppercase tracking-wider">Platform Gems</span>
-                <Gem className="w-3.5 h-3.5 text-blue-400" />
-              </div>
-              <p className="text-2xl font-black text-blue-400">{balances.gems} Gems</p>
-              <span className="text-[10px] text-zinc-500 block">1 Gem = US$1 Value</span>
-            </div>
-          </div>
+          <Link to="/dashboard" className="pr-world-link">Back to Today →</Link>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-4">
-          <button
-            onClick={() => setActiveTab("perks")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "perks"
-                ? "bg-[#ff5500] text-white shadow-lg shadow-[#ff5500]/20"
-                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Gift className="h-4 w-4" />
-            <span>Claimed perks</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {claimedPerks.length}
-            </span>
-          </button>
+      </header>
 
-          <button
-            onClick={() => setActiveTab("tickets")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "tickets"
-                ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20"
-                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Ticket className="h-4 w-4" />
-            <span>PromoShare Tickets &amp; Draw</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-purple-500/30 text-[10px]">
-              {balances.promoShareTickets}
-            </span>
-          </button>
+      <main className="pr-world-canvas">
+        <nav className="pr-world-strip" aria-label="Vault sections">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                aria-pressed={active}
+                data-active={active}
+                className="pr-world-chip min-w-[145px] justify-between px-4 py-3"
+              >
+                <span className="inline-flex items-center gap-2"><Icon className="h-4 w-4" />{tab.label}</span>
+                <span className="font-mono text-[10px] text-white/40">{typeof tab.count === "number" ? tab.count : "↗"}</span>
+              </button>
+            );
+          })}
+        </nav>
 
-          <button
-            onClick={() => setActiveTab("memories")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "memories"
-                ? "bg-[#ff5500] text-white shadow-lg shadow-[#ff5500]/20"
-                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Trophy className="h-4 w-4" />
-            <span>Memory Badges &amp; Proof</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">
-              {memories.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("liquidity")}
-            className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "liquidity"
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Sparkles className="h-4 w-4 text-blue-400" />
-            <span>Community Backing &amp; Reserves</span>
-          </button>
-        </div>
-
-        {/* TAB 1: CLAIMED & SAVED PERKS */}
-        {activeTab === "perks" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between">
+        {activeTab === "perks" ? (
+          <section className="space-y-8 animate-in fade-in duration-300">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div>
-                <h3 className="text-xl font-black text-white">On your PromoCard</h3>
-                <p className="text-xs text-white/60">Use these at the merchant. A local claim is not a completion.</p>
+                <p className="pr-world-kicker text-emerald-300">Use</p>
+                <h2 className="mt-3 max-w-3xl font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Access you kept.</h2>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Check each offer’s status and instructions before using it. Claiming access is separate from redemption or fulfillment.</p>
               </div>
-              <Button asChild variant="outline" className="border-white/15 bg-white/5 text-xs rounded-xl font-bold">
-                <Link to="/card">Open PromoCard →</Link>
-              </Button>
+              <Link to="/card" className="pr-world-primary">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
             </div>
 
             {card.isLoading ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3].map((n) => (
-                  <Skeleton key={n} className="h-48 w-full rounded-3xl bg-white/5" />
-                ))}
-              </div>
+              <div className="pr-world-object-grid">{[1,2,3].map((n) => <Skeleton key={n} className="h-56 rounded-[1.6rem] bg-white/5" />)}</div>
+            ) : card.isError && !card.data ? (
+              <div role="alert" className="pr-world-empty p-6"><p>Your access couldn’t load.</p><button type="button" onClick={() => void card.refetch()} className="pr-world-link min-h-11">Try again</button></div>
             ) : claimedPerks.length ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {claimedPerks.map((perk: any) => (
-                  <LivePerkCard key={perk.id} perk={perk} />
-                ))}
-              </div>
+              <div className="pr-world-object-grid">{claimedPerks.map((perk: any, index: number) => <div key={perk.id} className={index === 0 ? "pr-world-object--wide" : ""}><LivePerkCard perk={perk} /></div>)}</div>
             ) : (
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-                <p className="font-serif text-2xl font-bold">Nothing claimed yet</p>
-                <p className="mt-2 text-sm text-white/55">Take a live perk, then use it where the merchant can validate the code.</p>
-                <Link to="/earn" className="mt-4 inline-block text-sm font-black text-emerald-400">Claim a nearby perk →</Link>
+              <div className="pr-world-empty px-6 py-12">
+                <div><Gift className="mx-auto h-7 w-7 text-emerald-300" /><h3 className="mt-4 font-serif text-3xl font-bold">Nothing is on your card yet.</h3><p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/45">Claim an available offer and find it here for your next visit.</p><Link to="/discover" className="pr-world-link mt-5 inline-flex items-center gap-2">Find something worth claiming <ArrowRight className="h-4 w-4" /></Link></div>
               </div>
             )}
+
             {usedPerks.length ? (
-              <div className="space-y-3">
-                <h4 className="text-sm font-black uppercase tracking-[0.16em] text-white/40">Already used</h4>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {usedPerks.map((perk: any) => (
-                    <LivePerkCard key={perk.id} perk={perk} />
-                  ))}
-                </div>
+              <div className="space-y-4 border-t border-white/10 pt-7">
+                <p className="pr-world-kicker text-white/35">Already used</p>
+                <div className="pr-world-object-grid">{usedPerks.map((perk: any) => <LivePerkCard key={perk.id} perk={perk} />)}</div>
               </div>
             ) : null}
-          </div>
-        )}
+          </section>
+        ) : null}
 
-        {/* TAB 2: PROMOSHARE TICKETS & DRAW */}
-        {activeTab === "tickets" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-950/40 via-[#121214] to-zinc-950 p-6 sm:p-8 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <Badge className="bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs uppercase">
-                    Possibility Layer
-                  </Badge>
-                  <h3 className="text-2xl sm:text-3xl font-black text-white">
-                    {balances.promoShareTickets} PromoShare Draw Tickets Active
-                  </h3>
-                  <p className="text-xs text-zinc-400 max-w-lg">
-                    Tickets are entered into the weekly jackpot draw every Friday. Earn more tickets by sharing discoveries, perks, and moments.
-                  </p>
-                </div>
-
-                <Button asChild className="bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl text-xs px-6 py-6 shadow-lg shadow-purple-600/20">
-                  <Link to="/promoshare">Open Live Draw Arena →</Link>
-                </Button>
+        {activeTab === "tickets" ? (
+          <section className="animate-in fade-in duration-300">
+            <div className="pr-world-panel overflow-hidden p-6 sm:p-9" style={{ background: "radial-gradient(circle at 90% 10%, rgba(125,100,255,.28), transparent 36%), rgba(18,18,20,.82)" }}>
+              <p className="pr-world-kicker text-purple-300">Chance</p>
+              <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
+                <div><h2 className="font-serif text-5xl font-bold tracking-tight sm:text-6xl">{balances.promoShareSourceRecorded ? `${balances.promoShareTickets} entries.` : "Entries unavailable."}</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">They represent recorded participation in a draw. An entry is not a win, and a win is not settlement until the system records it.</p></div>
+                <div className="border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Next known draw</p><p className="mt-2 font-serif text-2xl font-bold">{balances.nextDrawDate || "No active draw supplied"}</p></div>
               </div>
-
-              {/* How downstream actions reward you */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-white/10">
-                <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <span className="text-xs font-bold text-white block">Referral Signs Up</span>
-                  <span className="text-xs font-mono text-purple-300 font-bold">+1 Draw Ticket · +100 Pts</span>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <span className="text-xs font-bold text-white block">Referral Claims/Redeems Perk</span>
-                  <span className="text-xs font-mono text-emerald-400 font-bold">+3 Draw Tickets · +50 Pts</span>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 space-y-1">
-                  <span className="text-xs font-bold text-white block">Referral Checks In</span>
-                  <span className="text-xs font-mono text-amber-400 font-bold">+2 Draw Tickets · +75 Pts</span>
-                </div>
-              </div>
+              {!balances.promoShareSourceRecorded ? <button type="button" onClick={() => void refreshBalances()} className="pr-world-link mt-5 min-h-11">Refresh entries</button> : null}
+              <Link to="/promoshare" className="pr-world-primary mt-7">Open PromoShare <ArrowRight className="h-4 w-4" /></Link>
             </div>
-          </div>
-        )}
+          </section>
+        ) : null}
 
-        {/* TAB 3: MEMORIES & PROOF */}
-        {activeTab === "memories" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {memories.map((mem: any, idx: number) => (
-                <div key={mem.id || idx} className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-4 shadow-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff5500]/15 text-[#ff5500]">
-                      <CheckCircle2 className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <Badge className="bg-white/10 text-white border-white/10 text-[10px] font-bold uppercase">
-                        {mem.rarity || "Verified Memory"}
-                      </Badge>
-                      <h4 className="font-bold text-white text-lg mt-1">{mem.title || mem.moment_title}</h4>
-                    </div>
-                  </div>
-                  <p className="text-xs text-white/50">{mem.verified_date || "Verified Attendance"}</p>
-                </div>
-              ))}
+        {activeTab === "memories" ? (
+          <section className="space-y-8 animate-in fade-in duration-300">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
+              <div><p className="pr-world-kicker text-amber-300">Keep</p><h2 className="mt-3 font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Receipts from the life you actually lived.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Revisit your Pieces and memories, with the source details that connect each one to your history.</p></div>
+              <div className="flex items-start gap-3 border-t border-white/10 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0"><ReceiptText className="mt-1 h-5 w-5 text-amber-300" /><p className="text-xs leading-6 text-white/45">Proof submission → review → verified attendance → retained memory.</p></div>
             </div>
-          </div>
-        )}
 
-        {/* TAB 4: LIQUIDITY */}
-        {activeTab === "liquidity" && (
-          <div className="animate-in fade-in duration-300">
-            <LiquidityVaultDashboard />
-          </div>
-        )}
+            {vaultQuery.isLoading ? (
+              <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">{[1,2,3].map((n) => <Skeleton key={n} className="h-72 rounded-xl bg-white/5" />)}</div>
+            ) : vaultQuery.error ? (
+              <div className="pr-world-panel border-red-500/20 bg-red-500/5 p-5 text-sm text-red-200">{(vaultQuery.error as Error).message}</div>
+            ) : memories.length ? (
+              <div className="grid items-start gap-7 sm:grid-cols-2 lg:grid-cols-3">{memories.map((memory, index) => {
+                const meta = memory.metadata || {};
+                const place = String(meta.venue_name || meta.location || "").trim();
+                const moment = String(meta.moment_title || memory.title || "Retained memory");
+                const proofRef = meta.proof_submission_id ? String(meta.proof_submission_id) : null;
+                return (
+                  <Link key={memory.id} to={`/memories/${memory.id}`} className={`block transition hover:-translate-y-1 ${index % 3 === 1 ? "sm:translate-y-8" : ""}`}>
+                    <PaperReceipt heading={memory.title || moment} lines={[{ label: "Moment", value: moment, strong: true }, ...(place ? [{ label: "Place", value: place }] : []), { label: "Kept", value: readableDate(memory.issued_at) }, { label: "Rarity", value: memory.rarity || "Memory" }, ...(proofRef ? [{ label: "Proof ref", value: proofRef.slice(0, 18) }] : [{ label: "Memory ref", value: memory.id.slice(0, 18) }])]} footer={proofRef ? "Linked proof retained. Open to see the source details." : "A Piece of your history. Open to see its source details."} />
+                  </Link>
+                );
+              })}</div>
+            ) : (
+              <div className="pr-world-empty px-6 py-12"><div><Trophy className="mx-auto h-7 w-7 text-amber-300" /><h3 className="mt-4 font-serif text-3xl font-bold">Your shelf is still clean.</h3><p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/45">Joining is intent. Submission is a claim. A memory appears only after something verifiable becomes part of your history.</p><Link to="/discover" className="pr-world-link mt-5 inline-flex items-center gap-2">Go find what is moving <ArrowRight className="h-4 w-4" /></Link></div></div>
+            )}
+          </section>
+        ) : null}
 
-      </div>
+        {activeTab === "liquidity" ? (
+          <section className="space-y-5 animate-in fade-in duration-300">
+            <div><p className="pr-world-kicker">Backing</p><h2 className="mt-3 font-serif text-4xl font-bold tracking-tight">Inspect what sits behind the value layer.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">This is intentionally separate from your memories, perks and draw entries. Retained cultural history is not presented as a financial asset.</p></div>
+            <details className="border-y border-white/10 py-4"><summary className="cursor-pointer min-h-11 text-sm">Platform balances</summary><dl className="flex flex-wrap gap-8 py-4 text-sm"><div><dt>PromoPoints</dt><dd>{balances.promoPoints} · not cash</dd></div><div><dt>Gems</dt><dd>{balances.gems}</dd></div></dl></details>
+            <div className="pr-world-panel overflow-hidden p-1"><LiquidityVaultDashboard /></div>
+          </section>
+        ) : null}
+
+        <div className="pr-world-rule" />
+        <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-white/35"><span>Memory ≠ money · entry ≠ win · claim ≠ redemption.</span><div className="flex items-center gap-4"><Zap className="h-4 w-4 text-orange-400" /><Gem className="h-4 w-4 text-blue-400" /><Ticket className="h-4 w-4 text-purple-300" /></div></div>
+      </main>
     </div>
   );
 };

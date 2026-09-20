@@ -16,19 +16,32 @@ router.get(['/', '/vault'], requireAuth, async (req, res) => {
 router.get('/summary', requireAuth, async (req, res) => {
   try {
     const vault = await memoryService.getVaultSummary(req.user.id);
+    const memoryCount = Number(vault?.summary?.total_memories || 0);
     const assetCounts = {
-      nft: vault?.summary?.total_memories || 0,
+      memory: memoryCount,
+      // Transitional compatibility alias for clients that have not yet migrated.
+      nft: memoryCount,
       coupon: vault?.active_perks?.length || 0,
       token: 0,
       ticket: 0,
       key: 0,
     };
+    const totalLegacyScore = Number(vault?.summary?.total_legacy_score || 0);
+
     res.json({
       success: true,
       data: {
-        total_value_usd: vault?.summary?.total_legacy_score || 0,
+        // Compatibility field retained for older clients. A legacy/history score is
+        // not a financial valuation, so it must never be projected into USD here.
+        total_value_usd: 0,
+        total_legacy_score: totalLegacyScore,
+        value_source: 'none_recorded',
+        value_note: 'Retained memories are verified history. Legacy score is not USD, cash value, Gems, or a redemption guarantee.',
         asset_counts: assetCounts,
         ...(vault?.summary || {}),
+        // Re-assert canonical semantic fields after spreading any legacy summary.
+        total_legacy_score: totalLegacyScore,
+        asset_counts: assetCounts,
       },
       vault,
       ...vault,
@@ -45,12 +58,26 @@ router.get('/assets', requireAuth, async (req, res) => {
     const assets = (vault?.memories || []).map((m) => ({
       id: m.id,
       user_id: req.user.id,
+      // Transitional compatibility alias. canonical_type is authoritative.
       asset_type: 'nft',
+      canonical_type: 'memory',
       name: m.title,
+      asset_name: m.title,
+      asset_symbol: 'MEMORY',
       description: m.metadata?.moment_title || m.title,
-      value_usd: m.legacy_score || 0,
-      metadata: m.metadata || {},
+      balance: 1,
+      value_usd: null,
+      financial_value_recorded: false,
+      legacy_score: Number(m.legacy_score || 0),
+      value_note: 'Legacy score describes retained history; it is not a financial valuation.',
+      metadata: {
+        ...(m.metadata || {}),
+        canonical_type: 'memory',
+        legacy_score: Number(m.legacy_score || 0),
+      },
+      acquired_at: m.issued_at,
       created_at: m.issued_at,
+      expires_at: m.expires_at || null,
       rarity: m.rarity,
     }));
     res.json({ success: true, data: assets });

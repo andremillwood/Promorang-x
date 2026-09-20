@@ -43,7 +43,7 @@ describe("PromoCardFace brand lockup", () => {
     expect(mark?.getAttribute("src")).toBeTruthy();
 
     const wordmark = Array.from(container.querySelectorAll("p")).find((node) => node.textContent === "PROMORANG");
-    expect(wordmark?.className).toContain("text-primary");
+    expect(wordmark?.className).toContain("text-[#f4c66c]");
     expect(card?.className).toContain("pr-plastic-card");
     expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
     expect(container.querySelector(".from-amber-200")).toBeNull();
@@ -88,7 +88,7 @@ describe("PromoCardFace brand lockup", () => {
       flip?.click();
     });
     expect(container).toHaveTextContent("COFFEE-TEST");
-    expect(container).toHaveTextContent("HOLD AT THE DOOR");
-    expect(container).toHaveTextContent("Scan this");
+    expect(container).toHaveTextContent("PROMORANG · PRESENT THIS");
+    expect(container).toHaveTextContent("Merchant validation");
   });
 });

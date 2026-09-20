@@ -36,6 +36,7 @@ const BrandOnboarding = lazy(() => import("./pages/onboarding/BrandOnboarding"))
 const ForCommunities = lazy(() => import("./pages/ForCommunities"));
 const ForBrands = lazy(() => import("./pages/ForBrands"));
 const SolutionsHub = lazy(() => import("./pages/SolutionsHub"));
+const BusinessStart = lazy(() => import("./pages/BusinessStart"));
 const ForCreators = lazy(() => import("./pages/ForCreators"));
 const ForMerchants = lazy(() => import("./pages/ForMerchants"));
 const ForAgencies = lazy(() => import("./pages/ForAgencies"));
@@ -61,6 +62,7 @@ const EconomyConcept = lazy(() => import("./pages/EconomyConcept"));
 const SaveAndWin = lazy(() => import("./pages/SaveAndWin"));
 const VenueReportTeaser = lazy(() => import("./pages/VenueReportTeaser"));
 const Hosting = lazy(() => import("./pages/Hosting"));
+const Join = lazy(() => import("./pages/Join"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const MembershipCheckout = lazy(() => import("./pages/MembershipCheckout"));
 const BillingResult = lazy(() => import("./pages/BillingResult"));
@@ -126,6 +128,7 @@ const Crews = lazy(() => import("./pages/Crews"));
 const Guilds = lazy(() => import("./pages/Guilds"));
 const DropClaim = lazy(() => import("./pages/DropClaim"));
 const StartCommunity = lazy(() => import("./pages/StartCommunity"));
+const CommunityPortal = lazy(() => import("./pages/CommunityPortal"));
 const PutInventoryUp = lazy(() => import("./pages/PutInventoryUp"));
 const Participants = lazy(() => import("./pages/Participants"));
 const Activity = lazy(() => import("./pages/Activity"));
@@ -169,7 +172,6 @@ const PiecePortfolio = lazy(() => import("./pages/PiecePortfolio"));
 const PieceProfile = lazy(() => import("./pages/PieceProfile"));
 const PieceOwnerManage = lazy(() => import("./pages/PieceOwnerManage"));
 const KYCPage = lazy(() => import("./pages/KYCPage"));
-const KYCAdminDashboard = lazy(() => import("./pages/admin/KYCAdminDashboard"));
 const ClaimPages = lazy(() => import("./pages/ClaimPages"));
 const LiquidityDashboard = lazy(() => import("./pages/LiquidityDashboard"));
 const FeaturedBooking = lazy(() => import("./pages/FeaturedBooking"));
@@ -267,9 +269,11 @@ const App = () => (
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/onboarding/brand" element={<BrandOnboarding />} />
                     <Route path="/post-login" element={<PostLoginRouter />} />
+                    <Route path="/join" element={<Join />} />
                     <Route path="/for-communities" element={<ForCommunities />} />
                     <Route path="/for-brands" element={<ForBrands />} />
                     <Route path="/solutions" element={<SolutionsHub />} />
+                    <Route path="/business/start" element={<BusinessStart />} />
                     <Route path="/solutions/:vertical" element={<SolutionsHub />} />
                     <Route path="/for-creators" element={<ForCreators />} />
                     <Route path="/for-merchants" element={<ForMerchants />} />
@@ -319,11 +323,11 @@ const App = () => (
                     <Route path="/rsvp/:momentId" element={<GuestRsvp />} />
                     <Route path="/guest-pass/:token" element={<GuestPass />} />
                     <Route path="/host/moments/:momentId/guests" element={<ProtectedRoute><HostGuestOperations /></ProtectedRoute>} />
-                    <Route path="/join/participant" element={<Navigate to="/pricing" replace />} />
+                    <Route path="/join/participant" element={<Navigate to="/auth?mode=signup&role=participant&next=/home" replace />} />
                     <Route path="/join/venue" element={<Navigate to="/for-merchants" replace />} />
                     <Route path="/hosting" element={<Hosting />} />
                     <Route path="/host" element={<Navigate to="/hosting" replace />} />
-                    <Route path="/why-join" element={<Navigate to="/" replace />} />
+                    <Route path="/why-join" element={<Navigate to="/join" replace />} />
                     <Route path="/propose" element={<ProposeLanding />} />
                     <Route path="/create" element={<ProtectedRoute><CreateSomething /></ProtectedRoute>} />
                     <Route path="/demand" element={<ProtectedRoute><DemandInbox /></ProtectedRoute>} />
@@ -334,6 +338,7 @@ const App = () => (
                     <Route path="/happened" element={<ProtectedRoute><WhatHappened /></ProtectedRoute>} />
                     <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
                     <Route path="/card" element={<ProtectedRoute><MyPromoCard /></ProtectedRoute>} />
+                    <Route path="/community/:tab?" element={<ProtectedRoute><CommunityPortal /></ProtectedRoute>} />
                     <Route path="/crews" element={<ProtectedRoute><Crews /></ProtectedRoute>} />
                     <Route path="/guilds" element={<ProtectedRoute><Guilds /></ProtectedRoute>} />
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
@@ -397,6 +402,7 @@ const App = () => (
                     <Route path="/receipts/value/:id" element={<PublicValueReceipt />} />
                     <Route path="/receipts/:id" element={<ProtectedRoute><CommerceReceiptDetail /></ProtectedRoute>} />
                     <Route path="/storefront/:merchantId" element={<MerchantStorefront />} />
+                    <Route path="/offers/:id" element={<OfferDetail />} />
                     <Route path="/activate" element={<ActivatePage />} />
 
                     {/* Campaign Expansion Routes */}
@@ -405,7 +411,7 @@ const App = () => (
                     <Route path="/merchant/coupons" element={<MerchantCouponHub />} />
                     <Route path="/merchant/scan" element={<StaffScanner />} />
                     <Route path="/staff/scanner" element={<StaffScanner />} />
-                    <Route path="/flash-sales" element={<GemRushPage />} />
+                    <Route path="/flash-sales" element={import.meta.env.DEV ? <GemRushPage /> : <Navigate to="/shop" replace />} />
 
                     <Route path="/categories/:categorySlug" element={<CategoryArchive />} />
                     <Route path="/locations/:countrySlug" element={<LocationArchive />} />
@@ -511,11 +517,11 @@ const App = () => (
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/promoshare" element={<PromoShareAdmin />} />
                     <Route path="/admin/featured" element={<FeaturedPlacementsAdmin />} />
-                    <Route path="/admin/kyc" element={<ProtectedRoute><KYCAdminDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/kyc" element={<Navigate to="/admin?tab=verification-hub" replace />} />
                     <Route path="/marketplace" element={<ProtectedRoute><TradingMarketplace /></ProtectedRoute>} />
                     <Route path="/portfolio" element={<ProtectedRoute><PiecePortfolio /></ProtectedRoute>} />
                     <Route path="/pieces/:pieceType/:assetId" element={<ProtectedRoute><PieceProfile /></ProtectedRoute>} />
-                    <Route path="/pieces/:pieceType/:assetId/manage" element={<ProtectedRoute><PieceOwnerManage /></ProtectedRoute>} />
+                    <Route path="/pieces/:pieceType/:assetId/manage" element={import.meta.env.DEV ? <ProtectedRoute><PieceOwnerManage /></ProtectedRoute> : <Navigate to="/portfolio" replace />} />
                     <Route path="/kyc" element={<ProtectedRoute><KYCPage /></ProtectedRoute>} />
                     <Route path="/liquidity" element={<ProtectedRoute><LiquidityDashboard /></ProtectedRoute>} />
                   </Route>

@@ -201,6 +201,7 @@ export function demandPollFromDiscovery(poll: {
   thresholdForMoment?: number;
   options?: Array<{ id?: string; text: string; votes: number }>;
   connectedScene?: { title: string; slug: string };
+  userVotedOptionId?: string;
 }): DemandPoll {
   return {
     id: poll.id,
@@ -214,5 +215,6 @@ export function demandPollFromDiscovery(poll: {
     thresholdForMoment: poll.thresholdForMoment,
     options: poll.options,
     connectedScene: poll.connectedScene,
+    userVotedOptionId: poll.userVotedOptionId,
   };
 }

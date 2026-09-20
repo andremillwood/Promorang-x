@@ -1,0 +1,105 @@
+/* Production stakeholder world
+   Shared visual DNA across creator, host, merchant, brand, agency and admin.
+   Role semantics remain page-owned; this file only governs the common shell. */
+
+[data-stakeholder-world] {
+  color-scheme: dark;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 88% -8%, rgba(255, 91, 0, 0.16), transparent 28rem),
+    radial-gradient(circle at 10% 100%, rgba(216, 167, 75, 0.06), transparent 30rem),
+    #080808;
+  color: #f7f3ed;
+}
+
+[data-stakeholder-world] .app-shell-mobile {
+  background: transparent !important;
+  color: #f7f3ed;
+}
+
+[data-stakeholder-world] .app-shell-mobile > aside {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  background:
+    linear-gradient(180deg, rgba(12, 12, 12, 0.98), rgba(7, 7, 7, 0.98)) !important;
+  color: #f7f3ed !important;
+  box-shadow: 24px 0 80px rgba(0, 0, 0, 0.42) !important;
+}
+
+[data-stakeholder-world] .app-shell-mobile > aside [class*="border-border"] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-stakeholder-world] .app-shell-mobile > aside a,
+[data-stakeholder-world] .app-shell-mobile > aside button {
+  color: inherit;
+}
+
+[data-stakeholder-world] .app-shell-mobile > aside nav a {
+  border-radius: 10px !important;
+}
+
+[data-stakeholder-world] .app-shell-mobile > aside nav a:hover {
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+[data-stakeholder-world] .app-shell-mobile main,
+[data-stakeholder-world] .app-shell-mobile [role="main"] {
+  background: transparent;
+}
+
+[data-stakeholder-world] .bg-background,
+[data-stakeholder-world] .bg-card,
+[data-stakeholder-world] .bg-card\/95,
+[data-stakeholder-world] .bg-card\/90 {
+  background-color: #0a0a0b !important;
+}
+
+[data-stakeholder-world] .text-foreground {
+  color: #f7f3ed !important;
+}
+
+[data-stakeholder-world] .text-muted-foreground {
+  color: rgba(247, 243, 237, 0.5) !important;
+}
+
+[data-stakeholder-world] .border-border,
+[data-stakeholder-world] .border-border\/70,
+[data-stakeholder-world] .border-border\/80 {
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+[data-stakeholder-world] :where(a, button):focus-visible {
+  outline: 2px solid #ff6500;
+  outline-offset: 3px;
+}
+
+/* The operator product should feel authored rather than dashboard-generated. */
+[data-stakeholder-world] .surface-card,
+[data-stakeholder-world] .surface-elevated,
+[data-stakeholder-world] .pr-feed-surface {
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+  box-shadow: none !important;
+}
+
+[data-stakeholder-world] h1,
+[data-stakeholder-world] h2,
+[data-stakeholder-world] h3 {
+  text-wrap: balance;
+}
+
+[data-stakeholder-world][data-stakeholder-role="admin"] {
+  background:
+    radial-gradient(circle at 86% 0%, rgba(255, 91, 0, 0.1), transparent 24rem),
+    #080808;
+}
+
+@media (max-width: 1023px) {
+  [data-stakeholder-world] {
+    background: #080808;
+  }
+
+  [data-stakeholder-world] .app-shell-mobile > aside {
+    background: #0a0a0b !important;
+  }
+}

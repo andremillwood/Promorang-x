@@ -35,11 +35,28 @@ export default function StakingScreen() {
       });
       Alert.alert('Staking Successful!', `You have staked ${selectedPool.min_amount} Gems in ${selectedPool.name}.`);
     } catch (err) {
-      Alert.alert('Staking Submitted', `Simulated stake of ${selectedPool.min_amount} Gems in ${selectedPool.name}.`);
+      Alert.alert('Stake not submitted', err instanceof Error ? err.message : 'No Gems were moved.');
     } finally {
       setStaking(false);
     }
   };
+
+  if (!__DEV__) {
+    return (
+      <SafeAreaView style={styles.screen}>
+        <View style={styles.header}>
+          <Pressable accessibilityLabel="Go back" onPress={() => router.back()} style={styles.iconButton}><Ionicons name="arrow-back" size={20} color={Colors.white} /></Pressable>
+          <Text style={styles.headerTitle}>Staking</Text>
+          <View style={styles.spacer} />
+        </View>
+        <View style={styles.unavailable}>
+          <Ionicons name="shield-checkmark-outline" size={36} color={Colors.primary} />
+          <Text style={styles.unavailableTitle}>No published staking product</Text>
+          <Text style={styles.unavailableDetail}>Promorang is not presenting sample pools, APY, or simulated Gem staking as a live financial product.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -120,6 +137,9 @@ const styles = StyleSheet.create({
   iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
   headerTitle: { color: Colors.white, fontSize: 16, fontWeight: '800' },
   spacer: { width: 40 },
+  unavailable: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
+  unavailableTitle: { color: Colors.white, fontSize: 22, fontWeight: '900', textAlign: 'center', marginTop: Spacing.lg },
+  unavailableDetail: { color: Colors.gray[400], fontSize: 14, lineHeight: 21, textAlign: 'center', marginTop: Spacing.sm },
   content: { padding: Spacing.container, gap: 16 },
   heroCard: { padding: 20, borderRadius: BorderRadius.xl, backgroundColor: Colors.gray[900], borderWidth: 1, borderColor: Colors.border },
   eyebrow: { color: Colors.primary, fontFamily: 'SpaceMono', fontSize: 12, letterSpacing: 1 },

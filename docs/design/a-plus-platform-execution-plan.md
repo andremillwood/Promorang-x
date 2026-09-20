@@ -4,6 +4,8 @@ Status: canonical execution blueprint
 Design authority: [`DESIGN.md`](../../DESIGN.md)
 Applies to: web, mobile, public experience, stakeholder workspaces, content, Moments, Scenes, Gems, PromoShare, notifications, analytics, operations, and support
 
+Completion ledger: [`product-completion-contract-v1.md`](product-completion-contract-v1.md). This plan remains the execution doctrine; the completion ledger tracks what is still open and must be updated until release closure.
+
 ## 1. The Outcome
 
 Promorang reaches A+ when a new person can enter with no insider knowledge and quickly understand:

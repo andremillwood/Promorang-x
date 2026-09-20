@@ -1,224 +1,72 @@
-import React, { useState } from "react";
-import {
-  Users,
-  Video,
-  Sparkles,
-  CheckCircle2,
-  XCircle,
-  Eye,
-  TrendingUp,
-  Plus,
-  ArrowRight,
-  ExternalLink,
-  Flame,
-  Star,
-  MessageSquare,
-  Award,
-} from "lucide-react";
+import { ArrowRight, FileCheck2, Megaphone, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-
-interface CreatorSubmission {
-  id: string;
-  creatorName: string;
-  avatar: string;
-  tier: string;
-  mediaType: "reel" | "photo" | "tiktok";
-  thumbnail: string;
-  caption: string;
-  views: number;
-  likes: number;
-  bountyEarned: number;
-  status: "pending" | "approved";
-}
 
 export function BrandCreatorBureau() {
-  const { toast } = useToast();
-  const [submissions, setSubmissions] = useState<CreatorSubmission[]>([
-    {
-      id: "sub-1",
-      creatorName: "Kofi 'Vibes' Campbell",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      tier: "Lead Kingston Creator (L3)",
-      mediaType: "reel",
-      thumbnail: "/assets/moments/coffee-code.jpg",
-      caption: "Tasting single-origin pour-overs at the Kingston Cafe meetup! @promorang #KingstonCoffee",
-      views: 18400,
-      likes: 2150,
-      bountyEarned: 150,
-      status: "pending",
-    },
-    {
-      id: "sub-2",
-      creatorName: "Aaliyah Brooks",
-      avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-      tier: "Art & Culture Vanguard",
-      mediaType: "reel",
-      thumbnail: "/assets/moments/street-art.jpg",
-      caption: "Water Lane street mural walk with the creative community! Best vibe in town 🔥",
-      views: 24200,
-      likes: 3890,
-      bountyEarned: 200,
-      status: "approved",
-    },
-    {
-      id: "sub-3",
-      creatorName: "Tariq Edwards",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-      tier: "Sound & Stage Scout",
-      mediaType: "photo",
-      thumbnail: "/assets/moments/sunset-photo.jpg",
-      caption: "Golden hour acoustic session on Skyline Drive. Check in with Promorang to unlock backstage pass!",
-      views: 11200,
-      likes: 1420,
-      bountyEarned: 100,
-      status: "approved",
-    },
-  ]);
-
-  const handleApprove = (id: string, name: string, bounty: number) => {
-    setSubmissions((prev) =>
-      prev.map((sub) => (sub.id === id ? { ...sub, status: "approved" } : sub))
-    );
-    toast({
-      title: "UGC Proof Approved! 🏆",
-      description: `Disbursed $${bounty} bounty and 200 points to ${name}. Media added to brand highlight reel.`,
-    });
-  };
-
-  const handleCreateBounty = () => {
-    toast({
-      title: "Creator Bounty Window Opened! 🎬",
-      description: "Notified 45 verified creators in Kingston with task brief and $150 reward tier.",
-    });
-  };
-
   return (
     <div className="space-y-6">
-      {/* 1. Header & Live Creator Bureau HUD */}
-      <div className="p-6 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
-            <Users className="h-7 w-7 text-black" />
+      <section className="rounded-3xl border border-[#ff6500]/25 bg-[linear-gradient(135deg,rgba(255,101,0,.10),rgba(0,0,0,.88))] p-5 sm:p-7">
+        <div className="max-w-3xl">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ff8a47]">
+            <Users className="h-4 w-4" />
+            Brand · Distribution
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Creator Match & Media Bureau</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-extrabold uppercase">
-                32 Active Creators
-              </span>
-            </div>
-            <p className="text-xs text-white/60 mt-1">
-              Review submitted UGC content, verify physical check-in proofs, and disburse campaign bounties.
-            </p>
-          </div>
+          <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">Put creator work into motion without inventing a roster.</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
+            PROMORANG does not currently expose one brand-scoped creator submission queue with authoritative payout and approval state.
+            Use the real Content Drops workspace to commission and distribute work, then use attributed evidence to decide what counted.
+          </p>
         </div>
+      </section>
 
-        <Button
-          onClick={handleCreateBounty}
-          className="h-11 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-black font-extrabold text-xs shadow-[0_0_20px_rgba(255,106,0,0.35)]"
-        >
-          <Plus className="h-4 w-4 mr-1.5" />
-          Dispatch New Creator Bounty
-        </Button>
-      </div>
-
-      {/* 2. Submissions Grid & Review Station */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {submissions.map((sub) => {
-          const isPending = sub.status === "pending";
-
+      <section className="grid gap-4 md:grid-cols-3">
+        {[
+          {
+            icon: Megaphone,
+            eyebrow: "Commission",
+            title: "Create or manage a content drop",
+            copy: "Define the real brief, linked Moment or offer, distribution assets and any funded value in the content-distribution workspace.",
+            href: "/content-drops?role=brand",
+            cta: "Open Content Drops",
+          },
+          {
+            icon: Users,
+            eyebrow: "Discover",
+            title: "Browse real creator profiles",
+            copy: "Use the creator directory for recorded creator identity. Do not infer fit, reach or availability from fabricated match scores.",
+            href: "/creators",
+            cta: "Browse creators",
+          },
+          {
+            icon: FileCheck2,
+            eyebrow: "Evidence",
+            title: "Review what actually moved",
+            copy: "Attribution, verification, approval and settlement remain separate. Use the Proof and Economics surfaces for recorded outcomes.",
+            href: "/dashboard?view=studio&tab=correlation",
+            cta: "Review evidence",
+          },
+        ].map((item) => {
+          const Icon = item.icon;
           return (
-            <div
-              key={sub.id}
-              className={`rounded-3xl border p-5 flex flex-col justify-between space-y-4 transition-all duration-300 shadow-xl ${
-                isPending
-                  ? "border-amber-500/40 bg-[#161208]"
-                  : "border-white/10 bg-[#0e1015]"
-              }`}
-            >
-              {/* Creator Profile Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <img
-                    src={sub.avatar}
-                    alt={sub.creatorName}
-                    className="h-10 w-10 rounded-full object-cover border border-white/20"
-                  />
-                  <div>
-                    <h4 className="font-bold text-sm text-white">{sub.creatorName}</h4>
-                    <p className="text-[11px] text-primary font-semibold">{sub.tier}</p>
-                  </div>
-                </div>
-
-                <Badge
-                  className={`text-[10px] font-black uppercase ${
-                    isPending ? "bg-amber-500 text-black" : "bg-emerald-500 text-black"
-                  }`}
-                >
-                  {isPending ? "Needs Review" : "Approved Proof"}
-                </Badge>
+            <article key={item.title} className="flex min-h-[250px] flex-col rounded-3xl border border-white/10 bg-white/[.025] p-5 sm:p-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff6500]/10 text-[#ff8a47]">
+                <Icon className="h-5 w-5" />
               </div>
-
-              {/* Media Thumbnail & Meta */}
-              <div className="relative rounded-2xl overflow-hidden h-48 bg-black border border-white/5">
-                <img
-                  src={sub.thumbnail}
-                  alt="UGC Preview"
-                  className="w-full h-full object-cover opacity-80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 font-bold">
-                      <Eye className="h-3.5 w-3.5 text-primary" />
-                      {sub.views.toLocaleString()}
-                    </span>
-                    <span className="flex items-center gap-1 font-bold">
-                      <Flame className="h-3.5 w-3.5 text-orange-400" />
-                      {sub.likes.toLocaleString()}
-                    </span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-mono uppercase">
-                    {sub.mediaType}
-                  </span>
-                </div>
-              </div>
-
-              {/* Caption */}
-              <p className="text-xs text-white/70 italic line-clamp-2">
-                "{sub.caption}"
-              </p>
-
-              {/* Bounty Reward & Action */}
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-white/40">Bounty Payout</p>
-                  <p className="text-sm font-black text-emerald-400">${sub.bountyEarned}.00</p>
-                </div>
-
-                {isPending ? (
-                  <Button
-                    size="sm"
-                    onClick={() => handleApprove(sub.id, sub.creatorName, sub.bountyEarned)}
-                    className="h-9 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs shadow-md"
-                  >
-                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                    Approve & Disburse
-                  </Button>
-                ) : (
-                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Disbursed & Published
-                  </span>
-                )}
-              </div>
-            </div>
+              <p className="mt-6 text-[9px] font-black uppercase tracking-[.18em] text-white/30">{item.eyebrow}</p>
+              <h3 className="mt-2 text-lg font-black text-white">{item.title}</h3>
+              <p className="mt-3 flex-1 text-xs leading-5 text-white/45">{item.copy}</p>
+              <Button asChild variant="outline" className="mt-5 w-full rounded-xl border-white/10 bg-white/[.03] text-white">
+                <Link to={item.href}>{item.cta}<ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            </article>
           );
         })}
-      </div>
+      </section>
+
+      <section className="rounded-2xl border border-dashed border-white/12 p-5 text-sm leading-6 text-white/45">
+        <strong className="text-white">Not claimed here:</strong> creator availability, audience fit, media reach, bounty approval, payout,
+        or content approval. Those require their own authoritative records before they appear as Brand operating state.
+      </section>
     </div>
   );
 }

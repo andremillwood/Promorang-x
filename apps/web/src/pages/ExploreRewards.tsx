@@ -1,742 +1,269 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { FormEvent, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { ArrowRight, CheckCircle2, Gift, MapPin, Radio, Search, Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
+import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
+import { WatchMarketObjectButton } from "@/components/market/WatchMarketObjectButton";
+import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
+import { useMarket } from "@/contexts/MarketContext";
+import { usePublicOffers } from "@/hooks/useOffers";
+import { discoveryHref } from "@/lib/discovery-path";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { useUserBalance } from "@/hooks/useEconomy";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  ArrowRight,
-  Check,
-  Coins,
-  Flame,
-  Gift,
-  KeyRound,
-  MapPin,
-  Plus,
-  Search,
-  Sparkles,
-  Store,
-  Tag,
-  ThumbsUp,
-  Ticket,
-  TrendingUp,
-  Users,
-  Zap,
-  Compass,
-} from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
-import { useToast } from "@/hooks/use-toast";
-import { INITIAL_DEAL_REQUESTS, CommunityDealRequest } from "@/data/rewardsData";
-import { VERIFIED_VENUES, VenueItem } from "@/data/venuesData";
-import { SmartVenuePicker } from "@/components/venues/SmartVenuePicker";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { trackGrowthEvent } from "@/lib/marketing-attribution";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 
-const POPULAR_PERK_PILLS = [
-  "🍹 Free Welcome Rum Punch with Meal",
-  "🏷️ 15% VIP Member Discount",
-  "🍻 2-for-1 Happy Hour Drafts",
-  "🔑 Skip-the-Line VIP Key & Balcony Access",
-  "🍽️ Free Chips & Guac / Tasting Bite",
-  "☕ Free Size Upgrade on Blue Mountain Coffee",
-];
-
-const VENUE_IMAGE_FALLBACKS: Record<string, string> = {
-  "Tacbar": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
-  "Dulce Lounge": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
-  "PriceSmart": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80",
-  "Devon House": "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80",
-  "Tracks & Records": "https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=600&q=80",
-  "Janga's": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80",
-  "Chilitos": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
-};
-
-const getVenueImage = (venueName?: string | null, customUrl?: string | null) => {
-  if (customUrl && customUrl.startsWith("http")) return customUrl;
-  if (!venueName) return VERIFIED_VENUES[0].image_url;
-  for (const [key, url] of Object.entries(VENUE_IMAGE_FALLBACKS)) {
-    if (venueName.toLowerCase().includes(key.toLowerCase())) return url;
-  }
-  const match = VERIFIED_VENUES.find((v) => v.name.toLowerCase().includes(venueName.toLowerCase()));
-  return match ? match.image_url : VERIFIED_VENUES[0].image_url;
-};
+function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
+  if (votesRemaining === 0) return "threshold_met" as const;
+  if (closeness === "unlocking") return "near_threshold" as const;
+  return closeness;
+}
 
 export function ExploreRewards() {
-  const { user } = useAuth();
-  const { data: balance } = useUserBalance();
-  const { toast } = useToast();
+  const { city, country } = useMarket();
+  const { inbox, recordAsk, isLoading } = useDiscoveryDemand(
+    city.name,
+    country.slug || "jamaica",
+    city.id === "all-jamaica" ? undefined : city.id,
+  );
+  const offersQuery = usePublicOffers();
+  const [ask, setAsk] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ query: string; recorded: boolean } | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [dealRequests, setDealRequests] = useState<CommunityDealRequest[]>(INITIAL_DEAL_REQUESTS);
-  const [requestModalOpen, setRequestModalOpen] = useState(false);
-
-  // New Request Form State
-  const [newVenue, setNewVenue] = useState("");
-  const [newLocation, setNewLocation] = useState("");
-  const [newBrand, setNewBrand] = useState("");
-  const [newPerk, setNewPerk] = useState("");
-  const [newCategory, setNewCategory] = useState<"food" | "nightlife" | "retail" | "experience">("food");
-  const [venueDropdownOpen, setVenueDropdownOpen] = useState(false);
-
-  const venueSuggestions = useMemo(() => {
-    if (!newVenue.trim()) return VERIFIED_VENUES.slice(0, 5);
-    const q = newVenue.toLowerCase();
-    return VERIFIED_VENUES.filter(
-      (v) =>
-        v.name.toLowerCase().includes(q) ||
-        v.neighborhood.toLowerCase().includes(q) ||
-        v.location.toLowerCase().includes(q) ||
-        v.vibe.toLowerCase().includes(q)
-    );
-  }, [newVenue]);
-
-  // Query real database moments that have active rewards attached
-  const verifiedMomentsQuery = useQuery({
-    queryKey: ["verified-moment-rewards-v2"],
+  const responsesQuery = useQuery({
+    queryKey: ["public-market-responses", city.id],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("moments")
-          .select("id, title, venue_name, location, reward, image_url, starts_at, category")
-          .not("reward", "is", null)
-          .order("starts_at", { ascending: true })
-          .limit(12);
-
-        if (error || !data) return [];
-        return data.filter((m) => Boolean(m.reward));
-      } catch {
-        return [];
-      }
+      const { data, error } = await supabase
+        .from("view_public_moment_directory")
+        .select("id, slug, title, venue_name, location, reward, image_url, starts_at, category")
+        .not("reward", "is", null)
+        .order("starts_at", { ascending: true })
+        .limit(8);
+      if (error) throw error;
+      return (data || []).filter((row) => Boolean(row.reward));
     },
+    staleTime: 30_000,
   });
 
-  const verifiedMoments = verifiedMomentsQuery.data || [];
+  const liveSignals = useMemo(() => inbox.questions.slice(0, 8), [inbox.questions]);
+  const responses = responsesQuery.data || [];
+  const offers = (offersQuery.data || []).filter((offer) => ["active", "published", "live"].includes(offer.status)).slice(0, 8);
+  const marketName = city.name === "All Jamaica" ? "Jamaica" : city.name;
 
-  const filteredRequests = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    return dealRequests.filter((req) => {
-      const matchesCategory = activeCategory === "all" || req.category === activeCategory;
-      const matchesSearch =
-        !query ||
-        req.venue_name.toLowerCase().includes(query) ||
-        req.requested_perk.toLowerCase().includes(query) ||
-        req.brand_interest.toLowerCase().includes(query) ||
-        req.location.toLowerCase().includes(query);
-      return matchesCategory && matchesSearch;
-    });
-  }, [dealRequests, activeCategory, searchQuery]);
-
-  const handleVote = (id: string) => {
-    setDealRequests((prev) =>
-      prev.map((req) => {
-        if (req.id === id) {
-          const nextVoted = !req.has_voted;
-          return {
-            ...req,
-            has_voted: nextVoted,
-            votes_count: nextVoted ? req.votes_count + 1 : req.votes_count - 1,
-          };
-        }
-        return req;
-      })
-    );
-
-    toast({
-      title: "Community Vote Recorded! 🔥",
-      description: "Your vote was added to the merchant unlock threshold. You earned +10 PromoPoints!",
-    });
-  };
-
-  const handleCreateRequest = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newVenue.trim() || !newPerk.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter at least a venue name and the desired perk.",
-        variant: "destructive",
-      });
-      return;
+  async function submitAsk(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = ask.trim();
+    if (!query || submitting) return;
+    setSubmitting(true);
+    setResult(null);
+    try {
+      const recorded = await recordAsk(query);
+      setResult({ query, recorded });
+      if (recorded) {
+        setAsk("");
+        void trackGrowthEvent({
+          eventName: "market_ask_recorded",
+          journey: "participant",
+          stage: "captured",
+          entityType: "demand_intent",
+          entityId: query.toLowerCase().slice(0, 120),
+          properties: { city: marketName },
+        });
+      }
+    } finally {
+      setSubmitting(false);
     }
-
-    const newEntry: CommunityDealRequest = {
-      id: `req-${Date.now()}`,
-      venue_name: newVenue.trim(),
-      location: newLocation.trim() || "Kingston, Jamaica",
-      brand_interest: newBrand.trim() || "Local Merchant",
-      requested_perk: newPerk.trim(),
-      category: newCategory,
-      category_label:
-        newCategory === "nightlife"
-          ? "Nightlife & Music"
-          : newCategory === "retail"
-          ? "Retail & Fashion"
-          : "Food & Dining",
-      votes_count: 1,
-      votes_threshold: 50,
-      has_voted: true,
-      requester_name: user?.user_metadata?.full_name || "You",
-      created_at: new Date().toISOString(),
-    };
-
-    setDealRequests((prev) => [newEntry, ...prev]);
-    setRequestModalOpen(false);
-
-    // Reset Form
-    setNewVenue("");
-    setNewLocation("");
-    setNewBrand("");
-    setNewPerk("");
-
-    toast({
-      title: "Perk Request Published! 🚀",
-      description: "Your deal request is now live for the community to rally behind. (+25 PromoPoints)",
-    });
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
+    <main className="marketing-cinematic min-h-screen bg-[#080808] px-5 pb-24 pt-24 text-white sm:px-6">
+      <CurrentArc variant="hero" className="marketing-hero-current" />
       <SEO
-        title="Rewards & Deals Hub — Request & Unlock Member Perks | Promorang"
-        description="Vote on community deal requests and rally behind local venues and brands to unlock exclusive perks in Kingston."
-        url={getSiteUrl("/rewards")}
+        title="Wanted + Responses — PROMORANG"
+        description="See what people want, tell PROMORANG what you’re looking for, and discover what businesses and hosts have put up in response."
+        url={getSiteUrl("/discover/rewards")}
       />
 
-      <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 space-y-10">
-        {/* Header Title, Actions & Balance Hub */}
-        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <Badge className="rounded-full bg-primary text-white font-bold text-[10px] uppercase tracking-wider border-none shadow-md shadow-primary/20">
-                Demand-Driven Perks & Vouchers
-              </Badge>
-              <span className="text-xs text-white/50 font-semibold">Kingston Ecosystem</span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Rewards & Member Perks
-            </h1>
-            <p className="text-white/60 text-xs sm:text-sm max-w-xl">
-              Signal demand for perks at your favorite spots. When enough members vote, Promorang partners with the venue to unlock guaranteed deals.
-            </p>
+      <div className="mx-auto max-w-[1320px]">
+        <header className="grid gap-8 border-b border-white/10 pb-10 lg:grid-cols-[1fr_.72fr] lg:items-end">
+          <div>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-primary">Wanted + responses · {marketName}</p>
+            <h1 className="mt-3 max-w-4xl font-serif text-5xl font-bold leading-[.94] tracking-[-.055em] sm:text-7xl">See what people want. See what’s actually available.</h1>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">Start with what people are asking for, then see the offers, perks and Moments that are actually live. Want something missing? Tell PROMORANG.</p>
           </div>
-
-          {/* Action Hub & Balance */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            <Button
-              onClick={() => setRequestModalOpen(true)}
-              className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/30 h-11 px-5 gap-1.5"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Request a Perk at a Spot</span>
-            </Button>
-
-            {/* User Points & Keys Capsule */}
-            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-1.5 shrink-0">
-              <Link
-                to="/wallet"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition text-xs font-bold text-white"
-              >
-                <KeyRound className="h-3.5 w-3.5 text-amber-400" />
-                <span>{balance?.promokeys || 0} Keys</span>
-              </Link>
-              <Link
-                to="/wallet"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition text-xs font-bold text-white"
-              >
-                <Coins className="h-3.5 w-3.5 text-primary" />
-                <span>{balance?.points || 0} Pts</span>
-              </Link>
-            </div>
+          <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.035] p-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">How it works</p>
+            <p className="mt-3 font-serif text-2xl font-bold">Want it → someone responds → people act.</p>
+            <p className="mt-2 text-xs leading-5 text-white/45">A popular ask can get attention, but something only appears here when someone actually puts it up.</p>
           </div>
-        </div>
+        </header>
 
-        {/* 1. VISUAL VERIFIED PERKS IN UPCOMING MOMENTS */}
-        {verifiedMoments.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold text-[10px] uppercase tracking-wider border border-emerald-500/20">
-                    Live Door Perks
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  <span>Verified Perks in Upcoming Moments</span>
-                </h2>
-                <p className="text-xs text-white/50">
-                  Guaranteed rewards, drink tokens, and points waiting for you when you RSVP and check in.
-                </p>
+        <section className="grid gap-8 border-b border-white/10 py-12 lg:grid-cols-[.72fr_1.28fr]">
+          <div>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Looking for something?</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">Tell PROMORANG.</h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/50">Tell us what you’re looking for. Your ask can join similar interest and help shape what comes next.</p>
+          </div>
+          <form onSubmit={submitAsk} className="self-end">
+            <div className="flex flex-col gap-2 rounded-[1.4rem] border border-white/12 bg-white/[0.045] p-2 sm:flex-row">
+              <div className="flex min-w-0 flex-1 items-center gap-3 px-3">
+                <Search className="h-4 w-4 shrink-0 text-primary" />
+                <input
+                  value={ask}
+                  onChange={(event) => { setAsk(event.target.value); setResult(null); }}
+                  placeholder="A late-night café, a first-visit offer, a product, an experience…"
+                  className="min-h-12 w-full bg-transparent text-sm outline-none placeholder:text-white/25"
+                />
               </div>
+              <button type="submit" disabled={!ask.trim() || submitting} className="min-h-12 rounded-[1rem] bg-primary px-5 text-xs font-black uppercase tracking-[0.12em] text-black disabled:opacity-40">
+                {submitting ? "Saving…" : "Keep looking for this"}
+              </button>
             </div>
+            {result ? (
+              <p className={`mt-3 text-xs leading-5 ${result.recorded ? "text-emerald-300" : "text-amber-200"}`}>
+                {result.recorded
+                  ? `Got it. PROMORANG is keeping an eye on “${result.query}”.`
+                  : `We couldn’t save “${result.query}” right now. Try again.`}
+              </p>
+            ) : null}
+          </form>
+        </section>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {verifiedMoments.map((m) => {
-                const coverImage = getVenueImage(m.venue_name || m.location, m.image_url);
+        <section className="py-14" id="wanted">
+          <div className="mb-7 flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">What people want</p>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What people are asking for.</h2>
+            </div>
+            <p className="max-w-md text-xs leading-5 text-white/40">Votes show interest. They are not a reservation or purchase.</p>
+          </div>
 
+          {isLoading ? <p className="text-sm text-white/40">Loading what people want…</p> : liveSignals.length ? (
+            <div className="grid gap-5 lg:grid-cols-2">
+              {liveSignals.map((question) => {
+                const href = discoveryHref(question.poll);
                 return (
-                  <Link
-                    key={m.id}
-                    to={`/moments/${m.id}`}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#111216] hover:border-primary/50 hover:bg-white/[0.04] transition-all hover:shadow-2xl duration-200"
-                  >
-                    {/* Top Image with Glowing Perk Badge */}
-                    <div className="relative h-40 w-full overflow-hidden bg-black">
-                      <img
-                        src={coverImage}
-                        alt={m.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                      
-                      {/* Neon Perk Badge */}
-                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-primary text-black font-black text-[11px] shadow-lg flex items-center gap-1">
-                        <Gift className="h-3 w-3" />
-                        <span>{m.reward}</span>
-                      </span>
-
-                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white/90">
-                        {m.category || "Live Moment"}
-                      </span>
-                    </div>
-
-                    {/* Body Details */}
-                    <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
-                      <div className="space-y-1">
-                        <h3 className="text-sm font-bold text-white group-hover:text-primary transition line-clamp-2 leading-snug">
-                          {m.title}
-                        </h3>
-                        <p className="text-xs text-white/50 flex items-center gap-1 truncate pt-0.5">
-                          <MapPin className="h-3 w-3 text-primary shrink-0" />
-                          <span className="truncate">{m.venue_name || m.location}</span>
-                        </p>
-                      </div>
-
-                      <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
-                          <Check className="h-3 w-3" />
-                          <span>Included with Pass</span>
-                        </span>
-                        <ArrowRight className="h-3.5 w-3.5 text-white/40 group-hover:text-primary group-hover:translate-x-1 transition" />
-                      </div>
-                    </div>
-                  </Link>
+                  <div key={question.poll.id} className="space-y-3">
+                    <DemandSignalObject
+                      city={marketName}
+                      title={question.poll.question}
+                      leadingOption={question.leading?.text || null}
+                      demandCount={question.poll.totalVotes || 0}
+                      threshold={question.poll.thresholdForMoment || null}
+                      matchedAsk={question.matchedAsks[0] || null}
+                      responseLabel={question.poll.targetUnlockPerk || null}
+                      href={href}
+                      state={signalState(question.votesRemaining, question.closeness)}
+                    />
+                    <WatchMarketObjectButton
+                      type="demand"
+                      id={question.poll.id}
+                      title={question.poll.question}
+                      subtitle={`${question.poll.totalVotes || 0} vote${question.poll.totalVotes === 1 ? "" : "s"} in ${marketName}`}
+                      href={href}
+                      metadata={{ city: marketName, recordedVotes: question.poll.totalVotes || 0 }}
+                      compact
+                    />
+                  </div>
                 );
               })}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="rounded-[1.7rem] border border-dashed border-white/12 p-7">
+              <Radio className="h-6 w-6 text-primary" />
+              <h3 className="mt-4 font-serif text-2xl font-bold">No one has asked for anything here yet.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Be first to tell PROMORANG what you’re looking for, or explore what’s already happening.</p>
+              <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">Explore Discoveries <ArrowRight className="h-4 w-4" /></Link>
+            </div>
+          )}
+        </section>
 
-        {/* 2. COMMUNITY DEAL REQUESTS GRID */}
-        <div className="space-y-5 pt-2">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <section className="border-t border-white/10 py-14" id="offers">
+          <div className="mb-7 grid gap-4 border-b border-white/10 pb-5 lg:grid-cols-[1fr_.6fr] lg:items-end">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 fill-amber-400" />
-                  Live Community Wishlist
-                </span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-white mt-1.5">
-                Top Requested Deals in Kingston
-              </h2>
-              <p className="text-xs text-white/60">
-                Vote to charge the unlock meter. Once a request reaches its threshold, Promorang presents the guaranteed customer headcount to the merchant!
-              </p>
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Offers & perks</p>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What’s available now.</h2>
             </div>
-
-            {/* Filter Search Bar */}
-            <div className="relative w-full sm:min-w-[280px]">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-              <input
-                type="text"
-                placeholder="Search requested spots or brands..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition"
-              />
-            </div>
+            <p className="text-xs leading-5 text-white/40">These are live offers and perks. Open one to see the terms before you claim it.</p>
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {[
-              { id: "all", label: "All Requests", icon: Sparkles },
-              { id: "food", label: "Food & Dining 🍽️", icon: Gift },
-              { id: "nightlife", label: "Nightlife & VIP 🍹", icon: Ticket },
-            ].map((cat) => {
-              const isActive = activeCategory === cat.id;
-              const Icon = cat.icon;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all shrink-0 ${
-                    isActive
-                      ? "bg-primary text-white shadow-lg shadow-primary/20"
-                      : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5"
-                  }`}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Demand Requests Grid with Venue Photography & Gauges */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {filteredRequests.map((req) => {
-              const progressPercent = Math.min(
-                100,
-                Math.round((req.votes_count / req.votes_threshold) * 100)
-              );
-              const isClose = progressPercent >= 75;
-              const backdrop = getVenueImage(req.venue_name);
-
-              return (
-                <div
-                  key={req.id}
-                  className="group relative rounded-3xl border border-white/15 bg-[#111216] overflow-hidden hover:border-primary/40 transition duration-200 flex flex-col justify-between shadow-2xl"
-                >
-                  {/* Subtle Venue Backdrop Header */}
-                  <div className="relative h-28 w-full overflow-hidden bg-black">
-                    <img
-                      src={backdrop}
-                      alt={req.venue_name}
-                      className="h-full w-full object-cover opacity-40 group-hover:scale-105 transition duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#111216] via-[#111216]/60 to-transparent" />
-
-                    <div className="absolute top-3 left-4 right-4 flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-[10px] font-black uppercase tracking-wider text-primary">
-                        {req.brand_interest}
-                      </span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white/70">
-                        {req.category_label}
-                      </span>
-                    </div>
-
-                    <div className="absolute bottom-2 left-4">
-                      <h3 className="text-lg font-black text-white leading-tight">
-                        {req.venue_name}
-                      </h3>
-                      <p className="text-xs text-white/60 flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-primary shrink-0" />
-                        <span>{req.location}</span>
-                      </p>
-                    </div>
+          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Offers couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : offers.length ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {offers.map((offer) => (
+                <article key={offer.id} className="flex min-h-[250px] flex-col border border-white/10 bg-white/[0.025] p-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-orange-400/30 bg-orange-400/10 text-orange-300"><Gift className="h-5 w-5" /></div>
+                  <p className="mt-5 text-[9px] font-black uppercase tracking-[0.16em] text-primary">{offer.reward_type.replace(/_/g, " ")}</p>
+                  <h3 className="mt-2 text-xl font-black leading-tight">{offer.title}</h3>
+                  {offer.description ? <p className="mt-3 line-clamp-3 text-xs leading-5 text-white/45">{offer.description}</p> : null}
+                  <div className="mt-auto border-t border-white/10 pt-4 text-[10px] uppercase tracking-[0.1em] text-white/35">
+                    {typeof offer.quantity_total === "number"
+                      ? `${Math.max(0, offer.quantity_total - offer.quantity_reserved - offer.quantity_redeemed)} available`
+                      : "Check terms"}
+                    <span className="mx-2">·</span>
+                    {offer.fulfillment_type.replace(/_/g, " ")}
                   </div>
-
-                  {/* Body with Requested Perk & Progress Meter */}
-                  <div className="p-5 space-y-4">
-                    <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 space-y-1">
-                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider">
-                        Requested Perk Deal:
-                      </span>
-                      <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                        <Gift className="h-3.5 w-3.5 shrink-0" />
-                        <span>{req.requested_perk}</span>
-                      </p>
-                    </div>
-
-                    {/* Progress Gauge */}
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-white/60 font-medium">Merchant Unlock Threshold</span>
-                        <span className={`font-black ${isClose ? "text-emerald-400" : "text-amber-400"}`}>
-                          {req.votes_count} / {req.votes_threshold} Votes ({progressPercent}%)
-                        </span>
-                      </div>
-                      <div className="w-full h-2.5 rounded-full bg-white/10 overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-primary via-amber-400 to-emerald-400 rounded-full transition-all duration-500"
-                          style={{ width: `${progressPercent}%` }}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] text-white/40 pt-0.5">
-                        <span>Rallied by {req.requester_name}</span>
-                        <span>{req.votes_threshold - req.votes_count} more votes to pitch merchant</span>
-                      </div>
-                    </div>
-
-                    {/* Action Row */}
-                    <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                      <Button
-                        onClick={() => handleVote(req.id)}
-                        className={`rounded-2xl font-bold text-xs h-10 px-5 gap-1.5 transition ${
-                          req.has_voted
-                            ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                            : "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25"
-                        }`}
-                      >
-                        <ThumbsUp className="h-3.5 w-3.5" />
-                        <span>{req.has_voted ? "Request Backed (+10 Pts)" : "Back Request (+10 Pts)"}</span>
-                      </Button>
-
-                      <span className="text-xs font-bold text-primary flex items-center gap-1">
-                        <Flame className="h-3.5 w-3.5" />
-                        <span>{req.votes_count} Scouts Rallied</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 3. For Merchants & Brand Partners Conversion Callout */}
-        <div className="rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-[#121316] to-black p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
-          <div className="space-y-1.5 max-w-xl">
-            <div className="flex items-center gap-2">
-              <Store className="h-4 w-4 text-primary" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-                For Venues, Merchants & Brands
-              </span>
+                </article>
+              ))}
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white">
-              Own a Venue or Represent a Product in Jamaica?
-            </h3>
-            <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
-              Activate verified customer demand. Launch a tasting pass, happy hour perk, or sponsored reward with guaranteed attendee attribution.
-            </p>
+          ) : (
+            <div className="border border-dashed border-white/12 p-7">
+              <Gift className="h-6 w-6 text-primary" />
+              <h3 className="mt-4 font-serif text-2xl font-bold">No direct offers right now.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Check the Moments below—some may still include access or perks.</p>
+            </div>
+          )}
+        </section>
+
+        <section className="border-t border-white/10 py-14" id="responses">
+          <div className="mb-7 grid gap-4 border-b border-white/10 pb-5 lg:grid-cols-[1fr_.6fr] lg:items-end">
+            <div>
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Moments with something extra</p>
+              <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Plans, experiences and Moments with something included.</h2>
+            </div>
+            <p className="text-xs leading-5 text-white/40">Open one to see what’s included and how to join.</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <Button
-              asChild
-              className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs h-11 px-6 shadow-lg shadow-primary/25"
-            >
-              <Link to="/create/moment">Offer a Member Perk</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-2xl border-white/15 bg-white/5 text-white hover:bg-white/10 font-bold text-xs h-11 px-5"
-            >
-              <Link to="/for-brands">Brand Co-Op Info</Link>
-            </Button>
-          </div>
-        </div>
+          {responsesQuery.isLoading ? <p className="text-sm text-white/40">Loading responses…</p> : responsesQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Sparkles className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Moments couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : responses.length ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {responses.map((moment) => {
+                const href = `/moments/${moment.slug || moment.id}`;
+                return (
+                  <article key={moment.id} className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.025]">
+                    <div className="relative h-36 bg-white/[0.04]">
+                      {moment.image_url ? <img src={moment.image_url} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><Sparkles className="h-7 w-7 text-white/15" /></div>}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+                      <span className="absolute left-3 top-3 rounded-full border border-emerald-300/20 bg-black/65 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-200"><CheckCircle2 className="mr-1 inline h-3 w-3" />Live Moment</span>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-primary">{moment.category || "Moment"}</p>
+                      <h3 className="mt-2 font-serif text-xl font-bold leading-tight">{moment.title}</h3>
+                      <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/40"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-primary" />{moment.venue_name || moment.location || "Location on Moment"}</p>
+                      <div className="mt-4 rounded-xl border border-white/10 bg-black/25 p-3">
+                        <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.14em] text-white/35"><Gift className="h-3 w-3 text-primary" />Included</p>
+                        <p className="mt-1 text-xs font-bold text-white/75">{moment.reward}</p>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Link to={href} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-primary px-4 text-[11px] font-black text-black">Open <ArrowRight className="h-3.5 w-3.5" /></Link>
+                        <WatchMarketObjectButton type="moment" id={String(moment.id)} title={moment.title || "Moment"} subtitle={moment.reward || null} image={moment.image_url || null} href={href} compact />
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-[1.7rem] border border-dashed border-white/12 p-7">
+              <Gift className="h-6 w-6 text-primary" />
+              <h3 className="mt-4 font-serif text-2xl font-bold">No Moments with perks are live right now.</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Keep exploring, or tell PROMORANG what you want to see next.</p>
+            </div>
+          )}
+        </section>
       </div>
-
-      {/* Interactive "Request a Perk" Modal with Smart Venue Picker & 1-Click Perk Pills */}
-      <Dialog open={requestModalOpen} onOpenChange={setRequestModalOpen}>
-        <DialogContent className="sm:max-w-xl bg-[#111216] border-white/15 text-white rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-primary text-black font-black text-[10px] uppercase tracking-wider">
-                Community Deal Request
-              </span>
-            </div>
-            <DialogTitle className="text-xl sm:text-2xl font-black text-white leading-tight">
-              Request a Perk at Your Favorite Spot
-            </DialogTitle>
-            <DialogDescription className="text-xs text-white/60">
-              Pick a local spot and select what perk would get you to go. When 50 members rally behind it, Promorang pitches the venue with guaranteed customer foot traffic!
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleCreateRequest} className="space-y-6 pt-2">
-            {/* 1. Pick Venue or Spot */}
-            <div className="space-y-2.5">
-              <Label className="text-xs font-bold text-white/90 flex items-center justify-between">
-                <span>1. Where do you want a perk? *</span>
-                <span className="text-[10px] text-primary font-semibold">Verified Kingston Spots</span>
-              </Label>
-
-              {/* Instant Search Input with Live Autosuggest Dropdown */}
-              <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Type any spot (e.g. Sweetwood, Dub Club, Chilitos, PriceSmart)..."
-                  value={newVenue}
-                  onFocus={() => setVenueDropdownOpen(true)}
-                  onChange={(e) => {
-                    setNewVenue(e.target.value);
-                    setVenueDropdownOpen(true);
-                    const match = VERIFIED_VENUES.find((v) =>
-                      v.name.toLowerCase().includes(e.target.value.toLowerCase())
-                    );
-                    if (match) {
-                      setNewLocation(match.location);
-                      setNewCategory(
-                        match.venue_type === "soundstage" || match.venue_type === "lounge"
-                          ? "nightlife"
-                          : "food"
-                      );
-                      setNewBrand(match.name);
-                    }
-                  }}
-                  className="w-full rounded-2xl bg-white/5 border border-white/10 pl-10 pr-10 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary transition h-11"
-                  required
-                />
-                {newVenue && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNewVenue("");
-                      setNewLocation("");
-                      setVenueDropdownOpen(true);
-                    }}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs font-bold"
-                  >
-                    &times;
-                  </button>
-                )}
-
-                {/* Live Floating Autosuggest Menu */}
-                {venueDropdownOpen && (
-                  <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-white/15 bg-[#14151a] shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in-50 zoom-in-95 duration-150">
-                    <div className="p-2 border-b border-white/5 bg-white/[0.02] flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider">
-                      <span>Verified Kingston Spots ({venueSuggestions.length})</span>
-                      <span>Tap to Auto-Select</span>
-                    </div>
-                    <div className="max-h-52 overflow-y-auto divide-y divide-white/5">
-                      {venueSuggestions.length === 0 ? (
-                        <div className="p-3 text-center text-xs text-white/50">
-                          <p>No verified spots matching "{newVenue}".</p>
-                          <p className="text-[11px] text-primary mt-0.5">You can proceed with this custom spot name.</p>
-                        </div>
-                      ) : (
-                        venueSuggestions.map((v) => (
-                          <button
-                            key={v.id}
-                            type="button"
-                            onClick={() => {
-                              setNewVenue(v.name);
-                              setNewLocation(v.location);
-                              setNewCategory(
-                                v.venue_type === "soundstage" || v.venue_type === "lounge"
-                                  ? "nightlife"
-                                  : "food"
-                              );
-                              setNewBrand(v.name);
-                              setVenueDropdownOpen(false);
-                            }}
-                            className="w-full p-2.5 hover:bg-white/5 text-left flex items-center gap-3 transition group"
-                          >
-                            <img
-                              src={v.image_url}
-                              alt={v.name}
-                              className="h-10 w-10 rounded-xl object-cover shrink-0 border border-white/10"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center justify-between gap-1">
-                                <p className="text-xs font-bold text-white group-hover:text-primary transition truncate">
-                                  {v.name}
-                                </p>
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
-                                  {v.venue_type_label}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-white/50 flex items-center gap-1 truncate">
-                                <MapPin className="h-3 w-3 text-primary shrink-0" />
-                                <span>{v.location}</span>
-                              </p>
-                            </div>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 1-Tap Popular Kingston Spots */}
-              <div className="space-y-1.5 pt-1">
-                <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider block">
-                  Or tap a popular spot:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {VERIFIED_VENUES.slice(0, 6).map((v) => (
-                    <button
-                      key={v.id}
-                      type="button"
-                      onClick={() => {
-                        setNewVenue(v.name);
-                        setNewLocation(v.location);
-                        setNewCategory(
-                          v.venue_type === "soundstage" || v.venue_type === "lounge"
-                            ? "nightlife"
-                            : "food"
-                        );
-                        setNewBrand(v.name);
-                        setVenueDropdownOpen(false);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left flex items-center gap-1.5 ${
-                        newVenue === v.name
-                          ? "bg-primary text-white border-primary shadow-md"
-                          : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
-                      }`}
-                    >
-                      <span>{v.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* 2. What Perk Would Get You to Go */}
-            <div className="space-y-2.5 pt-2 border-t border-white/10">
-              <Label className="text-xs font-bold text-white/90 flex items-center justify-between">
-                <span>2. What perk would get you to go? *</span>
-                <span className="text-[10px] text-primary font-semibold">1-Click Suggestions</span>
-              </Label>
-
-              <div className="flex flex-wrap gap-1.5">
-                {POPULAR_PERK_PILLS.map((pill) => (
-                  <button
-                    key={pill}
-                    type="button"
-                    onClick={() => setNewPerk(pill)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition text-left ${
-                      newPerk === pill
-                        ? "bg-primary text-white border-primary shadow-md"
-                        : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    {pill}
-                  </button>
-                ))}
-              </div>
-
-              <Input
-                placeholder="Or type your custom desired perk..."
-                value={newPerk}
-                onChange={(e) => setNewPerk(e.target.value)}
-                className="rounded-2xl bg-white/5 border-white/10 text-white placeholder-white/40 text-xs h-11 mt-2"
-                required
-              />
-            </div>
-
-            {/* Submit Action */}
-            <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setRequestModalOpen(false)}
-                className="text-xs text-white/60 hover:text-white"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs px-7 h-11 shadow-lg shadow-primary/25"
-              >
-                Rally Demand & Earn +25 Pts
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </main>
   );
 }
 

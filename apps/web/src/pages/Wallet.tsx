@@ -36,7 +36,7 @@ import {
   ArrowRight,
   TrendingUp,
 } from "lucide-react";
-import { cultureEvents } from "@/data/culture-demo";
+import heroMoments from "@/assets/hero-moments.jpg";
 import { CommerceReceiptRail } from "@/components/commerce/CommerceReceiptRail";
 import { CouponWalletRail } from "@/components/commerce/CouponWalletRail";
 import { PersonalValueNav } from "@/components/value/PersonalValueNav";
@@ -97,9 +97,9 @@ const Wallet = () => {
   const canWithdrawGems = isFeatureEnabled("gemWithdrawals");
   const { membership } = useParticipantMembership();
   const cashOutLocked = canWithdrawGems && !membership.withdrawalsEnabled;
-  const { data: walletBalance, isLoading: walletLoading, refetch: refetchWalletBalance } = useUserBalance();
+  const { data: walletBalance, isLoading: walletLoading, error: walletError, refetch: refetchWalletBalance } = useUserBalance();
   const { refetch: refetchEconomyHistory } = useEconomyHistory();
-  const { data: gemWithdrawals = [], isLoading: withdrawalsLoading, refetch: refetchGemWithdrawals } = useGemWithdrawals();
+  const { data: gemWithdrawals = [], isLoading: withdrawalsLoading, error: withdrawalsError, refetch: refetchGemWithdrawals } = useGemWithdrawals();
   const gemActions = useGemWalletActions();
   const { receipts, caps, resetsAt, isLoading: receiptsLoading, refresh: refreshReceipts } = useValueReceipts();
 
@@ -110,7 +110,9 @@ const Wallet = () => {
   });
   const [gemsTransactions, setGemsTransactions] = useState<GemsTransaction[]>([]);
   const [gemsLoading, setGemsLoading] = useState(true);
+  const [gemsError, setGemsError] = useState<string | null>(null);
   const [transactionsLoading, setTransactionsLoading] = useState(true);
+  const [transactionsError, setTransactionsError] = useState<string | null>(null);
   const [walletRefreshTick, setWalletRefreshTick] = useState(0);
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [checkoutActive, setCheckoutActive] = useState(false);
@@ -137,6 +139,7 @@ const Wallet = () => {
     if (!session?.access_token) return;
 
     setGemsLoading(true);
+    setGemsError(null);
     try {
       const response = await fetch(`${API_BASE_URL}/pieces/gems/balance`, {
         headers: {
@@ -163,6 +166,8 @@ const Wallet = () => {
         next_purchase_redemption_at: data.next_purchase_redemption_at || null,
       });
     } catch (error: unknown) {
+      setGemsSnapshot({ balance: 0, usd_value: 0, exchange_rate: 1 });
+      setGemsError(errorMessage(error, t("wallet.loadGemsFailed")));
       toast({
         title: t("wallet.unavailable"),
         description: errorMessage(error, t("wallet.loadGemsFailed")) || t("wallet.loadGemsFailed"),
@@ -177,6 +182,7 @@ const Wallet = () => {
     if (!session?.access_token) return;
 
     setTransactionsLoading(true);
+    setTransactionsError(null);
     try {
       const response = await fetch(`${API_BASE_URL}/pieces/gems/transactions?limit=10`, {
         headers: {
@@ -192,6 +198,8 @@ const Wallet = () => {
       const data = await response.json();
       setGemsTransactions(data.transactions || []);
     } catch (error: unknown) {
+      setGemsTransactions([]);
+      setTransactionsError(errorMessage(error, t("wallet.loadTxFailed")));
       toast({
         title: t("wallet.txUnavailable"),
         description: errorMessage(error, t("wallet.loadTxFailed")) || t("wallet.loadTxFailed"),
@@ -261,6 +269,9 @@ const Wallet = () => {
   const pointsPerKey = PARTICIPANT_ECONOMY.pointsPerPromoKey;
   const availableConversions = Math.min(PARTICIPANT_ECONOMY.maxDailyPromoKeyConversions, Math.floor(points / pointsPerKey));
   const nextKeyProgress = Math.min(100, ((points % pointsPerKey) / pointsPerKey) * 100);
+  const walletUnavailable = Boolean(walletError);
+  const gemsUnavailable = Boolean(gemsError);
+  const withdrawalsUnavailable = Boolean(withdrawalsError);
   const submitGemWithdrawal = async () => {
     try {
       await gemActions.requestWithdrawal.mutateAsync({ amount: Number(withdrawAmount), note: withdrawNote });
@@ -293,7 +304,7 @@ const Wallet = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="relative min-h-[500px] overflow-hidden border-b border-white/10 bg-black">
-        <img src={cultureEvents[1]?.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+        <img src={heroMoments} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/35" />
         <div className="relative w-full grid min-h-[500px] gap-8 px-4 sm:px-6 lg:px-8 py-8 md:py-10 md:grid-cols-[1fr_420px] md:items-end">
           <div className="text-white">
@@ -311,14 +322,15 @@ const Wallet = () => {
 
           <div className="flex flex-col items-center gap-4">
             <AftrHrsWalletPass />
-            <DigitalWalletPass3D
+            {walletUnavailable || gemsUnavailable ? <div role="alert" className="w-full max-w-[420px] rounded-2xl border border-amber-500/25 bg-black/70 p-5 text-sm text-amber-100">Wallet balances are unavailable. No zero balance is being substituted.</div> : <DigitalWalletPass3D
               displayName={user.user_metadata?.full_name || user.user_metadata?.name}
               userEmail={user.email}
               userId={user.id}
               points={walletBalance?.points || 0}
               promoKeys={walletBalance?.promokeys || 0}
               gems={gems}
-            />
+              onConvertPoints={() => setConvertDialogOpen(true)}
+            />}
             <div className="flex w-full max-w-[420px] gap-2">
               <Button className="flex-1 rounded-xl shadow-lg" asChild>
                 <Link to="/discover"><Sparkles className="mr-2 h-4 w-4" />{t("wallet.earn")}</Link>
@@ -373,11 +385,12 @@ const Wallet = () => {
               <Button asChild variant="outline" className="rounded-xl"><Link to="/portfolio">{t("wallet.viewPieces")} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
             </div>
           </div>
+          {walletUnavailable || gemsUnavailable || withdrawalsUnavailable ? <div role="alert" className="rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4 text-sm text-amber-700 dark:text-amber-200">Some wallet sources are unavailable. Affected balances and actions remain disabled until recorded state can be verified.</div> : null}
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <ValueInstrumentCard icon={Coins} label={t("wallet.pointsLabel")} value={formatNumber(points)} meaning={t("wallet.pointsMeaning")} status={t("wallet.pointsStatus")} tone="amber" loading={walletLoading} progress={nextKeyProgress} progressLabel={t("wallet.nextKey", { count: formatNumber(Math.max(0, pointsPerKey - (points % pointsPerKey))) })} actionLabel={t("wallet.convertToKeys")} onAction={() => setConvertDialogOpen(true)} disabled={availableConversions < 1} disabledReason={t("wallet.needMorePoints", { count: formatNumber(Math.max(0, pointsPerKey - points)) })} />
-            <ValueInstrumentCard icon={KeyRound} label={t("wallet.keysLabel")} value={formatNumber(Number(walletBalance?.promokeys || 0))} meaning={t("wallet.keysMeaning")} status={t("wallet.keysStatus")} tone="orange" loading={walletLoading} actionLabel={t("wallet.seeFunded")} onAction={() => window.location.assign("/earn")} />
-            <ValueInstrumentCard icon={Gem} label={t("wallet.gemsLabel")} value={formatNumber(gemsSnapshot.balance || gems)} meaning={t("wallet.gemsMeaning")} status={Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? t("wallet.gemsPending") : t("wallet.gemsReady")} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? t("wallet.buyOrManage") : t("wallet.viewGemDetails")} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} />
-            <ValueInstrumentCard icon={DollarSign} label={t("wallet.withdrawable")} value={formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0), "USD", locale)} meaning={cashOutLocked ? t("wallet.withdrawableLocked") : pendingWithdrawalGems > 0 ? t("wallet.withdrawablePending", { count: formatNumber(pendingWithdrawalGems) }) : t("wallet.withdrawableEligible")} status={cashOutLocked ? t("wallet.upgradeCashOut") : pendingWithdrawalGems > 0 ? t("wallet.requestPending") : t("wallet.eligibleNow")} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel={cashOutLocked ? t("wallet.unlockPro") : t("wallet.request")} onAction={() => { if (cashOutLocked) window.location.assign("/membership/checkout?plan=professional"); else setWithdrawDialogOpen(true); }} disabled={!canWithdrawGems || (!cashOutLocked && Number(gemsSnapshot.withdrawable_balance || 0) <= 0)} disabledReason={!canWithdrawGems ? t("wallet.unavailableIn", { place: country.name }) : cashOutLocked ? t("wallet.proUnlocks") : t("wallet.nothingEligible")} />
+            <ValueInstrumentCard icon={Coins} label={t("wallet.pointsLabel")} value={walletUnavailable ? "Unavailable" : formatNumber(points)} meaning={t("wallet.pointsMeaning")} status={walletUnavailable ? "Source unavailable" : t("wallet.pointsStatus")} tone="amber" loading={walletLoading} progress={walletUnavailable ? undefined : nextKeyProgress} progressLabel={t("wallet.nextKey", { count: formatNumber(Math.max(0, pointsPerKey - (points % pointsPerKey))) })} actionLabel={t("wallet.convertToKeys")} onAction={() => setConvertDialogOpen(true)} disabled={walletUnavailable || availableConversions < 1} disabledReason={walletUnavailable ? "Balance unavailable" : t("wallet.needMorePoints", { count: formatNumber(Math.max(0, pointsPerKey - points)) })} />
+            <ValueInstrumentCard icon={KeyRound} label={t("wallet.keysLabel")} value={walletUnavailable ? "Unavailable" : formatNumber(Number(walletBalance?.promokeys || 0))} meaning={t("wallet.keysMeaning")} status={walletUnavailable ? "Source unavailable" : t("wallet.keysStatus")} tone="orange" loading={walletLoading} actionLabel={t("wallet.seeFunded")} onAction={() => window.location.assign("/earn")} disabled={walletUnavailable} disabledReason="Balance unavailable" />
+            <ValueInstrumentCard icon={Gem} label={t("wallet.gemsLabel")} value={gemsUnavailable ? "Unavailable" : formatNumber(gemsSnapshot.balance || gems)} meaning={t("wallet.gemsMeaning")} status={gemsUnavailable ? "Source unavailable" : Number(gemsSnapshot.pending_purchase_redemption_balance || 0) > 0 ? t("wallet.gemsPending") : t("wallet.gemsReady")} tone="violet" loading={gemsLoading} actionLabel={canBuyGems ? t("wallet.buyOrManage") : t("wallet.viewGemDetails")} onAction={() => { setCheckoutActive(false); setBuyDialogOpen(true); }} disabled={gemsUnavailable} disabledReason="Balance unavailable" />
+            <ValueInstrumentCard icon={DollarSign} label={t("wallet.withdrawable")} value={gemsUnavailable || withdrawalsUnavailable ? "Unavailable" : formatCurrency(Number(gemsSnapshot.withdrawable_balance || 0), "USD", locale)} meaning={cashOutLocked ? t("wallet.withdrawableLocked") : pendingWithdrawalGems > 0 ? t("wallet.withdrawablePending", { count: formatNumber(pendingWithdrawalGems) }) : t("wallet.withdrawableEligible")} status={gemsUnavailable || withdrawalsUnavailable ? "Source unavailable" : cashOutLocked ? t("wallet.upgradeCashOut") : pendingWithdrawalGems > 0 ? t("wallet.requestPending") : t("wallet.eligibleNow")} tone="emerald" loading={gemsLoading || withdrawalsLoading} actionLabel={cashOutLocked ? t("wallet.unlockPro") : t("wallet.request")} onAction={() => { if (cashOutLocked) window.location.assign("/membership/checkout?plan=professional"); else setWithdrawDialogOpen(true); }} disabled={gemsUnavailable || withdrawalsUnavailable || !canWithdrawGems || (!cashOutLocked && Number(gemsSnapshot.withdrawable_balance || 0) <= 0)} disabledReason={gemsUnavailable || withdrawalsUnavailable ? "Balance unavailable" : !canWithdrawGems ? t("wallet.unavailableIn", { place: country.name }) : cashOutLocked ? t("wallet.proUnlocks") : t("wallet.nothingEligible")} />
           </div>
           <GemSpendBenefits />
         </section>
@@ -464,7 +477,7 @@ const Wallet = () => {
                 </div>
               )}
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-xs text-muted-foreground">
-                <span className="font-semibold text-primary">Unlocks:</span> Funded Moments, gated drops, and proof-backed experiences.
+                <span className="font-semibold text-primary">Unlocks:</span> Funded Moments, gated drops, and experiences that require confirmation.
               </div>
               <Button
                 className="w-full font-bold text-xs shadow-md"
@@ -608,6 +621,8 @@ const Wallet = () => {
                     <Skeleton key={index} className="h-12 w-full rounded-xl" />
                   ))}
                 </div>
+              ) : transactionsError ? (
+                <div role="alert" className="rounded-2xl border border-amber-500/25 bg-amber-500/5 p-6 text-center text-sm text-amber-700 dark:text-amber-200">Transaction history is unavailable. No empty history is being substituted.</div>
               ) : gemsTransactions.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border/60 p-8 text-center bg-neutral-900/30">
                   <Gem className="mx-auto h-10 w-10 text-violet-400/60" />
@@ -650,7 +665,7 @@ const Wallet = () => {
                             ) : null}
                           </TableCell>
                           <TableCell className="font-semibold text-xs text-foreground">
-                            {Number(transaction.balance_after || 0).toLocaleString()} Gems
+                            {transaction.balance_after == null ? "Not recorded" : `${Number(transaction.balance_after).toLocaleString()} Gems`}
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                             {new Date(transaction.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -677,6 +692,8 @@ const Wallet = () => {
               <CardContent className="pt-4 space-y-3">
                 {withdrawalsLoading ? (
                   <Skeleton className="h-20 w-full rounded-xl" />
+                ) : withdrawalsError ? (
+                  <div role="alert" className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 text-sm text-amber-700 dark:text-amber-200">Withdrawal requests are unavailable. No empty queue is being substituted.</div>
                 ) : gemWithdrawals.length ? (
                   gemWithdrawals.slice(0, 4).map((request) => (
                     <div key={request.id} className="rounded-xl border border-border/60 bg-neutral-900/40 p-3 flex items-center justify-between gap-3">

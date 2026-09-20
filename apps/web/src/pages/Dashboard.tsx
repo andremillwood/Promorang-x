@@ -4,10 +4,12 @@ import { Suspense, lazy } from "react";
 import { ResumeMomentumBanner } from "@/components/intent/ResumeMomentumBanner";
 import { useUserIntentContinuity } from "@/hooks/useUserIntentContinuity";
 import { MobileNotificationBridgeBanner } from "@/components/notifications/MobileNotificationBridgeBanner";
+import { RoleJobFirstGuide } from "@/components/dashboard/RoleJobFirstGuide";
+import { ManagedWorkspaceContext } from "@/components/dashboard/ManagedWorkspaceContext";
 import { useI18n } from "@/i18n/I18nContext";
 
 const PeopleHome = lazy(() => import("@/pages/PeopleHome"));
-const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/CulturalCommandHome"));
+const ParticipantDashboardV2 = lazy(() => import("@/components/dashboards/ParticipantDashboardV2"));
 const CreatorDashboardV2 = lazy(() => import("@/components/dashboards/CreatorDashboardV2"));
 const HostDashboardV2 = lazy(() => import("@/components/dashboards/HostDashboardV2"));
 const BrandDashboardV2 = lazy(() => import("@/components/dashboards/BrandDashboardV2"));
@@ -35,7 +37,6 @@ const Dashboard = () => {
   const { activeDraft, dismissDraft } = useUserIntentContinuity();
   const [params] = useSearchParams();
   const studioView = params.get("view") === "studio";
-  const peopleView = params.get("view") === "people";
 
   if (loading) {
     return (
@@ -54,26 +55,26 @@ const Dashboard = () => {
   }
 
   const resolvedRole = activeRole || "participant";
-  const commercialStudio = ["host", "creator", "merchant", "brand", "agency"].includes(resolvedRole);
-  const showStudio = studioView || (!peopleView && commercialStudio);
+  // Today is the canonical entry surface for every role. Operational role
+  // dashboards remain available as an explicit Studio view instead of
+  // silently replacing the cross-role experience after a workspace switch.
+  const showStudio = studioView;
   const ResolvedDashboard = showStudio
     ? (dashboardByRole[resolvedRole] || ParticipantDashboardV2)
     : PeopleHome;
 
   if (!showStudio) {
     return (
-      <>
-        <MobileNotificationBridgeBanner />
-        {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
-        <Suspense fallback={dashboardFallback}>
-          <PeopleHome />
-        </Suspense>
-      </>
+      <Suspense fallback={dashboardFallback}>
+        <PeopleHome />
+      </Suspense>
     );
   }
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+      <ManagedWorkspaceContext />
+      <RoleJobFirstGuide role={resolvedRole} />
       <MobileNotificationBridgeBanner />
       {activeDraft && <ResumeMomentumBanner draft={activeDraft} onDismiss={dismissDraft} />}
       <Suspense fallback={dashboardFallback}>

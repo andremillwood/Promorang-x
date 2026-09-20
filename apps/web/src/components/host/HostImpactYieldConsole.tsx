@@ -1,106 +1,87 @@
-import React from "react";
-import {
-  BarChart3,
-  TrendingUp,
-  Gem,
-  Users,
-  Award,
-  DollarSign,
-  ArrowUpRight,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CommunityImpactMatrix } from "@/components/host/CommunityImpactMatrix";
+import { BarChart3, Calendar, CheckCircle2, RotateCcw, ShieldCheck, Users } from "lucide-react";
+import { useHostedMoments } from "@/hooks/useMoments";
+import { useRoleSuccessProgress } from "@/hooks/useRoleSuccessProgress";
 
 export function HostImpactYieldConsole() {
+  const momentsQuery = useHostedMoments();
+  const progressQuery = useRoleSuccessProgress("host");
+
+  const moments = momentsQuery.data || [];
+  const progress = progressQuery.data;
+  const verifiedParticipants = progress?.current || 0;
+  const target = progress?.target || 50;
+
   return (
     <div className="space-y-6">
-      {/* 1. Header */}
-      <div className="p-6 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-black font-black shadow-lg shadow-amber-500/20 shrink-0">
-            <BarChart3 className="h-7 w-7 text-black" />
+      <section className="rounded-3xl border border-amber-500/20 bg-amber-950/15 p-5 sm:p-6">
+        <div className="flex items-start gap-3">
+          <div className="rounded-2xl bg-amber-400/10 p-3 text-amber-300">
+            <BarChart3 className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Stage Community Impact & Node Yield</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-extrabold uppercase">
-                Host Level 3 (Luminary)
-              </span>
-            </div>
-            <p className="text-xs text-white/60 mt-1">
-              Community multiplier stats, retained Gem yields, and repeat attendee loyalty telemetry.
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Verified host results</p>
+            <h2 className="mt-2 text-2xl font-black text-white">What actually happened?</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
+              This view uses recorded Moments and verified participation. Retention, audience value, rankings, financial yield, or sponsor value should appear only after PROMORANG has evidence to calculate them.
             </p>
           </div>
         </div>
+      </section>
 
-        <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-          <p className="text-[10px] uppercase font-bold text-white/50">Host Node APY</p>
-          <p className="text-base font-black text-emerald-400">14.8% Active</p>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <Calendar className="h-4 w-4 text-amber-300" />
+          <p className="mt-3 text-3xl font-black text-white">{momentsQuery.isLoading ? "—" : moments.length.toLocaleString()}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Recorded Moments</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <ShieldCheck className="h-4 w-4 text-emerald-300" />
+          <p className="mt-3 text-3xl font-black text-white">{progressQuery.isLoading ? "—" : verifiedParticipants.toLocaleString()}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Verified participants</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <Users className="h-4 w-4 text-cyan-300" />
+          <p className="mt-3 text-3xl font-black text-white">{progressQuery.isLoading ? "—" : `${verifiedParticipants.toLocaleString()} / ${target.toLocaleString()}`}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Current proof target</p>
         </div>
       </div>
 
-      {/* 2. Impact Telemetry */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Total Guests Hosted</span>
-            <span className="p-2 rounded-xl bg-amber-400/10 text-amber-400">
-              <Users className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-white">1,840</p>
-            <p className="text-xs text-amber-300 font-semibold mt-1">Across 14 staged moments</p>
-          </div>
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Decision after proof</p>
+        <h3 className="mt-2 text-xl font-black text-white">Use the evidence to improve the next Moment.</h3>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            {
+              icon: CheckCircle2,
+              title: "Repeat what worked",
+              copy: "If the right people attended and participated, preserve the parts that caused that behavior.",
+            },
+            {
+              icon: RotateCcw,
+              title: "Change what did not",
+              copy: "Low or weak participation is a signal to adjust audience, offer, timing, place, or distribution—not to invent a success metric.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Measure return later",
+              copy: "Repeat attendance and retention belong here only when the same verified people actually come back.",
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <Icon className="h-4 w-4 text-amber-300" />
+                <h4 className="mt-3 text-sm font-black text-white">{item.title}</h4>
+                <p className="mt-2 text-xs leading-5 text-white/50">{item.copy}</p>
+              </div>
+            );
+          })}
         </div>
+      </section>
 
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Gems Retained</span>
-            <span className="p-2 rounded-xl bg-primary/10 text-primary">
-              <Gem className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-white">2,850</p>
-            <p className="text-xs text-primary font-semibold mt-1">Staked in Host Liquidity Node</p>
-          </div>
-        </div>
-
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Community Points</span>
-            <span className="p-2 rounded-xl bg-cyan-400/10 text-cyan-400">
-              <Sparkles className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-white">48,200</p>
-            <p className="text-xs text-cyan-300 font-semibold mt-1">Disbursed to attendees</p>
-          </div>
-        </div>
-
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-white/50">Host Quality Rating</span>
-            <span className="p-2 rounded-xl bg-emerald-400/10 text-emerald-400">
-              <Award className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <p className="text-3xl font-black text-white">4.95 / 5.0</p>
-            <p className="text-xs text-emerald-400 font-semibold mt-1">Top 5% Kingston Hosts</p>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Deep Community Matrix */}
-      <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4 shadow-xl">
-        <CommunityImpactMatrix />
-      </div>
+      <section className="rounded-2xl border border-dashed border-white/15 p-5 text-sm leading-6 text-white/50">
+        <strong className="text-white">Not measured yet:</strong> retention rate, participant monetary value, sponsor ROI, host ranking, liquidity yield, and geographic audience density. These should stay absent until a real data model and evidence source exist.
+      </section>
     </div>
   );
 }

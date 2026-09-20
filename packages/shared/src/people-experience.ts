@@ -145,12 +145,12 @@ export function humanActionLabel(actionType?: string | null): string {
     proof_verified: "showed up",
     referral_activated: "brought a friend",
   };
-  return map[String(actionType || "")] || "showed up";
+  return map[String(actionType || "")] || "activity recorded";
 }
 
 export function classifyHappenedBucket(actionType?: string | null): keyof ReturnType<typeof emptyHappenedBuckets> {
   const type = String(actionType || "");
-  if (["MOMENT_ATTENDANCE", "MERCHANT_VISIT", "check_in", "TEST_DRIVE", "moment_join_verified", "proof_verified", "event_rsvp", "MOMENT_RSVP"].includes(type)) return "went";
+  if (["MOMENT_ATTENDANCE", "MERCHANT_VISIT", "check_in", "TEST_DRIVE", "moment_join_verified", "proof_verified"].includes(type)) return "went";
   if (["PURCHASE", "order_paid", "split_tender"].includes(type)) return "bought";
   if (["DISCOVERY_RESPONSE", "discovery_vote"].includes(type)) return "answered";
   if (["CONTENT_POST", "share_completed"].includes(type) || type.startsWith("organic_")) return "shared";

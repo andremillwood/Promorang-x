@@ -801,7 +801,7 @@ async function getPublicCoupon(id) {
   try {
     const { data, error } = await supabase
       .from('coupons')
-      .select('id, code, name, description, discount_type, discount_value, max_discount_usd, applies_to, min_purchase_usd, min_purchase_gems, expires_at, store_id, merchant_stores(store_name, logo_url, description), metadata')
+      .select('id, code, name, description, discount_type, discount_value, max_discount_usd, applies_to, min_purchase_usd, min_purchase_gems, expires_at, store_id, merchant_stores(id, user_id, store_name, logo_url, description), metadata')
       .eq('id', id)
       .eq('is_active', true)
       .single();

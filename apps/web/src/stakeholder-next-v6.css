@@ -1,0 +1,58 @@
+.sn6-object-world{min-height:100vh;background:#080809}
+
+/* V6: the rail becomes supporting context. The object carries the world. */
+@media (min-width:1260px){
+  .sn6-object-world .sn5-context-shelf{width:210px;right:18px;opacity:.82;transform:scale(.96);transform-origin:top right}
+  .sn6-object-world .sn5-context-cards article:nth-child(n+2){display:none}
+  .sn6-object-world .sn5-residue{display:none}
+  .sn6-object-world .sn5-worlded .sn3-shell,.sn6-object-world .sn5-worlded .sn4-world-band{width:min(1260px,calc(100% - 260px));margin-left:max(18px,calc((100vw - 1540px)/2));margin-right:auto}
+}
+
+/* Native role language while keeping the same five-destination IA. */
+.sn6-object-world .sn3-nav strong{font-size:0}.sn6-object-world .sn3-nav strong::after{font-size:11px}
+.sn6-object-world .sn5-role-creator .sn3-nav a:nth-child(1) strong::after{content:"Today"}.sn6-object-world .sn5-role-creator .sn3-nav a:nth-child(2) strong::after{content:"Briefs"}.sn6-object-world .sn5-role-creator .sn3-nav a:nth-child(3) strong::after{content:"Studio"}.sn6-object-world .sn5-role-creator .sn3-nav a:nth-child(4) strong::after{content:"Proof"}.sn6-object-world .sn5-role-creator .sn3-nav a:nth-child(5) strong::after{content:"Value"}
+.sn6-object-world .sn5-role-host .sn3-nav a:nth-child(1) strong::after{content:"Tonight"}.sn6-object-world .sn5-role-host .sn3-nav a:nth-child(2) strong::after{content:"Moments"}.sn6-object-world .sn5-role-host .sn3-nav a:nth-child(3) strong::after{content:"Door"}.sn6-object-world .sn5-role-host .sn3-nav a:nth-child(4) strong::after{content:"Proof"}.sn6-object-world .sn5-role-host .sn3-nav a:nth-child(5) strong::after{content:"Return"}
+.sn6-object-world .sn5-role-merchant .sn3-nav a:nth-child(1) strong::after{content:"Now"}.sn6-object-world .sn5-role-merchant .sn3-nav a:nth-child(2) strong::after{content:"Offers"}.sn6-object-world .sn5-role-merchant .sn3-nav a:nth-child(3) strong::after{content:"Validate"}.sn6-object-world .sn5-role-merchant .sn3-nav a:nth-child(4) strong::after{content:"Orders"}.sn6-object-world .sn5-role-merchant .sn3-nav a:nth-child(5) strong::after{content:"Places"}
+.sn6-object-world .sn5-role-brand .sn3-nav a:nth-child(1) strong::after{content:"Today"}.sn6-object-world .sn5-role-brand .sn3-nav a:nth-child(2) strong::after{content:"Activations"}.sn6-object-world .sn5-role-brand .sn3-nav a:nth-child(3) strong::after{content:"Network"}.sn6-object-world .sn5-role-brand .sn3-nav a:nth-child(4) strong::after{content:"Evidence"}.sn6-object-world .sn5-role-brand .sn3-nav a:nth-child(5) strong::after{content:"Decisions"}
+.sn6-object-world .sn5-role-agency .sn3-nav a:nth-child(1) strong::after{content:"Today"}.sn6-object-world .sn5-role-agency .sn3-nav a:nth-child(2) strong::after{content:"Clients"}.sn6-object-world .sn5-role-agency .sn3-nav a:nth-child(3) strong::after{content:"Work"}.sn6-object-world .sn5-role-agency .sn3-nav a:nth-child(4) strong::after{content:"Proof"}.sn6-object-world .sn5-role-agency .sn3-nav a:nth-child(5) strong::after{content:"Growth"}
+.sn6-object-world .sn5-role-admin .sn3-nav a:nth-child(1) strong::after{content:"Today"}.sn6-object-world .sn5-role-admin .sn3-nav a:nth-child(2) strong::after{content:"Cases"}.sn6-object-world .sn5-role-admin .sn3-nav a:nth-child(3) strong::after{content:"Review"}.sn6-object-world .sn5-role-admin .sn3-nav a:nth-child(4) strong::after{content:"Economy"}.sn6-object-world .sn5-role-admin .sn3-nav a:nth-child(5) strong::after{content:"Health"}
+
+/* CREATOR — the commission itself carries place, media and proof. */
+.sn6-object-world .sn5-role-creator .sn3-document-cream{position:relative;overflow:hidden;background:linear-gradient(90deg,#eadcc6 0 73%,rgba(234,220,198,.94) 73%),url('https://images.pexels.com/photos/274937/pexels-photo-274937.jpeg?auto=compress&dpr=1&w=900') right center/30% 100% no-repeat}
+.sn6-object-world .sn5-role-creator .sn3-document-cream::after{content:"MOVE  →  PROOF  →  RETURN  →  KEPT";position:absolute;right:16px;bottom:16px;width:24%;padding:9px 10px;border-top:1px dashed rgba(27,18,12,.35);font:900 7px/1.4 DM Sans,system-ui;letter-spacing:.15em;color:#6e3a16}
+.sn6-object-world .sn5-role-creator .sn3-production-main{position:relative}.sn6-object-world .sn5-role-creator .sn3-production-main::after{content:"BROKEN PLATE · LIGUANEA  /  PUBLISHED LINK ATTACHED  /  ACTION PROOF PENDING";display:block;margin-top:14px;padding:9px 11px;border:1px dashed rgba(191,143,221,.24);font:800 7px/1.45 DM Sans;color:rgba(255,255,255,.52);letter-spacing:.12em}
+.sn6-object-world .sn5-role-creator .sn3-media-object{background:linear-gradient(180deg,rgba(12,8,14,.18),rgba(9,7,10,.9)),url('https://images.pexels.com/photos/274937/pexels-photo-274937.jpeg?auto=compress&dpr=1&w=1000') center/cover no-repeat}
+
+/* HOST — the Moment itself lives inside the run sheet and door. */
+.sn6-object-world .sn5-role-host .sn3-document-cream{background:linear-gradient(90deg,#efe2c8 0 76%,rgba(239,226,200,.84) 76%),url('https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&dpr=1&w=900') right center/28% 100% no-repeat}
+.sn6-object-world .sn5-role-host .sn3-document-title::after{content:"AFTRHRS · SEA DECK · TONIGHT";align-self:flex-end;padding:6px 8px;border:1px solid rgba(77,49,26,.28);font:900 7px/1 DM Sans;letter-spacing:.14em;color:#6a401d}
+.sn6-object-world .sn5-role-host .sn3-door-board{position:relative;overflow:hidden}.sn6-object-world .sn5-role-host .sn3-door-board::before{content:"RSVP  →  DOOR  →  VERIFIED  →  PROOF";display:block;margin:-4px 0 16px;padding:8px 10px;border-left:3px solid #ff6a00;background:rgba(255,106,0,.04);font:900 7px/1.3 DM Sans;letter-spacing:.15em;color:#e7a65d}
+.sn6-object-world .sn5-role-host .sn3-exception-card::after{content:"NO ATTENDANCE WRITTEN";display:block;margin-top:12px;padding-top:9px;border-top:1px dashed rgba(255,255,255,.16);font:900 7px/1 DM Sans;letter-spacing:.14em;color:#ef8175}
+
+/* MERCHANT — the offer is a Key, validation leaves receipt residue. */
+.sn6-object-world .sn5-role-merchant .sn3-offer-grid article{position:relative;padding-top:78px;overflow:hidden}
+.sn6-object-world .sn5-role-merchant .sn3-offer-grid article::before{content:"";position:absolute;left:0;right:0;top:0;height:66px;background:linear-gradient(90deg,rgba(7,7,8,.82),rgba(7,7,8,.3)),url('https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&dpr=1&w=900') center/cover no-repeat;border-bottom:1px solid rgba(246,196,83,.14)}
+.sn6-object-world .sn5-role-merchant .sn3-offer-grid article::after{content:"MOVE  ·  PROOF  ·  RETURN";position:absolute;right:12px;top:12px;padding:5px 7px;background:rgba(8,8,9,.76);border:1px solid rgba(246,196,83,.2);font:900 6px/1 DM Sans;letter-spacing:.13em;color:#f6c453}
+.sn6-object-world .sn5-role-merchant .sn3-validator-device::after{content:"A VALIDATION WRITES USE PROOF — IT DOES NOT WRITE PURCHASE";display:block;margin:0 18px 18px;padding:9px 10px;border-top:1px dashed rgba(75,190,125,.3);font:800 7px/1.4 DM Sans;letter-spacing:.11em;color:#78d99d}
+.sn6-object-world .sn5-role-merchant .sn3-validator-layout .sn3-document-cream{box-shadow:0 18px 42px rgba(0,0,0,.32),inset 0 0 0 1px rgba(122,46,23,.12)}
+
+/* BRAND — evidence fragments live inside the fieldbook. */
+.sn6-object-world .sn5-role-brand .sn3-dossier{position:relative;overflow:hidden}.sn6-object-world .sn5-role-brand .sn3-dossier::before{content:"";position:absolute;right:0;top:0;width:31%;height:100%;background:linear-gradient(90deg,rgba(10,10,11,1),rgba(10,10,11,.62)),url('https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&dpr=1&w=900') center/cover no-repeat;opacity:.48;pointer-events:none}.sn6-object-world .sn5-role-brand .sn3-dossier>*{position:relative;z-index:1;max-width:74%}
+.sn6-object-world .sn5-role-brand .sn3-evidence-pack::before{content:"CREATOR LINKS  +  HOST ARRIVALS  +  MERCHANT VALIDATIONS";display:block;margin:-4px 0 16px;padding:9px 10px;background:linear-gradient(90deg,rgba(122,46,23,.18),rgba(246,196,83,.03));border-left:3px solid #c65f1a;font:900 7px/1.4 DM Sans;letter-spacing:.14em;color:#e0b06c}
+.sn6-object-world .sn5-role-brand .sn3-network-row{position:relative;padding-left:54px}.sn6-object-world .sn5-role-brand .sn3-network-row::before{content:"";position:absolute;left:10px;top:50%;width:28px;height:28px;transform:translateY(-50%);border-radius:50%;background:radial-gradient(circle at 45% 38%,#f6c453 0 18%,#7a2e17 19% 48%,#17110d 49%);box-shadow:0 0 0 4px rgba(255,106,0,.06)}
+
+/* AGENCY — client folio carries identity and ownership, not a generic account context. */
+.sn6-object-world .sn5-role-agency .sn3-client-context,.sn6-object-world .sn5-role-agency .sn3-dossier{box-shadow:-10px 0 0 rgba(234,220,198,.035)}
+.sn6-object-world .sn5-role-agency .sn3-client-context::after{content:"CLIENT OWNS THE DECISION · AGENCY OWNS THE OPERATION";display:block;margin-top:14px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.15);font:900 7px/1.45 DM Sans;letter-spacing:.13em;color:#d7aa69}
+.sn6-object-world .sn5-role-agency .sn3-dossier{background:linear-gradient(90deg,rgba(14,13,12,.98) 0 72%,rgba(14,13,12,.72)),url('https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&dpr=1&w=900') right center/32% 100% no-repeat}
+
+/* ADMIN — the review surface becomes an archive of files, not three dashboard cards. */
+.sn6-object-world .sn5-role-admin .sn3-review-desks{gap:18px;align-items:start}.sn6-object-world .sn5-role-admin .sn3-review-desks section{min-height:190px;padding:28px 20px 22px;background:linear-gradient(180deg,#ebe0cd 0,#d7c7ad 100%);color:#17120d;border:1px solid #8c785f;box-shadow:7px 9px 0 rgba(113,91,63,.08);clip-path:polygon(0 0,86% 0,90% 7%,100% 7%,100% 100%,0 100%)}
+.sn6-object-world .sn5-role-admin .sn3-review-desks section::before{content:"CASE FILE";position:absolute;top:8px;right:18px;font:900 6px/1 DM Sans;letter-spacing:.16em;color:#725d45}.sn6-object-world .sn5-role-admin .sn3-review-desks section::after{content:"SOURCE → REVIEW → DECISION → ARCHIVE";left:20px;right:auto;bottom:14px;color:#725d45}.sn6-object-world .sn5-role-admin .sn3-review-desks button{background:#17120d;color:#f4eee6}.sn6-object-world .sn5-role-admin .sn3-review-desks .sn3-pill{border-color:rgba(23,18,13,.22);color:#6b4e29}
+.sn6-object-world .sn5-role-admin .sn3-case-file::after{content:"ORIGINAL RECORD PRESERVED · CORRECTION APPENDS";display:block;margin-top:16px;padding:9px 10px;border-top:1px dashed rgba(246,196,83,.24);font:900 7px/1.3 DM Sans;letter-spacing:.13em;color:#d8b465}
+
+/* Keep object-world effects restrained on mobile; clarity wins. */
+@media (max-width:760px){
+  .sn6-object-world .sn5-role-creator .sn3-document-cream,.sn6-object-world .sn5-role-host .sn3-document-cream,.sn6-object-world .sn5-role-brand .sn3-dossier,.sn6-object-world .sn5-role-agency .sn3-dossier{background-image:none}
+  .sn6-object-world .sn5-role-creator .sn3-document-cream::after{position:static;display:block;width:auto;margin-top:16px}
+}

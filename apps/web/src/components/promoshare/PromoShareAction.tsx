@@ -27,13 +27,13 @@ export interface PromoShareActionProps {
 }
 
 const OBJECT_TYPE_KEYS: Record<ShareableObjectType, TranslationKey> = {
-  perk: "promoShare.typePerk",
-  discovery: "promoShare.typeDiscovery",
-  moment: "promoShare.typeMoment",
-  mission: "promoShare.typeMission",
-  piece: "promoShare.typePiece",
-  campaign: "promoShare.typeCampaign",
-  creator: "promoShare.typeCreator",
+  perk: 'promoShare.typePerk',
+  discovery: 'promoShare.typeDiscovery',
+  moment: 'promoShare.typeMoment',
+  mission: 'promoShare.typeMission',
+  piece: 'promoShare.typePiece',
+  campaign: 'promoShare.typeCampaign',
+  creator: 'promoShare.typeCreator',
 };
 
 export const PromoShareAction: React.FC<PromoShareActionProps> = ({
@@ -49,41 +49,53 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
   buttonLabel,
 }) => {
   const { t } = useI18n();
-  const { generateShareLink, referralCode } = usePromoShareRail();
+  const { generateShareLink, referralCode, referralCodeRecorded } = usePromoShareRail();
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [hasShared, setHasShared] = useState(false);
+  const [shareSheetCompleted, setShareSheetCompleted] = useState(false);
 
-  const reward = potentialReward ?? { promoPoints: 25, tickets: 1 };
-  const condition = reward.condition || t("promoShare.defaultCondition");
-  const label = buttonLabel ?? t("promoShare.promote");
+  const label = buttonLabel ?? t('promoShare.promote');
   const finalShareUrl = explicitShareUrl || generateShareLink(objectType, objectId, slugOrPath);
+  const hasRewardRule = Boolean(
+    potentialReward &&
+    ((potentialReward.promoPoints || 0) > 0 || (potentialReward.gems || 0) > 0 || (potentialReward.tickets || 0) > 0),
+  );
+
+  const rewardSummary = [
+    potentialReward?.promoPoints ? `${potentialReward.promoPoints} points` : null,
+    potentialReward?.gems ? `${potentialReward.gems} Gems` : null,
+    potentialReward?.tickets ? `${potentialReward.tickets} draw ${potentialReward.tickets === 1 ? 'entry' : 'entries'}` : null,
+  ].filter(Boolean).join(' · ');
 
   const handleCopy = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(finalShareUrl);
-      }
+      if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(finalShareUrl);
       setCopied(true);
-      setHasShared(true);
-      toast.success(t("promoShare.copiedToast"));
+      toast.success('Link copied', {
+        description: 'Copying a link is not a verified referral, conversion, or reward issuance.',
+      });
       setTimeout(() => setCopied(false), 2500);
-    } catch (err) {
-      toast.error(t("promoShare.copyFailed"));
+    } catch {
+      toast.error(t('promoShare.copyFailed'));
     }
   };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
     shareViaWhatsApp(title, finalShareUrl);
-    setHasShared(true);
+    toast.info('Share opened', {
+      description: 'PromoShare attribution begins only when the linked activity is recorded; opening WhatsApp does not issue a reward.',
+    });
   };
 
   const handleTwitter = (e: React.MouseEvent) => {
     e.stopPropagation();
     shareViaTwitter(title, finalShareUrl);
-    setHasShared(true);
+    toast.info('Share opened', {
+      description: 'Opening a share destination is not a verified referral, conversion, or reward.',
+    });
   };
 
   const handleNativeShare = async (e: React.MouseEvent) => {
@@ -92,14 +104,16 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
       try {
         await navigator.share({
           title,
-          text: description || t("promoShare.checkOut", { title }),
+          text: description || t('promoShare.checkOut', { title }),
           url: finalShareUrl,
         });
-        setHasShared(true);
-        toast.success(t("promoShare.shared"));
+        setShareSheetCompleted(true);
+        toast.success('Share sheet completed', {
+          description: 'A share is not itself a conversion or reward. Any later attribution must be recorded separately.',
+        });
         return;
-      } catch (err) {
-        // Fallback to modal if cancelled or unsupported
+      } catch {
+        // Cancellation or unsupported destination falls through to the explicit share dialog.
       }
     }
     setModalOpen(true);
@@ -111,8 +125,8 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
         <button
           onClick={handleNativeShare}
           className={`p-2 rounded-full bg-white/10 hover:bg-orange-500/20 text-white/70 hover:text-orange-400 border border-white/10 transition-all ${className}`}
-          title={t("promoShare.promoteTitle", { title })}
-          aria-label={t("promoShare.shareAria")}
+          title={t('promoShare.promoteTitle', { title })}
+          aria-label={t('promoShare.shareAria')}
         >
           <Share2 className="w-4 h-4" />
         </button>
@@ -126,7 +140,7 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-xs font-bold text-orange-400 transition-all ${className}`}
         >
           <Share2 className="w-3.5 h-3.5" />
-          <span>{hasShared ? t("promoShare.shared") : label}</span>
+          <span>{shareSheetCompleted ? 'Shared' : label}</span>
         </button>
       );
     }
@@ -138,7 +152,7 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
           className={`cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 text-[11px] font-bold transition-all ${className}`}
         >
           <Sparkles className="w-3 h-3 text-amber-400" />
-          <span>{t("promoShare.ticketOnShare", { count: String(reward.tickets || 1) })}</span>
+          <span>{hasRewardRule ? 'Share · attributed action may qualify' : 'Share with PromoShare'}</span>
         </span>
       );
     }
@@ -150,12 +164,7 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
         className={`border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 font-bold gap-2 text-xs rounded-xl ${className}`}
       >
         <Share2 className="w-3.5 h-3.5" />
-        <span>{hasShared ? t("promoShare.shared") : label}</span>
-        {reward.tickets && (
-          <span className="ml-1 px-1.5 py-0.5 rounded-full bg-orange-500/30 text-[10px] text-orange-300">
-            +{reward.tickets} 🎟️
-          </span>
-        )}
+        <span>{shareSheetCompleted ? 'Shared' : label}</span>
       </Button>
     );
   };
@@ -169,37 +178,34 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-2 text-orange-400 text-xs font-mono font-bold uppercase tracking-wider">
               <Share2 className="w-4 h-4" />
-              <span>{t("promoShare.rail")}</span>
+              <span>{t('promoShare.rail')}</span>
             </div>
             <DialogTitle className="text-xl font-black text-white">{title}</DialogTitle>
             <DialogDescription className="text-xs text-zinc-400">
-              {t("promoShare.shareThis", { type: t(OBJECT_TYPE_KEYS[objectType]) })}
+              {t('promoShare.shareThis', { type: t(OBJECT_TYPE_KEYS[objectType]) })}
             </DialogDescription>
           </DialogHeader>
 
-          {/* Reward attribution guarantee strip */}
-          <div className="my-3 p-3.5 rounded-2xl bg-gradient-to-r from-orange-950/40 via-zinc-900 to-purple-950/40 border border-orange-500/30 space-y-1">
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span className="text-white flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>{t("promoShare.attribution")}</span>
-              </span>
-              <span className="font-mono text-orange-400 font-black">
-                {t("promoShare.rewardLine", {
-                  points: String(reward.promoPoints || 25),
-                  tickets: String(reward.tickets || 1),
-                })}
-              </span>
+          <div className="my-3 space-y-1 rounded-2xl border border-orange-500/20 bg-zinc-900 p-3.5">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>Attribution boundary</span>
             </div>
-            <p className="text-[11px] text-zinc-400">
-              {t("promoShare.awarded", { condition })}
+            <p className="text-[11px] leading-5 text-zinc-400">
+              Sharing creates a trackable route. It does not prove a visit, referral, conversion, or reward. Those states require their own recorded event.
             </p>
+            {hasRewardRule ? (
+              <p className="pt-1 text-[11px] leading-5 text-orange-300">
+                Recorded rule: {rewardSummary}. {potentialReward?.condition || 'Eligibility applies only when the configured attributed action is verified.'}
+              </p>
+            ) : null}
           </div>
 
-          {/* Copyable link input */}
           <div className="space-y-2">
             <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-              {t("promoShare.linkLabel", { code: referralCode || "" })}
+              {referralCodeRecorded
+                ? t('promoShare.linkLabel', { code: referralCode || '' })
+                : 'Share link · no referral attribution code recorded'}
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -213,34 +219,33 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
                 className="bg-orange-500 hover:bg-orange-600 text-black font-bold rounded-xl px-4 text-xs gap-1.5"
               >
                 {copied ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4" />}
-                <span>{copied ? t("promoShare.copied") : t("promoShare.copy")}</span>
+                <span>{copied ? t('promoShare.copied') : t('promoShare.copy')}</span>
               </Button>
             </div>
           </div>
 
-          {/* Quick share options */}
+          {!referralCodeRecorded && !explicitShareUrl ? (
+            <p className="mt-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.05] p-3 text-[11px] leading-5 text-amber-100/65">
+              This link can still be shared, but it has no referral code attached. No referral credit should be expected unless the platform provides a recorded code.
+            </p>
+          ) : null}
+
           <div className="mt-4 grid grid-cols-2 gap-3">
             <button
               onClick={handleWhatsApp}
               className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-400 text-xs font-bold transition-all"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>{t("promoShare.whatsapp")}</span>
+              <span>{t('promoShare.whatsapp')}</span>
             </button>
             <button
               onClick={handleTwitter}
               className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 text-sky-400 text-xs font-bold transition-all"
             >
               <Twitter className="w-4 h-4" />
-              <span>{t("promoShare.twitter")}</span>
+              <span>{t('promoShare.twitter')}</span>
             </button>
           </div>
-
-          {hasShared && (
-            <div className="mt-4 p-3 rounded-xl bg-zinc-900/90 border border-zinc-800 text-[11px] text-zinc-300 text-center animate-in fade-in">
-              ✨ {t("promoShare.sharedBanner")}
-            </div>
-          )}
         </DialogContent>
       </Dialog>
     </>

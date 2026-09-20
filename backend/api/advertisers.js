@@ -43,10 +43,9 @@ const resolveAdvertiserId = async (req) => {
     return req.advertiserAccount.id;
   }
 
-  // Fallback for development/legacy if middleware hasn't run
-  const user = req.user;
+  const user = req.user || req;
   if (!supabase) {
-    return user?.id || DEMO_ADVERTISER_FALLBACK_ID;
+    return null;
   }
 
   const cacheKey = user?.id || user?.username || 'demo_advertiser';
@@ -56,7 +55,7 @@ const resolveAdvertiserId = async (req) => {
 
   if (!user || !user.id) {
     console.warn('resolveAdvertiserId: No user found in request');
-    return DEMO_ADVERTISER_FALLBACK_ID;
+    return null;
   }
 
   // Look for the user's primary/first advertiser account in the DB
@@ -72,9 +71,7 @@ const resolveAdvertiserId = async (req) => {
     return teamMember.account_id;
   }
 
-  // Final fallback to the seeded demo advertiser ID for safety
-  advertiserIdCache.set(cacheKey, DEMO_ADVERTISER_SUPABASE_ID);
-  return DEMO_ADVERTISER_SUPABASE_ID;
+  return null;
 };
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -572,7 +569,7 @@ router.use(resolveAdvertiserContext);
 
 // Optional: verify they actually HAVE an advertiser account
 router.use((req, res, next) => {
-  if (!req.advertiserAccount && (req.user.user_type !== 'advertiser' && req.user.role !== 'advertiser')) {
+  if (!req.advertiserAccount) {
     return sendError(res, 403, 'Advertiser account required', 'NOT_ADVERTISER');
   }
   next();
@@ -585,6 +582,13 @@ router.get('/subscription/plans', (req, res) => {
   });
 });
 
+router.use((req, res, next) => {
+  if (!supabase) {
+    return sendError(res, 503, 'Advertiser source unavailable', 'ADVERTISER_SOURCE_UNAVAILABLE');
+  }
+  next();
+});
+
 router.post('/subscription/upgrade', (req, res) => {
   const { planId } = req.body || {};
   const plan = availablePlans.find((entry) => entry.id === planId);
@@ -593,15 +597,12 @@ router.post('/subscription/upgrade', (req, res) => {
     return sendError(res, 422, 'Invalid plan selection', 'INVALID_PLAN');
   }
 
-  const now = new Date().toISOString();
-
-  return sendSuccess(res, {
-    plan: {
-      ...plan,
-      activated_at: now,
-      renews_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  }, `Subscription upgraded to ${plan.name}`);
+  return sendError(
+    res,
+    503,
+    'Subscription upgrades are unavailable until billing and entitlement activation share a recorded contract',
+    'SUBSCRIPTION_BILLING_PENDING'
+  );
 });
 
 router.get('/dashboard', async (req, res) => {
@@ -682,9 +683,7 @@ router.get('/dashboard', async (req, res) => {
       .order('created_at', { ascending: false })
       .limit(10);
 
-    if (campaignsError) {
-      console.error('Error fetching campaigns:', campaignsError);
-    }
+    if (campaignsError) throw campaignsError;
 
     const drops = (campaigns || []).map((campaign) => ({
       id: campaign.id,
@@ -705,9 +704,7 @@ router.get('/dashboard', async (req, res) => {
       .order('metric_date', { ascending: false })
       .limit(10);
 
-    if (metricsError) {
-      console.error('Error fetching metrics:', metricsError);
-    }
+    if (metricsError) throw metricsError;
 
     const analytics = (metrics || []).map((metric) => ({
       id: metric.id,
@@ -736,15 +733,7 @@ router.get('/dashboard', async (req, res) => {
     });
   } catch (error) {
     console.error('Dashboard fetch error:', error);
-    return sendSuccess(res, {
-      drops: [],
-      analytics: [],
-      user_tier: userTier,
-      merchant_state: merchantState,
-      merchant_visibility: merchantVisibility,
-      sampling_data: samplingData,
-      ...tierInventory
-    });
+    return sendError(res, 500, 'Failed to load advertiser dashboard', 'ADVERTISER_DASHBOARD_FAILED');
   }
 });
 
@@ -804,14 +793,14 @@ router.get('/suggested-content', (req, res) => {
   ];
 
   if (isProduction) {
-    return sendSuccess(res, []);
+    return sendError(res, 503, 'Suggested content source unavailable', 'SUGGESTED_CONTENT_UNAVAILABLE');
   }
 
   return sendSuccess(res, mockContent);
 });
 
 router.get('/coupons', async (req, res) => {
-  const advertiserId = await resolveAdvertiserId(req.user);
+  const advertiserId = await resolveAdvertiserId(req);
 
   if (!supabase) {
     ensureDemoCoupons(req.user?.id);
@@ -833,7 +822,7 @@ router.get('/coupons', async (req, res) => {
 
     if (couponsError) {
       console.error('Error fetching coupons:', couponsError);
-      return sendSuccess(res, { coupons: [], redemptions: [] });
+      return sendError(res, 500, 'Failed to load coupons', 'DATABASE_ERROR');
     }
 
     const couponIds = (coupons || []).map((c) => c.id);
@@ -843,9 +832,7 @@ router.get('/coupons', async (req, res) => {
       .select('*')
       .in('coupon_id', couponIds.length > 0 ? couponIds : ['none']);
 
-    if (assignmentsError) {
-      console.error('Error fetching assignments:', assignmentsError);
-    }
+    if (assignmentsError) throw assignmentsError;
 
     const { data: redemptions, error: redemptionsError } = await supabase
       .from('advertiser_coupon_redemptions')
@@ -853,9 +840,7 @@ router.get('/coupons', async (req, res) => {
       .in('coupon_id', couponIds.length > 0 ? couponIds : ['none'])
       .order('redeemed_at', { ascending: false });
 
-    if (redemptionsError) {
-      console.error('Error fetching redemptions:', redemptionsError);
-    }
+    if (redemptionsError) throw redemptionsError;
 
     const couponsWithAssignments = (coupons || []).map((coupon) => ({
       ...coupon,
@@ -869,7 +854,7 @@ router.get('/coupons', async (req, res) => {
     });
   } catch (error) {
     console.error('Coupons fetch error:', error);
-    return sendSuccess(res, { coupons: [], redemptions: [] });
+    return sendError(res, 500, 'Failed to load coupons', 'SERVER_ERROR');
   }
 });
 
@@ -1606,65 +1591,18 @@ router.delete('/campaigns/:campaignId', async (req, res) => {
 
 // Add funds to campaign
 router.post('/campaigns/:campaignId/funds', async (req, res) => {
-  const { campaignId } = req.params;
-  const advertiserId = await resolveAdvertiserId(req.user);
-  const { amount, provider = 'mock' } = req.body || {};
+  const { amount } = req.body || {};
 
   if (!amount || amount <= 0) {
     return sendError(res, 422, 'Valid amount is required', 'VALIDATION_ERROR');
   }
 
-  if (!supabase) {
-    const campaign = demoCampaigns.find((c) => c.id === campaignId);
-    if (!campaign) {
-      return sendError(res, 404, 'Campaign not found', 'CAMPAIGN_NOT_FOUND');
-    }
-
-    campaign.total_budget = toNumber(campaign.total_budget, 2) + toNumber(amount, 2);
-    campaign.updated_at = new Date().toISOString();
-
-    return sendSuccess(res, {
-      campaign: formatCampaignRecord(campaign),
-      amount_added: toNumber(amount, 2),
-      new_total: campaign.total_budget,
-    }, 'Funds added successfully');
-  }
-
-  try {
-    const { data: campaign, error: fetchError } = await supabase
-      .from('advertiser_campaigns')
-      .select('*')
-      .eq('id', campaignId)
-      .eq('advertiser_account_id', advertiserId)
-      .single();
-
-    if (fetchError || !campaign) {
-      return sendError(res, 404, 'Campaign not found', 'CAMPAIGN_NOT_FOUND');
-    }
-
-    const newTotal = toNumber(campaign.total_budget, 2) + toNumber(amount, 2);
-
-    const { data: updated, error: updateError } = await supabase
-      .from('advertiser_campaigns')
-      .update({ total_budget: newTotal })
-      .eq('id', campaignId)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('Error updating campaign budget:', updateError);
-      return sendError(res, 500, 'Failed to add funds', 'DATABASE_ERROR');
-    }
-
-    return sendSuccess(res, {
-      campaign: formatCampaignRecord(updated),
-      amount_added: toNumber(amount, 2),
-      new_total: newTotal,
-    }, 'Funds added successfully');
-  } catch (error) {
-    console.error('Add funds error:', error);
-    return sendError(res, 500, 'Failed to add funds', 'SERVER_ERROR');
-  }
+  return sendError(
+    res,
+    503,
+    'Campaign funding is unavailable until payment, budget and ledger settlement share an atomic contract',
+    'CAMPAIGN_FUNDING_ATOMICITY_PENDING'
+  );
 });
 
 // Add content to campaign
@@ -2031,84 +1969,12 @@ router.post('/coupons/:couponId/replenish', async (req, res) => {
 });
 
 router.post('/coupons/:couponId/redeem', async (req, res) => {
-  const { couponId } = req.params;
-  const { user_id, user_name } = req.body || {};
-
-  if (!supabase) {
-    ensureDemoCoupons(req.user?.id);
-    const coupon = advertiserCoupons.find((entry) => entry.id === couponId);
-    if (!coupon) {
-      return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
-    }
-    if (coupon.quantity_remaining <= 0) {
-      return sendError(res, 422, 'No remaining quantity', 'COUPON_DEPLETED');
-    }
-    const redemption = {
-      id: `redeem-${Date.now()}`,
-      coupon_id: couponId,
-      user_id: user_id || 'demo-user',
-      user_name: user_name || 'Demo User',
-      redeemed_at: new Date().toISOString(),
-      reward_value: coupon.value,
-      reward_unit: coupon.value_unit,
-      status: 'completed',
-    };
-    coupon.quantity_remaining = Math.max(0, coupon.quantity_remaining - 1);
-    coupon.updated_at = new Date().toISOString();
-    couponRedemptions.push(redemption);
-    return sendSuccess(res, { redemption, coupon }, 'Coupon redemption recorded');
-  }
-
-  try {
-    const { data: coupon, error: fetchError } = await supabase
-      .from('advertiser_coupons')
-      .select('*')
-      .eq('id', couponId)
-      .single();
-
-    if (fetchError || !coupon) {
-      return sendError(res, 404, 'Coupon not found', 'COUPON_NOT_FOUND');
-    }
-
-    if (coupon.quantity_remaining <= 0) {
-      return sendError(res, 422, 'No remaining quantity', 'COUPON_DEPLETED');
-    }
-
-    const { data: redemption, error: redemptionError } = await supabase
-      .from('advertiser_coupon_redemptions')
-      .insert({
-        coupon_id: couponId,
-        user_id: user_id || null,
-        user_name: user_name || 'Demo User',
-        reward_value: coupon.value,
-        reward_unit: coupon.value_unit,
-        status: 'completed'
-      })
-      .select()
-      .single();
-
-    if (redemptionError) {
-      console.error('Error creating redemption:', redemptionError);
-      return sendError(res, 500, 'Failed to redeem coupon', 'DATABASE_ERROR');
-    }
-
-    const { error: updateError } = await supabase
-      .from('advertiser_coupons')
-      .update({ quantity_remaining: Math.max(0, coupon.quantity_remaining - 1) })
-      .eq('id', couponId);
-
-    if (updateError) {
-      console.error('Error updating coupon quantity:', updateError);
-    }
-
-    return sendSuccess(res, {
-      redemption,
-      coupon: { ...coupon, quantity_remaining: Math.max(0, coupon.quantity_remaining - 1) }
-    }, 'Coupon redemption recorded');
-  } catch (error) {
-    console.error('Redemption error:', error);
-    return sendError(res, 500, 'Failed to redeem coupon', 'SERVER_ERROR');
-  }
+  return sendError(
+    res,
+    503,
+    'Coupon redemption is unavailable until validation, inventory and redemption settlement share an atomic contract',
+    'COUPON_REDEMPTION_ATOMICITY_PENDING'
+  );
 });
 
 

@@ -10,14 +10,14 @@ import { MasonryGrid } from "@/components/MasonryGrid";
 import { MomentCard } from "@/components/MomentCard";
 import { PublicContentCard, type PublicContentItem } from "@/components/content/PublicContentCard";
 import { buildLocationPath, formatLocationLabel, getSiteUrl } from "@/lib/discovery";
-import { ArrowLeft, CalendarDays, CheckCircle2, Gem, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
-import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
-import { ValueExchangeSummary, type ValueOutcome } from "@/components/economy/ValueOutcomes";
+import { ArrowLeft, ArrowRight, CalendarDays, MapPin, ShoppingBag, Star, Telescope } from "lucide-react";
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
-import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID, resolveAreaKey, worldObjectState } from "@promorang/shared";
-import { useExperienceHome } from "@/hooks/usePeopleExperience";
+import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID } from "@promorang/shared";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+
+const ALLOW_STATIC_VENUE_FIXTURES = import.meta.env.DEV;
 
 const SEA_DECK_FALLBACK: PublicVenueRow = {
   id: SEA_DECK_VENUE_ID,
@@ -115,7 +115,6 @@ interface PublicMomentDirectoryRow {
 export default function VenueProfile() {
   const { t } = useI18n();
   const { slug = "" } = useParams<{ slug: string }>();
-  const home = useExperienceHome();
 
   const venueQuery = useQuery({
     queryKey: ["venue-profile", slug],
@@ -128,14 +127,14 @@ export default function VenueProfile() {
           .maybeSingle();
 
         if (error) throw error;
-        return (data as PublicVenueRow | null) ?? (slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
+        return (data as PublicVenueRow | null) ?? (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? SEA_DECK_FALLBACK : null);
       } catch (error) {
-        if (slug === "sea-deck") return SEA_DECK_FALLBACK;
+        if (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck") return SEA_DECK_FALLBACK;
         throw error;
       }
     },
     enabled: Boolean(slug),
-    retry: slug === "sea-deck" ? 0 : 3,
+    retry: ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? 0 : 3,
   });
 
   const momentsQuery = useQuery({
@@ -151,14 +150,14 @@ export default function VenueProfile() {
 
         if (error) throw error;
         const rows = (data || []) as PublicMomentDirectoryRow[];
-        return rows.length > 0 ? rows : slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
+        return rows.length > 0 ? rows : ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
       } catch (error) {
-        if (slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
+        if (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
         throw error;
       }
     },
     enabled: Boolean(slug),
-    retry: slug === "sea-deck" ? 0 : 3,
+    retry: ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? 0 : 3,
   });
 
   const contentQuery = useQuery({
@@ -192,6 +191,23 @@ export default function VenueProfile() {
     },
     enabled: Boolean(slug),
   });
+  const discoveryQuery = useQuery({
+    queryKey: ["venue-discoveries", venueQuery.data?.id],
+    queryFn: async () => {
+      const venueId = venueQuery.data?.id;
+      if (!venueId) return [];
+      const { data, error } = await (supabase as any)
+        .from("discoveries")
+        .select("id,slug,title,cover_image,category,city,country")
+        .eq("venue_id", venueId)
+        .eq("verification_status", "approved")
+        .order("updated_at", { ascending: false })
+        .limit(8);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: Boolean(venueQuery.data?.id),
+  });
   const enrichmentQuery = useVenueEnrichment(slug);
   const claimEnrichment = useClaimVenueEnrichment(slug);
 
@@ -200,20 +216,11 @@ export default function VenueProfile() {
   const nextMoment = moments.find((item) => item.starts_at && new Date(item.starts_at).getTime() >= Date.now()) || moments[0] || null;
   const content = contentQuery.data || [];
   const commerceListings = commerceQuery.data || [];
+  const discoveries = discoveryQuery.data || [];
+  const merchantsAtVenue = Array.from(new Map(commerceListings.filter((listing) => listing.merchant_user_id).map((listing) => [listing.merchant_user_id, listing])).values()).slice(0, 4);
   const enrichmentOpportunities = enrichmentQuery.data || [];
-  const isLoading = venueQuery.isLoading || momentsQuery.isLoading || contentQuery.isLoading || commerceQuery.isLoading;
-  const placeRail = [
-    { label: t("venueProfile.arrive"), body: t("venueProfile.arriveCopy"), icon: MapPin },
-    { label: t("venueProfile.checkIn"), body: t("venueProfile.checkInCopy"), icon: CheckCircle2 },
-    { label: t("venueProfile.unlock"), body: t("venueProfile.unlockCopy"), icon: Gem },
-  ];
-  const areaKey = resolveAreaKey([venue?.name, venue?.address, venue?.location, venue?.city].filter(Boolean).join(" "));
-  const territory = (home.data?.world?.territories || []).find((area: { key: string }) => area.key === areaKey) || null;
-  const venueOutcomes: ValueOutcome[] = [
-    ...(commerceListings.length > 0 ? [{ kind: "reward" as const, label: `${commerceListings.length} offers or services` }] : []),
-    ...(moments.length > 0 ? [{ kind: "access" as const, label: `${moments.length} active Moments` }] : []),
-    ...(content.length > 0 ? [{ kind: "reputation" as const, label: "Proof-visible place" }] : []),
-  ];
+  const isLoading = venueQuery.isLoading || momentsQuery.isLoading || contentQuery.isLoading || commerceQuery.isLoading || discoveryQuery.isLoading;
+
 
   if (!isLoading && !venue) {
     return (
@@ -228,7 +235,7 @@ export default function VenueProfile() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-12">
+    <main className="marketing-cinematic public-object-page min-h-screen bg-[#050505] text-white">
       {venue && (
         <SEO
           title={venue.name}
@@ -250,7 +257,7 @@ export default function VenueProfile() {
       )}
 
       {isLoading ? (
-        <div className="space-y-6">
+        <div className="mx-auto max-w-[1320px] space-y-6 px-5 py-16 sm:px-6">
           <Skeleton className="h-56 rounded-[2rem]" />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -260,7 +267,9 @@ export default function VenueProfile() {
         </div>
       ) : venue ? (
         <>
-          <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-6 py-8 text-white shadow-2xl">
+          <section className="public-object-hero relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_34%),linear-gradient(135deg,rgba(9,9,9,0.98),rgba(22,22,22,0.94))] px-5 pb-12 pt-20 text-white sm:px-6">
+            <CurrentArc variant="hero" className="marketing-hero-current" />
+            <div className="relative mx-auto max-w-[1320px]">
             <Button asChild variant="ghost" className="mb-5 w-fit">
               <Link to={venue.country_slug ? buildLocationPath(venue.country_slug, venue.city_slug) : "/explore/moments"}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -274,7 +283,7 @@ export default function VenueProfile() {
                   {t("venueProfile.label")}
                 </Badge>
                 <div>
-                  <div className="flex flex-wrap items-center gap-3"><h1 className="max-w-4xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-7xl">{venue.name}</h1><VerifiedPioneerBadge beneficiaryType="venue" beneficiaryId={venue.id} /></div>
+                  <div className="flex flex-wrap items-center gap-3"><h1 className="max-w-4xl text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] sm:text-7xl">{venue.name}</h1></div>
                   <p className="mt-4 max-w-3xl text-base leading-7 text-white/68">
                     {venue.description || t("venueProfile.fallback")}
                   </p>
@@ -306,13 +315,7 @@ export default function VenueProfile() {
                   </span>
                   {venue.address && <span>{venue.address}</span>}
                 </div>
-                {territory ? (
-                  <p className="pt-1 text-xs text-white/50">
-                    {territory.standingLine}{" "}
-                    <Link to="/progress" className="font-bold text-primary">Season board</Link>
-                  </p>
-                ) : null}
-                {slug === "sea-deck" ? (
+                {ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? (
                   <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
                     <p className="mt-2 text-lg font-black">AftrHrs · {AFTRHRS_COPY.whenLine}</p>
@@ -325,71 +328,19 @@ export default function VenueProfile() {
                     </div>
                   </div>
                 ) : null}
-                {nextMoment || commerceListings.length ? (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {worldObjectState({
-                      startsAt: nextMoment?.starts_at,
-                      promoCardAccepted: commerceListings.length > 0,
-                    }).map((chip) => (
-                      <span key={chip} className="rounded-full border border-white/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/55">
-                        {chip}
-                      </span>
-                    ))}
-                    {nextMoment ? (
-                      <Link to={nextMoment.slug === "aftrhrs" || slug === "sea-deck" ? "/moments/aftrhrs" : `/moments/${nextMoment.id}`} className="text-[10px] font-black uppercase tracking-wider text-primary">
-                        Next Moment · {nextMoment.title}
-                      </Link>
-                    ) : null}
-                    <Link to="/card" className="text-[10px] font-black uppercase tracking-wider text-white/45">
-                      PromoCard
-                    </Link>
-                    {territory ? (
-                      <Link to="/progress" className="text-[10px] font-black uppercase tracking-wider text-primary">
-                        {territory.title} · {territory.state}
-                      </Link>
-                    ) : null}
-                  </div>
-                ) : null}
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("venueProfile.proof")}</p>
-                <p className="mt-3 text-sm leading-6 text-white/64">
-                  {t("venueProfile.proofCopy")}
-                </p>
-                <div className="mt-5 grid grid-cols-3 gap-2">
-                  {[
-                    [t("venueProfile.moments"), moments.length],
-                    [t("venueProfile.offers"), commerceListings.length],
-                    [t("venueProfile.content"), content.length],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl border border-white/10 bg-black/25 p-3 text-center">
-                      <p className="text-xl font-black">{value}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/42">{label}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                  {slug === "sea-deck" ? (
-                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                      <Link to="/moments/aftrhrs">Open AftrHrs</Link>
-                    </Button>
-                  ) : (
-                    <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold">
-                      <Link to="/explore/moments">{t("venueProfile.findMoment")}</Link>
-                    </Button>
-                  )}
-                  <Button asChild variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-bold">
-                    <Link to="/rewards">Claim Perk to Wallet</Link>
-                  </Button>
-                </div>
-                <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/50">
-                  <span>⚡ Powered by Community Vault Float</span>
-                  <span className="text-emerald-400 font-semibold">100% Guaranteed</span>
-                </div>
-              </div>
+              <aside className="border-t border-white/15 pt-5 lg:border-l lg:border-t-0 lg:pl-7">
+                <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">At this place</p>
+                <h2 className="mt-3 font-serif text-3xl font-bold">{nextMoment ? "Something is happening here." : commerceListings.length ? "Something is available here." : "Keep this place on your radar."}</h2>
+                <p className="mt-3 text-sm leading-6 text-white/50">{nextMoment ? nextMoment.title : commerceListings[0]?.name || "Explore the public activity connected to this place."}</p>
+                {nextMoment ? <Link to={`/moments/${nextMoment.slug || nextMoment.id}`} className="mt-5 inline-flex min-h-12 w-full items-center justify-between bg-primary px-5 text-sm font-black text-black">Open next Moment <ArrowLeft className="h-4 w-4 rotate-180"/></Link> : null}
+                {commerceListings.length ? <a href="#offers" className="mt-2 inline-flex min-h-11 w-full items-center justify-between border border-white/15 px-5 text-xs font-black uppercase tracking-[.08em]">See what's available <ShoppingBag className="h-4 w-4"/></a> : null}
+              </aside>
+            </div>
             </div>
           </section>
 
+          <div id="place-about" className="mx-auto max-w-[1320px] px-5 sm:px-6">
           {venue.listing_status === "unclaimed" && enrichmentOpportunities.length > 0 ? (
             <section className="mt-8 rounded-[2rem] border border-primary/20 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.14),transparent_40%),rgba(255,255,255,0.025)] p-6 sm:p-8">
               <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -409,21 +360,6 @@ export default function VenueProfile() {
           ) : null}
 
           <div className="mt-10 space-y-12">
-            <ValueExchangeSummary
-              action="Visit, attend, buy, book or contribute"
-              proof="Check-in, receipt, redemption or approved contribution"
-              outcomes={venueOutcomes}
-            />
-            <section className="grid gap-3 md:grid-cols-3">
-              {placeRail.map((item) => (
-                <div key={item.label} className="rounded-2xl border border-border bg-card/80 p-4 shadow-soft">
-                  <item.icon className="h-5 w-5 text-primary" />
-                  <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-primary">{item.label}</p>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.body}</p>
-                </div>
-              ))}
-            </section>
-
             <section>
               <div className="mb-5 flex items-center justify-between">
                 <div>
@@ -452,10 +388,39 @@ export default function VenueProfile() {
               )}
             </section>
 
-            <section>
+            {discoveries.length > 0 ? (
+              <section id="place-discoveries">
+                <div className="mb-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">More worth knowing</p>
+                    <h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Discoveries around this place</h2>
+                  </div>
+                  <Badge variant="secondary">{discoveries.length}</Badge>
+                </div>
+                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  {discoveries.map((discovery: any) => (
+                    <Link key={discovery.id} to={`/discoveries/${discovery.slug}`} className="group overflow-hidden rounded-3xl border border-border bg-card">
+                      <div className="aspect-[4/3] overflow-hidden bg-muted">{discovery.cover_image ? <img src={discovery.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><MapPin className="h-8 w-8 text-muted-foreground/40"/></div>}</div>
+                      <div className="p-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{discovery.category || "Discovery"}</p><h3 className="mt-2 text-xl font-black text-foreground">{discovery.title}</h3><p className="mt-2 text-xs text-muted-foreground">{[discovery.city, discovery.country].filter(Boolean).join(", ")}</p></div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {merchantsAtVenue.length > 0 ? (
+              <section id="place-merchants">
+                <div className="mb-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available here</p><h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Merchants connected to this place</h2></div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {merchantsAtVenue.map((merchant) => <Link key={merchant.merchant_user_id} to={`/storefront/${merchant.merchant_user_id}`} className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5"><div><p className="text-sm font-black text-foreground">{merchant.merchant_name || "Local merchant"}</p><p className="mt-1 text-xs text-muted-foreground">See what they have available.</p></div><ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1"/></Link>)}
+                </div>
+              </section>
+            ) : null}
+
+            <section id="offers">
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{t("venueProfile.offersTitle")}</h2>
+                  <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-white">{t("venueProfile.offersTitle")}</h2>
                   <p className="text-sm text-muted-foreground">{t("venueProfile.offersCopy")}</p>
                 </div>
                 <Badge variant="secondary">{commerceListings.length}</Badge>
@@ -504,7 +469,7 @@ export default function VenueProfile() {
                             </Button>
                           ) : (
                             <Button asChild size="sm" variant="outline">
-                              <Link to="/marketplace">View</Link>
+                              <Link to={`/shop/${encodeURIComponent(listing.listing_id || listing.source_id || "")}`}>View</Link>
                             </Button>
                           )}
                         </div>
@@ -532,7 +497,7 @@ export default function VenueProfile() {
               </section>
             ) : null}
 
-            <section>
+            <section id="place-content">
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{t("venueProfile.linkedContent")}</h2>
@@ -552,6 +517,7 @@ export default function VenueProfile() {
                 </div>
               )}
             </section>
+          </div>
           </div>
         </>
       ) : null}

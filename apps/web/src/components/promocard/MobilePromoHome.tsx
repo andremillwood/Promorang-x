@@ -38,7 +38,7 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
         </div>
 
         <div className="-mx-5 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {(offers.length ? offers.slice(0, 4) : fallbackOffers).map((offer) => (
+          {offers.slice(0, 4).map((offer) => (
             <Link key={offer.id} to={offer.href} className="group w-[78vw] max-w-[19rem] shrink-0 snap-start overflow-hidden rounded-[1.35rem] bg-[#171512] shadow-[0_18px_45px_rgba(46,31,17,0.16)]">
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img src={offer.image} alt="" className="h-full w-full object-cover transition duration-500 group-active:scale-[1.02]" />
@@ -55,6 +55,11 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
               </div>
             </Link>
           ))}
+          {offers.length === 0 ? (
+            <div className="w-full rounded-[1.35rem] border border-[#3d2a1e]/10 bg-white p-5 text-sm text-[#625a50]">
+              No live PromoCard offers are available right now. Browse the shop to check again.
+            </div>
+          ) : null}
         </div>
         <p className="mt-3 text-xs leading-5 text-[#625a50]">Offers, minimum spend and availability are always shown before checkout.</p>
       </section>
@@ -125,8 +130,3 @@ export function MobilePromoHome({ offers, moments }: { offers: MobileOffer[]; mo
     </div>
   );
 }
-
-const fallbackOffers: MobileOffer[] = [
-  { id: "food", title: "Food, drinks and local experiences", merchant: "Participating places", image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=900", href: "/shop" },
-  { id: "night", title: "Make more of your next night out", merchant: "Restaurants & events", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=900", href: "/discover" },
-];

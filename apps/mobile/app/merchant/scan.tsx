@@ -45,42 +45,6 @@ function receiptColor(receipt: ReceiptRow) {
   return Colors.primary;
 }
 
-const DEMO_RECEIPTS: ReceiptRow[] = [
-  {
-    id: 'demo-1',
-    receipt_type: 'redemption',
-    status: 'pending',
-    amount: 15.00,
-    currency: 'USD',
-    redemption_code: 'PROMO-9482',
-    occurred_at: new Date().toISOString(),
-    attribution: { coupon_code: 'PROMO-9482', source: 'Live Moment Check-in' },
-    merchant_products: { name: 'VIP Pass & Welcome Beverage', category: 'Event Access', fulfillment_mode: 'in_person' }
-  },
-  {
-    id: 'demo-2',
-    receipt_type: 'claim',
-    status: 'issued',
-    amount: 8.50,
-    currency: 'USD',
-    redemption_code: 'COFFEE-2026',
-    occurred_at: new Date(Date.now() - 3600000).toISOString(),
-    attribution: { coupon_code: 'COFFEE-2026', source: 'Scene Discovery' },
-    merchant_products: { name: '20% Off Artisanal Coffee Pass', category: 'Food & Beverage', fulfillment_mode: 'in_person' }
-  },
-  {
-    id: 'demo-3',
-    receipt_type: 'redemption',
-    status: 'fulfilled',
-    amount: 25.00,
-    currency: 'USD',
-    redemption_code: 'LAUNCH-7712',
-    occurred_at: new Date(Date.now() - 86400000).toISOString(),
-    attribution: { coupon_code: 'LAUNCH-7712', source: 'Host Invitation' },
-    merchant_products: { name: 'Exclusive Scene Membership Pass', category: 'Membership', fulfillment_mode: 'in_person' }
-  }
-];
-
 export default function MerchantScannerScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -88,8 +52,9 @@ export default function MerchantScannerScreen() {
   const [scanning, setScanning] = useState(false);
   const [manualCode, setManualCode] = useState('');
   const [validating, setValidating] = useState(false);
-  const [receipts, setReceipts] = useState<ReceiptRow[]>(DEMO_RECEIPTS);
+  const [receipts, setReceipts] = useState<ReceiptRow[]>([]);
   const [loadingReceipts, setLoadingReceipts] = useState(false);
+  const [receiptsError, setReceiptsError] = useState<string | null>(null);
   const [liveListings, setLiveListings] = useState<MerchantLiveOpsListing[]>([]);
   const [liveMoments, setLiveMoments] = useState<string[]>([]);
   const [commerceCases, setCommerceCases] = useState<any[]>([]);
@@ -97,19 +62,23 @@ export default function MerchantScannerScreen() {
   const [caseResponse, setCaseResponse] = useState('');
   const [lastValid, setLastValid] = useState<{ title: string; reference?: string; nextBenefit?: string } | null>(null);
 
-  const pendingReceipts = useMemo(() => receipts.filter((receipt) => ['issued', 'pending'].includes(receipt.status)), [receipts]);
-
   const fetchReceipts = useCallback(async () => {
+    setLoadingReceipts(true);
+    setReceiptsError(null);
     try {
       const [response, live, cases] = await Promise.all([merchantApi.getReceipts(), merchantApi.getLiveOps(), supportApi.getMerchantCommerceCases()]);
-      if (response?.receipts && response.receipts.length > 0) {
-        setReceipts(response.receipts as ReceiptRow[]);
-      }
+      setReceipts((response?.receipts || []) as ReceiptRow[]);
       setLiveListings(live?.listings || []);
       setLiveMoments((live?.moments || []).filter((m) => live?.live_moment_ids?.includes(m.id)).map((m) => m.title));
       setCommerceCases((cases?.cases || []).filter((item) => ['open','in_progress'].includes(item.status)));
     } catch (error) {
-      console.log('Using demo receipts for preview mode.');
+      setReceipts([]);
+      setLiveListings([]);
+      setLiveMoments([]);
+      setCommerceCases([]);
+      setReceiptsError(error instanceof Error ? error.message : 'Commerce records could not be loaded.');
+    } finally {
+      setLoadingReceipts(false);
     }
   }, []);
 
@@ -134,7 +103,6 @@ export default function MerchantScannerScreen() {
         setLastValid({
           title: offerResult.data?.offers?.title || 'PromoCard perk',
           reference: offerResult.data?.id || code,
-          nextBenefit: offerResult.data?.nextBenefit?.title,
         });
         Alert.alert('VALID', offerResult.data?.offers?.title || `Code ${code} is now marked redeemed.`);
       } catch {
@@ -159,23 +127,17 @@ export default function MerchantScannerScreen() {
               'VALID',
               `Coupon code ${couponResult.data?.redemption?.claim_code || code} is now marked redeemed.`,
             );
-          } catch {
-            setReceipts((prev) =>
-              prev.map((r) =>
-                r.redemption_code === code || r.attribution?.coupon_code === code
-                  ? { ...r, status: 'fulfilled' }
-                  : r
-              )
-            );
-            Alert.alert('Code Validated!', `Redemption code ${code} verified & marked fulfilled.`);
+          } catch (couponError) {
+            throw couponError;
           }
         }
       }
 
       setManualCode('');
       setScanning(false);
-    } catch {
-      Alert.alert('Code Validated!', `Redemption code ${code} verified & marked fulfilled.`);
+    } catch (error) {
+      setLastValid(null);
+      Alert.alert('Code not validated', error instanceof Error ? error.message : 'No live redemption record accepted this code. Nothing was fulfilled.');
     } finally {
       setValidating(false);
     }
@@ -288,6 +250,12 @@ export default function MerchantScannerScreen() {
 
         {loadingReceipts ? (
           <View style={styles.emptyRedemptions}><ActivityIndicator color={Colors.primary} /></View>
+        ) : receiptsError ? (
+          <View style={styles.emptyRedemptions}>
+            <Ionicons name="cloud-offline-outline" size={32} color={Colors.warning} />
+            <Text style={styles.emptyText}>Commerce records unavailable</Text>
+            <Text style={styles.emptyDetail}>Nothing is shown as fulfilled while the live service is unavailable.</Text>
+          </View>
         ) : receipts.length === 0 ? (
           <View style={styles.emptyRedemptions}>
             <Ionicons name="receipt-outline" size={32} color={Colors.gray[400]} />
@@ -376,6 +344,7 @@ const styles = StyleSheet.create({
   refreshButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.black },
   emptyRedemptions: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' },
   emptyText: { fontSize: Typography.sizes.base, color: Colors.gray[400], marginTop: Spacing.sm },
+  emptyDetail: { maxWidth: 260, fontSize: Typography.sizes.xs, lineHeight: 17, color: Colors.gray[500], marginTop: 6, textAlign: 'center' },
   redemptionsList: { flex: 1 },
   redemptionItem: { flexDirection: 'row', gap: Spacing.md, paddingVertical: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.gray[800], backgroundColor: 'transparent' },
   redemptionIcon: { width: 34, height: 34, borderRadius: 17, justifyContent: 'center', alignItems: 'center' },

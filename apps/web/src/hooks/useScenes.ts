@@ -34,11 +34,24 @@ export function useScene(slug?: string) {
         db.from("moment_scene_links").select("relationship,moments(*)").eq("scene_id", scene.id).limit(12),
         db.from("discoveries").select("*").eq("scene_id", scene.id).eq("verification_status", "approved").order("created_at", { ascending: false }).limit(12),
       ]);
+      const moments = (linksResult.data || []).map((link: any) => link.moments).filter(Boolean);
+      const venueIds = [...new Set(moments.map((moment: any) => moment.venue_id).filter(Boolean))];
+      const personIds = [...new Set(moments.map((moment: any) => moment.host_id || moment.organizer_id).filter(Boolean))];
+      const [placesResult, peopleResult] = await Promise.all([
+        venueIds.length
+          ? db.from("view_public_venue_directory").select("id,slug,name,city,country,images").in("id", venueIds)
+          : Promise.resolve({ data: [] }),
+        personIds.length
+          ? db.from("profiles").select("id,user_id,full_name,display_name,username,avatar_url,location").in("user_id", personIds)
+          : Promise.resolve({ data: [] }),
+      ]);
       return {
         scene: scene as Scene,
         membership: (membershipResult.data || null) as SceneMembership | null,
-        moments: (linksResult.data || []).map((link: any) => link.moments).filter(Boolean),
+        moments,
         discoveries: discoveriesResult.data || [],
+        places: placesResult.data || [],
+        people: peopleResult.data || [],
       };
     },
   });

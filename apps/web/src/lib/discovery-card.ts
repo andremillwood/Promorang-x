@@ -54,23 +54,28 @@ export function unlockFromPoll(input: {
   };
 }
 
+export function isRecordedCardUnlock(unlock: Partial<DiscoveryCardUnlock> | null | undefined): unlock is DiscoveryCardUnlock {
+  return Boolean(unlock?.pollId && unlock?.perkTitle && String(unlock.redemptionCode || "").trim());
+}
+
 export function readLocalCardUnlocks(): DiscoveryCardUnlock[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(DISCOVER_CARD_UNLOCKS_KEY) || "[]");
-    return (Array.isArray(parsed) ? parsed : []).filter((row) => row?.pollId && row?.perkTitle);
+    return (Array.isArray(parsed) ? parsed : []).filter(isRecordedCardUnlock);
   } catch {
     return [];
   }
 }
 
 export function writeLocalCardUnlock(unlock: DiscoveryCardUnlock): DiscoveryCardUnlock {
-  if (typeof window === "undefined") return unlock;
+  if (typeof window === "undefined" || !isRecordedCardUnlock(unlock)) return unlock;
   const rows = readLocalCardUnlocks();
   const existing = rows.find((row) => row.pollId === unlock.pollId);
-  if (existing) return existing;
-  window.localStorage.setItem(DISCOVER_CARD_UNLOCKS_KEY, JSON.stringify([unlock, ...rows].slice(0, 40)));
-  return unlock;
+  const recorded = existing?.redemptionCode ? existing : unlock;
+  const others = rows.filter((row) => row.pollId !== recorded.pollId);
+  window.localStorage.setItem(DISCOVER_CARD_UNLOCKS_KEY, JSON.stringify([recorded, ...others].slice(0, 40)));
+  return recorded;
 }
 
 export function tallyCardUnlocks(unlocks: Array<{ pollId: string; status?: string }>): UnlockTally[] {

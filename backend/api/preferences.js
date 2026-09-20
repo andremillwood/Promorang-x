@@ -30,15 +30,19 @@ const VALID_DEAL_TYPES = [
     'paid'
 ];
 
-// Points awarded for completing preferences
-const PREFERENCES_COMPLETION_POINTS = 100;
-
 /**
  * GET /api/users/preferences
  * Get current user preferences
  */
 router.get('/', requireAuth, async (req, res) => {
     try {
+        if (!supabase) {
+            return res.status(503).json({
+                error: 'Preference source unavailable',
+                code: 'PREFERENCE_SOURCE_UNAVAILABLE'
+            });
+        }
+
         const { data: user, error } = await supabase
             .from('users')
             .select('preferences, preferences_completed_at')
@@ -64,6 +68,13 @@ router.get('/', requireAuth, async (req, res) => {
  */
 router.post('/', requireAuth, async (req, res) => {
     try {
+        if (!supabase) {
+            return res.status(503).json({
+                error: 'Preference source unavailable',
+                code: 'PREFERENCE_SOURCE_UNAVAILABLE'
+            });
+        }
+
         const { interests, location, deal_types } = req.body;
 
         // Validate interests
@@ -90,10 +101,10 @@ router.post('/', requireAuth, async (req, res) => {
             }
         }
 
-        // Check if user already completed preferences
+        // Check whether this is the first durable preference completion.
         const { data: existingUser, error: fetchError } = await supabase
             .from('users')
-            .select('preferences_completed_at, points_balance')
+            .select('preferences_completed_at')
             .eq('id', req.user.id)
             .single();
 
@@ -116,16 +127,11 @@ router.post('/', requireAuth, async (req, res) => {
             preferences_completed_at: now
         };
 
-        // Award points if first completion
-        if (isFirstCompletion) {
-            updateData.points_balance = (existingUser?.points_balance || 0) + PREFERENCES_COMPLETION_POINTS;
-        }
-
         const { data: updatedUser, error: updateError } = await supabase
             .from('users')
             .update(updateData)
             .eq('id', req.user.id)
-            .select('preferences, preferences_completed_at, points_balance')
+            .select('preferences, preferences_completed_at')
             .single();
 
         if (updateError) throw updateError;
@@ -133,10 +139,9 @@ router.post('/', requireAuth, async (req, res) => {
         res.json({
             success: true,
             preferences: updatedUser.preferences,
-            points_awarded: isFirstCompletion ? PREFERENCES_COMPLETION_POINTS : 0,
-            new_points_balance: updatedUser.points_balance,
+            points_awarded: 0,
             message: isFirstCompletion
-                ? `Preferences saved! +${PREFERENCES_COMPLETION_POINTS} points`
+                ? 'Preferences saved!'
                 : 'Preferences updated!'
         });
     } catch (error) {
@@ -167,7 +172,7 @@ router.get('/options', optionalAuth, async (req, res) => {
             { id: 'events', label: 'Exclusive Events', emoji: '🎟️', description: 'VIP access, meetups' },
             { id: 'paid', label: 'Paid Opportunities', emoji: '💵', description: 'Earn money for actions' }
         ],
-        points_reward: PREFERENCES_COMPLETION_POINTS
+        points_reward: 0
     });
 });
 

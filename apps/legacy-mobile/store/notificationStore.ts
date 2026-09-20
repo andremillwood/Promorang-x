@@ -29,7 +29,16 @@ interface NotificationState {
     clearError: () => void;
 }
 
-export const useNotificationStore = create<NotificationState>((set, get) => ({
+interface NotificationApiResponse {
+    success?: boolean;
+    status?: string;
+    error?: string;
+    notifications?: Notification[];
+    data?: Notification[] | { count?: number };
+    count?: number;
+}
+
+export const useNotificationStore = create<NotificationState>((set) => ({
     notifications: [],
     unreadCount: 0,
     isLoading: false,
@@ -38,26 +47,20 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     fetchNotifications: async () => {
         set({ isLoading: true, error: null });
         try {
-            const data = await api.get<any>('/api/notifications');
+            const data = await api.get<NotificationApiResponse>('/api/notifications');
 
             if (data.success || data.status === 'success') {
-                const notificationsData = data.notifications || data.data || [];
-                // Use demo data if empty for better UX
-                const notifications = notificationsData.length > 0
-                    ? notificationsData
-                    : generateDemoNotifications();
-
+                const notificationsData = data.notifications || (Array.isArray(data.data) ? data.data : []);
                 set({
-                    notifications,
-                    unreadCount: notifications.filter((n: Notification) => !n.is_read).length,
+                    notifications: notificationsData,
+                    unreadCount: notificationsData.filter((n: Notification) => !n.is_read).length,
                 });
             } else {
-                set({ notifications: generateDemoNotifications() });
+                set({ notifications: [], unreadCount: 0, error: 'Notifications are unavailable.' });
             }
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
-            // Fallback to demo data
-            set({ notifications: generateDemoNotifications() });
+            set({ notifications: [], unreadCount: 0, error: 'Notifications are unavailable.' });
         } finally {
             set({ isLoading: false });
         }
@@ -65,18 +68,21 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
     fetchUnreadCount: async () => {
         try {
-            const data = await api.get<any>('/api/notifications/unread-count');
+            const data = await api.get<NotificationApiResponse>('/api/notifications/unread-count');
             if (data.success || data.status === 'success') {
-                set({ unreadCount: data.count || data.data?.count || 0 });
+                const nestedCount = !Array.isArray(data.data) ? data.data?.count : undefined;
+                set({ unreadCount: data.count || nestedCount || 0 });
             }
         } catch (error) {
             console.error('Failed to fetch unread count:', error);
+            set({ error: 'Unread notification count is unavailable.' });
         }
     },
 
     markAsRead: async (id: string) => {
         try {
-            await api.post<any>(`/api/notifications/${id}/read`, {});
+            const data = await api.post<NotificationApiResponse>(`/api/notifications/${id}/read`, {});
+            if (!data.success && data.status !== 'success') throw new Error(data.error || 'Notification update failed');
 
             set(state => ({
                 notifications: state.notifications.map(n =>
@@ -86,12 +92,14 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
             }));
         } catch (error) {
             console.error('Failed to mark notification as read:', error);
+            set({ error: 'Notification could not be marked as read.' });
         }
     },
 
     markAllAsRead: async () => {
         try {
-            await api.post<any>('/api/notifications/mark-all-read', {});
+            const data = await api.post<NotificationApiResponse>('/api/notifications/mark-all-read', {});
+            if (!data.success && data.status !== 'success') throw new Error(data.error || 'Notification update failed');
 
             set(state => ({
                 notifications: state.notifications.map(n => ({ ...n, is_read: true })),
@@ -99,63 +107,9 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
             }));
         } catch (error) {
             console.error('Failed to mark all as read:', error);
+            set({ error: 'Notifications could not be marked as read.' });
         }
     },
 
     clearError: () => set({ error: null }),
 }));
-
-// Demo notifications for testing
-function generateDemoNotifications(): Notification[] {
-    const now = new Date();
-    return [
-        {
-            id: '1',
-            type: 'reward',
-            title: 'Quest Completed! 🎉',
-            message: 'You earned 50 Points for completing your daily check-in.',
-            is_read: false,
-            created_at: new Date(now.getTime() - 5 * 60000).toISOString(),
-        },
-        {
-            id: '2',
-            type: 'social',
-            title: 'New Follower',
-            message: '@creator_mike started following you.',
-            is_read: false,
-            created_at: new Date(now.getTime() - 30 * 60000).toISOString(),
-        },
-        {
-            id: '3',
-            type: 'drop',
-            title: 'Drop Application Approved',
-            message: 'Your application for "Summer Vibes Campaign" was approved!',
-            is_read: true,
-            created_at: new Date(now.getTime() - 2 * 3600000).toISOString(),
-        },
-        {
-            id: '4',
-            type: 'event',
-            title: 'Event Reminder',
-            message: 'Creator Meetup NYC starts in 24 hours. Don\'t forget to RSVP!',
-            is_read: true,
-            created_at: new Date(now.getTime() - 1 * 86400000).toISOString(),
-        },
-        {
-            id: '5',
-            type: 'transaction',
-            title: 'Withdrawal Processed',
-            message: 'Your withdrawal of $25.00 has been sent to your PayPal.',
-            is_read: true,
-            created_at: new Date(now.getTime() - 3 * 86400000).toISOString(),
-        },
-        {
-            id: '6',
-            type: 'system',
-            title: 'Welcome to Promorang! 👋',
-            message: 'Start earning by completing drops and engaging with content.',
-            is_read: true,
-            created_at: new Date(now.getTime() - 7 * 86400000).toISOString(),
-        },
-    ];
-}

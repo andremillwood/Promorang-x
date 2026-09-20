@@ -29,6 +29,7 @@ interface TradeModalProps {
   onClose: () => void;
   onSuccess: () => void;
   gemsBalance: number;
+  gemsBalanceAvailable: boolean;
   userPieces: number;
 }
 
@@ -39,6 +40,7 @@ export function TradeModal({
   onClose, 
   onSuccess,
   gemsBalance,
+  gemsBalanceAvailable,
   userPieces 
 }: TradeModalProps) {
   const [amount, setAmount] = useState(1);
@@ -77,6 +79,9 @@ export function TradeModal({
       if (response.ok) {
         const data = await response.json();
         setQuote(data);
+      } else {
+        setQuote(null);
+        throw new Error(`Quote request failed with ${response.status}`);
       }
     } catch (error) {
       console.error('Failed to fetch quote:', error);
@@ -115,7 +120,7 @@ export function TradeModal({
       
       if (response.ok && data.success) {
         toast({
-          title: action === 'buy' ? 'Purchase Successful!' : 'Sale Successful!',
+          title: action === 'buy' ? 'Purchase recorded' : 'Sale recorded',
           description: action === 'buy' 
             ? `You bought ${data.pieces_received?.toFixed(2) || amount} pieces for ${data.gems_spent || amount * piece.last_price} Gems`
             : `You sold ${amount} pieces for ${data.gems_received || quote?.amount_out} Gems`,
@@ -140,7 +145,7 @@ export function TradeModal({
 
   const estimatedCost = action === 'buy' ? amount * piece.last_price : amount;
   const canAfford = action === 'buy' 
-    ? gemsBalance >= estimatedCost 
+    ? gemsBalanceAvailable && gemsBalance >= estimatedCost
     : userPieces >= amount;
   
   const priceImpact = quote?.price_impact_percent || 0;
@@ -236,13 +241,23 @@ export function TradeModal({
           </div>
 
           {/* Balance Warning */}
+          {action === 'buy' && !gemsBalanceAvailable && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Your authoritative Gems balance is unavailable. Purchasing is disabled until it can be verified.
+              </AlertDescription>
+            </Alert>
+          )}
           {!canAfford && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                {action === 'buy' 
+                {action === 'buy' && gemsBalanceAvailable
                   ? `Insufficient Gems. You have ${gemsBalance.toFixed(2)} Gems.`
-                  : `Insufficient pieces. You have ${userPieces.toFixed(2)} pieces.`
+                  : action === 'sell'
+                    ? `Insufficient pieces. You have ${userPieces.toFixed(2)} pieces.`
+                    : 'Balance verification is required before purchase.'
                 }
               </AlertDescription>
             </Alert>
@@ -255,7 +270,7 @@ export function TradeModal({
           </Button>
           <Button 
             onClick={handleTrade}
-            disabled={!canAfford || loading || fetchingQuote || highImpact}
+            disabled={!canAfford || !quote || loading || fetchingQuote || highImpact}
             className={action === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}
           >
             {loading ? 'Processing...' : action === 'buy' ? 'Confirm Purchase' : 'Confirm Sale'}

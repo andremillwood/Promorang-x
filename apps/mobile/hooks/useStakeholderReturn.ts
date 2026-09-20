@@ -27,7 +27,7 @@ type OutcomeRow = {
 type GemRow = { amount: number };
 type PassRow = { id: string };
 
-export function useStakeholderReturn() {
+export function useStakeholderReturn(role: 'participant' | 'creator' | 'host' | 'merchant' | 'brand' | 'agency') {
   const { user } = useAuth();
   const [data, setData] = useState({
     people: 0,
@@ -56,7 +56,9 @@ export function useStakeholderReturn() {
     setLoading(true);
     try {
       const [outcomesResult, gemsResult, passesResult] = await Promise.all([
-        db.from('activation_outcome_snapshots').select('people_reached,people_joined,people_showed_up,people_returned,stories_created,collaborations_opened,redemptions,gross_value,human_return_summary,commercial_return_summary,scene_learning_summary,content_return_summary,gems_return_summary,participant_value_summary,next_decision,next_decision_note').eq('owner_user_id', user.id).order('captured_at', { ascending: false }).limit(12),
+        role === 'participant'
+          ? Promise.resolve({ data: [], error: null })
+          : db.from('activation_outcome_snapshots').select('people_reached,people_joined,people_showed_up,people_returned,stories_created,collaborations_opened,redemptions,gross_value,human_return_summary,commercial_return_summary,scene_learning_summary,content_return_summary,gems_return_summary,participant_value_summary,next_decision,next_decision_note').eq('owner_user_id', user.id).eq('stakeholder_type', role).order('captured_at', { ascending: false }).limit(12),
         db.from('economy_transactions').select('amount').eq('user_id', user.id).eq('currency', 'gems').gt('amount', 0).order('created_at', { ascending: false }).limit(24),
         db.from('activation_access_passes').select('id').eq('user_id', user.id).in('status', ['reserved', 'active', 'used']).limit(24),
       ]);
@@ -89,7 +91,7 @@ export function useStakeholderReturn() {
 
   useEffect(() => {
     fetchReturn();
-  }, [user]);
+  }, [user, role]);
 
   return { data, loading, refetch: fetchReturn };
 }

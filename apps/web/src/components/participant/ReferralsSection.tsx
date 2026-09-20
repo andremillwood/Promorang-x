@@ -7,8 +7,8 @@ import { useI18n } from "@/i18n/I18nContext";
 
 export function ReferralsSection() {
   const { t, formatNumber, formatDate } = useI18n();
-  const { data: codes, isLoading: codesLoading } = useReferralCodes();
-  const { data: stats, isLoading: statsLoading } = useReferralStats();
+  const { data: codes, isLoading: codesLoading, isError: codesError } = useReferralCodes();
+  const { data: stats, isLoading: statsLoading, isError: statsError } = useReferralStats();
   const createCode = useCreateReferralCode();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -46,6 +46,17 @@ export function ReferralsSection() {
       <div className="space-y-4">
         <Skeleton className="h-28 rounded-xl" />
         <Skeleton className="h-40 rounded-xl" />
+      </div>
+    );
+  }
+
+  if (codesError || statsError) {
+    return (
+      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6">
+        <h3 className="font-black text-foreground">Referral records unavailable</h3>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          The referral source could not be loaded. PROMORANG is not substituting demo codes, earnings, conversion rates, or zero activity for missing data.
+        </p>
       </div>
     );
   }
@@ -125,11 +136,9 @@ export function ReferralsSection() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex gap-4 text-sm text-muted-foreground">
-                  <span>{formatNumber(code.total_clicks || 0)} {t("referrals.clicks").toLowerCase()}</span>
-                  <span>{formatNumber(code.total_signups || 0)} {t("referrals.signups").toLowerCase()}</span>
-                  <span>{formatNumber(code.total_conversions || 0)} {t("referrals.conversions").toLowerCase()}</span>
-                </div>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  This is the recorded referral code. Aggregate clicks, signups, conversions, and earnings are shown only from the referral statistics source above.
+                </p>
               </div>
             ))}
           </div>

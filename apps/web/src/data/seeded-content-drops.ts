@@ -3,7 +3,12 @@ import type {
   ContentDistributionLeaderboardRow,
 } from "@/hooks/useContentDistribution";
 
-export const seededContentDrops: ContentDistributionCampaign[] = [
+// Demo records are useful for local development and visual tests, but they must
+// never substitute for live production inventory. PROMORANG's proof surfaces
+// should be honestly empty when the backing query has no real records.
+const ALLOW_SEEDED_CONTENT = import.meta.env.DEV || import.meta.env.MODE === "test";
+
+const demoContentDrops: ContentDistributionCampaign[] = [
   {
     id: "seed-drop-release-room",
     owner_id: "seed-creator-maya",
@@ -124,7 +129,7 @@ export const seededContentDrops: ContentDistributionCampaign[] = [
   },
 ];
 
-export const seededContentDropLeaderboards: Record<string, ContentDistributionLeaderboardRow[]> = {
+const demoContentDropLeaderboards: Record<string, ContentDistributionLeaderboardRow[]> = {
   "seed-drop-release-room": [
     {
       id: "seed-release-stat-1",
@@ -173,6 +178,15 @@ export const seededContentDropLeaderboards: Record<string, ContentDistributionLe
   ],
 };
 
+export const seededContentDrops: ContentDistributionCampaign[] = ALLOW_SEEDED_CONTENT
+  ? demoContentDrops
+  : [];
+
+export const seededContentDropLeaderboards: Record<string, ContentDistributionLeaderboardRow[]> = ALLOW_SEEDED_CONTENT
+  ? demoContentDropLeaderboards
+  : {};
+
 export function getSeededContentDrop(id?: string) {
+  if (!ALLOW_SEEDED_CONTENT) return undefined;
   return seededContentDrops.find((drop) => drop.id === id);
 }

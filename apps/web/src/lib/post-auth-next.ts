@@ -3,6 +3,7 @@ import { inferStakeholderRoleFromPath } from "@promorang/shared";
 export const POST_AUTH_NEXT_KEY = "promorang_post_auth_next";
 
 const COMMERCIAL_PREFIXES = [
+  "/business",
   "/propose",
   "/create",
   "/hosting",
@@ -103,10 +104,12 @@ export function roleFromNext(next?: string | null): Exclude<PostAuthRole, null |
 
 export function defaultPostAuthPath(role: PostAuthRole): string {
   if (role === "admin") return "/admin?tab=command";
+  if (role === "promoter") return "/promopush/promoter";
+  if (role === "marketing") return "/promopush";
   if (role === "host" || role === "brand" || role === "merchant" || role === "creator" || role === "agency") {
     return "/dashboard?view=studio";
   }
-  return "/dashboard";
+  return "/home";
 }
 
 export function resolvePostAuthPath({

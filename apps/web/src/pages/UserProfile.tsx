@@ -16,13 +16,14 @@ import {
     Settings,
     Grid,
     Bookmark,
+    AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchProfileRow } from "@/lib/account-profile";
-import type { Tables } from "@/integrations/supabase/types";
 import VerifiedPioneerBadge from "@/components/pioneer/VerifiedPioneerBadge";
 import { useI18n } from "@/i18n/I18nContext";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 interface UserProfile {
     id: string;
@@ -37,21 +38,12 @@ interface UserProfile {
 
 interface ProfileStats {
     momentsHosted: number;
-    momentsAttended: number;
+    momentsAttended: number | null;
     followers: number;
     following: number;
-    rating: number;
+    rating?: number;
     reviewCount: number;
 }
-
-const emptyStats: ProfileStats = {
-    momentsHosted: 0,
-    momentsAttended: 0,
-    followers: 0,
-    following: 0,
-    rating: 0,
-    reviewCount: 0,
-};
 
 const UserProfilePage = () => {
     const { t, formatNumber } = useI18n();
@@ -59,14 +51,16 @@ const UserProfilePage = () => {
     const { user } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [stats, setStats] = useState<ProfileStats | null>(null);
-    const [moments, setMoments] = useState<Tables<"moments">[]>([]);
+    const [moments, setMoments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [tabLoading, setTabLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<"hosted" | "attended" | "saved">("hosted");
-    const [isFollowing, setIsFollowing] = useState(false);
+    const [profileError, setProfileError] = useState<string | null>(null);
+    const [statsError, setStatsError] = useState<string | null>(null);
+    const [tabError, setTabError] = useState<string | null>(null);
 
     // If userId is not provided, it means we are at /profile, so use the current user's ID
-    const effectiveUserId = userId || user?.id;
+    const effectiveUserId = !userId || userId === "me" ? user?.id : userId;
 
     // Check if viewing own profile
     const isOwnProfile = effectiveUserId === user?.id || userId === "me";
@@ -77,6 +71,8 @@ const UserProfilePage = () => {
             if (!effectiveUserId) return;
 
             setLoading(true);
+            setProfileError(null);
+            setStatsError(null);
             try {
                 // Fetch profile from Supabase
                 const { data, error } = await fetchProfileRow(supabase, effectiveUserId);
@@ -102,13 +98,13 @@ const UserProfilePage = () => {
                         is_superhost: false,
                     });
                 } else if (isOwnProfile && user) {
-                    // Fallback for current user if no profile record exists yet
+                    // The account can identify the current user, but it must not invent unsaved profile facts.
                     setProfile({
                         id: user.id,
                         full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || t("profile.user"),
                         avatar_url: user.user_metadata?.avatar_url || null,
-                        bio: t("profile.newBio"),
-                        location: t("profile.global"),
+                        bio: null,
+                        location: null,
                         is_verified: false,
                         is_superhost: false,
                         created_at: user.created_at
@@ -117,22 +113,58 @@ const UserProfilePage = () => {
                     setProfile(null);
                 }
 
-                // Fetch real stats
-                const [{ count: hostedCount }, { count: attendedCount }] = await Promise.all([
-                    supabase.from("moments").select("*", { count: "exact", head: true }).eq("host_id", effectiveUserId),
-                    supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
-                ]);
+                try {
+                    const [hostedResult, attendedResult, followersResult, followingResult] = await Promise.all([
+                        supabase.from("view_public_moment_directory").select("id", { count: "exact" }).eq("host_id", effectiveUserId).eq("is_active", true).limit(500),
+                        isOwnProfile
+                            ? supabase.from("moment_participants").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId).eq("status", "checked_in")
+                            : Promise.resolve({ count: null, error: null }),
+                        supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("following_id", effectiveUserId),
+                        supabase.from("user_follows").select("*", { count: "exact", head: true }).eq("follower_id", effectiveUserId),
+                    ]);
 
-                setStats({
-                    momentsHosted: hostedCount || 0,
-                    momentsAttended: attendedCount || 0,
-                    followers: 0,
-                    following: 0,
-                    rating: 5.0,
-                    reviewCount: 0,
-                });
+                    const statsQueryError =
+                        hostedResult.error ||
+                        attendedResult.error ||
+                        followersResult.error ||
+                        followingResult.error;
+                    if (statsQueryError) throw statsQueryError;
+
+                    const hostedMomentIds = (hostedResult.data || []).map((row: any) => row.id).filter(Boolean);
+                    let ratings: number[] = [];
+                    if (hostedMomentIds.length) {
+                        const { data: reviewRows, error: reviewError } = await supabase
+                            .from("moment_reviews")
+                            .select("rating")
+                            .in("moment_id", hostedMomentIds);
+                        if (!reviewError) {
+                            ratings = (reviewRows || [])
+                                .map((row) => row.rating)
+                                .filter((rating): rating is number => typeof rating === "number" && Number.isFinite(rating));
+                        }
+                    }
+                    const rating = ratings.length
+                        ? Math.round((ratings.reduce((sum, value) => sum + value, 0) / ratings.length) * 10) / 10
+                        : undefined;
+
+                    setStats({
+                        momentsHosted: hostedResult.count ?? hostedMomentIds.length,
+                        momentsAttended: isOwnProfile ? attendedResult.count ?? 0 : null,
+                        followers: followersResult.count ?? 0,
+                        following: followingResult.count ?? 0,
+                        rating,
+                        reviewCount: ratings.length,
+                    });
+                } catch (statsQueryError) {
+                    console.error("Error fetching profile stats:", statsQueryError);
+                    setStats(null);
+                    setStatsError("Profile counts are unavailable.");
+                }
             } catch (err) {
                 console.error("Error fetching profile:", err);
+                setProfile(null);
+                setStats(null);
+                setProfileError("Profile data could not be loaded.");
             } finally {
                 setLoading(false);
             }
@@ -141,52 +173,63 @@ const UserProfilePage = () => {
         fetchProfileData();
     }, [effectiveUserId, isOwnProfile, user]);
 
-    // 2. Fetch moments tab content (Hosted / Attended / Saved)
+    // 2. Fetch tab content only from sources the current viewer is allowed to read.
     useEffect(() => {
+        if (!isOwnProfile && activeTab !== "hosted") {
+            setActiveTab("hosted");
+            return;
+        }
+
         const fetchTabMoments = async () => {
             if (!effectiveUserId) return;
             setTabLoading(true);
+            setTabError(null);
             try {
                 if (activeTab === "hosted") {
                     const { data, error } = await supabase
-                        .from("moments")
+                        .from("view_public_moment_directory")
                         .select("*")
                         .eq("host_id", effectiveUserId)
+                        .eq("is_active", true)
                         .order("starts_at", { ascending: false });
-
-                    if (!error && data) {
-                        setMoments(data);
-                    } else {
-                        setMoments([]);
-                    }
+                    if (error) throw error;
+                    setMoments(data || []);
                 } else if (activeTab === "attended") {
                     const { data, error } = await supabase
                         .from("moment_participants")
                         .select("moment_id, moments(*)")
-                        .eq("user_id", effectiveUserId);
-
-                    if (!error && data) {
-                        const attendedMoments = data
-                            .map((item: any) => item.moments)
-                            .filter((m): m is Tables<"moments"> => Boolean(m));
-                        setMoments(attendedMoments);
-                    } else {
-                        setMoments([]);
-                    }
+                        .eq("user_id", effectiveUserId)
+                        .eq("status", "checked_in");
+                    if (error) throw error;
+                    setMoments((data || []).map((item: any) => item.moments).filter(Boolean));
                 } else {
-                    // Saved tab
-                    setMoments([]);
+                    const { data: savedRows, error: savedError } = await (supabase as any)
+                        .from("saved_moments")
+                        .select("moment_id")
+                        .eq("user_id", effectiveUserId)
+                        .order("created_at", { ascending: false });
+                    if (savedError) throw savedError;
+
+                    const ids = [...new Set((savedRows || []).map((row: any) => row.moment_id).filter(Boolean))];
+                    if (!ids.length) {
+                        setMoments([]);
+                    } else {
+                        const { data, error } = await supabase.from("moments").select("*").in("id", ids);
+                        if (error) throw error;
+                        setMoments(data || []);
+                    }
                 }
             } catch (err) {
                 console.error("Error fetching moments for tab:", err);
                 setMoments([]);
+                setTabError("This profile section could not be loaded.");
             } finally {
                 setTabLoading(false);
             }
         };
 
-        fetchTabMoments();
-    }, [effectiveUserId, activeTab]);
+        void fetchTabMoments();
+    }, [effectiveUserId, activeTab, isOwnProfile]);
 
     if (loading) {
         return (
@@ -207,6 +250,20 @@ const UserProfilePage = () => {
         );
     }
 
+    if (profileError) {
+        return (
+            <div className="min-h-screen bg-background">
+                <div className="px-4 pb-12 pt-24 text-center">
+                    <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
+                    <h1 className="mt-4 font-serif text-2xl font-bold">Profile unavailable</h1>
+                    <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
+                        We couldn’t load this profile right now. Try again in a moment.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     if (!profile) {
         return (
             <div className="min-h-screen bg-background">
@@ -221,13 +278,14 @@ const UserProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#090909] text-white">
+        <div className="marketing-cinematic public-object-page min-h-screen bg-[#050505] text-white">
             <main className="pb-16">
-                <section className="relative overflow-hidden border-b border-white/10">
+                <section className="public-object-hero relative overflow-hidden border-b border-white/10">
+                    <CurrentArc variant="hero" className="marketing-hero-current" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(249,115,22,0.3),transparent_34%),linear-gradient(135deg,#20150f,#090909_62%)]" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#090909] via-transparent to-black/30" />
-                <div className="relative mx-auto max-w-[1600px] px-5 pb-10 pt-28 sm:px-8 xl:px-12 2xl:px-16">
+                <div className="relative mx-auto max-w-[1320px] px-5 pb-12 pt-28 sm:px-6">
                     {/* Profile Header */}
                     <div className="flex flex-col items-start gap-6 md:flex-row md:items-end">
                         {/* Avatar */}
@@ -305,9 +363,7 @@ const UserProfilePage = () => {
                                     <>
                                         <FollowButton
                                             userId={profile.id}
-                                            isFollowing={isFollowing}
                                             followerCount={stats?.followers}
-                                            onFollowChange={setIsFollowing}
                                         />
                                         <Button
                                             variant="outline"
@@ -335,37 +391,39 @@ const UserProfilePage = () => {
                     </div>
                 </div>
                 </section>
-                <div className="mx-auto max-w-[1600px] px-5 py-10 sm:px-8 xl:px-12 2xl:px-16">
+                <div className="mx-auto max-w-[1320px] px-5 py-10 sm:px-6">
 
                     {/* Stats */}
                     <div className="mb-10 grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
                         <div className="border-b border-r border-white/10 px-3 py-6 md:border-b-0 md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.momentsHosted}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.momentsHosted) : "—"}</p>
                             <p className="text-sm text-white/40">{t("profile.hostedCount")}</p>
                         </div>
                         <div className="border-b border-white/10 px-3 py-6 md:border-b-0 md:border-r md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.momentsAttended}</p>
+                            <p className="text-2xl font-black text-white">{stats?.momentsAttended == null ? "Private" : formatNumber(stats.momentsAttended)}</p>
                             <p className="text-sm text-white/40">{t("profile.verifiedMarks")}</p>
                         </div>
                         <div className="border-r border-white/10 px-3 py-6 md:px-6">
-                            <p className="flex items-center justify-center gap-1 text-2xl font-black text-white">
-                                {stats?.rating}
-                                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            </p>
-                            <p className="text-sm text-white/40">{t("profile.trustSignals", { count: formatNumber(stats?.reviewCount || 0) })}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.followers) : "—"}</p>
+                            <p className="text-sm text-white/40">Followers</p>
                         </div>
                         <div className="px-3 py-6 md:px-6">
-                            <p className="text-2xl font-black text-white">{stats?.followers?.toLocaleString()}</p>
-                            <p className="text-sm text-white/40">{t("profile.connected")}</p>
+                            <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.following) : "—"}</p>
+                            <p className="text-sm text-white/40">Following</p>
                         </div>
                     </div>
+                    {stats?.rating !== undefined ? <p className="mb-8 flex items-center gap-2 text-xs font-bold text-white/50"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400"/>{stats.rating.toFixed(1)} from {stats.reviewCount} rating{stats.reviewCount === 1 ? "" : "s"}</p> : null}
 
                     {/* Tabs */}
-                    <div className="mb-6 flex gap-1 overflow-x-auto border-b border-white/10">
+                    <div className="public-object-tabs sticky top-14 z-20 mb-6 flex gap-1 overflow-x-auto border-y border-white/10 bg-black/90">
                         {[
                             { id: "hosted" as const, label: t("profile.hosted"), icon: Grid },
-                            { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
-                            { id: "saved" as const, label: t("profile.saved"), icon: Bookmark },
+                            ...(isOwnProfile
+                                ? [
+                                    { id: "attended" as const, label: t("profile.attended"), icon: Calendar },
+                                    { id: "saved" as const, label: t("profile.saved"), icon: Bookmark },
+                                ]
+                                : []),
                         ].map(tab => (
                             <button
                                 key={tab.id}
@@ -384,7 +442,23 @@ const UserProfilePage = () => {
                     </div>
 
                     {/* Content */}
-                    {moments.length > 0 ? (
+                    {statsError ? (
+                        <div role="status" className="mb-6 rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-4 text-xs leading-5 text-white/55">
+                            Some profile stats are unavailable right now.
+                        </div>
+                    ) : null}
+                    {tabLoading ? (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Skeleton className="h-64 rounded-2xl" />
+                            <Skeleton className="h-64 rounded-2xl" />
+                        </div>
+                    ) : tabError ? (
+                        <div role="alert" className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
+                            <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
+                            <h3 className="mt-4 font-bold">Profile section unavailable</h3>
+                            <p className="mt-2 text-sm text-white/50">We couldn’t load this section right now.</p>
+                        </div>
+                    ) : moments.length > 0 ? (
                         <MasonryGrid>
                             {moments.map(moment => (
                                 <MomentCard key={moment.id} moment={moment} />
@@ -395,11 +469,7 @@ const UserProfilePage = () => {
                             <Grid className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
                             <h3 className="font-medium text-lg mb-2">{t("profile.empty")}</h3>
                             <p className="text-muted-foreground">
-                                {activeTab === "hosted"
-                                    ? t("profile.emptyHosted")
-                                    : activeTab === "attended"
-                                        ? t("profile.emptyAttended")
-                                        : t("profile.emptySaved")}
+                                {activeTab === "hosted" ? t("profile.emptyHosted") : activeTab === "attended" ? t("profile.emptyAttended") : t("profile.emptySaved")}
                             </p>
                         </div>
                     )}

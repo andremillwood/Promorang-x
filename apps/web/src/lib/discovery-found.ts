@@ -238,6 +238,7 @@ export function foundWorkspacePath(listing: FoundListing, role: DemandRole): str
     found: listing.id,
     title: listing.title,
   });
+  query.set("city", listing.city);
   if (listing.whereHint) query.set("where", listing.whereHint);
   if (role === "merchant" || role === "brand" || listing.kind === "place") {
     return `/give?${query.toString()}`;

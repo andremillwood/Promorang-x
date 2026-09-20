@@ -143,7 +143,7 @@ const activationTemplates = [
       fulfillment_type: "shipping",
       value_amount: "25",
       value_currency: "USD",
-      quantity_total: "100",
+      quantity_total: "",
       channel: "direct" as keyof typeof channelDefinitions,
       trigger_event: "claim",
       funding_source: "sponsor_budget",
@@ -178,7 +178,7 @@ const initialForm = {
   channel: "direct" as keyof typeof channelDefinitions,
   trigger_event: "claim",
   source_id: "",
-  status: "active",
+  status: "draft",
   funding_source: "merchant_inventory",
   committed_value: "",
   proof_required: "qr_gps",
@@ -288,7 +288,7 @@ const OfferStudio = () => {
         quantity_total: form.quantity_total ? Number(form.quantity_total) : null,
         per_user_limit: Number(form.per_user_limit || 1),
         ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
-        status: form.status,
+        status: "draft",
         metadata: {
           availability: form.availability,
           surface: form.surface,
@@ -320,8 +320,8 @@ const OfferStudio = () => {
           },
         }],
       });
-      toast.success(t("offerStudio.toastPublished"));
-      setForm(initialForm);
+      toast.success("Offer saved as draft. Review it in Manage, then activate it when the supply and fulfillment terms are ready.");
+      setForm({ ...initialForm, city_slug: city.id });
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not create offer"); }
   };
 

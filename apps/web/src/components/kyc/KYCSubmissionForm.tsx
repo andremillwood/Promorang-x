@@ -85,9 +85,8 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
   };
 
   const uploadFile = async (file: File): Promise<string> => {
-    // In production, upload to your storage (Supabase Storage, S3, etc.)
-    // For now, return a mock URL
-    return URL.createObjectURL(file);
+    void file;
+    throw new Error('Secure identity document upload is not available. No KYC submission was created.');
   };
 
   const handleSubmit = async () => {
@@ -146,8 +145,8 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to submit KYC. Please try again.',
+        title: 'KYC not submitted',
+        description: error instanceof Error ? error.message : 'Failed to submit KYC. Please try again.',
         variant: 'destructive',
       });
     } finally {

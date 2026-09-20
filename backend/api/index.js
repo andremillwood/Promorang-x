@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
 const { requireAuth } = require('../middleware/auth');
+const communityRouter = require('./community');
 
 const app = express();
 
@@ -324,7 +325,7 @@ app.use('/api/guest-rsvp', require('./guest-rsvp'));
 app.use('/api/aftrhrs', require('./aftrhrs'));
 app.use('/api/discovery-acquisition', require('./discovery-acquisition'));
 app.use('/api/d', require('./discovery-acquisition'));
-app.use('/api/notifications', (req, res) => res.json({ success: true, data: [] })); // Placeholder for missing notifications
+app.use('/api/notifications', require('./notifications'));
 const errorHandlers = require('./errors');
 app.post('/api/report-error', errorHandlers.handleReportError);
 app.post('/api/log-error', errorHandlers.handleLogError);
@@ -355,6 +356,7 @@ app.use('/api/marketplace', require('./marketplace')); // New Product Commerce
 app.use('/api/featured-marketplace', require('./featured-marketplace')); // Featured Content & Moment Placements
 app.use('/api/payouts', requireAuth, require('./payouts')); // Host Payouts
 app.use('/api/bounty', requireAuth, require('./bounty'));
+app.use('/api/community', communityRouter);
 app.use('/api/matrix', requireAuth, require('./matrix'));
 app.use('/api/maturity', require('./maturity'));
 app.use('/api/merchant-sampling', require('./merchantSampling'));

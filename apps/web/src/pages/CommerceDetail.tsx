@@ -11,7 +11,6 @@ import { useCommerceActions } from '@/hooks/useCommerceActions';
 import { commerceCategorySlug, isSampleCommerceListing } from '@/lib/commerce-provenance';
 import { KINGSTON_EXPERIENCE_LISTINGS } from '@/pages/Marketplace';
 import { useI18n } from '@/i18n/I18nContext';
-import { PromoAcceptanceBadge } from '@/components/promocard';
 
 export default function CommerceDetail() {
   const { t, locale, formatNumber } = useI18n();
@@ -42,34 +41,6 @@ export default function CommerceDetail() {
         item => item.listing_id === decodedId || item.source_id === decodedId
       );
       if (curatedMatch) return curatedMatch;
-
-      // Fallback 2: Check products table directly
-      const { data: productData } = await supabase
-        .from('products')
-        .select('*')
-        .or(`id.eq.${decodedId},title.ilike.%${decodedId.replace(/-/g, ' ')}%`)
-        .maybeSingle();
-
-      if (productData) {
-        return {
-          listing_id: productData.id,
-          source_id: productData.id,
-          source_table: 'products',
-          listing_kind: 'product',
-          name: productData.title,
-          description: productData.description,
-          category: productData.category || 'Experience',
-          price: productData.price,
-          currency: productData.currency || 'USD',
-          points_cost: productData.points_cost || 200,
-          is_redeemable_with_points: true,
-          image_url: productData.image_url,
-          venue_name: productData.venue_name || 'Kingston Venue',
-          location: productData.location || 'Kingston, Jamaica',
-          is_active: true,
-          created_at: productData.created_at,
-        };
-      }
 
       if (error && error.code !== 'PGRST116') throw error;
       return null;
@@ -217,10 +188,6 @@ export default function CommerceDetail() {
               </div>
               {x.discount_value ? <span className="rounded-full bg-primary px-4 py-2 text-xs font-black text-black">{x.discount_value}{x.discount_type === 'percentage' ? '%' : ''} OFFER</span> : null}
             </div>
-            <div className="mt-4">
-              <PromoAcceptanceBadge allowanceAmount={15} minSpend={25} />
-            </div>
-
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <Button
                 size="lg"

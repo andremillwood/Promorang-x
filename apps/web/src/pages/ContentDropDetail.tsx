@@ -25,15 +25,12 @@ import {
   useContentDropLeaderboard,
   useContentDropContext,
   useRecordContentDropAction,
+  ContentDistributionRequestError,
 } from "@/hooks/useContentDistribution";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ContributionReceipt,
 } from "@/components/promorang/ExperiencePrimitives";
-import {
-  getSeededContentDrop,
-  seededContentDropLeaderboards,
-} from "@/data/seeded-content-drops";
 import { OpportunityTerms } from "@/components/economy/OpportunityTerms";
 import { ProofReceipt, type RewardItem } from "@/components/value/ValueJourney";
 import { useState } from "react";
@@ -51,16 +48,14 @@ export default function ContentDropDetail() {
   const recordAction = useRecordContentDropAction(id);
   const [receipt, setReceipt] = useState<{ action: string; items: RewardItem[] } | null>(null);
 
-  const seededDrop = getSeededContentDrop(id);
-  const drop = dropQuery.data || seededDrop;
+  const drop = dropQuery.data;
   const assets = drop?.content_distribution_assets || [];
   const primary = assets[0];
   const pointsPerAction = Number(drop?.reward_config?.base_points || 0);
-  const entriesPerAction = Number(drop?.promoshare_config?.entries_per_action || 1);
+  const entriesPerAction = Number(drop?.promoshare_config?.entries_per_action ?? 0);
   const fundedGems = Math.max(...Object.values(drop?.reward_config?.gems_by_action || {}).map(Number), 0);
-  const leaderboard = useMemo(() => {
-    return leaderboardQuery.data || (id ? seededContentDropLeaderboards[id] : []) || [];
-  }, [id, leaderboardQuery.data]);
+  const leaderboard = useMemo(() => leaderboardQuery.data || [], [leaderboardQuery.data]);
+  const leaderboardReady = !leaderboardQuery.isLoading && !leaderboardQuery.error;
   const context = contextQuery.data;
   const release = drop ? releaseFromDrop(drop) : null;
   const kindMeta = release ? RELEASE_KIND_META[release.kind] : null;
@@ -78,7 +73,6 @@ export default function ContentDropDetail() {
       action_type: actionType,
       asset_id: primary?.id,
       destination_url: primary?.target_url,
-      verified: releasePaysForAction(actionType),
       metadata: {
         source: "content_drop_detail",
       },
@@ -91,7 +85,7 @@ export default function ContentDropDetail() {
           {
             label: pays ? "Counts" : "Does not pay",
             value: pays
-              ? `+${Number(action.points_awarded || pointsPerAction)} after a Promorang consequence`
+              ? `+${Number(action.points_awarded ?? 0)} contribution value`
               : "Sharing is not the payday",
             kind: "points",
           },
@@ -103,14 +97,45 @@ export default function ContentDropDetail() {
           journey_stage: "first_value",
           object_type: "content_drop",
           object_id: id,
-          metadata: { action_type: actionType, points: action.points_awarded || pointsPerAction },
+          metadata: { action_type: actionType, points: Number(action.points_awarded ?? 0) },
         });
       },
     });
   };
 
-  if (dropQuery.isLoading && !seededDrop) {
+  if (dropQuery.isLoading) {
     return <div className="p-8 text-muted-foreground">{t("dropDetail.loading")}</div>;
+  }
+
+  if (dropQuery.error) {
+    const notFound = dropQuery.error instanceof ContentDistributionRequestError && dropQuery.error.status === 404;
+    if (notFound) {
+      return (
+        <div className="mx-auto max-w-3xl p-8">
+          <Button asChild variant="ghost" className="mb-4">
+            <Link to="/content-drops"><ArrowLeft className="mr-2 h-4 w-4" />{t("dropDetail.back")}</Link>
+          </Button>
+          <Card>
+            <CardContent className="p-8 text-center text-muted-foreground">{t("dropDetail.notFound")}</CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mx-auto max-w-3xl p-8">
+        <Button asChild variant="ghost" className="mb-4">
+          <Link to="/content-drops"><ArrowLeft className="mr-2 h-4 w-4" />{t("dropDetail.back")}</Link>
+        </Button>
+        <Card className="border-red-500/20 bg-red-500/5">
+          <CardContent className="p-8 text-center">
+            <p className="text-xl font-black">Release source unavailable.</p>
+            <p className="mt-2 text-sm text-muted-foreground">PROMORANG could not verify this release record, so it is not substituting a seeded example.</p>
+            <Button type="button" variant="outline" className="mt-5" onClick={() => dropQuery.refetch()}>Retry release source</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!drop) {
@@ -180,29 +205,29 @@ export default function ContentDropDetail() {
                 { label: t("dropDetail.score"), value: totals.score, icon: Trophy },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-                  <item.icon className="h-4 w-4 text-primary" /><p className="mt-4 text-2xl font-black">{formatNumber(item.value)}</p><p className="mt-1 text-xs text-white/40">{item.label}</p>
+                  <item.icon className="h-4 w-4 text-primary" /><p className="mt-4 text-2xl font-black">{leaderboardReady ? formatNumber(item.value) : "—"}</p><p className="mt-1 text-xs text-white/40">{item.label}</p>
                 </div>
               ))}
             </div>
 
             <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/[.045]">
-              <div className="border-b border-white/10 p-5 sm:p-6"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("dropDetail.context")}</p><h2 className="mt-2 font-serif text-3xl font-semibold">{t("dropDetail.contextTitle")}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{t("dropDetail.contextCopy")}</p></div>
+              <div className="border-b border-white/10 p-5 sm:p-6"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{t("dropDetail.context")}</p><h2 className="mt-2 font-serif text-3xl font-semibold">{t("dropDetail.contextTitle")}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{t("dropDetail.contextCopy")}</p>{contextQuery.error ? <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white hover:bg-white/10" onClick={() => contextQuery.refetch()}>Retry context</Button> : null}</div>
               <div className="grid gap-px bg-white/10 sm:grid-cols-2">
                 <div className="bg-[#0d0d0d] p-5">
                   <div className="flex items-center gap-2 text-primary"><MapPin className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.associatedMoment")}</span></div>
-                  {context?.moment ? <Link to={`/moments/${context.moment.id}`} className="group mt-4 block"><h3 className="text-xl font-black">{context.moment.title}</h3><p className="mt-1 text-sm text-white/45">{context.moment.location || t("dropDetail.openMoment")}</p><p className="mt-4 text-xs font-black text-primary">{t("dropDetail.fullMoment")}</p></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noMoment")}</p>}
+                  {contextQuery.isLoading ? <p className="mt-4 text-sm text-white/40">Loading context…</p> : contextQuery.error ? <p className="mt-4 text-sm text-red-200/70">Moment context unavailable.</p> : context?.moment ? <Link to={`/moments/${context.moment.id}`} className="group mt-4 block"><h3 className="text-xl font-black">{context.moment.title}</h3><p className="mt-1 text-sm text-white/45">{context.moment.location || t("dropDetail.openMoment")}</p><p className="mt-4 text-xs font-black text-primary">{t("dropDetail.fullMoment")}</p></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noMoment")}</p>}
                 </div>
                 <div className="bg-[#0d0d0d] p-5">
                   <div className="flex items-center gap-2 text-primary"><Users className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.stakeholders")}</span></div>
-                  {context?.stakeholders.length ? <div className="mt-4 space-y-3">{context.stakeholders.map(person=><div key={`${person.role}-${person.id}`} className="flex items-center justify-between gap-3"><span className="font-bold">{person.name}</span><span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black uppercase text-white/45">{person.role}</span></div>)}</div> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noStakeholders")}</p>}
+                  {contextQuery.isLoading ? <p className="mt-4 text-sm text-white/40">Loading recorded context…</p> : contextQuery.error ? <p className="mt-4 text-sm text-red-200/70">Stakeholder context unavailable.</p> : context?.stakeholders.length ? <div className="mt-4 space-y-3">{context.stakeholders.map(person=><div key={`${person.role}-${person.id}`} className="flex items-center justify-between gap-3"><span className="font-bold">{person.name}</span><span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black uppercase text-white/45">{person.role}</span></div>)}</div> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noStakeholders")}</p>}
                 </div>
                 <div className="bg-[#0d0d0d] p-5">
                   <div className="flex items-center gap-2 text-primary"><ShoppingBag className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.commerce")}</span></div>
-                  {context?.commerce.length ? <div className="mt-4 space-y-3">{context.commerce.slice(0,3).map(item=><Link key={item.id} to={`/shop/${item.id}`} className="flex items-center justify-between gap-3 border-b border-white/10 pb-3"><span className="font-bold">{item.name}</span><span className="text-xs font-black text-primary">{item.price == null ? t("rewards.open") : `${item.currency || "USD"} ${item.price}`}</span></Link>)}</div> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noCommerce")}</p>}
+                  {contextQuery.isLoading ? <p className="mt-4 text-sm text-white/40">Loading recorded context…</p> : contextQuery.error ? <p className="mt-4 text-sm text-red-200/70">Commerce context unavailable.</p> : context?.commerce.length ? <div className="mt-4 space-y-3">{context.commerce.slice(0,3).map(item=><Link key={item.id} to={`/shop/${item.id}`} className="flex items-center justify-between gap-3 border-b border-white/10 pb-3"><span className="font-bold">{item.name}</span><span className="text-xs font-black text-primary">{item.price == null ? t("rewards.open") : `${item.currency || "USD"} ${item.price}`}</span></Link>)}</div> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noCommerce")}</p>}
                 </div>
                 <div className="bg-[#0d0d0d] p-5">
                   <div className="flex items-center gap-2 text-primary"><TrendingUp className="h-4 w-4"/><span className="text-[10px] font-black uppercase tracking-[.2em]">{t("dropDetail.piece")}</span></div>
-                  {context?.piece && context.content_id ? <Link to={`/pieces/content/${context.content_id}`} className="mt-4 flex items-end justify-between gap-4"><div><p className="text-2xl font-black">{t("dropDetail.owned", { count: formatNumber(context.piece.user_quantity || 0) })}</p><p className="mt-1 text-xs text-white/40">{t("dropDetail.ownership")}</p></div><div className="text-right"><p className="text-lg font-black text-primary">{context.piece.current_price == null ? t("rewards.open") : `$${Number(context.piece.current_price).toFixed(2)}`}</p>{context.piece.change_24h != null ? <p className="text-xs text-white/45">{Number(context.piece.change_24h) >= 0 ? "+" : ""}{Number(context.piece.change_24h).toFixed(1)}%</p> : null}</div></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noPiece")}</p>}
+                  {contextQuery.isLoading ? <p className="mt-4 text-sm text-white/40">Loading recorded context…</p> : contextQuery.error ? <p className="mt-4 text-sm text-red-200/70">Piece context unavailable.</p> : context?.piece && context.content_id ? <Link to={`/pieces/content/${context.content_id}`} className="mt-4 flex items-end justify-between gap-4"><div><p className="text-2xl font-black">{t("dropDetail.owned", { count: formatNumber(context.piece.user_quantity || 0) })}</p><p className="mt-1 text-xs text-white/40">{t("dropDetail.ownership")}</p></div><div className="text-right"><p className="text-lg font-black text-primary">{context.piece.current_price == null ? t("rewards.open") : `$${Number(context.piece.current_price).toFixed(2)}`}</p>{context.piece.change_24h != null ? <p className="text-xs text-white/45">{Number(context.piece.change_24h) >= 0 ? "+" : ""}{Number(context.piece.change_24h).toFixed(1)}%</p> : null}</div></Link> : <p className="mt-4 text-sm text-white/40">{t("dropDetail.noPiece")}</p>}
                 </div>
               </div>
             </section>
@@ -221,7 +246,7 @@ export default function ContentDropDetail() {
                   dark
                   className="mb-2"
                   cost="Free"
-                  reward={`${pointsPerAction} contribution value + ${entriesPerAction} possible reward${entriesPerAction === 1 ? "" : "s"}${fundedGems > 0 ? ` + up to ${fundedGems} Gems` : ""}`}
+                  reward={[pointsPerAction > 0 ? `${pointsPerAction} configured contribution value` : null, entriesPerAction > 0 ? `${entriesPerAction} possible reward entr${entriesPerAction === 1 ? "y" : "ies"}` : null, fundedGems > 0 ? `up to ${fundedGems} Gems after an eligible consequence` : null].filter(Boolean).join(" + ") || "No configured reward"}
                   funding={drop?.linked_moment_id ? "Linked Moment pool" : "Activation allocation"}
                   proof="Attributed contribution"
                   settlement="After review"
@@ -265,7 +290,17 @@ export default function ContentDropDetail() {
               </CardContent>
             </Card>
 
-            {leaderboard.length ? (
+            {leaderboardQuery.isLoading ? (
+              <Card className="border-white/10 bg-white/[0.045] text-white"><CardContent className="p-4 text-sm text-white/50">Loading contribution activity…</CardContent></Card>
+            ) : leaderboardQuery.error ? (
+              <Card className="border-red-500/20 bg-red-500/5 text-white">
+                <CardContent className="p-4 text-sm text-white/60">
+                  <p className="font-bold text-white">Contribution activity unavailable.</p>
+                  <p className="mt-1">We couldn’t load leaderboard activity right now.</p>
+                  <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white hover:bg-white/10" onClick={() => leaderboardQuery.refetch()}>Retry contribution source</Button>
+                </CardContent>
+              </Card>
+            ) : leaderboard.length ? (
               <ContributionReceipt
                 title={t("dropDetail.leaderboard")}
                 items={leaderboard.map((row) => ({

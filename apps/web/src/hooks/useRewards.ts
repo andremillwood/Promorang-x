@@ -52,25 +52,34 @@ export function useClaimReward() {
 
   return useMutation({
     mutationFn: async (rewardId: string) => {
-      const { error } = await supabase
+      if (!user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase
         .from("rewards")
         .update({
           status: "claimed",
           claimed_at: new Date().toISOString(),
         })
-        .eq("id", rewardId);
+        .eq("id", rewardId)
+        .eq("user_id", user.id)
+        .eq("status", "earned")
+        .select("*")
+        .maybeSingle();
 
       if (error) throw error;
-      return true;
+      if (!data) throw new Error("Reward is unavailable or has already been claimed");
+      return data as Reward;
     },
-    onSuccess: () => {
+    onSuccess: (reward) => {
       toast({
-        title: "Reward claimed! 🎉",
-        description: "Show your redemption code to claim your reward.",
+        title: "Reward claim recorded",
+        description: reward.redemption_code
+          ? "Your recorded redemption credential is now available. Merchant validation is still required."
+          : "The claim is recorded. Redemption remains pending until an issuer credential or fulfillment record is available.",
       });
       queryClient.invalidateQueries({ queryKey: ["user-rewards", user?.id] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: "Failed to claim reward",
         description: error.message,

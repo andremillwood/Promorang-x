@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, CheckCircle2, Radio, Ticket, Users } from "lucide-react";
 import SEO from "@/components/SEO";
-import { cultureEvents } from "@/data/culture-demo";
 import { HostSyndicateSimulator } from "@/components/value/HostSyndicateSimulator";
+import heroMoments from "@/assets/hero-moments.jpg";
+import momentConcert from "@/assets/moment-concert.jpg";
 
 const operatingLoop = [
   { icon: Radio, label: "Publish", text: "Put a moment into the world with a clear reason to show up." },
@@ -20,7 +21,7 @@ export default function OrganizerLanding() {
       />
 
       <section className="relative min-h-[680px] overflow-hidden border-b border-white/10 pt-20">
-        <img src={cultureEvents[3].image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
+        <img src={heroMoments} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_35%,rgba(255,106,0,.22),transparent_30%),linear-gradient(90deg,#050505_5%,rgba(5,5,5,.92)_50%,rgba(5,5,5,.35))]" />
         <div className="container relative grid min-h-[600px] gap-10 px-6 py-16 lg:grid-cols-[1fr_390px] lg:items-end">
           <div>
@@ -42,12 +43,12 @@ export default function OrganizerLanding() {
           </div>
 
           <div className="border-l border-primary/50 bg-black/60 p-6 backdrop-blur-xl">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">One operating view</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">One operating path</p>
             <div className="mt-6 space-y-5">
               {[
-                ["Tonight", cultureEvents[0].shortTitle],
-                ["People moving", cultureEvents[0].attending],
-                ["Proof layer", cultureEvents[0].proof],
+                ["Before", "Publish the Moment and coordinate access"],
+                ["At the door", "Keep RSVP, check-in, and proof distinct"],
+                ["After", "Close the record and decide what returns"],
               ].map(([label, value]) => (
                 <div key={label} className="border-b border-white/10 pb-5 last:border-0 last:pb-0">
                   <p className="text-xs text-white/40">{label}</p>
@@ -59,7 +60,7 @@ export default function OrganizerLanding() {
         </div>
       </section>
 
-      {/* Interactive Production & Syndicate Breakeven Simulator */}
+      {/* Illustrative planning calculator; never operational or financial authority. */}
       <section className="container px-6 py-12">
         <HostSyndicateSimulator />
       </section>
@@ -88,7 +89,7 @@ export default function OrganizerLanding() {
 
       <section className="container px-6 pb-16">
         <div className="relative overflow-hidden rounded-3xl border border-white/10">
-          <img src={cultureEvents[1].image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+          <img src={momentConcert} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/55" />
           <div className="relative flex flex-col gap-8 p-8 md:flex-row md:items-end md:justify-between md:p-12">
             <div>

@@ -74,10 +74,26 @@ export function rememberIntendedStakeholder(
   }
 }
 
+function isAuthIntentSurface(): boolean {
+  if (typeof window === "undefined") return true;
+  const pathname = window.location.pathname;
+  return pathname === "/auth" || pathname.startsWith("/auth/") || pathname === "/post-login";
+}
+
 export function readIntendedStakeholderRole(
-  storage: Pick<Storage, "getItem"> | null | undefined,
+  storage: (Pick<Storage, "getItem"> & Partial<Pick<Storage, "removeItem">>) | null | undefined,
 ): StakeholderNavRole | null {
   if (!storage) return null;
+
+  // Stakeholder intent exists to carry context through authentication and the
+  // immediate post-login redirect. It must not behave like a permanent role
+  // preference once the user is inside the product; otherwise a stale intent
+  // can override an explicit workspace switch (for example Agency -> Participant).
+  if (!isAuthIntentSurface()) {
+    storage.removeItem?.(INTENDED_STAKEHOLDER_ROLE_KEY);
+    return null;
+  }
+
   const stored = storage.getItem(INTENDED_STAKEHOLDER_ROLE_KEY);
   return stored ? normalizeStakeholderRole(stored) : null;
 }

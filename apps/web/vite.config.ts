@@ -31,20 +31,31 @@ export default defineConfig(({ mode }) => {
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
+      "@/components/radar/MomentDetailModal": path.resolve(__dirname, "./src/components/radar/production-safe/MomentDetailModal.tsx"),
+      "@/lib/curated-radar": path.resolve(__dirname, "./src/lib/production-safe/curated-radar.ts"),
+      "@/data/demo-moments": path.resolve(__dirname, "./src/data/production-safe/demo-moments.ts"),
+      "@/data/culture-demo": path.resolve(__dirname, "./src/data/production-safe/culture-demo.ts"),
+      "@/data/discoveriesData": path.resolve(__dirname, "./src/data/production-safe/discoveriesData.ts"),
       "@": path.resolve(__dirname, "./src"),
       "@promorang/shared": path.resolve(__dirname, "../../packages/shared/src/index.ts"),
-      "react": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
+    // npm workspaces may hoist React to the repository root. Dedupe keeps
+    // a single React instance without hard-coding a physical node_modules path,
+    // which also preserves React subpath exports such as react/jsx-dev-runtime.
+    dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
     exclude: ["lovable-tagger"],
-    // Force dedupe of React
-    include: ["react", "react-dom"],
+    include: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
   build: {
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
+      input: {
+        app: path.resolve(__dirname, "index.html"),
+        designLab: path.resolve(__dirname, "design-lab.html"),
+        participantNext: path.resolve(__dirname, "participant-next.html"),
+      },
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom", "react-router-dom"],

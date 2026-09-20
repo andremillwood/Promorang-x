@@ -292,7 +292,7 @@ export function useReviewBountySubmission() {
       toast({
         title: variables.approved ? "Bounty approved! ✅" : "Revision requested",
         description: variables.approved
-          ? "The host will receive their payout."
+          ? "Approval was recorded. Funding, payment, and settlement are separate and are not performed by this workflow."
           : "The host has been notified to make changes.",
       });
       queryClient.invalidateQueries({ queryKey: ["brand-bounties"] });

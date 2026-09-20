@@ -3,6 +3,9 @@ import { Download, X, Share, PlusSquare, Sparkles } from "lucide-react";
 import { triggerHaptic } from "@/lib/nativeWebApis";
 import logo from "@/assets/promorang-logo-full.png";
 import { useI18n } from "@/i18n/I18nContext";
+import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { isParticipantWorldRoute } from "@/lib/participant-world-route";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,12 +14,20 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function PWAInstallPrompt() {
   const { t } = useI18n();
+  const location = useLocation();
+  const { activeRole } = useAuth();
+  const suppressedForParticipantWorld = isParticipantWorldRoute(
+    location.pathname,
+    location.search,
+    activeRole,
+  );
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSPrompt, setShowIOSPrompt] = useState(false);
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (suppressedForParticipantWorld) return;
     if (window.location.pathname.startsWith("/app-preview") || window.location.pathname.startsWith("/drop/")) {
       return;
     }
@@ -61,7 +72,7 @@ export function PWAInstallPrompt() {
 
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
+  }, [suppressedForParticipantWorld]);
 
   const handleInstall = async () => {
     triggerHaptic("medium");
@@ -82,7 +93,7 @@ export function PWAInstallPrompt() {
     localStorage.setItem("promorang:pwa_prompt_dismissed", String(Date.now()));
   };
 
-  if (dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
+  if (suppressedForParticipantWorld || dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
 
   return (
     <aside aria-label={t("pwa.installTitle")} className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-3xl bg-[#0e0e11]/95 border border-primary/30 p-4 shadow-2xl backdrop-blur-2xl text-white animate-in slide-in-from-bottom-5 duration-300">

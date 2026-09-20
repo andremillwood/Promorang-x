@@ -30,11 +30,9 @@ export const MerchantRoiSimulator: React.FC = () => {
   const economics = useMemo(() => {
     const grossRevenue = monthlyVisits * avgTicket;
     const perkCost = monthlyVisits * perkValue;
-    // Typical food & beverage variable margin ~65%
+    // Scenario assumptions only; these are not observed Promorang economics.
     const grossMargin = grossRevenue * 0.65;
     const netProfitLift = grossMargin - perkCost;
-
-    // Traditional Ad Comparison (Meta/Google: ~$80 CPA in competitive dining/nightlife with high bounce)
     const traditionalAdCost = monthlyVisits * 48;
     const wastedAdSpendSaved = Math.max(0, traditionalAdCost - monthlyVisits * 5);
 
@@ -60,10 +58,10 @@ export const MerchantRoiSimulator: React.FC = () => {
             Merchant Foot-Traffic Simulator
           </div>
           <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Zero-Waste Verified Foot-Traffic Model
+            Merchant Scenario Model
           </h3>
           <p className="text-sm text-white/60 mt-1 max-w-xl">
-            Never pay for dead clicks or impressions. Calculate your projected net margin gain with verified in-person diner arrivals.
+            Model a hypothetical merchant activation using your own assumptions. Outputs are illustrative estimates, not Promorang performance, verified demand, or guaranteed ROI.
           </p>
         </div>
 
@@ -71,8 +69,12 @@ export const MerchantRoiSimulator: React.FC = () => {
           variant="outline"
           className="self-start md:self-auto border-emerald-500/40 bg-emerald-500/10 text-emerald-400 font-mono text-xs px-3 py-1.5"
         >
-          100% IN-PERSON VERIFIED
+          ILLUSTRATIVE SCENARIO
         </Badge>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-amber-400/20 bg-amber-400/[0.06] p-4 text-xs leading-5 text-amber-100/75">
+        <strong>Scenario assumptions:</strong> this calculator uses a 65% gross-margin assumption and a hypothetical $48 comparison acquisition cost. Change the inputs to explore a case; none of these values are live Promorang benchmarks or promises.
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -134,9 +136,9 @@ export const MerchantRoiSimulator: React.FC = () => {
             {/* Monthly In-Person Visits Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-white/90">Simulated Monthly Verified Guests</span>
+                <span className="font-semibold text-white/90">Assumed Monthly Arrivals</span>
                 <span className="font-mono text-amber-400 font-bold text-sm">
-                  {monthlyVisits} verified tables/guests
+                  {monthlyVisits} assumed tables/guests
                 </span>
               </div>
               <Slider
@@ -176,25 +178,25 @@ export const MerchantRoiSimulator: React.FC = () => {
           {/* Metric Comparison Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-white/50">Gross Tab Revenue</div>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-white/50">Illustrative Gross Sales</div>
               <div className="text-lg md:text-xl font-black text-white mt-1">
                 ${economics.grossRevenue.toLocaleString()}
               </div>
-              <div className="text-[10px] text-emerald-400/80 mt-0.5">Direct register sales</div>
+              <div className="text-[10px] text-emerald-400/80 mt-0.5">Assumption: arrivals × average check</div>
             </div>
             <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-emerald-300">Projected Net Lift</div>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-emerald-300">Illustrative Contribution</div>
               <div className="text-lg md:text-xl font-black text-emerald-400 mt-1">
                 +${Math.round(economics.netProfitLift).toLocaleString()}
               </div>
-              <div className="text-[10px] text-emerald-300/80 mt-0.5">After perk cost</div>
+              <div className="text-[10px] text-emerald-300/80 mt-0.5">Using the scenario margin assumption</div>
             </div>
             <div className="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-amber-300">Wasted Ad Spend Saved</div>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-amber-300">Illustrative Ad-Cost Difference</div>
               <div className="text-lg md:text-xl font-black text-amber-400 mt-1">
                 ${Math.round(economics.wastedAdSpendSaved).toLocaleString()}
               </div>
-              <div className="text-[10px] text-amber-300/80 mt-0.5">vs traditional ads</div>
+              <div className="text-[10px] text-amber-300/80 mt-0.5">Uses a hypothetical comparison cost</div>
             </div>
           </div>
         </div>
@@ -204,10 +206,10 @@ export const MerchantRoiSimulator: React.FC = () => {
           <div className="p-6 rounded-3xl bg-gradient-to-b from-zinc-900 to-zinc-950 border border-amber-500/30 shadow-2xl relative">
             <div className="flex items-center justify-between mb-4">
               <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono uppercase tracking-widest px-2.5 py-0.5">
-                LIVE PASS MOCKUP
+                EXAMPLE PASS MOCKUP
               </Badge>
               <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> READY TO MINT
+                <ShieldCheck className="w-3.5 h-3.5" /> NOT AN ISSUED PASS
               </span>
             </div>
 
@@ -225,7 +227,7 @@ export const MerchantRoiSimulator: React.FC = () => {
 
             <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/50">
               <span>Zero Upfront Listing Fee</span>
-              <span className="text-emerald-400 font-bold">100% Performance-Based</span>
+              <span className="text-emerald-400 font-bold">Scenario only</span>
             </div>
           </div>
 
@@ -233,10 +235,10 @@ export const MerchantRoiSimulator: React.FC = () => {
           <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-3">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
               <CheckCircle2 className="w-4 h-4" />
-              Claim This Pass in 60 Seconds
+              Continue with this planning scenario
             </div>
             <p className="text-xs text-white/70">
-              Lock in your projected <strong>+${Math.round(economics.netProfitLift).toLocaleString()}</strong> monthly margin gain. No credit card required.
+              Use this estimate as a planning input only. Actual demand, costs, verification, fulfillment and commercial terms require recorded platform activity and an agreed offer.
             </p>
             <Button
               asChild
@@ -249,7 +251,7 @@ export const MerchantRoiSimulator: React.FC = () => {
                   economics.netProfitLift
                 )}`}
               >
-                Claim & Activate Pass for {venueName || "My Venue"}
+                Continue with {venueName || "My Venue"}
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Link>
             </Button>

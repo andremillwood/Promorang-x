@@ -14,8 +14,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Target, DollarSign, Users, Calendar, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
-import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
+import streetArt from "@/assets/moments/street-art.jpg";
 
 const categories = [
     { value: "social", label: "Social" },
@@ -40,7 +40,7 @@ const CreateBounty = () => {
         requirements: "",
         category: "social",
         location: "",
-        minParticipants: "10",
+        minParticipants: "",
         payoutAmount: "",
         expiresAt: "",
     });
@@ -56,7 +56,7 @@ const CreateBounty = () => {
             requirements: formData.requirements,
             target_category: formData.category,
             target_location: formData.location || null,
-            target_min_participants: parseInt(formData.minParticipants),
+            target_min_participants: parseInt(formData.minParticipants, 10),
             payout_amount: parseFloat(formData.payoutAmount),
             expires_at: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : undefined,
         });
@@ -73,7 +73,7 @@ const CreateBounty = () => {
         <div className="min-h-screen bg-[#090909] pb-16 text-white">
             {/* Header */}
             <section className="relative overflow-hidden border-b border-white/10">
-                <img src={cultureImages.streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+                <img src={streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/40" />
             <div className="relative mx-auto max-w-5xl px-5 pb-10 pt-20 sm:px-8">
                 <Button
@@ -179,6 +179,7 @@ const CreateBounty = () => {
                                 min="1"
                                 value={formData.minParticipants}
                                 onChange={(e) => setFormData({ ...formData, minParticipants: e.target.value })}
+                                required
                             />
                         </div>
                         <div>
@@ -201,8 +202,8 @@ const CreateBounty = () => {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="min-w-0">
                             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">03 · Backing</p>
-                            <h2 className="mt-2 text-2xl font-black">Fund the approved outcome</h2>
-                            <p className="mt-1 text-sm text-white/45">The host earns this when the agreed proof is approved.</p>
+                            <h2 className="mt-2 text-2xl font-black">Propose the outcome value</h2>
+                            <p className="mt-1 text-sm text-white/45">This records a proposed payout amount. It does not fund, hold, or settle money.</p>
                         </div>
                         <div className="flex h-14 w-14 items-center justify-center rounded-md bg-orange-500 text-black">
                             <DollarSign className="w-7 h-7" />
@@ -225,7 +226,7 @@ const CreateBounty = () => {
                     </div>
 
                     <p className="text-xs leading-5 text-white/45">
-                        A 20% platform fee is added transparently. Funds are held until the agreed proof is reviewed.
+                        The current bounty record does not create an escrow or payment obligation. Funding and settlement require a separate recorded contract.
                     </p>
                 </div>
 
@@ -235,9 +236,9 @@ const CreateBounty = () => {
                         <Sparkles className="h-6 w-6 text-orange-400" />
                         <h3 className="mt-6 text-xl font-black">A strong bounty is easy to judge.</h3>
                         <div className="mt-6 space-y-5">
-                            {[["Promise", formData.title || "Name the outcome"], ["Proof", formData.requirements || "Define acceptance"], ["Unlock", formData.payoutAmount ? `$${formData.payoutAmount} on approval` : "Set funded value"]].map(([label, value], index) => <div key={label} className="flex gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-xs text-orange-400">{index + 1}</span><div><p className="text-xs font-bold uppercase tracking-wider text-white/35">{label}</p><p className="mt-1 line-clamp-2 text-sm font-semibold text-white/75">{value}</p></div></div>)}
+                            {[["Promise", formData.title || "Name the outcome"], ["Proof", formData.requirements || "Define acceptance"], ["Proposed value", formData.payoutAmount ? `$${formData.payoutAmount} proposed` : "Set a proposed amount"]].map(([label, value], index) => <div key={label} className="flex gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-xs text-orange-400">{index + 1}</span><div><p className="text-xs font-bold uppercase tracking-wider text-white/35">{label}</p><p className="mt-1 line-clamp-2 text-sm font-semibold text-white/75">{value}</p></div></div>)}
                         </div>
-                        <div className="mt-6 flex items-center gap-2 border-t border-white/10 pt-5 text-xs text-white/40"><ShieldCheck className="h-4 w-4 text-emerald-400" /> Approval releases the funded payout.</div>
+                        <div className="mt-6 flex items-center gap-2 border-t border-white/10 pt-5 text-xs text-white/40"><ShieldCheck className="h-4 w-4 text-emerald-400" /> Approval records review state; it does not prove payment or settlement.</div>
                     </div>
                 {/* Submit */}
                 <div className="flex flex-col gap-3">
@@ -252,9 +253,9 @@ const CreateBounty = () => {
                     <Button
                         type="submit"
                         className="h-14 bg-orange-500 text-base font-black text-black hover:bg-orange-400"
-                        disabled={createBounty.isPending || !formData.title || !formData.payoutAmount}
+                        disabled={createBounty.isPending || !formData.title || !formData.payoutAmount || !formData.minParticipants}
                     >
-                        {createBounty.isPending ? "Publishing brief..." : "Publish funded brief"} <ArrowRight className="ml-2 h-4 w-4" />
+                        {createBounty.isPending ? "Publishing proposal..." : "Publish open proposal"} <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                 </div>
                 </aside>

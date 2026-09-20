@@ -9,7 +9,7 @@ const { supabase } = require('../../lib/supabase');
  */
 router.post('/claim', requireApiKeyOrAuth(['coupons:claim']), async (req, res) => {
   try {
-    const { opportunityId, couponId, recipientUserId, metadata } = req.body || {};
+    const { opportunityId, couponId, recipientUserId } = req.body || {};
     const targetId = opportunityId || couponId;
     const userId = recipientUserId || req.user?.id;
 
@@ -21,44 +21,18 @@ router.post('/claim', requireApiKeyOrAuth(['coupons:claim']), async (req, res) =
       });
     }
 
-    if (!supabase) {
-      // Demo mock response
-      return res.json({
-        success: true,
-        data: {
-          receiptId: `rcpt_${Date.now()}`,
-          claimCode: `PROMO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          opportunityId: targetId,
-          userId: userId || 'agent-invoked',
-          status: 'claimed',
-          claimedAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 86400000 * 2).toISOString(),
-          rewardGems: 75,
-          qrPayload: `promorang://redeem/rcpt_${Date.now()}`
-        },
-        message: 'Coupon claimed successfully via Headless API'
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'A recipient user is required',
+        code: 'MISSING_RECIPIENT_USER'
       });
     }
 
-    // Call Supabase RPC or table insert for claim
-    const { data: claimRecord, error } = await supabase
-      .from('participations')
-      .insert({
-        user_id: userId,
-        drop_id: targetId,
-        status: 'claimed',
-        metadata: metadata || {},
-        created_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return res.json({
-      success: true,
-      data: claimRecord,
-      message: 'Promotion claimed successfully'
+    return res.status(503).json({
+      success: false,
+      error: 'Headless coupon claims are unavailable until eligibility, inventory, credential issuance and value delivery share an atomic contract',
+      code: 'HEADLESS_COUPON_ATOMICITY_PENDING'
     });
   } catch (err) {
     console.error('[API v1 /coupons/claim] Error:', err);
@@ -75,15 +49,10 @@ router.get('/:id', requireApiKeyOrAuth(['feed:read']), async (req, res) => {
     const { id } = req.params;
 
     if (!supabase) {
-      return res.json({
-        success: true,
-        data: {
-          id,
-          title: 'Special Nitro Cold Brew',
-          discount: '20% OFF',
-          merchant: 'Devon House Cafe',
-          status: 'active'
-        }
+      return res.status(503).json({
+        success: false,
+        error: 'Coupon source unavailable',
+        code: 'COUPON_SOURCE_UNAVAILABLE'
       });
     }
 
@@ -93,7 +62,8 @@ router.get('/:id', requireApiKeyOrAuth(['feed:read']), async (req, res) => {
       .eq('id', id)
       .maybeSingle();
 
-    if (error || !coupon) {
+    if (error) throw error;
+    if (!coupon) {
       return res.status(404).json({ success: false, error: 'Coupon not found', code: 'COUPON_NOT_FOUND' });
     }
 

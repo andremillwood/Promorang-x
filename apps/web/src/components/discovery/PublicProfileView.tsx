@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { useUserDiscovery } from '@/hooks/useUserDiscovery';
-import { useStakeholderLeverage } from '@/hooks/useStakeholderLeverage';
 
 interface PublicProfileViewProps {
   userId: string;
@@ -15,18 +14,22 @@ interface PublicProfileViewProps {
 
 export function PublicProfileView({ userId }: PublicProfileViewProps) {
   const { usePublicProfile, useMyFollowing, followUser, unfollowUser } = useUserDiscovery();
-  const { useUserJourneys, useUserIdentityMarkers } = useStakeholderLeverage();
   
-  const { data: profile, isLoading: profileLoading } = usePublicProfile(userId);
-  const { data: journeys, isLoading: journeysLoading } = useUserJourneys();
-  const { data: identityMarkers, isLoading: markersLoading } = useUserIdentityMarkers();
-  const { data: myFollowing } = useMyFollowing();
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    error: profileError,
+    refetch: refetchProfile,
+  } = usePublicProfile(userId);
+  const {
+    data: myFollowing,
+    isLoading: followingLoading,
+    error: followingError,
+  } = useMyFollowing();
 
   const isFollowing = myFollowing?.some((f: any) => f.following_id === userId);
-  const userJourneys = journeys?.filter(j => j.user_id === userId) || [];
-  const userMarkers = identityMarkers?.filter(m => m.user_id === userId && m.is_user_confirmed) || [];
 
-  if (profileLoading || journeysLoading || markersLoading) {
+  if (profileLoading) {
     return (
       <Card className="w-full">
         <CardContent className="p-8">
@@ -38,6 +41,20 @@ export function PublicProfileView({ userId }: PublicProfileViewProps) {
             </div>
           </div>
           <Skeleton className="h-32" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (profileError) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="font-semibold text-foreground">Profile source unavailable</p>
+          <p className="mt-2 text-sm text-muted-foreground">PROMORANG could not verify this public profile right now.</p>
+          <Button type="button" variant="outline" className="mt-4" onClick={() => refetchProfile()}>
+            Retry profile source
+          </Button>
         </CardContent>
       </Card>
     );
@@ -74,7 +91,11 @@ export function PublicProfileView({ userId }: PublicProfileViewProps) {
                 </div>
                 
                 <div className="flex gap-2">
-                  {isFollowing ? (
+                  {followingLoading ? (
+                    <Button variant="outline" disabled>Checking follow…</Button>
+                  ) : followingError ? (
+                    <Button variant="outline" disabled>Follow unavailable</Button>
+                  ) : isFollowing ? (
                     <Button variant="outline" onClick={() => unfollowUser.mutate(userId)}>
                       <UserCheck className="w-4 h-4 mr-1" />
                       Following

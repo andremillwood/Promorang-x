@@ -722,7 +722,7 @@ export default function MidasCommercialProposal() {
                 <p className="text-xs text-stone-300 leading-relaxed">
                   We deploy <strong>PromoPush on-site missions</strong>: turning partygoers into active micro-promoters who post with your sponsors' drinks and check in at sponsor tents to earn points and rewards.
                 </p>
-                <span className="text-[10px] font-mono text-[#ff5a1f] block pt-2 border-t border-white/10">100+ organic UGC videos per event</span>
+                <span className="text-[10px] font-mono text-[#ff5a1f] block pt-2 border-t border-white/10">UGC volume is a campaign target; only recorded submissions and approved assets count.</span>
               </div>
 
               {/* 2. What Midas Gets */}
@@ -732,9 +732,9 @@ export default function MidasCommercialProposal() {
                 </div>
                 <h4 className="font-serif text-lg font-bold text-white">2. What Midas Gets</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  Midas earns a <strong>15%–20% Host Cash Commission</strong> on all brand campaign budgets placed through PromoPush for your events (e.g. J$1M sponsor pool = <strong>J$150k–J$200k profit</strong> to Midas).
+                  Proposed commercial structure: a <strong>15%–20% host commission</strong> on eligible brand campaign budgets placed through PromoPush for Midas events. For example, a J$1M eligible sponsor budget would imply <strong>J$150k–J$200k gross commission</strong> before costs, subject to agreed terms and actual booked budget.
                 </p>
-                <span className="text-[10px] font-mono text-emerald-300 block pt-2 border-t border-white/10">Pure incremental revenue for Midas</span>
+                <span className="text-[10px] font-mono text-emerald-300 block pt-2 border-t border-white/10">Illustrative commission scenario — not a guaranteed profit outcome.</span>
               </div>
 
               {/* 3. What Your Sponsors Get */}
@@ -744,9 +744,9 @@ export default function MidasCommercialProposal() {
                 </div>
                 <h4 className="font-serif text-lg font-bold text-white">3. What Your Sponsors Get</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
-                  Sponsors get <strong>guaranteed foot traffic</strong>, verified cocktail redemptions, hundreds of TikTok/Reel mentions, and a real-time analytics dashboard proving exact return on investment.
+                  Sponsors can target in-person traffic, configure redemption and content proof, and review recorded outcomes such as eligible arrivals, cocktail redemptions, attributed content, and campaign activity. Traffic, content volume, and ROI depend on execution and are not guaranteed.
                 </p>
-                <span className="text-[10px] font-mono text-[#ffcf38] block pt-2 border-t border-white/10">10x measurable ROI vs static banners</span>
+                <span className="text-[10px] font-mono text-[#ffcf38] block pt-2 border-t border-white/10">Compare recorded outcomes with spend and baseline performance after the campaign.</span>
               </div>
 
             </div>

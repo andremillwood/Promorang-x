@@ -12,6 +12,7 @@ import {
   MousePointerClick,
   Plus,
   QrCode,
+  RefreshCcw,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -92,6 +93,7 @@ export default function PromoPush() {
     proof_verified: sumMetric(campaigns, "proof_verified"),
     rewards_issued: sumMetric(campaigns, "rewards_issued"),
   }), [campaigns]);
+  const campaignMetricsReady = !campaignsQuery.isLoading && !campaignsQuery.error;
 
   const updateForm = (key: keyof typeof defaultForm, value: string | boolean) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -146,7 +148,7 @@ export default function PromoPush() {
             <Card key={metric.key} className="border-white/10 bg-white/[0.04] text-white">
               <CardContent className="p-4">
                 <metric.icon className="mb-3 h-5 w-5 text-[#FF6A00]" />
-                <p className="text-2xl font-black">{totals[metric.key].toLocaleString()}</p>
+                <p className="text-2xl font-black">{campaignMetricsReady ? totals[metric.key].toLocaleString() : "—"}</p>
                 <p className="text-xs font-medium text-white/55">{t(metric.labelKey)}</p>
               </CardContent>
             </Card>
@@ -154,7 +156,7 @@ export default function PromoPush() {
           <Card className="border-[#FFC300]/30 bg-[#FFC300]/10 text-white">
             <CardContent className="p-4">
               <BadgeDollarSign className="mb-3 h-5 w-5 text-[#FFC300]" />
-              <p className="text-2xl font-black">{totals.rewards_issued.toLocaleString()}</p>
+              <p className="text-2xl font-black">{campaignMetricsReady ? totals.rewards_issued.toLocaleString() : "—"}</p>
               <p className="text-xs font-medium text-[#FFC300]/80">{t("promoPush.metricRewardsIssued")}</p>
             </CardContent>
           </Card>
@@ -182,9 +184,9 @@ export default function PromoPush() {
                   </div>
                   <div className="sm:col-span-2">
                     <Label>{t("promoPush.linkedMomentLabel")}</Label>
-                    <Select required value={form.linked_moment_id} onValueChange={(value) => updateForm("linked_moment_id", value)}>
+                    <Select required value={form.linked_moment_id} onValueChange={(value) => updateForm("linked_moment_id", value)} disabled={momentsQuery.isLoading || !!momentsQuery.error}>
                       <SelectTrigger className="mt-2 bg-black/40">
-                        <SelectValue placeholder={t("promoPush.linkedMomentPlaceholder")} />
+                        <SelectValue placeholder={momentsQuery.isLoading ? "Loading Moments…" : t("promoPush.linkedMomentPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(momentsQuery.data || []).map((moment) => (
@@ -192,6 +194,14 @@ export default function PromoPush() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {momentsQuery.error ? (
+                      <div className="mt-2 flex items-center justify-between gap-3 rounded-md border border-red-500/20 bg-red-500/5 p-3 text-xs text-red-100/80">
+                        <span>Moments couldn’t load. Campaign creation is disabled until they’re available again.</span>
+                        <Button type="button" size="sm" variant="outline" className="border-white/15 bg-black/20 text-white" onClick={() => momentsQuery.refetch()}>
+                          <RefreshCcw className="mr-2 h-3.5 w-3.5" />Retry
+                        </Button>
+                      </div>
+                    ) : null}
                   </div>
                   <div>
                     <Label htmlFor="geo_label">{t("promoPush.locationLabel")}</Label>
@@ -233,7 +243,7 @@ export default function PromoPush() {
                     <Checkbox id="creative" checked={form.request_creative_support} onCheckedChange={(value) => updateForm("request_creative_support", value === true)} />
                     <Label htmlFor="creative" className="text-sm text-white/80">{t("promoPush.creativeSupportLabel")}</Label>
                   </div>
-                  <Button disabled={createCampaign.isPending} className="sm:col-span-2 bg-[#FF6A00] text-white hover:bg-[#e65f00]">
+                  <Button disabled={createCampaign.isPending || momentsQuery.isLoading || !!momentsQuery.error} className="sm:col-span-2 bg-[#FF6A00] text-white hover:bg-[#e65f00]">
                     {createCampaign.isPending ? t("promoPush.generatingButton") : t("promoPush.generateButton")}
                   </Button>
                 </CardContent>
@@ -271,6 +281,16 @@ export default function PromoPush() {
           <TabsContent value="track" className="mt-6 space-y-5">
             {campaignsQuery.isLoading ? (
               <p className="text-white/60">{t("promoPush.loading")}</p>
+            ) : campaignsQuery.error ? (
+              <Card className="border-red-500/20 bg-red-500/5 text-white">
+                <CardContent className="p-8 text-center">
+                  <p className="font-black">Campaign records are unavailable.</p>
+                  <p className="mt-2 text-sm text-white/55">PROMORANG will not describe a failed campaign source as zero activity or an empty campaign list.</p>
+                  <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => campaignsQuery.refetch()}>
+                    <RefreshCcw className="mr-2 h-4 w-4" />Retry campaign source
+                  </Button>
+                </CardContent>
+              </Card>
             ) : campaigns.length === 0 ? (
               <Card className="border-dashed border-white/20 bg-white/[0.03] text-white">
                 <CardContent className="p-8 text-center text-white/65">{t("promoPush.emptyTrack")}</CardContent>

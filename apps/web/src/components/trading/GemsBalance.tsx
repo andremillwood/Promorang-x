@@ -24,6 +24,7 @@ export function GemsBalance() {
   const { user, session } = useAuth();
   const [balance, setBalance] = useState<GemsBalanceData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     if (user && session?.access_token) {
@@ -34,6 +35,7 @@ export function GemsBalance() {
   const fetchBalance = async () => {
     if (!session?.access_token) return;
 
+    setLoadFailed(false);
     try {
       const response = await fetch(`${API_BASE_URL}/pieces/gems/balance`, {
         headers: {
@@ -44,9 +46,13 @@ export function GemsBalance() {
       if (response.ok) {
         const data = await response.json();
         setBalance(data);
+      } else {
+        throw new Error(`Balance request failed with ${response.status}`);
       }
     } catch (error) {
       console.error('Failed to fetch Gems balance:', error);
+      setBalance(null);
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
@@ -63,6 +69,17 @@ export function GemsBalance() {
               <div className="h-4 bg-muted rounded w-1/2"></div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (loadFailed) {
+    return (
+      <Card className="w-full border-amber-500/30 bg-amber-500/5">
+        <CardContent className="p-6">
+          <p className="font-semibold">Gems balance unavailable</p>
+          <p className="mt-1 text-sm text-muted-foreground">Trading stays disabled until the recorded balance can be verified.</p>
         </CardContent>
       </Card>
     );

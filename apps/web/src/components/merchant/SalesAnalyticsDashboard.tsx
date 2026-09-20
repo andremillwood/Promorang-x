@@ -43,6 +43,7 @@ const SalesAnalyticsDashboard = () => {
     const [customerInsights, setCustomerInsights] = useState<CustomerInsights | null>(null);
     const [salesOverTime, setSalesOverTime] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
         if (session?.access_token) {
@@ -52,6 +53,7 @@ const SalesAnalyticsDashboard = () => {
 
     const fetchAnalytics = async () => {
         setIsLoading(true);
+        setLoadError(null);
         try {
             const daysAgo = parseInt(timeRange);
             const startDate = new Date();
@@ -62,7 +64,6 @@ const SalesAnalyticsDashboard = () => {
                 endDate: new Date().toISOString(),
             });
 
-            // Fetch all analytics data
             const [summaryRes, topProductsRes, customersRes, salesTimeRes] = await Promise.all([
                 fetch(`${API_URL}/api/merchant/analytics/summary?${params}`, {
                     headers: { 'Authorization': `Bearer ${session?.access_token}` },
@@ -78,6 +79,12 @@ const SalesAnalyticsDashboard = () => {
                 }),
             ]);
 
+            const responses = [summaryRes, topProductsRes, customersRes, salesTimeRes];
+            const failed = responses.find((response) => !response.ok);
+            if (failed) {
+                throw new Error(`Merchant analytics source returned HTTP ${failed.status}`);
+            }
+
             const [summaryData, topProductsData, customersData, salesTimeData] = await Promise.all([
                 summaryRes.json(),
                 topProductsRes.json(),
@@ -86,11 +93,16 @@ const SalesAnalyticsDashboard = () => {
             ]);
 
             setSummary(summaryData);
-            setTopProducts(topProductsData);
+            setTopProducts(Array.isArray(topProductsData) ? topProductsData : []);
             setCustomerInsights(customersData);
-            setSalesOverTime(salesTimeData);
+            setSalesOverTime(Array.isArray(salesTimeData) ? salesTimeData : []);
         } catch (error) {
             console.error('Error fetching analytics:', error);
+            setSummary(null);
+            setTopProducts([]);
+            setCustomerInsights(null);
+            setSalesOverTime([]);
+            setLoadError(error instanceof Error ? error.message : 'Merchant analytics could not be loaded.');
         } finally {
             setIsLoading(false);
         }
@@ -100,6 +112,18 @@ const SalesAnalyticsDashboard = () => {
         return (
             <div className="flex items-center justify-center py-12">
                 <p className="text-muted-foreground">Loading analytics...</p>
+            </div>
+        );
+    }
+
+    if (loadError) {
+        return (
+            <div role="alert" className="rounded-2xl border border-red-500/25 bg-red-500/[.06] p-6">
+                <p className="text-sm font-black text-red-200">Sales analytics could not be loaded.</p>
+                <p className="mt-2 text-xs leading-5 text-red-100/60">{loadError}</p>
+                <p className="mt-3 text-xs leading-5 text-white/40">
+                    PROMORANG is not substituting zero revenue, zero sales or zero customers for an unavailable source.
+                </p>
             </div>
         );
     }

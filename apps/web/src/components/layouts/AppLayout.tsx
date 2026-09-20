@@ -3,10 +3,13 @@ const Outlet = RouterOutlet as any;
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
+import { PublicHomeBar } from "@/components/culture/PublicHomeBar";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
-import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { useState, useEffect } from "react";
+import { ParticipantWorldLayout } from "@/components/layouts/ParticipantWorldLayout";
+import { isParticipantWorldRoute } from "@/lib/participant-world-route";
+import "@/styles/stakeholder-production-world.css";
 
 interface AppLayoutProps {
     children?: React.ReactNode;
@@ -35,14 +38,29 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     }, [profile?.maturity_state]);
 
     const marketingRoutes = [
-        "/", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
+        "/", "/join", "/how-it-works", "/what-is-promorang", "/about", "/pricing", "/solutions", "/business/start", "/hosting",
+        "/developers", "/for-developers", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
-        "/help", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
+        "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
         "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
+    const isPublicDiscoveryRoute = !loading && !user && (
+        location.pathname === "/discover" ||
+        location.pathname.startsWith("/discover/") ||
+        location.pathname.startsWith("/discoveries/") ||
+        location.pathname.startsWith("/moments/") ||
+        location.pathname.startsWith("/scenes/") ||
+        location.pathname.startsWith("/venues/") ||
+        location.pathname.startsWith("/creators/") ||
+        location.pathname.startsWith("/offers/") ||
+        location.pathname.startsWith("/storefront/") ||
+        location.pathname.startsWith("/profile/") ||
+        location.pathname === "/shop" ||
+        location.pathname.startsWith("/shop/")
+    );
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
-    ) || ["/growth", "/organizer"].includes(location.pathname);
+    ) || ["/growth", "/organizer"].includes(location.pathname) || isPublicDiscoveryRoute;
 
     // Consumer preview routes provide their own canonical participant shell and
     // must not inherit DashboardLayout or the marketing header/footer.
@@ -52,7 +70,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname.startsWith("/app-preview/") ||
         (location.pathname === "/" && previewMode === "consumer");
 
-    const isOrganizerWorkspace = location.pathname.startsWith("/organizer/");
     const isDropLanding = location.pathname.startsWith("/drop/");
     const isAftrHrsLanding =
         location.pathname === "/aftrhrs" ||
@@ -62,14 +79,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding || isAftrHrsLanding;
     const showFooterCta = !["/live", "/pulse"].includes(location.pathname);
 
-    if (isConsumerPreview || isOrganizerWorkspace || isDropLanding || isAftrHrsLanding) {
+    const isPrivateCommunity = location.pathname === "/community" || location.pathname.startsWith("/community/");
+    if (isConsumerPreview || isDropLanding || isAftrHrsLanding || isPrivateCommunity) {
         return <>{children || <Outlet />}</>;
     }
 
     if (isMarketingRoute) {
         return (
             <div className="flex min-h-screen flex-col overflow-x-clip">
-                {!isCleanPage && <Header />}
+                {!isCleanPage && <PublicHomeBar />}
                 <main className="flex-1 overflow-x-clip">
                     {children || <Outlet />}
                 </main>
@@ -86,12 +104,28 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         );
     }
 
-    if (user && !isCleanPage) {
+    const isParticipantWorld = isParticipantWorldRoute(
+        location.pathname,
+        location.search,
+        activeRole,
+    );
+
+    if (user && isParticipantWorld) {
         return (
-            <DashboardLayout currentRole={(activeRole || "participant") as any}>
+            <ParticipantWorldLayout>
                 {children || <Outlet />}
-                <PWAInstallPrompt />
-            </DashboardLayout>
+            </ParticipantWorldLayout>
+        );
+    }
+
+    if (user && !isCleanPage) {
+        const stakeholderRole = activeRole || "participant";
+        return (
+            <div data-stakeholder-world data-stakeholder-role={stakeholderRole}>
+                <DashboardLayout currentRole={stakeholderRole as any}>
+                    {children || <Outlet />}
+                </DashboardLayout>
+            </div>
         );
     }
 
@@ -108,7 +142,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 currentRank={currentRank || 0}
                 onClose={() => setShowRankCelebration(false)}
             />
-            <PWAInstallPrompt />
         </div>
     );
 };

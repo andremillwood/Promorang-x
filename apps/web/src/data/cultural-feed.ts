@@ -1,10 +1,13 @@
-import type { FeedItem } from "@/services/feed";
-import type { FeedIntent } from "@/services/feed";
+import type { FeedItem, FeedIntent } from "@/services/feed";
 import { cultureCreators, cultureEvents, cultureImages } from "@/data/culture-demo";
+
+// These records exist only to support local development and visual tests.
+// Production feeds must be honestly empty when live services have no records.
+const ALLOW_DEMO_FEED = import.meta.env.DEV || import.meta.env.MODE === "test";
 
 const [market, barber, recovery, streetwear] = cultureEvents;
 
-export const culturalFeedFallback: FeedItem[] = [
+const demoCulturalFeedFallback: FeedItem[] = [
   {
     id: "feed:moment:market-ritual",
     object_type: "moment",
@@ -103,7 +106,10 @@ export const culturalFeedFallback: FeedItem[] = [
   },
 ];
 
+export const culturalFeedFallback: FeedItem[] = ALLOW_DEMO_FEED ? demoCulturalFeedFallback : [];
+
 export const getCulturalFeedFallback = (intent: FeedIntent | null) => {
+  if (!ALLOW_DEMO_FEED) return [];
   if (intent === "nearby") return culturalFeedFallback.filter((item) => ["moment", "product", "content"].includes(item.object_type));
   if (intent === "tonight") return culturalFeedFallback.filter((item) => ["moment", "content"].includes(item.object_type));
   if (intent === "earn") return culturalFeedFallback.filter((item) => ["drop", "offer", "product", "piece"].includes(item.object_type));

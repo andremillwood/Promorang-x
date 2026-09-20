@@ -1,354 +1,146 @@
+import { useMemo } from "react";
+import { ArrowRight, MapPin, ShieldCheck, Sparkles, Store } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import MarketingPromiseStrip from "@/components/MarketingPromiseStrip";
-import PioneerCallout from "@/components/pioneer/PioneerCallout";
-import { MissionRoleValue } from "@/components/marketing/MissionRoleValue";
-import { LeadMagnetGateway } from "@/components/LeadMagnetGateway";
-import { MerchantRoiSimulator } from "@/components/value/MerchantRoiSimulator";
-import { PromoCardEconomyExplainer } from "@/components/promocard";
-import { PromoCardFace } from "@/components/promorang/SignatureObjects";
-import {
-    buildMerchantDemandOpening,
-    merchantAuthHref,
-    readMerchantDemand,
-} from "@/lib/merchant-demand";
+import { useAuth } from "@/contexts/AuthContext";
+import { useMarket } from "@/contexts/MarketContext";
+import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
+import { buildMerchantDemandOpening, merchantAuthHref, readMerchantDemand } from "@/lib/merchant-demand";
+import { discoveryHref } from "@/lib/discovery-path";
+import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
+import { NightTrail, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
 
-import {
-    Store,
-    Users,
-    TrendingUp,
-    ArrowRight,
-    MapPin,
-    ShieldCheck,
-    Lock,
-    Sparkles,
-    Plus,
-} from "lucide-react";
-import { useI18n } from "@/i18n/I18nContext";
-import { TranslationKey } from "@/i18n/translations";
+function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
+  if (votesRemaining === 0) return "threshold_met" as const;
+  if (closeness === "unlocking") return "near_threshold" as const;
+  return closeness;
+}
 
-const ForMerchants = () => {
-    const { user } = useAuth();
-    const [searchParams] = useSearchParams();
-    const claimVenue = searchParams.get("claimVenue") || searchParams.get("venue");
-    const { t } = useI18n();
-    const demandAnswers = readMerchantDemand(searchParams);
-    const demand = demandAnswers ? buildMerchantDemandOpening(demandAnswers) : null;
-    const putPerkHref = merchantAuthHref(user, "/stock");
-    const registerHref = merchantAuthHref(user, "/dashboard/venues/add");
+const merchantOutcomeIds = ["bring-people-in", "quiet-period", "move-this", "bring-back", "launch", "learn-demand"];
+const merchantProgrammeIds = ["first-50", "quiet-hours", "move-this", "bring-them-back", "what-do-they-want"];
 
-    const merchantBenefits: Array<{ icon: typeof MapPin; titleKey: TranslationKey; descKey: TranslationKey }> = [
-        {
-            icon: MapPin,
-            titleKey: "forMerchants.benefit1Title",
-            descKey: "forMerchants.benefit1Desc",
-        },
-        {
-            icon: Users,
-            titleKey: "forMerchants.benefit2Title",
-            descKey: "forMerchants.benefit2Desc",
-        },
-        {
-            icon: ShieldCheck,
-            titleKey: "forMerchants.benefit3Title",
-            descKey: "forMerchants.benefit3Desc",
-        },
-        {
-            icon: TrendingUp,
-            titleKey: "forMerchants.benefit4Title",
-            descKey: "forMerchants.benefit4Desc",
-        },
-    ];
+export default function ForMerchants() {
+  const { user } = useAuth();
+  const { city, country } = useMarket();
+  const [searchParams] = useSearchParams();
+  const claimVenue = searchParams.get("claimVenue") || searchParams.get("venue");
+  const demandAnswers = readMerchantDemand(searchParams);
+  const demand = demandAnswers ? buildMerchantDemandOpening(demandAnswers) : null;
+  const registerHref = merchantAuthHref(user, "/dashboard/venues/add");
+  const { inbox, isLoading } = useDiscoveryDemand(city.name, country.slug || "jamaica", city.id === "all-jamaica" ? undefined : city.id);
+  const liveSignals = useMemo(() => inbox.questions.slice(0, 2), [inbox.questions]);
+  const outcomes = BUSINESS_OUTCOMES.filter((item) => merchantOutcomeIds.includes(item.id));
+  const programmes = PROGRAMMES.filter((item) => merchantProgrammeIds.includes(item.id));
 
-    const stats: Array<{ valKey: TranslationKey; labelKey: TranslationKey }> = [
-        { valKey: "forMerchants.statVisits", labelKey: "forMerchants.statVisitsLabel" },
-        { valKey: "forMerchants.statOffers", labelKey: "forMerchants.statOffersLabel" },
-        { valKey: "forMerchants.statProof", labelKey: "forMerchants.statProofLabel" },
-        { valKey: "forMerchants.statCost", labelKey: "forMerchants.statCostLabel" },
-    ];
+  return (
+    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
+      <SEO title={claimVenue ? `${claimVenue} on PROMORANG` : "PROMORANG for Merchants — Start with the business result"} description="More visits, stronger quiet periods, product movement and repeat business. Start with the outcome and let PROMORANG help shape the response." />
 
-    return (
-        <div className="marketing-refined min-h-screen bg-background">
-            <SEO
-                title={claimVenue ? t("forMerchants.seoTitleClaim", { venue: claimVenue }) : t("forMerchants.seoTitle")}
-                description={t("forMerchants.seoDescription")}
-                type="website"
-            />
+      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <CurrentArc variant="hero" className="marketing-hero-current" />
+        <div className="relative mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[1fr_.86fr] lg:items-center">
+          <div>
+            <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300"><Store className="h-4 w-4" /> For merchants & places</p>
+            <h1 className="mt-6 max-w-5xl font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-7xl">What would make this a better week for your business?</h1>
+            <p className="mt-7 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">More people through the door. A busier slow period. Movement around one item. First-time customers coming back. Start there—not with campaign mechanics.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-emerald-400 px-6 text-sm font-black text-black">Choose a business outcome <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">See what people nearby want</Link>
+            </div>
 
-            {/* Hero Section */}
-            <section className="relative overflow-hidden border-b border-white/5 bg-charcoal pb-16 pt-28 md:pb-32 md:pt-40">
-                <div className="absolute inset-0 bg-emerald-500/5 blur-3xl rounded-full -top-24 -left-24" />
-                <div className="container relative z-10 px-4 sm:px-6">
-                    <div className="max-w-4xl mx-auto text-center">
-                        {claimVenue ? (
-                            <div className="mb-8 p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 mb-3">
-                                    <ShieldCheck className="w-4 h-4" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">{t("forMerchants.unclaimedBadge")}</span>
-                                </div>
-                                <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">
-                                    {t("forMerchants.claimQuestion")} <span className="text-amber-400">{claimVenue}</span>?
-                                </h2>
-                                <p className="text-sm text-white/70 max-w-xl mx-auto mb-5">
-                                    {t("forMerchants.claimCopy")}
-                                </p>
-                                <Button variant="hero" size="lg" className="bg-amber-500 hover:bg-amber-600 text-gray-950 font-black shadow-lg shadow-amber-500/20" asChild>
-                                    <Link to={`/dashboard/venues/add?name=${encodeURIComponent(claimVenue)}`}>
-                                        <Sparkles className="w-4 h-4 mr-2" />
-                                        {t("forMerchants.claimButton", { venue: claimVenue })}
-                                        <ArrowRight className="w-4 h-4 ml-2" />
-                                    </Link>
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-8">
-                                <Store className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">{t("forMerchants.badge")}</span>
-                            </div>
-                        )}
+            {claimVenue ? (
+              <div className="mt-7 max-w-2xl rounded-[1.6rem] border border-amber-300/20 bg-amber-300/[0.07] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">Is this your place?</p>
+                <p className="mt-2 font-serif text-2xl font-bold">{claimVenue}</p>
+                <p className="mt-2 text-sm leading-6 text-white/55">Claim the place to manage how it appears and connect real offers, Moments and updates to the right location.</p>
+                <Link to={`${registerHref}${registerHref.includes("?") ? "&" : "?"}name=${encodeURIComponent(claimVenue)}`} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-amber-300 px-5 text-sm font-black text-black">Claim this place <ArrowRight className="h-4 w-4" /></Link>
+              </div>
+            ) : null}
 
-                        <h1 className="mx-auto mb-6 max-w-[20rem] break-words text-5xl font-black uppercase leading-[0.88] tracking-[-0.065em] text-white sm:max-w-4xl sm:text-6xl md:text-7xl">
-                            {t("forMerchants.heroTitle1")} <span className="text-primary">{t("forMerchants.heroTitle2")}</span>
-                        </h1>
+            {demand ? (
+              <div className="mt-7 max-w-2xl rounded-[1.6rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">Your saved demand brief</p>
+                <p className="mt-2 font-serif text-xl font-bold">{demand.window}</p>
+                <p className="mt-3 text-sm leading-6 text-white/55">{demand.when} · {demand.who}</p>
+              </div>
+            ) : null}
+          </div>
 
-                        <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-white/60 sm:text-lg md:text-xl">
-                            {t("forMerchants.heroCopy")}
-                        </p>
-
-                        <MarketingPromiseStrip
-                            variant="dark"
-                            className="mx-auto mb-8 max-w-5xl text-left"
-                            items={[
-                                { label: t("forMerchants.promiseSituationLabel"), text: t("forMerchants.promiseSituationText") },
-                                { label: t("forMerchants.promisePossibleLabel"), text: t("forMerchants.promisePossibleText") },
-                                { label: t("forMerchants.promiseNextLabel"), text: t("forMerchants.promiseNextText") },
-                            ]}
-                        />
-
-                        {demand ? (
-                            <div className="mx-auto mb-10 max-w-3xl rounded-[1.75rem] border border-emerald-400/25 bg-emerald-400/10 p-5 text-left sm:p-6">
-                                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{t("forMerchants.demandBannerTitle")}</p>
-                                <p className="mt-2 text-lg font-black text-white">{demand.window}</p>
-                                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                    {[
-                                        { label: t("forMerchants.demandWhenLabel"), text: demand.when },
-                                        { label: t("forMerchants.demandWhoLabel"), text: demand.who },
-                                        { label: t("forMerchants.demandOfferLabel"), text: demand.offer },
-                                        { label: t("forMerchants.demandWinLabel"), text: demand.win },
-                                    ].map((item) => (
-                                        <div key={item.label} className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">{item.label}</p>
-                                            <p className="mt-2 text-sm leading-6 text-white/75">{item.text}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100">
-                                    <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">{t("forMerchants.demandPerkLabel")}</span>
-                                    {demand.perkExample}
-                                </p>
-                            </div>
-                        ) : null}
-
-                        <div className="grid gap-3 sm:grid-cols-3">
-                            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-left">
-                                <Button
-                                    size="lg"
-                                    asChild
-                                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black"
-                                >
-                                    <Link to={putPerkHref}>
-                                        <Plus className="w-5 h-5 mr-2" />
-                                        <span>{t("forMerchants.putPerkCta")}</span>
-                                    </Link>
-                                </Button>
-                                <p className="mt-3 text-sm leading-6 text-white/60">{t("forMerchants.putPerkHelp")}</p>
-                            </div>
-                            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-left">
-                                <Button variant="hero" size="lg" className="w-full" asChild>
-                                    <Link to={registerHref}>
-                                        {t("forMerchants.registerSpot")}
-                                        <ArrowRight className="w-5 h-5 ml-2" />
-                                    </Link>
-                                </Button>
-                                <p className="mt-3 text-sm leading-6 text-white/60">{t("forMerchants.registerHelp")}</p>
-                            </div>
-                            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-left">
-                                <Button variant="outline" className="w-full text-white border-white/20 hover:bg-white/5" size="lg" asChild>
-                                    <Link to="/discover?tab=perks">{t("forMerchants.seeLivePerks")}</Link>
-                                </Button>
-                                <p className="mt-3 text-sm leading-6 text-white/60">{t("forMerchants.seePerksHelp")}</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
-                            {[
-                                { titleKey: "forMerchants.perkWhatTitle" as const, descKey: "forMerchants.perkWhatCopy" as const },
-                                { titleKey: "forMerchants.perkWhyTitle" as const, descKey: "forMerchants.perkWhyCopy" as const },
-                                { titleKey: "forMerchants.perkKeepTitle" as const, descKey: "forMerchants.perkKeepCopy" as const },
-                            ].map(({ titleKey, descKey }) => (
-                                <div key={titleKey} className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur">
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-400">{t(titleKey)}</p>
-                                    <p className="mt-2 text-sm leading-6 text-zinc-300">{t(descKey)}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <PromoCardEconomyExplainer audience="merchant" />
-
-            {/* Interactive Value Experience Simulator */}
-            <section className="container mx-auto px-4 -mt-12 relative z-20 mb-16">
-                <MerchantRoiSimulator />
-            </section>
-
-            <LeadMagnetGateway audience="merchant" />
-
-            <MissionRoleValue audience="merchant" />
-
-            <PioneerCallout
-                title={t("forMerchants.pioneerTitle")}
-                copy={t("forMerchants.pioneerCopy")}
-            />
-
-            {/* The Verification Flow */}
-            <section className="py-24 bg-background">
-                <div className="container px-4 sm:px-6">
-                    <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-20">
-                        <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-6">
-                                <ShieldCheck className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">{t("forMerchants.trustBadge")}</span>
-                            </div>
-                            <h2 className="mb-6 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] md:text-5xl">
-                                {t("forMerchants.checkinPromoCardTitle")}
-                            </h2>
-                            <p className="text-lg text-muted-foreground mb-8">
-                                {t("forMerchants.checkinPromoCardCopy")}
-                            </p>
-                            <ol className="mb-8 space-y-3">
-                                {[
-                                    t("forMerchants.checkinStep1"),
-                                    t("forMerchants.checkinStep2"),
-                                    t("forMerchants.checkinStep3"),
-                                    t("forMerchants.checkinStep4"),
-                                ].map((step, index) => (
-                                    <li key={step} className="flex gap-3 text-sm leading-6 text-muted-foreground">
-                                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-[11px] font-black text-emerald-700">
-                                            0{index + 1}
-                                        </span>
-                                        {step}
-                                    </li>
-                                ))}
-                            </ol>
-                            
-                            <div className="grid gap-6">
-                                {merchantBenefits.map((benefit) => (
-                                    <div key={benefit.titleKey} className="flex gap-4 p-4 rounded-2xl hover:bg-muted transition-colors group">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 transition-colors group-hover:text-white flex-shrink-0">
-                                            <benefit.icon className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-foreground mb-1">{t(benefit.titleKey)}</h4>
-                                            <p className="text-sm text-muted-foreground leading-relaxed">{t(benefit.descKey)}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-emerald-500/10 rounded-[3rem] blur-3xl" />
-                            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-charcoal p-6 shadow-2xl sm:rounded-[3rem] sm:p-12">
-                                <div className="space-y-8">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                                                <Store className="w-5 h-5 text-primary" />
-                                            </div>
-                                            <div>
-                                                <p className="text-white font-bold">{t("forMerchants.cardVenueCheckin")}</p>
-                                                <p className="text-[10px] text-white/40 uppercase font-black tracking-widest">{t("forMerchants.cardReadyToWelcome")}</p>
-                                            </div>
-                                        </div>
-                                        <Badge className="bg-primary/20 text-primary border-primary/30">{t("forMerchants.cardSecurePin")}</Badge>
-                                    </div>
-
-                                    <PromoCardFace
-                                        holder="Guest card"
-                                        available="Your perk"
-                                        limit={demand?.perkExample || "Welcome drink on a minimum tab"}
-                                        places="Your spot"
-                                        action="Show at the counter"
-                                        className="mb-6"
-                                        interactive={false}
-                                    />
-                                    <div className="p-8 bg-black/40 rounded-2xl border border-white/5 text-center space-y-6">
-                                        <p className="text-xs text-white/60 font-medium">{t("forMerchants.cardVerifyArrival")}</p>
-                                        <div className="flex justify-center gap-2 sm:gap-3">
-                                            {[1,2,3,4].map(i => (
-                                                <div key={i} className="flex h-14 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl font-black text-white sm:h-16 sm:w-12 sm:text-2xl">
-                                                    *
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-widest text-xs py-6">
-                                            {t("forMerchants.cardConfirmWelcome")}
-                                        </Button>
-                                    </div>
-
-                                    <div className="flex items-center justify-center gap-2 text-white/40">
-                                        <Lock className="w-3 h-3" />
-                                        <span className="text-[9px] uppercase font-black tracking-widest">{t("forMerchants.cardSecureSimple")}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Stats Dashboard */}
-            <section className="py-16 bg-muted/30 border-y border-border">
-                <div className="container px-4 sm:px-6">
-                    <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-12">
-                        {stats.map((stat) => (
-                            <div key={stat.valKey} className="text-center group">
-                                <p className="mb-2 text-4xl font-black text-foreground transition-colors group-hover:text-emerald-600">{t(stat.valKey)}</p>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t(stat.labelKey)}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Final CTA */}
-            <section className="py-24 bg-charcoal relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-48 -mt-48" />
-                <div className="container relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6">
-                    <h2 className="mb-8 text-4xl font-black uppercase leading-[0.9] tracking-[-0.055em] text-white md:text-5xl">
-                        {t("forMerchants.heartTitle1")} <span className="text-primary italic">{t("forMerchants.heartTitle2")}</span>
-                    </h2>
-                    <p className="text-lg text-white/60 mb-10 leading-relaxed">
-                        {t("forMerchants.heartCopy")}
-                    </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Button variant="hero" size="xl" asChild>
-                            <Link to={registerHref}>{t("forMerchants.registerSpotNow")}</Link>
-                        </Button>
-                        <Link to="/help" className="text-white/40 hover:text-white transition-colors uppercase font-black text-[10px] tracking-widest">
-                            {t("forMerchants.howItWorksForSpots")}
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
+          <div className="rounded-[2rem] border border-emerald-300/15 bg-emerald-300/[0.055] p-6 sm:p-7">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">Say it the way you actually think it</p>
+            <div className="mt-5 space-y-3">
+              {["I need more customers.", "I want people in during a quiet time.", "I need to move this item.", "I want first-time customers to return.", "I do not know — show me what people nearby want."].map((line) => <p key={line} className="rounded-xl border border-white/10 bg-black/20 p-4 text-sm font-bold">{line}</p>)}
+            </div>
+          </div>
         </div>
-    );
-};
+      </section>
 
-export default ForMerchants;
+      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Start with an outcome</p>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-5xl">PROMORANG can translate the business problem into the operating route.</h2>
+          <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {outcomes.map((item) => <Link key={item.id} to={`/business/start?outcome=${item.id}`} className="group rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 transition hover:border-emerald-300/35"><p className="text-[9px] font-black uppercase tracking-[0.16em] text-emerald-300">{item.short}</p><h3 className="mt-3 font-serif text-2xl font-bold">{item.title}</h3><p className="mt-3 text-sm leading-6 text-white/45">{item.description}</p><ArrowRight className="mt-5 h-4 w-4 text-white/20 transition group-hover:translate-x-1 group-hover:text-emerald-300" /></Link>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Merchant programmes</p>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">A route your team can understand.</h2>
+          <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {programmes.map((programme) => <article key={programme.id} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-5"><Sparkles className="h-5 w-5 text-emerald-300" /><h3 className="mt-4 font-serif text-2xl font-bold">{programme.title}</h3><p className="mt-3 text-sm leading-6 text-white/45">{programme.promise}</p><div className="mt-5 flex flex-wrap gap-2">{programme.path.map((step) => <span key={step} className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-bold text-white/45">{step}</span>)}</div></article>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto grid max-w-6xl gap-9 lg:grid-cols-[.78fr_1.22fr] lg:items-end">
+          <div>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Local market</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em]">A request is not a customer. It is a reason to look closer.</h2>
+            <p className="mt-4 text-sm leading-7 text-white/50">Use Wants to see where interest is gathering before you commit discounts, stock, staff time or special hours.</p>
+          </div>
+          {isLoading && !liveSignals.length ? <div className="h-56 animate-pulse rounded-[1.6rem] bg-white/[0.04]" /> : liveSignals.length ? <div className="grid gap-4 xl:grid-cols-2">{liveSignals.map((signal) => <DemandSignalObject key={signal.poll.id} city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment} responseLabel={signal.poll.targetUnlockPerk} href={discoveryHref(signal.poll)} state={signalState(signal.votesRemaining, signal.closeness)} />)}</div> : <TicketPass kicker="Right now" title="No strong Want nearby yet." detail="You can still start from your own business outcome, claim your place, or come back as interest forms." stub="0" stubLabel="Want" />}
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <NightTrail eyebrow="The merchant loop" title="Outcome → qualify → respond → verify" steps={[
+            { label: "Outcome", title: "Name what would make the business better.", text: "Visits, purchases, repeat behavior, product movement or another measurable action." },
+            { label: "Qualify", title: "Check whether the market and timing make sense.", text: "Look at Wants, location, volume and what the business can actually fulfill." },
+            { label: "Respond", title: "Put up only what you can honor.", text: "Create an offer, access window, Moment or place update with clear terms and limits." },
+            { label: "Verify", title: "See what really happened.", text: "Validated visits, purchases or other supported actions become evidence for the next decision." },
+          ]} />
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+          <div>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">PromoCard at the counter</p>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Make it obvious what this person can use now—and what brings them back.</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Your staff should not need to understand the whole system. Valid access, terms and the next step should be clear.</p>
+          </div>
+          <PromoCardFace holder="Participant PromoCard" available="Use this here" limit="Issued offer · terms apply" places="Show the offer, the terms and the next step at a glance." action="Present this" interactive={false} />
+        </div>
+      </section>
+
+      <section className="px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center md:p-12">
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Start with one business result</p>
+          <h2 className="mx-auto mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Tell PROMORANG what needs to improve. Then shape the response around what your business can actually deliver.</h2>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-emerald-400 px-6 text-sm font-black text-black"><Store className="h-4 w-4" /> Build my route <ArrowRight className="h-4 w-4" /></Link>
+            <Link to={registerHref} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80"><MapPin className="h-4 w-4" /> Register your place</Link>
+          </div>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/35"><ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> Interest, offers, visits, purchases and fulfillment remain different parts of the journey.</p>
+        </div>
+      </section>
+    </main>
+  );
+}

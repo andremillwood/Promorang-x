@@ -1,0 +1,42 @@
+@media (max-width: 1050px) {
+  .sn2-header {
+    height: auto;
+    min-height: 76px;
+    grid-template-columns: 1fr auto;
+    padding-top: 12px;
+    padding-bottom: 10px;
+  }
+
+  .sn2-role-tabs {
+    display: flex;
+    grid-column: 1 / -1;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: flex-start;
+  }
+
+  .sn2-role-tabs::-webkit-scrollbar { display: none; }
+  .sn2-role-tabs button { white-space: nowrap; flex: 0 0 auto; }
+}
+
+@media (max-width: 680px) {
+  .sn2-header {
+    min-height: 104px;
+    padding: 10px 14px 8px;
+  }
+
+  .sn2-role-tabs {
+    display: flex;
+    margin-top: 2px;
+    padding: 3px;
+  }
+
+  .sn2-role-tabs button {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+
+  .sn2-shell { padding-top: 16px; }
+}

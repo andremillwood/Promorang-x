@@ -12,6 +12,7 @@ export const RightUtilityRail: React.FC<RightUtilityRailProps> = ({
   onOpenStreakModal,
 }) => {
   const { t } = useI18n();
+  if (!import.meta.env.DEV) return null;
 
   return (
     <aside className="hidden lg:flex flex-col gap-5 w-80 shrink-0 sticky top-20 h-fit">

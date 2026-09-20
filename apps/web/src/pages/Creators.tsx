@@ -2,32 +2,24 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { 
   ArrowRight, 
-  Camera, 
-  Music2, 
-  Radio, 
   Search, 
   Users, 
   Sparkles, 
   Share2, 
   Ticket, 
-  Gift, 
-  TrendingUp, 
-  Award,
-  CheckCircle2
+  TrendingUp,
+  AlertTriangle
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/i18n/I18nContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingFeed";
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 
 export default function Creators() {
-  const { t } = useI18n();
-  const [selectedTag, setSelectedTag] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   const creatorsQuery = useQuery({
@@ -40,82 +32,36 @@ export default function Creators() {
       if (roleError) throw roleError;
       const ids = Array.from(new Set((roleRows || []).map((row) => row.user_id)));
       
-      let dbProfiles: any[] = [];
-      if (ids.length) {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("user_id,full_name,avatar_url,bio,location")
-          .in("user_id", ids)
-          .not("full_name", "is", null)
-          .order("full_name");
-        if (!error && data) dbProfiles = data;
-      }
+      if (!ids.length) return [];
 
-      // Sample verified creator seeds to guarantee rich directory experience
-      const seedCreators = [
-        {
-          user_id: "creator-dj-rebel",
-          full_name: "DJ Rebel Sound",
-          avatar_url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=200&auto=format&fit=crop&q=80",
-          bio: "Kingston club & festival DJ. Resident at Fiction & Plantation Cove.",
-          location: "Kingston, Jamaica",
-          tags: ["DJs", "Music"],
-          distributionMetrics: { peopleMoved: 480, claimsDriven: 215, tickets: 48 },
-        },
-        {
-          user_id: "creator-tanya-eats",
-          full_name: "Tanya Eats JA",
-          avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
-          bio: "Food & lifestyle storyteller. Highlighting Jamaica's best hidden kitchens and cocktails.",
-          location: "St. Andrew, Jamaica",
-          tags: ["Foodies", "Visual"],
-          distributionMetrics: { peopleMoved: 320, claimsDriven: 185, tickets: 35 },
-        },
-        {
-          user_id: "creator-marcus-lens",
-          full_name: "Marcus Visuals",
-          avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
-          bio: "Culture photographer & night archivist. Capturing sound systems and creative spaces.",
-          location: "Kingston, Jamaica",
-          tags: ["Visual", "Hosts"],
-          distributionMetrics: { peopleMoved: 190, claimsDriven: 94, tickets: 22 },
-        },
-        {
-          user_id: "creator-campus-pulse",
-          full_name: "UWI Campus Pulse",
-          avatar_url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&auto=format&fit=crop&q=80",
-          bio: "Student community media & promoter network. 12k+ campus reach.",
-          location: "Mona, Kingston",
-          tags: ["Promoters", "Campus"],
-          distributionMetrics: { peopleMoved: 720, claimsDriven: 390, tickets: 64 },
-        },
-      ];
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("user_id,full_name,display_name,username,avatar_url,bio,location")
+        .in("user_id", ids)
+        .not("full_name", "is", null)
+        .order("full_name");
 
-      const combined = [...dbProfiles, ...seedCreators];
-      const seen = new Set();
-      return combined.filter(c => {
-        if (seen.has(c.user_id)) return false;
-        seen.add(c.user_id);
-        return true;
-      });
+      if (error) throw error;
+      return data || [];
     },
   });
 
   const creators = creatorsQuery.data || [];
 
-  const filteredCreators = creators.filter((c: any) => {
-    const matchesSearch = !searchQuery || 
-      c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.bio?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTag = selectedTag === "All" || (c.tags && c.tags.includes(selectedTag));
-    return matchesSearch && matchesTag;
+  const filteredCreators = creators.filter((creator: any) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return creator.full_name?.toLowerCase().includes(query) ||
+      creator.display_name?.toLowerCase().includes(query) ||
+      creator.bio?.toLowerCase().includes(query) ||
+      creator.location?.toLowerCase().includes(query);
   });
 
   return (
     <main className="min-h-screen bg-black pb-24 text-white">
       <SEO
         title="Creators & Distributors — Promorang"
-        description="Get discovered. Find things worth sharing. Build proof that you move people."
+        description="Get discovered. Share what deserves attention. Build a reputation people can see."
       />
 
       {/* Hero Section */}
@@ -137,18 +83,18 @@ export default function Creators() {
               <h1 className="max-w-5xl font-sans text-4xl sm:text-6xl lg:text-7xl font-black uppercase leading-[0.88] tracking-[-0.05em]">
                 Get Discovered. <br />
                 <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                  Build Proof You Move People.
+                  Build a Reputation People Can See.
                 </span>
               </h1>
 
               <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-white/70">
-                Find things worth sharing across Kingston culture and verified partner perks. When you move people, earn attribution, PromoPoints, and PromoShare draw tickets.
+                Share what deserves attention. When people move through what you share, your profile starts to tell the story.
               </p>
             </div>
 
             {/* Quick Search Box */}
-            <div className="rounded-3xl border border-white/15 bg-black/65 p-5 backdrop-blur-xl space-y-3 shadow-2xl">
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-white">
+            <div className=" border border-white/15 bg-black/65 p-5 backdrop-blur-xl space-y-3 shadow-2xl">
+              <div className="flex items-center gap-3  border border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-white">
                 <Search className="h-4 w-4 text-purple-400 shrink-0" />
                 <input
                   type="text"
@@ -159,21 +105,6 @@ export default function Creators() {
                 />
               </div>
 
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {["All", "DJs", "Foodies", "Visual", "Promoters", "Campus"].map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                    className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
-                      selectedTag === tag
-                        ? "bg-purple-500 text-white"
-                        : "border border-white/10 bg-white/5 text-white/60 hover:text-white"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -189,29 +120,36 @@ export default function Creators() {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-purple-400">
-              Verified Distributors
+              Creators on PROMORANG
             </p>
             <h2 className="mt-1 text-3xl font-black tracking-tight text-white">
-              Creator Directory &amp; Distribution Proof
+              Creator Directory
             </h2>
             <p className="text-xs text-white/60 mt-1">
-              Ranked by verifiable audience movement, perk claims generated, and culture engagement.
+              Find creators, DJs, hosts and pages worth following.
             </p>
           </div>
-          <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 rounded-2xl text-xs font-bold">
+          <Button asChild variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20  text-xs font-bold">
             <Link to="/for-creators">Join as a Creator →</Link>
           </Button>
         </div>
 
         {creatorsQuery.isLoading ? (
           <p className="py-12 text-center text-sm text-white/45">Loading creators...</p>
+        ) : creatorsQuery.isError ? (
+          <div role="alert" className="rounded-3xl border border-amber-300/15 bg-amber-300/[0.05] px-6 py-12 text-center">
+            <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
+            <h3 className="mt-4 text-xl font-black">Creator directory unavailable</h3>
+            <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/50">We couldn’t load creators right now. Try again in a moment.</p>
+            <button type="button" onClick={() => void creatorsQuery.refetch()} className="mt-4 text-sm font-bold text-purple-300 hover:text-purple-200">Try again</button>
+          </div>
         ) : filteredCreators.length ? (
           <div className="grid gap-6 md:grid-cols-2">
             {filteredCreators.map((creator: any) => (
               <Link
                 key={creator.user_id}
-                to={`/profile/${creator.user_id}`}
-                className="group flex flex-col sm:flex-row gap-5 rounded-3xl border border-white/10 bg-zinc-900/60 p-6 transition-all hover:border-purple-500/50 hover:bg-zinc-900/90 shadow-xl"
+                to={`/creators/${creator.username || creator.user_id}`}
+                className="group flex flex-col sm:flex-row gap-5  border border-white/10 bg-zinc-900/60 p-6 transition-all hover:border-purple-500/50 hover:bg-zinc-900/90 shadow-xl"
               >
                 <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 text-2xl font-black text-black shadow-lg">
                   {creator.avatar_url ? (
@@ -223,10 +161,7 @@ export default function Creators() {
 
                 <div className="space-y-2 flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      <span>Verified Distributor</span>
-                    </p>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">Creator</p>
                     {creator.location && (
                       <span className="text-[10px] text-white/40">{creator.location}</span>
                     )}
@@ -237,53 +172,31 @@ export default function Creators() {
                   </h3>
 
                   <p className="line-clamp-2 text-xs leading-relaxed text-white/60">
-                    {creator.bio || "Active culture distributor and curator on Promorang."}
+                    {creator.bio || "Creator on PROMORANG."}
                   </p>
 
-                  {/* Distribution Performance Metrics */}
-                  <div className="pt-2 flex items-center gap-3 border-t border-white/10 text-[11px] font-mono">
-                    <span className="text-purple-300 font-bold">
-                      {creator.distributionMetrics?.peopleMoved || 120}+ Moves
-                    </span>
-                    <span className="text-white/30">·</span>
-                    <span className="text-emerald-400 font-bold">
-                      {creator.distributionMetrics?.claimsDriven || 45} Claims
-                    </span>
-                    <span className="text-white/30">·</span>
-                    <span className="text-amber-400 font-bold">
-                      {creator.distributionMetrics?.tickets || 12} 🎟️ Tickets
-                    </span>
-                  </div>
+
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-white/15 px-6 py-16 text-center">
+          <div className=" border border-dashed border-white/15 px-6 py-16 text-center">
             <Users className="mx-auto h-9 w-9 text-purple-400" />
             <h3 className="mt-5 text-2xl font-black">No creators found</h3>
             <p className="mx-auto mt-2 max-w-md text-xs text-white/50">
-              Try adjusting your search query or tag filter.
+              No creators matched your search. Try another name, place or keyword.
             </p>
           </div>
         )}
       </section>
 
-      {/* 4 Pillars of Creator Success */}
-      <section className="w-full px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:grid-cols-4">
-          {[
-            { icon: Sparkles, title: "1. Discover", text: "Find exciting Perks, moments, and cultural drops worth talking about." },
-            { icon: Share2, title: "2. Distribute", text: "1-click PromoShare links that carry persistent single-level referral attribution." },
-            { icon: TrendingUp, title: "3. Build Proof", text: "Verifiable reputation based on real foot traffic and claims, not vanity metrics." },
-            { icon: Ticket, title: "4. Win & Earn", text: "Minted PromoPoints, Gems, and PromoShare tickets for every verified action." },
-          ].map((item) => (
-            <div key={item.title} className="rounded-2xl border border-white/10 bg-black/40 p-5 space-y-2">
-              <item.icon className="h-6 w-6 text-purple-400" />
-              <h3 className="font-black text-sm text-white">{item.title}</h3>
-              <p className="text-xs leading-relaxed text-white/60">{item.text}</p>
-            </div>
-          ))}
+      {/* Continue through the public object graph */}
+      <section className="border-y border-white/10 bg-white/[.02]">
+        <div className="grid gap-px bg-white/10 md:grid-cols-3">
+          <Link to="/discover" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Discover</p><h3 className="mt-3 font-serif text-2xl font-bold">Find something worth moving.</h3><p className="mt-2 text-sm text-white/45">Start with a signal, question, drop or local discovery.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
+          <Link to="/discover?tab=moments" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Moments</p><h3 className="mt-3 font-serif text-2xl font-bold">Move people somewhere real.</h3><p className="mt-2 text-sm text-white/45">Find public activity with a place, time and action.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
+          <Link to="/scenes" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Scenes</p><h3 className="mt-3 font-serif text-2xl font-bold">Enter the culture around it.</h3><p className="mt-2 text-sm text-white/45">Follow recurring communities, rituals and places.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
         </div>
       </section>
 

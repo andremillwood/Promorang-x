@@ -146,6 +146,7 @@ export function landingPathForRole(role: string | null | undefined): string {
   if (key === 'merchant' || key === 'brand') return LIVE_PATHS.putPerkUp;
   if (key === 'host') return LIVE_PATHS.createMoment;
   if (key === 'creator') return LIVE_PATHS.contentDrops;
+  if (key === 'agency') return '/dashboard?view=studio&tab=clients';
   return LIVE_PATHS.card;
 }
 

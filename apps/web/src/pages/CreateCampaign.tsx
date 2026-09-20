@@ -16,12 +16,12 @@ import { useCreateCampaign } from "@/hooks/useCampaigns";
 import { useCampaignCompiler, type CompiledCampaign, type CompilerMetadata } from "@/hooks/useCampaignCompiler";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { cultureImages } from "@/data/culture-demo";
 import { PromoPilotWorkspace } from "@/components/campaigns/PromoPilotWorkspace";
 import type { DemandPlan } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
+import { buildBusinessOutcomePrompt, getProgramme, readBusinessOutcomeBrief } from "@/lib/business-outcomes";
 
 type ActivationPlan = CompiledCampaign & { metadata: CompilerMetadata };
 
@@ -33,7 +33,8 @@ const CreateCampaign = () => {
   const lensRole = params.get("role") || activeRole;
   const createCampaign = useCreateCampaign();
   const { compile, isCompiling } = useCampaignCompiler();
-  const [prompt, setPrompt] = useState("");
+  const [sourceBrief] = useState(() => params.get("from") === "business-outcome" ? readBusinessOutcomeBrief() : null);
+  const [prompt, setPrompt] = useState(() => sourceBrief ? buildBusinessOutcomePrompt(sourceBrief) : "");
   const [plan, setPlan] = useState<ActivationPlan | null>(null);
 
   const proofLanguage = {
@@ -81,6 +82,7 @@ const CreateCampaign = () => {
         value_unit: "GEM",
         funding_status: "unfunded",
         activation_status: "draft",
+        business_outcome_brief: sourceBrief || undefined,
       },
     });
 
@@ -132,26 +134,34 @@ const CreateCampaign = () => {
                   <StakeholderHowLead role={lensRole} surface="campaign" variant="light" />
                 </div>
 
+                {sourceBrief && (
+                  <div className="mt-8 border-l-2 border-[#d85b24] bg-white/55 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#d85b24]">Outcome brief loaded</p>
+                    <p className="mt-2 text-lg font-black">{getProgramme(sourceBrief.programmeId)?.title || "Recommended programme"}</p>
+                    <p className="mt-1 text-sm leading-6 text-black/50">PROMORANG carried your business goal into the planner. Review the brief below, then compile it into an editable PromoPilot.</p>
+                  </div>
+                )}
+
                 <div className="mt-10 border-y border-black/15 py-6">
                   <div className="flex items-center justify-between">
                     <label htmlFor="activation-intent" className="text-sm font-black">{t("createCampaign.intentLabel")}</label>
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#d85b24]">Proven Blueprints</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#d85b24]">Planning prompts</span>
                   </div>
 
                   {/* 1-Click Starter Blueprints */}
                   <div className="mt-3 flex flex-wrap gap-2">
                     {[
                       {
-                        label: "🛒 Retail Receipt Sweepstakes (Lifespan / Sunshine Snacks)",
-                        promptText: "Reward verified retail shoppers who upload a supermarket receipt showing eligible product purchases with automated entries into a monthly cash draw.",
+                        label: "🛒 Retail receipt proposal",
+                        promptText: "Propose a retail activation where eligible receipt evidence can be reviewed for entry into a monthly draw. Funding, eligibility, draw operations, and fulfillment still require approval.",
                       },
                       {
-                        label: "📸 Live Event / Expo Selfie Draw (Ladies Expo Model)",
-                        promptText: "Drive on-the-ground footfall at our expo booth by giving attendees who snap a branded selfie and signup 1 ticket into a $500 cash sweepstakes.",
+                        label: "📸 Event proof proposal",
+                        promptText: "Propose an event activation where a branded photo and signup can be reviewed for eligibility. Any prize, draw, and fulfillment terms still require approval and funding.",
                       },
                       {
-                        label: "🎪 Dead-Night Venue Revival (I Luv Hip Hop Model)",
-                        promptText: "Pack a slow weeknight by dropping 100 free VIP entry passes before 11 PM and giving each attendee a welcome drink perk.",
+                        label: "🎪 Venue demand proposal",
+                        promptText: "Propose a weeknight venue activation with a limited pass and perk concept. Capacity, inventory, funding, eligibility, and fulfillment still require operator approval.",
                       },
                     ].map((bp, i) => (
                       <button
@@ -190,8 +200,7 @@ const CreateCampaign = () => {
             </div>
 
             <aside className="relative hidden min-h-screen overflow-hidden bg-[#151412] lg:block">
-              <img src={cultureImages.openMic} alt="A live cultural gathering" className="absolute inset-0 h-full w-full object-cover opacity-75" />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/90" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(251,146,60,0.28),transparent_32%),radial-gradient(circle_at_20%_70%,rgba(245,158,11,0.14),transparent_38%),linear-gradient(to_bottom,#24211d,#151412)]" />
               <div className="absolute inset-x-0 bottom-0 p-12 text-white xl:p-16">
                 <p className="text-[11px] font-black uppercase tracking-[0.24em] text-orange-300">{t("createCampaign.sidebarEyebrow")}</p>
                 <p className="mt-4 max-w-md text-3xl font-black leading-tight tracking-tight">{t("createCampaign.sidebarHeading")}</p>
@@ -219,7 +228,7 @@ const CreateCampaign = () => {
               <div className="border-l-2 border-[#d85b24] pl-5">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-black/45">{t("createCampaign.movementEyebrow")}</p>
                 <p className="mt-2 text-2xl font-black">{plan.outcome.volume}</p>
-                <p className="mt-1 text-sm text-black/50">{t("createCampaign.reachEstimate", { reach: plan.outcome.reach.toLowerCase() })}</p>
+                <p className="mt-1 text-sm text-black/50">Planning estimate · {t("createCampaign.reachEstimate", { reach: plan.outcome.reach.toLowerCase() })}</p>
               </div>
             </header>
 

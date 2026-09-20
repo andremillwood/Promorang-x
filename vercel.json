@@ -6,6 +6,10 @@
   "outputDirectory": "apps/web/dist",
   "rewrites": [
     {
+      "source": "/api/backend/:path*",
+      "destination": "https://api.promorang.co/api/:path*"
+    },
+    {
       "source": "/((?!assets/|api/|favicon.ico|robots.txt|sitemap.xml|llms.txt|.*\\..*).*)",
       "destination": "/index.html"
     }
@@ -42,5 +46,12 @@
         }
       ]
     }
-  ]
+  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "design/canonical-object-system-v1": false,
+      "andre/public-experience-convergence-v2": false
+    }
+  }
 }

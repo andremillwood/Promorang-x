@@ -36,14 +36,6 @@ import {
 } from '@/components/promorang/ExperiencePrimitives';
 import { PromoShareTicketDrawModal } from '@/components/promoshare/PromoShareTicketDrawModal';
 import { PromoShareHero } from '@/components/promoshare/PromoShareHero';
-import { CardDropCreator } from '@/components/promoshare/CardDropCreator';
-import { StoryGamificationRail } from '@/components/StoryGamificationRail';
-import { RightUtilityRail } from '@/components/RightUtilityRail';
-import { SocialGraphFacepile } from '@/components/SocialGraphFacepile';
-import { SpinWheelModal } from '@/components/SpinWheelModal';
-import { TeamSlashModal } from '@/components/TeamSlashModal';
-import { DailyRewardsModal } from '@/components/DailyRewardsModal';
-import { cultureEvents } from '@/data/culture-demo';
 import { useI18n } from '@/i18n/I18nContext';
 import { VALUE_INSTRUMENTS, VALUE_STORY } from '@promorang/shared';
 import { PlainEnglish } from '@/components/promorang/SignatureObjects';
@@ -142,10 +134,6 @@ const PromoShare = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [featuredPools, setFeaturedPools] = useState<FeaturedPoolPlacement[]>([]);
   const [sponsorPools, setSponsorPools] = useState<SponsorPool[]>([]);
-
-  const [wheelOpen, setWheelOpen] = useState(false);
-  const [slashOpen, setSlashOpen] = useState(false);
-  const [streakOpen, setStreakOpen] = useState(false);
 
   useEffect(() => {
     fetchFeaturedPools();
@@ -346,29 +334,17 @@ const PromoShare = () => {
           ))}
         </div>
       )}
-      {/* Top Story & Daily Gamification Rail */}
-      <StoryGamificationRail
-        onOpenWheel={() => setWheelOpen(true)}
-        onOpenStreak={() => setStreakOpen(true)}
-      />
-
       {/* Unified Dynamic PromoShare Hero */}
       <PromoShareHero
-        totalTickets={totalEntries > 0 ? totalEntries : 14}
-        multiplier={3.5}
-        onOpenSlash={() => setSlashOpen(true)}
+        totalTickets={totalEntries}
+        eligibility={primaryCycle ? (primaryCycle.eligible ? 'qualified' : primaryCycle.status === 'not_qualified' ? 'not_qualified' : 'in_progress') : null}
       />
       <div className="mb-8 space-y-3">
         <PlainEnglish>{VALUE_STORY.namedDrawPays}</PlainEnglish>
         <NamedDrawPays />
       </div>
 
-      {/* Pre-Loaded Card Drop Creator */}
-      <div className="mb-8">
-        <CardDropCreator />
-      </div>
-
-      {/* Main 3-Column Desktop Layout */}
+      {/* Recorded PromoShare activity and outcomes */}
       <div className="flex gap-8 items-start">
         <div className="flex-1 min-w-0 space-y-8">
           {primaryCycle ? (
@@ -731,8 +707,8 @@ const PromoShare = () => {
                   )}
                   <div className="mt-4 flex justify-end pt-2 border-t border-border/40">
                     <PromoShareTicketDrawModal
-                      jackpotAmount={draw.jackpot_amount || 1000}
-                      userTickets={draw.userTickets > 0 ? draw.userTickets : 5}
+                      jackpotAmount={draw.jackpot_amount}
+                      userTickets={draw.userTickets}
                       poolTitle={`${draw.cycle_type.toUpperCase()} Prize Draw`}
                     />
                   </div>
@@ -835,8 +811,8 @@ const PromoShare = () => {
         <TabsContent value="history" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Win History</CardTitle>
-              <CardDescription>Your past PromoShare wins and rewards</CardDescription>
+              <CardTitle>Draw Result History</CardTitle>
+              <CardDescription>Recorded selections and claim state. A selected result or claimed reward does not by itself mean settlement is complete.</CardDescription>
             </CardHeader>
             <CardContent>
               {data.history && data.history.length > 0 ? (
@@ -861,7 +837,7 @@ const PromoShare = () => {
                         </div>
                       </div>
                       <Badge className={win.claimed ? 'bg-green-500' : 'bg-amber-500'}>
-                        {win.claimed ? 'Claimed' : 'Pending'}
+                        {win.claimed ? 'Claim recorded' : 'Selected · claim pending'}
                       </Badge>
                     </div>
                   ))}
@@ -869,7 +845,7 @@ const PromoShare = () => {
               ) : (
                 <div className="text-center py-12">
                   <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Wins Yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">No Recorded Draw Results Yet</h3>
                   <p className="text-muted-foreground mb-4">Keep participating to increase your chances</p>
                   <Button onClick={() => setActiveTab('overview')}>
                     View Active Cycles
@@ -883,17 +859,7 @@ const PromoShare = () => {
       </Tabs>
       </div>
 
-      {/* Right Utility Sidebar (Desktop) */}
-      <RightUtilityRail
-        onOpenSlashModal={() => setSlashOpen(true)}
-        onOpenStreakModal={() => setStreakOpen(true)}
-      />
     </div>
-
-    {/* Gamification Modals */}
-    <SpinWheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} />
-    <TeamSlashModal isOpen={slashOpen} onClose={() => setSlashOpen(false)} />
-    <DailyRewardsModal isOpen={streakOpen} onClose={() => setStreakOpen(false)} />
     </div>
   );
 };

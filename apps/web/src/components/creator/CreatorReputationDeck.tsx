@@ -1,85 +1,122 @@
-import React from "react";
-import {
-  Award,
-  Sparkles,
-  Star,
-  ShieldCheck,
-  TrendingUp,
-  Flame,
-  CheckCircle2,
-  Users,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Award, BadgeCheck, Circle, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useRoleSuccessProgress } from "@/hooks/useRoleSuccessProgress";
+import { useCreatorEconomicProfile } from "@/hooks/useCreatorEconomics";
+
+const tierLabels: Record<string, string> = {
+  starter: "Starter",
+  rising: "Rising",
+  signature: "Signature",
+  icon: "Icon",
+};
 
 export function CreatorReputationDeck() {
-  const tiers = [
-    { level: "Level 1", name: "Scout Creator", req: "1-3 Stories published", status: "completed" },
-    { level: "Level 2", name: "Culture Vanguard", req: "5+ Stories & 50+ Footfalls", status: "active" },
-    { level: "Level 3", name: "Kingston Luminary", req: "15+ Stories & Brand Ambassador", status: "upcoming" },
-  ];
+  const progressQuery = useRoleSuccessProgress("creator");
+  const profileQuery = useCreatorEconomicProfile();
+
+  const progress = progressQuery.data;
+  const profile = profileQuery.data;
+  const current = Number(progress?.current || 0);
+  const target = Number(progress?.target || 25);
+  const completion = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
+  const nextAction = progress?.nextAction;
+  const recordedTier = profile?.tier ? (tierLabels[profile.tier] || profile.tier) : null;
+
+  if (progressQuery.isError || profileQuery.isError) {
+    return (
+      <section className="rounded-3xl border border-red-500/20 bg-red-500/[.05] p-6 text-white">
+        <p className="text-[10px] font-black uppercase tracking-[.2em] text-red-300">Creator standing unavailable</p>
+        <h2 className="mt-2 text-xl font-black">PROMORANG could not load the recorded creator state.</h2>
+        <p className="mt-2 text-sm leading-6 text-white/50">
+          No fallback score, tier or reputation level is being substituted.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* 1. Header */}
-      <div className="p-6 rounded-3xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center text-black font-black shadow-lg shadow-purple-500/20 shrink-0">
-            <Award className="h-7 w-7 text-black" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Creator Cultural Reputation & Tiers</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[10px] font-extrabold uppercase">
-                Vanguard Tier (L2)
-              </span>
+      <section className="rounded-3xl border border-purple-500/25 bg-[linear-gradient(135deg,rgba(168,85,247,.12),rgba(0,0,0,.88))] p-5 sm:p-7">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-purple-300">
+              <Award className="h-4 w-4" />
+              Creator · Proven standing
             </div>
-            <p className="text-xs text-white/60 mt-1">
-              Level progression, brand affinity badges, and community trust multipliers.
+            <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">What your verified work is building.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
+              PROMORANG bases creator standing on recorded releases, linked work and attributable verified outcomes.
+              It does not invent a hidden reputation score from views, likes or unverified activity.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-black/30 px-5 py-4">
+            <p className="text-[9px] font-black uppercase tracking-[.16em] text-white/30">Recorded economic tier</p>
+            <p className="mt-2 text-lg font-black text-white">
+              {profileQuery.isLoading ? "Checking…" : recordedTier || "No tier recorded"}
+            </p>
+            <p className="mt-1 text-xs text-white/35">
+              A tier appears only when the creator economic profile records one.
             </p>
           </div>
         </div>
+      </section>
 
-        <div className="px-4 py-2 rounded-2xl border border-white/10 bg-white/5 text-center">
-          <p className="text-[10px] uppercase font-bold text-white/50">Vibe Score</p>
-          <p className="text-base font-black text-purple-400">98 / 100</p>
+      <section className="grid gap-4 lg:grid-cols-[.85fr_1.15fr]">
+        <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
+          <p className="text-[9px] font-black uppercase tracking-[.18em] text-purple-300">Verified movement</p>
+          <div className="mt-5 flex items-end gap-3">
+            <span className="text-5xl font-black text-white">{progressQuery.isLoading ? "—" : current.toLocaleString()}</span>
+            <span className="pb-1 text-sm font-bold text-white/35">/ {target.toLocaleString()} {progress?.unit || "verified supporter actions"}</span>
+          </div>
+          <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/8">
+            <div className="h-full rounded-full bg-purple-400 transition-[width]" style={{ width: `${completion}%` }} />
+          </div>
+          <p className="mt-4 text-xs leading-5 text-white/42">
+            {progress?.sourceLabel || "Attributed joins and verified unlocks generated by recorded creator work."}
+          </p>
+          {nextAction ? (
+            <Button asChild className="mt-5 rounded-xl bg-purple-500 font-black text-white hover:bg-purple-400">
+              <Link to={nextAction.href}>{nextAction.label}<ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          ) : null}
         </div>
-      </div>
 
-      {/* 2. Tier Progression Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {tiers.map((tier) => {
-          const isDone = tier.status === "completed";
-          const isActive = tier.status === "active";
+        <div className="rounded-3xl border border-white/10 bg-white/[.025] p-5 sm:p-6">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-purple-300" />
+            <p className="text-[9px] font-black uppercase tracking-[.18em] text-white/35">Recorded milestones</p>
+          </div>
 
-          return (
-            <div
-              key={tier.level}
-              className={`p-5 rounded-3xl border flex flex-col justify-between min-h-[140px] space-y-3 transition-all duration-300 ${
-                isActive
-                  ? "border-purple-500 bg-purple-950/30 shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/40"
-                  : isDone
-                  ? "border-emerald-500/30 bg-[#08160f]"
-                  : "border-white/10 bg-[#0e1015]"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                  isActive ? "bg-purple-500 text-black font-black" : isDone ? "bg-emerald-500/20 text-emerald-300" : "bg-white/5 text-white/40"
-                }`}>
-                  {tier.level}
-                </span>
-                {isDone && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
-                {isActive && <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />}
+          <div className="mt-5 space-y-3">
+            {(progress?.milestones || []).length ? (
+              progress!.milestones.map((milestone) => (
+                <div key={milestone.label} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                  {milestone.complete
+                    ? <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
+                    : <Circle className="mt-0.5 h-5 w-5 shrink-0 text-white/25" />}
+                  <div>
+                    <p className="text-sm font-black text-white">{milestone.label}</p>
+                    <p className="mt-1 text-xs leading-5 text-white/38">
+                      {milestone.complete ? "Backed by recorded creator activity." : "Not yet supported by the current recorded state."}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-white/12 p-5 text-sm leading-6 text-white/40">
+                No creator milestones are recorded yet. Publish and link real work before PROMORANG claims progress.
               </div>
+            )}
+          </div>
+        </div>
+      </section>
 
-              <div>
-                <h3 className="font-bold text-base text-white">{tier.name}</h3>
-                <p className="text-xs text-white/60 mt-0.5">{tier.req}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <section className="rounded-2xl border border-dashed border-white/12 p-5 text-sm leading-6 text-white/45">
+        <strong className="text-white">Not inferred:</strong> popularity, cultural authority, brand affinity, trust multiplier or a universal reputation score.
+        Those require explicit source contracts before they belong on this surface.
+      </section>
     </div>
   );
 }

@@ -14,9 +14,8 @@ import {
   Sparkles, 
   TrendingUp, 
   Users, 
-  Award, 
-  CheckCircle2, 
   ArrowRight,
+  RefreshCw,
   ExternalLink,
   Layers
 } from 'lucide-react';
@@ -81,6 +80,8 @@ export function PieceProfile() {
   const { toast } = useToast();
   const [profile, setProfile] = useState<PieceProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [creatingPool, setCreatingPool] = useState(false);
   const [initialPieces, setInitialPieces] = useState('1000');
   const [initialCurrency, setInitialCurrency] = useState('5000');
@@ -99,46 +100,21 @@ export function PieceProfile() {
 
   const fetchProfile = async () => {
     setLoading(true);
+    setLoadError(null);
+    setNotFound(false);
     try {
       const response = await fetch(apiUrl(`/pieces/${pieceType}/${assetId}/profile`));
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 404) {
+        setProfile(null);
+        setNotFound(true);
+        return;
+      }
       if (!response.ok) throw new Error(data.error || 'Failed to load piece profile');
       setProfile(data);
-    } catch {
-      // Fallback demo mock profile if backend is empty
-      setProfile({
-        piece_type: pieceType as PieceType,
-        asset_id: assetId,
-        asset: {
-          id: assetId,
-          title: pieceType === 'moment' ? 'I Luv Hip Hop Kingston Syndicate' : 'Premier Cultural Equity Drop',
-          description: 'Fractional co-producer equity in recurring cultural nightlife, ticket revenue distributions, and VIP experiential milestones.',
-          image_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
-        },
-        stats: {
-          current_price: 12.50,
-          volume_24h: 3450,
-          holder_count: 24,
-          change_24h: 8.5,
-          market_cap: 12500,
-        },
-        pool: {
-          id: 'pool_demo',
-          status: 'active',
-          pieces_reserve: 350,
-          currency_reserve: 4375,
-          last_price: 12.50,
-          volume_24h: 3450,
-        },
-        journey: {
-          summary: 'Verified ticket revenue share from event syndication settlements deposited directly to co-producers.',
-          steps: [
-            { step: 'Minting & Allocation', description: 'Fractional shares created to fund experiential production.' },
-            { step: 'Event Execution', description: 'Recurring ticket sales and VIP packages generate gross revenues.' },
-            { step: 'Automatic Dividend Settlement', description: 'Box office shares settle as instant Gem distributions.' },
-          ]
-        },
-      });
+    } catch (error) {
+      setProfile(null);
+      setLoadError(error instanceof Error ? error.message : 'Failed to load piece profile');
     } finally {
       setLoading(false);
     }
@@ -179,17 +155,12 @@ export function PieceProfile() {
     const count = parseFloat(swapPiecesCount) || 0;
     if (count <= 0) return;
 
-    setIsSwapping(true);
-    setTimeout(() => {
-      setIsSwapping(false);
-      const totalCost = (count * currentPrice).toFixed(2);
-      toast({
-        title: swapTab === 'buy' ? "🎉 Pieces Purchased!" : "Pieces Sold!",
-        description: swapTab === 'buy'
-          ? `Successfully acquired ${count} ${title} pieces for ${totalCost} Gems.`
-          : `Successfully sold ${count} ${title} pieces for ${totalCost} Gems.`,
-      });
-    }, 1000);
+    setIsSwapping(false);
+    toast({
+      title: 'Trade not submitted',
+      description: 'Live Piece order execution is not available from this screen. No Gems or Pieces moved.',
+      variant: 'destructive',
+    });
   };
 
   if (loading) {
@@ -200,7 +171,20 @@ export function PieceProfile() {
     );
   }
 
-  if (!profile) {
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-12 text-center">
+        <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />Marketplace</Link></Button>
+        <h1 className="mt-6 text-2xl font-bold">Piece source unavailable</h1>
+        <p className="mt-3 text-sm text-muted-foreground">{loadError}</p>
+        <Button type="button" variant="outline" className="mt-6" onClick={fetchProfile}>
+          <RefreshCw className="mr-2 h-4 w-4" />Retry Piece source
+        </Button>
+      </div>
+    );
+  }
+
+  if (notFound || !profile) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12 text-center">
         <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />Marketplace</Link></Button>
@@ -210,9 +194,10 @@ export function PieceProfile() {
   }
 
   const title = profile.asset.title || profile.asset.name || `${profile.piece_type} piece`;
-  const currentPrice = Number(profile.pool?.last_price || profile.stats?.current_price || 12.50);
+  const recordedPrice = profile.pool?.last_price ?? profile.stats?.current_price ?? null;
   const swapCountNum = parseFloat(swapPiecesCount) || 0;
-  const estimatedSwapCost = (swapCountNum * currentPrice).toFixed(2);
+  const estimatedSwapCost = recordedPrice == null ? null : swapCountNum * Number(recordedPrice);
+  const metric = (value?: number | null, suffix = '') => value == null ? '—' : `${Number(value).toFixed(2)}${suffix}`;
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-16">
@@ -228,11 +213,11 @@ export function PieceProfile() {
             </Button>
 
             {/* Creator / Owner Management Shortcut */}
-            <Button asChild variant="outline" size="sm" className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 font-bold">
+            {import.meta.env.DEV ? <Button asChild variant="outline" size="sm" className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 font-bold">
               <Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`} className="flex items-center gap-1.5">
                 <Crown className="w-3.5 h-3.5 text-amber-400" /> Syndicate Creator Studio
               </Link>
-            </Button>
+            </Button> : null}
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1fr_380px] items-end">
@@ -246,9 +231,6 @@ export function PieceProfile() {
                     <TrendingUp className="w-3 h-3" /> Live AMM Pool
                   </Badge>
                 )}
-                <Badge variant="outline" className="text-cyan-400 border-cyan-500/30 bg-cyan-500/10">
-                  18.4% Est. APR
-                </Badge>
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-foreground">{title}</h1>
@@ -269,19 +251,19 @@ export function PieceProfile() {
                 <CardContent className="space-y-3 pt-4 text-white">
                   <div className="flex justify-between items-baseline">
                     <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Piece Price</span>
-                    <span className="text-2xl font-black text-cyan-400">{currentPrice.toFixed(2)} Gems</span>
+                    <span className="text-2xl font-black text-cyan-400">{recordedPrice == null ? "—" : `${Number(recordedPrice).toFixed(2)} Gems`}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
                     <span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span>
-                    <span className="font-semibold text-white/90">{Number(profile.pool?.volume_24h || profile.stats?.volume_24h || 0).toFixed(0)} Gems</span>
+                    <span className="font-semibold text-white/90">{profile.pool?.volume_24h == null && profile.stats?.volume_24h == null ? "—" : `${Number(profile.pool?.volume_24h ?? profile.stats?.volume_24h).toFixed(0)} Gems`}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
                     <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Co-Producers</span>
-                    <span className="font-semibold text-emerald-400">{Number(profile.stats?.holder_count || 24)} Backers</span>
+                    <span className="font-semibold text-emerald-400">{profile.stats?.holder_count == null ? "—" : `${Number(profile.stats.holder_count)} Backers`}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
                     <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span>
-                    <span className="font-semibold text-white/90">{Number(profile.stats?.market_cap || 12500).toFixed(2)} Gems</span>
+                    <span className="font-semibold text-white/90">{profile.stats?.market_cap == null ? "—" : `${Number(profile.stats.market_cap).toFixed(2)} Gems`}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -294,42 +276,15 @@ export function PieceProfile() {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
           <div className="space-y-8">
-            {/* Co-Producer Tier Perks Matrix */}
-            <Card className="border-amber-500/30 bg-gradient-to-br from-amber-950/15 via-neutral-900/90 to-black/95 shadow-xl">
-              <CardHeader className="border-b border-amber-500/20 pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl font-bold flex items-center gap-2">
-                      <Award className="w-5 h-5 text-amber-400" /> Co-Producer Shareholder Perks
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      Exclusive rewards and access unlocked by holding minimum share thresholds.
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">
-                    Tiered Utility
-                  </Badge>
-                </div>
+            <Card className="border-amber-500/20 bg-amber-950/10">
+              <CardHeader>
+                <CardTitle className="text-lg font-bold">Holder benefits</CardTitle>
+                <CardDescription>
+                  Piece quantity does not create discounts, VIP access, hospitality or governance rights by itself.
+                </CardDescription>
               </CardHeader>
-              <CardContent className="pt-5 space-y-3">
-                {[
-                  { shares: 5, title: 'Priority Access & Presale', desc: '15% ticket discount + guaranteed early-bird access to all syndicated events.' },
-                  { shares: 15, title: 'VIP Backstage & Hospitality', desc: 'Complimentary VIP admission + backstage access badge + 2 drink tokens.' },
-                  { shares: 25, title: 'Co-Producer Executive Vote', desc: 'Direct governance vote on artist lineups, dates, and sponsor selection.' },
-                ].map((tier) => (
-                  <div key={tier.shares} className="p-4 rounded-2xl border border-amber-500/20 bg-neutral-900/50 flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs font-black">
-                          Hold {tier.shares}+ Pieces
-                        </Badge>
-                        <h4 className="font-bold text-sm text-foreground">{tier.title}</h4>
-                      </div>
-                      <p className="text-xs text-muted-foreground">{tier.desc}</p>
-                    </div>
-                    <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
-                  </div>
-                ))}
+              <CardContent className="text-sm leading-6 text-muted-foreground">
+                No holder benefits are listed for this Piece yet.
               </CardContent>
             </Card>
 
@@ -356,7 +311,7 @@ export function PieceProfile() {
                 <div className="rounded-xl border bg-muted/20 p-4">
                   <Users className="h-5 w-5 text-primary" />
                   <p className="mt-5 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{t("pieceProfile.liquidityNow")}</p>
-                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 24)} holders · active pool` : "No active pool"}</p>
+                  <p className="mt-2 text-sm font-semibold">{profile.pool ? `${Number(profile.stats?.holder_count || 0)} holders · active pool` : "No active pool"}</p>
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">A pool enables exchange; it does not guarantee a buyer, stable price or easy exit.</p>
                 </div>
               </div>
@@ -428,24 +383,24 @@ export function PieceProfile() {
                 <div className="rounded-xl border border-cyan-500/20 bg-cyan-950/20 p-3 space-y-1.5 text-xs">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Estimated Total:</span>
-                    <span className="font-bold text-foreground">{estimatedSwapCost} Gems</span>
+                    <span className="font-bold text-foreground">{estimatedSwapCost == null ? "Unavailable" : `${estimatedSwapCost.toFixed(2)} Gems`}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Pool Swap Fee:</span>
-                    <span>0.3% (~{(parseFloat(estimatedSwapCost) * 0.003).toFixed(2)} Gems)</span>
+                    <span>{estimatedSwapCost == null ? "Unavailable" : `0.3% (~${(estimatedSwapCost * 0.003).toFixed(2)} Gems)`}</span>
                   </div>
                 </div>
 
                 <Button
                   onClick={handleExecuteSwap}
-                  disabled={isSwapping || swapCountNum <= 0}
+                  disabled={isSwapping || swapCountNum <= 0 || estimatedSwapCost == null}
                   className={`w-full font-black text-xs uppercase tracking-wider py-5 rounded-xl ${
                     swapTab === 'buy' 
                       ? 'bg-cyan-500 hover:bg-cyan-400 text-black' 
                       : 'bg-rose-600 hover:bg-rose-500 text-white'
                   }`}
                 >
-                  {isSwapping ? "Executing Trade..." : `${swapTab === 'buy' ? 'Buy' : 'Sell'} for ${estimatedSwapCost} Gems`}
+                  {isSwapping ? "Executing Trade..." : estimatedSwapCost == null ? "Price unavailable" : `${swapTab === 'buy' ? 'Buy' : 'Sell'} for ${estimatedSwapCost.toFixed(2)} Gems`}
                 </Button>
               </CardContent>
             </Card>
@@ -482,4 +437,3 @@ export function PieceProfile() {
 }
 
 export default PieceProfile;
-

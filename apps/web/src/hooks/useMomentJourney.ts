@@ -14,36 +14,16 @@ export function useMomentJourney(momentId?: string | null) {
     queryKey: ["moment-journey", momentId, session?.user?.id],
     enabled: Boolean(isValidUuid && session?.access_token),
     queryFn: async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/participation/moments/${momentId}/journey`, {
-          headers: { Authorization: `Bearer ${session!.access_token}` },
-        });
-        if (!response.ok) {
-          return resolveMomentJourney({
-            hasJoined: false,
-            hasCheckedIn: false,
-            hasSubmittedProof: false,
-            hasApprovedProof: false,
-            hasReceivedPayout: false,
-            canRsvp: true,
-            canCheckIn: false,
-            canSubmitProof: false,
-          });
-        }
-        const payload = await response.json();
-        return resolveMomentJourney(payload.facts as MomentJourneyFacts);
-      } catch {
-        return resolveMomentJourney({
-          hasJoined: false,
-          hasCheckedIn: false,
-          hasSubmittedProof: false,
-          hasApprovedProof: false,
-          hasReceivedPayout: false,
-          canRsvp: true,
-          canCheckIn: false,
-          canSubmitProof: false,
-        });
+      const response = await fetch(`${API_URL}/api/participation/moments/${momentId}/journey`, {
+        headers: { Authorization: `Bearer ${session!.access_token}` },
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload?.success || !payload?.facts) {
+        throw new Error(payload?.error || `Moment journey unavailable (${response.status})`);
       }
+
+      return resolveMomentJourney(payload.facts as MomentJourneyFacts);
     },
   });
 }

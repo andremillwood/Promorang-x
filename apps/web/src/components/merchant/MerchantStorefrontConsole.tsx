@@ -1,33 +1,10 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Store,
-  ExternalLink,
-  Plus,
-  QrCode,
-  Sparkles,
-  Share2,
-  Copy,
-  Check,
-  Package,
-  Clock,
-  MapPin,
-  Flame,
-  Tag,
-  Star,
-  Image as ImageIcon,
-  Zap,
-  DollarSign,
-  ArrowRight,
-  TrendingUp,
-} from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Check, Copy, ExternalLink, Flame, Package, Store, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 import ProductCatalogManager from "@/components/merchant/ProductCatalogManager";
 
 export function MerchantStorefrontConsole({
@@ -41,229 +18,151 @@ export function MerchantStorefrontConsole({
   const { toast } = useToast();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
-  const [activeDeal, setActiveDeal] = useState<string | null>("2-for-1 Artisan Pour-Over (3-6 PM)");
-  const [dealDiscount, setDealDiscount] = useState("20");
+  const [offerTitle, setOfferTitle] = useState("");
+  const [discount, setDiscount] = useState("");
 
-  const storefrontUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/storefront/${user?.id || "demo"}`
-    : `https://www.promorang.co/storefront/${user?.id || "demo"}`;
+  const storefrontUrl = user?.id && typeof window !== "undefined"
+    ? `${window.location.origin}/storefront/${user.id}`
+    : user?.id
+      ? `https://www.promorang.co/storefront/${user.id}`
+      : null;
 
-  const copyStorefrontLink = () => {
-    navigator.clipboard.writeText(storefrontUrl);
+  const copyStorefrontLink = async () => {
+    if (!storefrontUrl) {
+      toast({
+        title: "Storefront link unavailable",
+        description: "PROMORANG needs an authenticated merchant identity before it can create a storefront link.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await navigator.clipboard.writeText(storefrontUrl);
     setCopied(true);
     toast({
-      title: "Storefront Link Copied! 📋",
-      description: "Share this link on Instagram, WhatsApp, or print on table tents.",
+      title: "Storefront link copied",
+      description: "Share the recorded merchant storefront. Inventory shown there still comes from published product and offer records.",
     });
-    setTimeout(() => setCopied(false), 2000);
+    window.setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleLaunchFlashDrop = () => {
-    const title = activeDeal || `${dealDiscount}% off`;
-    navigate(`/stock?title=${encodeURIComponent(title)}`);
+  const handleContinueOffer = () => {
+    const title = offerTitle.trim() || (discount ? `${discount}% off` : "");
+    const query = title ? `?title=${encodeURIComponent(title)}` : "";
+    navigate(`/stock${query}`);
   };
 
   return (
     <div className="space-y-6">
-      {/* 1. Header & Live Storefront Identity Banner */}
-      <div className="p-6 rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-black font-black shadow-lg shadow-emerald-500/20 shrink-0">
-            <Store className="h-7 w-7 text-black" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Live Storefront & Experience Studio</h2>
-              <Badge className="bg-emerald-500 text-black font-extrabold uppercase text-[10px]">
-                Public Visible
-              </Badge>
+      <section className="rounded-3xl border border-emerald-500/25 bg-[linear-gradient(135deg,rgba(16,185,129,.10),rgba(0,0,0,.86))] p-5 sm:p-7">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-emerald-300">
+              <Store className="h-4 w-4" />
+              Merchant · Supply
             </div>
-            <p className="text-xs text-white/60 mt-1">
-              Put a live perk up, share the drop, and validate codes at the counter.
+            <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">Put up supply that actually exists.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
+              Products, offers and inventory stay source-backed. A draft here is not a live perk, a claim is not a redemption,
+              and a validation is not a purchase or fulfillment record.
             </p>
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-          <Button
-            asChild
-            className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs"
-          >
-            <Link to={user?.id ? `/storefront/${user.id}` : "/shop"} target="_blank">
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              View Public Shop
-            </Link>
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={copyStorefrontLink}
-            className="h-10 px-4 rounded-xl border-white/15 bg-white/5 hover:bg-white/10 text-white font-bold text-xs"
-          >
-            {copied ? <Check className="h-3.5 w-3.5 mr-1.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
-            {copied ? "Link Copied!" : "Copy QR Link"}
-          </Button>
-        </div>
-      </div>
-
-      {/* 2. Main Studio Grid: Mockup Showcase & Live Ops Control */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Interactive Storefront Live Mockup (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
-                Customer Mobile Preview
-              </span>
-              <span className="text-[10px] text-white/40 font-mono">375px viewport</span>
-            </div>
-
-            {/* Mobile Mockup Shell */}
-            <div className="rounded-2xl border border-white/10 bg-black overflow-hidden shadow-2xl">
-              {/* Cover Banner */}
-              <div className="relative h-32 bg-gradient-to-r from-emerald-900 via-teal-900 to-black p-4 flex flex-col justify-end">
-                <div className="absolute top-3 right-3">
-                  <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-emerald-300 flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Open Now
-                  </span>
-                </div>
-                <h3 className="text-lg font-black text-white drop-shadow-md">
-                  {user?.user_metadata?.company_name || user?.user_metadata?.full_name || "Artisan Cafe & Lounge"}
-                </h3>
-                <p className="text-[11px] text-white/70 flex items-center gap-1 mt-0.5">
-                  <MapPin className="h-3 w-3 text-emerald-400" />
-                  Kingston Cultural District
-                </p>
-              </div>
-
-              {/* Active Deal Highlight */}
-              <div className="p-4 bg-emerald-950/30 border-y border-emerald-500/20 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Flame className="h-4 w-4 text-amber-400" />
-                  <div>
-                    <p className="text-[11px] font-bold text-white">Active Flash Drop</p>
-                    <p className="text-[10px] text-emerald-300">{activeDeal}</p>
-                  </div>
-                </div>
-                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-extrabold text-[10px]">
-                  -{dealDiscount}%
-                </span>
-              </div>
-
-              {/* Preview Products List */}
-              <div className="p-4 space-y-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">
-                  Featured Items (3 live)
-                </p>
-
-                <div className="p-2.5 rounded-xl border border-white/5 bg-white/[0.02] flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs">
-                      ☕
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Single-Origin Blue Mountain</p>
-                      <p className="text-[10px] text-white/50">800 Points or $4.50</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                    In Stock
-                  </span>
-                </div>
-
-                <div className="p-2.5 rounded-xl border border-white/5 bg-white/[0.02] flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs">
-                      🥐
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">Guava Butter Croissant</p>
-                      <p className="text-[10px] text-white/50">600 Points or $3.75</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                    In Stock
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Flash Drop Launcher & Catalog Controls (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Flash Perk & Happy Hour Generator */}
-          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-amber-400" />
-                <h3 className="font-bold text-base text-white">Put a live perk up</h3>
-              </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold uppercase">
-                Dynamic Demand Boost
-              </span>
-            </div>
-
-            <p className="text-xs text-white/60">
-              This opens live inventory. Hosts and creators share it. Members claim it. You validate the code.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-2xl border border-white/5 bg-white/[0.02] space-y-1">
-                <label className="text-[10px] uppercase font-bold text-white/50">Discount Level</label>
-                <div className="flex items-center gap-1.5">
-                  <Input
-                    type="number"
-                    value={dealDiscount}
-                    onChange={(e) => setDealDiscount(e.target.value)}
-                    className="h-9 rounded-xl border-white/10 bg-white/5 text-white font-bold text-sm"
-                  />
-                  <span className="text-sm font-bold text-white">%</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-2xl border border-white/5 bg-white/[0.02] space-y-1 sm:col-span-2">
-                <label className="text-[10px] uppercase font-bold text-white/50">Drop Description</label>
-                <Input
-                  value={activeDeal || ""}
-                  onChange={(e) => setActiveDeal(e.target.value)}
-                  placeholder="e.g. 20% Off Brunch & Drink Flight"
-                  className="h-9 rounded-xl border-white/10 bg-white/5 text-white text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-              <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-                <TrendingUp className="h-3.5 w-3.5" />
-                Next: share the drop, then validate at the counter
-              </span>
-              <Button
-                onClick={handleLaunchFlashDrop}
-                className="h-10 px-5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-black font-extrabold text-xs shadow-lg shadow-amber-500/20"
-              >
-                <Flame className="h-4 w-4 mr-1.5" />
-                Put this perk up
+          <div className="flex flex-wrap gap-2">
+            {storefrontUrl ? (
+              <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">
+                <Link to={`/storefront/${user?.id}`} target="_blank">
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  View storefront
+                </Link>
               </Button>
-            </div>
-          </div>
-
-          {/* Catalog & Inventory Direct Embed */}
-          <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-base text-white">Full Catalog & Price Management</h3>
-                <p className="text-xs text-white/50 mt-0.5">
-                  Update inventory, pricing, fulfillment modes, and point redemption values.
-                </p>
-              </div>
-            </div>
-
-            <ProductCatalogManager />
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={copyStorefrontLink}
+              disabled={!storefrontUrl}
+              className="rounded-xl border-white/10 bg-white/[.03] text-white"
+            >
+              {copied ? <Check className="mr-2 h-4 w-4 text-emerald-300" /> : <Copy className="mr-2 h-4 w-4" />}
+              {copied ? "Copied" : "Copy storefront link"}
+            </Button>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-[minmax(0,.75fr)_minmax(0,1.25fr)]">
+        <div className="space-y-5 rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-[.18em] text-amber-300">Draft an offer</p>
+            <h3 className="mt-2 text-xl font-black text-white">Describe the customer reason to act.</h3>
+            <p className="mt-2 text-sm leading-6 text-white/45">
+              This form only prepares the next supply step. Nothing becomes public until the authoritative inventory/offer flow records it.
+            </p>
+          </div>
+
+          <label className="block space-y-2">
+            <span className="text-[10px] font-black uppercase tracking-[.14em] text-white/35">Offer title</span>
+            <Input
+              value={offerTitle}
+              onChange={(event) => setOfferTitle(event.target.value)}
+              placeholder="e.g. 20% off brunch before 4 PM"
+              className="h-11 rounded-xl border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
+            />
+          </label>
+
+          <label className="block space-y-2">
+            <span className="text-[10px] font-black uppercase tracking-[.14em] text-white/35">Discount, if this offer truly uses one</span>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={discount}
+                onChange={(event) => setDiscount(event.target.value)}
+                placeholder="Optional"
+                className="h-11 rounded-xl border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
+              />
+              <span className="text-sm font-black text-white/45">%</span>
+            </div>
+          </label>
+
+          <Button onClick={handleContinueOffer} className="w-full rounded-xl bg-[#ff6500] font-black text-black hover:bg-[#ff7a20]">
+            <Flame className="mr-2 h-4 w-4" />
+            Continue to inventory
+          </Button>
+
+          <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4 text-xs leading-5 text-white/40">
+            <TrendingUp className="mb-2 h-4 w-4 text-emerald-300" />
+            Publishing supply creates an offer/inventory record. It does not create a sale, redemption, fulfillment or repeat customer by itself.
+          </div>
+
+          {onOpenScanner ? (
+            <Button type="button" variant="outline" onClick={onOpenScanner} className="w-full rounded-xl border-white/10 bg-white/[.03] text-white">
+              Open validation station
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-[.18em] text-emerald-300">Recorded catalog</p>
+              <h3 className="mt-2 text-xl font-black text-white">Products and fulfillment settings.</h3>
+              <p className="mt-2 text-sm leading-6 text-white/45">
+                This catalog is the real source for merchant products. Empty inventory stays empty until you add it.
+              </p>
+            </div>
+            {onOpenProducts ? (
+              <Button type="button" variant="outline" onClick={onOpenProducts} className="rounded-xl border-white/10 bg-white/[.03] text-white">
+                <Package className="mr-2 h-4 w-4" />
+                Product tools
+              </Button>
+            ) : null}
+          </div>
+          <ProductCatalogManager />
+        </div>
+      </section>
     </div>
   );
 }

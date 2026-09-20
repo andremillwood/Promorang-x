@@ -1,155 +1,103 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { EvidenceItem } from './EvidenceFeed';
-import { Download, Share2, CheckCircle2, TrendingUp, Users, DollarSign, Building2 } from 'lucide-react';
-import { formatCurrency, formatCompactNumber } from './utils';
-import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import type { EvidenceItem } from "./EvidenceFeed";
+import { Download, Users, DollarSign, Image as ImageIcon } from "lucide-react";
+import { formatCurrency, formatCompactNumber } from "./utils";
+import { Badge } from "@/components/ui/badge";
 
-// We typically would pass in actual metrics, but we'll mock them similar to the feed for demonstration
 interface AutomatedRecapProps {
-    isOpen: boolean;
-    onClose: () => void;
-    campaignName: string;
-    totalSpent: number;
-    totalParticipants: number;
-    roi: number; // Cost per participant
-    evidenceItems: EvidenceItem[]; // We'll assume these are passed in from the parent
+  isOpen: boolean;
+  onClose: () => void;
+  campaignName: string;
+  totalSpent: number;
+  totalParticipants: number;
+  roi: number;
+  evidenceItems: EvidenceItem[];
 }
 
+/**
+ * Legacy recap renderer.
+ *
+ * It only renders values/evidence supplied by its caller. It does not add
+ * benchmark comparisons, projected outcomes, invented white-label clients, or
+ * "verified" language beyond the supplied evidence status.
+ */
 export function AutomatedRecap({
-    isOpen,
-    onClose,
-    campaignName,
-    totalSpent,
-    totalParticipants,
-    roi,
-    evidenceItems
+  isOpen,
+  onClose,
+  campaignName,
+  totalSpent,
+  totalParticipants,
+  roi,
+  evidenceItems,
 }: AutomatedRecapProps) {
-    const [isWhiteLabel, setIsWhiteLabel] = useState(false);
+  const handlePrint = () => window.print();
 
-    // For printing/PDF, we can just trigger window.print() and hide other elements with CSS 
-    // (@media print { ... }) or we could use jsPDF in a real app.
-    const handleDownload = () => {
-        window.print();
-    };
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl overflow-hidden border-border/50 bg-background p-0 shadow-2xl">
+        <div className="absolute right-4 top-4 z-50 print:hidden">
+          <Button variant="outline" size="sm" onClick={handlePrint} className="bg-background/80 backdrop-blur-sm">
+            <Download className="mr-2 h-4 w-4" />
+            Print / Save PDF
+          </Button>
+        </div>
 
-    return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-4xl p-0 overflow-hidden bg-background border-border/50 shadow-2xl">
-                {/* Action Bar (hidden in print) */}
-                <div className="absolute top-4 right-4 z-50 flex gap-2 print:hidden">
-                    <Button variant="outline" size="sm" onClick={() => setIsWhiteLabel(!isWhiteLabel)} className="bg-background/80 backdrop-blur-sm border-dashed">
-                        {isWhiteLabel ? "Disable White-Label" : "Enable White-Label"}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleDownload} className="bg-background/80 backdrop-blur-sm">
-                        <Download className="w-4 h-4 mr-2" />
-                        Export PDF
-                    </Button>
-                    <Button variant="hero" size="sm" className="shadow-lg">
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Share Report
-                    </Button>
-                </div>
+        <div className="max-h-[85vh] overflow-y-auto p-8 md:p-12" id="recap-print-area">
+          <DialogHeader className="border-b border-border pb-8 pt-4 text-left">
+            <Badge variant="outline" className="mb-3 w-fit">Campaign summary</Badge>
+            <DialogTitle className="font-serif text-4xl font-bold tracking-tight">{campaignName}</DialogTitle>
+            <DialogDescription>
+              This recap shows the campaign totals available right now. It does not estimate lift or future performance.
+            </DialogDescription>
+          </DialogHeader>
 
-                {/* Report Container */}
-                <div className="p-8 md:p-12 max-h-[85vh] overflow-y-auto" id="recap-print-area">
-                    
-                    {/* Header */}
-                    <div className="border-b border-border mb-8 pb-8 text-center pt-4 relative">
-                        {isWhiteLabel && (
-                            <div className="flex justify-center mb-6">
-                                <div className="h-14 bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-700 rounded-xl px-8 flex items-center justify-center shadow-2xl">
-                                    <span className="font-serif font-black text-xl tracking-[0.2em] text-white">APEX <span className="text-slate-400 font-sans font-light tracking-widest text-sm">AGENCY</span></span>
-                                </div>
-                            </div>
-                        )}
+          <div className="my-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="rounded-2xl border border-border/50 bg-secondary/30 p-6 text-center">
+              <Users className="mx-auto h-6 w-6 text-primary" />
+              <h3 className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Participants</h3>
+              <p className="mt-2 text-4xl font-black text-foreground">{formatCompactNumber(totalParticipants)}</p>
+            </div>
+            <div className="rounded-2xl border border-border/50 bg-secondary/30 p-6 text-center">
+              <DollarSign className="mx-auto h-6 w-6 text-primary" />
+              <h3 className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Total spend</h3>
+              <p className="mt-2 text-4xl font-black text-foreground">{formatCurrency(totalSpent)}</p>
+            </div>
+            <div className="rounded-2xl border border-border/50 bg-secondary/30 p-6 text-center">
+              <DollarSign className="mx-auto h-6 w-6 text-primary" />
+              <h3 className="mt-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Spend / participant</h3>
+              <p className="mt-2 text-4xl font-black text-foreground">{formatCurrency(roi)}</p>
+            </div>
+          </div>
 
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 mb-6 text-xs font-bold tracking-widest uppercase">
-                            <CheckCircle2 className="w-4 h-4" />
-                            Verified Outcome Report
-                        </div>
-                        <h1 className="text-4xl font-serif font-bold tracking-tighter mb-2">
-                            {campaignName}
-                        </h1>
-                        <p className="text-muted-foreground font-medium">
-                            {isWhiteLabel ? (
-                                "Independently Verified Campaign Metrics"
-                            ) : (
-                                "Powered by Promorang Proof Infrastructure"
-                            )}
-                        </p>
+          <section>
+            <div className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-bold">Attached evidence</h2>
+            </div>
+            {evidenceItems.length > 0 ? (
+              <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+                {evidenceItems.filter((item) => item.media_url).map((item) => (
+                  <div key={item.id} className="overflow-hidden rounded-2xl border border-border/50">
+                    <img src={item.media_url} alt="" className="aspect-square w-full object-cover" />
+                    <div className="p-3">
+                      <p className="truncate text-sm font-bold">{item.user_name}</p>
+                      <p className="mt-1 truncate text-xs text-muted-foreground">{item.location || "Location unavailable"}</p>
+                      <Badge variant="outline" className="mt-2 text-[9px] uppercase">
+                        {item.verification_status}
+                      </Badge>
                     </div>
-
-                    {/* Executive Summary Metrics */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        <div className="bg-secondary/50 rounded-2xl p-6 border border-border/50 text-center">
-                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                                <Users className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-1">Total Verified Actions</h3>
-                            <p className="text-4xl font-black text-foreground">{formatCompactNumber(totalParticipants)}</p>
-                        </div>
-                        
-                        <div className="bg-emerald-500/5 rounded-2xl p-6 border border-emerald-500/10 text-center">
-                            <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
-                                <TrendingUp className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-sm font-bold text-emerald-600/70 uppercase tracking-widest mb-1">Cost Per Action (CAC)</h3>
-                            <p className="text-4xl font-black text-emerald-600">{formatCurrency(roi)}</p>
-                            <p className="text-xs text-emerald-600/70 mt-2 font-medium">42% better than average ad spend</p>
-                        </div>
-
-                        <div className="bg-secondary/50 rounded-2xl p-6 border border-border/50 text-center">
-                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                                <DollarSign className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-1">Total Capital Deployed</h3>
-                            <p className="text-4xl font-black text-foreground">{formatCurrency(totalSpent)}</p>
-                        </div>
-                    </div>
-
-                    {/* Evidence Gallery */}
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-serif font-bold mb-6">Visual Evidence Gallery</h2>
-                        {evidenceItems && evidenceItems.length > 0 ? (
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                {evidenceItems.filter(e => e.media_url).map(item => (
-                                    <div key={item.id} className="relative aspect-square rounded-2xl overflow-hidden group border border-border/50">
-                                        <img src={item.media_url} alt="" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end">
-                                            <p className="text-white font-bold text-sm truncate">{item.user_name}</p>
-                                            <p className="text-white/80 text-xs truncate">@ {item.location}</p>
-                                            <div className="mt-2 flex items-center gap-1">
-                                                <Badge className="bg-emerald-500/80 hover:bg-emerald-500/80 text-[9px] uppercase tracking-tighter px-1.5 py-0">Verified</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center p-12 bg-muted/30 rounded-2xl border border-dashed border-border">
-                                <p className="text-muted-foreground">Gathering visual evidence...</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Footer / Smart Scale CTA */}
-                    <div className="mt-12 bg-primary/5 rounded-2xl p-8 border border-primary/20 flex flex-col md:flex-row items-center justify-between gap-6 print:hidden">
-                        <div>
-                            <h3 className="text-lg font-bold text-primary mb-1">Scale This Campaign</h3>
-                            <p className="text-sm text-muted-foreground max-w-md">
-                                Your campaign is performing exceptionally well. Increase your budget now to capture 
-                                an estimated 500 more verified actions at this low CAC.
-                            </p>
-                        </div>
-                        <Button variant="hero" size="lg" className="shrink-0 w-full md:w-auto shadow-xl shadow-primary/20">
-                            Scale Budget
-                        </Button>
-                    </div>
-
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-5 rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                No visual evidence was supplied to this recap.
+              </div>
+            )}
+          </section>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }

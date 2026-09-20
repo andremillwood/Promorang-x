@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { authPathForReturn } from "@/lib/post-auth-next";
+import { rememberResumableIntent } from "@/lib/resumable-intent";
 
 interface FollowButtonProps {
     userId: string;
@@ -33,33 +35,72 @@ export function FollowButton({
     const { user } = useAuth();
     const [isFollowing, setIsFollowing] = useState(initialFollowing);
     const [isLoading, setIsLoading] = useState(false);
+    const [checkingStatus, setCheckingStatus] = useState(false);
+    const [statusError, setStatusError] = useState(false);
     const [followerCount, setFollowerCount] = useState(initialCount);
 
-    // Check if already following on mount
+    // Check authoritative follow state before exposing a mutation.
     useEffect(() => {
-        if (!user || user.id === userId) return;
-        
+        if (!user || user.id === userId) {
+            setCheckingStatus(false);
+            setStatusError(false);
+            return;
+        }
+
+        let active = true;
         const checkFollowStatus = async () => {
-            const { data } = await supabase
+            setCheckingStatus(true);
+            setStatusError(false);
+            const { data, error } = await supabase
                 .from('user_follows')
                 .select('id')
                 .eq('follower_id', user.id)
                 .eq('following_id', userId)
                 .maybeSingle();
-            
+
+            if (!active) return;
+            if (error) {
+                setStatusError(true);
+                setCheckingStatus(false);
+                return;
+            }
+
             setIsFollowing(!!data);
+            setCheckingStatus(false);
         };
-        
-        checkFollowStatus();
+
+        void checkFollowStatus();
+        return () => {
+            active = false;
+        };
     }, [user, userId]);
 
+    useEffect(() => {
+        setFollowerCount(initialCount);
+    }, [initialCount]);
+
     const handleToggleFollow = async () => {
-        if (!user) {
+        if (statusError) {
             toast({
-                title: t("followButton.signInRequired"),
-                description: t("followButton.signInDesc"),
+                title: "Follow status unavailable",
+                description: "PROMORANG could not verify the current follow state, so nothing was changed.",
                 variant: "destructive"
             });
+            return;
+        }
+
+        if (!user) {
+            const returnPath = typeof window === "undefined"
+                ? `/profile/${userId}`
+                : `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            rememberResumableIntent({
+                kind: "market_watch",
+                returnPath,
+                targetId: `profile:${userId}`,
+            });
+            if (typeof window !== "undefined") {
+                window.location.assign(authPathForReturn(returnPath, { mode: "login", role: "participant" }));
+            }
             return;
         }
 
@@ -138,9 +179,9 @@ export function FollowButton({
                 size="icon"
                 className={cn("rounded-full", className)}
                 onClick={handleToggleFollow}
-                disabled={isLoading}
+                disabled={isLoading || checkingStatus || statusError}
             >
-                {isLoading ? (
+                {isLoading || checkingStatus ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                 ) : isFollowing ? (
                     <UserMinus className="h-4 w-4" />
@@ -158,16 +199,16 @@ export function FollowButton({
                 size="sm"
                 className={cn("h-8 px-3", className)}
                 onClick={handleToggleFollow}
-                disabled={isLoading}
+                disabled={isLoading || checkingStatus || statusError}
             >
-                {isLoading ? (
+                {isLoading || checkingStatus ? (
                     <Loader2 className="h-3 w-3 animate-spin mr-1" />
                 ) : isFollowing ? (
                     <UserMinus className="h-3 w-3 mr-1" />
                 ) : (
                     <UserPlus className="h-3 w-3 mr-1" />
                 )}
-                {isFollowing ? t("followButton.following") : t("followButton.follow")}
+                {statusError ? "Unavailable" : isFollowing ? t("followButton.following") : t("followButton.follow")}
             </Button>
         );
     }
@@ -177,17 +218,17 @@ export function FollowButton({
             <Button
                 variant={isFollowing ? "outline" : "hero"}
                 onClick={handleToggleFollow}
-                disabled={isLoading}
+                disabled={isLoading || checkingStatus || statusError}
                 className="min-w-[100px]"
             >
-                {isLoading ? (
+                {isLoading || checkingStatus ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : isFollowing ? (
                     <UserMinus className="h-4 w-4 mr-2" />
                 ) : (
                     <UserPlus className="h-4 w-4 mr-2" />
                 )}
-                {isFollowing ? t("followButton.following") : t("followButton.follow")}
+                {statusError ? "Follow unavailable" : isFollowing ? t("followButton.following") : t("followButton.follow")}
             </Button>
 
             {followerCount !== undefined && (

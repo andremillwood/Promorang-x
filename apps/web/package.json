@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:design": "vite --open /design-lab.html",
+    "dev:participant": "vite --open /participant-next.html#/today",
     "build": "vite build && node scripts/generate-public-seo.mjs",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
@@ -83,6 +85,7 @@
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.16.5",
     "@types/react": "18.3.12",
@@ -96,5 +99,10 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vitest": "^3.2.4"
+  },
+  "optionalDependencies": {
+    "@esbuild/linux-x64": "0.21.5",
+    "@rollup/rollup-linux-x64-gnu": "4.57.1",
+    "@swc/core-linux-x64-gnu": "1.15.11"
   }
 }
