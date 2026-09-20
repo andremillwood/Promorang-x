@@ -22,6 +22,12 @@ function nextActions(brief: NonNullable<ReturnType<typeof readBusinessOutcomeBri
   const currentMerchant = activeRole === "merchant";
 
   if (brief.executionRailId === "commerce") {
+    if (brief.commerceSourceId && (commerceOwnedHere || currentMerchant)) {
+      return {
+        primary: { label: "Open linked commerce supply", href: "/dashboard?tab=storefront" },
+        secondary: { label: "Plan distribution around it", href: planner },
+      };
+    }
     if (commerceOwnedHere || currentMerchant) {
       return {
         primary: { label: "Create or select sellable supply", href: "/dashboard/products/add?from=business-outcome" },
@@ -128,6 +134,7 @@ export default function BusinessProgramme() {
                 <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex justify-between gap-6 border-b border-white/10 pb-3"><dt className="text-white/38">Subject</dt><dd className="text-right font-black">{subject?.title || "Commerce"}{brief.subjectLabel ? ` · ${brief.subjectLabel}` : ""}</dd></div>
                   <div className="flex justify-between gap-6 border-b border-white/10 pb-3"><dt className="text-white/38">Seller / fulfiller</dt><dd className="max-w-sm text-right font-black">{seller?.title || "Still unresolved"}</dd></div>
+                  <div className="flex justify-between gap-6 border-b border-white/10 pb-3"><dt className="text-white/38">Supply record</dt><dd className="max-w-sm text-right font-black">{brief.commerceSourceId ? `Linked · ${brief.commerceSourceId.slice(0, 8)}…` : "Not linked yet"}</dd></div>
                   <div className="flex justify-between gap-6"><dt className="text-white/38">Merchant law</dt><dd className="max-w-sm text-right text-white/65">Price, stock, accepted payment, fulfillment, refund/cancel and customer cases belong to Merchant responsibility.</dd></div>
                 </dl>
               </div>
