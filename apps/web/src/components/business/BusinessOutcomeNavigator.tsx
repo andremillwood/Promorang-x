@@ -117,7 +117,7 @@ export function BusinessOutcomeNavigator() {
       {step === "outcome" && (
         <section>
           <h1 className="max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-6xl">What do you need to make happen?</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Choose the business change first. You do not need to decide whether this becomes commerce, an Offer, a Moment or a campaign yet.</p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Choose the business change first. You do not need to decide whether this becomes commerce, an Offer, a Moment, distribution or a demand test yet.</p>
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {BUSINESS_OUTCOMES.map((item) => (
               <button key={item.id} type="button" onClick={() => { setOutcomeId(item.id); setStep("business"); }} className="group min-h-48 rounded-[1.5rem] border border-white/10 bg-white/[0.035] p-5 text-left transition hover:border-orange-400/45 hover:bg-orange-400/[0.06]">
