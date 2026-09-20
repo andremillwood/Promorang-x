@@ -11,6 +11,7 @@ import HostDoorBoardLauncher from "@/components/host/HostDoorBoardLauncher";
 import HostProofReviewConsole from "@/components/host/HostProofReviewConsole";
 import HostSponsorshipConsole from "@/components/host/HostSponsorshipConsole";
 import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
+import { CommerceResponsibilityMap } from "@/components/business/CommerceResponsibilityMap";
 
 export function HostDashboardV2() {
   const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
@@ -50,6 +51,7 @@ export function HostDashboardV2() {
 
   return (
     <div className="space-y-6 pb-16 text-white animate-in fade-in-50 duration-300">
+      <CommerceResponsibilityMap highlight="host" compact />
       <section className="rounded-3xl border border-amber-500/20 bg-amber-950/15 p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
