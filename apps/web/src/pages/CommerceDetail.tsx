@@ -159,7 +159,7 @@ export default function CommerceDetail() {
           {x.image_url ? <img src={x.image_url} alt={x.name || ''} className="absolute inset-0 h-full w-full object-cover" /> : <ShoppingBag className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-white/20" />}
           <button
             aria-label={t("commerce.save")}
-            onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: sourceId, title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined })}
+            onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: String(x.listing_id || sourceId), title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined, href: `/shop/${encodeURIComponent(String(x.listing_id || listingId || sourceId))}` })}
             className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-black/65"
           >
             <Bookmark className="h-5 w-5" />
@@ -192,7 +192,7 @@ export default function CommerceDetail() {
               <Button
                 size="lg"
                 disabled={!!actions.busy}
-                onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: sourceId, title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined })}
+                onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: String(x.listing_id || sourceId), title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined, href: `/shop/${encodeURIComponent(String(x.listing_id || listingId || sourceId))}` })}
                 className="sm:col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 gap-2"
               >
                 <Bookmark className="h-5 w-5" />
