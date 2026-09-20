@@ -1,0 +1,23 @@
+import { useState } from "react";
+import { BadgeCheck, Gem, Layers3 } from "lucide-react";
+
+const pieces = [
+  { id: "P-0118", title: "Barbican Night Signal", collection: "Kingston After Dark", ask: 36, origin: "Earned", holder: "Verified public seller", utility: "Scene access through Oct 31" },
+  { id: "P-0207", title: "Move Jamaica First Drive", collection: "Move Jamaica", ask: 42, origin: "Earned", holder: "Verified public seller", utility: "Priority drive access" },
+  { id: "P-0315", title: "New Kingston Room", collection: "Community", ask: 24, origin: "Marketplace acquired", holder: "Verified public seller", utility: "Workshop priority" },
+];
+
+function Perforation(){ return <div className="h-3" style={{backgroundImage:"radial-gradient(circle at 6px 6px,#080809 0 4px,transparent 4.5px)",backgroundSize:"12px 12px"}}/>; }
+
+export function PromorangMarketplaceOpsV4(){
+  const [selected,setSelected]=useState(0);
+  const [reviewed,setReviewed]=useState(false);
+  const piece=pieces[selected];
+  return <section className="border-t border-white/10 pt-20">
+    <div className="mb-10 grid gap-6 lg:grid-cols-[1fr_.48fr] lg:items-end"><div><p className="text-[10px] font-black uppercase tracking-[.3em] text-[#ff6a00]">14D · Marketplace · operational artifact</p><h2 className="mt-4 max-w-5xl font-serif text-5xl font-bold leading-[.9] tracking-[-.055em] md:text-7xl">The market should make the ownership change explicit.</h2></div><p className="border-l border-[#ff6a00]/35 pl-5 text-sm leading-6 text-white/48">Browse remains cultural and provenance-first. Settlement becomes an operational transfer record with seller, ask, fee, balance and holder change.</p></div>
+    <div className="grid gap-6 xl:grid-cols-[1.08fr_.92fr]">
+      <div className="rounded-[2rem] border border-white/10 p-6"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#b58cff]">CURATED SHELF · PIECE EXCHANGE</p><h3 className="mt-2 font-serif text-3xl font-bold">Available now</h3></div><div className="flex items-center gap-2 rounded-full border border-[#4cc6f0]/30 px-4 py-2 text-[#4cc6f0]"><Gem className="h-4 w-4"/><b>74</b></div></div><div className="mt-7 grid gap-4 md:grid-cols-3">{pieces.map((p,i)=><button key={p.id} onClick={()=>{setSelected(i);setReviewed(false)}} className={`min-h-[240px] border p-5 text-left ${selected===i?"border-[#b58cff]/50 bg-[#b58cff]/7":"border-white/10"}`}><div className="flex justify-between"><span className="text-[10px] font-black tracking-[.16em] text-[#b58cff]">{p.id}</span><Layers3 className="h-4 w-4 text-[#b58cff]"/></div><p className="mt-14 text-xs text-white/40">{p.collection}</p><h4 className="mt-2 font-serif text-2xl font-bold">{p.title}</h4><div className="mt-6 border-t border-white/10 pt-4"><p className="text-xs text-white/35">{p.origin}</p><p className="mt-2 font-bold text-[#4cc6f0]">{p.ask} Gems</p></div></button>)}</div></div>
+      <div><div className="overflow-hidden rounded-[1.2rem] shadow-[0_28px_80px_rgba(0,0,0,.3)]"><Perforation/><div className="bg-[#eadcc6] p-6 text-[#111]" style={{backgroundImage:"repeating-linear-gradient(0deg,transparent 0 25px,rgba(30,20,10,.045) 26px)"}}><div className="flex justify-between"><div><p className="text-[9px] font-black uppercase tracking-[.17em] text-[#7a2e17]">TRANSFER SHEET · TS-{piece.id.slice(2)}</p><h3 className="mt-2 font-serif text-3xl font-bold">{piece.title}</h3></div><BadgeCheck className="text-[#7a2e17]"/></div><div className="mt-6 border-y border-black/35 py-3 text-sm">{[["PROVENANCE","Verified"],["ORIGIN",piece.origin],["CURRENT HOLDER",piece.holder],["UTILITY",piece.utility],["ASK",`${piece.ask} Gems`],["MARKET FEE","2 Gems"],["YOUR BALANCE","74 Gems"]].map(([a,b])=><div key={a} className="flex justify-between py-2"><span className="text-black/45">{a}</span><b className="text-right">{b}</b></div>)}</div><button onClick={()=>setReviewed(true)} className="mt-5 w-full rounded-full bg-black py-3 text-sm font-black text-white">{reviewed?"Transfer reviewed · ready for confirmation":"Review transfer"}</button><p className="mt-4 text-[10px] leading-4 text-black/50">Price does not imply future appreciation. Confirmation must create a holder-change record and append provenance.</p></div><Perforation/></div>{reviewed&&<div className="mt-4 rounded-xl border border-[#22c55e]/25 bg-[#07120b] p-4 text-sm"><p className="text-[10px] font-black tracking-[.16em] text-[#22c55e]">PENDING CONSEQUENCE</p><p className="mt-2">Holder would change after settlement; provenance history would append the transaction receipt.</p></div>}</div>
+    </div>
+  </section>;
+}
