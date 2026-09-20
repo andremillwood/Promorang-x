@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Building2, Globe, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { consumePostAuthNext } from '@/lib/post-auth-next';
 
 export default function BrandOnboarding() {
     const { user, refreshWorkspaceContext } = useAuth();
@@ -43,13 +44,13 @@ export default function BrandOnboarding() {
 
             toast({
                 title: "Brand account ready",
-                description: `${formData.name} can start planning a first Moment.`,
+                description: `${formData.name} is ready to continue the programme you were shaping.`,
             });
 
             await refreshWorkspaceContext();
 
-            // Navigate to the Flash Launch compiler to immediately start creating a campaign
-            navigate('/dashboard/brand/campaigns/create');
+            // Resume the exact commercial job when onboarding interrupted an outcome brief.
+            navigate(consumePostAuthNext() || '/business/start?resume=1');
 
         } catch (error: any) {
             toast({
@@ -69,9 +70,9 @@ export default function BrandOnboarding() {
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                         <Sparkles className="w-6 h-6 text-primary" />
                     </div>
-                    <h1 className="text-3xl font-bold font-serif">Start Your Brand Activation</h1>
+                    <h1 className="text-3xl font-bold font-serif">Set up your business workspace</h1>
                     <p className="text-muted-foreground">
-                        Set up your brand account for campaigns, Moments, QR engagement, and participation reporting.
+                        Give PROMORANG the minimum business details needed to continue the outcome you already chose.
                     </p>
                 </div>
 
@@ -79,7 +80,7 @@ export default function BrandOnboarding() {
                     <form onSubmit={handleSubmit}>
                         <CardHeader>
                             <CardTitle>Brand Details</CardTitle>
-                            <CardDescription>Tell us where your first participation campaign should live.</CardDescription>
+                            <CardDescription>This setup should not make you repeat the business problem or programme choices you already made.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
