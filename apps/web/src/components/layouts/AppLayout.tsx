@@ -38,7 +38,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     }, [profile?.maturity_state]);
 
     const marketingRoutes = [
-        "/", "/join", "/how-it-works", "/what-is-promorang", "/about", "/pricing", "/solutions", "/business/start", "/hosting",
+        "/", "/join", "/how-it-works", "/what-is-promorang", "/about", "/pricing", "/solutions", "/business/start", "/business/programme", "/hosting",
         "/developers", "/for-developers", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
         "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
