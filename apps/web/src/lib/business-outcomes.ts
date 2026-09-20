@@ -147,7 +147,7 @@ export const COMMERCE_SUBJECTS: Array<{ id: CommerceSubjectId; title: string }> 
 export const SELLER_RESPONSIBILITIES: Array<{ id: SellerResponsibilityId; title: string; description: string }> = [
   { id: "existing-merchant", title: "An existing PROMORANG merchant", description: "A merchant already owns the price, inventory/payment and fulfillment." },
   { id: "merchant-to-onboard", title: "A merchant we need to bring in", description: "The seller exists, but their commerce supply still needs to be represented on PROMORANG." },
-  { id: "current-org-merchant", title: "My organization is the seller / fulfiller", description: "This organization is accepting Merchant responsibility for price, stock, payment and fulfillment." },
+  { id: "current-org-merchant", title: "My organization already operates as the merchant", description: "Use this only when the organization has Merchant responsibility for price, stock, payment and fulfillment." },
   { id: "undecided", title: "Not sure yet", description: "Keep seller responsibility unresolved until a real merchant is chosen." },
 ];
 
