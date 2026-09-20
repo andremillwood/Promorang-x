@@ -138,6 +138,7 @@ export default function BusinessProgramme() {
   const subject = getCommerceSubject(brief.commerceSubjectId);
   const actions = nextActions(brief, activeRole);
   const expectedRole = roleForBusinessType(brief.businessType);
+  const missingExistingMerchant = executionNeedsCommerce(brief) && brief.sellerResponsibilityId === "existing-merchant" && !brief.sellerMerchantId;
   const primaryHref = user ? actions.primary.href : authPathForReturn("/business/programme?resume=1", { mode: "signup", role: expectedRole });
 
   return (
@@ -189,7 +190,11 @@ export default function BusinessProgramme() {
             ) : null}
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to={primaryHref} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">{user ? actions.primary.label : "Save workspace and continue"} <ArrowRight className="h-4 w-4" /></Link>
+              {missingExistingMerchant ? (
+                <span className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white/10 px-6 text-sm font-black text-white/40">Choose the merchant seller above first</span>
+              ) : (
+                <Link to={primaryHref} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">{user ? actions.primary.label : "Save workspace and continue"} <ArrowRight className="h-4 w-4" /></Link>
+              )}
               {user ? <Link to={actions.secondary.href} className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">{actions.secondary.label}</Link> : null}
               <Link to="/business/start?resume=1" className="inline-flex min-h-12 items-center gap-2 px-3 text-sm font-black text-white/50">Edit outcome brief</Link>
             </div>
