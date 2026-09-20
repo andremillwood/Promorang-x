@@ -21,7 +21,8 @@ function labelFor(type: string) {
   if (type === "demand") return "Want";
   if (type === "discovery") return "Discovery";
   if (type === "moment") return "Moment";
-  if (type === "offer" || type === "product") return "Open now";
+  if (type === "offer") return "Saved offer";
+  if (type === "product") return "Saved product";
   return "Saved";
 }
 
