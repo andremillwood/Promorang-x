@@ -35,7 +35,7 @@ const PostLoginRouter = lazy(() => import("@/components/onboarding/PostLoginRout
 const BrandOnboarding = lazy(() => import("./pages/onboarding/BrandOnboarding"));
 const ForCommunities = lazy(() => import("./pages/ForCommunities"));
 const ForBrands = lazy(() => import("./pages/ForBrands"));
-const SolutionsHub = lazy(() => import("./pages/SolutionsHub"));
+const SolutionsHub = lazy(() => import("./pages/SolutionsHub"));\nconst BusinessStart = lazy(() => import("./pages/BusinessStart"));
 const ForCreators = lazy(() => import("./pages/ForCreators"));
 const ForMerchants = lazy(() => import("./pages/ForMerchants"));
 const ForAgencies = lazy(() => import("./pages/ForAgencies"));
@@ -271,7 +271,7 @@ const App = () => (
                     <Route path="/join" element={<Join />} />
                     <Route path="/for-communities" element={<ForCommunities />} />
                     <Route path="/for-brands" element={<ForBrands />} />
-                    <Route path="/solutions" element={<SolutionsHub />} />
+                    <Route path="/solutions" element={<SolutionsHub />} />\n                    <Route path="/business/start" element={<BusinessStart />} />
                     <Route path="/solutions/:vertical" element={<SolutionsHub />} />
                     <Route path="/for-creators" element={<ForCreators />} />
                     <Route path="/for-merchants" element={<ForMerchants />} />
