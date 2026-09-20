@@ -110,8 +110,9 @@ export default function BusinessProgramme() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("view_public_commerce_directory")
-        .select("merchant_user_id,merchant_name,merchant_slug,merchant_logo_url,is_active")
+        .select("listing_id,source_id,listing_kind,name,merchant_user_id,merchant_name,merchant_slug,merchant_logo_url,is_active,visibility")
         .eq("is_active", true)
+        .eq("visibility", "public")
         .limit(200);
       if (error) throw error;
       return data || [];
@@ -128,6 +129,18 @@ export default function BusinessProgramme() {
     }
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [merchantQuery.data]);
+  const sellerListings = useMemo(() => {
+    if (!brief?.sellerMerchantId) return [];
+    return (merchantQuery.data || [])
+      .filter((item) => item.merchant_user_id === brief.sellerMerchantId && item.listing_id && item.source_id)
+      .map((item) => ({
+        listingId: String(item.listing_id),
+        sourceId: String(item.source_id),
+        name: item.name || "Commerce listing",
+        kind: item.listing_kind || "product",
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [merchantQuery.data, brief?.sellerMerchantId]);
 
   if (!brief) {
     return (
@@ -151,6 +164,8 @@ export default function BusinessProgramme() {
   const actions = nextActions(brief, activeRole);
   const expectedRole = brief.sellerResponsibilityId === "current-org-merchant" ? "merchant" : roleForBusinessType(brief.businessType);
   const missingExistingMerchant = executionNeedsCommerce(brief) && brief.sellerResponsibilityId === "existing-merchant" && !brief.sellerMerchantId;
+  const missingExistingSupply = executionNeedsCommerce(brief) && brief.sellerResponsibilityId === "existing-merchant" && Boolean(brief.sellerMerchantId) && !brief.commerceSourceId;
+  const selectedSellerListing = sellerListings.find((item) => item.sourceId === brief.commerceSourceId) || null;
   const primaryHref = user ? actions.primary.href : authPathForReturn("/business/programme?resume=1", { mode: "signup", role: expectedRole });
 
   return (
@@ -182,7 +197,7 @@ export default function BusinessProgramme() {
                         value={brief.sellerMerchantId || ""}
                         onChange={(event) => {
                           const merchant = commerceMerchants.find((item) => item.id === event.target.value);
-                          const next = { ...brief, sellerMerchantId: merchant?.id || null, sellerMerchantName: merchant?.name || null };
+                          const next = { ...brief, sellerMerchantId: merchant?.id || null, sellerMerchantName: merchant?.name || null, commerceSourceId: null };
                           saveBusinessOutcomeBrief(next);
                           setBrief(next);
                         }}
@@ -193,6 +208,30 @@ export default function BusinessProgramme() {
                       </select>
                       {merchantQuery.isLoading ? <p className="mt-2 text-xs text-white/30">Reading merchants with live public commerce…</p> : null}
                       {!merchantQuery.isLoading && !commerceMerchants.length ? <p className="mt-2 text-xs text-white/35">No commerce-ready merchant is visible yet. Use “merchant we need to bring in” instead of inventing one.</p> : null}
+                      {brief.sellerMerchantId ? (
+                        <div className="mt-4">
+                          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-white/35">Sellable supply</p>
+                          <select
+                            value={brief.commerceSourceId || ""}
+                            onChange={(event) => {
+                              const listing = sellerListings.find((item) => item.sourceId === event.target.value);
+                              const next = {
+                                ...brief,
+                                commerceSourceId: listing?.sourceId || null,
+                                subjectLabel: listing?.name || brief.subjectLabel,
+                              };
+                              saveBusinessOutcomeBrief(next);
+                              setBrief(next);
+                            }}
+                            className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-black/45 px-3 text-sm text-white outline-none"
+                          >
+                            <option value="">Choose a real product / service…</option>
+                            {sellerListings.map((listing) => <option key={listing.listingId} value={listing.sourceId}>{listing.name} · {listing.kind}</option>)}
+                          </select>
+                          {!merchantQuery.isLoading && !sellerListings.length ? <p className="mt-2 text-xs text-white/35">This merchant has no public sellable supply in the commerce directory right now.</p> : null}
+                          {selectedSellerListing ? <Link to={`/shop/${encodeURIComponent(selectedSellerListing.listingId)}`} className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-emerald-300">View selected supply <ArrowRight className="h-3.5 w-3.5" /></Link> : null}
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
                   <div className="flex justify-between gap-6 border-b border-white/10 pb-3"><dt className="text-white/38">Supply record</dt><dd className="max-w-sm text-right font-black">{brief.commerceSourceId ? `Linked · ${brief.commerceSourceId.slice(0, 8)}…` : "Not linked yet"}</dd></div>
@@ -204,6 +243,8 @@ export default function BusinessProgramme() {
             <div className="mt-8 flex flex-wrap gap-3">
               {missingExistingMerchant ? (
                 <span className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white/10 px-6 text-sm font-black text-white/40">Choose the merchant seller above first</span>
+              ) : missingExistingSupply ? (
+                <span className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white/10 px-6 text-sm font-black text-white/40">Choose the real sellable supply above first</span>
               ) : (
                 <Link to={primaryHref} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">{user ? actions.primary.label : "Save workspace and continue"} <ArrowRight className="h-4 w-4" /></Link>
               )}
