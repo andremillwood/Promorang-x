@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { searchPromorang, type GlobalSearchResult as SearchResult } from "@/lib/global-search";
 import SEO from "@/components/SEO";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,17 +26,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
 
-interface SearchResult {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  result_type: 'moment' | 'brand' | 'merchant' | 'host' | 'user';
-  image_url: string;
-  path: string;
-  relevance_score: number;
-}
-
 const SearchPage = () => {
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,13 +37,7 @@ const SearchPage = () => {
   const { data: results, isLoading } = useQuery({
     queryKey: ["global-search", query],
     enabled: query.length >= 2,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('fn_global_search', {
-        search_term: query
-      });
-      if (error) throw error;
-      return (data as SearchResult[]) || [];
-    },
+    queryFn: () => searchPromorang(query),
   });
 
   // Fetch trending moments for zero-state recommendation
@@ -92,6 +76,10 @@ const SearchPage = () => {
       case 'merchant': return <Store className="w-4 h-4" />;
       case 'host': return <Users className="w-4 h-4" />;
       case 'user': return <Users className="w-4 h-4" />;
+      case 'discovery': return <Compass className="w-4 h-4" />;
+      case 'venue': return <MapPin className="w-4 h-4" />;
+      case 'offer': return <Sparkles className="w-4 h-4" />;
+      case 'product': return <Store className="w-4 h-4" />;
       default: return <SearchIcon className="w-4 h-4" />;
     }
   };
@@ -103,6 +91,10 @@ const SearchPage = () => {
       case 'merchant': return "text-emerald-500 bg-emerald-500/10";
       case 'host': return "text-orange-500 bg-orange-500/10";
       case 'user': return "text-violet-500 bg-violet-500/10";
+      case 'discovery': return "text-amber-400 bg-amber-400/10";
+      case 'venue': return "text-cyan-400 bg-cyan-400/10";
+      case 'offer': return "text-emerald-400 bg-emerald-400/10";
+      case 'product': return "text-fuchsia-300 bg-fuchsia-400/10";
       default: return "text-muted-foreground bg-muted";
     }
   };
@@ -146,7 +138,7 @@ const SearchPage = () => {
         </form>
 
         <div className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-2">
-          {["Kingston", "Reward Perks", "Creators", "Music Festivals", "Merchant Deals", "Venues"].map((term) => (
+          {["Chinese food", "Egg fried rice", "Kingston", "Reward perks", "Music festivals", "Venues"].map((term) => (
             <button
               key={term}
               type="button"
@@ -166,6 +158,10 @@ const SearchPage = () => {
         <TabsList className="mb-8 w-full justify-start gap-4 rounded-none border-b border-white/10 bg-transparent p-0 sm:gap-8">
           <TabsTrigger value="all" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.all")}</TabsTrigger>
           <TabsTrigger value="moment" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.moments")}</TabsTrigger>
+          <TabsTrigger value="discovery" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Discoveries</TabsTrigger>
+          <TabsTrigger value="venue" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Places</TabsTrigger>
+          <TabsTrigger value="offer" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Offers</TabsTrigger>
+          <TabsTrigger value="product" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Products</TabsTrigger>
           <TabsTrigger value="brand" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.brands")}</TabsTrigger>
           <TabsTrigger value="merchant" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.merchants")}</TabsTrigger>
           <TabsTrigger value="host" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.hosts")}</TabsTrigger>

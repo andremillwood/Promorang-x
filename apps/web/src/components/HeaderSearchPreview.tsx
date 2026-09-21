@@ -1,21 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Search, Calendar, Store, Users, Building2, ArrowRight, Loader2, Compass, X, Sparkles } from "lucide-react";
+import { Search, Calendar, Store, Users, Building2, ArrowRight, Loader2, Compass, X, Sparkles, Gift, MapPin } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useI18n } from "@/i18n/I18nContext";
 
-interface SearchResult {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  result_type: 'moment' | 'brand' | 'merchant' | 'host' | 'user';
-  image_url: string;
-  path: string;
-  relevance_score: number;
-}
+import { searchPromorang } from "@/lib/global-search";
 
 export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ className = "" }) => {
   const { t } = useI18n();
@@ -48,16 +38,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
   const { data: results, isLoading } = useQuery({
     queryKey: ["header-instant-search", searchTerm],
     enabled: searchTerm.length >= 2,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('fn_global_search', {
-        search_term: searchTerm
-      });
-      if (error) {
-        console.warn("Global search RPC fallback:", error);
-        return [];
-      }
-      return (data as SearchResult[]) || [];
-    },
+    queryFn: () => searchPromorang(searchTerm),
     staleTime: 30000,
   });
 
@@ -66,6 +47,10 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
       case 'moment': return <Calendar className="w-3.5 h-3.5" />;
       case 'merchant': return <Store className="w-3.5 h-3.5" />;
       case 'brand': return <Building2 className="w-3.5 h-3.5" />;
+      case 'discovery': return <Compass className="w-3.5 h-3.5" />;
+      case 'venue': return <MapPin className="w-3.5 h-3.5" />;
+      case 'offer': return <Gift className="w-3.5 h-3.5" />;
+      case 'product': return <Store className="w-3.5 h-3.5" />;
       default: return <Users className="w-3.5 h-3.5" />;
     }
   };
@@ -126,7 +111,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
                 <Sparkles className="h-3.5 w-3.5 text-primary" /> {t("headerSearch.popularSearches")}
               </div>
               <div className="flex flex-wrap gap-2">
-                {["Kingston Moments", "Sponsor Perks", "Local Merchant Deals", "Live Creators", "Proof Rewards"].map((term) => (
+                {["Chinese food", "Egg fried rice", "Kingston Moments", "Live music", "Nearby offers"].map((term) => (
                   <button
                     key={term}
                     onClick={() => setSearchTerm(term)}

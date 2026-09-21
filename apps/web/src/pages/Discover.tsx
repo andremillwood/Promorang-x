@@ -12,6 +12,7 @@ import {
   Calendar,
   Compass,
   Gift,
+  Filter,
   LayoutGrid,
   Map,
   MapPin,
@@ -24,6 +25,7 @@ import {
   Users,
   Tag,
   Share2,
+  X,
 } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { SubmitDiscoveryModal } from "@/components/discovery/SubmitDiscoveryModal";
@@ -168,7 +170,7 @@ const SignedInDiscover = () => {
   }, [aim]);
 
   const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") || "");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>([]);
 
@@ -176,7 +178,7 @@ const SignedInDiscover = () => {
   const contentDrops = useContentDrops("active");
   const releaseDrops = contentDrops.data || [];
   const perksLoading = nearby.isLoading;
-  const livePerks = nearby.data || [];
+  const livePerks = useMemo(() => nearby.data || [], [nearby.data]);
   const stake = getStakeholderLens(searchParams.get("role") || activeRole);
   const putPerkUpHref = merchantAuthHref(user, "/stock");
   const putInHref = user ? stake.putIn.href : authEntryHref({ next: stake.putIn.href });
@@ -274,14 +276,28 @@ const SignedInDiscover = () => {
   const hubPerks = useMemo(
     () =>
       livePerks.filter((perk) => {
+        const needle = searchQuery.trim().toLowerCase();
+        if (needle) {
+          const haystack = `${perk.title || ""} ${perk.detail || ""} ${perk.issuer?.type || ""} ${perk.surface || ""}`.toLowerCase();
+          if (!needle.split(/\s+/).every((token) => haystack.includes(token))) return false;
+        }
         if (activeCategory !== "all") {
           const haystack = `${perk.title || ""} ${perk.detail || ""} ${perk.issuer?.type || ""} ${perk.surface || ""}`.toLowerCase();
           if (!haystack.includes(activeCategory.toLowerCase())) return false;
         }
         return true;
       }),
-    [livePerks, activeCategory],
+    [livePerks, activeCategory, searchQuery],
   );
+  const filteredVenues = useMemo(() => {
+    const tokens = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    return hubVenues.filter((venue) => {
+      const haystack = `${venue.name || ""} ${venue.description || ""} ${venue.location || ""} ${venue.address || ""} ${venue.city || ""} ${venue.venue_type || ""}`.toLowerCase();
+      const matchesSearch = tokens.length === 0 || tokens.every((token) => haystack.includes(token));
+      const matchesCategory = activeCategory === "all" || haystack.includes(activeCategory);
+      return matchesSearch && matchesCategory;
+    });
+  }, [hubVenues, searchQuery, activeCategory]);
   const localPerks = useMemo(
     () => hubPerks.filter((perk) => perk.availability !== "anywhere"),
     [hubPerks],
@@ -293,10 +309,9 @@ const SignedInDiscover = () => {
   const filteredMoments = useMemo(() => {
     const matched = hubMoments.filter((m) => {
       const matchesCategory = activeCategory === "all" || (m.category || "").toLowerCase().includes(activeCategory);
-      const matchesSearch =
-        !searchQuery ||
-        (m.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.location || "").toLowerCase().includes(searchQuery.toLowerCase());
+      const haystack = `${m.title || ""} ${m.description || ""} ${m.category || ""} ${m.location || ""} ${m.venue_name || ""} ${m.reward || ""}`.toLowerCase();
+      const tokens = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const matchesSearch = tokens.length === 0 || tokens.every((token) => haystack.includes(token));
       return matchesCategory && matchesSearch;
     });
 
@@ -338,16 +353,10 @@ const SignedInDiscover = () => {
       }
     });
 
-    hubVenues.forEach((v) => {
+    filteredVenues.forEach((v) => {
       const lat = Number(v.latitude);
       const lng = Number(v.longitude);
-      const matchesSearch =
-        !searchQuery ||
-        String(v.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        String(v.location || v.address || "").toLowerCase().includes(searchQuery.toLowerCase());
-
       if (
-        matchesSearch &&
         !seenIds.has(v.id) &&
         Number.isFinite(lat) &&
         Number.isFinite(lng) &&
@@ -369,7 +378,7 @@ const SignedInDiscover = () => {
     });
 
     return markers;
-  }, [filteredMoments, hubVenues, searchQuery]);
+  }, [filteredMoments, filteredVenues, t]);
 
   const mapCenter = useMemo(() => {
     if (mapMarkers.length > 0) {
@@ -567,6 +576,33 @@ const SignedInDiscover = () => {
             <span>{t("discover.tabPlaces")}</span>
           </button>
         </div>
+
+        {activeTab !== "distribute" && (
+          <section aria-label="Search and filters" className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-3 shadow-xl shadow-black/10 sm:p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <label className="relative min-w-0 flex-1" htmlFor="signed-in-discover-search">
+                <span className="sr-only">Search Discover</span>
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
+                <input
+                  id="signed-in-discover-search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search food, Chinese cuisine, egg fried rice…"
+                  className="h-12 w-full rounded-2xl border border-white/10 bg-black/40 pl-11 pr-11 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-primary/70 focus:ring-4 focus:ring-primary/10"
+                />
+                {searchQuery ? <button type="button" onClick={() => setSearchQuery("")} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-white/40 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
+              </label>
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-none" aria-label="Filter by category">
+                <span className="flex shrink-0 items-center gap-1.5 px-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/35"><Filter className="h-3.5 w-3.5" /> Filter</span>
+                {categoryFilters.map((cat) => {
+                  const Icon = cat.icon;
+                  return <button key={cat.id} type="button" onClick={() => setActiveCategory(cat.id)} aria-pressed={activeCategory === cat.id} className={`inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 text-xs font-bold transition ${activeCategory === cat.id ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white"}`}><Icon className="h-3.5 w-3.5" />{t(cat.key)}</button>;
+                })}
+              </div>
+            </div>
+            {(searchQuery || activeCategory !== "all") && <div className="mt-3 flex items-center justify-between border-t border-white/10 px-1 pt-3 text-xs text-white/45"><span>{activeTab === "moments" ? filteredMoments.length : activeTab === "places" ? filteredVenues.length : activeTab === "perks" ? hubPerks.length : hubDiscoveries.length} matching results in {city.name}</span><button type="button" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }} className="font-bold text-primary hover:text-white">Reset filters</button></div>}
+          </section>
+        )}
 
         <div className="flex gap-8 items-start">
           <div className="flex-1 space-y-8 min-w-0">
@@ -816,7 +852,7 @@ const SignedInDiscover = () => {
                     <h3 className="text-xl font-bold text-white">{t("discover.placesTitle")}</h3>
                     <p className="text-xs text-white/50">{t("discover.placesCopy", { city: city.name })}</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{formatNumber(hubVenues.length)} places</span>
+                  <span className="text-xs font-semibold text-white/50">{formatNumber(filteredVenues.length)} places</span>
                 </div>
 
                 {venuesQuery.isLoading ? (
@@ -831,7 +867,7 @@ const SignedInDiscover = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    {hubVenues.map((venue) => (
+                    {filteredVenues.map((venue) => (
                       <div
                         key={venue.id}
                         className="group p-5 rounded-3xl border border-white/10 bg-white/5 hover:border-primary/40 transition flex flex-col justify-between space-y-4"
@@ -860,7 +896,7 @@ const SignedInDiscover = () => {
                     ))}
                   </div>
                 )}
-                {!venuesQuery.isLoading && !venuesQuery.isError && hubVenues.length === 0 && (
+                {!venuesQuery.isLoading && !venuesQuery.isError && filteredVenues.length === 0 && (
                   <HubEmptyState
                     cityName={city.name}
                     noun={t("discover.nounVenues")}

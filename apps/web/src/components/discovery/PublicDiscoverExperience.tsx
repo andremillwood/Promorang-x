@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Compass, Gift, MapPin, Search, Sparkles, Users, WalletCards } from "lucide-react";
+import { ArrowRight, CalendarDays, Compass, Filter, Gift, MapPin, Search, Sparkles, Users, WalletCards, X } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useMarket } from "@/contexts/MarketContext";
 import { useDiscoveries } from "@/hooks/useDiscoveries";
@@ -29,9 +29,42 @@ function signalState(votesRemaining: number, closeness: "unlocking" | "warming" 
   return closeness;
 }
 
+type ResultType = "all" | "discoveries" | "moments" | "offers" | "wants";
+type InterestFilter = "all" | "food" | "music" | "culture" | "outdoors";
+
+const interestFilters: Array<{ id: InterestFilter; label: string; terms: string[] }> = [
+  { id: "all", label: "Everything", terms: [] },
+  { id: "food", label: "Food & drink", terms: ["food", "drink", "restaurant", "dining", "cuisine", "dish", "menu", "cafe", "coffee", "brunch", "lunch", "dinner", "chinese", "rice"] },
+  { id: "music", label: "Music & nightlife", terms: ["music", "concert", "party", "dance", "dj", "live", "nightlife", "club"] },
+  { id: "culture", label: "Arts & culture", terms: ["art", "culture", "gallery", "theatre", "theater", "film", "craft", "heritage", "museum"] },
+  { id: "outdoors", label: "Outdoors", terms: ["outdoor", "hike", "beach", "nature", "garden", "trail", "adventure", "wellness"] },
+];
+
+function searchableText(values: unknown[]) {
+  return values.filter(Boolean).join(" ").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ");
+}
+
+function matchesDiscoverySearch(values: unknown[], query: string, interest: InterestFilter) {
+  const haystack = searchableText(values);
+  const tokens = searchableText([query]).split(" ").filter(Boolean);
+  const aliases: Record<string, string[]> = {
+    food: interestFilters.find((item) => item.id === "food")?.terms || [],
+    restaurant: ["restaurant", "dining", "cuisine", "food", "cafe", "eatery"],
+    event: ["event", "moment", "party", "concert", "show", "gathering"],
+  };
+  const matchesQuery = tokens.length === 0 || tokens.every((token) =>
+    haystack.includes(token) || Boolean(aliases[token]?.some((alias) => haystack.includes(alias))),
+  );
+  const filter = interestFilters.find((item) => item.id === interest);
+  const matchesInterest = interest === "all" || Boolean(filter?.terms.some((term) => haystack.includes(term)));
+  return matchesQuery && matchesInterest;
+}
+
 export function PublicDiscoverExperience() {
   const { city, country } = useMarket();
   const [query, setQuery] = useState("");
+  const [resultType, setResultType] = useState<ResultType>("all");
+  const [interest, setInterest] = useState<InterestFilter>("all");
   const cityFilter = city.id === "all-jamaica" ? undefined : city.name;
 
   const discoveriesQuery = useDiscoveries({ city: cityFilter, limit: 24 });
@@ -39,60 +72,56 @@ export function PublicDiscoverExperience() {
   const momentsQuery = useCanonicalMomentFeed();
   const offersQuery = usePublicOffers();
 
-  const discoveries = discoveriesQuery.data || [];
-  const moments = (momentsQuery.data?.moments || []).filter((moment) =>
+  const discoveries = useMemo(() => discoveriesQuery.data || [], [discoveriesQuery.data]);
+  const moments = useMemo(() => (momentsQuery.data?.moments || []).filter((moment) =>
     ["live", "starting_soon", "upcoming"].includes(moment.lifecycle),
-  );
-  const offers = (offersQuery.data || []).filter((offer) => ["active", "published", "live"].includes(offer.status));
+  ), [momentsQuery.data?.moments]);
+  const offers = useMemo(() => (offersQuery.data || []).filter((offer) =>
+    ["active", "published", "live"].includes(offer.status),
+  ), [offersQuery.data]);
 
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = query.trim();
   const filteredDiscoveries = useMemo(
     () =>
-      normalizedQuery
-        ? discoveries.filter((item) =>
-            [item.title, item.description, item.category, item.city, item.country]
-              .filter(Boolean)
-              .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
-          )
-        : discoveries,
-    [discoveries, normalizedQuery],
+      discoveries.filter((item) => matchesDiscoverySearch(
+        [item.title, item.description, item.category, item.city, item.country], normalizedQuery, interest,
+      )),
+    [discoveries, normalizedQuery, interest],
   );
 
   const filteredMoments = useMemo(
     () =>
-      normalizedQuery
-        ? moments.filter((item) =>
-            [item.title, item.description, item.category, item.location, item.venue_name]
-              .filter(Boolean)
-              .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
-          )
-        : moments,
-    [moments, normalizedQuery],
+      moments.filter((item) => matchesDiscoverySearch(
+        [item.title, item.description, item.category, item.location, item.venue_name, item.reward], normalizedQuery, interest,
+      )),
+    [moments, normalizedQuery, interest],
   );
 
   const filteredOffers = useMemo(
     () =>
-      normalizedQuery
-        ? offers.filter((offer) =>
-            [offer.title, offer.description, offer.reward_type, offer.fulfillment_type]
-              .filter(Boolean)
-              .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
-          )
-        : offers,
-    [offers, normalizedQuery],
+      offers.filter((offer) => matchesDiscoverySearch(
+        [offer.title, offer.description, offer.reward_type, offer.fulfillment_type], normalizedQuery, interest,
+      )),
+    [offers, normalizedQuery, interest],
   );
 
   const filteredSignals = useMemo(
     () =>
-      normalizedQuery
-        ? demand.inbox.questions.filter((signal) =>
-            [signal.poll.question, signal.poll.contextNotes, ...signal.poll.options.map((option) => option.text)]
-              .filter(Boolean)
-              .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
-          )
-        : demand.inbox.questions,
-    [demand.inbox.questions, normalizedQuery],
+      demand.inbox.questions.filter((signal) => matchesDiscoverySearch(
+        [signal.poll.question, signal.poll.contextNotes, ...signal.poll.options.map((option) => option.text)], normalizedQuery, interest,
+      )),
+    [demand.inbox.questions, normalizedQuery, interest],
   );
+
+  const resultCounts = {
+    discoveries: filteredDiscoveries.length,
+    moments: filteredMoments.length,
+    offers: filteredOffers.length,
+    wants: filteredSignals.length,
+  };
+  const totalResults = Object.values(resultCounts).reduce((total, count) => total + count, 0);
+  const hasFilters = Boolean(normalizedQuery) || interest !== "all" || resultType !== "all";
+  const clearFilters = () => { setQuery(""); setInterest("all"); setResultType("all"); };
 
   const featuredMoment = filteredMoments[0] || moments[0] || null;
   const heroDiscovery = filteredDiscoveries[0] || discoveries[0] || null;
@@ -125,18 +154,21 @@ export function PublicDiscoverExperience() {
               Find things worth knowing about, Moments you can actually join, access someone has really made available, and signals other people are already behind.
             </p>
 
-            <div className="mt-8 max-w-2xl border border-white/14 bg-black/52 p-2 backdrop-blur">
+            <div className="mt-8 max-w-3xl rounded-2xl border border-white/15 bg-black/65 p-2 shadow-2xl shadow-black/30 backdrop-blur-xl">
               <label htmlFor="public-discover-search" className="sr-only">Search PROMORANG</label>
-              <div className="flex min-h-12 items-center gap-3 px-3">
+              <div className="flex min-h-14 items-center gap-3 px-3">
                 <Search className="h-4 w-4 text-orange-400" />
                 <input
                   id="public-discover-search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Food, house music, somewhere new, an offer…"
-                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/35"
+                  placeholder="Try ‘Chinese food’ or ‘egg fried rice’"
+                  className="min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/35"
                 />
-                {query ? <button type="button" onClick={() => setQuery("")} className="text-[10px] font-black uppercase tracking-[0.12em] text-white/45">Clear</button> : null}
+                {query ? <button type="button" onClick={() => setQuery("")} aria-label="Clear search" className="grid h-9 w-9 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
+              </div>
+              <div className="flex gap-2 overflow-x-auto border-t border-white/10 px-2 pb-1 pt-2 scrollbar-none" aria-label="Filter by interest">
+                {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{item.label}</button>)}
               </div>
             </div>
 
@@ -154,7 +186,17 @@ export function PublicDiscoverExperience() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
+      <section className="sticky top-0 z-30 border-b border-white/10 bg-[#080808]/95 px-5 py-3 backdrop-blur-xl sm:px-6" aria-label="Search filters">
+        <div className="mx-auto flex max-w-[1440px] items-center gap-3 overflow-x-auto scrollbar-none">
+          <span className="flex shrink-0 items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/40"><Filter className="h-3.5 w-3.5" /> Show</span>
+          {([
+            ["all", "All results", totalResults], ["discoveries", "Discoveries", resultCounts.discoveries], ["moments", "Moments", resultCounts.moments], ["offers", "Offers", resultCounts.offers], ["wants", "Wants", resultCounts.wants],
+          ] as Array<[ResultType, string, number]>).map(([id, label, count]) => <button key={id} type="button" onClick={() => setResultType(id)} aria-pressed={resultType === id} className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold transition ${resultType === id ? "border-orange-400 bg-orange-400/15 text-orange-200" : "border-white/10 text-white/55 hover:border-white/25 hover:text-white"}`}>{label} <span className="ml-1 text-[10px] opacity-60">{count}</span></button>)}
+          {hasFilters ? <button type="button" onClick={clearFilters} className="ml-auto flex shrink-0 items-center gap-1.5 px-2 py-2 text-xs font-bold text-white/45 hover:text-white"><X className="h-3.5 w-3.5" /> Reset</button> : null}
+        </div>
+      </section>
+
+      {(resultType === "all" || resultType === "wants") && <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
@@ -190,17 +232,17 @@ export function PublicDiscoverExperience() {
             </div>
           ) : null}
         </div>
-      </section>
+      </section>}
 
-      <TasteCalibration marketLabel={city.name} />
+      {!hasFilters && <TasteCalibration marketLabel={city.name} />}
 
-      <section className="px-5 py-14 sm:px-6 md:py-20">
+      {!hasFilters && <section className="px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <EditorialWorldRail />
         </div>
-      </section>
+      </section>}
 
-      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "discoveries") && <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
@@ -234,9 +276,9 @@ export function PublicDiscoverExperience() {
             </div>
           )}
         </div>
-      </section>
+      </section>}
 
-      <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "moments") && <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
@@ -274,9 +316,9 @@ export function PublicDiscoverExperience() {
             </div>
           )}
         </div>
-      </section>
+      </section>}
 
-      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "offers") && <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
@@ -310,7 +352,7 @@ export function PublicDiscoverExperience() {
             </div>
           )}
         </div>
-      </section>
+      </section>}
 
       
 

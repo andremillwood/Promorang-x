@@ -9,6 +9,7 @@ import { MarketProvider } from "@/contexts/MarketContext";
 import { I18nProvider } from "@/i18n/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PromorangMark } from "@/components/promorang/PromorangMark";
+import { Search } from "lucide-react";
 import ParticipantExperienceV1 from "@/pages/participant/ParticipantExperienceV1";
 import ParticipantCompleteReviewV2 from "@/pages/participant/ParticipantCompleteReviewV2";
 import ParticipantMomentReview from "@/pages/participant/ParticipantMomentReview";
@@ -94,6 +95,7 @@ function DesktopReviewNav() {
           ))}
         </nav>
         <div className="flex min-w-[260px] items-center justify-end gap-5">
+          <a href="/search" className="flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-xs font-bold text-white/65 transition hover:border-[#ff6a00]/50 hover:text-white"><Search className="h-3.5 w-3.5 text-[#ff9a4d]" />Search</a>
           <div className="text-right"><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/30">World</p><p className="mt-1 text-sm font-bold text-white/75">Kingston</p></div>
           <span className="rounded-full border border-[#ff6a00]/30 bg-[#ff6a00]/[.06] px-3 py-2 text-[9px] font-black uppercase tracking-[.14em] text-[#ff9a4d]">Review data · illustrative</span>
         </div>
