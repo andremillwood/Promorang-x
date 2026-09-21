@@ -9,6 +9,11 @@ const participantJourneyRoots = [
   "/card",
   "/vault",
   "/memories",
+  "/profile",
+  "/wallet",
+  "/saved",
+  "/activity",
+  "/growth/referrals",
 ];
 
 const matchesRoot = (pathname: string, root: string) =>

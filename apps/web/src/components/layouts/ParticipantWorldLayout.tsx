@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Archive, BriefcaseBusiness, Check, ChevronDown, Coins, Compass, CreditCard, Gem, Home, KeyRound, LogOut, Settings, Store, UserRound, Vault, WandSparkles } from "lucide-react";
+import { Archive, BriefcaseBusiness, Check, ChevronDown, Coins, Compass, CreditCard, Gem, Home, KeyRound, LogOut, Settings, Store, UserRound, UserRoundPlus, Vault, WandSparkles } from "lucide-react";
 import { PromorangMark } from "@/components/promorang/PromorangMark";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/contexts/AuthContext";
@@ -195,6 +195,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
 
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-stone-500">Your account</DropdownMenuLabel>
                 <DropdownMenuItem asChild><NavLink to="/profile" className="flex items-center gap-2.5"><UserRound className="h-4 w-4" />Profile</NavLink></DropdownMenuItem>
+                <DropdownMenuItem asChild><NavLink to="/growth/referrals" className="flex items-center gap-2.5"><UserRoundPlus className="h-4 w-4 text-orange-400" /><span><strong className="block font-semibold">Invite &amp; earn</strong><span className="block text-[10px] text-stone-500">Referral links and commissions</span></span></NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/vault" className="flex items-center gap-2.5"><Archive className="h-4 w-4" />Vault</NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/dashboard/settings" className="flex items-center gap-2.5"><Settings className="h-4 w-4" />Settings</NavLink></DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/10" />
