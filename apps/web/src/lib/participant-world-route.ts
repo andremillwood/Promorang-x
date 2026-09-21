@@ -14,6 +14,7 @@ const participantJourneyRoots = [
   "/saved",
   "/activity",
   "/earn",
+  "/promoshare",
   "/growth/referrals",
 ];
 
