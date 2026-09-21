@@ -12,11 +12,13 @@ describe("isParticipantWorldRoute", () => {
     expect(isParticipantWorldRoute("/profile", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/profile/person-123", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/wallet", "", "participant")).toBe(true);
+    expect(isParticipantWorldRoute("/earn", "?kind=challenge", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/growth/referrals", "", "participant")).toBe(true);
   });
 
   it("keeps participant account destinations out of the participant shell for operator roles", () => {
     expect(isParticipantWorldRoute("/profile", "", "brand")).toBe(false);
+    expect(isParticipantWorldRoute("/earn", "", "brand")).toBe(false);
     expect(isParticipantWorldRoute("/growth/referrals", "", "merchant")).toBe(false);
   });
 

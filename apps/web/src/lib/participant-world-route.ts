@@ -13,6 +13,7 @@ const participantJourneyRoots = [
   "/wallet",
   "/saved",
   "/activity",
+  "/earn",
   "/growth/referrals",
 ];
 
