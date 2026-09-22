@@ -806,3 +806,13 @@ Completion requires:
 - real-record cross-role QA passes;
 - rollout/rollback/support docs exist;
 - merge/deploy happens only after explicit approval.
+
+---
+
+# 24. Commercial Activation + PromoPush convergence — 2026-09-22
+
+Contract: `docs/design/commercial-activation-promopush-convergence-v1.md`.
+
+Completed: repository-wide commercial capability audit; retained distribution as a capability rather than adding an Ambassador stakeholder; extended the existing PromoPush campaign with outcome/package/fulfillment/pricing/funding state; added a database launch gate backed by the canonical activation Gem reserve; blocked draft link acceptance/resolution; made new PromoPush reward configuration Gem-native and pending until verified; updated the buyer journey; and added validation tests. No production Serendipity fixture and no deployment were created.
+
+Remaining P0: canonical paid Moment order/access attribution, configurable multi-party sale/refund allocation, PromoPush funding UI/adapter, and verified PromoPush earning release. Remaining P1: canonical inventory picker, full fulfillment kit, Evidence/Result Pack transaction join, lifecycle notifications and real-record cross-role QA.

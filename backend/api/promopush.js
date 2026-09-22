@@ -4,6 +4,10 @@ const router = express.Router();
 const { supabase } = require('../lib/supabase');
 const { requireAuth } = require('../middleware/auth');
 const roleService = require('../services/roleService');
+const {
+  normalizePromoPushCommercialInput,
+  validatePromoPushCommercialInput,
+} = require('../services/promoPushCommercialService');
 
 const CHANNELS = [
   { type: 'qr_code', label: 'QR Code' },
@@ -109,6 +113,7 @@ async function createCreatorEarning({ campaignId, channel, event }) {
     creator_id: channel.owner_user_id,
     event_id: event.id,
     amount: channel.reward_per_verified_action,
+    currency: 'GEMS',
   });
 
   if (error && !isDuplicateError(error)) throw error;
@@ -277,6 +282,12 @@ router.post('/campaigns', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Invalid PromoPush campaign status' });
     }
 
+    const commercial = normalizePromoPushCommercialInput(req.body || {});
+    const commercialErrors = validatePromoPushCommercialInput(commercial);
+    if (commercialErrors.length) {
+      return res.status(400).json({ error: commercialErrors[0], details: commercialErrors });
+    }
+
     const { data: moment, error: momentError } = await supabase
       .from('moments')
       .select('id, host_id, organizer_id')
@@ -303,6 +314,7 @@ router.post('/campaigns', requireAuth, async (req, res) => {
         budget,
         reward_rules: reward_rules || {},
         request_creative_support: !!request_creative_support,
+        ...commercial,
         status: 'draft',
         created_by: req.user.id,
       })
@@ -321,7 +333,7 @@ router.post('/campaigns', requireAuth, async (req, res) => {
         tracking_code: trackingCode,
         tracking_link: `${origin}/go/${trackingCode}`,
         moment_entry_endpoint: `/moments/${linked_moment_id}?campaign=${campaign.id}&channel=${trackingCode}`,
-        reward_per_verified_action: Number(reward_rules?.creator_verified_action_jmd || 0),
+        reward_per_verified_action: Number(reward_rules?.creator_verified_action_gems || 0),
       };
     });
 
@@ -347,13 +359,11 @@ router.post('/campaigns', requireAuth, async (req, res) => {
 
     let publishedCampaign = campaign;
     if (status !== 'draft') {
+      if (status !== 'active') {
+        return res.status(400).json({ error: 'New PromoPush campaigns can only be saved as draft or launched active' });
+      }
       const { data: transitionedCampaign, error: transitionError } = await supabase
-        .from('promopush_campaigns')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', campaign.id)
-        .eq('created_by', req.user.id)
-        .select()
-        .single();
+        .rpc('launch_promopush_campaign', { p_campaign_id: campaign.id, p_actor_user_id: req.user.id });
       if (transitionError) throw transitionError;
       publishedCampaign = transitionedCampaign;
     }
@@ -524,7 +534,7 @@ router.post('/admin/assignments', requireAuth, requireAdmin, async (req, res) =>
           tracking_code: trackingCode,
           tracking_link: `${origin}/go/${trackingCode}`,
           moment_entry_endpoint: `/moments/${campaign.linked_moment_id}?campaign=${campaign.id}&channel=${trackingCode}`,
-          reward_per_verified_action: Number(campaign.reward_rules?.street_verified_action_jmd || campaign.reward_rules?.creator_verified_action_jmd || 0),
+          reward_per_verified_action: Number(campaign.reward_rules?.street_verified_action_gems || campaign.reward_rules?.creator_verified_action_gems || 0),
         })
         .select()
         .single();
@@ -619,6 +629,7 @@ router.post('/creator-links', requireAuth, async (req, res) => {
       .maybeSingle();
     if (campaignError) throw campaignError;
     if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
+    if (campaign.status !== 'active') return res.status(409).json({ error: 'This distribution opportunity is not open yet' });
 
     const { data: existing, error: existingError } = await supabase
       .from('promopush_channels')
@@ -642,7 +653,7 @@ router.post('/creator-links', requireAuth, async (req, res) => {
         tracking_code: trackingCode,
         tracking_link: `${origin}/go/${trackingCode}`,
         moment_entry_endpoint: `/moments/${campaign.linked_moment_id}?campaign=${campaign.id}&channel=${trackingCode}`,
-        reward_per_verified_action: Number(campaign.reward_rules?.creator_verified_action_jmd || 0),
+        reward_per_verified_action: Number(campaign.reward_rules?.creator_verified_action_gems || 0),
       })
       .select()
       .single();
@@ -661,6 +672,9 @@ router.get('/entry/:code', async (req, res) => {
     const channel = await getChannelWithCampaign(req.params.code);
     if (!channel || !channel.campaign) {
       return res.status(404).json({ error: 'Tracking link not found' });
+    }
+    if (!channel.is_active || channel.campaign.status !== 'active') {
+      return res.status(409).json({ error: 'This PromoPush is not live' });
     }
 
     const eventType = normalizeEventType(req.query.event === 'scan' ? 'scan' : 'click');

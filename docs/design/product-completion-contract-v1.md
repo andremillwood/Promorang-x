@@ -685,3 +685,7 @@ Participant, Creator, Host, Merchant, Brand, Agency and Admin should each be abl
 9. what they should return to do.
 
 If the person needs internal PROMORANG architecture explained to them, the programme is not complete.
+
+## Commercial activation convergence checkpoint — 2026-09-22
+
+The commercial-loop audit and implementation ledger is `docs/design/commercial-activation-promopush-convergence-v1.md`. It extends C4–C8, C10, C14–C16 and C19 without adding a new object family. PromoPush now has an explicit fulfillment and canonical-funding launch boundary. The programme remains incomplete until paid Moment attribution, multi-party sale/refund allocation, PromoPush Gem reservation, earning release and cross-role evidence are proven end to end.

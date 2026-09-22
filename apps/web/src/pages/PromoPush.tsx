@@ -37,6 +37,12 @@ import { TranslationKey } from "@/i18n/translations";
 const defaultForm = {
   title: "",
   linked_moment_id: "",
+  objective_type: "",
+  push_mode: "organic",
+  reward_type: "none",
+  cta: "",
+  landing_url: "",
+  inventory_reference: "",
   geo_label: "",
   geo_center_lat: "18.0179",
   geo_center_lng: "-76.8099",
@@ -44,8 +50,8 @@ const defaultForm = {
   start_time: "",
   end_time: "",
   budget: "",
-  creator_verified_action_jmd: "250",
-  proof_verified_reward: "Reward after the contribution counts",
+  creator_verified_action_gems: "",
+  proof_verified_reward: "",
   request_creative_support: false,
 };
 
@@ -83,7 +89,7 @@ export default function PromoPush() {
   const createCampaign = useCreatePromoPushCampaign();
   const [form, setForm] = useState(defaultForm);
 
-  const campaigns = campaignsQuery.data || [];
+  const campaigns = useMemo(() => campaignsQuery.data || [], [campaignsQuery.data]);
   const selectedMoment = momentsQuery.data?.find((moment) => moment.id === form.linked_moment_id);
 
   const totals = useMemo(() => ({
@@ -104,6 +110,16 @@ export default function PromoPush() {
     await createCampaign.mutateAsync({
       title: form.title,
       linked_moment_id: form.linked_moment_id,
+      objective_type: form.objective_type,
+      push_mode: form.push_mode,
+      reward_type: form.reward_type,
+      fulfillment_kit: {
+        cta: form.cta,
+        landing_url: form.landing_url,
+        inventory_reference: form.inventory_reference || undefined,
+      },
+      distribution_config: { human_distribution: ["people", "live", "full"].includes(form.push_mode) },
+      evidence_config: { requested_outcome: form.objective_type },
       geo_label: form.geo_label,
       geo_center_lat: Number(form.geo_center_lat),
       geo_center_lng: Number(form.geo_center_lng),
@@ -113,10 +129,10 @@ export default function PromoPush() {
       budget: form.budget ? Number(form.budget) : null,
       request_creative_support: form.request_creative_support,
       reward_rules: {
-        creator_verified_action_jmd: Number(form.creator_verified_action_jmd || 0),
+        creator_verified_action_gems: Number(form.creator_verified_action_gems || 0),
         proof_verified_reward: form.proof_verified_reward,
       },
-      status: "active",
+      status: form.push_mode === "organic" ? "active" : "draft",
     });
     setForm(defaultForm);
   };
@@ -178,9 +194,72 @@ export default function PromoPush() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2 rounded-lg border border-[#FF6A00]/25 bg-[#FF6A00]/10 p-4">
+                    <p className="text-sm font-black">What do you want to make happen?</p>
+                    <p className="mt-1 text-xs text-white/60">Start with the outcome. PROMORANG will keep the operational detail behind it.</p>
+                  </div>
+                  <div>
+                    <Label>Outcome</Label>
+                    <Select required value={form.objective_type} onValueChange={(value) => updateForm("objective_type", value)}>
+                      <SelectTrigger className="mt-2 bg-black/40"><SelectValue placeholder="Choose an outcome" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="awareness">Awareness</SelectItem>
+                        <SelectItem value="signups">Sign-ups</SelectItem>
+                        <SelectItem value="foot_traffic">Foot traffic</SelectItem>
+                        <SelectItem value="ticket_sales">Ticket sales</SelectItem>
+                        <SelectItem value="redemptions">Redemptions</SelectItem>
+                        <SelectItem value="product_trial">Product trial</SelectItem>
+                        <SelectItem value="leads">Leads</SelectItem>
+                        <SelectItem value="content_creation">Content creation</SelectItem>
+                        <SelectItem value="sales">Sales</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Distribution</Label>
+                    <Select required value={form.push_mode} onValueChange={(value) => updateForm("push_mode", value)}>
+                      <SelectTrigger className="mt-2 bg-black/40"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="organic">PROMORANG placement</SelectItem>
+                        <SelectItem value="geo">Target a place</SelectItem>
+                        <SelectItem value="people">Work with distributors</SelectItem>
+                        <SelectItem value="live">On-location support</SelectItem>
+                        <SelectItem value="full">Full activation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {form.push_mode !== "organic" ? <p className="mt-2 text-xs text-[#FFC300]">Paid activity saves as a draft until its Gem funding is secured.</p> : null}
+                  </div>
                   <div className="sm:col-span-2">
                     <Label htmlFor="title">{t("promoPush.titleLabel")}</Label>
                     <Input id="title" required value={form.title} onChange={(e) => updateForm("title", e.target.value)} className="mt-2 bg-black/40" />
+                  </div>
+                  <div>
+                    <Label>What do people receive?</Label>
+                    <Select value={form.reward_type} onValueChange={(value) => updateForm("reward_type", value)}>
+                      <SelectTrigger className="mt-2 bg-black/40"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No reward</SelectItem>
+                        <SelectItem value="discount">Discount</SelectItem>
+                        <SelectItem value="free_item">Free item</SelectItem>
+                        <SelectItem value="ticket">Ticket or pass</SelectItem>
+                        <SelectItem value="sample">Sample</SelectItem>
+                        <SelectItem value="upgrade">Upgrade</SelectItem>
+                        <SelectItem value="gems">Gems</SelectItem>
+                        <SelectItem value="exclusive_access">Exclusive access</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="inventory_reference">Connected inventory</Label>
+                    <Input id="inventory_reference" required={form.reward_type !== "none"} value={form.inventory_reference} onChange={(e) => updateForm("inventory_reference", e.target.value)} className="mt-2 bg-black/40" placeholder="Offer, ticket tier, or Stock ID" />
+                  </div>
+                  <div>
+                    <Label htmlFor="cta">What should people do?</Label>
+                    <Input id="cta" required value={form.cta} onChange={(e) => updateForm("cta", e.target.value)} className="mt-2 bg-black/40" placeholder="Get my pass" />
+                  </div>
+                  <div>
+                    <Label htmlFor="landing_url">Where should they go?</Label>
+                    <Input id="landing_url" required value={form.landing_url} onChange={(e) => updateForm("landing_url", e.target.value)} className="mt-2 bg-black/40" placeholder="https://… or /moments/…" />
                   </div>
                   <div className="sm:col-span-2">
                     <Label>{t("promoPush.linkedMomentLabel")}</Label>
@@ -228,12 +307,12 @@ export default function PromoPush() {
                     <Input id="end" type="datetime-local" required value={form.end_time} onChange={(e) => updateForm("end_time", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div>
-                    <Label htmlFor="budget">{t("promoPush.budgetLabel")}</Label>
-                    <Input id="budget" type="number" min="0" value={form.budget} onChange={(e) => updateForm("budget", e.target.value)} className="mt-2 bg-black/40" placeholder="JMD" />
+                    <Label htmlFor="budget">Planned budget</Label>
+                    <Input id="budget" type="number" min="0" value={form.budget} onChange={(e) => updateForm("budget", e.target.value)} className="mt-2 bg-black/40" placeholder="Planning only — not secured" />
                   </div>
                   <div>
-                    <Label htmlFor="creator_reward">{t("promoPush.creatorRewardLabel")}</Label>
-                    <Input id="creator_reward" type="number" min="0" value={form.creator_verified_action_jmd} onChange={(e) => updateForm("creator_verified_action_jmd", e.target.value)} className="mt-2 bg-black/40" />
+                    <Label htmlFor="creator_reward">Distributor reward (Gems)</Label>
+                    <Input id="creator_reward" type="number" min="0" value={form.creator_verified_action_gems} onChange={(e) => updateForm("creator_verified_action_gems", e.target.value)} className="mt-2 bg-black/40" placeholder="Configured, not earned until verified" />
                   </div>
                   <div className="sm:col-span-2">
                     <Label htmlFor="rules">{t("promoPush.rulesLabel")}</Label>
@@ -244,7 +323,7 @@ export default function PromoPush() {
                     <Label htmlFor="creative" className="text-sm text-white/80">{t("promoPush.creativeSupportLabel")}</Label>
                   </div>
                   <Button disabled={createCampaign.isPending || momentsQuery.isLoading || !!momentsQuery.error} className="sm:col-span-2 bg-[#FF6A00] text-white hover:bg-[#e65f00]">
-                    {createCampaign.isPending ? t("promoPush.generatingButton") : t("promoPush.generateButton")}
+                    {createCampaign.isPending ? "Saving…" : form.push_mode === "organic" ? "Save and launch" : "Save funding-ready draft"}
                   </Button>
                 </CardContent>
               </Card>
@@ -348,4 +427,3 @@ export default function PromoPush() {
     </div>
   );
 }
-

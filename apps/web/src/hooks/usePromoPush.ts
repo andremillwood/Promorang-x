@@ -61,6 +61,11 @@ export type PromoPushCampaign = {
   budget?: number | null;
   reward_rules: Record<string, unknown>;
   request_creative_support: boolean;
+  objective_type?: string | null;
+  push_mode?: string | null;
+  reward_type?: string;
+  fulfillment_kit?: Record<string, unknown>;
+  funding_status?: "unfunded" | "secured" | "partially_released" | "released" | "refunded";
   status: "draft" | "active" | "completed" | "paused";
   moment?: PromoPushMomentOption | null;
   channels?: PromoPushChannel[];
@@ -126,8 +131,8 @@ export function useCreatePromoPushCampaign() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["promopush-campaigns"] });
       toast({
-        title: "PromoPush campaign created",
-        description: "Tracking links and QR channels are ready.",
+        title: "PromoPush plan saved",
+        description: "Your distribution plan and fulfillment details are recorded.",
       });
     },
     onError: (error: Error) => {
