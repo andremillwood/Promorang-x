@@ -1,0 +1,11 @@
+{
+  "review_id": "find-or-ask-20260923-01",
+  "runtime": "codex",
+  "workflow_version": "0.3.0",
+  "project_id": "promorang-x",
+  "objective_status": "confirmed",
+  "graph_assistance": {
+    "active": true,
+    "provenance": "saved project setting"
+  }
+}
