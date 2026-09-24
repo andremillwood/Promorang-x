@@ -88,7 +88,7 @@ export function ParticipationEconomy({ variant = "public", points = null, promoK
           ))}
         </div>
 
-        <div className={compact ? "mt-6 grid gap-3 sm:grid-cols-2" : "mt-8 grid gap-4 lg:grid-cols-[1fr_1fr_1.35fr]"}>
+        <div className={compact ? "mt-6 grid gap-3 sm:grid-cols-2" : "mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-4"}>
           <Link to="/wallet" className="rounded-[1.4rem] border border-amber-300/20 bg-amber-300/[0.06] p-5">
             <div className="flex items-center justify-between gap-3">
               <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">PromoPoints</p><p className="mt-2 font-serif text-3xl font-bold text-white">{points == null ? "Earned by participation" : points.toLocaleString()}</p></div>
@@ -105,10 +105,18 @@ export function ParticipationEconomy({ variant = "public", points = null, promoK
             <p className="mt-3 text-xs leading-5 text-white/45">A Key should mean something concrete: this person has the right to unlock or pursue a gated opportunity.</p>
           </Link>
 
+          <Link to="/earn" className="rounded-[1.4rem] border border-emerald-300/20 bg-emerald-300/[0.05] p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">Master Key</p><p className="mt-2 font-serif text-3xl font-bold text-white">Unlock earning access</p></div>
+              <BadgeDollarSign className="h-6 w-6 text-emerald-300" />
+            </div>
+            <p className="mt-3 text-xs leading-5 text-white/45">Build a verified participation record first. The Master Key is the gate into funded Gigs, Drops and earning opportunities—not a promise that every action pays.</p>
+          </Link>
+
           <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.035] p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">How value circulates</p>
             <p className="mt-2 font-serif text-2xl font-bold text-white">Move → prove → earn → unlock → spread → return.</p>
-            <p className="mt-3 text-xs leading-5 text-white/45">A Challenge may award Points. Points can progress toward Keys. A Key can unlock access. A Content Drop can spread the opportunity. PromoCard keeps the relationship connected.</p>
+            <p className="mt-3 text-xs leading-5 text-white/45">A Move can award Points. Points build participation proof and can progress toward Keys. Keys open gated access. The Master Key gates funded earning opportunities. Content Drops spread what is worth moving, and PromoCard keeps the relationship connected.</p>
           </div>
         </div>
       </div>
