@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Gift, MapPin, MessageCircleQuestion, PlayCircle, Rocket, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, CalendarDays, Gift, MapPin, MessageCircleQuestion, PlayCircle, Radio, Rocket, Sparkles, Users } from "lucide-react";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useNearbyBenefits } from "@/hooks/usePeopleExperience";
 import { useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 import { LivePerkCard } from "@/components/perks/LivePerkCard";
+import { useScenes } from "@/hooks/useScenes";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
-type FeedKind = "moment" | "drop" | "discovery";
+type FeedKind = "moment" | "drop" | "discovery" | "scene";
 
 type FeedItem = {
   id: string;
@@ -16,25 +20,44 @@ type FeedItem = {
   href: string;
   meta?: string | null;
   startsAt?: string | null;
+  sceneState?: "joined" | "discover";
+  imageUrl?: string | null;
 };
 
 const kindLabel: Record<FeedKind, string> = {
   moment: "Moment",
   drop: "Move this",
   discovery: "Discovery",
+  scene: "Scene",
 };
 
 const kindIcon = {
   moment: CalendarDays,
   drop: Rocket,
   discovery: MessageCircleQuestion,
+  scene: Radio,
 };
 
 export function ParticipationFeed() {
+  const { user } = useAuth();
   const moments = useCanonicalMomentFeed();
   const drops = useContentDrops("active");
   const nearby = useNearbyBenefits();
   const discoveries = useListingDiscoveryPolls(4);
+  const scenes = useScenes({ limit: 6 });
+  const sceneMemberships = useQuery({
+    queryKey: ["movement-feed-scene-memberships", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("scene_memberships")
+        .select("scene_id,membership_state")
+        .eq("user_id", user!.id)
+        .eq("membership_state", "active");
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const momentItems: FeedItem[] = (moments.data?.moments || [])
     .filter((moment) => moment.lifecycle !== "recently_ended")
@@ -68,15 +91,32 @@ export function ParticipationFeed() {
     meta: `${discovery.totalVotes || 0} recorded responses`,
   }));
 
-  const mixed = [...momentItems, ...dropItems, ...discoveryItems].sort((a, b) => {
+  const membershipIds = new Set((sceneMemberships.data || []).map((membership: any) => membership.scene_id));
+  const sceneItems: FeedItem[] = (scenes.data || []).slice(0, 4).map((scene) => {
+    const joined = membershipIds.has(scene.id);
+    return {
+      id: `scene-${scene.id}`,
+      kind: "scene",
+      title: scene.title,
+      copy: joined
+        ? scene.metadata?.tagline || scene.description || "See what your Scene wants, what is happening, and what you can help move."
+        : scene.metadata?.tagline || scene.description || "Join the people shaping what happens next.",
+      href: `/scenes/${scene.slug}`,
+      meta: joined ? "You are part of this Scene" : [scene.city, scene.country].filter(Boolean).join(", ") || "Find your people",
+      sceneState: joined ? "joined" : "discover",
+      imageUrl: scene.image_url,
+    };
+  });
+
+  const mixed = [...momentItems, ...dropItems, ...discoveryItems, ...sceneItems].sort((a, b) => {
     if (a.startsAt && b.startsAt) return new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime();
     if (a.startsAt) return -1;
     if (b.startsAt) return 1;
     return a.kind.localeCompare(b.kind);
   });
 
-  const isLoading = moments.isLoading || drops.isLoading || nearby.isLoading || discoveries.isLoading;
-  const hasError = moments.isError || drops.isError || nearby.isError || discoveries.isError;
+  const isLoading = moments.isLoading || drops.isLoading || nearby.isLoading || discoveries.isLoading || scenes.isLoading || sceneMemberships.isLoading;
+  const hasError = moments.isError || drops.isError || nearby.isError || discoveries.isError || scenes.isError || sceneMemberships.isError;
   const perks = (nearby.data || []).slice(0, 3);
 
   return (
@@ -85,7 +125,7 @@ export function ParticipationFeed() {
         <div>
           <p className="pr-world-kicker">Your movement feed</p>
           <h2 id="movement-feed-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">See it. Move it. Unlock what comes next.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Moments, content moves, Discoveries and live perks belong in one stream. Every card tells you what it is, what you can do, and what happens next.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Your Scenes, Moments, content moves, Discoveries and live perks belong in one stream. Every card tells you why it matters, what you can do, and what happens next.</p>
         </div>
         <Link to="/discover" className="pr-world-link">Explore everything <ArrowRight className="h-4 w-4" /></Link>
       </div>
@@ -99,10 +139,10 @@ export function ParticipationFeed() {
           {mixed.slice(0, 7).map((item) => {
             const Icon = kindIcon[item.kind];
             return (
-              <Link key={item.id} to={item.href} className="group rounded-2xl border border-white/10 bg-white/[.025] p-5 transition hover:border-[#ff6500]/45 hover:bg-white/[.04] sm:p-6">
+              <Link key={item.id} to={item.href} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] p-5 transition hover:border-[#ff6500]/45 hover:bg-white/[.04] sm:p-6">{item.kind === "scene" && item.imageUrl ? <img src={item.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-30" /> : null}<div className="relative">
                 <div className="flex items-start justify-between gap-4">
                   <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff8a45]"><Icon className="h-4 w-4" />{kindLabel[item.kind]}</span>
-                  {item.kind === "drop" ? <span className="rounded-full border border-[#d8ad54]/30 bg-[#d8ad54]/[.06] px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#f2c761]">Counts when verified</span> : null}
+                  {item.kind === "drop" ? <span className="rounded-full border border-[#d8ad54]/30 bg-[#d8ad54]/[.06] px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#f2c761]">Counts when verified</span> : null}{item.kind === "scene" ? <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white/70"><Users className="h-3 w-3" />{item.sceneState === "joined" ? "Your Scene" : "Find your people"}</span> : null}
                 </div>
                 <h3 className="mt-5 font-serif text-2xl font-bold leading-[1] tracking-[-.035em] text-white transition group-hover:text-[#ff9a62]">{item.title}</h3>
                 {item.copy ? <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/45">{item.copy}</p> : null}
@@ -111,7 +151,8 @@ export function ParticipationFeed() {
                     {item.startsAt ? <p className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{new Date(item.startsAt).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p> : null}
                     {item.meta ? <p className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{item.meta}</p> : null}
                   </div>
-                  <span className="inline-flex items-center gap-2 text-xs font-black text-[#ff8a45]">{item.kind === "discovery" ? "Answer" : item.kind === "drop" ? "Do the move" : "Open Moment"} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                  <span className="inline-flex items-center gap-2 text-xs font-black text-[#ff8a45]">{item.kind === "discovery" ? "Answer" : item.kind === "drop" ? "Do the move" : item.kind === "scene" ? (item.sceneState === "joined" ? "Open Scene" : "See Scene") : "Open Moment"} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                </div>
                 </div>
               </Link>
             );
@@ -123,7 +164,7 @@ export function ParticipationFeed() {
         <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.02] p-8">
           <Sparkles className="h-5 w-5 text-[#ff8a45]" />
           <h3 className="mt-5 font-serif text-2xl font-bold">Nothing live in your feed yet.</h3>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">When a real Moment, content move, Discovery or perk is published, it will appear here. Empty stays honest.</p>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">When a real Scene, Moment, content move, Discovery or perk is available, it will appear here. Empty stays honest.</p>
           <Link to="/discover" className="pr-world-link mt-5 inline-flex">Explore PROMORANG <ArrowRight className="h-4 w-4" /></Link>
         </div>
       ) : null}
