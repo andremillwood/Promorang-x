@@ -267,7 +267,10 @@ export function createAftrHrsInventory(initial?: {
 
   function claimDigitalPass(input: ClaimInput): Promise<ClaimResult> {
     return enqueue(() => {
-      applyWeeklyRollover(input.now);
+      // A preloaded edition is authoritative unless the caller supplies the
+      // operating time. Otherwise tests, replays, and admin snapshots can be
+      // silently reset merely because the wall clock moved to a later Friday.
+      if (input.now != null) applyWeeklyRollover(input.now);
       const email = normalizeAftrHrsIdentity(input.email);
       const phone = normalizeAftrHrsPhone(input.phone);
       const existing = input.userId ? userDigitalPass(input.userId) : undefined;
@@ -399,7 +402,7 @@ export function createAftrHrsInventory(initial?: {
 
   function redeemPass(rawCode: string, now?: Date | string | number) {
     return enqueue(() => {
-      applyWeeklyRollover(now);
+      if (now != null) applyWeeklyRollover(now);
       expireStaleGuestPasses(now);
       const uniqueCode = decodeAftrHrsPassPayload(rawCode);
       const pass = [...passes.values()].find((item) => item.uniqueCode === uniqueCode);

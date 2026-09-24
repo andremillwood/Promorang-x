@@ -165,12 +165,13 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
                 ))
               ) : (
                 <div className="text-center py-10 space-y-2">
-                  <p className="text-sm text-white/70">{t("headerSearch.noResults")} "{searchTerm}"</p>
+                  <p className="text-sm text-white/70">{t("findOrAsk.noExactTitle")}</p>
+                  <p className="text-xs text-white/45">{t("findOrAsk.noExactCopy")}</p>
                   <button
                     onClick={() => handleSelectResult(`/search?q=${encodeURIComponent(searchTerm)}`)}
                     className="text-xs font-bold text-primary hover:underline"
                   >
-                    {t("search.startCopy")} →
+                    {t("findOrAsk.entry")} →
                   </button>
                 </div>
               )}

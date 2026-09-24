@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, CalendarDays, Compass, Filter, Gift, MapPin, Search, Sparkles, Users, WalletCards, X } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useMarket } from "@/contexts/MarketContext";
@@ -8,7 +8,7 @@ import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { usePublicOffers } from "@/hooks/useOffers";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
-import { discoveryHref } from "@/lib/discovery-path";
+import { discoverPathHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { TasteCalibration } from "@/components/promorang/TasteCalibration";
@@ -62,7 +62,8 @@ function matchesDiscoverySearch(values: unknown[], query: string, interest: Inte
 
 export function PublicDiscoverExperience() {
   const { city, country } = useMarket();
-  const [query, setQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(() => searchParams.get("q") || "");
   const [resultType, setResultType] = useState<ResultType>("all");
   const [interest, setInterest] = useState<InterestFilter>("all");
   const cityFilter = city.id === "all-jamaica" ? undefined : city.name;
@@ -132,7 +133,7 @@ export function PublicDiscoverExperience() {
   return (
     <main className="marketing-cinematic public-discover-world min-h-screen bg-[#050505] text-white">
       <SEO
-        title="Discover PROMORANG — Find what moves you"
+        title="Discover PROMORANG | Find what moves you"
         description="Explore Discoveries, current Moments, offers and what people are looking for on PROMORANG."
         url={getSiteUrl("/discover")}
       />
@@ -219,7 +220,8 @@ export function PublicDiscoverExperience() {
                   demandCount={signal.poll.totalVotes || 0}
                   threshold={signal.poll.thresholdForMoment}
                   responseLabel={signal.poll.targetUnlockPerk}
-                  href={discoveryHref(signal.poll)}
+                  href={`/auth?mode=login&role=participant&next=${encodeURIComponent(discoverPathHref(signal.poll.question))}`}
+                  shareHref={discoverPathHref(signal.poll.question)}
                   state={signalState(signal.votesRemaining, signal.closeness)}
                   actionLabel="I want this too"
                 />

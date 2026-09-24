@@ -5,7 +5,7 @@ import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useMarket } from "@/contexts/MarketContext";
-import { discoveryHref } from "@/lib/discovery-path";
+import { discoverPathHref } from "@/lib/discovery-path";
 import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
 
 const sectors = [
@@ -28,7 +28,7 @@ export default function SolutionsHub() {
 
   return (
     <main className="min-h-screen bg-[#070707] text-white">
-      <SEO title="PROMORANG for Business — Start with the outcome" description="Tell PROMORANG what needs to change. Choose an outcome, get a recommended programme, customize the response, and measure what happened." />
+      <SEO title="PROMORANG for Business | Start with the outcome" description="Tell PROMORANG what needs to change. Choose an outcome, get a recommended programme, customize the response, and measure what happened." />
 
       <section className="border-b border-white/10 px-5 pb-16 pt-24 sm:px-6 md:pb-24 md:pt-32">
         <div className="mx-auto grid max-w-[1380px] gap-12 lg:grid-cols-[1.04fr_.96fr] lg:items-center">
@@ -75,7 +75,7 @@ export default function SolutionsHub() {
       <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Starting programmes</p>
-          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">A considered route—not a pile of features.</h2>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">A considered route, not a pile of features.</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">Programmes are configurable recipes. They help translate a business outcome into audience, action, value, distribution and evidence without pretending the result is guaranteed.</p>
           <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {PROGRAMMES.map((programme) => <article key={programme.id} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-5"><Sparkles className="h-5 w-5 text-orange-300" /><h3 className="mt-4 font-serif text-2xl font-bold">{programme.title}</h3><p className="mt-3 text-sm leading-6 text-white/45">{programme.promise}</p><p className="mt-4 text-[10px] font-black uppercase tracking-[0.12em] text-white/25">{programme.designedFor}</p></article>)}
@@ -91,7 +91,7 @@ export default function SolutionsHub() {
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/50">A Want is not a sale and a target is not supply. It is evidence that a question is worth investigating before you decide what to put into market.</p>
             <Link to="/#wanted" className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Open market pulse <ArrowRight className="h-4 w-4" /></Link>
           </div>
-          {signal ? <DemandSignalObject city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text || null} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment || null} responseLabel={signal.poll.targetUnlockPerk || null} href={discoveryHref(signal.poll)} state={signalState(signal.votesRemaining, signal.closeness)} actionLabel="Open Want" /> : <TicketPass kicker={isLoading ? "Reading the market" : "Quiet here right now"} title={isLoading ? "Checking the market…" : "No strong Want yet."} detail={isLoading ? "Looking for live interest in this market." : "Nothing strong is gathering here right now. You can still start from your business outcome."} stub="NOW" stubLabel="Market" />}
+          {signal ? <DemandSignalObject city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text || null} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment || null} responseLabel={signal.poll.targetUnlockPerk || null} href={discoverPathHref(signal.poll.question)} state={signalState(signal.votesRemaining, signal.closeness)} actionLabel="Open Want" /> : <TicketPass kicker={isLoading ? "Reading the market" : "Quiet here right now"} title={isLoading ? "Checking the market…" : "No strong Want yet."} detail={isLoading ? "Looking for live interest in this market." : "Nothing strong is gathering here right now. You can still start from your business outcome."} stub="NOW" stubLabel="Market" />}
         </div>
       </section>
 

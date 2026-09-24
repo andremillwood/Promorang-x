@@ -6,13 +6,7 @@ import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { usePublicOffers } from "@/hooks/useOffers";
 import { useAuth } from "@/contexts/AuthContext";
 import { momentLifecycleLabel } from "@/services/moment-feed";
-
-function formatMomentDate(value?: string | null) {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
-}
+import { useI18n } from "@/i18n/I18nContext";
 
 function offerAvailability(quantityTotal?: number | null, quantityReserved = 0, quantityRedeemed = 0) {
   if (typeof quantityTotal !== "number") return "Availability set by operator";
@@ -20,6 +14,7 @@ function offerAvailability(quantityTotal?: number | null, quantityReserved = 0, 
 }
 
 export function PromoCardValueShowcase() {
+  const { t, formatDate } = useI18n();
   const { user } = useAuth();
   const momentsQuery = useCanonicalMomentFeed();
   const offersQuery = usePublicOffers();
@@ -36,27 +31,27 @@ export function PromoCardValueShowcase() {
       <div className="mx-auto max-w-[1440px]">
         <div className="marketing-section-head">
           <div>
-            <p className="marketing-kicker">The participant product</p>
-            <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">PromoCard is your place in PROMORANG.</h2>
+            <p className="marketing-kicker">{t("clarity.cardValueKicker")}</p>
+            <h2 className="mt-3 max-w-4xl text-4xl font-black sm:text-5xl">{t("clarity.cardValueTitle")}</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">
-              PROMORANG is the network. PromoCard is the product you carry through it. It keeps what you want, brings back what opens, gives active access somewhere to live, and preserves the parts of your participation worth keeping.
+              {t("clarity.cardValueCopy")}
             </p>
           </div>
           <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">
-            {user ? "Open my PromoCard" : "Get my PromoCard"} <ArrowRight className="h-4 w-4" />
+            {user ? t("clarity.openMyCard") : t("clarity.getMyCard")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         <div className="marketing-card-value-grid relative">
           <CurrentArc variant="return" className="marketing-promocard-return-arc" />
           <div className="marketing-promocard-stage">
-            <div className="marketing-return-landing__label mb-4"><RotateCcw className="h-4 w-4" /> YOUR PROMORANG, IN ONE PLACE</div>
+            <div className="marketing-return-landing__label mb-4"><RotateCcw className="h-4 w-4" /> {t("clarity.cardInOnePlace")}</div>
             <PromoCardFace
-              holder={user ? "Your PromoCard" : "Your PromoCard"}
-              available="What opens for you"
-              limit="Wanted · Open · Active · Kept"
-              places="What you want, what becomes available, what you pick up and what you actually do stay connected to you."
-              action={user ? "Open my PromoCard" : "Get my PromoCard"}
+              holder={t("clarity.yourPromoCard")}
+              available={t("clarity.whatOpens")}
+              limit={t("clarity.cardStates")}
+              places={t("clarity.cardSummary")}
+              action={user ? t("clarity.openMyCard") : t("clarity.getMyCard")}
               variant="membership"
               interactive={false}
             />
@@ -64,11 +59,11 @@ export function PromoCardValueShowcase() {
 
           <div className="marketing-benefit-stack">
             {[
-              ["WANTED", "Keep track of what you care about.", "A Want can stay connected to you without pretending it is already available."],
-              ["WATCHING", "Ask PROMORANG to bring you back.", "Watch a Discovery, Want, Moment or Offer when you want to hear about meaningful changes."],
-              ["OPEN", "See what became real.", "When access, an Offer or a Moment actually opens, PromoCard gives it a clear place to live."],
-              ["ACTIVE", "Know what you picked up.", "Reservations, claims and commitments stay separate from completed actions so you always know where you stand."],
-              ["KEPT", "Carry the result forward.", "Used access, completed actions, memories and earned value can remain part of your history."],
+              ["WANTED", "Remember what you asked for.", "Keep the things you care about connected to you while the signal grows."],
+              ["WATCHING", "Know when something changes.", "Come back when a Want, Discovery, Moment or Offer has a meaningful update."],
+              ["OPEN", "Find what became available.", "Real access, offers and Moments have a clear place to land when they open."],
+              ["ACTIVE", "Keep your next move clear.", "See what you claimed, reserved or committed to without confusing it with completion."],
+              ["KEPT", "Carry the outcome forward.", "What you used, earned or completed can stay in your history."],
             ].map(([label, title, copy]) => (
               <article key={label} className="marketing-benefit-row">
                 <span>{label}</span>
@@ -106,7 +101,7 @@ export function PromoCardValueShowcase() {
                     <p className="text-[9px] font-black uppercase tracking-[0.14em] text-orange-300">{moment.category || "Moment"}</p>
                     <h3>{moment.title}</h3>
                     <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/45"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-400" />{moment.venue_name || moment.location || "Location on Moment"}</p>
-                    {formatMomentDate(moment.starts_at) ? <p className="mt-2 text-[11px] font-bold text-white/60">{formatMomentDate(moment.starts_at)}</p> : null}
+                    {moment.starts_at ? <p className="mt-2 text-[11px] font-bold text-white/60">{formatDate(moment.starts_at, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p> : null}
                     {moment.reward ? <p className="marketing-live-card__perk"><Gift className="h-3.5 w-3.5" /> {moment.reward}</p> : null}
                   </div>
                 </Link>

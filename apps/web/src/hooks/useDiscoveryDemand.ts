@@ -176,6 +176,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
 
   return {
     inbox,
+    polls,
     isLoading: cityPolls.isLoading || listingPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
     recordAsk: record.mutateAsync,
   };

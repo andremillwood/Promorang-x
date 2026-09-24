@@ -132,7 +132,7 @@ async function processPurchase(userId, productId, method, quantity = 1) {
         // Store this in a 'user_tickets' table or similar for QR scanning
         const redemptionCode = generateRedemptionCode();
 
-        await supabase.from('commerce_receipts').insert({
+        const { data: directReceipt } = await supabase.from('commerce_receipts').insert({
             user_id: userId,
             merchant_id: product.merchant_id,
             listing_id: productId,
@@ -143,7 +143,11 @@ async function processPurchase(userId, productId, method, quantity = 1) {
             currency,
             redemption_code: redemptionCode,
             attribution: { source: 'marketplace', payment_method: method, quantity },
-        }).catch(() => undefined);
+        }).select().maybeSingle().catch(() => ({ data: null }));
+        if (directReceipt) {
+            const commerceOutcomeService = require('./commerceOutcomeService');
+            await commerceOutcomeService.processReceipt(directReceipt).catch((outcomeError) => console.warn('[Marketplace] Direct commerce outcomes skipped:', outcomeError.message));
+        }
 
         // 6. Return success with financial details
         const response = {
@@ -383,6 +387,8 @@ async function confirmMerchantPayment({ orderId, merchantId, reference }) {
         },
     }).select().single();
     if (receiptError) throw receiptError;
+    const commerceOutcomeService = require('./commerceOutcomeService');
+    await commerceOutcomeService.processReceipt(receipt).catch((outcomeError) => console.warn('[Marketplace] Merchant payment outcomes skipped:', outcomeError.message));
     return { order, receipt_id: receipt.id };
 }
 
@@ -440,6 +446,8 @@ async function finalizeStripePurchase(paymentIntent) {
             .select()
             .single();
         if (receiptError) throw receiptError;
+        const commerceOutcomeService = require('./commerceOutcomeService');
+        await commerceOutcomeService.processReceipt(receipt).catch((outcomeError) => console.warn('[Marketplace] Stripe order outcomes skipped:', outcomeError.message));
         return {
             handled: true,
             order_id: order.id,
@@ -700,6 +708,11 @@ async function refundCommerceReceipt({ receiptId, actorId = null, reason = 'Admi
             updated_at: new Date().toISOString(),
         }).eq('id', attribution.commerce_order_id);
     }
+
+    const commercialAttributionService = require('./commercialAttributionService');
+    await commercialAttributionService.processCommerceReceipt(updatedReceipt).catch((commercialError) => {
+        console.warn('[Marketplace] Commercial allocation reversal skipped:', commercialError.message);
+    });
 
     return { receipt: updatedReceipt, stripe_refund: stripeRefund };
 }

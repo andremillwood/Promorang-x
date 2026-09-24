@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, Compass, SkipForward } from "lucide-react";
+import { ArrowRight, Check, Compass, Share2, SkipForward } from "lucide-react";
 import { NightTrail, PaperReceipt } from "@/components/promorang/SignatureObjects";
 import { TactileButton } from "@/components/ui/TactileButton";
 import { DiscoveryWidget } from "@/components/radar/DiscoveryWidget";
@@ -39,6 +39,8 @@ import { promoCardAimPath, promoCardUnlockHref, type PromoCardAim } from "@promo
 import { FillCardMoves } from "@/components/promocard/FillCardMoves";
 import { readLocalCardUnlocks, type DiscoveryCardUnlock } from "@/lib/discovery-card";
 import { pollHasRedeemablePerk } from "@/lib/discovery-signal";
+import { WatchMarketObjectButton } from "@/components/market/WatchMarketObjectButton";
+import { trackGrowthEvent } from "@/lib/marketing-attribution";
 
 function whyCopy(
   why: PathWhy,
@@ -100,7 +102,7 @@ export function DiscoveryPath({
   syncUrl = true,
   surface = "page",
 }: DiscoveryPathProps) {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
   const to = useExperiencePath();
@@ -142,6 +144,7 @@ export function DiscoveryPath({
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [lastPick, setLastPick] = useState<string | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
+  const [shareComplete, setShareComplete] = useState(false);
   const found = useDiscoveryFound(cityName);
   const fillRequest = searchParams.get("fill") === "request";
 
@@ -314,6 +317,29 @@ export function DiscoveryPath({
 
   const continuePath = () => setJustVotedId(null);
 
+  const shareCurrentWant = async () => {
+    if (!current || typeof window === "undefined") return;
+    const href = discoverPathHref(current.poll.question, null, aim?.id);
+    const url = new URL(href, window.location.origin).toString();
+    const text = t("clarity.voteShareText", { title: current.poll.question });
+    try {
+      if (navigator.share) await navigator.share({ title: current.poll.question, text, url });
+      else await navigator.clipboard.writeText(url);
+      setShareComplete(true);
+      window.setTimeout(() => setShareComplete(false), 2500);
+      void trackGrowthEvent({
+        eventName: "demand_signal_shared",
+        journey: "participant",
+        stage: "amplified",
+        entityType: "demand",
+        entityId: current.poll.id,
+        properties: { href },
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+    }
+  };
+
   const putCurrentPerkOnCard = async () => {
     if (!current || !pollHasRedeemablePerk(current.poll)) return null;
     setUnlockingPollId(current.poll.id);
@@ -482,6 +508,7 @@ export function DiscoveryPath({
                   heading={aim ? "On your card" : t("discover.pathReceiptHeading")}
                   lines={[
                     { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
+                    { label: t("clarity.people"), value: t("clarity.votePeopleRecorded", { count: formatNumber(current.poll.totalVotes) }), strong: true },
                     {
                       label: t("discover.pathReceiptCard"),
                       value: lastUnlock?.perkTitle || current.poll.targetUnlockPerk || t("discover.pathFallbackPerk"),
@@ -504,6 +531,7 @@ export function DiscoveryPath({
                   heading={t("discover.pathVoteHeading")}
                   lines={[
                     { label: t("discover.pathReceiptChose"), value: current.poll.question, strong: true },
+                    { label: t("clarity.people"), value: t("clarity.votePeopleRecorded", { count: formatNumber(current.poll.totalVotes) }), strong: true },
                     {
                       label: t("discover.pathReceiptPick"),
                       value: lastPick || t("discover.pathVoteRecorded"),
@@ -531,12 +559,25 @@ export function DiscoveryPath({
                           : "Your signal is recorded. The perk is not on your card yet."
                     : t("discover.pathVoteCopy")}
                 </p>
+                <p className="text-xs leading-5 text-white/42">{t("clarity.voteDisclaimer")}</p>
                 {unlockError && pollHasRedeemablePerk(current.poll) && !currentUnlockRecorded ? (
                   <p className="rounded-xl border border-amber-300/15 bg-amber-300/[0.05] p-3 text-xs leading-5 text-amber-100/70">
                     {unlockError}
                   </p>
                 ) : null}
                 <div className="flex flex-wrap gap-3">
+                  <TactileButton variant="obsidian" onClick={() => void shareCurrentWant()}>
+                    {shareComplete ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                    {shareComplete ? t("clarity.readyToShare") : t("clarity.helpWantGrow")}
+                  </TactileButton>
+                  <WatchMarketObjectButton
+                    type="demand"
+                    id={current.poll.id}
+                    title={current.poll.question}
+                    subtitle={`${formatNumber(current.poll.totalVotes)} ${t("clarity.people")} · ${cityName}`}
+                    href={discoverPathHref(current.poll.question, null, aim?.id)}
+                    metadata={{ city: cityName, demandCount: current.poll.totalVotes }}
+                  />
                   {pollHasRedeemablePerk(current.poll) && currentUnlockRecorded ? (
                     <TactileButton variant="primary" asChild>
                       <Link to={cardHref}>

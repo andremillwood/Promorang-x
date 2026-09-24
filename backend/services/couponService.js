@@ -20,7 +20,7 @@ async function upsertCouponReceipt({ redemption, coupon, status = 'issued', rece
       .maybeSingle();
 
     if (existing?.id) {
-      await supabase
+      const { data: updated } = await supabase
         .from('commerce_receipts')
         .update({
           status,
@@ -35,11 +35,17 @@ async function upsertCouponReceipt({ redemption, coupon, status = 'issued', rece
             merchant_user_id: merchantUserId || coupon?.merchant_stores?.user_id || existing.attribution?.merchant_user_id || null,
           },
         })
-        .eq('id', existing.id);
+        .eq('id', existing.id)
+        .select()
+        .maybeSingle();
+      if (updated) {
+        const commerceOutcomeService = require('./commerceOutcomeService');
+        await commerceOutcomeService.processReceipt(updated).catch((outcomeError) => console.warn('[Coupon Service] Commerce outcomes skipped:', outcomeError.message));
+      }
       return;
     }
 
-    await supabase.from('commerce_receipts').insert({
+    const { data: receipt } = await supabase.from('commerce_receipts').insert({
       user_id: redemption.user_id,
       merchant_id: merchantUserId || coupon?.merchant_stores?.user_id || null,
       coupon_id: coupon.id,
@@ -57,7 +63,11 @@ async function upsertCouponReceipt({ redemption, coupon, status = 'issued', rece
         discount_value: coupon.discount_value,
         merchant_user_id: merchantUserId || coupon?.merchant_stores?.user_id || null,
       },
-    });
+    }).select().maybeSingle();
+    if (receipt) {
+      const commerceOutcomeService = require('./commerceOutcomeService');
+      await commerceOutcomeService.processReceipt(receipt).catch((outcomeError) => console.warn('[Coupon Service] Commerce outcomes skipped:', outcomeError.message));
+    }
   } catch (error) {
     console.warn('[Coupon Service] Commerce receipt sync skipped:', error.message);
   }

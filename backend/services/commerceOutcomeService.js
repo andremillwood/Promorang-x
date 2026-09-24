@@ -2,13 +2,19 @@ const { supabase: serviceSupabase } = require('../lib/supabase');
 const promoShareService = require('./promoShareService');
 const pieceEarningService = require('./pieceEarningService');
 const demandEventService = require('./demandEventService');
+const commercialAttributionService = require('./commercialAttributionService');
 
 const supabase = global.supabase || serviceSupabase || null;
 
 async function processReceipt(receipt) {
   if (!supabase || !receipt?.id || !receipt?.user_id) return { processed: false };
   const attribution = receipt.attribution || {};
-  if (attribution.outcomes_processed_at) return { processed: true, idempotent: true };
+  if (attribution.outcomes_processed_at) {
+    let commercial = null;
+    try { commercial = await commercialAttributionService.processCommerceReceipt(receipt); }
+    catch (error) { console.warn('[Commerce Outcome] Commercial attribution refresh skipped:', error.message); }
+    return { processed: true, idempotent: true, commercial };
+  }
   const momentId = receipt.moment_id || attribution.moment_id || attribution.linked_moment_id || null;
   const contentId = receipt.content_id || attribution.content_id || attribution.source_content_id || null;
   const outcomes = { ticket: null, moment_piece: null, content_piece: null };
@@ -48,6 +54,11 @@ async function processReceipt(receipt) {
         if (Number(count || 0) > 1) await demandEventService.recordEvent({ campaignId, actorUserId: receipt.user_id, eventType: 'repeat_purchase', sourceSystem: 'commerce_receipts', sourceReference: receipt.id, channel: attribution.source || 'promorang_commerce', verified: true, properties: { purchase_event_id: recorded.event.id } });
       }
     } catch (error) { console.warn('[Commerce Outcome] Demand event skipped:', error.message); }
+  }
+  try {
+    outcomes.commercial = await commercialAttributionService.processCommerceReceipt(receipt);
+  } catch (error) {
+    console.warn('[Commerce Outcome] Commercial attribution skipped:', error.message);
   }
   return { processed: true, outcomes };
 }

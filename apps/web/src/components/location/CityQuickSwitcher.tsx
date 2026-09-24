@@ -29,12 +29,12 @@ export function CityQuickSwitcher({
 
   const handleSelectCity = (next: CityOption) => {
     setCity(next);
-    toast.success(`Now browsing ${next.name}`, {
+    toast.success(t("citySwitcher.nowBrowsing", { city: next.name }), {
       description: next.badge === "Live Pulse"
-        ? "Discover, Pulse, and the map will show this hub."
+        ? t("citySwitcher.liveDescription")
         : next.badge === "Island-Wide"
-          ? "Showing Moments and places across Jamaica."
-          : "Discover and Pulse will switch to this hub. Live coverage is still growing here.",
+          ? t("citySwitcher.islandDescription")
+          : t("citySwitcher.growingDescription"),
     });
   };
 
@@ -87,10 +87,10 @@ export function CityQuickSwitcher({
       >
         <div className="px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 pb-1.5 flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-white/70">
-            <Globe className="w-3.5 h-3.5 text-primary" /> Active City Hubs
+            <Globe className="w-3.5 h-3.5 text-primary" /> {t("citySwitcher.title")}
           </span>
           <span className="text-primary text-[10px] font-bold bg-primary/10 px-2 py-0.5 rounded-full">
-            {ALL_CITY_HUBS.length} Global Hubs
+            {t("citySwitcher.globalHubs", { count: ALL_CITY_HUBS.length })}
           </span>
         </div>
 
@@ -98,7 +98,7 @@ export function CityQuickSwitcher({
           <Search className="w-3.5 h-3.5 text-white/40 absolute left-2.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search country, city or parish..."
+            placeholder={t("citySwitcher.search")}
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
             className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary/60 transition"
@@ -109,12 +109,12 @@ export function CityQuickSwitcher({
 
         <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
           {[
-            { id: "all" as const, label: "All", count: regionCounts.all },
+            { id: "all" as const, label: t("citySwitcher.all"), count: regionCounts.all },
             { id: "jamaica" as const, label: "🇯🇲 JA", count: regionCounts.jamaica },
-            { id: "caribbean" as const, label: "🌴 Caribbean", count: regionCounts.caribbean },
+            { id: "caribbean" as const, label: `🌴 ${t("citySwitcher.caribbean")}`, count: regionCounts.caribbean },
             { id: "latam" as const, label: "🌎 LatAm", count: regionCounts.latam },
-            { id: "africa" as const, label: "🌍 Africa", count: regionCounts.africa },
-            { id: "diaspora" as const, label: "✈️ Diaspora", count: regionCounts.diaspora },
+            { id: "africa" as const, label: `🌍 ${t("citySwitcher.africa")}`, count: regionCounts.africa },
+            { id: "diaspora" as const, label: `✈️ ${t("citySwitcher.diaspora")}`, count: regionCounts.diaspora },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -173,8 +173,8 @@ export function CityQuickSwitcher({
 
           {filteredCities.length === 0 && (
             <div className="p-6 text-center text-xs text-white/40 space-y-1">
-              <p>No matching city hub found.</p>
-              <p className="text-[10px] text-white/30">Try clearing your search or switching region tabs.</p>
+              <p>{t("citySwitcher.noMatch")}</p>
+              <p className="text-[10px] text-white/30">{t("citySwitcher.noMatchHelp")}</p>
             </div>
           )}
         </div>

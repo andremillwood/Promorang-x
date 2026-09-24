@@ -14,6 +14,8 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { ArrowLeft, ArrowRight, CalendarDays, Camera, Check, CircleDollarSign, ExternalLink, Eye, HeartHandshake, MapPin, Plus, Rocket, Search, ShieldCheck, Sparkles, Store, Ticket, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ActivationCommercialEvidence } from "@/components/activation/ActivationCommercialEvidence";
+import { ActivationCommercialSetup } from "@/components/activation/ActivationCommercialSetup";
 import { GuidanceDisclosure } from "@/components/guidance/GuidanceDisclosure";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -241,6 +243,7 @@ export default function ActivationDetail() {
         </Panel>
         </>}
         {workspaceFocus === "value" && <>
+        <ActivationCommercialSetup operations={operations} />
         <Panel eyebrow="Value model" title="Secure the real promise—not an invented Gem budget" icon={HeartHandshake}>
           <p className="text-sm leading-6 text-white/50">Choose what participants genuinely receive. Gems are optional unless this activation specifically uses them.</p>
           <div className="mt-5 grid gap-2 sm:grid-cols-2">{valueModels.map((model) => <button key={model.id} type="button" onClick={() => setValueModelDraft(model.id)} className={cn("rounded-2xl border p-4 text-left transition", valueModelDraft === model.id ? "border-primary/40 bg-primary/10" : "border-white/10 bg-black/25 hover:border-white/20")}><p className={cn("text-sm font-black", valueModelDraft === model.id && "text-primary")}>{model.label}</p><p className="mt-2 text-[10px] leading-4 text-white/40">{model.detail}</p></button>)}</div>
@@ -272,6 +275,7 @@ export default function ActivationDetail() {
         </Panel>
         </>}
         {workspaceFocus === "review" && <>
+        <ActivationCommercialEvidence evidence={operations.operations.data?.commercialEvidence} rules={operations.operations.data?.commercialRules} allocations={operations.operations.data?.commercialAllocations} distributionEvents={operations.operations.data?.promoPushEvents} />
         <Panel eyebrow="Shared return" title="Make the experience valuable from every side" icon={HeartHandshake}><div className="grid gap-4 sm:grid-cols-2"><Return title="For participants" value={metadata.social_return || metadata.participant_value?.join(" · ")} /><Return title="For venues, merchants + brands" value={metadata.commercial_return} /></div><p className="mt-4 text-xs leading-5 text-white/40">{ACTIVATION_SUCCESS_LANGUAGE.sharedReturn}</p></Panel>
         <Panel eyebrow={ACTIVATION_RETURN_REVIEW.eyebrow} title={ACTIVATION_RETURN_REVIEW.title} icon={Sparkles}>
           <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/[0.06] p-5">

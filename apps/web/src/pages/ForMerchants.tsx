@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMarket } from "@/contexts/MarketContext";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { buildMerchantDemandOpening, merchantAuthHref, readMerchantDemand } from "@/lib/merchant-demand";
-import { discoveryHref } from "@/lib/discovery-path";
+import { discoverPathHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
@@ -37,7 +37,7 @@ export default function ForMerchants() {
 
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
-      <SEO title={claimVenue ? `${claimVenue} on PROMORANG` : "PROMORANG for Merchants — Start with the business result"} description="More visits, stronger quiet periods, product movement and repeat business. Start with the outcome and let PROMORANG help shape the response." />
+      <SEO title={claimVenue ? `${claimVenue} on PROMORANG` : "PROMORANG for Merchants | Start with the business result"} description="More visits, stronger quiet periods, product movement and repeat business. Start with the outcome and let PROMORANG help shape the response." />
 
       <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
         <CurrentArc variant="hero" className="marketing-hero-current" />
@@ -45,7 +45,7 @@ export default function ForMerchants() {
           <div>
             <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300"><Store className="h-4 w-4" /> For merchants & places</p>
             <h1 className="mt-6 max-w-5xl font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-7xl">What would make this a better week for your business?</h1>
-            <p className="mt-7 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">More people through the door. A busier slow period. Movement around one item. First-time customers coming back. Start there—not with campaign mechanics.</p>
+            <p className="mt-7 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">More people through the door. A busier slow period. Movement around one item. First-time customers coming back. Start there, not with campaign mechanics.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-emerald-400 px-6 text-sm font-black text-black">Choose a business outcome <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">See what people nearby want</Link>
@@ -72,7 +72,7 @@ export default function ForMerchants() {
           <div className="rounded-[2rem] border border-emerald-300/15 bg-emerald-300/[0.055] p-6 sm:p-7">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">Say it the way you actually think it</p>
             <div className="mt-5 space-y-3">
-              {["I need more customers.", "I want people in during a quiet time.", "I need to move this item.", "I want first-time customers to return.", "I do not know — show me what people nearby want."].map((line) => <p key={line} className="rounded-xl border border-white/10 bg-black/20 p-4 text-sm font-bold">{line}</p>)}
+              {["I need more customers.", "I want people in during a quiet time.", "I need to move this item.", "I want first-time customers to return.", "I do not know. Show me what people nearby want."].map((line) => <p key={line} className="rounded-xl border border-white/10 bg-black/20 p-4 text-sm font-bold">{line}</p>)}
             </div>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function ForMerchants() {
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em]">A request is not a customer. It is a reason to look closer.</h2>
             <p className="mt-4 text-sm leading-7 text-white/50">Use Wants to see where interest is gathering before you commit discounts, stock, staff time or special hours.</p>
           </div>
-          {isLoading && !liveSignals.length ? <div className="h-56 animate-pulse rounded-[1.6rem] bg-white/[0.04]" /> : liveSignals.length ? <div className="grid gap-4 xl:grid-cols-2">{liveSignals.map((signal) => <DemandSignalObject key={signal.poll.id} city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment} responseLabel={signal.poll.targetUnlockPerk} href={discoveryHref(signal.poll)} state={signalState(signal.votesRemaining, signal.closeness)} />)}</div> : <TicketPass kicker="Right now" title="No strong Want nearby yet." detail="You can still start from your own business outcome, claim your place, or come back as interest forms." stub="0" stubLabel="Want" />}
+          {isLoading && !liveSignals.length ? <div className="h-56 animate-pulse rounded-[1.6rem] bg-white/[0.04]" /> : liveSignals.length ? <div className="grid gap-4 xl:grid-cols-2">{liveSignals.map((signal) => <DemandSignalObject key={signal.poll.id} city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment} responseLabel={signal.poll.targetUnlockPerk} href={discoverPathHref(signal.poll.question)} state={signalState(signal.votesRemaining, signal.closeness)} />)}</div> : <TicketPass kicker="Right now" title="No strong Want nearby yet." detail="You can still start from your own business outcome, claim your place, or come back as interest forms." stub="0" stubLabel="Want" />}
         </div>
       </section>
 
@@ -124,7 +124,7 @@ export default function ForMerchants() {
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">PromoCard at the counter</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Make it obvious what this person can use now—and what brings them back.</h2>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Make it obvious what this person can use now and what brings them back.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">Your staff should not need to understand the whole system. Valid access, terms and the next step should be clear.</p>
           </div>
           <PromoCardFace holder="Participant PromoCard" available="Use this here" limit="Issued offer · terms apply" places="Show the offer, the terms and the next step at a glance." action="Present this" interactive={false} />

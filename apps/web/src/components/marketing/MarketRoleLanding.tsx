@@ -5,7 +5,7 @@ import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { useMarket } from "@/contexts/MarketContext";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
-import { discoveryHref } from "@/lib/discovery-path";
+import { discoverPathHref } from "@/lib/discovery-path";
 
 type RoleLandingProps = {
   seoTitle: string;
@@ -76,7 +76,7 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
                 demandCount={leadSignal.poll.totalVotes || 0}
                 threshold={leadSignal.poll.thresholdForMoment}
                 responseLabel={leadSignal.poll.targetUnlockPerk}
-                href={discoveryHref(leadSignal.poll)}
+                href={discoverPathHref(leadSignal.poll.question)}
                 actionLabel="See what people want"
                 state={signalState(leadSignal.votesRemaining, leadSignal.closeness)}
               />
@@ -130,7 +130,7 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
             title="Listen → decide → open → learn"
             steps={[
               { label: "Listen", title: "Start with what people are noticing and asking for.", text: "Use what people want as context, then decide whether it matters to your role." },
-              { label: "Decide", title: "Choose whether it deserves your move.", text: "You can watch, research, respond—or do nothing. A signal is a reason to look closer, not a promise of results." },
+              { label: "Decide", title: "Choose whether it deserves your move.", text: "You can watch, research, respond or do nothing. A signal is a reason to look closer, not a promise of results." },
               { label: "Open", title: props.responseTitle, text: props.responseDetail },
               { label: "Learn", title: props.proofTitle, text: props.proofDetail },
             ]}
@@ -148,7 +148,7 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
           <div>
             <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300"><ShieldCheck className="h-4 w-4" /> Where your move meets the participant</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.04em] sm:text-5xl">PromoCard is the participant product. PROMORANG is the network around it.</h2>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/55">{props.promoCardDetail} Your response should give a participant something real to want, open, act on or keep—not another dashboard to understand.</p>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/55">{props.promoCardDetail} Your response should give a participant something real to want, open, act on or keep, not another dashboard to understand.</p>
             <Link to="/what-is-promorang" className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-orange-100">
               See the PromoCard side <ArrowRight className="h-4 w-4" />
             </Link>

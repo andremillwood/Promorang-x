@@ -500,7 +500,7 @@ async function validateRedemption(redemptionCode, merchantId) {
 
         if (error) throw error;
 
-        await supabase
+        const { data: fulfilledReceipt } = await supabase
             .from('commerce_receipts')
             .update({
                 status: 'fulfilled',
@@ -513,7 +513,13 @@ async function validateRedemption(redemptionCode, merchantId) {
             })
             .eq('sale_id', sale.id)
             .eq('merchant_id', merchantId)
+            .select()
+            .maybeSingle()
             .catch(() => undefined);
+        if (fulfilledReceipt) {
+            const commerceOutcomeService = require('./commerceOutcomeService');
+            await commerceOutcomeService.processReceipt(fulfilledReceipt).catch((outcomeError) => console.warn('[Merchant Product] Fulfillment outcomes skipped:', outcomeError.message));
+        }
 
         return data;
     } catch (error) {

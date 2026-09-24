@@ -103,6 +103,9 @@ router.post('/gem-orders', requireAuth, async (req, res) => {
         },
       }).select('id').single();
       if (receiptError) throw receiptError;
+      const commerceOutcomeService = require('../services/commerceOutcomeService');
+      const { data: fullReceipt } = await db.from('commerce_receipts').select('*').eq('id', receipt.id).single();
+      await commerceOutcomeService.processReceipt(fullReceipt).catch((outcomeError) => console.warn('[Commerce API] Gem order outcomes skipped:', outcomeError.message));
       return res.status(201).json({
         success: true,
         order_id: order.id,

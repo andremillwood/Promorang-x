@@ -14,8 +14,10 @@ import type { DiscoveryPoll } from "@/data/discoveriesData";
 import { toast } from "sonner";
 import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 import { filterDiscoveryPollsForHub, mergeDiscoveryPolls } from "@/lib/discovery-path";
+import { useI18n } from "@/i18n/I18nContext";
 
 export function DiscoveriesFeedSection() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { city } = useMarket();
   const queryClient = useQueryClient();
@@ -67,7 +69,7 @@ export function DiscoveriesFeedSection() {
             <AskQuestionModal
               defaultCity={city.name}
               onQuestionCreated={(poll) => setLivePolls((current) => [poll, ...current])}
-              trigger={<Button variant="outline" size="sm" className="gap-2 rounded-full border-white/15 bg-white/5 text-white hover:bg-white/10"><HelpCircle className="h-4 w-4 text-purple-300" />Ask the market</Button>}
+              trigger={<Button variant="outline" size="sm" className="gap-2 rounded-full border-white/15 bg-white/5 text-white hover:bg-white/10"><HelpCircle className="h-4 w-4 text-purple-300" />{t("askMarket.trigger")}</Button>}
             />
             <SubmitDiscoveryModal trigger={<Button size="sm" className="gap-2 rounded-full bg-primary font-bold text-black hover:bg-orange-400"><Plus className="h-4 w-4" />Propose a place</Button>} />
           </div>

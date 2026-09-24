@@ -8,7 +8,7 @@ import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { NightTrail, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
-import { discoveryHref } from "@/lib/discovery-path";
+import { discoverPathHref } from "@/lib/discovery-path";
 import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
@@ -29,7 +29,7 @@ export default function ForBrands() {
 
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
-      <SEO title="PROMORANG for Brands — Start with the customer movement" description="Choose the customer action your brand needs, get a recommended programme, and measure what people actually did." />
+      <SEO title="PROMORANG for Brands | Start with the customer movement" description="Choose the customer action your brand needs, get a recommended programme, and measure what people actually did." />
 
       <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
         <CurrentArc variant="hero" className="marketing-hero-current" />
@@ -78,7 +78,7 @@ export default function ForBrands() {
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.045em]">A business goal and a market signal can meet in the same plan.</h2>
             <p className="mt-4 text-sm leading-7 text-white/50">You can start from the brand outcome, or start from a live Want and ask whether the brand should answer it.</p>
           </div>
-          {isLoading && !liveSignals.length ? <div className="h-56 animate-pulse rounded-[1.6rem] bg-white/[0.04]" /> : liveSignals.length ? <div className="grid gap-4 xl:grid-cols-2">{liveSignals.map((signal) => <DemandSignalObject key={signal.poll.id} city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment} responseLabel={signal.poll.targetUnlockPerk} href={discoveryHref(signal.poll)} state={signalState(signal.votesRemaining, signal.closeness)} />)}</div> : <TicketPass kicker="Right now" title="Quiet here right now." detail="There is no strong Want here yet. A brand can still begin with its own measurable outcome." stub="0" stubLabel="Now" />}
+          {isLoading && !liveSignals.length ? <div className="h-56 animate-pulse rounded-[1.6rem] bg-white/[0.04]" /> : liveSignals.length ? <div className="grid gap-4 xl:grid-cols-2">{liveSignals.map((signal) => <DemandSignalObject key={signal.poll.id} city={inbox.city} title={signal.poll.question} leadingOption={signal.leading?.text} demandCount={signal.poll.totalVotes || 0} threshold={signal.poll.thresholdForMoment} responseLabel={signal.poll.targetUnlockPerk} href={discoverPathHref(signal.poll.question)} state={signalState(signal.votesRemaining, signal.closeness)} />)}</div> : <TicketPass kicker="Right now" title="Quiet here right now." detail="There is no strong Want here yet. A brand can still begin with its own measurable outcome." stub="0" stubLabel="Now" />}
         </div>
       </section>
 
@@ -109,7 +109,7 @@ export default function ForBrands() {
       <section className="px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center md:p-12">
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Start from the change</p>
-          <h2 className="mx-auto mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">What do you want people to do—and what evidence would actually prove it happened?</h2>
+          <h2 className="mx-auto mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">What do you want people to do, and what evidence would actually prove it happened?</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black"><Handshake className="h-4 w-4" /> Build my route <ArrowRight className="h-4 w-4" /></Link>
             <Link to="/what-is-promorang" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80"><Eye className="h-4 w-4" /> Understand PROMORANG</Link>

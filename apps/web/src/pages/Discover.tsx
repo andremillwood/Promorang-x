@@ -43,7 +43,8 @@ import { DiscoveryPath } from "@/components/discovery/DiscoveryPath";
 import { filterDiscoveryPollsForHub, isDiscoverLensId, mergeDiscoveryPolls } from "@/lib/discovery-path";
 import { resolveStoredPromoCardAim, writePromoCardAim } from "@/lib/promocard-aim";
 import { toast } from "sonner";
-import { castListingDiscoveryVote, useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
+import { castListingDiscoveryVote } from "@/hooks/useListingDiscoveryPolls";
+import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNearbyBenefits } from "@/hooks/usePeopleExperience";
@@ -156,9 +157,14 @@ type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places"
 const SignedInDiscover = () => {
   const { t, locale, formatNumber } = useI18n();
   const { user, activeRole } = useAuth();
-  const { city, setCity } = useMarket();
+  const { city, country, setCity } = useMarket();
   const { data: preferences } = useUserPreferences();
-  const { data: listingPolls = [] } = useListingDiscoveryPolls(12);
+  const demand = useDiscoveryDemand(
+    city.name,
+    country.slug || "jamaica",
+    city.id === "all-jamaica" ? undefined : city.id,
+  );
+  const marketPolls = demand.polls as DiscoveryPoll[];
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const activeTab: DiscoverTab = ["discoveries", "perks", "moments", "distribute", "places"].includes(tabParam || "") ? tabParam as DiscoverTab : "discoveries";
@@ -266,8 +272,8 @@ const SignedInDiscover = () => {
     [venuesQuery.data, city],
   );
   const catalog = useMemo(
-    () => mergeDiscoveryPolls(livePolls, listingPolls),
-    [livePolls, listingPolls],
+    () => mergeDiscoveryPolls(livePolls, marketPolls),
+    [livePolls, marketPolls],
   );
   const hubDiscoveries = useMemo(
     () => filterDiscoveryPollsForHub(catalog, city),
@@ -420,7 +426,7 @@ const SignedInDiscover = () => {
     return (
       <div className="relative min-h-screen bg-[#0a0a0b] text-white selection:bg-primary selection:text-white">
         <SEO
-          title={`${aim ? aim.cardLine.replace(/\.$/, "") : t("discover.pathPageTitle")} — Promorang`}
+          title={`${aim ? aim.cardLine.replace(/\.$/, "") : t("discover.pathPageTitle")} | Promorang`}
           description="Discover what is worth knowing, then find something you can do."
           url={getSiteUrl("/discover")}
         />
@@ -600,7 +606,23 @@ const SignedInDiscover = () => {
                 })}
               </div>
             </div>
-            {(searchQuery || activeCategory !== "all") && <div className="mt-3 flex items-center justify-between border-t border-white/10 px-1 pt-3 text-xs text-white/45"><span>{activeTab === "moments" ? filteredMoments.length : activeTab === "places" ? filteredVenues.length : activeTab === "perks" ? hubPerks.length : hubDiscoveries.length} matching results in {city.name}</span><button type="button" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }} className="font-bold text-primary hover:text-white">Reset filters</button></div>}
+            {(searchQuery || activeCategory !== "all") && (
+              <div className="mt-3 flex flex-col gap-3 border-t border-white/10 px-1 pt-3 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span>Matches in {city.name}:</span>
+                  <button type="button" onClick={() => handleTabChange("moments")} className={`rounded-full border px-2.5 py-1 font-bold transition ${activeTab === "moments" ? "border-primary bg-primary/15 text-primary" : "border-white/10 text-white/65 hover:border-primary/50 hover:text-white"}`}>
+                    {filteredMoments.length} Moments
+                  </button>
+                  <button type="button" onClick={() => handleTabChange("places")} className={`rounded-full border px-2.5 py-1 font-bold transition ${activeTab === "places" ? "border-primary bg-primary/15 text-primary" : "border-white/10 text-white/65 hover:border-primary/50 hover:text-white"}`}>
+                    {filteredVenues.length} Places
+                  </button>
+                  <button type="button" onClick={() => handleTabChange("perks")} className={`rounded-full border px-2.5 py-1 font-bold transition ${activeTab === "perks" ? "border-emerald-400 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-white/65 hover:border-emerald-400/50 hover:text-white"}`}>
+                    {hubPerks.length} Perks
+                  </button>
+                </div>
+                <button type="button" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }} className="self-start font-bold text-primary hover:text-white sm:self-auto">Reset filters</button>
+              </div>
+            )}
           </section>
         )}
 

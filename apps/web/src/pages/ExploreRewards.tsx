@@ -8,7 +8,7 @@ import { WatchMarketObjectButton } from "@/components/market/WatchMarketObjectBu
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useMarket } from "@/contexts/MarketContext";
 import { usePublicOffers } from "@/hooks/useOffers";
-import { discoveryHref } from "@/lib/discovery-path";
+import { discoverPathHref } from "@/lib/discovery-path";
 import { supabase } from "@/integrations/supabase/client";
 import { getSiteUrl } from "@/lib/discovery";
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
@@ -82,7 +82,7 @@ export function ExploreRewards() {
     <main className="marketing-cinematic min-h-screen bg-[#080808] px-5 pb-24 pt-24 text-white sm:px-6">
       <CurrentArc variant="hero" className="marketing-hero-current" />
       <SEO
-        title="Wanted + Responses — PROMORANG"
+        title="Wanted + Responses | PROMORANG"
         description="See what people want, tell PROMORANG what you’re looking for, and discover what businesses and hosts have put up in response."
         url={getSiteUrl("/discover/rewards")}
       />
@@ -144,7 +144,7 @@ export function ExploreRewards() {
           {isLoading ? <p className="text-sm text-white/40">Loading what people want…</p> : liveSignals.length ? (
             <div className="grid gap-5 lg:grid-cols-2">
               {liveSignals.map((question) => {
-                const href = discoveryHref(question.poll);
+                const href = discoverPathHref(question.poll.question);
                 return (
                   <div key={question.poll.id} className="space-y-3">
                     <DemandSignalObject
@@ -212,7 +212,7 @@ export function ExploreRewards() {
             <div className="border border-dashed border-white/12 p-7">
               <Gift className="h-6 w-6 text-primary" />
               <h3 className="mt-4 font-serif text-2xl font-bold">No direct offers right now.</h3>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Check the Moments below—some may still include access or perks.</p>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Check the Moments below. Some may still include access or perks.</p>
             </div>
           )}
         </section>

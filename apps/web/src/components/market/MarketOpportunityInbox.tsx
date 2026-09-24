@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Inbox, Radio, Search, Users } from "lucide-react";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useMarket } from "@/contexts/MarketContext";
-import { discoveryHref } from "@/lib/discovery-path";
+import { discoverPathHref } from "@/lib/discovery-path";
 import type { DemandRole } from "@/lib/discovery-demand";
 
 function responseFor(role: DemandRole) {
@@ -73,7 +73,7 @@ export function MarketOpportunityInbox({ role }: { role: DemandRole }) {
           <h3 className="mt-2 font-serif text-3xl font-bold">Wants with enough shape for you to decide whether to respond.</h3>
         </div>
         {inbox.questions.length ? <div className="space-y-4">{inbox.questions.map((question) => {
-          const href = discoveryHref(question.poll);
+          const href = discoverPathHref(question.poll.question);
           const thresholdMet = question.votesRemaining === 0;
           const answerHref = responseHref(response.href, question.poll.id, question.poll.question, inbox.city);
           return (

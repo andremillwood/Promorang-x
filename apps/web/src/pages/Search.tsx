@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +21,9 @@ import {
   Flame,
   Compass,
   MapPin,
-  TrendingUp
+  TrendingUp,
+  MessageCircle,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
@@ -34,6 +36,10 @@ const SearchPage = () => {
 
   const [inputValue, setInputValue] = useState(query);
   const [activeTab, setActiveTab] = useState(initialCategory);
+
+  useEffect(() => {
+    setInputValue(query);
+  }, [query]);
   const { data: results, isLoading } = useQuery({
     queryKey: ["global-search", query],
     enabled: query.length >= 2,
@@ -267,15 +273,31 @@ const SearchPage = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-[#121214] rounded-3xl border border-dashed border-white/10">
-              <Frown className="w-12 h-12 text-white/30 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-white">No results found for "{query}"</h3>
-              <p className="text-white/50 text-sm mt-1 max-w-sm mx-auto">
-                Try a broader keyword, a place, a creator name, or a reward term.
-              </p>
-              <Button variant="link" className="mt-3 text-[#ff5500]" onClick={() => setInputValue("")}>
-                Clear search
-              </Button>
+            <div className="rounded-3xl border border-white/10 bg-[#121214] px-5 py-10 sm:px-8 sm:py-14">
+              <div className="mx-auto max-w-2xl text-center">
+                <Frown className="mx-auto mb-4 h-10 w-10 text-white/30" />
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#ff7a25]">“{query}”</p>
+                <h3 className="mt-3 text-2xl font-bold text-white">{t("findOrAsk.noExactTitle")}</h3>
+                <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/55">{t("findOrAsk.noExactCopy")}</p>
+              </div>
+              <div className="mx-auto mt-8 grid max-w-4xl gap-3 md:grid-cols-3">
+                <Link to={`/discover?q=${encodeURIComponent(query)}&recovery=ask_people`} className="rounded-2xl border border-[#ff5500]/35 bg-[#ff5500]/10 p-5 transition hover:border-[#ff5500] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
+                  <MessageCircle className="h-5 w-5 text-[#ff7a25]" />
+                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.askPeople")}</span>
+                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.askPeopleCopy")}</span>
+                </Link>
+                <Link to={`/?q=${encodeURIComponent(query)}&recovery=request_something#ask`} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#ff5500]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
+                  <Megaphone className="h-5 w-5 text-[#ff7a25]" />
+                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.requestSomething")}</span>
+                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.requestSomethingCopy")}</span>
+                </Link>
+                <button type="button" onClick={() => { setInputValue(""); setSearchParams({ category: activeTab }); }} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
+                  <SearchIcon className="h-5 w-5 text-white/65" />
+                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.searchAgain")}</span>
+                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.searchAgainCopy")}</span>
+                </button>
+              </div>
+              <p className="mt-6 text-center text-xs font-bold text-emerald-300">{t("findOrAsk.notPoll")}</p>
             </div>
           )}
         </TabsContent>
