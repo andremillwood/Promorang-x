@@ -21,6 +21,7 @@ import { resolveDemandRole } from "@/lib/discovery-demand";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
+import { ParticipationFeed } from "@/components/feed/ParticipationFeed";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
@@ -217,6 +218,8 @@ export default function PeopleHome() {
           promoKeys={Number((data as any)?.card?.keys || (data as any)?.wallet?.promokeys || 0)}
           className="border-y border-white/10 py-8"
         />
+
+        <ParticipationFeed />
 
         <section aria-labelledby="vibe-title">
           <div className="flex items-end justify-between gap-4">
