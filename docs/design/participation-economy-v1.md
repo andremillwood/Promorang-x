@@ -231,6 +231,73 @@ It can gate:
 
 Do not use Keys as decorative gamification.
 
+## Master Key and Momentum
+
+The Master Key is the trust gate into funded earning opportunities.
+
+It is deliberately separate from ordinary PromoKeys:
+
+- **PromoPoints** record lifetime participation/progression.
+- **PromoKeys** grant access to specific gated things.
+- **Master Key earned** records that the participant has qualified for the earning layer.
+- **Momentum** measures recent useful participation.
+- **Master Key active** means the participant currently has access to funded earning opportunities, subject to each opportunity's own eligibility.
+
+### Initial qualification
+
+A participant earns the Master Key only after all four gates are satisfied:
+
+1. **100 qualification credits** from legitimate participation;
+2. participation across at least **4 behaviour categories**;
+3. at least **3 verified Moves**;
+4. at least **1 attributable downstream action** caused through referral/distribution.
+
+No single farmable action can satisfy the qualification by itself. Fifty poll answers, repeated likes, raw impressions or daily logins must not create a Master Key.
+
+Qualification credits are not money and need not equal PromoPoints one-for-one. They are a trust/progression measure.
+
+### Earned versus active
+
+Earning the Master Key is a durable achievement. Access to new funded work is not permanently active.
+
+The initial activity policy uses a rolling **30-day Momentum** window:
+
+- **Active: 40+ Momentum** — full Master Key access, subject to opportunity eligibility.
+- **Cooling: 20–39 Momentum** — earning access remains open, with a clear re-engagement cue.
+- **Dormant: below 20 Momentum** — the Master Key remains earned, but new funded earning access is paused until meaningful participation rebuilds Momentum.
+
+This is intentionally not a daily-login streak. Momentum should come from useful behaviour, with more weight on proof-backed actions than passive engagement.
+
+### Initial Momentum weights
+
+These are launch policy defaults and should be tuned against real behaviour:
+
+| Action | Momentum |
+| --- | ---: |
+| meaningful Discovery response | 2 |
+| meaningful content engagement | 1 |
+| tracked PromoShare distribution | 3 |
+| downstream action from PromoShare | 8 |
+| save / join a Moment | 2 |
+| verified Moment attendance | 10 |
+| verified referral | 10 |
+| completed Content Drop | 5 |
+| verified commercial action | 10 |
+| completed funded Gig | 15 |
+| completed Challenge | 5–15 according to terms |
+
+Actions must be deduplicated, rate-limited where appropriate and backed by the canonical proof state. Configuration cannot turn an unverified click into verified Momentum.
+
+### Reactivation
+
+A dormant participant does not re-earn the Master Key from zero. The product should show **Master Key earned · Dormant** and the useful Moves available to rebuild Momentum. Reactivation occurs when the participant returns to the configured Momentum threshold.
+
+### Opportunity eligibility
+
+Master Key status is only one gate. A funded opportunity may additionally require a specific PromoKey, geography, age/legal eligibility, category experience, creator capability, capacity, timing or other truthful campaign criteria.
+
+The Master Key never guarantees earnings. It grants access to pursue funded opportunities when eligible.
+
 ## Ownership model
 
 ### Participants

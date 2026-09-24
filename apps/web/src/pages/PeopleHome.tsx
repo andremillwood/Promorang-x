@@ -216,6 +216,7 @@ export default function PeopleHome() {
           variant="participant"
           points={Number((data as any)?.card?.points || (data as any)?.wallet?.points || 0)}
           promoKeys={Number((data as any)?.card?.keys || (data as any)?.wallet?.promokeys || 0)}
+          masterKey={(data as any)?.masterKey || (data as any)?.card?.masterKey || null}
           className="border-y border-white/10 py-8"
         />
 
