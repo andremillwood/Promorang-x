@@ -36,12 +36,12 @@ function signalState(votesRemaining: number, closeness: "unlocking" | "warming" 
 type ResultType = "all" | "discoveries" | "moments" | "offers" | "questions" | "wants";
 type InterestFilter = "all" | "food" | "music" | "culture" | "outdoors";
 
-const interestFilters: Array<{ id: InterestFilter; label: string; terms: string[] }> = [
-  { id: "all", label: "Everything", terms: [] },
-  { id: "food", label: "Food & drink", terms: ["food", "drink", "restaurant", "dining", "cuisine", "dish", "menu", "cafe", "coffee", "brunch", "lunch", "dinner", "chinese", "rice"] },
-  { id: "music", label: "Music & nightlife", terms: ["music", "concert", "party", "dance", "dj", "live", "nightlife", "club"] },
-  { id: "culture", label: "Arts & culture", terms: ["art", "culture", "gallery", "theatre", "theater", "film", "craft", "heritage", "museum"] },
-  { id: "outdoors", label: "Outdoors", terms: ["outdoor", "hike", "beach", "nature", "garden", "trail", "adventure", "wellness"] },
+const interestFilters: Array<{ id: InterestFilter; labelKey: string; terms: string[] }> = [
+  { id: "all", labelKey: "publicDiscover.interest.everything", terms: [] },
+  { id: "food", labelKey: "publicDiscover.interest.food", terms: ["food", "drink", "restaurant", "dining", "cuisine", "dish", "menu", "cafe", "coffee", "brunch", "lunch", "dinner", "chinese", "rice"] },
+  { id: "music", labelKey: "publicDiscover.interest.music", terms: ["music", "concert", "party", "dance", "dj", "live", "nightlife", "club"] },
+  { id: "culture", labelKey: "publicDiscover.interest.culture", terms: ["art", "culture", "gallery", "theatre", "theater", "film", "craft", "heritage", "museum"] },
+  { id: "outdoors", labelKey: "publicDiscover.interest.outdoors", terms: ["outdoor", "hike", "beach", "nature", "garden", "trail", "adventure", "wellness"] },
 ];
 
 function searchableText(values: unknown[]) {
@@ -183,7 +183,7 @@ export function PublicDiscoverExperience() {
                 {query ? <button type="button" onClick={() => setQuery("")} aria-label={t("publicDiscover.clearSearch")} className="grid h-9 w-9 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
               </div>
               <div className="flex gap-2 overflow-x-auto border-t border-white/10 px-2 pb-1 pt-2 scrollbar-none" aria-label={t("publicDiscover.interestFilterLabel")}>
-                {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{item.label}</button>)}
+                {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{t(item.labelKey as any)}</button>)}
               </div>
             </div>
 
