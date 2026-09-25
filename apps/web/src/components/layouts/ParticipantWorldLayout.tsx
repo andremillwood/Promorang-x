@@ -22,7 +22,7 @@ type ParticipantWorldLayoutProps = {
 };
 
 const navItems = [
-  { label: "Today", to: "/dashboard", icon: Home },
+  { label: "Today", to: "/today", icon: Home },
   { label: "Discover", to: "/discover", icon: Compass },
   { label: "Card", to: "/card", icon: CreditCard },
   { label: "Vault", to: "/vault", icon: Vault },
@@ -70,11 +70,11 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
 
   const switchRole = (role: WorkspaceRole) => {
     setActiveRole(role);
-    navigate("/dashboard");
+    navigate("/today");
   };
 
   const isActive = (to: string) => {
-    if (to === "/dashboard") return pathname === "/dashboard" || pathname === "/home";
+    if (to === "/today") return pathname === "/today" || pathname === "/dashboard" || pathname === "/home";
     if (to === "/discover") {
       return discoveryRoots.some((root) => pathname === root || pathname.startsWith(`${root}/`));
     }
@@ -82,11 +82,11 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
   };
 
   return (
-    <div className="min-h-screen bg-[#070706] text-stone-100">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a09]/90 backdrop-blur-xl">
+    <div className="min-h-[100dvh] overflow-x-clip bg-[#070706] text-stone-100">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a09]/90 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1480px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <NavLink
-            to="/dashboard"
+            to="/today"
             className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
             aria-label="Promorang Today"
           >
@@ -207,10 +207,10 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
         </div>
       </header>
 
-      <main className="min-h-[calc(100vh-4rem)] overflow-x-clip pb-20 md:pb-0">{children}</main>
+      <main className="min-h-[calc(100dvh-4rem)] min-w-0 overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-white/10 bg-[#0a0a09]/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-white/10 bg-[#0a0a09]/95 px-[max(0.5rem,env(safe-area-inset-left))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_36px_rgba(0,0,0,.42)] backdrop-blur-xl md:hidden"
         aria-label="Participant navigation"
       >
         {navItems.map(({ label, to, icon: Icon }) => (
