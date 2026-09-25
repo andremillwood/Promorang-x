@@ -2,11 +2,12 @@ import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { BadgeDollarSign, Gift, Megaphone, Target, Trophy } from "lucide-react";
 import { getStakeholderHowLead } from "@promorang/shared";
-import { useOpportunities, useExperienceActions } from "@/hooks/usePeopleExperience";
+import { useOpportunities, useExperienceActions, useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, QuietEmpty } from "@/components/people/ExperienceShell";
 import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
+import { MASTER_KEY_RULES } from "@/lib/master-key";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
@@ -39,6 +40,9 @@ export default function EarnOpportunities() {
   const sceneId = params.get("hub") || undefined;
   const to = useExperiencePath();
   const opportunities = useOpportunities(sceneId);
+  const home = useExperienceHome();
+  const masterKey = (home.data as any)?.masterKey || (home.data as any)?.card?.masterKey || null;
+  const fundedAccessDormant = Boolean(masterKey?.earned && masterKey?.status === "dormant");
   const { takeOpportunity } = useExperienceActions();
   const { toast } = useToast();
   const [taken, setTaken] = useState<{ title: string; slug: string; url: string } | null>(null);
@@ -68,6 +72,14 @@ export default function EarnOpportunities() {
       description="Offers, Challenges, paid Gigs and other live opportunities should tell you what the move is, what counts, and what value follows."
     >
       <StakeholderHowLead role={lensRole} surface="earn" />
+
+      {masterKey ? (
+        <div className={`rounded-[1.5rem] border p-5 ${fundedAccessDormant ? "border-amber-300/25 bg-amber-300/[.05]" : "border-emerald-300/20 bg-emerald-300/[.04]"}`}>
+          <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/40">Master Key · {masterKey.status}</p>
+          <h2 className="mt-2 font-serif text-2xl font-bold">{fundedAccessDormant ? "Your Master Key is earned. Rebuild Momentum to reopen funded work." : masterKey.earned ? "Your earning access is open." : "Build verified participation to unlock earning access."}</h2>
+          <p className="mt-2 text-sm leading-6 text-white/50">{masterKey.earned ? `Momentum ${masterKey.momentum || 0} · Active target ${MASTER_KEY_RULES.activeMomentum} in a rolling ${MASTER_KEY_RULES.windowDays}-day window. Empty logins do not count.` : "Qualification requires varied participation, verified Moves and at least one attributable downstream action."}</p>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-2 border-y border-white/10 py-4">
         {(["challenge", "gig", "offer", "campaign"] as ParticipationKind[]).map((kind) => {
@@ -135,11 +147,11 @@ export default function EarnOpportunities() {
 
                 <button
                   type="button"
-                  disabled={takeOpportunity.isPending}
+                  disabled={takeOpportunity.isPending || (fundedAccessDormant && kind === "gig")}
                   onClick={() => take(item.id, item.title)}
                   className="mt-5 min-h-12 w-full rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
                 >
-                  {kind === "gig" ? "Take this Gig" : kind === "challenge" ? "Join Challenge" : "Take this opportunity"}
+                  {fundedAccessDormant && kind === "gig" ? "Rebuild Momentum to access" : kind === "gig" ? "Take this Gig" : kind === "challenge" ? "Join Challenge" : "Take this opportunity"}
                 </button>
               </article>
             );
@@ -157,7 +169,7 @@ export default function EarnOpportunities() {
         />
       )}
 
-      <ParticipationEconomy variant="participant" />
+      <ParticipationEconomy variant="participant" masterKey={masterKey} />
     </ExperienceShell>
   );
 }

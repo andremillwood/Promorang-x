@@ -1,5 +1,6 @@
 import { ArrowRight, BadgeDollarSign, CheckCircle2, Gift, KeyRound, Megaphone, Share2, Sparkles, Target, Ticket, Trophy, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { MASTER_KEY_RULES, masterKeyQualificationPercent, momentumNeeded, type MasterKeyProgress } from "@/lib/master-key";
 import cookingClass from "@/assets/moments/cooking-class.jpg";
 import concert from "@/assets/moment-concert.jpg";
 import boardGames from "@/assets/moments/board-games.jpg";
@@ -10,6 +11,7 @@ type ParticipationEconomyProps = {
   variant?: "public" | "participant" | "operator" | "card";
   points?: number | null;
   promoKeys?: number | null;
+  masterKey?: MasterKeyProgress | null;
   className?: string;
 };
 
@@ -37,9 +39,11 @@ const createTypes = [
   { label: "Create a Moment", copy: "Give people a real time, place and reason to show up.", href: "/create/moment", icon: Users },
 ];
 
-export function ParticipationEconomy({ variant = "public", points = null, promoKeys = null, className = "" }: ParticipationEconomyProps) {
+export function ParticipationEconomy({ variant = "public", points = null, promoKeys = null, masterKey = null, className = "" }: ParticipationEconomyProps) {
   const operator = variant === "operator";
   const compact = variant === "card";
+  const masterProgress = masterKey ? masterKeyQualificationPercent(masterKey) : null;
+  const masterStatus = masterKey?.status || null;
 
   return (
     <section className={className || (compact ? "" : "border-b border-white/10 bg-[#070707] px-5 py-14 text-white sm:px-6 md:py-20")}>
@@ -107,10 +111,26 @@ export function ParticipationEconomy({ variant = "public", points = null, promoK
 
           <Link to="/earn" className="rounded-[1.4rem] border border-emerald-300/20 bg-emerald-300/[0.05] p-5">
             <div className="flex items-center justify-between gap-3">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">Master Key</p><p className="mt-2 font-serif text-3xl font-bold text-white">Unlock earning access</p></div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">Master Key</p>
+                <p className="mt-2 font-serif text-3xl font-bold text-white">{masterStatus === "active" ? "Active" : masterStatus === "cooling" ? "Cooling" : masterStatus === "dormant" ? "Dormant" : masterProgress != null ? `${masterProgress}% qualified` : "Unlock earning access"}</p>
+              </div>
               <BadgeDollarSign className="h-6 w-6 text-emerald-300" />
             </div>
-            <p className="mt-3 text-xs leading-5 text-white/45">Build a verified participation record first. The Master Key is the gate into funded Gigs, Drops and earning opportunities—not a promise that every action pays.</p>
+            {masterKey ? (
+              <>
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-emerald-300" style={{ width: `${masterKey.earned ? Math.min(100, (masterKey.momentum / MASTER_KEY_RULES.activeMomentum) * 100) : masterProgress || 0}%` }} /></div>
+                <p className="mt-3 text-xs leading-5 text-white/45">
+                  {!masterKey.earned
+                    ? `${masterKey.qualificationCredits}/100 qualification · ${masterKey.behaviourCategories}/4 behaviour types · ${masterKey.verifiedMoves}/3 verified Moves · ${masterKey.downstreamActions}/1 downstream action.`
+                    : masterStatus === "active"
+                      ? `Momentum ${masterKey.momentum}. Keep at least ${MASTER_KEY_RULES.activeMomentum} useful activity credits in a rolling ${MASTER_KEY_RULES.windowDays}-day window to keep full earning access active.`
+                      : masterStatus === "cooling"
+                        ? `Momentum ${masterKey.momentum}. Add ${momentumNeeded(masterKey)} useful activity credits to return to Active. Access remains open while your Key is cooling.`
+                        : `Master Key earned, but earning access is dormant. Complete meaningful verified Moves to rebuild Momentum and reactivate it.`}
+                </p>
+              </>
+            ) : <p className="mt-3 text-xs leading-5 text-white/45">Earn the Master Key through varied, verified participation. Once earned, keep it active through useful recent participation—not empty daily logins.</p>}
           </Link>
 
           <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.035] p-5">

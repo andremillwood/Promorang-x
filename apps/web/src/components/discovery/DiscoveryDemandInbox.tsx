@@ -8,18 +8,21 @@ import type { DemandRole } from "@/lib/discovery-demand";
 export function DiscoveryDemandInbox({
   role,
   variant = "full",
+  sceneId,
 }: {
   role: DemandRole;
   variant?: "full" | "peek";
+  sceneId?: string;
 }) {
   const { city, country } = useMarket();
   const { inbox, isLoading } = useDiscoveryDemand(
     city.name,
     country.slug || "jamaica",
     city.id === "all-jamaica" ? undefined : city.id,
+    sceneId,
   );
 
-  if (variant === "full") return <MarketOpportunityInbox role={role} />;
+  if (variant === "full") return <MarketOpportunityInbox role={role} sceneId={sceneId} />;
 
   const topQuestion = inbox.questions[0];
   const topMiss = inbox.misses[0];
@@ -27,7 +30,7 @@ export function DiscoveryDemandInbox({
   return (
     <Link to="/demand" className="group block rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-5 transition hover:border-primary/30">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Market pulse · {inbox.city}</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{sceneId ? "Scene demand" : "Market pulse"} · {inbox.city}</p>
         <Radio className="h-4 w-4 text-primary" />
       </div>
       {isLoading ? (

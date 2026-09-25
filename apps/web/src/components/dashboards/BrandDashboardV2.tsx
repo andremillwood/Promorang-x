@@ -305,7 +305,7 @@ export function BrandDashboardV2() {
               <TabsTrigger value="correlation">Proof</TabsTrigger>
               <TabsTrigger value="insights">Economics</TabsTrigger>
             </TabsList>
-            <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="brand" /></TabsContent>
+            <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="brand" sceneId={searchParams.get("scene_id") || undefined} /></TabsContent>
             <TabsContent value="campaigns" className="mt-0"><BrandCampaignFlightDeck onLaunchNew={() => handleTabChange("campaigns")} /></TabsContent>
             <TabsContent value="opportunities" className="mt-0"><BrandOpportunityRadar /></TabsContent>
             <TabsContent value="creators" className="mt-0"><BrandCreatorBureau /></TabsContent>
