@@ -39,7 +39,7 @@ jobs:
             exit "$status"
           fi
 
-      - name: Test Find-or-Ask routing
+      - name: Test Find-or-Ask routing and i18n
         run: |
           npm run test --workspace packages/shared -- --maxWorkers=1 --minWorkers=1 tests/find-or-ask.test.ts
           npm run test --workspace apps/web -- --maxWorkers=1 --minWorkers=1 \
