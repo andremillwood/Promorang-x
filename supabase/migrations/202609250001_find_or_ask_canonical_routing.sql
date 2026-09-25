@@ -81,7 +81,17 @@ create policy "Users can read own discovery support"
 drop policy if exists "Users can support discovery demand" on public.discovery_supports;
 create policy "Users can support discovery demand"
   on public.discovery_supports for insert to authenticated
-  with check (user_id = (select auth.uid()));
+  with check (
+    user_id = (select auth.uid())
+    and exists (
+      select 1
+      from public.discovery_questions q
+      where q.id = discovery_supports.discovery_id
+        and q.semantic_kind = 'demand'
+        and q.status = 'active'
+        and q.moderation_status in ('unreviewed', 'approved')
+    )
+  );
 
 alter table public.discovery_outcomes enable row level security;
 grant select, insert on public.discovery_outcomes to authenticated;
@@ -104,7 +114,18 @@ drop policy if exists "Responders can propose discovery outcomes" on public.disc
 create policy "Responders can propose discovery outcomes"
   on public.discovery_outcomes for insert
   to authenticated
-  with check (responder_user_id = (select auth.uid()));
+  with check (
+    responder_user_id = (select auth.uid())
+    and verification_status = 'pending'
+    and moderation_status = 'pending'
+    and exists (
+      select 1
+      from public.discovery_questions q
+      where q.id = discovery_outcomes.discovery_id
+        and q.status = 'active'
+        and q.moderation_status in ('unreviewed', 'approved')
+    )
+  );
 
 create or replace function public.create_find_or_ask_discovery(
   p_query text,
