@@ -16,6 +16,10 @@ const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => {
 }, 'Choose a valid date');
 const instant = z.string().datetime({ offset: true });
 const schemas = {
+  join: z.object({
+    career_path: z.enum(framework.paths).optional().default(framework.paths[0]),
+    personal_goal: text(3, 1000).optional().default('Explore the community, join useful activities, and find my first win.'),
+  }),
   apply: z.object({ career_path: z.enum(framework.paths), personal_goal: text(10, 1000) }),
   bootstrap: z.object({}),
   profile: z.object({ career_path: z.enum(framework.paths), personal_goal: text(10, 1000), pods: z.array(pod).min(1).max(5) }),
@@ -44,6 +48,56 @@ const schemas = {
   rsvp: z.object({ id: uuid }),
   post: z.object({ title: text(3, 140), body: text(10, 4000), kind: z.enum(['note', 'feedback', 'big_up', 'resource', 'newsletter']),
     pod, min_tier: tier, required_role: role.nullable(), href: link }),
+  network_interest: z.object({
+    plan_key: z.enum(['builder', 'studio']).default('builder'),
+    sponsor_user_id: uuid.nullable().optional(),
+  }),
+  network_event: z.object({
+    event_type: z.enum(['customer_sale', 'campaign_delivery', 'affiliate_sale', 'support_action', 'referral_conversion', 'training_complete', 'community_contribution']),
+    source_ref: text(3, 240).nullable().optional(),
+    value_cents: z.number().int().min(0).max(1000000000).optional().default(0),
+    notes: text(3, 2000).nullable().optional(),
+    idempotency_key: text(8, 120).optional(),
+  }),
+  engine_open: z.object({
+    name: text(3, 120).default('My Promorang workspace'),
+    plan_key: z.enum(['builder', 'studio']).default('builder'),
+  }),
+  engine_contact: z.object({
+    display_name: text(2, 160), email: z.string().trim().email().max(320).nullable().optional(),
+    phone: z.string().trim().max(40).nullable().optional(), organization: z.string().trim().max(160).nullable().optional(),
+    source: z.string().trim().max(80).optional().default('manual'), lifecycle_stage: z.string().trim().max(40).optional().default('new'),
+    consent_status: z.enum(['unknown', 'operational', 'marketing']).optional().default('unknown'),
+    next_action_at: instant.nullable().optional(), notes: z.string().trim().max(4000).nullable().optional(),
+  }),
+  engine_deal: z.object({
+    stage_id: uuid, title: text(2, 160), contact_id: uuid.nullable().optional(),
+    value_cents: z.number().int().min(0).max(1000000000).optional().default(0),
+    source: z.string().trim().max(80).optional().default('manual'), expected_close_at: date.nullable().optional(),
+    notes: z.string().trim().max(4000).nullable().optional(),
+  }),
+  engine_task: z.object({
+    title: text(2, 240), contact_id: uuid.nullable().optional(), deal_id: uuid.nullable().optional(),
+    priority: z.enum(['low', 'normal', 'high']).optional().default('normal'), due_at: instant.nullable().optional(),
+  }),
+  engine_task_complete: z.object({ id: uuid }),
+  engine_automation: z.object({
+    name: text(3, 160), trigger_key: text(2, 80), action_key: text(2, 80),
+    status: z.enum(['draft', 'active', 'paused']).optional().default('draft'), config: z.record(z.unknown()).optional().default({}),
+  }),
+  engine_form: z.object({
+    name: text(3, 160), slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80),
+    status: z.enum(['draft', 'published', 'archived']).optional().default('draft'), fields: z.array(z.record(z.unknown())).max(50).optional().default([]),
+  }),
+};
+
+const adminSchemas = {
+  admin_membership: z.object({ id: uuid, status: z.enum(['pending', 'active', 'paused', 'removed']), tier, member_kind: z.enum(['participant', 'builder']) }),
+  admin_lead_access: z.object({ id: uuid, can_manage: z.boolean() }),
+  admin_network_settings: z.object({ participant_access_enabled: z.boolean(), matrix_program_enabled: z.boolean(), business_engine_enabled: z.boolean(), matrix_mode: z.enum(['pilot', 'active', 'paused']) }),
+  admin_network_enrollment: z.object({ id: uuid, status: z.enum(['interest', 'pending', 'active', 'paused', 'withdrawn']), plan_key: z.enum(['builder', 'studio']) }),
+  admin_verify_event: z.object({ id: uuid, status: z.enum(['verified', 'rejected', 'void']), notes: z.string().trim().min(3).max(2000) }),
+  admin_workspace_status: z.object({ id: uuid, status: z.enum(['pilot', 'active', 'paused']), plan_key: z.enum(['participant', 'builder', 'studio']) }),
 };
 function parseCommand(action, data) {
   const schema = Object.hasOwn(schemas, action) && schemas[action];
@@ -55,4 +109,14 @@ function parseCommand(action, data) {
   }
   return result.data;
 }
-module.exports = { parseCommand, link };
+function parseAdminCommand(action, data) {
+  const schema = Object.hasOwn(adminSchemas, action) && adminSchemas[action];
+  if (!schema) { const err = new Error('Unknown community admin action'); err.status = 400; throw err; }
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    const err = new Error(result.error.issues.map(i => `${i.path.join('.') || 'Request'}: ${i.message}`).join('; '));
+    err.status = 400; throw err;
+  }
+  return result.data;
+}
+module.exports = { parseCommand, parseAdminCommand, link };
