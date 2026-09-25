@@ -56,7 +56,7 @@ export default function PublicMarketHome() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { city, country } = useMarket();
-  const { inbox, recordAsk, isLoading } = useDiscoveryDemand(
+  const { inbox, recordAsk, isLoading, responsesByDemand } = useDiscoveryDemand(
     city.name,
     country.slug || "jamaica",
     city.id === "all-jamaica" ? undefined : city.id,
@@ -229,21 +229,25 @@ export default function PublicMarketHome() {
           {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">{t("clarity.loadingWants")}</p> : null}
           {liveSignals.length ? (
             <div className="marketing-demand-rail">
-              {liveSignals.map((signal) => (
-                <DemandSignalObject
-                  key={signal.poll.id}
-                  city={inbox.city}
-                  title={signal.poll.question}
-                  leadingOption={signal.leading?.text}
-                  demandCount={signal.poll.totalVotes || 0}
-                  threshold={signal.poll.thresholdForMoment}
-                  responseLabel={signal.poll.targetUnlockPerk}
-                  href={wantHref(signal.poll.question)}
-                  shareHref={discoverPathHref(signal.poll.question)}
-                  state={signalState(signal.votesRemaining, signal.closeness)}
-                  actionLabel={t("clarity.wantAction")}
-                />
-              ))}
+              {liveSignals.map((signal) => {
+                const response = responsesByDemand.get(signal.poll.id);
+                return (
+                  <DemandSignalObject
+                    key={signal.poll.id}
+                    city={inbox.city}
+                    title={signal.poll.question}
+                    leadingOption={signal.leading?.text}
+                    demandCount={signal.poll.totalVotes || 0}
+                    threshold={signal.poll.thresholdForMoment}
+                    responseLabel={response?.response_summary || signal.poll.targetUnlockPerk}
+                    answered={Boolean(response)}
+                    href={response?.route || wantHref(signal.poll.question)}
+                    shareHref={discoverPathHref(signal.poll.question)}
+                    state={signalState(signal.votesRemaining, signal.closeness)}
+                    actionLabel={response ? t("clarity.openResponse") : t("clarity.wantAction")}
+                  />
+                );
+              })}
             </div>
           ) : !isLoading ? (
             <div className="marketing-compact-empty">
