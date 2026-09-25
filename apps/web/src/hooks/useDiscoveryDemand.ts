@@ -136,7 +136,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   const polls = useMemo(
     () =>
       mergeDemandPolls([
-        (listingPolls.data || []).map(demandPollFromDiscovery),
+        ...(sceneId ? [] : [(listingPolls.data || []).map(demandPollFromDiscovery)]),
         ...(sceneId ? [scenePolls.data || []] : []),
         ...(sceneId ? [] : [(cityPolls.data || []).map((poll) =>
           demandPollFromDiscovery({
