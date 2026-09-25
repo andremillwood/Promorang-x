@@ -35,6 +35,7 @@ const SearchPage = () => {
   const recovery = searchParams.get("recovery");
   const source = searchParams.get("source") || "search";
   const city = searchParams.get("city") || undefined;
+  const postedDiscoveryId = searchParams.get("posted");
 
   const [inputValue, setInputValue] = useState(query);
   const [activeTab, setActiveTab] = useState(initialCategory);
@@ -195,7 +196,18 @@ const SearchPage = () => {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
-          {isLoading ? (
+          {postedDiscoveryId ? (
+            <FindOrAskRecoveryPanel
+              query={query}
+              city={city}
+              source={source}
+              recovery={recovery}
+              onSearchAgain={() => {
+                setInputValue("");
+                setSearchParams({ category: activeTab });
+              }}
+            />
+          ) : isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-10 h-10 text-[#ff5500] animate-spin mb-4" />
               <p className="text-white/60 text-sm font-medium">{t("search.searching")}</p>
