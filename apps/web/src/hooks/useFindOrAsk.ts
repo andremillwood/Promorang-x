@@ -55,13 +55,49 @@ export function useFindOrAskOutcomes(discoveryId?: string | null) {
     enabled: Boolean(discoveryId),
     queryFn: async () => {
       const { data, error } = await db
-        .from("view_public_discovery_outcomes")
+        .from("discovery_outcomes")
         .select("*")
         .eq("discovery_id", discoveryId)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as FindOrAskOutcomeRow[];
     },
+  });
+}
+
+export function useProposeFindOrAskOutcome() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      discoveryId: string;
+      responderUserId: string;
+      stakeholderRole: "merchant" | "host" | "creator" | "brand";
+      actionKind: string;
+      canonicalObjectType: "place" | "offer" | "moment" | "content" | "opportunity" | "proof" | "receipt";
+      canonicalObjectId: string;
+      canonicalObjectUrl?: string;
+      sourceLabel?: string;
+      sourceUrl?: string;
+      freshnessAt?: string;
+    }) => {
+      const { data, error } = await db.from("discovery_outcomes").insert({
+        discovery_id: input.discoveryId,
+        responder_user_id: input.responderUserId,
+        stakeholder_role: input.stakeholderRole,
+        action_kind: input.actionKind,
+        canonical_object_type: input.canonicalObjectType,
+        canonical_object_id: input.canonicalObjectId.trim(),
+        canonical_object_url: input.canonicalObjectUrl?.trim() || null,
+        source_label: input.sourceLabel?.trim() || null,
+        source_url: input.sourceUrl?.trim() || null,
+        freshness_at: input.freshnessAt || new Date().toISOString(),
+        verification_status: "pending",
+        moderation_status: "pending",
+      }).select("*").single();
+      if (error) throw error;
+      return data as FindOrAskOutcomeRow;
+    },
+    onSuccess: (_, input) => queryClient.invalidateQueries({ queryKey: ["find-or-ask-outcomes", input.discoveryId] }),
   });
 }
 
