@@ -362,3 +362,102 @@
 @media (prefers-reduced-motion: reduce) {
   .participant-world *, .proof-world * { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+
+/* Mobile PWA convergence: treat participant surfaces as a native-feeling app viewport. */
+@media (max-width: 719px) {
+  .participant-world {
+    min-height: 100dvh;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
+  .pr-world-wrap,
+  .pr-world-canvas {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 1rem;
+  }
+
+  .pr-world-header {
+    padding-top: 1rem;
+  }
+
+  .pr-world-canvas {
+    margin-top: 1.25rem;
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  }
+
+  .pr-world-display {
+    max-width: 100%;
+    font-size: clamp(2.35rem, 12vw, 3.45rem);
+    line-height: .92;
+    overflow-wrap: anywhere;
+  }
+
+  .pr-world-copy {
+    font-size: .875rem;
+    line-height: 1.55;
+  }
+
+  .pr-world-hero {
+    min-height: min(68dvh, 36rem);
+    border-radius: 1.5rem;
+  }
+
+  .pr-world-panel,
+  .pr-world-object,
+  .pr-world-empty {
+    border-radius: 1.35rem;
+  }
+
+  .pr-world-strip {
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+  }
+
+  .pr-world-primary {
+    min-height: 3rem;
+  }
+
+  .pr-world-object-grid,
+  .pr-world-ledger {
+    min-width: 0;
+  }
+
+  .pr-world-object-grid > *,
+  .pr-world-panel,
+  .pr-world-object,
+  .pr-plastic-card,
+  .pr-proof-artifact {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .pr-receipt {
+    transform: none;
+  }
+
+  .promocard-page .pr-world-canvas {
+    margin-top: .75rem;
+  }
+
+  .promocard-page .pr-world-display {
+    font-size: clamp(1.8rem, 9vw, 2.5rem);
+  }
+}
+
+@media (display-mode: standalone) {
+  html, body, #root {
+    min-height: 100dvh;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  .participant-world {
+    min-height: 100dvh;
+  }
+}
