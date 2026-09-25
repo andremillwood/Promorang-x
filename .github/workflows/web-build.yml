@@ -47,7 +47,8 @@ jobs:
             src/lib/find-or-ask-routing.test.ts \
             src/lib/find-or-ask-stakeholder.test.ts \
             src/lib/find-or-ask-origin.test.ts \
-            src/lib/find-or-ask-journey.integration.test.ts
+            src/lib/find-or-ask-journey.integration.test.ts \
+            src/i18n/i18n.test.ts
 
       - name: Build web
         run: npm run build --workspace apps/web
