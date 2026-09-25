@@ -22,7 +22,7 @@ export function FindOrAskEntry({
   initialQuery = "",
   onSubmit,
 }: FindOrAskEntryProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [query, setQuery] = useState(initialQuery);
 
@@ -31,7 +31,7 @@ export function FindOrAskEntry({
     const nextQuery = query.trim();
     if (!nextQuery) return;
     onSubmit?.();
-    navigate(findOrAskSearchHref({ query: nextQuery, city, source }));
+    navigate(findOrAskSearchHref({ query: nextQuery, city, language: locale, source }));
   }
 
   return (
