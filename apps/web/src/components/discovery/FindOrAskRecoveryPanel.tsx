@@ -22,11 +22,11 @@ const validRecovery = (value?: string | null): FindOrAskRecoveryAction | null =>
 export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearchAgain }: Props) {
   const { user } = useAuth();
   const { t, locale, formatDate } = useI18n();
-  const [, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const selected = validRecovery(recovery);
   const kind = findOrAskPostKind(selected);
   const create = useCreateFindOrAskDiscovery();
-  const [postedId, setPostedId] = useState<string | null>(null);
+  const [postedId, setPostedId] = useState<string | null>(() => searchParams.get("posted"));
   const [duplicate, setDuplicate] = useState(false);
   const outcomes = useFindOrAskOutcomes(postedId);
 
@@ -53,6 +53,7 @@ export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearch
   const cancel = () => {
     const params = new URLSearchParams(window.location.search);
     params.delete("recovery");
+    params.delete("posted");
     setSearchParams(params);
     void trackGrowthEvent({ eventName: "find_or_ask_cancelled", journey: "participant", stage: "captured", entityType: "search_recovery", properties: { query, city, source } });
   };
@@ -63,6 +64,9 @@ export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearch
     const row = await create.mutateAsync({ query, kind, city, language: locale, source: source || "search", recovery: selected, authorName });
     setPostedId(row.discovery_id);
     setDuplicate(Boolean(row.duplicate));
+    const params = new URLSearchParams(window.location.search);
+    params.set("posted", row.discovery_id);
+    setSearchParams(params, { replace: true });
     void trackGrowthEvent({ eventName: row.duplicate ? "find_or_ask_duplicate_found" : "find_or_ask_posted", journey: "participant", stage: "activated", entityType: kind, entityId: row.discovery_id, properties: { query, city, source, recovery: selected, language: locale } });
   };
 
