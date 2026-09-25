@@ -18,19 +18,20 @@ function responseFor(role: DemandRole) {
   }
 }
 
-function responseHref(baseHref: string, demandId: string, want: string, city: string) {
+function responseHref(baseHref: string, demandId: string, want: string, city: string, sceneId?: string) {
   const [pathname, existing = ""] = baseHref.split("?");
   const params = new URLSearchParams(existing);
   params.set("from", "want");
   params.set("demand_id", demandId);
   params.set("want", want);
   params.set("city", city);
+  if (sceneId) params.set("scene_id", sceneId);
   return `${pathname}?${params.toString()}`;
 }
 
-export function MarketOpportunityInbox({ role }: { role: DemandRole }) {
+export function MarketOpportunityInbox({ role, sceneId }: { role: DemandRole; sceneId?: string }) {
   const { city, country } = useMarket();
-  const { inbox, isLoading } = useDiscoveryDemand(city.name, country.slug || "jamaica", city.id === "all-jamaica" ? undefined : city.id);
+  const { inbox, isLoading } = useDiscoveryDemand(city.name, country.slug || "jamaica", city.id === "all-jamaica" ? undefined : city.id, sceneId);
   const response = responseFor(role);
 
   if (isLoading) return <p className="py-8 text-sm text-white/40">Listening to what people want…</p>;
@@ -39,7 +40,7 @@ export function MarketOpportunityInbox({ role }: { role: DemandRole }) {
     <div className="space-y-10">
       <section className="grid gap-4 lg:grid-cols-[1fr_.65fr] lg:items-end">
         <div>
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Market pulse · {inbox.city}</p>
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">{sceneId ? "Scene demand" : "Market pulse"} · {inbox.city}</p>
           <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">People are telling you what they want. Decide what you can make possible.</h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Use these wants and voices as a starting point. Look for a real fit with your audience, capacity and goals before you answer.</p>
         </div>
@@ -75,7 +76,7 @@ export function MarketOpportunityInbox({ role }: { role: DemandRole }) {
         {inbox.questions.length ? <div className="space-y-4">{inbox.questions.map((question) => {
           const href = discoverPathHref(question.poll.question);
           const thresholdMet = question.votesRemaining === 0;
-          const answerHref = responseHref(response.href, question.poll.id, question.poll.question, inbox.city);
+          const answerHref = responseHref(response.href, question.poll.id, question.poll.question, inbox.city, sceneId);
           return (
             <article key={question.poll.id} className="grid gap-5 rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-5 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
