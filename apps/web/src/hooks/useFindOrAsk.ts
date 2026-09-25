@@ -17,6 +17,7 @@ export type FindOrAskDiscoveryRow = {
   answered_at?: string | null;
   support_count?: number | null;
   demand_target?: number | null;
+  user_supported?: boolean;
   has_answer?: boolean;
   moderation_status?: string;
 };
