@@ -29,10 +29,11 @@ export function useScene(slug?: string) {
       const { data: scene, error } = await db.from("scenes").select("*").eq("slug", slug).maybeSingle();
       if (error) throw error;
       if (!scene) return null;
-      const [membershipResult, linksResult, discoveriesResult] = await Promise.all([
+      const [membershipResult, linksResult, discoveriesResult, demandResult] = await Promise.all([
         user ? db.from("scene_memberships").select("*").eq("scene_id", scene.id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
         db.from("moment_scene_links").select("relationship,moments(*)").eq("scene_id", scene.id).limit(12),
         db.from("discoveries").select("*").eq("scene_id", scene.id).eq("verification_status", "approved").order("created_at", { ascending: false }).limit(12),
+        db.from("discovery_questions").select("id,scene_id,question,category,total_votes,threshold_for_moment,is_moment_triggered,created_at,discovery_options(id,option_text,votes_count)").eq("scene_id", scene.id).order("total_votes", { ascending: false }).limit(8),
       ]);
       const moments = (linksResult.data || []).map((link: any) => link.moments).filter(Boolean);
       const venueIds = [...new Set(moments.map((moment: any) => moment.venue_id).filter(Boolean))];
@@ -50,6 +51,7 @@ export function useScene(slug?: string) {
         membership: (membershipResult.data || null) as SceneMembership | null,
         moments,
         discoveries: discoveriesResult.data || [],
+        demand: demandResult.data || [],
         places: placesResult.data || [],
         people: peopleResult.data || [],
       };
