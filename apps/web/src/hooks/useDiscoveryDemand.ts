@@ -13,7 +13,6 @@ import {
 import { mergeUnlockTallies, readLocalCardUnlocks, tallyCardUnlocks, type UnlockTally } from "@/lib/discovery-card";
 import { intentWords, mergeDiscoveryPolls } from "@/lib/discovery-path";
 import { useCityDiscoveryPolls } from "@/hooks/useCityDiscoveryPolls";
-import { useFindOrAskDiscoveries } from "@/hooks/useFindOrAsk";
 
 const ANON_KEY = "promorang.discover.anon";
 const LOCAL_INTENTS_KEY = "promorang.discover.named-intents";
@@ -85,7 +84,6 @@ function mergeDemandPolls(input: DemandPoll[][]): DemandPoll[] {
 export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", citySlug?: string) {
   const queryClient = useQueryClient();
   const cityPolls = useCityDiscoveryPolls(countrySlug, citySlug, 12);
-  const findOrAsk = useFindOrAskDiscoveries(cityName);
 
   const intentsQuery = useQuery({
     queryKey: ["discovery-named-intents", cityName],
@@ -115,16 +113,6 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   const polls = useMemo(
     () =>
       mergeDemandPolls([
-        (findOrAsk.data || [])
-          .filter((row) => row.semantic_kind === "demand")
-          .map((row) => demandPollFromDiscovery({
-            id: row.id,
-            question: row.question,
-            category: "Community Demand",
-            totalVotes: row.support_count || 0,
-            thresholdForMoment: row.demand_target || undefined,
-            options: [],
-          })),
         (cityPolls.data || []).map((poll) =>
           demandPollFromDiscovery({
             id: poll.id,
@@ -137,7 +125,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
           }),
         ),
       ]),
-    [findOrAsk.data, cityPolls.data],
+    [cityPolls.data],
   );
 
   const unlocksQuery = useQuery({
@@ -186,7 +174,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   return {
     inbox,
     polls,
-    isLoading: cityPolls.isLoading || findOrAsk.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
+    isLoading: cityPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
     recordAsk: record.mutateAsync,
   };
 }
