@@ -10,6 +10,10 @@ import { usePublicOffers } from "@/hooks/useOffers";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { discoverPathHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
+import { FindOrAskQuestionRail } from "@/components/discovery/FindOrAskQuestionRail";
+import { FindOrAskDemandRail } from "@/components/discovery/FindOrAskDemandRail";
+import { useFindOrAskDiscoveries } from "@/hooks/useFindOrAsk";
+import { useI18n } from "@/i18n/I18nContext";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { TasteCalibration } from "@/components/promorang/TasteCalibration";
 import { EditorialWorldRail } from "@/components/marketing/EditorialWorldRail";
@@ -29,15 +33,15 @@ function signalState(votesRemaining: number, closeness: "unlocking" | "warming" 
   return closeness;
 }
 
-type ResultType = "all" | "discoveries" | "moments" | "offers" | "wants";
+type ResultType = "all" | "discoveries" | "moments" | "offers" | "questions" | "wants";
 type InterestFilter = "all" | "food" | "music" | "culture" | "outdoors";
 
-const interestFilters: Array<{ id: InterestFilter; label: string; terms: string[] }> = [
-  { id: "all", label: "Everything", terms: [] },
-  { id: "food", label: "Food & drink", terms: ["food", "drink", "restaurant", "dining", "cuisine", "dish", "menu", "cafe", "coffee", "brunch", "lunch", "dinner", "chinese", "rice"] },
-  { id: "music", label: "Music & nightlife", terms: ["music", "concert", "party", "dance", "dj", "live", "nightlife", "club"] },
-  { id: "culture", label: "Arts & culture", terms: ["art", "culture", "gallery", "theatre", "theater", "film", "craft", "heritage", "museum"] },
-  { id: "outdoors", label: "Outdoors", terms: ["outdoor", "hike", "beach", "nature", "garden", "trail", "adventure", "wellness"] },
+const interestFilters: Array<{ id: InterestFilter; labelKey: string; terms: string[] }> = [
+  { id: "all", labelKey: "publicDiscover.interest.everything", terms: [] },
+  { id: "food", labelKey: "publicDiscover.interest.food", terms: ["food", "drink", "restaurant", "dining", "cuisine", "dish", "menu", "cafe", "coffee", "brunch", "lunch", "dinner", "chinese", "rice"] },
+  { id: "music", labelKey: "publicDiscover.interest.music", terms: ["music", "concert", "party", "dance", "dj", "live", "nightlife", "club"] },
+  { id: "culture", labelKey: "publicDiscover.interest.culture", terms: ["art", "culture", "gallery", "theatre", "theater", "film", "craft", "heritage", "museum"] },
+  { id: "outdoors", labelKey: "publicDiscover.interest.outdoors", terms: ["outdoor", "hike", "beach", "nature", "garden", "trail", "adventure", "wellness"] },
 ];
 
 function searchableText(values: unknown[]) {
@@ -62,6 +66,7 @@ function matchesDiscoverySearch(values: unknown[], query: string, interest: Inte
 
 export function PublicDiscoverExperience() {
   const { city, country } = useMarket();
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(() => searchParams.get("q") || "");
   const [resultType, setResultType] = useState<ResultType>("all");
@@ -70,6 +75,7 @@ export function PublicDiscoverExperience() {
 
   const discoveriesQuery = useDiscoveries({ city: cityFilter, limit: 24 });
   const demand = useDiscoveryDemand(city.name, country.slug || "jamaica", city.id === "all-jamaica" ? undefined : city.id);
+  const findOrAskQuery = useFindOrAskDiscoveries(city.name);
   const momentsQuery = useCanonicalMomentFeed();
   const offersQuery = usePublicOffers();
 
@@ -114,11 +120,19 @@ export function PublicDiscoverExperience() {
     [demand.inbox.questions, normalizedQuery, interest],
   );
 
+  const explicitQuestions = (findOrAskQuery.data || []).filter((row) =>
+    row.semantic_kind === "question" && matchesDiscoverySearch([row.question, row.city], normalizedQuery, interest),
+  );
+  const explicitDemands = (findOrAskQuery.data || []).filter((row) =>
+    row.semantic_kind === "demand" && matchesDiscoverySearch([row.question, row.city], normalizedQuery, interest),
+  );
+
   const resultCounts = {
     discoveries: filteredDiscoveries.length,
     moments: filteredMoments.length,
     offers: filteredOffers.length,
-    wants: filteredSignals.length,
+    questions: explicitQuestions.length,
+    wants: filteredSignals.length + explicitDemands.length,
   };
   const totalResults = Object.values(resultCounts).reduce((total, count) => total + count, 0);
   const hasFilters = Boolean(normalizedQuery) || interest !== "all" || resultType !== "all";
@@ -163,18 +177,18 @@ export function PublicDiscoverExperience() {
                   id="public-discover-search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Try ‘Chinese food’ or ‘egg fried rice’"
+                  placeholder={t("publicDiscover.searchPlaceholder")}
                   className="min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/35"
                 />
-                {query ? <button type="button" onClick={() => setQuery("")} aria-label="Clear search" className="grid h-9 w-9 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
+                {query ? <button type="button" onClick={() => setQuery("")} aria-label={t("publicDiscover.clearSearch")} className="grid h-9 w-9 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
               </div>
-              <div className="flex gap-2 overflow-x-auto border-t border-white/10 px-2 pb-1 pt-2 scrollbar-none" aria-label="Filter by interest">
-                {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{item.label}</button>)}
+              <div className="flex gap-2 overflow-x-auto border-t border-white/10 px-2 pb-1 pt-2 scrollbar-none" aria-label={t("publicDiscover.interestFilterLabel")}>
+                {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{t(item.labelKey as any)}</button>)}
               </div>
             </div>
 
             {heroIsEditorial ? (
-              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">Start with what catches your attention.</p>
+              <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">{t("publicDiscover.editorialHint")}</p>
             ) : null}
 
             <div className="marketing-hero-promocard-outcomes">
@@ -187,28 +201,42 @@ export function PublicDiscoverExperience() {
         </div>
       </section>
 
-      <section className="sticky top-0 z-30 border-b border-white/10 bg-[#080808]/95 px-5 py-3 backdrop-blur-xl sm:px-6" aria-label="Search filters">
+      <section className="sticky top-0 z-30 border-b border-white/10 bg-[#080808]/95 px-5 py-3 backdrop-blur-xl sm:px-6" aria-label={t("publicDiscover.filtersLabel")}>
         <div className="mx-auto flex max-w-[1440px] items-center gap-3 overflow-x-auto scrollbar-none">
-          <span className="flex shrink-0 items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/40"><Filter className="h-3.5 w-3.5" /> Show</span>
+          <span className="flex shrink-0 items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/40"><Filter className="h-3.5 w-3.5" /> {t("publicDiscover.show")}</span>
           {([
-            ["all", "All results", totalResults], ["discoveries", "Discoveries", resultCounts.discoveries], ["moments", "Moments", resultCounts.moments], ["offers", "Offers", resultCounts.offers], ["wants", "Wants", resultCounts.wants],
+            ["all", t("publicDiscover.allResults"), totalResults], ["discoveries", t("findOrAsk.resultDiscoveries"), resultCounts.discoveries], ["moments", t("search.moments"), resultCounts.moments], ["offers", t("findOrAsk.resultOffers"), resultCounts.offers], ["questions", t("common.questions"), resultCounts.questions], ["wants", t("publicNav.wanted"), resultCounts.wants],
           ] as Array<[ResultType, string, number]>).map(([id, label, count]) => <button key={id} type="button" onClick={() => setResultType(id)} aria-pressed={resultType === id} className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold transition ${resultType === id ? "border-orange-400 bg-orange-400/15 text-orange-200" : "border-white/10 text-white/55 hover:border-white/25 hover:text-white"}`}>{label} <span className="ml-1 text-[10px] opacity-60">{count}</span></button>)}
-          {hasFilters ? <button type="button" onClick={clearFilters} className="ml-auto flex shrink-0 items-center gap-1.5 px-2 py-2 text-xs font-bold text-white/45 hover:text-white"><X className="h-3.5 w-3.5" /> Reset</button> : null}
+          {hasFilters ? <button type="button" onClick={clearFilters} className="ml-auto flex shrink-0 items-center gap-1.5 px-2 py-2 text-xs font-bold text-white/45 hover:text-white"><X className="h-3.5 w-3.5" /> {t("publicDiscover.reset")}</button> : null}
         </div>
       </section>
+
+      {(resultType === "all" || resultType === "questions") && <section className="border-b border-white/10 bg-black px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="marketing-section-head">
+            <div>
+              <p className="marketing-kicker">{t("findOrAsk.questionsKicker")}</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("findOrAsk.questionsTitle")}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("findOrAsk.questionsCopy")}</p>
+            </div>
+          </div>
+          <FindOrAskQuestionRail city={city.name} query={normalizedQuery} />
+        </div>
+      </section>}
 
       {(resultType === "all" || resultType === "wants") && <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">What {demand.inbox.city} wants</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">See where people are leaning right now.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">These are public Wants. Add your voice only when you genuinely want the same thing; your private taste choices are kept separate.</p>
+              <p className="marketing-kicker">{t("publicDiscover.wantsKicker", { city: demand.inbox.city })}</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicDiscover.wantsTitle")}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("publicDiscover.wantsCopy")}</p>
             </div>
-            <Link to="/#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Put something else on the table <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{t("publicDiscover.putSomethingElse")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
 
-          {demand.isLoading && !liveSignals.length ? <p className="text-sm text-white/45">Loading what people want…</p> : null}
+          {(demand.isLoading || findOrAskQuery.isLoading) && !liveSignals.length && !explicitDemands.length ? <p className="text-sm text-white/45">{t("publicDiscover.loadingWants")}</p> : null}
+          <FindOrAskDemandRail city={city.name} query={normalizedQuery} />
           {liveSignals.length ? (
             <div className="marketing-demand-rail">
               {liveSignals.map((signal) => (
@@ -223,14 +251,14 @@ export function PublicDiscoverExperience() {
                   href={`/auth?mode=login&role=participant&next=${encodeURIComponent(discoverPathHref(signal.poll.question))}`}
                   shareHref={discoverPathHref(signal.poll.question)}
                   state={signalState(signal.votesRemaining, signal.closeness)}
-                  actionLabel="I want this too"
+                  actionLabel={t("clarity.wantAction")}
                 />
               ))}
             </div>
-          ) : !demand.isLoading ? (
+          ) : !demand.isLoading && !findOrAskQuery.isLoading && !explicitDemands.length ? (
             <div className="marketing-compact-empty">
               <Users className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No shared-interest questions here yet.</p><p className="mt-1 text-xs leading-5 text-white/45">Be the first to ask, or come back as more people speak up.</p></div>
+              <div><p className="text-sm font-black">{t("publicDiscover.noWantsTitle")}</p><p className="mt-1 text-xs leading-5 text-white/45">{t("publicDiscover.noWantsCopy")}</p></div>
             </div>
           ) : null}
         </div>

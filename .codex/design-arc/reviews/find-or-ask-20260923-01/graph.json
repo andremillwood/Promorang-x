@@ -1,0 +1,31 @@
+{
+  "schema": "design-arc.graph/v1",
+  "project_id": "promorang-x",
+  "review_id": "find-or-ask-20260923-01",
+  "nodes": [
+    {"id":"objective","type":"confirmed_objective","label":"One child-clear, localized Find or ask journey with stakeholder-aware outcomes"},
+    {"id":"home","type":"screen","label":"Public homepage hero"},
+    {"id":"header","type":"screen","label":"Marketing header"},
+    {"id":"discover","type":"screen","label":"Public Discover search"},
+    {"id":"no-results","type":"state","label":"No exact search result"},
+    {"id":"request","type":"state","label":"Explicit unmet-demand request"},
+    {"id":"stakeholder","type":"journey","label":"Role-aware stakeholder response"},
+    {"id":"mismatch-factual-demand","type":"observed_mismatch","label":"Factual place-status questions render as Wants with vote targets"},
+    {"id":"w3c-search","type":"platform_requirement","label":"Accessible labeled combobox and keyboard behavior"},
+    {"id":"w3c-i18n","type":"platform_requirement","label":"Localizable text separated from presentation with expansion tolerance"},
+    {"id":"direction-a","type":"design_decision","label":"One search with explicit recovery"},
+    {"id":"direction-approval","type":"approval","label":"User approved Direction A"}
+  ],
+  "edges": [
+    {"id":"e1","type":"applies_to","from":"objective","to":"home","active":true,"provenance_kind":"user_confirmed_objective","source_ref":"User confirmation in current Codex thread","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e2","type":"applies_to","from":"objective","to":"header","active":true,"provenance_kind":"user_confirmed_objective","source_ref":"User confirmation in current Codex thread","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e3","type":"depends_on","from":"no-results","to":"request","active":true,"provenance_kind":"design_arc_judgment","source_ref":"Confirmed outcome requires search before request","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e4","type":"depends_on","from":"request","to":"stakeholder","active":true,"provenance_kind":"user_confirmed_objective","source_ref":"Confirmed stakeholder-aware outcome requirement","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e5","type":"conflicts_with","from":"mismatch-factual-demand","to":"objective","active":true,"provenance_kind":"inspected_evidence","source_ref":"Pen.dev live render of /discover on 2026-09-23","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e6","type":"applies_to","from":"w3c-search","to":"discover","active":true,"provenance_kind":"official_guidance","source_ref":"https://www.w3.org/WAI/ARIA/apg/patterns/combobox/","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e7","type":"applies_to","from":"w3c-i18n","to":"home","active":true,"provenance_kind":"official_guidance","source_ref":"https://www.w3.org/International/quicktips/","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e8","type":"applies_to","from":"w3c-i18n","to":"header","active":true,"provenance_kind":"official_guidance","source_ref":"https://www.w3.org/International/quicktips/","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e9","type":"supports","from":"direction-a","to":"objective","active":true,"provenance_kind":"design_arc_judgment","source_ref":"Direction Gate recommendation","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"},
+    {"id":"e10","type":"approved_by","from":"direction-a","to":"direction-approval","active":true,"provenance_kind":"user_confirmed_objective","source_ref":"User approved Direction A in current Codex thread","observed_at":"2026-09-23T16:07:28Z","support_status":"supported"}
+  ]
+}

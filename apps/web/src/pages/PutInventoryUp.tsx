@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizedFulfillment, localizedInventoryFollow, localizedInventoryNext, localizedPerkKind } from "@/i18n/localize";
+import { useFindOrAskOriginOutcome } from "@/hooks/useFindOrAskOriginOutcome";
 
 const KINDS = (Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>).filter(([id]) =>
   ["merchant", "complimentary", "discount", "free_entry", "priority", "invitation", "custom"].includes(id),
@@ -29,6 +30,7 @@ export default function PutInventoryUp() {
   const { provideInventory } = useExperienceActions();
   const to = useExperiencePath();
   const { toast } = useToast();
+  const originOutcome = useFindOrAskOriginOutcome();
   const merchantName = profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "This business";
 
   const [kind, setKind] = useState<PerkKind>("merchant");
@@ -60,6 +62,22 @@ export default function PutInventoryUp() {
         fulfillment_type: fulfillment.fulfillmentType,
         owner_type: lensRole === "brand" || lensRole === "agency" || lensRole === "marketing" ? "brand" : "merchant",
       });
+
+      const canonicalId = String(result.offer?.id || result.opportunity?.sourceId || result.opportunity?.id || "");
+      const canonicalType = result.offer?.id || result.opportunity?.sourceId ? "offer" : "opportunity";
+      const attachedToAsk = canonicalId ? await originOutcome.attachCreatedOutcome({
+        canonicalObjectType: canonicalType,
+        canonicalObjectId: canonicalId,
+        canonicalObjectUrl: canonicalType === "offer" ? `/offers/${encodeURIComponent(canonicalId)}` : undefined,
+        sourceLabel: result.opportunity.title,
+      }) : false;
+      if (originOutcome.hasOrigin && !attachedToAsk) {
+        toast({
+          title: "Inventory is live; response link needs attention",
+          description: "The inventory was created, but PROMORANG could not attach it back to the originating question yet.",
+          variant: "destructive",
+        });
+      }
 
       setOpened({
         title: result.opportunity.title,

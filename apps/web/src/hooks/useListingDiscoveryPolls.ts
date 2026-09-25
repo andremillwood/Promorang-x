@@ -39,7 +39,7 @@ export function useListingDiscoveryPolls(limit = 6) {
         contextNotes: "This is a city check, not a discount. Your vote helps keep the map honest. It does not unlock a perk or transfer the listing.",
         totalVotes: row.total_votes || 0,
         thresholdForMoment: row.threshold_for_moment || 5,
-        signalKind: "demand",
+        signalKind: "question",
         targetUnlockPerk: "Thanks — you helped confirm this place",
         pointsReward: row.reward_points || 0,
         options: Array.isArray(row.options) ? row.options : [],

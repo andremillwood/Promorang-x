@@ -13,7 +13,6 @@ import {
 import { mergeUnlockTallies, readLocalCardUnlocks, tallyCardUnlocks, type UnlockTally } from "@/lib/discovery-card";
 import { intentWords, mergeDiscoveryPolls } from "@/lib/discovery-path";
 import { useCityDiscoveryPolls } from "@/hooks/useCityDiscoveryPolls";
-import { useListingDiscoveryPolls } from "@/hooks/useListingDiscoveryPolls";
 
 const ANON_KEY = "promorang.discover.anon";
 const LOCAL_INTENTS_KEY = "promorang.discover.named-intents";
@@ -85,15 +84,15 @@ function mergeDemandPolls(input: DemandPoll[][]): DemandPoll[] {
 export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", citySlug?: string, sceneId?: string) {
   const queryClient = useQueryClient();
   const cityPolls = useCityDiscoveryPolls(countrySlug, citySlug, 12);
-  const listingPolls = useListingDiscoveryPolls(8);
   const scenePolls = useQuery({
     queryKey: ["scene-demand-polls", sceneId],
     enabled: Boolean(sceneId),
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("discovery_questions")
-        .select("id,scene_id,question,category,total_votes,threshold_for_moment,discovery_options(id,option_text,votes_count)")
+        .select("id,scene_id,question,category,total_votes,threshold_for_moment,semantic_kind,discovery_options(id,option_text,votes_count)")
         .eq("scene_id", sceneId)
+        .eq("semantic_kind", "demand")
         .order("total_votes", { ascending: false })
         .limit(12);
       if (error) throw error;
@@ -136,7 +135,6 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   const polls = useMemo(
     () =>
       mergeDemandPolls([
-        ...(sceneId ? [] : [(listingPolls.data || []).map(demandPollFromDiscovery)]),
         ...(sceneId ? [scenePolls.data || []] : []),
         ...(sceneId ? [] : [(cityPolls.data || []).map((poll) =>
           demandPollFromDiscovery({
@@ -150,7 +148,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
           }),
         )]),
       ]),
-    [listingPolls.data, cityPolls.data, scenePolls.data, sceneId],
+    [cityPolls.data, scenePolls.data, sceneId],
   );
 
   const unlocksQuery = useQuery({
@@ -199,7 +197,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   return {
     inbox,
     polls,
-    isLoading: cityPolls.isLoading || listingPolls.isLoading || scenePolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
+    isLoading: cityPolls.isLoading || scenePolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
     recordAsk: record.mutateAsync,
   };
 }

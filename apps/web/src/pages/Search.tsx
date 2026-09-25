@@ -22,17 +22,20 @@ import {
   Compass,
   MapPin,
   TrendingUp,
-  MessageCircle,
-  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
+import { FindOrAskRecoveryPanel } from "@/components/discovery/FindOrAskRecoveryPanel";
 
 const SearchPage = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const initialCategory = searchParams.get("category") || "all";
+  const recovery = searchParams.get("recovery");
+  const source = searchParams.get("source") || "search";
+  const city = searchParams.get("city") || undefined;
+  const postedDiscoveryId = searchParams.get("posted");
 
   const [inputValue, setInputValue] = useState(query);
   const [activeTab, setActiveTab] = useState(initialCategory);
@@ -59,7 +62,13 @@ const SearchPage = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
-      setSearchParams({ q: inputValue.trim(), category: activeTab });
+      const next = new URLSearchParams();
+      next.set("q", inputValue.trim());
+      next.set("category", activeTab);
+      next.set("source", source);
+      next.set("lang", searchParams.get("lang") || locale);
+      if (city) next.set("city", city);
+      setSearchParams(next);
     }
   };
 
@@ -144,13 +153,26 @@ const SearchPage = () => {
         </form>
 
         <div className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-2">
-          {["Chinese food", "Egg fried rice", "Kingston", "Reward perks", "Music festivals", "Venues"].map((term) => (
+          {[
+            t("findOrAsk.searchSuggestionChinese"),
+            t("findOrAsk.searchSuggestionRice"),
+            t("findOrAsk.searchSuggestionKingston"),
+            t("findOrAsk.searchSuggestionPerks"),
+            t("findOrAsk.searchSuggestionMusic"),
+            t("findOrAsk.searchSuggestionVenues"),
+          ].map((term) => (
             <button
               key={term}
               type="button"
               onClick={() => {
                 setInputValue(term);
-                setSearchParams({ q: term, category: activeTab });
+                const next = new URLSearchParams();
+                next.set("q", term);
+                next.set("category", activeTab);
+                next.set("source", source);
+                next.set("lang", searchParams.get("lang") || locale);
+                if (city) next.set("city", city);
+                setSearchParams(next);
               }}
               className="rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-1.5 text-xs font-bold text-white/80 transition hover:border-[#ff5500] hover:text-[#ff5500]"
             >
@@ -164,17 +186,28 @@ const SearchPage = () => {
         <TabsList className="mb-8 w-full justify-start gap-4 rounded-none border-b border-white/10 bg-transparent p-0 sm:gap-8">
           <TabsTrigger value="all" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.all")}</TabsTrigger>
           <TabsTrigger value="moment" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.moments")}</TabsTrigger>
-          <TabsTrigger value="discovery" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Discoveries</TabsTrigger>
-          <TabsTrigger value="venue" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Places</TabsTrigger>
-          <TabsTrigger value="offer" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Offers</TabsTrigger>
-          <TabsTrigger value="product" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">Products</TabsTrigger>
+          <TabsTrigger value="discovery" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("findOrAsk.resultDiscoveries")}</TabsTrigger>
+          <TabsTrigger value="venue" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("findOrAsk.resultPlaces")}</TabsTrigger>
+          <TabsTrigger value="offer" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("findOrAsk.resultOffers")}</TabsTrigger>
+          <TabsTrigger value="product" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("findOrAsk.resultProducts")}</TabsTrigger>
           <TabsTrigger value="brand" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.brands")}</TabsTrigger>
           <TabsTrigger value="merchant" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.merchants")}</TabsTrigger>
           <TabsTrigger value="host" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.hosts")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
-          {isLoading ? (
+          {(postedDiscoveryId || recovery) ? (
+            <FindOrAskRecoveryPanel
+              query={query}
+              city={city}
+              source={source}
+              recovery={recovery}
+              onSearchAgain={() => {
+                setInputValue("");
+                setSearchParams({ category: activeTab });
+              }}
+            />
+          ) : isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-10 h-10 text-[#ff5500] animate-spin mb-4" />
               <p className="text-white/60 text-sm font-medium">{t("search.searching")}</p>
@@ -213,11 +246,11 @@ const SearchPage = () => {
                         </div>
                         <h4 className="font-bold text-white text-base truncate group-hover:text-[#ff5500]">{item.title}</h4>
                         <p className="text-xs text-white/50 truncate flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3 text-[#ff5500]" /> {item.venue_name || item.location || "Location not recorded"}
+                          <MapPin className="h-3 w-3 text-[#ff5500]" /> {item.venue_name || item.location || t("findOrAsk.locationNotRecorded")}
                         </p>
                         {item.reward && (
                           <span className="mt-2 inline-block rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400">
-                            Configured value: {item.reward}
+                            {t("findOrAsk.configuredValue", { value: item.reward })}
                           </span>
                         )}
                       </Link>
@@ -280,23 +313,21 @@ const SearchPage = () => {
                 <h3 className="mt-3 text-2xl font-bold text-white">{t("findOrAsk.noExactTitle")}</h3>
                 <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/55">{t("findOrAsk.noExactCopy")}</p>
               </div>
-              <div className="mx-auto mt-8 grid max-w-4xl gap-3 md:grid-cols-3">
-                <Link to={`/discover?q=${encodeURIComponent(query)}&recovery=ask_people`} className="rounded-2xl border border-[#ff5500]/35 bg-[#ff5500]/10 p-5 transition hover:border-[#ff5500] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-                  <MessageCircle className="h-5 w-5 text-[#ff7a25]" />
-                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.askPeople")}</span>
-                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.askPeopleCopy")}</span>
-                </Link>
-                <Link to={`/?q=${encodeURIComponent(query)}&recovery=request_something#ask`} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#ff5500]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-                  <Megaphone className="h-5 w-5 text-[#ff7a25]" />
-                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.requestSomething")}</span>
-                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.requestSomethingCopy")}</span>
-                </Link>
-                <button type="button" onClick={() => { setInputValue(""); setSearchParams({ category: activeTab }); }} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
-                  <SearchIcon className="h-5 w-5 text-white/65" />
-                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.searchAgain")}</span>
-                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.searchAgainCopy")}</span>
-                </button>
-              </div>
+              <FindOrAskRecoveryPanel
+                query={query}
+                city={city}
+                source={source}
+                recovery={recovery}
+                onSearchAgain={() => {
+                  setInputValue("");
+                  const next = new URLSearchParams();
+                  next.set("category", activeTab);
+                  next.set("source", source);
+                  next.set("lang", searchParams.get("lang") || locale);
+                  if (city) next.set("city", city);
+                  setSearchParams(next);
+                }}
+              />
               <p className="mt-6 text-center text-xs font-bold text-emerald-300">{t("findOrAsk.notPoll")}</p>
             </div>
           )}

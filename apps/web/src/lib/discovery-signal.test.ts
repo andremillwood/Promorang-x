@@ -7,6 +7,7 @@ describe("pollSignalKind", () => {
     expect(pollSignalKind({})).toBe("demand");
     expect(pollSignalKind({ signalKind: "demand" })).toBe("demand");
     expect(pollSignalKind({ signalKind: "live_offer" })).toBe("live_offer");
+    expect(pollSignalKind({ signalKind: "question" })).toBe("question");
   });
 });
 
@@ -14,5 +15,6 @@ describe("pollHasRedeemablePerk", () => {
   it("only lets a live house offer land as something you can show at a counter", () => {
     expect(pollHasRedeemablePerk({ signalKind: "demand" })).toBe(false);
     expect(pollHasRedeemablePerk({ signalKind: "live_offer" })).toBe(true);
+    expect(pollHasRedeemablePerk({ signalKind: "question" })).toBe(false);
   });
 });

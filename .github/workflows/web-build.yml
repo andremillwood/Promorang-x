@@ -39,5 +39,36 @@ jobs:
             exit "$status"
           fi
 
+      - name: Test Find-or-Ask routing and i18n
+        run: |
+          npm run test --workspace packages/shared -- --maxWorkers=1 --minWorkers=1 tests/find-or-ask.test.ts
+          npm run test --workspace apps/web -- --maxWorkers=1 --minWorkers=1 \
+            src/lib/discovery-signal.test.ts \
+            src/lib/find-or-ask-routing.test.ts \
+            src/lib/find-or-ask-stakeholder.test.ts \
+            src/lib/find-or-ask-origin.test.ts \
+            src/lib/find-or-ask-journey.integration.test.ts \
+            src/i18n/i18n.test.ts
+
       - name: Build web
         run: npm run build --workspace apps/web
+
+      - name: Browser verify Find-or-Ask
+        shell: bash
+        run: |
+          npm run preview --workspace apps/web -- --host 127.0.0.1 --port 4173 > /tmp/promorang-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" || true' EXIT
+          ready=0
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/search >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/promorang-preview.log
+            exit 1
+          fi
+          node apps/web/scripts/verify-find-or-ask-browser.mjs
