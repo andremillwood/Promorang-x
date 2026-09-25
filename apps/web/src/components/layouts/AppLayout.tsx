@@ -41,7 +41,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         "/", "/join", "/how-it-works", "/what-is-promorang", "/about", "/pricing", "/solutions", "/business/start", "/hosting",
         "/developers", "/for-developers", "/for-communities", "/for-brands", "/for-creators", "/for-merchants", "/for-agencies", "/for-enterprise", "/for-causes",
         "/auth", "/onboarding", "/propose", "/strategies", "/bounties",
-        "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate",
+        "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate", "/search",
         "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
     const isPublicDiscoveryRoute = !loading && !user && (
