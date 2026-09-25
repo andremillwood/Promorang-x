@@ -155,3 +155,37 @@ Passed. User approved proceeding with production implementation.
 - Preserved the query when moving from Search into public Discover.
 - Added complete EN, es-419 and pt-BR copy for every new phrase.
 - Verification: i18n parity tests passed; shared intent URL tests passed; web production build passed. The shared package build remains blocked by unrelated pre-existing type failures in Moment participation, PromoCard fulfillment and browser-global declarations.
+
+
+## Production implementation — completion record
+
+- Implementation authority: separately authorized by the user after the Visual Proposal Gate; this does not change Design Arc's design-only authority boundary.
+- Persistence: reused `discovery_questions` and added explicit `semantic_kind` (`question` or `demand`), origin context, moderation state, canonical outcomes and per-user demand support. No parallel consumer object family was introduced.
+- Database invariants: the creation function requires an explicit recovery choice; questions cannot enter demand support; listing/event verification is classified as question; support RLS only permits active explicit demand; proposed outcomes must begin with pending moderation and pending verification.
+- Continuity: query, city, language, source, recovery action and originating discovery are preserved across search, confirmation, stakeholder creation and person-return flows.
+- Posting boundary: no Search recovery action becomes public until the person explicitly chooses a path and confirms posting.
+- Canonical response routing: merchant → Place/Offer, host → Moment, creator → Content/Opportunity, brand → Offer/sponsorship/commission route, verified result → Proof/Receipt. Created canonical objects can attach back to the originating discovery.
+- Originator return: outcomes expose source, freshness and verification state, and a database notification returns the person to the posted Search recovery state.
+- Public semantics: Community questions and verification asks remain questions without a demand target; only explicit unmet needs appear in demand rails/inboxes and support counts.
+- Public Search is now treated as a public route during auth hydration, preventing the recovery UI from being hidden behind an authenticated-app initialization state on slow or anonymous mobile sessions.
+- Localization: all new journey copy is present for EN, es-419 and pt-BR, and i18n parity is part of the PR CI gate.
+- Accessibility: recovery choices are native buttons with focus-visible treatment; demand progress uses progressbar semantics and ARIA values; confirmation/error/posted states use explicit status or alert text; the browser gate covers mobile and desktop recovery/confirmation rendering.
+- Responsive browser proof: the production preview passed the Search/recovery browser script at 390×844 and 1440×1000.
+- Automated verification on Web Build run #586:
+  - public market continuity: 2 files / 9 tests passed;
+  - shared Find-or-Ask contract: 1 file / 4 tests passed;
+  - web Find-or-Ask + i18n: 6 files / 22 tests passed, including 11 i18n parity tests and the journey integration test;
+  - production web build passed;
+  - public SEO generation completed with 30 localized snapshots and 54 sitemap URLs;
+  - Find-or-Ask browser verification passed at both required viewports.
+- SEO boundary: no new structured-data snapshot is generated for unmoderated Find-or-Ask question/demand objects. Existing canonical public-object SEO generation remains unchanged.
+- Remaining release limitation: the Supabase migration is committed and reviewed but is not claimed as applied to the live database by this run record.
+- External deployment status: prior Vercel status failures were quota/resource-limit responses rather than application build failures; the repository's own Web Build gate is green.
+- Tooling limitation: repository writes were performed through the authenticated GitHub connector because a local network clone was unavailable, so the requested local `apply_patch` edit mechanism could not be used. No reset, overwrite of unrelated history, or force push was used.
+
+## Final validation status
+
+- Visual proposal: approved.
+- Production implementation: complete for the approved Find-or-Ask scope.
+- Repository CI: green on the implementation head before this documentation-only update.
+- Merge gate: eligible once the documentation update is present on the PR head and required GitHub checks remain green.
