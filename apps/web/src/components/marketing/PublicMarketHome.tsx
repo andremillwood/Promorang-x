@@ -171,7 +171,7 @@ export default function PublicMarketHome() {
             <FindOrAskEntry source="home" city={marketName} className="mt-6 max-w-3xl sm:mt-8" />
             <div className="mt-5 flex flex-wrap gap-3">
               <a href="#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
-                {t("clarity.seeMarketWants", { market: marketName })} <Users className="h-4 w-4" />
+                {t("clarity.seeWhatsMoving", { market: marketName })} <Users className="h-4 w-4" />
               </a>
             </div>
             <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
