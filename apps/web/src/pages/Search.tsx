@@ -196,7 +196,7 @@ const SearchPage = () => {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
-          {postedDiscoveryId ? (
+          {(postedDiscoveryId || recovery) ? (
             <FindOrAskRecoveryPanel
               query={query}
               city={city}
