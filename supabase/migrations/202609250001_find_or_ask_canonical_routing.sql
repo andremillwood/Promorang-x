@@ -207,7 +207,7 @@ begin
   if v_semantic = 'demand' then
     insert into public.discovery_supports(discovery_id, user_id)
     values (v_id, v_user)
-    on conflict (discovery_id, user_id) do nothing;
+    on conflict on constraint discovery_supports_discovery_id_user_id_key do nothing;
   end if;
 
   return query select v_id, false, v_semantic, 'active'::text;
