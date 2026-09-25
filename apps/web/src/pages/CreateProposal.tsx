@@ -180,6 +180,17 @@ export default function CreateProposal() {
   };
 
   useEffect(() => {
+    const sceneId = searchParams.get("scene_id") || "";
+    const want = searchParams.get("want") || "";
+    if (sceneId || want) {
+      setForm((current) => ({
+        ...current,
+        sceneId: current.sceneId || sceneId,
+        outcomeDetail: current.outcomeDetail || want,
+        title: current.title || (want ? `Response to: ${want}` : ""),
+        description: current.description || (want ? `A concrete response to recorded demand: ${want}` : ""),
+      }));
+    }
     const vertical = searchParams.get("vertical") || (searchParams.get("from") === "moment" ? "moment" : "");
     if (vertical && VERTICAL_PRESETS[vertical]) {
       applyPreset(vertical);
