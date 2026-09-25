@@ -41,8 +41,8 @@ function requirePattern(html, pattern, label) {
 }
 
 const encodedQuery = encodeURIComponent("zz find or ask no result 92817");
-const searchPath = `/search?q=${encodedQuery}&source=search&city=Kingston&lang=en`;
-const confirmPath = `${searchPath}&recovery=ask_people`;
+const searchPath = `/search?q=${encodedQuery}&source=search&city=Kingston&lang=en&recovery=search_again`;
+const confirmPath = `/search?q=${encodedQuery}&source=search&city=Kingston&lang=en&recovery=ask_people`;
 
 for (const viewport of [
   { name: "mobile", width: 390, height: 844 },
