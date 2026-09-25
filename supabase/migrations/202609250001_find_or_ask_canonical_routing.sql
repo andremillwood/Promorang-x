@@ -294,7 +294,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $
+as $$
 declare
   origin record;
   revision text;
@@ -358,7 +358,7 @@ begin
 
   return new;
 end;
-$;
+$$;
 
 revoke all on function public.notify_find_or_ask_originator() from public, anon, authenticated;
 
