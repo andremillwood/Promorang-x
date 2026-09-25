@@ -240,6 +240,10 @@ select
   q.recovery_action, q.created_at, q.updated_at, q.answered_at, q.status, q.moderation_status,
   case when q.semantic_kind = 'demand' then q.total_votes else null end as support_count,
   case when q.semantic_kind = 'demand' then nullif(q.threshold_for_moment, 0) else null end as demand_target,
+  case when q.semantic_kind = 'demand' then exists (
+    select 1 from public.discovery_supports s
+    where s.discovery_id = q.id and s.user_id = auth.uid()
+  ) else false end as user_supported,
   exists (
     select 1 from public.discovery_outcomes o
     where o.discovery_id = q.id and o.moderation_status = 'approved'
@@ -248,7 +252,7 @@ from public.discovery_questions q
 where q.status = 'active'
   and q.metadata->>'find_or_ask' = 'true'
   and q.question_type in ('community_question', 'demand')
-  and q.moderation_status <> 'hidden';
+  and q.moderation_status in ('unreviewed', 'approved');
 
 grant select on public.view_public_find_or_ask_discoveries to anon, authenticated;
 
