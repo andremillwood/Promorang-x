@@ -267,4 +267,83 @@ where o.moderation_status = 'approved';
 
 grant select on public.view_public_discovery_outcomes to anon, authenticated;
 
+
+create or replace function public.notify_find_or_ask_originator()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $
+declare
+  origin record;
+  revision text;
+  response_state text;
+begin
+  select q.origin_user_id, q.semantic_kind, q.question
+    into origin
+  from public.discovery_questions q
+  where q.id = new.discovery_id;
+
+  if origin.origin_user_id is null then return new; end if;
+
+  response_state := case
+    when new.verification_status = 'verified' then 'verified'
+    when new.moderation_status = 'rejected' or new.verification_status = 'rejected' then 'rejected'
+    else 'submitted'
+  end;
+
+  if tg_op = 'UPDATE'
+     and row(new.verification_status, new.moderation_status)
+         is not distinct from row(old.verification_status, old.moderation_status) then
+    return new;
+  end if;
+
+  revision := response_state || ':' || new.id::text;
+
+  begin
+    insert into public.notifications (
+      user_id, notification_type, type, title, message, related_id, is_read,
+      dedupe_key, action_url, route, metadata
+    ) values (
+      origin.origin_user_id,
+      'market_watch_changed',
+      'find_or_ask_response',
+      case when response_state = 'verified'
+        then 'An answer was verified'
+        else 'A response came back'
+      end,
+      case
+        when response_state = 'verified' then 'A response to “' || left(origin.question, 120) || '” was verified. Open it to see the source and freshness.'
+        when response_state = 'rejected' then 'A response to your post did not pass verification. Your original question or request is still open.'
+        else 'Someone responded to “' || left(origin.question, 120) || '”. Open it to see the source, freshness and verification status.'
+      end,
+      new.discovery_id,
+      false,
+      'find-or-ask:' || revision || ':' || origin.origin_user_id::text,
+      '/search?posted=' || new.discovery_id::text,
+      '/search?posted=' || new.discovery_id::text,
+      jsonb_build_object(
+        'discovery_id', new.discovery_id,
+        'outcome_id', new.id,
+        'semantic_kind', origin.semantic_kind,
+        'verification_status', new.verification_status,
+        'moderation_status', new.moderation_status
+      )
+    )
+    on conflict (dedupe_key) do nothing;
+  exception when others then
+    raise warning 'Find-or-Ask notification failed for %: %', new.discovery_id, sqlerrm;
+  end;
+
+  return new;
+end;
+$;
+
+revoke all on function public.notify_find_or_ask_originator() from public, anon, authenticated;
+
+drop trigger if exists trg_notify_find_or_ask_originator on public.discovery_outcomes;
+create trigger trg_notify_find_or_ask_originator
+after insert or update of verification_status, moderation_status on public.discovery_outcomes
+for each row execute function public.notify_find_or_ask_originator();
+
 notify pgrst, 'reload schema';
