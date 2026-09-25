@@ -345,6 +345,7 @@ const App = () => (
                     <Route path="/start" element={<ProtectedRoute><StartCommunity /></ProtectedRoute>} />
                     <Route path="/stock" element={<ProtectedRoute><PutInventoryUp /></ProtectedRoute>} />
                     <Route path="/home" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
+                    <Route path="/today" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
                     <Route path="/drop/:slug" element={<DropClaim />} />
                     <Route path="/app-preview" element={<PeopleHome />} />
                     <Route path="/app-preview/people" element={<MyPeople />} />
