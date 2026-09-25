@@ -180,6 +180,17 @@ export default function CreateProposal() {
   };
 
   useEffect(() => {
+    const sceneId = searchParams.get("scene_id") || "";
+    const want = searchParams.get("want") || "";
+    if (sceneId || want) {
+      setForm((current) => ({
+        ...current,
+        sceneId: current.sceneId || sceneId,
+        outcomeDetail: current.outcomeDetail || want,
+        title: current.title || (want ? `Response to: ${want}` : ""),
+        description: current.description || (want ? `A concrete response to recorded demand: ${want}` : ""),
+      }));
+    }
     const vertical = searchParams.get("vertical") || (searchParams.get("from") === "moment" ? "moment" : "");
     if (vertical && VERTICAL_PRESETS[vertical]) {
       applyPreset(vertical);
@@ -198,6 +209,12 @@ export default function CreateProposal() {
   }, [searchParams]);
 
   const { data: availableScenes = [] } = useQuery({ queryKey: ["activation-scenes"], queryFn: async () => { const { data, error } = await operationalSupabase.from("scenes").select("id,title,city").eq("status", "active").order("title").limit(24); if (error) throw error; return data || []; } });
+  useEffect(() => {
+    const requestedSceneId = searchParams.get("scene_id");
+    if (!requestedSceneId || form.scene) return;
+    const match = availableScenes.find((scene: any) => scene.id === requestedSceneId);
+    if (match) setForm((current) => ({ ...current, sceneId: requestedSceneId, scene: match.title }));
+  }, [availableScenes, form.scene, searchParams]);
   const currentGuide = ACTIVATION_CREATION_GUIDANCE[stepDefinitions[step].guide];
 
   const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((current) => ({ ...current, [key]: value }));
@@ -239,6 +256,8 @@ export default function CreateProposal() {
           commercial_return: form.commercialReturn,
           creation_model: "scene_activation_v3_guided",
           builder_journey: stepDefinitions.map((item) => item.id),
+          source_demand_id: searchParams.get("demand_id") || null,
+          source_scene_id: searchParams.get("scene_id") || null,
         },
       }).select("id").single();
       if (error) throw error;
@@ -252,6 +271,16 @@ export default function CreateProposal() {
       if (linkedSceneId && proposal) {
         const { error: sceneError } = await operationalSupabase.rpc("link_activation_scene", { p_proposal_id: proposal.id, p_scene_id: linkedSceneId });
         if (sceneError) throw sceneError;
+      }
+      const sourceDemandId = searchParams.get("demand_id");
+      if (status === "sent" && sourceDemandId && proposal) {
+        const { error: responseError } = await operationalSupabase.rpc("publish_demand_activation_response", {
+          p_discovery_id: sourceDemandId,
+          p_proposal_id: proposal.id,
+          p_summary: form.description || form.outcomeDetail || form.title,
+          p_route: `/dashboard/proposals/${proposal.id}`,
+        });
+        if (responseError) console.warn("Demand response publication skipped:", responseError.message);
       }
       toast.success(status === "draft" ? t("createProposal.toastSaved") : t("createProposal.toastSent"));
       navigate(`/dashboard/proposals/${proposal.id}`);

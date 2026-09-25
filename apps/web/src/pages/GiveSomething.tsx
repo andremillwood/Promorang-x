@@ -26,7 +26,7 @@ export default function GiveSomething() {
   const giverName = profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "Someone";
   const [kind, setKind] = useState<PerkKind>((params.get("kind") as PerkKind) || "complimentary");
   const [audience, setAudience] = useState<DropAudience>("everyone");
-  const [title, setTitle] = useState(params.get("title") || "");
+  const [title, setTitle] = useState(params.get("title") || params.get("want") || "");
   const foundId = params.get("found");
   const foundListing = foundId
     ? readLocalFoundListings().find((row) => row.id === foundId) || {
@@ -37,7 +37,7 @@ export default function GiveSomething() {
     : null;
 
   useEffect(() => {
-    const nextTitle = foundListing?.title || params.get("title") || "";
+    const nextTitle = foundListing?.title || params.get("title") || params.get("want") || "";
     if (nextTitle) setTitle((current) => current || nextTitle);
   }, [foundId]);
   const [limit, setLimit] = useState("50");
@@ -66,7 +66,7 @@ export default function GiveSomething() {
         offerId,
         audience,
         audienceLimit: audience === "first_x" ? Number(limit) || 50 : null,
-        sceneId: params.get("hub") || undefined,
+        sceneId: params.get("scene_id") || params.get("hub") || undefined,
         momentId,
         sourceKind: releaseId ? "release" : undefined,
         sourceId: releaseId || undefined,

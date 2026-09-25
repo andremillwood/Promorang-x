@@ -90,7 +90,7 @@ export function MerchantDashboardV2() {
         <TabsList className="sr-only">
           <TabsTrigger value="demand">Demand</TabsTrigger><TabsTrigger value="storefront">Offers</TabsTrigger><TabsTrigger value="redemptions">Verification</TabsTrigger><TabsTrigger value="commerce">Orders</TabsTrigger><TabsTrigger value="venues">Places</TabsTrigger><TabsTrigger value="analytics">Results</TabsTrigger>
         </TabsList>
-        <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="merchant" /></TabsContent>
+        <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="merchant" sceneId={searchParams.get("scene_id") || undefined} /></TabsContent>
         <TabsContent value="storefront" className="mt-0"><MerchantStorefrontConsole onOpenProducts={() => handleTabChange("storefront")} onOpenScanner={() => handleTabChange("redemptions")} /></TabsContent>
         <TabsContent value="redemptions" className="mt-0"><MerchantScannerStation /></TabsContent>
         <TabsContent value="commerce" className="mt-0"><MerchantCommerceConsole onOpenProducts={() => handleTabChange("storefront")} onOpenValidation={() => handleTabChange("redemptions")} /></TabsContent>

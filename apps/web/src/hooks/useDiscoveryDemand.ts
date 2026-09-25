@@ -82,10 +82,31 @@ function mergeDemandPolls(input: DemandPoll[][]): DemandPoll[] {
   return mergeDiscoveryPolls(...input);
 }
 
-export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", citySlug?: string) {
+export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", citySlug?: string, sceneId?: string) {
   const queryClient = useQueryClient();
   const cityPolls = useCityDiscoveryPolls(countrySlug, citySlug, 12);
   const listingPolls = useListingDiscoveryPolls(8);
+  const scenePolls = useQuery({
+    queryKey: ["scene-demand-polls", sceneId],
+    enabled: Boolean(sceneId),
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("discovery_questions")
+        .select("id,scene_id,question,category,total_votes,threshold_for_moment,discovery_options(id,option_text,votes_count)")
+        .eq("scene_id", sceneId)
+        .order("total_votes", { ascending: false })
+        .limit(12);
+      if (error) throw error;
+      return (data || []).map((row: any) => demandPollFromDiscovery({
+        id: row.id,
+        question: row.question,
+        category: row.category,
+        totalVotes: row.total_votes,
+        thresholdForMoment: row.threshold_for_moment,
+        options: (row.discovery_options || []).map((option: any) => ({ id: option.id, text: option.option_text, votes: option.votes_count || 0 })),
+      }));
+    },
+  });
 
   const intentsQuery = useQuery({
     queryKey: ["discovery-named-intents", cityName],
@@ -115,8 +136,9 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   const polls = useMemo(
     () =>
       mergeDemandPolls([
-        (listingPolls.data || []).map(demandPollFromDiscovery),
-        (cityPolls.data || []).map((poll) =>
+        ...(sceneId ? [] : [(listingPolls.data || []).map(demandPollFromDiscovery)]),
+        ...(sceneId ? [scenePolls.data || []] : []),
+        ...(sceneId ? [] : [(cityPolls.data || []).map((poll) =>
           demandPollFromDiscovery({
             id: poll.id,
             question: poll.question,
@@ -126,9 +148,9 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
             options: poll.options,
             userVotedOptionId: poll.user_voted_option_id || undefined,
           }),
-        ),
+        )]),
       ]),
-    [listingPolls.data, cityPolls.data],
+    [listingPolls.data, cityPolls.data, scenePolls.data, sceneId],
   );
 
   const unlocksQuery = useQuery({
@@ -177,7 +199,7 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   return {
     inbox,
     polls,
-    isLoading: cityPolls.isLoading || listingPolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
+    isLoading: cityPolls.isLoading || listingPolls.isLoading || scenePolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
     recordAsk: record.mutateAsync,
   };
 }
