@@ -155,20 +155,20 @@ export default function PublicMarketHome() {
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#050505] text-white selection:bg-orange-500 selection:text-black">
       <section
-        className="marketing-cinematic-hero marketing-cinematic-hero--world border-b border-white/10 px-5 pb-16 pt-12 sm:px-6 md:pb-20 md:pt-20"
+        className="marketing-cinematic-hero marketing-cinematic-hero--world border-b border-white/10 px-4 pb-10 pt-8 sm:px-6 sm:pb-14 sm:pt-12 md:pb-20 md:pt-20"
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto grid min-h-[42rem] max-w-[1440px] gap-10 lg:grid-cols-[minmax(0,1.04fr)_minmax(440px,.76fr)] lg:items-center">
-          <div className="max-w-4xl py-6 md:py-10">
+        <div className="relative mx-auto grid max-w-[1440px] gap-8 sm:gap-10 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.04fr)_minmax(440px,.76fr)] lg:items-center">
+          <div className="max-w-4xl py-2 sm:py-6 md:py-10">
             <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> {t("clarity.heroKicker")}</p>
-            <h1 className="mt-6 max-w-[11ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
+            <h1 className="mt-4 max-w-[12ch] text-[clamp(2.65rem,12vw,4rem)] font-black leading-[0.95] sm:mt-6 sm:max-w-[11ch] sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
               {t("clarity.heroTitle", { market: marketName })}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/70 sm:mt-6 sm:text-lg sm:leading-8">
               {t("clarity.heroCopy")}
             </p>
-            <FindOrAskEntry source="home" city={marketName} className="mt-8 max-w-3xl" />
+            <FindOrAskEntry source="home" city={marketName} className="mt-6 max-w-3xl sm:mt-8" />
             <div className="mt-5 flex flex-wrap gap-3">
               <a href="#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
                 {t("clarity.seeMarketWants", { market: marketName })} <Users className="h-4 w-4" />
@@ -178,10 +178,10 @@ export default function PublicMarketHome() {
               {t("clarity.heroProof")}
             </p>
           </div>
-          <div className="relative min-h-[34rem] pb-2 lg:pb-0">
+          <div className="relative pb-2 lg:min-h-[34rem] lg:pb-0">
             <div className="pointer-events-none absolute inset-8 rounded-full bg-orange-500/20 blur-3xl" />
             <CurrentArc variant="return" className="marketing-promocard-return-arc" />
-            <div className="relative flex min-h-[34rem] flex-col justify-center">
+            <div className="relative flex flex-col justify-center lg:min-h-[34rem]">
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
                   <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("clarity.yourNextPlace")}</p>
@@ -189,7 +189,7 @@ export default function PublicMarketHome() {
                 </div>
                 <span className="h-2.5 w-2.5 rounded-full bg-orange-400 shadow-[0_0_24px_rgba(251,146,60,.95)]" />
               </div>
-              <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="group relative block rotate-[-1.5deg] transition duration-500 hover:rotate-0 hover:scale-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
+              <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="group relative block transition duration-500 sm:rotate-[-1.5deg] sm:hover:rotate-0 sm:hover:scale-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
                 <PromoCardFace
                   holder={t("clarity.yourPromoCard")}
                   available={t("clarity.whatOpens")}
@@ -431,7 +431,7 @@ export default function PublicMarketHome() {
                     <div className="mt-4 space-y-2">
                       <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">People want this too</p>
                       {relatedSignals.map((signal) => (
-                        <Link key={signal.poll.id} to={discoveryHref(signal.poll)} className="flex items-center justify-between gap-3 border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
+                        <Link key={signal.poll.id} to={discoverPathHref(signal.poll.question)} className="flex items-center justify-between gap-3 border border-white/10 bg-black/25 px-4 py-3 transition hover:border-orange-300/35">
                           <span>
                             <span className="block text-sm font-bold text-white">{signal.poll.question}</span>
                             <span className="mt-1 block text-[11px] text-white/40">{signal.poll.totalVotes || 0} voice{signal.poll.totalVotes === 1 ? "" : "s"}</span>
