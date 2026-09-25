@@ -10,7 +10,7 @@ function responseFor(role: DemandRole) {
     case "merchant":
       return { href: "/give", label: "Make something available", note: "Answer the want with something real, limited and clear." };
     case "brand":
-      return { href: "/dashboard?view=studio&tab=campaigns", label: "Answer with an activation", note: "Choose what you can make possible and what you want people to do next." };
+      return { href: "/propose/new?from=want&role=brand", label: "Answer with an activation", note: "Choose what you can make possible and what you want people to do next." };
     case "host":
       return { href: "/create/moment", label: "Make something happen", note: "Turn the want into a real time, place and reason to show up." };
     default:
