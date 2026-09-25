@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useFindOrAskOriginOutcome } from "@/hooks/useFindOrAskOriginOutcome";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +57,7 @@ export function CreateMoment() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
+  const originOutcome = useFindOrAskOriginOutcome();
 
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -242,6 +244,21 @@ export function CreateMoment() {
           collaboratorWriteFailed = true;
           console.error("Moment published but collaborators were not saved:", collaboratorError);
         }
+      }
+
+      const attachedToAsk = await originOutcome.attachCreatedOutcome({
+        canonicalObjectType: "moment",
+        canonicalObjectId: String(newMoment.id),
+        canonicalObjectUrl: `/moments/${encodeURIComponent(newMoment.id)}`,
+        sourceLabel: title.trim(),
+      });
+
+      if (originOutcome.hasOrigin && !attachedToAsk) {
+        toast({
+          title: "Moment published; response link needs attention",
+          description: "The Moment is live, but PROMORANG could not attach it back to the originating question yet.",
+          variant: "destructive",
+        });
       }
 
       toast({
