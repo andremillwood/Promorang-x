@@ -27,12 +27,16 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
+import { FindOrAskRecoveryPanel } from "@/components/discovery/FindOrAskRecoveryPanel";
 
 const SearchPage = () => {
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const initialCategory = searchParams.get("category") || "all";
+  const recovery = searchParams.get("recovery");
+  const source = searchParams.get("source") || "search";
+  const city = searchParams.get("city") || undefined;
 
   const [inputValue, setInputValue] = useState(query);
   const [activeTab, setActiveTab] = useState(initialCategory);
@@ -280,23 +284,16 @@ const SearchPage = () => {
                 <h3 className="mt-3 text-2xl font-bold text-white">{t("findOrAsk.noExactTitle")}</h3>
                 <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/55">{t("findOrAsk.noExactCopy")}</p>
               </div>
-              <div className="mx-auto mt-8 grid max-w-4xl gap-3 md:grid-cols-3">
-                <Link to={`/discover?q=${encodeURIComponent(query)}&recovery=ask_people`} className="rounded-2xl border border-[#ff5500]/35 bg-[#ff5500]/10 p-5 transition hover:border-[#ff5500] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-                  <MessageCircle className="h-5 w-5 text-[#ff7a25]" />
-                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.askPeople")}</span>
-                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.askPeopleCopy")}</span>
-                </Link>
-                <Link to={`/?q=${encodeURIComponent(query)}&recovery=request_something#ask`} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#ff5500]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-                  <Megaphone className="h-5 w-5 text-[#ff7a25]" />
-                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.requestSomething")}</span>
-                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.requestSomethingCopy")}</span>
-                </Link>
-                <button type="button" onClick={() => { setInputValue(""); setSearchParams({ category: activeTab }); }} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
-                  <SearchIcon className="h-5 w-5 text-white/65" />
-                  <span className="mt-4 block font-bold text-white">{t("findOrAsk.searchAgain")}</span>
-                  <span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.searchAgainCopy")}</span>
-                </button>
-              </div>
+              <FindOrAskRecoveryPanel
+                query={query}
+                city={city}
+                source={source}
+                recovery={recovery}
+                onSearchAgain={() => {
+                  setInputValue("");
+                  setSearchParams({ category: activeTab });
+                }}
+              />
               <p className="mt-6 text-center text-xs font-bold text-emerald-300">{t("findOrAsk.notPoll")}</p>
             </div>
           )}
