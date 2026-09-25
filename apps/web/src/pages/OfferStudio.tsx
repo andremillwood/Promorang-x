@@ -14,6 +14,7 @@ import { OfferFulfillmentQueue } from "@/components/offers/OfferFulfillmentQueue
 import { OfferIssuancePass } from "@/components/offers/OfferIssuancePass";
 import { OfferQrScanner } from "@/components/offers/OfferQrScanner";
 import { useCreateOffer, useDirectOfferClaim, useOfferWallet, useOwnerOffers, usePublicOffers, useRedeemOffer, useUpdateOffer } from "@/hooks/useOffers";
+import { useFindOrAskOriginOutcome } from "@/hooks/useFindOrAskOriginOutcome";
 import { decodeOfferRedeemPayload } from "@promorang/shared";
 import { ArrowRight, Banknote, ChevronDown, Gift, Globe, MapPin, PackageCheck, Plus, QrCode, Radio, ReceiptText, Settings2, Share2, Sparkles, Ticket, Users } from "lucide-react";
 import { useMarket } from "@/contexts/MarketContext";
@@ -201,6 +202,7 @@ const OfferStudio = () => {
   const wallet = useOfferWallet();
   const publicOffers = usePublicOffers();
   const createOffer = useCreateOffer();
+  const originOutcome = useFindOrAskOriginOutcome();
   const updateOffer = useUpdateOffer();
   const directClaim = useDirectOfferClaim();
   const redeemOffer = useRedeemOffer();
@@ -275,7 +277,7 @@ const OfferStudio = () => {
       return;
     }
     try {
-      await createOffer.mutateAsync({
+      const createdOffer = await createOffer.mutateAsync({
         organization_id: activeOrgId,
         owner_type: activeRole || "business",
         title: form.title,
@@ -320,6 +322,15 @@ const OfferStudio = () => {
           },
         }],
       });
+      const attachedToAsk = await originOutcome.attachCreatedOutcome({
+        canonicalObjectType: "offer",
+        canonicalObjectId: String(createdOffer.id),
+        canonicalObjectUrl: `/offers/${encodeURIComponent(createdOffer.id)}`,
+        sourceLabel: createdOffer.title || form.title,
+      });
+      if (originOutcome.hasOrigin && !attachedToAsk) {
+        toast.warning("Offer saved, but PROMORANG could not attach it back to the originating question yet.");
+      }
       toast.success("Offer saved as draft. Review it in Manage, then activate it when the supply and fulfillment terms are ready.");
       setForm({ ...initialForm, city_slug: city.id });
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not create offer"); }
