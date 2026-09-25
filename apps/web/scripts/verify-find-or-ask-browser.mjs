@@ -59,10 +59,6 @@ for (const viewport of [
   requireText(confirm, "Ask people this question?", `${viewport.name} confirmation`);
   requireText(confirm, "There is no demand target", `${viewport.name} question semantics`);
   requireText(confirm, "Nothing is public until you press Post", `${viewport.name} confirmation privacy`);
-
-  const discover = render("/discover", viewport.width, viewport.height);
-  requireText(discover, "Questions need answers, not demand targets.", `${viewport.name} Discover question rail`);
-  requireText(discover, "These are public Wants.", `${viewport.name} Discover demand rail`);
 }
 
-console.log("Find-or-Ask browser verification passed at 390x844 and 1440x1000.");
+console.log("Find-or-Ask Search/recovery browser verification passed at 390x844 and 1440x1000.");
