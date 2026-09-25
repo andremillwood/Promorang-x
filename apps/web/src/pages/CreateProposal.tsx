@@ -209,6 +209,12 @@ export default function CreateProposal() {
   }, [searchParams]);
 
   const { data: availableScenes = [] } = useQuery({ queryKey: ["activation-scenes"], queryFn: async () => { const { data, error } = await operationalSupabase.from("scenes").select("id,title,city").eq("status", "active").order("title").limit(24); if (error) throw error; return data || []; } });
+  useEffect(() => {
+    const requestedSceneId = searchParams.get("scene_id");
+    if (!requestedSceneId || form.scene) return;
+    const match = availableScenes.find((scene: any) => scene.id === requestedSceneId);
+    if (match) setForm((current) => ({ ...current, sceneId: requestedSceneId, scene: match.title }));
+  }, [availableScenes, form.scene, searchParams]);
   const currentGuide = ACTIVATION_CREATION_GUIDANCE[stepDefinitions[step].guide];
 
   const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((current) => ({ ...current, [key]: value }));
