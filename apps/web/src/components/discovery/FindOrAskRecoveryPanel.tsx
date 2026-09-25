@@ -24,20 +24,25 @@ export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearch
   const { t, locale, formatDate } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const selected = validRecovery(recovery);
+  const postedParam = searchParams.get("posted");
   const kind = findOrAskPostKind(selected);
   const create = useCreateFindOrAskDiscovery();
-  const [postedId, setPostedId] = useState<string | null>(() => searchParams.get("posted"));
+  const [postedId, setPostedId] = useState<string | null>(() => postedParam);
   const [duplicate, setDuplicate] = useState(false);
   const outcomes = useFindOrAskOutcomes(postedId);
 
   const authorName = useMemo(() => user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Community member", [user]);
 
   useEffect(() => {
+    if (postedParam) {
+      setPostedId(postedParam);
+      return;
+    }
     setPostedId(null);
     setDuplicate(false);
     create.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, selected]);
+  }, [query, selected, postedParam]);
 
   const choose = (next: "ask_people" | "request_something") => {
     const params = new URLSearchParams(window.location.search);
@@ -70,22 +75,6 @@ export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearch
     void trackGrowthEvent({ eventName: row.duplicate ? "find_or_ask_duplicate_found" : "find_or_ask_posted", journey: "participant", stage: "activated", entityType: kind, entityId: row.discovery_id, properties: { query, city, source, recovery: selected, language: locale } });
   };
 
-  if (!selected || selected === "search_again") {
-    return (
-      <div className="mx-auto mt-8 grid max-w-4xl gap-3 md:grid-cols-3" aria-label={t("findOrAsk.nextChoiceLabel")}>
-        <button type="button" onClick={() => choose("ask_people")} className="rounded-2xl border border-[#ff5500]/35 bg-[#ff5500]/10 p-5 text-left transition hover:border-[#ff5500] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-          <MessageCircle className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.askPeople")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.askPeopleCopy")}</span>
-        </button>
-        <button type="button" onClick={() => choose("request_something")} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#ff5500]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-          <Megaphone className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.requestSomething")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.requestSomethingCopy")}</span>
-        </button>
-        <button type="button" onClick={onSearchAgain} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
-          <Search className="h-5 w-5 text-white/65" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.searchAgain")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.searchAgainCopy")}</span>
-        </button>
-      </div>
-    );
-  }
-
   if (postedId) {
     const firstOutcome = outcomes.data?.[0];
     return (
@@ -102,6 +91,22 @@ export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearch
           </div>
         ) : <p className="mt-4 text-xs leading-5 text-white/45">{t("findOrAsk.noAnswerYet")}</p>}
         <Button type="button" variant="ghost" onClick={cancel} className="mt-4 px-0 text-xs text-white/55 hover:bg-transparent hover:text-white"><RotateCcw className="mr-2 h-3.5 w-3.5" />{t("findOrAsk.backToSearch")}</Button>
+      </div>
+    );
+  }
+
+  if (!selected || selected === "search_again") {
+    return (
+      <div className="mx-auto mt-8 grid max-w-4xl gap-3 md:grid-cols-3" aria-label={t("findOrAsk.nextChoiceLabel")}>
+        <button type="button" onClick={() => choose("ask_people")} className="rounded-2xl border border-[#ff5500]/35 bg-[#ff5500]/10 p-5 text-left transition hover:border-[#ff5500] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
+          <MessageCircle className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.askPeople")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.askPeopleCopy")}</span>
+        </button>
+        <button type="button" onClick={() => choose("request_something")} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#ff5500]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
+          <Megaphone className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.requestSomething")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.requestSomethingCopy")}</span>
+        </button>
+        <button type="button" onClick={onSearchAgain} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
+          <Search className="h-5 w-5 text-white/65" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.searchAgain")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.searchAgainCopy")}</span>
+        </button>
       </div>
     );
   }
