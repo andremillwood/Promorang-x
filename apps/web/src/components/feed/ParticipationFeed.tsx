@@ -58,6 +58,22 @@ export function ParticipationFeed() {
       return data || [];
     },
   });
+  const joinedSceneIds = (sceneMemberships.data || []).map((membership: any) => membership.scene_id);
+  const momentIds = (moments.data?.moments || []).map((moment) => moment.id).filter(Boolean);
+  const sceneMomentLinks = useQuery({
+    queryKey: ["movement-feed-scene-moment-links", joinedSceneIds, momentIds],
+    enabled: Boolean(joinedSceneIds.length && momentIds.length),
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("moment_scene_links")
+        .select("moment_id,scene_id")
+        .in("scene_id", joinedSceneIds)
+        .in("moment_id", momentIds);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+  const joinedMomentIds = new Set((sceneMomentLinks.data || []).map((link: any) => link.moment_id));
 
   const momentItems: FeedItem[] = (moments.data?.moments || [])
     .filter((moment) => moment.lifecycle !== "recently_ended")
@@ -108,15 +124,25 @@ export function ParticipationFeed() {
     };
   });
 
+  const relevance = (item: FeedItem) => {
+    if (item.kind === "scene" && item.sceneState === "joined") return 0;
+    if (item.kind === "moment" && joinedMomentIds.has(item.id.replace("moment-", ""))) return 1;
+    if (item.kind === "discovery") return 2;
+    if (item.kind === "drop") return 3;
+    if (item.kind === "scene") return 4;
+    return 5;
+  };
   const mixed = [...momentItems, ...dropItems, ...discoveryItems, ...sceneItems].sort((a, b) => {
+    const relevanceDelta = relevance(a) - relevance(b);
+    if (relevanceDelta) return relevanceDelta;
     if (a.startsAt && b.startsAt) return new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime();
     if (a.startsAt) return -1;
     if (b.startsAt) return 1;
     return a.kind.localeCompare(b.kind);
   });
 
-  const isLoading = moments.isLoading || drops.isLoading || nearby.isLoading || discoveries.isLoading || scenes.isLoading || sceneMemberships.isLoading;
-  const hasError = moments.isError || drops.isError || nearby.isError || discoveries.isError || scenes.isError || sceneMemberships.isError;
+  const isLoading = moments.isLoading || drops.isLoading || nearby.isLoading || discoveries.isLoading || scenes.isLoading || sceneMemberships.isLoading || sceneMomentLinks.isLoading;
+  const hasError = moments.isError || drops.isError || nearby.isError || discoveries.isError || scenes.isError || sceneMemberships.isError || sceneMomentLinks.isError;
   const perks = (nearby.data || []).slice(0, 3);
 
   return (
