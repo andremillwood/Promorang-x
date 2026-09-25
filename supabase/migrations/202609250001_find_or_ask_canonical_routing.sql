@@ -40,7 +40,7 @@ create index if not exists idx_discovery_questions_find_or_ask_origin
   on public.discovery_questions(origin_user_id, semantic_kind, created_at desc)
   where origin_user_id is not null;
 
-create index if not exists idx_discovery_questions_find_or_ask_duplicate
+create unique index if not exists idx_discovery_questions_find_or_ask_duplicate
   on public.discovery_questions(origin_user_id, semantic_kind, lower(origin_query), lower(coalesce(origin_city, '')))
   where origin_user_id is not null and origin_query is not null and status = 'active';
 
@@ -73,6 +73,7 @@ create table if not exists public.discovery_supports (
 );
 
 alter table public.discovery_supports enable row level security;
+grant select, insert on public.discovery_supports to authenticated;
 drop policy if exists "Users can read own discovery support" on public.discovery_supports;
 create policy "Users can read own discovery support"
   on public.discovery_supports for select to authenticated
@@ -83,6 +84,7 @@ create policy "Users can support discovery demand"
   with check (user_id = (select auth.uid()));
 
 alter table public.discovery_outcomes enable row level security;
+grant select, insert on public.discovery_outcomes to authenticated;
 
 drop policy if exists "Originators can read discovery outcomes" on public.discovery_outcomes;
 create policy "Originators can read discovery outcomes"
@@ -138,6 +140,13 @@ begin
   end if;
   v_semantic := p_kind;
 
+  perform pg_advisory_xact_lock(
+    hashtextextended(
+      concat_ws('|', v_user::text, v_semantic, lower(v_query), lower(coalesce(v_city, ''))),
+      0
+    )
+  );
+
   select q.id into v_existing
   from public.discovery_questions q
   where q.origin_user_id = v_user
@@ -173,6 +182,12 @@ begin
     p_recovery, 'unreviewed',
     jsonb_build_object('find_or_ask', true, 'privacy', 'public_after_confirmation', 'submitted_at', now())
   );
+
+  if v_semantic = 'demand' then
+    insert into public.discovery_supports(discovery_id, user_id)
+    values (v_id, v_user)
+    on conflict (discovery_id, user_id) do nothing;
+  end if;
 
   return query select v_id, false, v_semantic, 'active'::text;
 end;
@@ -218,9 +233,7 @@ $$;
 revoke all on function public.support_find_or_ask_demand(uuid) from public;
 grant execute on function public.support_find_or_ask_demand(uuid) to authenticated;
 
-create or replace view public.view_public_find_or_ask_discoveries
-with (security_invoker = true)
-as
+create or replace view public.view_public_find_or_ask_discoveries as
 select
   q.id, q.question, q.category, q.author_name, q.semantic_kind,
   q.origin_city as city, q.origin_language as language, q.origin_source as source,
@@ -233,14 +246,13 @@ select
   ) as has_answer
 from public.discovery_questions q
 where q.status = 'active'
+  and q.metadata->>'find_or_ask' = 'true'
   and q.question_type in ('community_question', 'demand')
   and q.moderation_status <> 'hidden';
 
 grant select on public.view_public_find_or_ask_discoveries to anon, authenticated;
 
-create or replace view public.view_public_discovery_outcomes
-with (security_invoker = true)
-as
+create or replace view public.view_public_discovery_outcomes as
 select
   o.id, o.discovery_id, o.stakeholder_role, o.action_kind,
   o.canonical_object_type, o.canonical_object_id, o.canonical_object_url,
