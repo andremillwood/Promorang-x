@@ -33,7 +33,7 @@ export function stakeholderRoutes(role: string | null | undefined, discoveryId: 
   if (role === "brand") {
     return [
       { action: "validate", objectType: "proof", href: withOrigin("/activate", discoveryId, "validate"), labelKey: "findOrAsk.route.validate" },
-      { action: "sponsor", objectType: "offer", href: withOrigin("/activate", discoveryId, "sponsor"), labelKey: "findOrAsk.route.sponsor" },
+      { action: "sponsor", objectType: "offer", href: withOrigin("/offers", discoveryId, "sponsor"), labelKey: "findOrAsk.route.sponsor" },
       { action: "commission", objectType: "opportunity", href: withOrigin("/stock", discoveryId, "commission"), labelKey: "findOrAsk.route.commission" },
     ];
   }
