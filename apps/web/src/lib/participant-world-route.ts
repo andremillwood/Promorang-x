@@ -1,4 +1,5 @@
 const participantJourneyRoots = [
+  "/today",
   "/dashboard",
   "/home",
   "/discover",
@@ -30,6 +31,7 @@ export function isParticipantWorldRoute(
 
   if (pathname === "/dashboard" && view === "studio") return false;
   if (pathname === "/dashboard" && view === "people") return true;
+  if (pathname === "/today") return true;
   if (pathname === "/home") return true;
 
   return (
