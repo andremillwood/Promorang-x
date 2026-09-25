@@ -24,6 +24,7 @@ import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { RELEASE_KINDS, RELEASE_KIND_META, type ReleaseKind } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 import { useToast } from "@/hooks/use-toast";
+import { useFindOrAskOriginOutcome } from "@/hooks/useFindOrAskOriginOutcome";
 
 const defaultDrop = {
   title: "",
@@ -130,6 +131,7 @@ export default function ContentDrops() {
   const dropsQuery = useContentDrops("active");
   const myDropsQuery = useMyContentDrops("all");
   const createDrop = useCreateContentDrop();
+  const originOutcome = useFindOrAskOriginOutcome();
   const addAsset = useAddContentDropAsset();
   const updateStatus = useUpdateContentDropStatus();
   const [draft, setDraft] = useState(defaultDrop);
@@ -192,6 +194,21 @@ export default function ContentDrops() {
       });
 
       await updateStatus.mutateAsync({ campaignId, status: "active" });
+
+      const attachedToAsk = await originOutcome.attachCreatedOutcome({
+        canonicalObjectType: "content",
+        canonicalObjectId: campaignId,
+        canonicalObjectUrl: `/content-drops/${encodeURIComponent(campaignId)}`,
+        sourceLabel: draft.title,
+        sourceUrl: draft.external_url || undefined,
+      });
+      if (originOutcome.hasOrigin && !attachedToAsk) {
+        toast({
+          title: "Release published; response link needs attention",
+          description: "The Content Drop is live, but PROMORANG could not attach it back to the originating question yet.",
+          variant: "destructive",
+        });
+      }
 
       setDraft(defaultDrop);
       toast({
