@@ -34,9 +34,9 @@ export default function ActivatePage() {
     if (originAction) origin.set("origin_action", originAction);
     const suffix = origin.toString() ? `?${origin.toString()}` : "";
     if (user) {
-      navigate(`/dashboard/campaigns/create${suffix}`);
+      navigate(`/create/campaign${suffix}`);
     } else {
-      navigate(`/auth?role=brand&next=${encodeURIComponent(`/dashboard/campaigns/create${suffix}`)}`);
+      navigate(`/auth?role=brand&next=${encodeURIComponent(`/create/campaign${suffix}`)}`);
     }
   };
 
