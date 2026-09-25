@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Check, Radio, Share2, Users } from "lucide-react";
+import { ArrowRight, Check, Radio, Share2, Sparkles, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
@@ -15,6 +15,7 @@ type DemandSignalObjectProps = {
   threshold?: number | null;
   matchedAsk?: string | null;
   responseLabel?: string | null;
+  benefitLabel?: string | null;
   href: string;
   shareHref?: string;
   actionLabel?: string;
@@ -37,6 +38,7 @@ export function DemandSignalObject({
   threshold,
   matchedAsk,
   responseLabel,
+  benefitLabel,
   href,
   shareHref,
   actionLabel = "Open Want",
@@ -105,9 +107,14 @@ export function DemandSignalObject({
                 </p>
               ) : null}
               {responseLabel ? (
-                <p className="mt-2 max-w-xl text-sm leading-6 text-[#5a493d]">
-                  {t("clarity.whatCouldHappen")} <span className="font-bold text-[#1a120c]">{responseLabel}</span>
-                </p>
+                <div className="mt-4 rounded-xl border border-orange-900/15 bg-orange-50/55 px-4 py-3">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-orange-800">
+                    <Sparkles className="h-3.5 w-3.5" /> {t("clarity.whatCouldOpenForYou")}
+                  </div>
+                  <p className="mt-1.5 text-sm font-bold leading-6 text-[#1a120c]">{responseLabel}</p>
+                </div>
+              ) : benefitLabel ? (
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[#5a493d]">{benefitLabel}</p>
               ) : null}
             </div>
 
@@ -133,7 +140,7 @@ export function DemandSignalObject({
                   <div className="h-full rounded-full bg-orange-600 transition-[width] duration-500" style={{ width: `${progress}%` }} />
                 </div>
               ) : null}
-              <p className="mt-3 text-[10px] font-medium leading-4 text-[#7a6554]">{t("clarity.signalExplanation")}</p>
+              <p className="mt-3 text-[10px] font-medium leading-4 text-[#7a6554]">{responseLabel ? t("clarity.responseBenefitExplanation") : t("clarity.signalExplanation")}</p>
               <button
                 type="button"
                 onClick={() => void shareWant()}
