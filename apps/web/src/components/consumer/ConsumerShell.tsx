@@ -1,16 +1,15 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Compass, Gift, Home, User, WalletCards } from "lucide-react";
+import { Archive, Compass, Home, WalletCards } from "lucide-react";
 import promorangLogo from "@/assets/promorang-logo-full.png";
 import { CONSUMER_PRIMARY_NAV } from "@/lib/consumer-canonical";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navIcons = {
-  Home,
+  Today: Home,
   Discover: Compass,
   PromoCard: WalletCards,
-  Rewards: Gift,
-  You: User,
+  Vault: Archive,
 } as const;
 
 interface ConsumerShellProps {
@@ -95,7 +94,7 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
 
       <nav
         aria-label="Mobile consumer navigation"
-        className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-50 grid grid-cols-5 rounded-2xl border border-white/15 bg-[#0D0D0E]/95 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-50 grid grid-cols-4 rounded-2xl border border-white/15 bg-[#0D0D0E]/95 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
       >
         {CONSUMER_PRIMARY_NAV.map((item) => {
           const active = isActivePath(location.pathname, item.href);
