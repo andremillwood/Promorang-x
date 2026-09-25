@@ -97,16 +97,19 @@ export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearch
 
   if (!selected || selected === "search_again") {
     return (
-      <div className="mx-auto mt-8 grid max-w-4xl gap-3 md:grid-cols-3" aria-label={t("findOrAsk.nextChoiceLabel")}>
-        <button type="button" onClick={() => choose("ask_people")} className="rounded-2xl border border-[#ff5500]/35 bg-[#ff5500]/10 p-5 text-left transition hover:border-[#ff5500] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-          <MessageCircle className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.askPeople")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.askPeopleCopy")}</span>
-        </button>
-        <button type="button" onClick={() => choose("request_something")} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#ff5500]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
-          <Megaphone className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.requestSomething")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.requestSomethingCopy")}</span>
-        </button>
-        <button type="button" onClick={onSearchAgain} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
-          <Search className="h-5 w-5 text-white/65" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.searchAgain")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.searchAgainCopy")}</span>
-        </button>
+      <div className="mx-auto mt-8 max-w-4xl">
+        <p className="mb-4 text-center text-sm leading-6 text-white/55">{t("findOrAsk.noExactCopy")}</p>
+        <div className="grid gap-3 md:grid-cols-3" aria-label={t("findOrAsk.nextChoiceLabel")}>
+          <button type="button" onClick={() => choose("ask_people")} className="rounded-2xl border border-[#ff5500]/35 bg-[#ff5500]/10 p-5 text-left transition hover:border-[#ff5500] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
+            <MessageCircle className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.askPeople")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.askPeopleCopy")}</span>
+          </button>
+          <button type="button" onClick={() => choose("request_something")} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-[#ff5500]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5500]">
+            <Megaphone className="h-5 w-5 text-[#ff7a25]" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.requestSomething")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.requestSomethingCopy")}</span>
+          </button>
+          <button type="button" onClick={onSearchAgain} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50">
+            <Search className="h-5 w-5 text-white/65" /><span className="mt-4 block font-bold text-white">{t("findOrAsk.searchAgain")}</span><span className="mt-1 block text-xs leading-5 text-white/50">{t("findOrAsk.searchAgainCopy")}</span>
+          </button>
+        </div>
       </div>
     );
   }
