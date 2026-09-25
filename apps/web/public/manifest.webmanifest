@@ -1,16 +1,25 @@
 {
   "id": "/?source=pwa",
-  "name": "Promorang Platform",
+  "name": "Promorang",
   "short_name": "Promorang",
-  "description": "Discover live moments, claim member perks, host events, and earn rewards.",
+  "description": "Find what moves you, signal what you want, keep access on PromoCard, and return when something changes.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui", "window-controls-overlay"],
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "window-controls-overlay"
+  ],
   "background_color": "#080808",
   "theme_color": "#ff6a00",
   "orientation": "portrait-primary",
-  "categories": ["lifestyle", "social", "entertainment", "travel"],
+  "categories": [
+    "lifestyle",
+    "social",
+    "entertainment",
+    "travel"
+  ],
   "icons": [
     {
       "src": "/favicon.png",
@@ -27,32 +36,52 @@
   ],
   "shortcuts": [
     {
-      "name": "Explore Moments",
-      "short_name": "Explore",
-      "description": "Discover live events and cultural gatherings near you",
+      "name": "Today",
+      "short_name": "Today",
+      "description": "Open your current Promorang moves and returns",
+      "url": "/today",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Discover",
+      "short_name": "Discover",
+      "description": "Find places, moments, scenes and possibilities",
       "url": "/discover",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
-      "name": "Rewards Hub",
-      "short_name": "Rewards",
-      "description": "Claim member perks, discounts and Gems",
-      "url": "/rewards",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+      "name": "PromoCard",
+      "short_name": "Card",
+      "description": "Open your Promorang access and continuity card",
+      "url": "/card",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
-      "name": "Host a Moment",
-      "short_name": "Host",
-      "description": "Create a moment and sell ticket passes",
-      "url": "/hosting",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "My Wallet",
-      "short_name": "Wallet",
-      "description": "View balance, gems, and digital passes",
-      "url": "/wallet",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+      "name": "Vault",
+      "short_name": "Vault",
+      "description": "Return to access, proof and things you have kept",
+      "url": "/vault",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
