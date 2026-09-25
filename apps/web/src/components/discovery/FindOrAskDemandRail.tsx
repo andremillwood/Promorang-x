@@ -42,7 +42,7 @@ export function FindOrAskDemandRail({ city, query }: { city?: string; query?: st
         const target = Number(row.demand_target || 0);
         const progress = target > 0 ? Math.min(100, Math.round((count / target) * 100)) : 0;
         const isSubmitting = support.isPending && support.variables === row.id;
-        const added = supportedId === row.id;
+        const added = supportedId === row.id || Boolean(row.user_supported);
         return (
           <article key={row.id} className="rounded-[1.6rem] border border-orange-400/20 bg-orange-400/[0.045] p-5">
             <div className="flex items-center justify-between gap-3">
@@ -52,8 +52,9 @@ export function FindOrAskDemandRail({ city, query }: { city?: string; query?: st
             <h3 className="mt-4 text-xl font-black leading-snug text-white">{row.question}</h3>
             {row.city ? <p className="mt-3 flex items-center gap-1 text-[11px] text-white/42"><MapPin className="h-3 w-3 text-orange-300" />{row.city}</p> : null}
             <div className="mt-5 flex items-center justify-between text-xs"><span className="inline-flex items-center gap-2 font-black text-white"><Users className="h-4 w-4 text-orange-300" />{t("findOrAsk.peopleWantCount", { count: formatNumber(count) })}</span>{target > 0 ? <span className="text-white/40">{t("findOrAsk.demandTarget", { count: formatNumber(target) })}</span> : null}</div>
-            {target > 0 ? <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" aria-label={t("findOrAsk.demandProgressLabel")}><div className="h-full rounded-full bg-orange-400 transition-all" style={{ width: `${progress}%` }} /></div> : null}
+            {target > 0 ? <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-label={t("findOrAsk.demandProgressLabel")} aria-valuemin={0} aria-valuemax={target} aria-valuenow={count}><div className="h-full rounded-full bg-orange-400 transition-all" style={{ width: `${progress}%` }} /></div> : null}
             <p className="mt-4 text-xs leading-5 text-white/45">{t("findOrAsk.demandSupportRule")}</p>
+            {support.isError && support.variables === row.id ? <p role="alert" className="mt-4 text-xs text-red-200">{t("findOrAsk.supportError")}</p> : null}
             <div className="mt-5">
               {user ? (
                 <button type="button" onClick={() => void addSupport(row.id)} disabled={isSubmitting || added} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black transition hover:bg-orange-400 disabled:opacity-60">
