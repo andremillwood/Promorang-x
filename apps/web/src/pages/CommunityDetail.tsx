@@ -49,7 +49,23 @@ export default function CommunityDetail() {
     }
     : state;
   const metadata = scene.metadata || {};
-  const share = () => navigator.share?.({ title: scene.title, text: scene.description || undefined, url: window.location.href }).catch(() => undefined);
+  const share = async () => {
+    let url = window.location.href;
+    if (user) {
+      try {
+        const result = await invite.mutateAsync(scene.slug);
+        url = result.shareUrl || url;
+      } catch {
+        // Sharing remains available without claiming attribution if invite creation is unavailable.
+      }
+    }
+    if (navigator.share) {
+      await navigator.share({ title: scene.title, text: scene.description || undefined, url }).catch(() => undefined);
+      return;
+    }
+    await navigator.clipboard.writeText(url).catch(() => undefined);
+    toast({ title: "Scene link copied", description: user ? "The link carries your recorded Scene invite attribution. A share is not a conversion or reward." : "Sign in before sharing when you want Scene invite attribution." });
+  };
   const handleJoin = async () => {
     if (!user) { window.location.assign(`/auth?next=${encodeURIComponent(`/scenes/${scene.slug}`)}`); return; }
     try {
