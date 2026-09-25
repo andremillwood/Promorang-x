@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   ArrowRight, 
@@ -19,6 +19,7 @@ export default function ActivatePage() {
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activeStats, setActiveStats] = useState({
     earners: 127,
     payout: 0.3,
@@ -26,10 +27,16 @@ export default function ActivatePage() {
   });
 
   const handleCtaClick = () => {
+    const origin = new URLSearchParams();
+    const discoveryId = searchParams.get("origin_discovery");
+    const originAction = searchParams.get("origin_action");
+    if (discoveryId) origin.set("origin_discovery", discoveryId);
+    if (originAction) origin.set("origin_action", originAction);
+    const suffix = origin.toString() ? `?${origin.toString()}` : "";
     if (user) {
-      navigate('/dashboard/campaigns/create');
+      navigate(`/dashboard/campaigns/create${suffix}`);
     } else {
-      navigate('/auth?role=brand');
+      navigate(`/auth?role=brand&next=${encodeURIComponent(`/dashboard/campaigns/create${suffix}`)}`);
     }
   };
 
