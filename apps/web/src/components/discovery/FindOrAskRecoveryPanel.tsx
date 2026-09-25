@@ -81,7 +81,7 @@ export function FindOrAskRecoveryPanel({ query, city, source, recovery, onSearch
       <div role="status" className="mx-auto mt-8 max-w-2xl rounded-3xl border border-emerald-400/25 bg-emerald-400/[0.06] p-6 text-left">
         <CheckCircle2 className="h-6 w-6 text-emerald-300" />
         <h4 className="mt-4 text-xl font-black text-white">{duplicate ? t("findOrAsk.duplicateTitle") : t("findOrAsk.postedTitle")}</h4>
-        <p className="mt-2 text-sm leading-6 text-white/60">{kind === "question" ? t("findOrAsk.questionPostedCopy") : t("findOrAsk.demandPostedCopy")}</p>
+        <p className="mt-2 text-sm leading-6 text-white/60">{kind === "question" ? t("findOrAsk.questionPostedCopy") : kind === "demand" ? t("findOrAsk.demandPostedCopy") : t("findOrAsk.responseStatusCopy")}</p>
         {outcomes.isLoading ? <p className="mt-4 text-xs text-white/45">{t("findOrAsk.checkingAnswers")}</p> : firstOutcome ? (
           <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-4">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-300">{t("findOrAsk.answerReturned")}</p>
