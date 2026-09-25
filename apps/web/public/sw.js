@@ -1,8 +1,6 @@
 // Promorang Production PWA Service Worker
-const CACHE_NAME = 'promorang-pwa-v2026-09-05';
+const CACHE_NAME = 'promorang-pwa-shell-v2026-09-25';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
   '/manifest.webmanifest',
   '/favicon.png',
   '/apple-touch-icon.png',
@@ -57,7 +55,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-First for assets with cache fallback
+  // Keep live product data and third-party assets out of the app-shell cache.
+  // Only same-origin static GET assets are eligible for runtime caching.
+  if (url.origin !== self.location.origin) return;
+
+  // Network-First for same-origin static assets with cache fallback
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
