@@ -11,6 +11,8 @@ import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { discoverPathHref } from "@/lib/discovery-path";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { FindOrAskQuestionRail } from "@/components/discovery/FindOrAskQuestionRail";
+import { FindOrAskDemandRail } from "@/components/discovery/FindOrAskDemandRail";
+import { useFindOrAskDiscoveries } from "@/hooks/useFindOrAsk";
 import { useI18n } from "@/i18n/I18nContext";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { TasteCalibration } from "@/components/promorang/TasteCalibration";
@@ -31,7 +33,7 @@ function signalState(votesRemaining: number, closeness: "unlocking" | "warming" 
   return closeness;
 }
 
-type ResultType = "all" | "discoveries" | "moments" | "offers" | "wants";
+type ResultType = "all" | "discoveries" | "moments" | "offers" | "questions" | "wants";
 type InterestFilter = "all" | "food" | "music" | "culture" | "outdoors";
 
 const interestFilters: Array<{ id: InterestFilter; label: string; terms: string[] }> = [
@@ -73,6 +75,7 @@ export function PublicDiscoverExperience() {
 
   const discoveriesQuery = useDiscoveries({ city: cityFilter, limit: 24 });
   const demand = useDiscoveryDemand(city.name, country.slug || "jamaica", city.id === "all-jamaica" ? undefined : city.id);
+  const findOrAskQuery = useFindOrAskDiscoveries(city.name);
   const momentsQuery = useCanonicalMomentFeed();
   const offersQuery = usePublicOffers();
 
@@ -117,11 +120,19 @@ export function PublicDiscoverExperience() {
     [demand.inbox.questions, normalizedQuery, interest],
   );
 
+  const explicitQuestions = (findOrAskQuery.data || []).filter((row) =>
+    row.semantic_kind === "question" && matchesDiscoverySearch([row.question, row.city], normalizedQuery, interest),
+  );
+  const explicitDemands = (findOrAskQuery.data || []).filter((row) =>
+    row.semantic_kind === "demand" && matchesDiscoverySearch([row.question, row.city], normalizedQuery, interest),
+  );
+
   const resultCounts = {
     discoveries: filteredDiscoveries.length,
     moments: filteredMoments.length,
     offers: filteredOffers.length,
-    wants: filteredSignals.length,
+    questions: explicitQuestions.length,
+    wants: filteredSignals.length + explicitDemands.length,
   };
   const totalResults = Object.values(resultCounts).reduce((total, count) => total + count, 0);
   const hasFilters = Boolean(normalizedQuery) || interest !== "all" || resultType !== "all";
@@ -194,13 +205,13 @@ export function PublicDiscoverExperience() {
         <div className="mx-auto flex max-w-[1440px] items-center gap-3 overflow-x-auto scrollbar-none">
           <span className="flex shrink-0 items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/40"><Filter className="h-3.5 w-3.5" /> {t("publicDiscover.show")}</span>
           {([
-            ["all", t("publicDiscover.allResults"), totalResults], ["discoveries", "Discoveries", resultCounts.discoveries], ["moments", "Moments", resultCounts.moments], ["offers", "Offers", resultCounts.offers], ["wants", "Wants", resultCounts.wants],
+            ["all", t("publicDiscover.allResults"), totalResults], ["discoveries", t("findOrAsk.resultDiscoveries"), resultCounts.discoveries], ["moments", t("search.moments"), resultCounts.moments], ["offers", t("findOrAsk.resultOffers"), resultCounts.offers], ["questions", t("common.questions"), resultCounts.questions], ["wants", t("publicNav.wanted"), resultCounts.wants],
           ] as Array<[ResultType, string, number]>).map(([id, label, count]) => <button key={id} type="button" onClick={() => setResultType(id)} aria-pressed={resultType === id} className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold transition ${resultType === id ? "border-orange-400 bg-orange-400/15 text-orange-200" : "border-white/10 text-white/55 hover:border-white/25 hover:text-white"}`}>{label} <span className="ml-1 text-[10px] opacity-60">{count}</span></button>)}
           {hasFilters ? <button type="button" onClick={clearFilters} className="ml-auto flex shrink-0 items-center gap-1.5 px-2 py-2 text-xs font-bold text-white/45 hover:text-white"><X className="h-3.5 w-3.5" /> {t("publicDiscover.reset")}</button> : null}
         </div>
       </section>
 
-      {resultType === "all" && <section className="border-b border-white/10 bg-black px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "questions") && <section className="border-b border-white/10 bg-black px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
@@ -224,7 +235,8 @@ export function PublicDiscoverExperience() {
             <Link to="/#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{t("publicDiscover.putSomethingElse")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
 
-          {demand.isLoading && !liveSignals.length ? <p className="text-sm text-white/45">{t("publicDiscover.loadingWants")}</p> : null}
+          {(demand.isLoading || findOrAskQuery.isLoading) && !liveSignals.length && !explicitDemands.length ? <p className="text-sm text-white/45">{t("publicDiscover.loadingWants")}</p> : null}
+          <FindOrAskDemandRail city={city.name} query={normalizedQuery} />
           {liveSignals.length ? (
             <div className="marketing-demand-rail">
               {liveSignals.map((signal) => (
@@ -243,7 +255,7 @@ export function PublicDiscoverExperience() {
                 />
               ))}
             </div>
-          ) : !demand.isLoading ? (
+          ) : !demand.isLoading && !findOrAskQuery.isLoading && !explicitDemands.length ? (
             <div className="marketing-compact-empty">
               <Users className="h-5 w-5 text-orange-400" />
               <div><p className="text-sm font-black">{t("publicDiscover.noWantsTitle")}</p><p className="mt-1 text-xs leading-5 text-white/45">{t("publicDiscover.noWantsCopy")}</p></div>
