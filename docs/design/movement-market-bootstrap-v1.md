@@ -59,6 +59,31 @@ The canonical distinctions remain:
 - Proof submission ≠ verified consequence
 - Watch ≠ entitlement
 
+## Human language rule
+
+The system may need precise operational states. The participant should experience what happened, not the database record.
+
+> **The system verifies. The product remembers. The person experiences.**
+
+Participant-facing surfaces should prefer:
+
+- demand signal → **I want this**
+- operator response → **Someone answered**
+- check-in → **I’m here**
+- pending proof → **We’re checking it**
+- approved proof / verified attendance → **You were there** / **You were part of this** / **It counts**
+- attributed referral → **You brought people**
+- creator attribution → **You helped move this**
+- memory issued → **You kept a Piece**
+- retained consequence → **Because you were part of it…**
+- return recommendation → **What will you move next?**
+
+Product-writing law:
+
+> **Never describe the record when you can describe what happened to the person.**
+
+Precision terms such as verification, evidence, attribution, redemption and settlement remain valid in APIs, admin/operator audit surfaces, compliance contexts and places where the distinction itself is necessary. Human language must never erase the underlying truth gate.
+
 ## Public mental model
 
 The user should understand:
