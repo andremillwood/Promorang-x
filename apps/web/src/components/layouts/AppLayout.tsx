@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
 import { PublicHomeBar } from "@/components/culture/PublicHomeBar";
+import { PublicMobileNav } from "@/components/culture/PublicMobileNav";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { useState, useEffect } from "react";
@@ -86,12 +87,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     if (isMarketingRoute) {
         return (
-            <div className="flex min-h-screen flex-col overflow-x-clip">
+            <div className="public-pwa-shell flex min-h-screen flex-col overflow-x-clip">
                 {!isCleanPage && <PublicHomeBar />}
                 <main className="flex-1 overflow-x-clip">
                     {children || <Outlet />}
                 </main>
                 {!isCleanPage && <Footer showCta={showFooterCta} />}
+                {!isCleanPage && <PublicMobileNav />}
             </div>
         );
     }
