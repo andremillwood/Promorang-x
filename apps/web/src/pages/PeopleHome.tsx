@@ -145,6 +145,12 @@ export default function PeopleHome() {
     crewMark: world?.promoCard?.crewMark,
     recordedUse: Boolean(data?.card?.useThis?.redemption?.recorded),
   });
+  const hasCardValue = Boolean(
+    data?.card?.useThis
+    || data?.card?.nextBenefit
+    || data?.card?.perks?.length
+    || world?.latestReturn,
+  );
 
   if (isMemberWorkspace) {
     const localCity = String(data?.city?.name || data?.market?.city || "Kingston");
@@ -174,33 +180,47 @@ export default function PeopleHome() {
         seoTitle={t("people.homeSeo")}
         description={description}
         hero={(
-          <section className="group relative min-h-[calc(100dvh-10.5rem)] overflow-hidden rounded-[1.35rem] border border-white/10 bg-black sm:min-h-[660px] sm:rounded-[1.6rem] lg:min-h-[610px]">
+          <section className="group relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-black sm:rounded-[1.6rem]">
             <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-1000 group-hover:scale-[1.015]" />
-            <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,.98)_0%,rgba(0,0,0,.72)_56%,rgba(0,0,0,.18)_100%)] sm:bg-[linear-gradient(90deg,rgba(0,0,0,.96)_0%,rgba(0,0,0,.78)_47%,rgba(0,0,0,.32)_76%),linear-gradient(0deg,rgba(0,0,0,.92)_0%,transparent_60%)]" />
-            <div className="relative z-10 flex min-h-[calc(100dvh-10.5rem)] max-w-[760px] flex-col justify-between p-5 pb-[205px] sm:min-h-[660px] sm:p-10 sm:pb-[300px] lg:min-h-[610px] lg:max-w-[66%] lg:p-12">
-              <div>
-                <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500] shadow-[0_0_14px_rgba(255,101,0,.9)]" />{localCity} · Today</p>
-                <p className="mt-3 text-sm font-semibold text-white/65">{greeting}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[.2em] text-white/75">One move today</p>
-                <h1 className="mt-3 max-w-[680px] font-['Anton'] text-[clamp(2.65rem,13vw,3.45rem)] font-normal uppercase leading-[.88] tracking-[-.035em] text-white sm:text-[4.7rem] lg:text-[5.35rem]">Show up to <span className="text-[#ff6500]">something bigger.</span></h1>
-                <p className="mt-5 max-w-xl text-sm leading-6 text-white/72 sm:text-base"><strong className="font-black text-white">Today: {moveTitle}</strong><br />{moveCopy}</p>
-                <div className="mt-6 grid gap-2.5 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
-                  <Link to={moveTarget} className="inline-flex min-h-12 w-full items-center justify-between gap-4 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20] sm:w-auto sm:justify-start sm:gap-8">Open today’s move <ArrowRight className="h-4 w-4" /></Link>
-                  <Link to={to("/card")} className="hidden min-h-12 items-center gap-8 rounded-md border border-[#d8ad54]/60 bg-black/35 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10 sm:inline-flex">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
+            <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,.99)_0%,rgba(0,0,0,.76)_52%,rgba(0,0,0,.12)_100%)] lg:bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.82)_50%,rgba(0,0,0,.32)_100%),linear-gradient(0deg,rgba(0,0,0,.88),transparent_72%)]" />
+            <div className="relative z-10 grid min-h-[680px] items-end lg:min-h-[640px] lg:grid-cols-[minmax(0,1.14fr)_minmax(330px,.86fr)] lg:gap-8">
+              <div className="flex h-full flex-col justify-end p-5 pt-[clamp(14rem,39vh,22rem)] sm:p-10 sm:pt-[20rem] lg:p-12 lg:pt-12">
+                <div className="mb-auto hidden lg:block">
+                  <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/75"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500] shadow-[0_0_14px_rgba(255,101,0,.9)]" />{localCity} · Today</p>
+                  <p className="mt-3 text-sm font-semibold text-white/72">{greeting}</p>
+                </div>
+                <div>
+                  <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/78 lg:hidden"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500]" />{localCity} · Today</p>
+                  <p className="mt-3 text-sm font-semibold text-white/72 lg:hidden">{greeting}</p>
+                  <p className="mt-7 text-[10px] font-black uppercase tracking-[.2em] text-white/75 lg:mt-0">One move today</p>
+                  <h1 className="mt-3 max-w-[680px] font-['Anton'] text-[clamp(3rem,13vw,4.2rem)] font-normal uppercase leading-[.86] tracking-[-.035em] text-white sm:text-[4.7rem] lg:text-[5.35rem]">Show up to <span className="text-[#ff6500]">something bigger.</span></h1>
+                  <p className="mt-5 max-w-xl text-sm leading-6 text-white/78 sm:text-base"><strong className="font-black text-white">Today: {moveTitle}</strong><br />{moveCopy}</p>
+                  <div className="mt-6 grid gap-2.5 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
+                    <Link to={moveTarget} className="inline-flex min-h-12 w-full items-center justify-between gap-4 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto sm:justify-start sm:gap-8">Open today’s move <ArrowRight className="h-4 w-4" /></Link>
+                    <Link to={to("/card")} className="inline-flex min-h-12 items-center justify-between gap-8 rounded-md border border-[#d8ad54]/60 bg-black/45 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
+                  </div>
                 </div>
               </div>
+              <aside className="p-5 pt-0 sm:p-10 sm:pt-0 lg:flex lg:h-full lg:flex-col lg:justify-end lg:p-12 lg:pl-0">
+                <Link to={to("/card")} aria-label={t("people.openCardAria")} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761] focus-visible:ring-offset-4 focus-visible:ring-offset-black">
+                  <p className="mb-2 text-[9px] font-black uppercase tracking-[.2em] text-[#f2c761]">Your primary access layer</p>
+                  {hasCardValue ? (
+                    <PromoCardFace className="max-w-full shadow-[0_24px_70px_rgba(0,0,0,.62)] transition duration-500 hover:-translate-y-1" interactive={false} model={cardFace} compact />
+                  ) : (
+                    <div className="group/card overflow-hidden rounded-[1.4rem] border border-[#d8ad54]/45 bg-[radial-gradient(circle_at_88%_5%,rgba(216,173,84,.2),transparent_32%),linear-gradient(135deg,rgba(17,17,18,.96),rgba(35,20,12,.94))] p-5 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-md transition hover:border-[#e9c568]/70 sm:p-6">
+                      <div className="flex items-start justify-between gap-5"><div><p className="text-[9px] font-black uppercase tracking-[.2em] text-[#f2c761]">PromoCard · Ready to fill</p><h2 className="mt-3 font-serif text-2xl font-bold text-white">Nothing on your card yet.</h2></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#e9c568]/55 bg-[#d8ad54]/15 font-['Anton'] text-xl text-[#f2c761]">P</span></div>
+                      <p className="mt-3 max-w-md text-sm leading-6 text-white/62">Live perks, access and verified returns will land here when they are available.</p>
+                      <span className="mt-5 inline-flex min-h-11 items-center gap-2 text-xs font-black text-[#f2c761]">Browse live perks <ArrowRight className="h-4 w-4 transition group-hover/card:translate-x-1" /></span>
+                    </div>
+                  )}
+                </Link>
+                {matchedMoment ? <div className="mt-3 rounded-md border border-white/15 bg-black/55 p-4 backdrop-blur">
+                  <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff8a45]">Now moving</p>
+                  <p className="mt-2 text-sm font-bold text-white">{matchedMoment.title}</p>
+                  {(matchedMoment.venue_name || matchedMoment.location) ? <p className="mt-1 text-[10px] leading-4 text-white/55">{matchedMoment.venue_name || matchedMoment.location}</p> : null}
+                </div> : null}
+              </aside>
             </div>
-            <Link to={to("/card")} aria-label={t("people.openCardAria")} className="absolute bottom-4 left-4 right-4 z-20 block sm:bottom-8 sm:left-auto sm:right-8 sm:w-[360px] lg:bottom-10 lg:right-10 lg:w-[390px]">
-              <p className="mb-2 text-[9px] font-black uppercase tracking-[.2em] text-[#f2c761]">Your primary access layer</p>
-              <PromoCardFace className="max-w-full shadow-[0_24px_70px_rgba(0,0,0,.62)] transition duration-500 hover:-translate-y-1" interactive={false} model={cardFace} compact />
-            </Link>
-            {matchedMoment ? <div className="absolute right-6 top-6 z-20 hidden rounded-md border border-white/15 bg-black/55 p-4 backdrop-blur lg:block">
-              <p className="text-[9px] font-black uppercase tracking-[.18em] text-[#ff8a45]">Now moving</p>
-              <p className="mt-2 max-w-[210px] text-sm font-bold text-white">{matchedMoment.title}</p>
-              {(matchedMoment.venue_name || matchedMoment.location) ? <p className="mt-1 max-w-[210px] text-[10px] leading-4 text-white/45">{matchedMoment.venue_name || matchedMoment.location}</p> : null}
-            </div> : null}
           </section>
         )}
       >
