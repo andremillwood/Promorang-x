@@ -20,7 +20,6 @@ import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbo
 import { resolveDemandRole } from "@/lib/discovery-demand";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
-import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 import { ParticipationFeed } from "@/components/feed/ParticipationFeed";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
@@ -211,14 +210,6 @@ export default function PeopleHome() {
             {PREVIEW_ROLES.map((item) => <Link key={item} to={`/app-preview?role=${item}`} data-active={lens.role === item} className="pr-world-chip">{item}</Link>)}
           </nav>
         ) : null}
-
-        <ParticipationEconomy
-          variant="participant"
-          points={Number((data as any)?.card?.points || (data as any)?.wallet?.points || 0)}
-          promoKeys={Number((data as any)?.card?.keys || (data as any)?.wallet?.promokeys || 0)}
-          masterKey={(data as any)?.masterKey || (data as any)?.card?.masterKey || null}
-          className="border-y border-white/10 py-8"
-        />
 
         <ParticipationFeed />
 

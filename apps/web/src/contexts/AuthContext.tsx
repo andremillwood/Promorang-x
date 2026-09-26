@@ -374,8 +374,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const consumerNext = isConsumerPostAuthNext(
         sessionStorage.getItem("promorang_post_auth_next") || localStorage.getItem("promorang_post_auth_next"),
       );
+      const savedRole = localStorage.getItem("promorang_active_role");
       const preferredRole =
-        event === "SIGNED_IN" && fetchedRoles.includes("admin") && !consumerNext
+        event === "SIGNED_IN" && fetchedRoles.includes("admin") && !consumerNext && !savedRole
           ? "admin"
           : resolvePreferredRole(fetchedRoles);
       if (preferredRole) {
@@ -495,6 +496,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setRoles([]);
+    localStorage.removeItem("promorang_active_role");
     clearDemoSession();
   };
 
