@@ -320,7 +320,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-64">
                   <DropdownMenuLabel>{t("dashboard.switchWorkspace")}</DropdownMenuLabel>
-                  {roles.map((role) => {
+                  {Array.from(new Set<UserRole>(["participant", ...roles])).map((role) => {
                     const info = safeRoleInfo(role);
                     const RoleIcon = info.icon;
                     return (
