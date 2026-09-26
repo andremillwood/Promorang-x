@@ -31,6 +31,13 @@ const kindLabel: Record<FeedKind, string> = {
   scene: "Scene",
 };
 
+const consequenceLabel: Record<FeedKind, string> = {
+  moment: "Show up",
+  drop: "Help move it",
+  discovery: "Say what you want",
+  scene: "Find your people",
+};
+
 const kindIcon = {
   moment: CalendarDays,
   drop: Rocket,
