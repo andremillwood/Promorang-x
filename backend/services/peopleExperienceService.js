@@ -9,6 +9,7 @@ const worldSceneBoardService = require('./worldSceneBoardService');
 const { inferPromoCardAimFromText, resolvePromoCardAim, sortBenefitsByAim } = require('../lib/promocardAim');
 const { resolveOfferReach, selectOffersForPlace } = require('./offerAvailability');
 const worldSystemService = require('./worldSystemService');
+const masterKeyMomentumService = require('./masterKeyMomentumService');
 
 const OPERATOR_ROLES = new Set(['operator', 'steward']);
 const CONTRIBUTOR_ROLES = new Set(['contributor', 'operator', 'steward']);
@@ -1194,7 +1195,7 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function getHome(userId, identity = {}) {
-    const [roles, memberships, network, happened, perks, opportunities, wallet, card] = await Promise.all([
+    const [roles, memberships, network, happened, perks, opportunities, wallet, card, masterKey] = await Promise.all([
       platformRoles(userId),
       membershipsFor(userId),
       getNetwork(userId),
@@ -1203,6 +1204,7 @@ function createPeopleExperienceService(db = defaultDb) {
       getOpportunities(userId),
       getWallet(userId),
       getCard(userId),
+      masterKeyMomentumService.getStatus(userId),
     ]);
 
     const operatesHubs = (memberships || []).filter((row) => OPERATOR_ROLES.has(row.role) || row.scenes?.steward_id === userId).length;
@@ -1257,6 +1259,7 @@ function createPeopleExperienceService(db = defaultDb) {
       opportunities: opportunities.length,
       wallet,
       card,
+      masterKey,
       perks: perks.slice(0, 6),
       opportunityItems: opportunities.slice(0, 4),
       happened,
