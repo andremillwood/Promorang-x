@@ -15,6 +15,7 @@ import { useExperiencePath } from "@/hooks/useExperiencePath";
 import { ExperienceShell, ExperienceLoading, QuietEmpty, WorldInvitationCard } from "@/components/people/ExperienceShell";
 import { StakeholderPutInPass, StakeholderSetupPlaybook } from "@/components/people/StakeholderLoop";
 import { PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { PromorangMark } from "@/components/promorang/PromorangMark";
 import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { resolveDemandRole } from "@/lib/discovery-demand";
@@ -182,9 +183,9 @@ export default function PeopleHome() {
         hero={(
           <section className="group relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-black sm:rounded-[1.6rem]">
             <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-1000 group-hover:scale-[1.015]" />
-            <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,.99)_0%,rgba(0,0,0,.76)_52%,rgba(0,0,0,.12)_100%)] lg:bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.82)_50%,rgba(0,0,0,.32)_100%),linear-gradient(0deg,rgba(0,0,0,.88),transparent_72%)]" />
-            <div className="relative z-10 grid min-h-[680px] items-end lg:min-h-[640px] lg:grid-cols-[minmax(0,1.14fr)_minmax(330px,.86fr)] lg:gap-8">
-              <div className="flex h-full flex-col justify-end p-5 pt-[clamp(14rem,39vh,22rem)] sm:p-10 sm:pt-[20rem] lg:p-12 lg:pt-12">
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.04)_0%,rgba(0,0,0,.14)_28%,rgba(0,0,0,.76)_67%,#050505_100%)] lg:bg-[linear-gradient(90deg,rgba(0,0,0,.74)_0%,rgba(0,0,0,.48)_48%,rgba(0,0,0,.20)_100%),linear-gradient(180deg,rgba(0,0,0,.02)_0%,rgba(0,0,0,.14)_42%,#050505_100%)]" />
+            <div className="relative z-10 grid min-h-[590px] min-w-0 items-end lg:min-h-[520px] lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,.8fr)] lg:gap-8">
+              <div className="flex h-full min-w-0 flex-col justify-end p-5 pt-44 sm:p-9 sm:pt-52 lg:p-10 lg:pt-10">
                 <div className="mb-auto hidden lg:block">
                   <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/75"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500] shadow-[0_0_14px_rgba(255,101,0,.9)]" />{localCity} · Today</p>
                   <p className="mt-3 text-sm font-semibold text-white/72">{greeting}</p>
@@ -193,24 +194,29 @@ export default function PeopleHome() {
                   <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/78 lg:hidden"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500]" />{localCity} · Today</p>
                   <p className="mt-3 text-sm font-semibold text-white/72 lg:hidden">{greeting}</p>
                   <p className="mt-7 text-[10px] font-black uppercase tracking-[.2em] text-white/75 lg:mt-0">One move today</p>
-                  <h1 className="mt-3 max-w-[680px] font-['Anton'] text-[clamp(3rem,13vw,4.2rem)] font-normal uppercase leading-[.86] tracking-[-.035em] text-white sm:text-[4.7rem] lg:text-[5.35rem]">Show up to <span className="text-[#ff6500]">something bigger.</span></h1>
-                  <p className="mt-5 max-w-xl text-sm leading-6 text-white/78 sm:text-base"><strong className="font-black text-white">Today: {moveTitle}</strong><br />{moveCopy}</p>
-                  <div className="mt-6 grid gap-2.5 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
-                    <Link to={moveTarget} className="inline-flex min-h-12 w-full items-center justify-between gap-4 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto sm:justify-start sm:gap-8">Open today’s move <ArrowRight className="h-4 w-4" /></Link>
-                    <Link to={to("/card")} className="inline-flex min-h-12 items-center justify-between gap-8 rounded-md border border-[#d8ad54]/60 bg-black/45 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
+                  <h1 className="mt-3 max-w-[650px] break-words font-['Anton'] text-[clamp(2.7rem,11.4vw,4rem)] font-normal uppercase leading-[.86] tracking-[-.035em] text-white sm:text-[4.35rem] lg:text-[4.65rem]">Show up to <span className="text-[#ff6500]">something bigger.</span></h1>
+                  <p className="mt-4 max-w-xl text-sm leading-6 text-white/80"><strong className="font-black text-white">Today: {moveTitle}</strong><br /><span className="line-clamp-2">{moveCopy}</span></p>
+                  <div className="mt-5 grid gap-2.5 sm:flex sm:flex-wrap sm:gap-3">
+                    <Link to={moveTarget} className="inline-flex min-h-12 w-full max-w-full items-center justify-between gap-4 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto sm:justify-start sm:gap-8">Open today’s move <ArrowRight className="h-4 w-4 shrink-0" /></Link>
+                    <Link to={to("/card")} className="inline-flex min-h-12 w-full max-w-full items-center justify-between gap-4 rounded-md border border-[#d8ad54]/60 bg-black/45 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761] sm:w-auto sm:gap-8">Open PromoCard <ArrowRight className="h-4 w-4 shrink-0" /></Link>
                   </div>
                 </div>
               </div>
-              <aside className="p-5 pt-0 sm:p-10 sm:pt-0 lg:flex lg:h-full lg:flex-col lg:justify-end lg:p-12 lg:pl-0">
+              <aside className="min-w-0 p-5 pt-0 sm:p-9 sm:pt-0 lg:flex lg:h-full lg:flex-col lg:justify-end lg:p-10 lg:pl-0">
                 <Link to={to("/card")} aria-label={t("people.openCardAria")} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761] focus-visible:ring-offset-4 focus-visible:ring-offset-black">
                   <p className="mb-2 text-[9px] font-black uppercase tracking-[.2em] text-[#f2c761]">Your primary access layer</p>
                   {hasCardValue ? (
                     <PromoCardFace className="max-w-full shadow-[0_24px_70px_rgba(0,0,0,.62)] transition duration-500 hover:-translate-y-1" interactive={false} model={cardFace} compact />
                   ) : (
-                    <div className="group/card overflow-hidden rounded-[1.4rem] border border-[#d8ad54]/45 bg-[radial-gradient(circle_at_88%_5%,rgba(216,173,84,.2),transparent_32%),linear-gradient(135deg,rgba(17,17,18,.96),rgba(35,20,12,.94))] p-5 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-md transition hover:border-[#e9c568]/70 sm:p-6">
-                      <div className="flex items-start justify-between gap-5"><div><p className="text-[9px] font-black uppercase tracking-[.2em] text-[#f2c761]">PromoCard · Ready to fill</p><h2 className="mt-3 font-serif text-2xl font-bold text-white">Nothing on your card yet.</h2></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#e9c568]/55 bg-[#d8ad54]/15 font-['Anton'] text-xl text-[#f2c761]">P</span></div>
-                      <p className="mt-3 max-w-md text-sm leading-6 text-white/62">Live perks, access and verified returns will land here when they are available.</p>
-                      <span className="mt-5 inline-flex min-h-11 items-center gap-2 text-xs font-black text-[#f2c761]">Browse live perks <ArrowRight className="h-4 w-4 transition group-hover/card:translate-x-1" /></span>
+                    <div className="group/card relative aspect-[1.72/1] min-h-[190px] w-full min-w-0 max-w-full overflow-hidden rounded-[1.45rem] border border-[#d49a35]/70 bg-[radial-gradient(circle_at_84%_8%,rgba(246,196,83,.24),transparent_28%),radial-gradient(circle_at_12%_100%,rgba(122,46,23,.54),transparent_45%),linear-gradient(132deg,#111112_0%,#1b1712_52%,#09090a_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,232,177,.3),inset_0_-1px_0_rgba(0,0,0,.8),0_24px_65px_rgba(0,0,0,.58)] transition duration-300 hover:-translate-y-1 hover:border-[#f0c96f]/85 sm:p-6">
+                      <div className="pointer-events-none absolute -bottom-20 left-[42%] h-[150%] w-px rotate-[31deg] bg-gradient-to-b from-transparent via-[#f6c453]/35 to-transparent shadow-[0_0_28px_rgba(246,196,83,.22)]" />
+                      <div className="pointer-events-none absolute inset-[1px] rounded-[1.4rem] border border-white/[.035]" />
+                      <div className="relative flex items-start justify-between gap-5">
+                        <div className="flex min-w-0 items-center gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#d49a35]/45 bg-black/70 shadow-inner"><PromorangMark size={34} className="h-8 w-8" /></span><div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.24em] text-[#f2c761]">PROMORANG</p><p className="mt-1 truncate font-serif text-xl font-bold text-white">PromoCard</p></div></div>
+                        <span className="relative h-10 w-12 overflow-hidden rounded-[.65rem] border border-[#ffe4a0]/65 bg-[linear-gradient(135deg,#9b6a1f,#f6d273_48%,#bd8b32)] shadow-[inset_0_1px_2px_rgba(255,255,255,.55),0_5px_18px_rgba(0,0,0,.28)]"><span className="absolute inset-y-0 left-1/3 w-px bg-black/15" /><span className="absolute inset-x-0 top-1/2 h-px bg-black/15" /></span>
+                      </div>
+                      <div className="relative mt-6"><p className="text-[9px] font-black uppercase tracking-[.2em] text-white/55">Ready to fill</p><h2 className="mt-1.5 font-serif text-2xl font-bold leading-none text-[#f6c453]">Nothing on your card yet.</h2></div>
+                      <div className="relative mt-5 flex items-end justify-between gap-4 border-t border-[#d49a35]/25 pt-3"><div><p className="text-[8px] font-black uppercase tracking-[.18em] text-white/35">Cardholder</p><p className="mt-1 text-[10px] font-black uppercase tracking-[.12em] text-white/85">{givenName === "there" ? "Your card" : givenName}</p></div><span className="inline-flex min-h-10 items-center gap-2 text-[11px] font-black text-[#f2c761]">Browse perks <ArrowRight className="h-3.5 w-3.5 transition group-hover/card:translate-x-1" /></span></div>
                     </div>
                   )}
                 </Link>
