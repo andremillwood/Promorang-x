@@ -175,10 +175,10 @@ export default function PeopleHome() {
         seoTitle={t("people.homeSeo")}
         description={description}
         hero={(
-          <section className="group relative min-h-[560px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-black sm:min-h-[660px] sm:rounded-[1.6rem] lg:min-h-[610px]">
+          <section className="group relative min-h-[calc(100dvh-10.5rem)] overflow-hidden rounded-[1.35rem] border border-white/10 bg-black sm:min-h-[660px] sm:rounded-[1.6rem] lg:min-h-[610px]">
             <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-1000 group-hover:scale-[1.015]" />
             <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,.98)_0%,rgba(0,0,0,.72)_56%,rgba(0,0,0,.18)_100%)] sm:bg-[linear-gradient(90deg,rgba(0,0,0,.96)_0%,rgba(0,0,0,.78)_47%,rgba(0,0,0,.32)_76%),linear-gradient(0deg,rgba(0,0,0,.92)_0%,transparent_60%)]" />
-            <div className="relative z-10 flex min-h-[560px] max-w-[760px] flex-col justify-between p-5 pb-[220px] sm:min-h-[660px] sm:p-10 sm:pb-[300px] lg:min-h-[610px] lg:max-w-[66%] lg:p-12">
+            <div className="relative z-10 flex min-h-[calc(100dvh-10.5rem)] max-w-[760px] flex-col justify-between p-5 pb-[205px] sm:min-h-[660px] sm:p-10 sm:pb-[300px] lg:min-h-[610px] lg:max-w-[66%] lg:p-12">
               <div>
                 <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500] shadow-[0_0_14px_rgba(255,101,0,.9)]" />{localCity} · Today</p>
                 <p className="mt-3 text-sm font-semibold text-white/65">{greeting}</p>
