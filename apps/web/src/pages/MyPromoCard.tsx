@@ -150,10 +150,10 @@ export default function MyPromoCard() {
 
   return (
     <ExperienceShell
-      className="promocard-page"
+      className="promocard-page [&_.pr-world-header]:pb-5 [&_.pr-world-header]:pt-5 sm:[&_.pr-world-header]:pb-8 sm:[&_.pr-world-header]:pt-8 [&_.pr-world-display]:text-[clamp(2.35rem,12vw,4.5rem)] [&_.pr-world-display]:leading-[.92]"
       eyebrow="YOUR CREDENTIAL"
       title={copy.title}
-      description="What you want, what would move you, what is open, what you are doing, what you have earned, and what legitimately stayed with you."
+      description="What is open for you, what you can use, and what stayed with you."
       backTo="/dashboard"
       actions={data ? (
         <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
@@ -167,9 +167,9 @@ export default function MyPromoCard() {
         <>
           {card.isError ? <p role="status" className="border-y border-amber-200/20 py-3 text-sm text-amber-100">We couldn’t refresh your card. These are your last loaded details.</p> : null}
 
-          <section className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,.75fr)] lg:items-center">
+          <section className="grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,.75fr)] lg:items-center">
             <PromoCardFace
-              className="max-w-none"
+              className="min-w-0 max-w-none"
               model={face}
               flipped={flipped}
               onFlip={() => setFlipped((value) => !value)}
@@ -184,7 +184,7 @@ export default function MyPromoCard() {
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Open for you</p>
               {useThis ? (
                 <>
-                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">{useThis.title}</h2>
+                  <h2 className="mt-3 break-words font-serif text-3xl font-bold leading-[0.94] tracking-[-0.045em] text-white sm:text-4xl">{useThis.title}</h2>
                   <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "This access is already on your card. The merchant may still need to validate it when you use it."}</p>
                   {primaryIssuance && isPresentablePass(primaryIssuance.offers.fulfillment_type, primaryIssuance.status) && primaryIssuance.offers.fulfillment_type === "qr" ? <OfferIssuancePass issuance={primaryIssuance as OfferIssuance} /> : canShowCode(useThis) ? <button type="button" aria-label={`Show code for ${useThis.title}`} onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>Show this <ArrowRight className="h-4 w-4" /></button> : null}
                 </>
@@ -192,7 +192,7 @@ export default function MyPromoCard() {
                 <OfferIssuancePass issuance={qrPass as OfferIssuance} />
               ) : (
                 <>
-                  <h2 className="mt-3 font-serif text-4xl font-bold leading-[0.92] tracking-[-0.045em] text-white">Nothing open right now.</h2>
+                  <h2 className="mt-3 font-serif text-3xl font-bold leading-[0.94] tracking-[-0.045em] text-white sm:text-4xl">Nothing open right now.</h2>
                   <p className="mt-4 text-sm leading-6 text-white/50">Nothing new is ready to use right now. Keep watching what matters and new access can appear here when it opens.</p>
                   <Link to={discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{aim ? `Browse ${aim.label}` : "Find something worth watching"}<ArrowRight className="h-4 w-4" /></Link>
                 </>
@@ -204,7 +204,7 @@ export default function MyPromoCard() {
             variant="card"
             points={Number(data?.points || 0)}
             promoKeys={Number(data?.keys || 0)}
-            className="border-y border-white/10 py-8"
+            className="border-y border-white/10 py-6 sm:py-8"
           />
 
           <PromoCardWatchShelf />
