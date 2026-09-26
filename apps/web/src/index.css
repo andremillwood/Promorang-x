@@ -2239,3 +2239,70 @@ img.promorang-satellite-tiles {
 @media(min-width:1024px){.public-object-related-grid,.merchant-object-grid{grid-template-columns:repeat(4,minmax(0,1fr));}.public-object-hero__media{min-height:460px}.public-object-hero__media img{min-height:460px}}
 @media(min-width:1280px){.merchant-object-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
 @media(prefers-reduced-motion:reduce){.public-object-hero__media img,.public-object-related,.merchant-object-card,.public-object-related__media img,.merchant-object-card__media img{transition:none!important}.public-object-related:hover,.merchant-object-card:hover,.public-object-hero__media:hover img,.public-object-related:hover img,.merchant-object-card:hover img{transform:none!important}}
+
+
+/* Mobile visual convergence: deliberate phone composition, not a compressed desktop page. */
+@media (max-width: 639px) {
+  .marketing-cinematic-hero--world {
+    min-height: auto;
+  }
+
+  .marketing-cinematic-hero--world h1 {
+    text-wrap: balance;
+  }
+
+  .marketing-section-head {
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .marketing-promocard-stage {
+    margin-inline: -.25rem;
+    padding: .25rem 0 1rem;
+  }
+
+  .marketing-card-value-grid {
+    gap: 1rem;
+  }
+
+  .marketing-benefit-row {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: .75rem;
+    padding: .85rem 0;
+  }
+
+  .marketing-benefit-row h3 {
+    font-size: .95rem;
+  }
+
+  .marketing-benefit-row p {
+    font-size: .72rem;
+    line-height: 1.45;
+  }
+
+  .marketing-live-rail,
+  .marketing-offer-rail {
+    margin-inline: -1.25rem;
+    padding-inline: 1.25rem;
+    scroll-padding-inline: 1.25rem;
+  }
+
+  .marketing-live-card,
+  .marketing-offer-card {
+    min-width: min(84vw, 18rem);
+  }
+
+  .experience-shell .pr-world-header,
+  .experience-shell .pr-world-canvas {
+    padding-inline: 1rem;
+  }
+
+  .experience-shell .pr-world-canvas {
+    gap: 2rem;
+  }
+
+  .experience-shell .pr-world-primary {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
