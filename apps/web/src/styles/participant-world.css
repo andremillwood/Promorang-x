@@ -461,3 +461,50 @@
     min-height: 100dvh;
   }
 }
+
+
+/* Mobile participant operating surface: one consequential object at a time. */
+@media (max-width: 719px) {
+  .participant-world {
+    overflow-x: clip;
+  }
+
+  .pr-world-wrap,
+  .pr-world-canvas {
+    padding-inline: .9rem;
+  }
+
+  .pr-world-canvas {
+    margin-top: 1.15rem;
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  }
+
+  .pr-world-canvas > * + * {
+    margin-top: 1.15rem;
+  }
+
+  .pr-mobile-feed-stream {
+    display: flex;
+    gap: .8rem;
+    margin-inline: -.9rem;
+    overflow-x: auto;
+    padding-inline: .9rem;
+    padding-bottom: .4rem;
+    scroll-padding-inline: .9rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .pr-mobile-feed-stream::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pr-mobile-feed-stream > * {
+    flex: 0 0 calc(100vw - 1.8rem);
+    width: calc(100vw - 1.8rem);
+  }
+
+  .pr-mobile-feed-card {
+    border-radius: 1.25rem;
+  }
+}

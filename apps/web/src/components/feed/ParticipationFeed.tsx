@@ -146,7 +146,7 @@ export function ParticipationFeed() {
   const perks = (nearby.data || []).slice(0, 3);
 
   return (
-    <section aria-labelledby="movement-feed-title" className="space-y-5">
+    <section aria-labelledby="movement-feed-title" className="pr-mobile-feed space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="pr-world-kicker">Your movement feed</p>
@@ -161,16 +161,16 @@ export function ParticipationFeed() {
       {isLoading && !mixed.length && !perks.length ? <div className="h-52 animate-pulse rounded-2xl border border-white/10 bg-white/[.03]" /> : null}
 
       {(mixed.length || perks.length) ? (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="pr-mobile-feed-stream grid gap-4 lg:grid-cols-2">
           {mixed.slice(0, 7).map((item) => {
             const Icon = kindIcon[item.kind];
             return (
-              <Link key={item.id} to={item.href} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] p-5 transition hover:border-[#ff6500]/45 hover:bg-white/[.04] sm:p-6">{item.kind === "scene" && item.imageUrl ? <img src={item.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-30" /> : null}<div className="relative">
+              <Link key={item.id} to={item.href} className="pr-mobile-feed-card group relative flex min-h-[min(68dvh,560px)] snap-start flex-col justify-end overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] p-5 transition hover:border-[#ff6500]/45 hover:bg-white/[.04] sm:min-h-0 sm:p-6">{item.kind === "scene" && item.imageUrl ? <img src={item.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-30" /> : null}<div className="relative">
                 <div className="flex items-start justify-between gap-4">
                   <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff8a45]"><Icon className="h-4 w-4" />{kindLabel[item.kind]}</span>
                   {item.kind === "drop" ? <span className="rounded-full border border-[#d8ad54]/30 bg-[#d8ad54]/[.06] px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#f2c761]">Counts when verified</span> : null}{item.kind === "scene" ? <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white/70"><Users className="h-3 w-3" />{item.sceneState === "joined" ? "Your Scene" : "Find your people"}</span> : null}
                 </div>
-                <h3 className="mt-5 font-serif text-2xl font-bold leading-[1] tracking-[-.035em] text-white transition group-hover:text-[#ff9a62]">{item.title}</h3>
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[.16em] text-white/45">{consequenceLabel[item.kind]}</p><h3 className="mt-2 font-serif text-[clamp(2rem,9vw,2.75rem)] font-bold leading-[.94] tracking-[-.045em] text-white transition group-hover:text-[#ff9a62] sm:mt-3 sm:text-2xl sm:leading-[1]">{item.title}</h3>
                 {item.copy ? <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/45">{item.copy}</p> : null}
                 <div className="mt-6 flex items-end justify-between gap-4 border-t border-white/10 pt-4">
                   <div className="space-y-1 text-[10px] text-white/38">
@@ -195,7 +195,7 @@ export function ParticipationFeed() {
         </div>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="hidden gap-3 sm:grid sm:grid-cols-3">
         <Link to="/content-drops" className="rounded-xl border border-white/10 bg-white/[.025] p-4 transition hover:border-[#ff6500]/40"><PlayCircle className="h-4 w-4 text-[#ff8a45]" /><p className="mt-3 text-sm font-black">Content & Drops</p><p className="mt-1 text-xs leading-5 text-white/40">Help move something worth moving.</p></Link>
         <Link to="/card" className="rounded-xl border border-white/10 bg-white/[.025] p-4 transition hover:border-[#d8ad54]/40"><Gift className="h-4 w-4 text-[#f2c761]" /><p className="mt-3 text-sm font-black">PromoCard</p><p className="mt-1 text-xs leading-5 text-white/40">Keep what you claimed, earned or unlocked.</p></Link>
         <Link to="/earn" className="rounded-xl border border-white/10 bg-white/[.025] p-4 transition hover:border-emerald-300/40"><Rocket className="h-4 w-4 text-emerald-300" /><p className="mt-3 text-sm font-black">Earn</p><p className="mt-1 text-xs leading-5 text-white/40">Open funded work when you qualify.</p></Link>
