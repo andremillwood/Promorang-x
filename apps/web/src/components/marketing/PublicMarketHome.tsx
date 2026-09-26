@@ -56,7 +56,7 @@ export default function PublicMarketHome() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { city, country } = useMarket();
-  const { inbox, recordAsk, isLoading } = useDiscoveryDemand(
+  const { inbox, recordAsk, isLoading, responsesByDemand } = useDiscoveryDemand(
     city.name,
     country.slug || "jamaica",
     city.id === "all-jamaica" ? undefined : city.id,
@@ -171,7 +171,7 @@ export default function PublicMarketHome() {
             <FindOrAskEntry source="home" city={marketName} className="mt-6 max-w-3xl sm:mt-8" />
             <div className="mt-5 flex flex-wrap gap-3">
               <a href="#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
-                {t("clarity.seeMarketWants", { market: marketName })} <Users className="h-4 w-4" />
+                {t("clarity.seeWhatsMoving", { market: marketName })} <Users className="h-4 w-4" />
               </a>
             </div>
             <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
@@ -229,21 +229,25 @@ export default function PublicMarketHome() {
           {isLoading && !liveSignals.length ? <p className="text-sm text-white/45">{t("clarity.loadingWants")}</p> : null}
           {liveSignals.length ? (
             <div className="marketing-demand-rail">
-              {liveSignals.map((signal) => (
-                <DemandSignalObject
-                  key={signal.poll.id}
-                  city={inbox.city}
-                  title={signal.poll.question}
-                  leadingOption={signal.leading?.text}
-                  demandCount={signal.poll.totalVotes || 0}
-                  threshold={signal.poll.thresholdForMoment}
-                  responseLabel={signal.poll.targetUnlockPerk}
-                  href={wantHref(signal.poll.question)}
-                  shareHref={discoverPathHref(signal.poll.question)}
-                  state={signalState(signal.votesRemaining, signal.closeness)}
-                  actionLabel={t("clarity.wantAction")}
-                />
-              ))}
+              {liveSignals.map((signal) => {
+                const response = responsesByDemand.get(signal.poll.id);
+                return (
+                  <DemandSignalObject
+                    key={signal.poll.id}
+                    city={inbox.city}
+                    title={signal.poll.question}
+                    leadingOption={signal.leading?.text}
+                    demandCount={signal.poll.totalVotes || 0}
+                    threshold={signal.poll.thresholdForMoment}
+                    responseLabel={response?.response_summary || signal.poll.targetUnlockPerk}
+                    answered={Boolean(response)}
+                    href={response?.route || wantHref(signal.poll.question)}
+                    shareHref={discoverPathHref(signal.poll.question)}
+                    state={signalState(signal.votesRemaining, signal.closeness)}
+                    actionLabel={response ? t("clarity.openResponse") : t("clarity.wantAction")}
+                  />
+                );
+              })}
             </div>
           ) : !isLoading ? (
             <div className="marketing-compact-empty">

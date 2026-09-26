@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Gift, Ticket, Trophy, Sparkles, Zap, Gem, ReceiptText, ArrowRight } from "lucide-react";
+import { Gift, Ticket, Trophy, Sparkles, Zap, Gem, ReceiptText, ArrowRight, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,6 +59,7 @@ const Vault = () => {
 
   const vaultData = vaultQuery.data?.vault || vaultQuery.data || {};
   const memories: VaultMemory[] = Array.isArray(vaultData?.memories) ? vaultData.memories : [];
+  const latestMemory = memories[0] || null;
 
   const tabs: Array<{ id: VaultTab; label: string; note: string; icon: typeof Gift; count?: number }> = [
     { id: "perks", label: "Use", note: "Perks on your card", icon: Gift, count: card.data ? claimedPerks.length : undefined },
@@ -69,7 +70,7 @@ const Vault = () => {
 
   return (
     <div className="participant-world pb-20 text-white" data-proof-family="participant-kept-proof">
-      <SEO title="Your Vault — Promorang" description="The things Promorang has actually kept for you: usable perks, draw entries, verified memories and backing." />
+      <SEO title="Your Vault — Promorang" description="The things PROMORANG kept for you: access you can use, chances you hold, and Pieces from things you were part of." />
 
       <header className="pr-world-wrap pr-world-header">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
@@ -86,6 +87,25 @@ const Vault = () => {
       </header>
 
       <main className="pr-world-canvas">
+        {latestMemory ? (
+          <section className="mb-10 border-y border-white/10 py-6" aria-label="Latest retained consequence">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div className="flex items-start gap-4">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10"><RotateCcw className="h-5 w-5 text-amber-300" /></div>
+                <div>
+                  <p className="pr-world-kicker text-amber-300">Because you acted</p>
+                  <h2 className="mt-2 font-serif text-2xl font-bold sm:text-3xl">{latestMemory.title || latestMemory.metadata?.moment_title || "Something became part of your history."}</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">You were part of something real, and PROMORANG remembered it. Revisit what happened, use anything that opened for you, or find what’s moving next.</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link to={`/memories/${latestMemory.id}`} className="pr-world-primary">See what stayed <ArrowRight className="h-4 w-4" /></Link>
+                <Link to="/discover" className="pr-world-link inline-flex min-h-11 items-center">Find what’s next →</Link>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         <nav className="pr-world-strip" aria-label="Vault sections">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -156,7 +176,7 @@ const Vault = () => {
           <section className="space-y-8 animate-in fade-in duration-300">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
               <div><p className="pr-world-kicker text-amber-300">Keep</p><h2 className="mt-3 font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Receipts from the life you actually lived.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Revisit your Pieces and memories, with the source details that connect each one to your history.</p></div>
-              <div className="flex items-start gap-3 border-t border-white/10 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0"><ReceiptText className="mt-1 h-5 w-5 text-amber-300" /><p className="text-xs leading-6 text-white/45">Proof submission → review → verified attendance → retained memory.</p></div>
+              <div className="flex items-start gap-3 border-t border-white/10 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0"><ReceiptText className="mt-1 h-5 w-5 text-amber-300" /><p className="text-xs leading-6 text-white/45">You showed up → it counted → you kept a Piece.</p></div>
             </div>
 
             {vaultQuery.isLoading ? (
@@ -171,12 +191,12 @@ const Vault = () => {
                 const proofRef = meta.proof_submission_id ? String(meta.proof_submission_id) : null;
                 return (
                   <Link key={memory.id} to={`/memories/${memory.id}`} className={`block transition hover:-translate-y-1 ${index % 3 === 1 ? "sm:translate-y-8" : ""}`}>
-                    <PaperReceipt heading={memory.title || moment} lines={[{ label: "Moment", value: moment, strong: true }, ...(place ? [{ label: "Place", value: place }] : []), { label: "Kept", value: readableDate(memory.issued_at) }, { label: "Rarity", value: memory.rarity || "Memory" }, ...(proofRef ? [{ label: "Proof ref", value: proofRef.slice(0, 18) }] : [{ label: "Memory ref", value: memory.id.slice(0, 18) }])]} footer={proofRef ? "Linked proof retained. Open to see the source details." : "A Piece of your history. Open to see its source details."} />
+                    <PaperReceipt heading={memory.title || moment} lines={[{ label: "Moment", value: moment, strong: true }, ...(place ? [{ label: "Place", value: place }] : []), { label: "Kept", value: readableDate(memory.issued_at) }, { label: "Rarity", value: memory.rarity || "Memory" }, ...(proofRef ? [{ label: "Proof ref", value: proofRef.slice(0, 18) }] : [{ label: "Memory ref", value: memory.id.slice(0, 18) }])]} footer={proofRef ? "You were part of this. Open to see what stayed with you." : "A Piece of your story. Open to look back."} />
                   </Link>
                 );
               })}</div>
             ) : (
-              <div className="pr-world-empty px-6 py-12"><div><Trophy className="mx-auto h-7 w-7 text-amber-300" /><h3 className="mt-4 font-serif text-3xl font-bold">Your shelf is still clean.</h3><p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/45">Joining is intent. Submission is a claim. A memory appears only after something verifiable becomes part of your history.</p><Link to="/discover" className="pr-world-link mt-5 inline-flex items-center gap-2">Go find what is moving <ArrowRight className="h-4 w-4" /></Link></div></div>
+              <div className="pr-world-empty px-6 py-12"><div><Trophy className="mx-auto h-7 w-7 text-amber-300" /><h3 className="mt-4 font-serif text-3xl font-bold">Your shelf is still clean.</h3><p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/45">Nothing here yet. Show up, take part, and when it counts, PROMORANG can keep a Piece of it with you.</p><Link to="/discover" className="pr-world-link mt-5 inline-flex items-center gap-2">Go find what is moving <ArrowRight className="h-4 w-4" /></Link></div></div>
             )}
           </section>
         ) : null}

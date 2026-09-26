@@ -151,6 +151,29 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
     [cityPolls.data, scenePolls.data, sceneId],
   );
 
+  const responsesQuery = useQuery({
+    queryKey: ["discovery-demand-responses", polls.map((poll) => poll.id).join(",")],
+    enabled: polls.length > 0,
+    queryFn: async () => {
+      const ids = polls.map((poll) => poll.id);
+      const { data, error } = await (supabase as any)
+        .from("demand_activation_responses")
+        .select("id,discovery_id,proposal_id,response_summary,route,published_at")
+        .in("discovery_id", ids)
+        .order("published_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const responsesByDemand = useMemo(() => {
+    const byDemand = new Map<string, any>();
+    for (const response of responsesQuery.data || []) {
+      if (!byDemand.has(response.discovery_id)) byDemand.set(response.discovery_id, response);
+    }
+    return byDemand;
+  }, [responsesQuery.data]);
+
   const unlocksQuery = useQuery({
     queryKey: ["discovery-card-unlocks", cityName],
     initialData: () => import.meta.env.DEV
@@ -197,7 +220,8 @@ export function useDiscoveryDemand(cityName: string, countrySlug = "jamaica", ci
   return {
     inbox,
     polls,
-    isLoading: cityPolls.isLoading || scenePolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading,
+    isLoading: cityPolls.isLoading || scenePolls.isLoading || intentsQuery.isLoading || unlocksQuery.isLoading || responsesQuery.isLoading,
+    responsesByDemand,
     recordAsk: record.mutateAsync,
   };
 }

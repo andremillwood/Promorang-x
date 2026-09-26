@@ -8,13 +8,13 @@ import type { DemandRole } from "@/lib/discovery-demand";
 function responseFor(role: DemandRole) {
   switch (role) {
     case "merchant":
-      return { href: "/give", label: "Make something available", note: "Answer the want with something real, limited and clear." };
+      return { href: "/give", label: "Put something on the table", note: "Answer with inventory, access or value you can actually honor. PROMORANG keeps the Want connected to the response." };
     case "brand":
-      return { href: "/propose/new?from=want&role=brand", label: "Answer with an activation", note: "Choose what you can make possible and what you want people to do next." };
+      return { href: "/propose/new?from=want&role=brand", label: "Put something on the table", note: "Answer with a real activation, inventory, access or budget and define the measurable action you want next." };
     case "host":
-      return { href: "/create/moment", label: "Make something happen", note: "Turn the want into a real time, place and reason to show up." };
+      return { href: "/create/moment", label: "Put something on the table", note: "Answer with a real time, place, capacity or experience people can actually move toward." };
     default:
-      return { href: "/create?intent=answer", label: "Move this forward", note: "Give people a next move they can actually take." };
+      return { href: "/create?intent=answer", label: "Put something on the table", note: "Give people a real next move you can actually deliver." };
   }
 }
 
@@ -41,8 +41,8 @@ export function MarketOpportunityInbox({ role, sceneId }: { role: DemandRole; sc
       <section className="grid gap-4 lg:grid-cols-[1fr_.65fr] lg:items-end">
         <div>
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">{sceneId ? "Scene demand" : "Market pulse"} · {inbox.city}</p>
-          <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">People are telling you what they want. Decide what you can make possible.</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Use these wants and voices as a starting point. Look for a real fit with your audience, capacity and goals before you answer.</p>
+          <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">People are telling you what they want. Put something real on the table.</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Use real Wants to decide where your inventory, access, budget or capacity could create a measurable result. Answer only when you can deliver it.</p>
         </div>
         <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5">
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">What people are leaning toward</p>
@@ -71,7 +71,7 @@ export function MarketOpportunityInbox({ role, sceneId }: { role: DemandRole; sc
       <section>
         <div className="mb-5 border-b border-white/10 pb-4">
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-primary">People are gathering around</p>
-          <h3 className="mt-2 font-serif text-3xl font-bold">Wants with enough shape for you to decide whether to respond.</h3>
+          <h3 className="mt-2 font-serif text-3xl font-bold">Wants you can answer with inventory, access, an experience or a measurable activation.</h3>
         </div>
         {inbox.questions.length ? <div className="space-y-4">{inbox.questions.map((question) => {
           const href = discoverPathHref(question.poll.question);

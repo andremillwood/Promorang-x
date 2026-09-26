@@ -271,7 +271,7 @@ const CheckIn = () => {
           const missing = Array.isArray(payload?.missing_requirements)
             ? payload.missing_requirements.map((item: any) => item.label || item.type).filter(Boolean).join(", ")
             : null;
-          throw new Error(missing ? `${payload?.error || "Proof incomplete"}: ${missing}` : (payload?.error || "Check-in failed"));
+          throw new Error(missing ? `${payload?.error || "We still need something"}: ${missing}` : (payload?.error || "Couldn’t finish check-in"));
         }
 
         setProofSubmissionId(payload?.submission?.id || payload?.checkin?.participation?.id || null);
@@ -305,9 +305,9 @@ const CheckIn = () => {
 
         const verificationPending = payload?.checkin?.verification_status === "pending" || Boolean(payload?.submission?.id);
         toast({
-          title: verificationPending ? "Proof submitted" : t("checkIn.toastComplete"),
+          title: verificationPending ? "We got it" : t("checkIn.toastComplete"),
           description: verificationPending
-            ? "Your proof is recorded and waiting for verification. No reward, memory, or payout is implied yet."
+            ? "We’re checking what you sent. If it counts, anything you earned or kept will show up after."
             : t("checkIn.toastCompleteDesc"),
         });
       }
@@ -381,9 +381,9 @@ const CheckIn = () => {
           <div className="mx-auto max-w-xl space-y-6 pt-8 animate-in fade-in duration-300">
             <div className="text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
-                {consequence?.eyebrow || "Proof recorded"}
+                {consequence?.eyebrow || "You showed up"}
               </p>
-              <h1 className="mt-2 font-serif text-4xl font-bold text-white">{consequence?.heading || "Waiting for verification"}</h1>
+              <h1 className="mt-2 font-serif text-4xl font-bold text-white">{consequence?.heading || "We’re checking it"}</h1>
               <p className="mt-2 text-white/70">
                 {moment.title}{moment.venue_name || moment.location ? ` · ${moment.venue_name || moment.location}` : ""}
               </p>
@@ -397,7 +397,7 @@ const CheckIn = () => {
             </div>
 
             {consequence && !consequence.counted ? (
-              <section className="pr-proof-artifact" data-proof-state="pending"><p className="pr-proof-stamp">Awaiting decision</p><h2 className="mt-4 font-serif text-3xl font-bold">Evidence received.</h2><p className="mt-3 text-sm leading-6">Your proof is under review. Attendance and any rewards await approval.</p></section>
+              <section className="pr-proof-artifact" data-proof-state="pending"><p className="pr-proof-stamp">We got it</p><h2 className="mt-4 font-serif text-3xl font-bold">We’re checking it.</h2><p className="mt-3 text-sm leading-6">If it counts, anything you earned or kept will show up after.</p></section>
             ) : consequence ? (
               <ConsequenceReceipt receipt={consequence} reveal={keptMemory} />
             ) : (
@@ -405,8 +405,8 @@ const CheckIn = () => {
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="h-6 w-6 text-amber-400" />
                   <div>
-                    <h4 className="font-bold text-white text-base">Proof submitted</h4>
-                    <p className="text-xs text-white/60">Waiting for verification. Nothing has been issued or settled yet.</p>
+                    <h4 className="font-bold text-white text-base">We got it</h4>
+                    <p className="text-xs text-white/60">We’re checking it. Nothing has opened or been added to your story yet.</p>
                   </div>
                 </div>
               </div>

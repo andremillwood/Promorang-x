@@ -239,21 +239,25 @@ export function PublicDiscoverExperience() {
           <FindOrAskDemandRail city={city.name} query={normalizedQuery} />
           {liveSignals.length ? (
             <div className="marketing-demand-rail">
-              {liveSignals.map((signal) => (
-                <DemandSignalObject
-                  key={signal.poll.id}
-                  city={demand.inbox.city}
-                  title={signal.poll.question}
-                  leadingOption={signal.leading?.text}
-                  demandCount={signal.poll.totalVotes || 0}
-                  threshold={signal.poll.thresholdForMoment}
-                  responseLabel={signal.poll.targetUnlockPerk}
-                  href={`/auth?mode=login&role=participant&next=${encodeURIComponent(discoverPathHref(signal.poll.question))}`}
-                  shareHref={discoverPathHref(signal.poll.question)}
-                  state={signalState(signal.votesRemaining, signal.closeness)}
-                  actionLabel={t("clarity.wantAction")}
-                />
-              ))}
+              {liveSignals.map((signal) => {
+                const response = demand.responsesByDemand.get(signal.poll.id);
+                return (
+                  <DemandSignalObject
+                    key={signal.poll.id}
+                    city={demand.inbox.city}
+                    title={signal.poll.question}
+                    leadingOption={signal.leading?.text}
+                    demandCount={signal.poll.totalVotes || 0}
+                    threshold={signal.poll.thresholdForMoment}
+                    responseLabel={response?.response_summary || signal.poll.targetUnlockPerk}
+                    answered={Boolean(response)}
+                    href={response?.route || `/auth?mode=login&role=participant&next=${encodeURIComponent(discoverPathHref(signal.poll.question))}`}
+                    shareHref={discoverPathHref(signal.poll.question)}
+                    state={signalState(signal.votesRemaining, signal.closeness)}
+                    actionLabel={response ? t("clarity.openResponse") : t("clarity.wantAction")}
+                  />
+                );
+              })}
             </div>
           ) : !demand.isLoading && !findOrAskQuery.isLoading && !explicitDemands.length ? (
             <div className="marketing-compact-empty">
