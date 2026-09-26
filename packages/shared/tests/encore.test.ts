@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ENCORE_CADENCE,
   ENCORE_TITLE,
+  ENCORE_VENUE_NAME,
   ENCORE_INTERVAL_WEEKS,
   ENCORE_MOMENT_ID,
   ENCORE_MOMENT_SLUG,
@@ -22,6 +23,7 @@ describe("Encore biweekly Friday cadence", () => {
     expect(ENCORE_WEEKDAY).toBe(5);
     expect(ENCORE_INTERVAL_WEEKS).toBe(2);
     expect(ENCORE_TITLE).toBe("Encore 90s Fridays");
+    expect(ENCORE_VENUE_NAME).toBe("Footprints Cafe");
     expect(ENCORE_CADENCE).toBe("Every other Friday");
     expect(ENCORE_WHEN_LINE).toMatch(/every other friday/i);
     expect(ENCORE_WHEN_LINE).not.toMatch(/wednesday/i);
@@ -55,6 +57,7 @@ describe("Encore biweekly Friday cadence", () => {
     });
     expect(rewritten.title).toBe("Encore 90s Fridays");
     expect(rewritten.slug).toBe("encore");
+    expect(rewritten.venue_name).toBe("Footprints Cafe");
     expect(rewritten.starts_at).toBe(ENCORE_START_ISO);
     expect(rewritten.recurrence_interval).toBe(2);
     expect(rewritten.recurrence_by_weekday).toEqual([5]);

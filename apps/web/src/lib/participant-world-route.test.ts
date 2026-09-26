@@ -7,6 +7,7 @@ describe("isParticipantWorldRoute", () => {
     expect(isParticipantWorldRoute("/discover", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/scenes/kingston", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/moments/123/checkin", "", "participant")).toBe(true);
+    expect(isParticipantWorldRoute("/venues/sea-deck", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/card", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/vault", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/profile", "", "participant")).toBe(true);

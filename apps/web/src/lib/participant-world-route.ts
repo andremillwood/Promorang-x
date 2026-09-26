@@ -7,6 +7,7 @@ const participantJourneyRoots = [
   "/discoveries",
   "/scenes",
   "/moments",
+  "/venues",
   "/card",
   "/vault",
   "/memories",

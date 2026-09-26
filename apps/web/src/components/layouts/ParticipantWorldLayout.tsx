@@ -28,7 +28,7 @@ const navItems = [
   { label: "Vault", to: "/vault", icon: Vault },
 ];
 
-const discoveryRoots = ["/discover", "/discovery", "/discoveries", "/scenes", "/moments"];
+const discoveryRoots = ["/discover", "/discovery", "/discoveries", "/scenes", "/moments", "/venues"];
 
 const roleLabels: Partial<Record<WorkspaceRole, { label: string; icon: typeof UserRound }>> = {
   participant: { label: "Participant", icon: UserRound },
