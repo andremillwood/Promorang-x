@@ -1195,7 +1195,7 @@ function createPeopleExperienceService(db = defaultDb) {
   }
 
   async function getHome(userId, identity = {}) {
-    const [roles, memberships, network, happened, perks, opportunities, wallet, card, masterKey] = await Promise.all([
+    const sources = await Promise.allSettled([
       platformRoles(userId),
       membershipsFor(userId),
       getNetwork(userId),
@@ -1206,6 +1206,21 @@ function createPeopleExperienceService(db = defaultDb) {
       getCard(userId),
       masterKeyMomentumService.getStatus(userId),
     ]);
+    const value = (index, fallback) => sources[index].status === 'fulfilled' ? sources[index].value : fallback;
+    const failedSources = sources
+      .map((result, index) => result.status === 'rejected' ? index : null)
+      .filter((index) => index !== null);
+    if (failedSources.length) console.warn('[Experience Home] partial source failure', { userId, failedSources });
+
+    const roles = value(0, []);
+    const memberships = value(1, []);
+    const network = value(2, { people: 0, thisMonth: 0, topContributors: [] });
+    const happened = value(3, { participated: 0, earned: 0, buckets: {}, recent: [] });
+    const perks = value(4, []);
+    const opportunities = value(5, []);
+    const wallet = value(6, { points: 0, promokeys: 0, gems: 0 });
+    const card = value(7, { perks: [] });
+    const masterKey = value(8, null);
 
     const operatesHubs = (memberships || []).filter((row) => OPERATOR_ROLES.has(row.role) || row.scenes?.steward_id === userId).length;
     const contributorHubs = (memberships || []).filter((row) => CONTRIBUTOR_ROLES.has(row.role) || row.scenes?.steward_id === userId).length;
@@ -1244,7 +1259,12 @@ function createPeopleExperienceService(db = defaultDb) {
       cardPerks: (card.perks || []).length,
     });
 
-    const world = await getWorldHome(userId, { communities, card, happened, wallet });
+    let world = null;
+    try {
+      world = await getWorldHome(userId, { communities, card, happened, wallet });
+    } catch (error) {
+      console.warn('[Experience Home] world enrichment unavailable', { userId, error: error?.message || String(error) });
+    }
 
     return {
       role: experienceRole,
