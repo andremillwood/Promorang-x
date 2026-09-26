@@ -118,3 +118,19 @@ Every participant home, wallet, and opportunity surface should be able to show:
 - A Proof must carry `master_key_eligible: true`, `is_free_proof: true`, or `proof_economy: free_contribution` before verification can advance the daily Master Key.
 
 No screen should hard-code tier multipliers, daily Proof requirements, Point conversion rates, or aliases independently.
+
+## 2026-09 participation-access convergence
+
+The participant-facing Master Key now separates **earned qualification** from **current earning access**. The older daily free-Proof gate remains a historical/compatibility mechanism for flows that still call it, but it is no longer the participant Home/Earn authority.
+
+Current participant authority:
+
+- qualification is derived from canonical `verified_actions` rather than a second activity ledger;
+- Master Key is earned after 100 qualification credits, 4 behaviour categories, 3 verified Moves, and 1 attributable downstream action;
+- earned status remains part of the participant's history;
+- current earning access is governed by rolling 30-day Momentum: Active 40+, Cooling 20–39, Dormant below 20;
+- a dormant Master Key pauses access to new funded Gigs until useful participation rebuilds Momentum;
+- campaign-specific PromoKeys and eligibility remain separate gates;
+- raw daily logins and repetitive low-trust engagement cannot independently qualify a participant.
+
+Do not delete `daily_master_key_progress` or `master_key_proof_credits` until all legacy callers have been migrated and production data has been reconciled. This convergence is intentionally non-destructive.
