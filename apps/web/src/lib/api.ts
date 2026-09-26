@@ -1,12 +1,12 @@
 const CONFIGURED_API_BASE = (import.meta.env.VITE_API_URL || "https://api.promorang.co").replace(/\/$/, "");
 
-// Production browser requests use a same-origin Vercel proxy. This avoids an
-// otherwise unnecessary CORS dependency between promorang.co and its API while
-// leaving local development and preview deployments pointed at their configured
-// backends.
+// Production browser requests always use the same-origin Vercel proxy. The
+// public site is served from both promorang.co and www.promorang.co, so making
+// this independent of the configured API origin prevents a production env
+// override from re-introducing cross-origin/CORS failures. Local development
+// and Vercel previews continue to use their configured backend directly.
 const shouldUseProductionProxy = typeof window !== "undefined"
-  && /(^|\.)promorang\.co$/i.test(window.location.hostname)
-  && /^https:\/\/api\.promorang\.co(?:\/api)?$/i.test(CONFIGURED_API_BASE);
+  && /(^|\.)promorang\.co$/i.test(window.location.hostname);
 
 const RAW_API_BASE = shouldUseProductionProxy ? "/api/backend" : CONFIGURED_API_BASE;
 
