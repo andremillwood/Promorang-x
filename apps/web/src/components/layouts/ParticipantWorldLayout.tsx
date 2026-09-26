@@ -184,12 +184,14 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                 </NavLink>
 
                 <div className="2xl:hidden">
-                  <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-stone-500">Switch workspace</DropdownMenuLabel>
-                  {roles.map((role) => {
-                    const roleInfo = roleLabels[role];
-                    const RoleIcon = roleInfo?.icon || UserRound;
-                    return <DropdownMenuItem key={role} onClick={() => switchRole(role)} className="flex min-h-11 items-center gap-2.5"><RoleIcon className="h-4 w-4 text-orange-400" aria-hidden="true" /><span>{roleInfo?.label || role}</span>{role === currentRole ? <Check className="ml-auto h-4 w-4 text-orange-500" aria-hidden="true" /> : null}</DropdownMenuItem>;
-                  })}
+                  <DropdownMenuLabel className="sticky top-0 z-10 bg-[#11110f] py-2 text-[10px] uppercase tracking-widest text-stone-500">Switch workspace</DropdownMenuLabel>
+                  <div className="grid grid-cols-2 gap-1 sm:grid-cols-1">
+                    {roles.map((role) => {
+                      const roleInfo = roleLabels[role];
+                      const RoleIcon = roleInfo?.icon || UserRound;
+                      return <DropdownMenuItem key={role} onClick={() => switchRole(role)} className="flex min-h-12 items-center gap-2.5 rounded-lg border border-transparent px-3 data-[highlighted]:border-orange-500/20 data-[highlighted]:bg-orange-500/10"><RoleIcon className="h-4 w-4 shrink-0 text-orange-400" aria-hidden="true" /><span className="truncate">{roleInfo?.label || role}</span>{role === currentRole ? <Check className="ml-auto h-4 w-4 shrink-0 text-orange-500" aria-hidden="true" /> : null}</DropdownMenuItem>;
+                    })}
+                  </div>
                   <DropdownMenuSeparator className="bg-white/10" />
                 </div>
 
