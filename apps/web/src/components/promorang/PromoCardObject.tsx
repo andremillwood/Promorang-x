@@ -37,7 +37,7 @@ function PromoCardScanPlate({ credential, compact }: { credential?: string | nul
       </span>
     );
   }
-  return <span className={cn("pr-card-chip rounded-[.8rem] border border-white/10 bg-white/5", compact ? "h-9 w-9 sm:h-10 sm:w-10" : "h-12 w-12")} aria-label="No code to scan yet" />;
+  return <span className={cn("pr-card-chip rounded-[.8rem] border border-white/10 bg-white/5", compact ? "h-9 w-9 sm:h-10 sm:w-10" : "h-10 w-10 sm:h-12 sm:w-12")} aria-label="No code to scan yet" />;
 }
 
 export function PromoCardFace({
@@ -88,14 +88,14 @@ export function PromoCardFace({
   };
 
   return (
-    <div className={cn("pr-card-stage w-full max-w-xl", className)}>
+    <div className={cn("pr-card-stage min-w-0 w-full max-w-xl overflow-hidden sm:overflow-visible", className)}>
       <div className={cn("pr-card-flip", isFlipped && "is-flipped")}>
         <article
           className={cn(
             "pr-plastic-card pr-card-side overflow-hidden",
             compact
               ? "!aspect-auto min-h-[190px] p-4 sm:min-h-[230px] sm:p-5"
-              : "min-h-[320px] p-6 sm:min-h-[360px] sm:p-7",
+              : "min-h-[250px] p-4 sm:min-h-[360px] sm:p-7",
             `pr-plastic-card--${face.state}`,
           )}
           aria-label="PromoCard"
@@ -109,7 +109,7 @@ export function PromoCardFace({
                 </span>
                 <div>
                   <p className="text-[8px] font-black tracking-[0.28em] text-[#f4c66c] sm:text-[9px]">PROMORANG</p>
-                  <h3 className={cn("mt-1 font-serif font-bold leading-none tracking-[-.04em] text-white", compact ? "text-[1.3rem] sm:text-[1.55rem]" : "text-[1.9rem]")}>PromoCard</h3>
+                  <h3 className={cn("mt-1 font-serif font-bold leading-none tracking-[-.04em] text-white", compact ? "text-[1.3rem] sm:text-[1.55rem]" : "text-[1.55rem] sm:text-[1.9rem]")}>PromoCard</h3>
                   {tier ? <p className="mt-2 text-[9px] font-black uppercase tracking-[0.18em] text-white/45">{tier} tier</p> : null}
                 </div>
               </div>
@@ -119,11 +119,11 @@ export function PromoCardFace({
               </div>
             </div>
 
-            <div className={compact ? "py-3 sm:py-4" : "py-7 sm:py-9"}>
+            <div className={compact ? "py-3 sm:py-4" : "py-5 sm:py-9"}>
               <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/38 sm:text-[10px]">{face.action}</p>
-              <p className={cn("mt-1.5 max-w-[92%] font-serif font-bold leading-[.94] tracking-[-.05em] text-[#f4c66c]", compact ? "text-[1.55rem] sm:text-[1.9rem]" : "text-[2.45rem] sm:text-[3.25rem]")}>{face.headline}</p>
-              <p className={cn("mt-2 text-white/56", compact ? "line-clamp-2 max-w-[92%] text-[11px] leading-4 sm:text-xs sm:leading-5" : "max-w-[82%] text-sm leading-6")}>{face.detail}</p>
-              {face.places ? <p className={cn("mt-1 max-w-[82%] text-white/34", compact ? "hidden sm:block sm:text-[11px] sm:leading-4" : "text-xs leading-5")}>{face.places}</p> : null}
+              <p className={cn("mt-1.5 max-w-[92%] font-serif font-bold leading-[.94] tracking-[-.05em] text-[#f4c66c]", compact ? "text-[1.55rem] sm:text-[1.9rem]" : "break-words text-[clamp(1.85rem,9.5vw,2.45rem)] sm:text-[3.25rem]")}>{face.headline}</p>
+              <p className={cn("mt-2 text-white/56", compact ? "line-clamp-2 max-w-[92%] text-[11px] leading-4 sm:text-xs sm:leading-5" : "max-w-full text-xs leading-5 sm:max-w-[82%] sm:text-sm sm:leading-6")}>{face.detail}</p>
+              {face.places ? <p className={cn("mt-1 max-w-[82%] text-white/34", compact ? "hidden sm:block sm:text-[11px] sm:leading-4" : "max-w-full text-[11px] leading-4 sm:max-w-[82%] sm:text-xs sm:leading-5")}>{face.places}</p> : null}
               {stamps(face).length || face.returnStamp ? (
                 <div className={cn("flex flex-wrap gap-2", compact ? "mt-3" : "mt-5")}>
                   {stamps(face).map((mark) => <span key={mark} className="pr-card-stamp px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] text-[#f4c66c]">{mark}</span>)}
@@ -132,9 +132,9 @@ export function PromoCardFace({
               ) : null}
             </div>
 
-            <div className={cn("flex items-end justify-between gap-4 border-t border-white/10 text-white/42", compact ? "pt-2 text-[9px]" : "pt-4 text-[10px]")}>
+            <div className={cn("flex min-w-0 items-end justify-between gap-3 border-t border-white/10 text-white/42", compact ? "pt-2 text-[9px]" : "pt-3 text-[9px] sm:pt-4 sm:text-[10px]")}>
               <span className="font-black uppercase tracking-[.13em]">{face.holder}</span>
-              <span className={cn("max-w-[58%] text-right", compact ? "line-clamp-1 leading-3" : "leading-4")}>{face.footerCue}</span>
+              <span className={cn("min-w-0 max-w-[58%] break-words text-right", compact ? "line-clamp-1 leading-3" : "leading-4")}>{face.footerCue}</span>
             </div>
           </div>
         </article>
