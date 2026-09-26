@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CalendarDays, Gift, MapPin, MessageCircleQuestion, Radio, Rocket, Sparkles, Users } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock3, Gift, MapPin, MessageCircleQuestion, Radio, Rocket, Sparkles, Users } from "lucide-react";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useNearbyBenefits } from "@/hooks/usePeopleExperience";
@@ -22,6 +22,7 @@ type FeedItem = {
   startsAt?: string | null;
   sceneState?: "joined" | "discover";
   imageUrl?: string | null;
+  optionPreview?: string[];
 };
 
 const kindLabel: Record<FeedKind, string> = {
@@ -44,6 +45,82 @@ const kindIcon = {
   discovery: MessageCircleQuestion,
   scene: Radio,
 };
+
+const interleaveFeedItems = (groups: FeedItem[][], limit: number) => {
+  const queues = groups.map((group) => [...group]);
+  const result: FeedItem[] = [];
+  while (result.length < limit && queues.some((queue) => queue.length)) {
+    for (const queue of queues) {
+      const item = queue.shift();
+      if (item) result.push(item);
+      if (result.length === limit) break;
+    }
+  }
+  return result;
+};
+
+function FeedCard({ item }: { item: FeedItem }) {
+  const Icon = kindIcon[item.kind];
+  const hasImage = Boolean(item.imageUrl);
+  const action = item.kind === "discovery"
+    ? "Answer"
+    : item.kind === "drop"
+      ? "Do the move"
+      : item.kind === "scene"
+        ? item.sceneState === "joined" ? "Open Scene" : "See Scene"
+        : "Open Moment";
+
+  return (
+    <Link
+      to={item.href}
+      data-kind={item.kind}
+      className={`pr-feed-card group relative isolate flex min-h-[420px] snap-start flex-col overflow-hidden rounded-[1.6rem] border transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7a35] focus-visible:ring-offset-4 focus-visible:ring-offset-black sm:min-h-[360px] ${
+        item.kind === "discovery"
+          ? "border-[#ff6a00]/25 bg-[radial-gradient(circle_at_85%_10%,rgba(255,106,0,.18),transparent_38%),linear-gradient(145deg,#1a120e,#0d0d0e_72%)] hover:border-[#ff7a35]/65"
+          : item.kind === "drop"
+            ? "border-[#d8ad54]/30 bg-[radial-gradient(circle_at_12%_12%,rgba(216,173,84,.18),transparent_34%),linear-gradient(145deg,#1a1510,#0a0a0b_70%)] hover:border-[#e9c568]/65"
+            : item.kind === "moment" && !hasImage
+              ? "border-[#ff6a00]/30 bg-[linear-gradient(135deg,rgba(255,101,0,.12),transparent_48%),repeating-linear-gradient(135deg,rgba(255,255,255,.025)_0,rgba(255,255,255,.025)_1px,transparent_1px,transparent_13px),#101011] hover:border-[#ff7a35]/65"
+              : "border-white/12 bg-[#101011] hover:border-[#ff7a35]/55"
+      }`}
+    >
+      {hasImage ? <img src={item.imageUrl || ""} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-[1.035] group-hover:opacity-85" /> : null}
+      {hasImage ? <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.35)_38%,rgba(0,0,0,.96)_100%)]" /> : null}
+
+      <div className="flex items-start justify-between gap-4 p-5 sm:p-6">
+        <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ff8a45]"><Icon className="h-4 w-4" />{kindLabel[item.kind]}</span>
+        {item.kind === "moment" && item.startsAt ? (
+          <span className="grid min-w-14 place-items-center rounded-xl border border-white/15 bg-black/55 px-2 py-2 text-center backdrop-blur-md">
+            <strong className="font-['Anton'] text-2xl font-normal leading-none text-white">{new Date(item.startsAt).toLocaleDateString("en-JM", { day: "2-digit", timeZone: "America/Jamaica" })}</strong>
+            <span className="mt-1 text-[8px] font-black uppercase tracking-[.18em] text-[#ff9a62]">{new Date(item.startsAt).toLocaleDateString("en-JM", { month: "short", timeZone: "America/Jamaica" })}</span>
+          </span>
+        ) : null}
+        {item.kind === "drop" ? <span className="rounded-full border border-[#d8ad54]/35 bg-black/35 px-3 py-1.5 text-[9px] font-black uppercase tracking-[.14em] text-[#f2c761]">Counts when verified</span> : null}
+        {item.kind === "scene" ? <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-[9px] font-black uppercase tracking-[.14em] text-white/85 backdrop-blur"><Users className="h-3 w-3" />{item.sceneState === "joined" ? "Your Scene" : "Find your people"}</span> : null}
+      </div>
+
+      <div className="mt-auto p-5 pt-12 sm:p-6 sm:pt-16">
+        <p className="text-[10px] font-black uppercase tracking-[.18em] text-white/55">{consequenceLabel[item.kind]}</p>
+        <h3 className={`mt-3 max-w-[18ch] font-serif text-[clamp(2rem,5vw,3.1rem)] font-bold leading-[.92] tracking-[-.045em] transition group-hover:text-[#ff9a62] ${item.kind === "drop" ? "text-[#f2c761]" : "text-white"}`}>{item.title}</h3>
+        {item.copy ? <p className="mt-4 max-w-[56ch] text-sm leading-6 text-white/62 line-clamp-2">{item.copy}</p> : null}
+
+        {item.kind === "discovery" && item.optionPreview?.length ? (
+          <div className="mt-5 flex flex-wrap gap-2" aria-label="Answer options">
+            {item.optionPreview.slice(0, 2).map((option) => <span key={option} className="rounded-full border border-white/15 bg-white/[.055] px-3 py-2 text-xs font-semibold text-white/75">{option}</span>)}
+          </div>
+        ) : null}
+
+        <div className="mt-6 flex min-h-12 items-end justify-between gap-4 border-t border-white/15 pt-4">
+          <div className="space-y-1.5 text-[11px] font-medium text-white/58">
+            {item.startsAt ? <p className="inline-flex items-center gap-1.5"><Clock3 className="h-3.5 w-3.5" />{new Date(item.startsAt).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</p> : null}
+            {item.meta ? <p className="flex items-start gap-1.5"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" /><span>{item.meta}</span></p> : null}
+          </div>
+          <span className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#ff6500] px-4 text-xs font-black text-black transition group-hover:bg-[#ff8240]">{action}<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export function ParticipationFeed() {
   const { user } = useAuth();
@@ -93,6 +170,7 @@ export function ParticipationFeed() {
       href: `/moments/${moment.slug || moment.id}`,
       meta: moment.venue_name || moment.location,
       startsAt: moment.starts_at,
+      imageUrl: moment.image_url,
     }));
 
   const dropItems: FeedItem[] = (drops.data || []).slice(0, 4).map((drop) => ({
@@ -103,6 +181,7 @@ export function ParticipationFeed() {
     href: `/content-drops/${drop.id}`,
     meta: drop.objective_type === "share" ? "Share and prove movement" : "Open the move",
     startsAt: drop.starts_at,
+    imageUrl: drop.content_distribution_assets?.find((asset) => asset.media_url)?.media_url || null,
   }));
 
   const discoveryItems: FeedItem[] = (discoveries.data || []).slice(0, 4).map((discovery) => ({
@@ -112,6 +191,7 @@ export function ParticipationFeed() {
     copy: "Your answer becomes a recorded demand signal.",
     href: discovery.detailUrl || (discovery.slug ? `/discover/${discovery.slug}` : "/discover"),
     meta: `${discovery.totalVotes || 0} recorded responses`,
+    optionPreview: (discovery.options || []).map((option) => option.text),
   }));
 
   const membershipIds = new Set((sceneMemberships.data || []).map((membership: any) => membership.scene_id));
@@ -151,7 +231,13 @@ export function ParticipationFeed() {
   const isLoading = moments.isLoading || drops.isLoading || nearby.isLoading || discoveries.isLoading || scenes.isLoading || sceneMemberships.isLoading || sceneMomentLinks.isLoading;
   const hasError = moments.isError || drops.isError || nearby.isError || discoveries.isError || scenes.isError || sceneMemberships.isError || sceneMomentLinks.isError;
   const perks = (nearby.data || []).slice(0, 3);
-  const primaryItems = mixed.slice(0, 10);
+  const primaryItems = interleaveFeedItems([
+    momentItems,
+    sceneItems.filter((item) => item.sceneState === "joined"),
+    discoveryItems,
+    dropItems,
+    sceneItems.filter((item) => item.sceneState !== "joined"),
+  ], 10);
 
   return (
     <section aria-labelledby="movement-feed-title" className="pr-mobile-feed space-y-5">
@@ -169,27 +255,7 @@ export function ParticipationFeed() {
 
       {(mixed.length || perks.length) ? (
         <div className="pr-mobile-feed-stream grid gap-4 lg:grid-cols-2">
-          {primaryItems.map((item) => {
-            const Icon = kindIcon[item.kind];
-            return (
-              <Link key={item.id} to={item.href} className="pr-mobile-feed-card group relative flex min-h-[min(68dvh,560px)] snap-start flex-col justify-end overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] p-5 transition hover:border-[#ff6500]/45 hover:bg-white/[.04] sm:min-h-0 sm:p-6">{item.kind === "scene" && item.imageUrl ? <img src={item.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-30" /> : null}<div className="relative">
-                <div className="flex items-start justify-between gap-4">
-                  <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff8a45]"><Icon className="h-4 w-4" />{kindLabel[item.kind]}</span>
-                  {item.kind === "drop" ? <span className="rounded-full border border-[#d8ad54]/30 bg-[#d8ad54]/[.06] px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#f2c761]">Counts when verified</span> : null}{item.kind === "scene" ? <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-white/70"><Users className="h-3 w-3" />{item.sceneState === "joined" ? "Your Scene" : "Find your people"}</span> : null}
-                </div>
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[.16em] text-white/45">{consequenceLabel[item.kind]}</p><h3 className="mt-2 font-serif text-[clamp(2rem,9vw,2.75rem)] font-bold leading-[.94] tracking-[-.045em] text-white transition group-hover:text-[#ff9a62] sm:mt-3 sm:text-2xl sm:leading-[1]">{item.title}</h3>
-                {item.copy ? <p className="mt-3 line-clamp-2 text-sm leading-6 text-white/45">{item.copy}</p> : null}
-                <div className="mt-6 flex items-end justify-between gap-4 border-t border-white/10 pt-4">
-                  <div className="space-y-1 text-[10px] text-white/38">
-                    {item.startsAt ? <p className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{new Date(item.startsAt).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p> : null}
-                    {item.meta ? <p className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{item.meta}</p> : null}
-                  </div>
-                  <span className="inline-flex items-center gap-2 text-xs font-black text-[#ff8a45]">{item.kind === "discovery" ? "Answer" : item.kind === "drop" ? "Do the move" : item.kind === "scene" ? (item.sceneState === "joined" ? "Open Scene" : "See Scene") : "Open Moment"} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-                </div>
-                </div>
-              </Link>
-            );
-          })}
+          {primaryItems.map((item, index) => <div key={item.id} className={index === 0 && item.imageUrl ? "lg:col-span-2" : ""}><FeedCard item={item} /></div>)}
 
           {perks.map((perk) => <LivePerkCard key={perk.id} perk={perk} />)}
         </div>
