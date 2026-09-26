@@ -2306,3 +2306,117 @@ img.promorang-satellite-tiles {
     justify-content: space-between;
   }
 }
+
+
+/* iPhone regression guard: no public-home child may widen the viewport. */
+@media (max-width: 639px) {
+  .marketing-cinematic,
+  .marketing-cinematic section,
+  .marketing-cinematic section > div,
+  .marketing-cinematic .pr-card-stage,
+  .marketing-cinematic .pr-card-flip,
+  .marketing-cinematic .pr-card-side {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .marketing-cinematic p,
+  .marketing-cinematic h1,
+  .marketing-cinematic h2,
+  .marketing-cinematic h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .marketing-cinematic-hero--world {
+    overflow: hidden;
+  }
+
+  .marketing-cinematic-hero--world .pr-plastic-card {
+    min-height: 218px !important;
+    padding: 1rem !important;
+    border-radius: 1.35rem;
+  }
+
+  .marketing-cinematic-hero--world .pr-plastic-card h3 {
+    font-size: 1.35rem;
+  }
+
+  .marketing-cinematic-hero--world .pr-plastic-card [class*="text-[1.55rem]"] {
+    font-size: clamp(1.55rem, 8vw, 2rem);
+  }
+
+  .marketing-cinematic-hero--world .marketing-promocard-return-arc {
+    display: none;
+  }
+
+  .marketing-cinematic-hero--world a[href="#wanted"] {
+    width: 100%;
+    justify-content: space-between;
+    white-space: normal;
+  }
+}
+
+
+/* Public PWA shell — marketing and discovery remain the same Promorang app on phones. */
+@media (max-width: 767px) {
+  .public-pwa-shell {
+    min-height: 100dvh;
+    background: #050505;
+    padding-bottom: calc(4.15rem + env(safe-area-inset-bottom));
+  }
+
+  .public-pwa-shell > footer {
+    margin-bottom: 0;
+  }
+
+  .public-pwa-nav {
+    position: fixed;
+    z-index: 80;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-top: 1px solid rgba(255,255,255,.1);
+    background: rgba(5,5,5,.94);
+    padding: .4rem .65rem max(.45rem, env(safe-area-inset-bottom));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .public-pwa-nav__inner {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  .public-pwa-nav__item {
+    min-width: 0;
+    min-height: 3.15rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .2rem;
+    border-radius: .85rem;
+    color: rgba(255,255,255,.46);
+    font-size: .61rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .public-pwa-nav__item.is-active {
+    color: #ff6500;
+    background: rgba(255,101,0,.08);
+  }
+
+  @media (display-mode: standalone) {
+    .public-pwa-shell {
+      overscroll-behavior-y: none;
+    }
+    .public-pwa-nav {
+      background: rgba(5,5,5,.97);
+    }
+  }
+}

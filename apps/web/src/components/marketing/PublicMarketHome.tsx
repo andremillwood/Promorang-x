@@ -155,33 +155,33 @@ export default function PublicMarketHome() {
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#050505] text-white selection:bg-orange-500 selection:text-black">
       <section
-        className="marketing-cinematic-hero marketing-cinematic-hero--world border-b border-white/10 px-4 pb-10 pt-8 sm:px-6 sm:pb-14 sm:pt-12 md:pb-20 md:pt-20"
+        className="marketing-cinematic-hero marketing-cinematic-hero--world border-b border-white/10 px-4 pb-8 pt-6 sm:px-6 sm:pb-14 sm:pt-12 md:pb-20 md:pt-20"
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto grid max-w-[1440px] gap-8 sm:gap-10 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.04fr)_minmax(440px,.76fr)] lg:items-center">
-          <div className="max-w-4xl py-2 sm:py-6 md:py-10">
+        <div className="relative mx-auto grid min-w-0 max-w-[1440px] gap-7 sm:gap-10 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.04fr)_minmax(440px,.76fr)] lg:items-center">
+          <div className="min-w-0 max-w-4xl py-1 sm:py-6 md:py-10">
             <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> {t("clarity.heroKicker")}</p>
-            <h1 className="mt-4 max-w-[12ch] text-[clamp(2.65rem,12vw,4rem)] font-black leading-[0.95] sm:mt-6 sm:max-w-[11ch] sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
+            <h1 className="mt-3 max-w-[11ch] text-[clamp(2.5rem,11.5vw,3.35rem)] font-black leading-[0.94] sm:mt-6 sm:max-w-[11ch] sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
               {t("clarity.heroTitle", { market: marketName })}
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/70 sm:mt-6 sm:text-lg sm:leading-8">
+            <p className="mt-4 max-w-full break-words text-[13px] leading-5 text-white/70 sm:mt-6 sm:max-w-2xl sm:text-lg sm:leading-8">
               {t("clarity.heroCopy")}
             </p>
-            <FindOrAskEntry source="home" city={marketName} className="mt-6 max-w-3xl sm:mt-8" />
-            <div className="mt-5 flex flex-wrap gap-3">
-              <a href="#wanted" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
+            <FindOrAskEntry source="home" city={marketName} className="mt-5 min-w-0 max-w-full sm:mt-8 sm:max-w-3xl" />
+            <div className="mt-4 flex min-w-0 flex-wrap gap-3 sm:mt-5">
+              <a href="#wanted" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-md border border-white/20 bg-black/45 px-5 text-xs font-black uppercase tracking-[0.08em] text-white transition hover:border-orange-400/50 hover:bg-black/65">
                 {t("clarity.seeWhatsMoving", { market: marketName })} <Users className="h-4 w-4" />
               </a>
             </div>
-            <p className="mt-5 max-w-xl text-xs leading-6 text-white/45">
+            <p className="mt-4 max-w-full break-words text-[11px] leading-5 text-white/45 sm:mt-5 sm:max-w-xl sm:text-xs sm:leading-6">
               {t("clarity.heroProof")}
             </p>
           </div>
-          <div className="relative pb-2 lg:min-h-[34rem] lg:pb-0">
+          <div className="relative min-w-0 overflow-hidden pb-2 lg:min-h-[34rem] lg:overflow-visible lg:pb-0">
             <div className="pointer-events-none absolute inset-8 rounded-full bg-orange-500/20 blur-3xl" />
             <CurrentArc variant="return" className="marketing-promocard-return-arc" />
-            <div className="relative flex flex-col justify-center lg:min-h-[34rem]">
+            <div className="relative min-w-0 flex flex-col justify-center lg:min-h-[34rem]">
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
                   <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("clarity.yourNextPlace")}</p>
@@ -189,7 +189,7 @@ export default function PublicMarketHome() {
                 </div>
                 <span className="h-2.5 w-2.5 rounded-full bg-orange-400 shadow-[0_0_24px_rgba(251,146,60,.95)]" />
               </div>
-              <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="group relative block transition duration-500 sm:rotate-[-1.5deg] sm:hover:rotate-0 sm:hover:scale-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
+              <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="group relative block min-w-0 max-w-full transition duration-500 sm:rotate-[-1.5deg] sm:hover:rotate-0 sm:hover:scale-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
                 <PromoCardFace
                   holder={t("clarity.yourPromoCard")}
                   available={t("clarity.whatOpens")}
@@ -198,9 +198,11 @@ export default function PublicMarketHome() {
                   action={user ? t("clarity.openMyCard") : t("clarity.getMyCard")}
                   variant="membership"
                   interactive={false}
+                  compact
+                  className="max-w-full"
                 />
               </Link>
-              <div className="mt-5 border-y border-white/15 bg-black/45 px-4 py-4 backdrop-blur-xl">
+              <div className="mt-4 min-w-0 overflow-hidden border-y border-white/15 bg-black/45 px-3 py-3 backdrop-blur-xl sm:mt-5 sm:px-4 sm:py-4">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[9px] font-black uppercase tracking-[0.14em] text-white/55">
                   <span className="text-orange-300">{t("clarity.youWantIt")}</span><ArrowRight className="h-3 w-3" />
                   <span>{t("clarity.peopleJoin")}</span><ArrowRight className="h-3 w-3" />
