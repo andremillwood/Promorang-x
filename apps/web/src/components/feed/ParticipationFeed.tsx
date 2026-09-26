@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CalendarDays, Gift, MapPin, MessageCircleQuestion, PlayCircle, Radio, Rocket, Sparkles, Users } from "lucide-react";
+import { ArrowRight, CalendarDays, Gift, MapPin, MessageCircleQuestion, Radio, Rocket, Sparkles, Users } from "lucide-react";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useNearbyBenefits } from "@/hooks/usePeopleExperience";
@@ -151,16 +151,16 @@ export function ParticipationFeed() {
   const isLoading = moments.isLoading || drops.isLoading || nearby.isLoading || discoveries.isLoading || scenes.isLoading || sceneMemberships.isLoading || sceneMomentLinks.isLoading;
   const hasError = moments.isError || drops.isError || nearby.isError || discoveries.isError || scenes.isError || sceneMemberships.isError || sceneMomentLinks.isError;
   const perks = (nearby.data || []).slice(0, 3);
+  const primaryItems = mixed.slice(0, 10);
 
   return (
     <section aria-labelledby="movement-feed-title" className="pr-mobile-feed space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="sticky top-[4.25rem] z-20 -mx-2 flex items-center justify-between gap-4 border-y border-white/10 bg-[#080808]/90 px-2 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
         <div>
-          <p className="pr-world-kicker">Your movement feed</p>
-          <h2 id="movement-feed-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">See it. Move it. Unlock what comes next.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Your Scenes, Moments, content moves, Discoveries and live perks belong in one stream. Every card tells you why it matters, what you can do, and what happens next.</p>
+          <p className="pr-world-kicker">Today · Your movement feed</p>
+          <h2 id="movement-feed-title" className="mt-1 font-serif text-3xl font-bold tracking-[-.04em] sm:text-4xl">What’s moving?</h2>
         </div>
-        <Link to="/discover" className="pr-world-link">Explore everything <ArrowRight className="h-4 w-4" /></Link>
+        <Link to="/discover" className="pr-world-link shrink-0">Explore <ArrowRight className="h-4 w-4" /></Link>
       </div>
 
       {hasError ? <div className="rounded-xl border border-amber-300/15 bg-amber-300/[.04] p-4 text-xs leading-5 text-white/55">Some live sources are unavailable. PROMORANG leaves them empty rather than filling the feed with sample activity.</div> : null}
@@ -169,7 +169,7 @@ export function ParticipationFeed() {
 
       {(mixed.length || perks.length) ? (
         <div className="pr-mobile-feed-stream grid gap-4 lg:grid-cols-2">
-          {mixed.slice(0, 7).map((item) => {
+          {primaryItems.map((item) => {
             const Icon = kindIcon[item.kind];
             return (
               <Link key={item.id} to={item.href} className="pr-mobile-feed-card group relative flex min-h-[min(68dvh,560px)] snap-start flex-col justify-end overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] p-5 transition hover:border-[#ff6500]/45 hover:bg-white/[.04] sm:min-h-0 sm:p-6">{item.kind === "scene" && item.imageUrl ? <img src={item.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-30" /> : null}<div className="relative">
@@ -202,10 +202,9 @@ export function ParticipationFeed() {
         </div>
       ) : null}
 
-      <div className="hidden gap-3 sm:grid sm:grid-cols-3">
-        <Link to="/content-drops" className="rounded-xl border border-white/10 bg-white/[.025] p-4 transition hover:border-[#ff6500]/40"><PlayCircle className="h-4 w-4 text-[#ff8a45]" /><p className="mt-3 text-sm font-black">Content & Drops</p><p className="mt-1 text-xs leading-5 text-white/40">Help move something worth moving.</p></Link>
-        <Link to="/card" className="rounded-xl border border-white/10 bg-white/[.025] p-4 transition hover:border-[#d8ad54]/40"><Gift className="h-4 w-4 text-[#f2c761]" /><p className="mt-3 text-sm font-black">PromoCard</p><p className="mt-1 text-xs leading-5 text-white/40">Keep what you claimed, earned or unlocked.</p></Link>
-        <Link to="/earn" className="rounded-xl border border-white/10 bg-white/[.025] p-4 transition hover:border-emerald-300/40"><Rocket className="h-4 w-4 text-emerald-300" /><p className="mt-3 text-sm font-black">Earn</p><p className="mt-1 text-xs leading-5 text-white/40">Open funded work when you qualify.</p></Link>
+      <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4 text-xs">
+        <Link to="/card" className="pr-world-chip"><Gift className="h-3.5 w-3.5" /> PromoCard</Link>
+        <Link to="/earn" className="pr-world-chip"><Rocket className="h-3.5 w-3.5" /> Earn</Link>
       </div>
     </section>
   );
