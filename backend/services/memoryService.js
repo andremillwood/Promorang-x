@@ -33,15 +33,32 @@ async function getVaultSummary(userId) {
 
   if (memoriesError) throw memoriesError;
 
+  const momentIdsForMemories = [...new Set((memories || []).map((memory) => memory.moment_id).filter(Boolean))];
+  const { data: memoryMoments, error: memoryMomentsError } = momentIdsForMemories.length
+    ? await supabase.from('moments').select('id, title, venue_name, location, scene_id').in('id', momentIdsForMemories)
+    : { data: [], error: null };
+  if (memoryMomentsError) throw memoryMomentsError;
+  const memoryMomentMap = new Map((memoryMoments || []).map((moment) => [moment.id, moment]));
+
   const perkIds = (memories || []).map((memory) => memory.perk_id).filter(Boolean);
   const perks = await getPerksByIds(perkIds);
   const activePerks = perks.filter((perk) => perk.is_active);
   const perkMap = new Map(perks.map((perk) => [perk.id, perk]));
 
-  const hydratedMemories = (memories || []).map((memory) => ({
-    ...memory,
-    perk: memory.perk_id ? perkMap.get(memory.perk_id) || null : null,
-  }));
+  const hydratedMemories = (memories || []).map((memory) => {
+    const moment = memory.moment_id ? memoryMomentMap.get(memory.moment_id) || null : null;
+    return {
+      ...memory,
+      perk: memory.perk_id ? perkMap.get(memory.perk_id) || null : null,
+      metadata: {
+        ...(memory.metadata || {}),
+        moment_title: memory.metadata?.moment_title || moment?.title || null,
+        venue_name: memory.metadata?.venue_name || moment?.venue_name || null,
+        location: memory.metadata?.location || moment?.location || null,
+        scene_id: memory.metadata?.scene_id || moment?.scene_id || null,
+      },
+    };
+  });
 
   let missionHistory = [];
   try {
