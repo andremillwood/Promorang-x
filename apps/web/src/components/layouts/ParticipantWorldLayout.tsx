@@ -169,7 +169,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                   <ChevronDown className="hidden h-3.5 w-3.5 text-stone-500 sm:block" aria-hidden="true" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72 border-white/10 bg-[#11110f] p-2 text-stone-100">
+              <DropdownMenuContent align="end" className="w-[calc(100vw-1rem)] max-w-sm max-h-[min(78dvh,680px)] overflow-y-auto overscroll-contain border-white/10 bg-[#11110f] p-2 text-stone-100 sm:w-80">
                 <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
                   <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-orange-500 to-amber-300 font-black text-black">
                     {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : (user?.email || "?").charAt(0).toUpperCase()}
@@ -188,7 +188,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                   {roles.map((role) => {
                     const roleInfo = roleLabels[role];
                     const RoleIcon = roleInfo?.icon || UserRound;
-                    return <DropdownMenuItem key={role} onClick={() => switchRole(role)} className="flex items-center gap-2.5"><RoleIcon className="h-4 w-4 text-orange-400" aria-hidden="true" /><span>{roleInfo?.label || role}</span>{role === currentRole ? <Check className="ml-auto h-4 w-4 text-orange-500" aria-hidden="true" /> : null}</DropdownMenuItem>;
+                    return <DropdownMenuItem key={role} onClick={() => switchRole(role)} className="flex min-h-11 items-center gap-2.5"><RoleIcon className="h-4 w-4 text-orange-400" aria-hidden="true" /><span>{roleInfo?.label || role}</span>{role === currentRole ? <Check className="ml-auto h-4 w-4 text-orange-500" aria-hidden="true" /> : null}</DropdownMenuItem>;
                   })}
                   <DropdownMenuSeparator className="bg-white/10" />
                 </div>
