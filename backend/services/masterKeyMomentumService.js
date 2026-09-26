@@ -37,7 +37,7 @@ function policyFor(actionType) {
 }
 
 function happenedAt(row) {
-  return row.verified_at || row.created_at || row.occurred_at || row.updated_at || null;
+  return row.created_at || null;
 }
 
 function sourceKey(row) {
@@ -101,7 +101,7 @@ async function getStatus(userId) {
   const since = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from('verified_actions')
-    .select('id, action_type, source_id, verified_at, created_at, occurred_at, updated_at')
+    .select('id, action_type, source_id, created_at')
     .eq('user_id', userId)
     .gte('created_at', since)
     .order('created_at', { ascending: false })
