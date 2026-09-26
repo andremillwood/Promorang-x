@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Gift, Ticket, Trophy, Sparkles, Zap, Gem, ReceiptText, ArrowRight } from "lucide-react";
+import { Gift, Ticket, Trophy, Sparkles, Zap, Gem, ReceiptText, ArrowRight, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,6 +59,7 @@ const Vault = () => {
 
   const vaultData = vaultQuery.data?.vault || vaultQuery.data || {};
   const memories: VaultMemory[] = Array.isArray(vaultData?.memories) ? vaultData.memories : [];
+  const latestMemory = memories[0] || null;
 
   const tabs: Array<{ id: VaultTab; label: string; note: string; icon: typeof Gift; count?: number }> = [
     { id: "perks", label: "Use", note: "Perks on your card", icon: Gift, count: card.data ? claimedPerks.length : undefined },
@@ -86,6 +87,25 @@ const Vault = () => {
       </header>
 
       <main className="pr-world-canvas">
+        {latestMemory ? (
+          <section className="mb-10 border-y border-white/10 py-6" aria-label="Latest retained consequence">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div className="flex items-start gap-4">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10"><RotateCcw className="h-5 w-5 text-amber-300" /></div>
+                <div>
+                  <p className="pr-world-kicker text-amber-300">Because you acted</p>
+                  <h2 className="mt-2 font-serif text-2xl font-bold sm:text-3xl">{latestMemory.title || latestMemory.metadata?.moment_title || "Something became part of your history."}</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">PROMORANG kept this only after the underlying action was verified. Your next move is to revisit what happened, use any access that was actually issued, or find what is moving now.</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link to={`/memories/${latestMemory.id}`} className="pr-world-primary">See what stayed <ArrowRight className="h-4 w-4" /></Link>
+                <Link to="/discover" className="pr-world-link inline-flex min-h-11 items-center">Find what’s next →</Link>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         <nav className="pr-world-strip" aria-label="Vault sections">
           {tabs.map((tab) => {
             const Icon = tab.icon;
