@@ -318,13 +318,18 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                     <ChevronDown className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuContent
+                  align="start"
+                  sideOffset={8}
+                  collisionPadding={16}
+                  className="max-h-[var(--radix-dropdown-menu-content-available-height)] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto overscroll-contain"
+                >
                   <DropdownMenuLabel>{t("dashboard.switchWorkspace")}</DropdownMenuLabel>
-                  {roles.map((role) => {
+                  {Array.from(new Set<UserRole>(["participant", ...roles])).map((role) => {
                     const info = safeRoleInfo(role);
                     const RoleIcon = info.icon;
                     return (
-                      <DropdownMenuItem key={role} onClick={() => { setActiveRole(role as UserRole); navigate("/dashboard"); }} className="flex items-center gap-3 py-3">
+                      <DropdownMenuItem key={role} onClick={() => { setActiveRole(role as UserRole); setSidebarOpen(false); navigate("/dashboard"); }} className="flex items-center gap-3 py-3">
                         <span className={cn("grid h-8 w-8 place-items-center rounded-lg", info.color)}><RoleIcon className="h-4 w-4 text-white" /></span>
                         <span className="font-semibold">{info.label}</span>
                         {role === safeRole ? <CheckCircle className="ml-auto h-4 w-4 text-primary" /> : null}
