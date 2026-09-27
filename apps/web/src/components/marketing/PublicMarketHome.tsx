@@ -1,7 +1,9 @@
-import { useMemo } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   Home,
   Car,
@@ -50,6 +52,51 @@ const categories = [
   { key: "outdoor", icon: Mountain },
   { key: "social", icon: Users },
 ];
+
+function ScrollableRail({ children, ariaLabel, previousLabel, nextLabel, itemGap = "gap-5" }: { children: ReactNode; ariaLabel: string; previousLabel: string; nextLabel: string; itemGap?: string }) {
+  const railRef = useRef<HTMLDivElement>(null);
+  const [canMoveLeft, setCanMoveLeft] = useState(false);
+  const [canMoveRight, setCanMoveRight] = useState(false);
+
+  const updateControls = useCallback(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    setCanMoveLeft(rail.scrollLeft > 4);
+    setCanMoveRight(rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    updateControls();
+    rail.addEventListener("scroll", updateControls, { passive: true });
+    const observer = new ResizeObserver(updateControls);
+    observer.observe(rail);
+    if (rail.firstElementChild) observer.observe(rail.firstElementChild);
+    return () => {
+      rail.removeEventListener("scroll", updateControls);
+      observer.disconnect();
+    };
+  }, [updateControls]);
+
+  const move = (direction: -1 | 1) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollBy({ left: direction * Math.max(220, rail.clientWidth * 0.72), behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative mx-auto max-w-[1440px]" aria-label={ariaLabel}>
+      {canMoveLeft ? <button type="button" onClick={() => move(-1)} aria-label={previousLabel} className="absolute left-0 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/90 text-white shadow-xl transition hover:border-orange-400 hover:text-orange-400"><ChevronLeft className="h-5 w-5" /></button> : null}
+      <div ref={railRef} className="overflow-x-auto scroll-smooth px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className={`flex w-max min-w-full justify-start ${itemGap} ${canMoveLeft ? "pl-10" : ""} ${canMoveRight ? "pr-10" : ""} md:justify-center`}>
+          {children}
+        </div>
+      </div>
+      {canMoveRight ? <button type="button" onClick={() => move(1)} aria-label={nextLabel} className="absolute right-0 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-orange-400/55 bg-black/90 text-orange-400 shadow-xl transition hover:bg-orange-500 hover:text-black"><ChevronRight className="h-5 w-5" /></button> : null}
+    </div>
+  );
+}
 
 function momentHref(moment: CanonicalMoment) {
   return moment.slug ? `/moments/${moment.slug}` : `/moments/${moment.id}`;
@@ -112,15 +159,15 @@ export default function PublicMarketHome() {
       </section>
 
       <nav aria-label={t("publicHome.categoryNavigation")} className="border-b border-white/10 bg-[#050505] px-4 py-4 sm:px-6">
-        <div className="mx-auto flex max-w-[1440px] gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ScrollableRail ariaLabel={t("publicHome.categoryNavigation")} previousLabel={t("publicHome.scrollPrevious")} nextLabel={t("publicHome.scrollNext")}>
           {categories.map(({ key, icon: Icon }, index) => <Link key={key} to={`/discover?category=${key}`} className="group flex min-w-[4.4rem] shrink-0 flex-col items-center gap-2 text-center"><span className={`grid h-14 w-14 place-items-center rounded-full border bg-white/[.025] transition group-hover:border-orange-400 group-hover:text-orange-400 ${index === 0 ? "border-orange-500 text-orange-400" : "border-white/25 text-white"}`}><Icon className="h-5 w-5" /></span><span className="text-[10px] font-semibold text-white/72">{t(`publicHome.category.${key}`)}</span></Link>)}
-        </div>
+        </ScrollableRail>
       </nav>
 
       <nav aria-label={t("publicHome.feedNavigation")} className="sticky top-14 z-30 border-b border-white/10 bg-[#050505]/95 px-4 py-3 backdrop-blur-xl sm:px-6 md:top-16">
-        <div className="mx-auto flex max-w-[1440px] gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ScrollableRail ariaLabel={t("publicHome.feedNavigation")} previousLabel={t("publicHome.scrollPrevious")} nextLabel={t("publicHome.scrollNext")} itemGap="gap-2">
           {filters.map((item, index) => <Link key={item.href} to={item.href} className={`shrink-0 rounded-full border px-4 py-2 text-[11px] font-black uppercase tracking-[.08em] transition ${index === 0 ? "border-orange-500 bg-orange-500 text-black" : "border-white/15 bg-white/[.04] text-white/65 hover:border-orange-400/50 hover:text-white"}`}>{t(item.label)}</Link>)}
-        </div>
+        </ScrollableRail>
       </nav>
 
       <div id="feed-start" className="mx-auto max-w-[1440px] scroll-mt-32 space-y-12 px-4 py-9 sm:px-6 sm:py-12 md:space-y-16">
