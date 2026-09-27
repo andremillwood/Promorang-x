@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Briefcase, CalendarDays, Megaphone, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, Briefcase, Building2, CalendarDays, Megaphone, Sparkles, Store, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
@@ -8,6 +8,8 @@ import participantImage from "@/assets/moments/sunset-photo.jpg";
 import creatorImage from "@/assets/moments/open-mic.jpg";
 import hostImage from "@/assets/moment-concert.jpg";
 import agencyImage from "@/assets/moments/pottery.jpg";
+import merchantImage from "@/assets/moment-food-festival.jpg";
+import brandImage from "@/assets/moments/street-art.jpg";
 
 const specialistPaths = [
   {
@@ -29,6 +31,26 @@ const specialistPaths = [
     icon: CalendarDays,
     image: hostImage,
     proof: "Interest → Moment → Attendance",
+  },
+  {
+    eyebrow: "I run a place or sell something",
+    title: "Merchant",
+    description: "Turn visits into useful offers, put real value on PromoCard, and give people a reason to return.",
+    href: "/for-merchants",
+    cta: "Explore merchant tools",
+    icon: Store,
+    image: merchantImage,
+    proof: "Visit → Value → Return",
+  },
+  {
+    eyebrow: "I need to move a market",
+    title: "Brand",
+    description: "Fund real participation, connect campaigns to Moments, and see evidence of what people actually did.",
+    href: "/for-brands",
+    cta: "Explore brand tools",
+    icon: Building2,
+    image: brandImage,
+    proof: "Investment → Participation → Evidence",
   },
   {
     eyebrow: "I manage clients",
@@ -93,7 +115,7 @@ export default function Join() {
             <div>
               <p className="marketing-kicker">Specialist entry</p>
               <h2 className="mt-3 text-4xl font-black sm:text-5xl">Already know the role you are here to operate?</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Creators, hosts and agencies can go directly to the workspace language that fits their responsibility.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Creators, hosts, merchants, brands and agencies can go directly to the workspace language that fits their responsibility.</p>
             </div>
           </div>
 

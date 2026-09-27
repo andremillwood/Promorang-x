@@ -1667,7 +1667,7 @@ html[data-pwa] body {
 @media (min-width: 1280px) {
   .marketing-world-rail { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); overflow: visible; }
   .marketing-world-card { min-width: 0; }
-  .marketing-role-rail { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); overflow: visible; }
+  .marketing-role-rail { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); overflow: visible; }
   .marketing-role-card { min-width: 0; }
   .marketing-live-rail,
   .marketing-offer-rail { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); overflow: visible; }
