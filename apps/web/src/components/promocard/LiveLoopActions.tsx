@@ -36,7 +36,10 @@ export function LiveLoopActions({
           <h2 className="mt-2 font-serif text-2xl font-bold text-white">{lens.workspaceLabel} priorities</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">{roleOutcome[lens.role] || lens.promise}</p>
         </div>
-        <p className="rounded-full border border-white/10 bg-black/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-white/45">{completedCount} of {items.length} complete</p>
+        <div className="text-right">
+          <p className="rounded-full border border-white/10 bg-black/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-white/45">{completedCount} of {items.length} complete</p>
+          <p className="mt-2 text-[10px] text-white/30">Based on recorded activity</p>
+        </div>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-3">
         {items.map((action) => {

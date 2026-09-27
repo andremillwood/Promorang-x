@@ -26,6 +26,7 @@ import { FindOrAskEntry } from "@/components/discovery/FindOrAskEntry";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
+import { completedStakeholderActionIds } from "@/lib/stakeholder-action-progress";
 import heroMoments from "@/assets/hero-moments.jpg";
 import jazzNight from "@/assets/moments/jazz-night.jpg";
 import cookingClass from "@/assets/moments/cooking-class.jpg";
@@ -126,16 +127,14 @@ export default function PeopleHome() {
     hasInventory: Boolean(data?.outcomes?.suppliesInventory),
   });
   const hasMovement = Boolean(Number(data?.people || 0) || Number(data?.happening || 0) || Number(data?.earned || 0) || perksGiven || Number(data?.outcomes?.ledger?.perksClaimed || 0));
-  const completedActionIds = lens.role === "merchant"
-    ? [data?.outcomes?.suppliesInventory ? "put-perk-up" : null, perksGiven > 0 ? "share-perk" : null, Number(data?.happening || 0) > 0 ? "validate" : null]
-    : lens.role === "creator"
-      ? [perksGiven > 0 ? "attach-perk" : null, Number(data?.outcomes?.ledger?.cardPerks || 0) > 0 ? "take-perk" : null]
-      : lens.role === "host"
-        ? [perksGiven > 0 ? "attach-perk" : null, Number(data?.happening || 0) > 0 ? "validate" : null]
-        : lens.role === "brand"
-          ? [data?.outcomes?.suppliesInventory ? "fund-perk" : null, Number(data?.happening || 0) > 0 ? "watch-attributed" : null]
-          : [];
-  const evidencedActionIds = completedActionIds.filter((id): id is string => Boolean(id));
+  const evidenceMatchesLens = !isPreview || getStakeholderLens(activeRole).role === lens.role;
+  const evidencedActionIds = completedStakeholderActionIds(lens.role, {
+    evidenceMatchesRole: evidenceMatchesLens,
+    suppliesInventory: Boolean(data?.outcomes?.suppliesInventory),
+    perksGiven,
+    cardPerks: Number(data?.outcomes?.ledger?.cardPerks || 0),
+    verifiedActions: Number(data?.happening || 0),
+  });
   const ticker = lens.role !== "participant" && Number(data?.happening || 0)
     ? t(Number(data?.happening || 0) === 1 ? "people.showedWeekOne" : "people.showedWeekMany", { count: data?.happening || 0 })
     : Number(data?.peopleThisMonth || 0)
