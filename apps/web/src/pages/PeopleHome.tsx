@@ -126,7 +126,17 @@ export default function PeopleHome() {
     hasInventory: Boolean(data?.outcomes?.suppliesInventory),
   });
   const hasMovement = Boolean(Number(data?.people || 0) || Number(data?.happening || 0) || Number(data?.earned || 0) || perksGiven || Number(data?.outcomes?.ledger?.perksClaimed || 0));
-  const ticker = role === "operator" && Number(data?.happening || 0)
+  const completedActionIds = lens.role === "merchant"
+    ? [data?.outcomes?.suppliesInventory ? "put-perk-up" : null, perksGiven > 0 ? "share-perk" : null, Number(data?.happening || 0) > 0 ? "validate" : null]
+    : lens.role === "creator"
+      ? [perksGiven > 0 ? "attach-perk" : null, Number(data?.outcomes?.ledger?.cardPerks || 0) > 0 ? "take-perk" : null]
+      : lens.role === "host"
+        ? [perksGiven > 0 ? "attach-perk" : null, Number(data?.happening || 0) > 0 ? "validate" : null]
+        : lens.role === "brand"
+          ? [data?.outcomes?.suppliesInventory ? "fund-perk" : null, Number(data?.happening || 0) > 0 ? "watch-attributed" : null]
+          : [];
+  const evidencedActionIds = completedActionIds.filter((id): id is string => Boolean(id));
+  const ticker = lens.role !== "participant" && Number(data?.happening || 0)
     ? t(Number(data?.happening || 0) === 1 ? "people.showedWeekOne" : "people.showedWeekMany", { count: data?.happening || 0 })
     : Number(data?.peopleThisMonth || 0)
       ? t("people.peopleThisMonth", { count: data.peopleThisMonth })
@@ -320,7 +330,7 @@ export default function PeopleHome() {
     >
       {isPreview ? <nav aria-label={t("people.previewRoles")} className="pr-world-strip">{PREVIEW_ROLES.map((item) => <Link key={item} to={`/app-preview?role=${item}`} data-active={lens.role === item} className="pr-world-chip">{item}</Link>)}</nav> : null}
 
-      <LiveLoopActions role={String(activeRole || role)} title="What to do next" />
+      <LiveLoopActions role={lensRole} title="What to do next" completedActionIds={evidencedActionIds} />
 
       <details className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
         <summary className="cursor-pointer list-none text-sm font-black text-white/70">Need a walkthrough for this role?</summary>
