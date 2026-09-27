@@ -14,6 +14,24 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  min-height: 100svh;
+  -webkit-text-size-adjust: 100%;
+}
+
 /* Promorang Design System
    A moment platform - warm, inviting, human
    Brand colors: Orange, Black, Yellow highlights
@@ -1272,8 +1290,18 @@ img.promorang-satellite-tiles {
 }
 
 @media (max-width: 767px) {
+  .marketing-cinematic {
+    width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .marketing-cinematic > section {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
   .marketing-cinematic-hero {
-    min-height: 40rem;
+    min-height: auto;
     background-position: 62% center;
   }
 
@@ -1284,7 +1312,9 @@ img.promorang-satellite-tiles {
   }
 
   .marketing-cinematic h1 {
-    font-size: clamp(3.2rem, 15vw, 4.55rem) !important;
+    max-width: 100%;
+    font-size: clamp(2.75rem, 13.5vw, 4.25rem) !important;
+    line-height: .91;
   }
 
   .marketing-cinematic h2 {
@@ -1296,6 +1326,40 @@ img.promorang-satellite-tiles {
     flex-direction: column;
     gap: .75rem;
   }
+
+  .marketing-cinematic :where(input, textarea, select) {
+    font-size: 16px;
+  }
+
+  .marketing-cinematic :where(a, button) {
+    touch-action: manipulation;
+  }
+
+  .marketing-discovery-rail,
+  .marketing-demand-rail,
+  .marketing-world-rail,
+  .marketing-role-rail,
+  .marketing-live-rail,
+  .marketing-offer-rail {
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .marketing-cinematic [class*="grid-cols-["] {
+    min-width: 0;
+  }
+}
+
+html[data-pwa] .marketing-cinematic {
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+html[data-pwa] body {
+  overscroll-behavior-y: none;
 }
 
 /* PROMORANG marketing world-first composition v2 */

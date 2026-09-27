@@ -1,5 +1,5 @@
 {
-  "id": "/?source=pwa",
+  "id": "/",
   "name": "Promorang",
   "short_name": "Promorang",
   "description": "Find what moves you, signal what you want, keep access on PromoCard, and return when something changes.",
@@ -22,16 +22,22 @@
   ],
   "icons": [
     {
-      "src": "/favicon.png",
+      "src": "/pwa-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/pwa-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -42,8 +48,9 @@
       "url": "/today",
       "icons": [
         {
-          "src": "/favicon.png",
-          "sizes": "192x192"
+          "src": "/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -54,8 +61,9 @@
       "url": "/discover",
       "icons": [
         {
-          "src": "/favicon.png",
-          "sizes": "192x192"
+          "src": "/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -66,8 +74,9 @@
       "url": "/card",
       "icons": [
         {
-          "src": "/favicon.png",
-          "sizes": "192x192"
+          "src": "/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -78,8 +87,9 @@
       "url": "/vault",
       "icons": [
         {
-          "src": "/favicon.png",
-          "sizes": "192x192"
+          "src": "/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }

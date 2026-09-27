@@ -3,7 +3,7 @@ export const ENCORE_MOMENT_SLUG = "encore";
 export const ENCORE_PUBLIC_SLUG = "encore-90s-fridays";
 export const ENCORE_LEGACY_SLUG = "encore-wednesday-social-vip";
 export const ENCORE_TITLE = "Encore 90s Fridays";
-export const ENCORE_VENUE_NAME = "Fiction Nightclub";
+export const ENCORE_VENUE_NAME = "Footprints Cafe";
 export const ENCORE_TIMEZONE = "America/Jamaica";
 /** First biweekly Friday: 11 Sep 2026, 8:00 PM Jamaica. */
 export const ENCORE_START_ISO = "2026-09-11T20:00:00-05:00";
@@ -64,6 +64,7 @@ export function applyEncoreSchedule<T extends object>(moment: T): T {
     ...moment,
     title: ENCORE_TITLE,
     slug: ENCORE_MOMENT_SLUG,
+    venue_name: ENCORE_VENUE_NAME,
     starts_at: ENCORE_START_ISO,
     ends_at: ENCORE_END_ISO,
     ...ENCORE_RECURRENCE,

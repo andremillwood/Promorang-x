@@ -1,193 +1,180 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Calendar, Store, Users, Building2, ArrowRight, Loader2, Compass, X, Sparkles, Gift, MapPin } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ArrowRight, Building2, Calendar, Clock3, Compass, CornerDownLeft, Gift, Loader2, MapPin, Search, Sparkles, Store, Users, X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useI18n } from "@/i18n/I18nContext";
+import { searchPromorang, type GlobalSearchResult, type GlobalSearchResultType } from "@/lib/global-search";
+import { cn } from "@/lib/utils";
 
-import { searchPromorang } from "@/lib/global-search";
+const RECENT_SEARCH_KEY = "promorang_recent_searches";
+const suggestedSearches = ["Kingston", "Live music", "Food", "Free", "Sea Deck"];
+
+const typeConfig: Record<GlobalSearchResultType, { label: string; icon: typeof Search; tint: string }> = {
+  moment: { label: "Moments", icon: Calendar, tint: "text-orange-300 bg-orange-500/12" },
+  venue: { label: "Places", icon: MapPin, tint: "text-emerald-300 bg-emerald-500/12" },
+  discovery: { label: "Discoveries", icon: Compass, tint: "text-sky-300 bg-sky-500/12" },
+  offer: { label: "Offers", icon: Gift, tint: "text-amber-300 bg-amber-500/12" },
+  product: { label: "Products & services", icon: Store, tint: "text-amber-300 bg-amber-500/12" },
+  brand: { label: "Brands", icon: Building2, tint: "text-violet-300 bg-violet-500/12" },
+  merchant: { label: "Merchants", icon: Store, tint: "text-emerald-300 bg-emerald-500/12" },
+  host: { label: "Hosts", icon: Users, tint: "text-fuchsia-300 bg-fuchsia-500/12" },
+  user: { label: "People", icon: Users, tint: "text-fuchsia-300 bg-fuchsia-500/12" },
+};
+const groupOrder: GlobalSearchResultType[] = ["moment", "venue", "discovery", "offer", "product", "merchant", "brand", "host", "user"];
+
+function readRecentSearches() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(RECENT_SEARCH_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string").slice(0, 5) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(term: string) {
+  const clean = term.trim();
+  if (clean.length < 2) return;
+  const next = [clean, ...readRecentSearches().filter((item) => item.toLowerCase() !== clean.toLowerCase())].slice(0, 5);
+  localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(next));
+}
+
+function Highlight({ value, query }: { value: string; query: string }) {
+  const normalized = query.trim();
+  if (!normalized) return <>{value}</>;
+  const index = value.toLowerCase().indexOf(normalized.toLowerCase());
+  if (index < 0) return <>{value}</>;
+  return <>{value.slice(0, index)}<mark className="bg-transparent font-black text-orange-300">{value.slice(index, index + normalized.length)}</mark>{value.slice(index + normalized.length)}</>;
+}
 
 export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ className = "" }) => {
   const { t } = useI18n();
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedTerm, setDebouncedTerm] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
-  // Keyboard shortcut listener (Cmd + K / Ctrl + K)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setIsOpen((prev) => !prev);
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsOpen((current) => !current);
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
   }, []);
 
-  // Auto focus on open
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedTerm(searchTerm.trim()), 180);
+    return () => window.clearTimeout(timer);
+  }, [searchTerm]);
+
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-    } else {
-      setSearchTerm("");
+      setRecentSearches(readRecentSearches());
+      window.setTimeout(() => inputRef.current?.focus(), 40);
+      return;
     }
+    setSearchTerm("");
+    setDebouncedTerm("");
+    setActiveIndex(0);
   }, [isOpen]);
 
-  const { data: results, isLoading } = useQuery({
-    queryKey: ["header-instant-search", searchTerm],
-    enabled: searchTerm.length >= 2,
-    queryFn: () => searchPromorang(searchTerm),
-    staleTime: 30000,
+  const searchQuery = useQuery({
+    queryKey: ["header-instant-search", debouncedTerm],
+    enabled: debouncedTerm.length >= 2,
+    queryFn: () => searchPromorang(debouncedTerm),
+    staleTime: 60_000,
   });
+  const groupedResults = useMemo(() => groupOrder.flatMap((type) => {
+    const items = (searchQuery.data || []).filter((item) => item.result_type === type).slice(0, 4);
+    return items.length ? [{ type, items }] : [];
+  }), [searchQuery.data]);
+  const visibleResults = useMemo(() => groupedResults.flatMap((group) => group.items), [groupedResults]);
+  const searching = searchTerm.trim().length >= 2 && (searchQuery.isFetching || debouncedTerm !== searchTerm.trim());
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'moment': return <Calendar className="w-3.5 h-3.5" />;
-      case 'merchant': return <Store className="w-3.5 h-3.5" />;
-      case 'brand': return <Building2 className="w-3.5 h-3.5" />;
-      case 'discovery': return <Compass className="w-3.5 h-3.5" />;
-      case 'venue': return <MapPin className="w-3.5 h-3.5" />;
-      case 'offer': return <Gift className="w-3.5 h-3.5" />;
-      case 'product': return <Store className="w-3.5 h-3.5" />;
-      default: return <Users className="w-3.5 h-3.5" />;
+  useEffect(() => setActiveIndex(0), [debouncedTerm]);
+
+  useEffect(() => {
+    if (!isOpen || !visibleResults.length) return;
+    document.getElementById(`global-result-${activeIndex}`)?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, isOpen, visibleResults.length]);
+
+  const openResult = (item: GlobalSearchResult) => {
+    saveRecentSearch(searchTerm || item.title);
+    setIsOpen(false);
+    navigate(item.path);
+  };
+  const openFullSearch = () => {
+    const term = searchTerm.trim();
+    if (term) saveRecentSearch(term);
+    setIsOpen(false);
+    navigate(term ? `/search?q=${encodeURIComponent(term)}` : "/search");
+  };
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown" && visibleResults.length) {
+      event.preventDefault();
+      setActiveIndex((current) => (current + 1) % visibleResults.length);
+    } else if (event.key === "ArrowUp" && visibleResults.length) {
+      event.preventDefault();
+      setActiveIndex((current) => (current - 1 + visibleResults.length) % visibleResults.length);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      const selected = visibleResults[activeIndex];
+      if (selected) openResult(selected);
+      else openFullSearch();
     }
   };
 
-  const handleSelectResult = (path: string) => {
-    setIsOpen(false);
-    navigate(path);
-  };
-
+  let flatIndex = -1;
   return (
     <>
-      {/* Trigger Button in Header */}
-      <button
-        onClick={() => setIsOpen(true)}
-        type="button"
-        className={`w-full flex items-center justify-between gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/70 hover:border-white/20 hover:bg-white/[0.08] hover:text-white transition-all shadow-sm group focus:outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer ${className}`}
-      >
-        <div className="flex items-center gap-2 truncate">
-          <Search className="h-3.5 w-3.5 text-primary shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="hidden sm:inline text-white/60 group-hover:text-white/80 transition-colors truncate">
-            {t("headerSearch.triggerPlaceholder")}
-          </span>
-          <span className="inline sm:hidden text-white/60">{t("headerSearch.triggerShort")}</span>
-        </div>
-        <kbd className="hidden md:inline-flex h-4 items-center gap-0.5 rounded border border-white/15 bg-white/10 px-1.5 font-mono text-[9px] font-medium text-white/50 shrink-0">
-          ⌘K
-        </kbd>
+      <button onClick={() => setIsOpen(true)} type="button" aria-label="Search Promorang" className={cn("group flex w-full min-w-0 items-center justify-between gap-3 rounded-full border border-white/10 bg-white/[0.045] px-3.5 py-2 text-xs text-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] transition hover:border-orange-400/35 hover:bg-white/[0.075] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/70", className)}>
+        <span className="flex min-w-0 items-center gap-2.5"><Search className="h-3.5 w-3.5 shrink-0 text-orange-400 transition group-hover:scale-110" /><span className="truncate text-white/55 transition group-hover:text-white/80">{t("headerSearch.triggerPlaceholder")}</span></span>
+        <kbd className="hidden h-5 shrink-0 items-center rounded-md border border-white/10 bg-black/20 px-1.5 font-mono text-[9px] font-semibold text-white/40 md:inline-flex">⌘K</kbd>
       </button>
 
-      {/* Instant Search Command Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="p-0 max-w-2xl bg-[#0e0e10] border border-white/15 text-white rounded-3xl overflow-hidden shadow-2xl">
-          {/* Top Search Input Row */}
-          <div className="relative flex items-center border-b border-white/10 px-4 py-3.5">
-            <Search className="h-5 w-5 text-primary shrink-0 mr-3" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={t("headerSearch.inputPlaceholder")}
-              className="w-full bg-transparent text-sm sm:text-base text-white placeholder:text-white/40 focus:outline-none"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="p-1 text-white/40 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
+        <DialogContent className="search-command overflow-hidden border-white/12 bg-[#0b0b0a] p-0 text-white shadow-[0_32px_120px_rgba(0,0,0,.72)] sm:max-w-3xl sm:rounded-[1.75rem] [&>button]:right-4 [&>button]:top-4 [&>button]:z-20 [&>button]:text-white/45">
+          <DialogTitle className="sr-only">Search Promorang</DialogTitle>
+          <div className="h-1 bg-[linear-gradient(90deg,#ff5a00,#ff9a3d_45%,transparent)]" />
+          <div className="relative flex items-center gap-3 border-b border-white/10 px-5 py-4 sm:px-6 sm:py-5">
+            {searching ? <Loader2 className="h-5 w-5 shrink-0 animate-spin text-orange-400" /> : <Search className="h-5 w-5 shrink-0 text-orange-400" />}
+            <input ref={inputRef} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} onKeyDown={handleInputKeyDown} placeholder="Search moments, places, offers, people…" role="combobox" aria-expanded={visibleResults.length > 0} aria-controls="global-search-results" aria-activedescendant={visibleResults.length ? `global-result-${activeIndex}` : undefined} aria-autocomplete="list" className="min-w-0 flex-1 bg-transparent text-base font-semibold tracking-[-0.01em] text-white outline-none placeholder:text-white/30 sm:text-lg" />
+            {searchTerm ? <button type="button" onClick={() => setSearchTerm("")} aria-label="Clear search" className="grid h-8 w-8 place-items-center rounded-full text-white/35 transition hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
+          </div>
+
+          <div id="global-search-results" role="listbox" className="max-h-[min(68vh,590px)] overflow-y-auto overscroll-contain">
+            {searchTerm.trim().length < 2 ? (
+              <div className="grid gap-0 md:grid-cols-[1fr_1.2fr]">
+                <section className="border-b border-white/10 p-5 md:border-b-0 md:border-r md:p-6"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/35"><Sparkles className="h-3.5 w-3.5 text-orange-400" /> Explore quickly</p><div className="mt-4 flex flex-wrap gap-2">{suggestedSearches.map((term) => <button key={term} type="button" onClick={() => setSearchTerm(term)} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-white/70 transition hover:border-orange-400/45 hover:bg-orange-500/10 hover:text-orange-200">{term}</button>)}</div></section>
+                <section className="p-5 md:p-6"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/35"><Clock3 className="h-3.5 w-3.5" /> Recent searches</p><div className="mt-3 space-y-1">{recentSearches.length ? recentSearches.map((term) => <button key={term} type="button" onClick={() => setSearchTerm(term)} className="group flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm text-white/65 transition hover:bg-white/[0.055] hover:text-white"><span className="truncate">{term}</span><ArrowRight className="h-3.5 w-3.5 text-white/20 transition group-hover:translate-x-0.5 group-hover:text-orange-400" /></button>) : <p className="px-3 py-5 text-sm leading-6 text-white/35">Your searches will stay here so you can jump back into the city quickly.</p>}</div></section>
+              </div>
+            ) : searching && !searchQuery.data ? (
+              <div className="grid place-items-center px-6 py-16 text-center" aria-live="polite"><div className="grid h-12 w-12 place-items-center rounded-2xl border border-orange-400/20 bg-orange-500/10"><Loader2 className="h-5 w-5 animate-spin text-orange-400" /></div><p className="mt-4 text-sm font-bold text-white/75">Looking across Promorang…</p><p className="mt-1 text-xs text-white/35">Moments, places, offers, people and local knowledge.</p></div>
+            ) : groupedResults.length ? (
+              <div className="p-3 sm:p-4">
+                <div className="mb-3 flex items-center justify-between px-2"><p className="text-[10px] font-black uppercase tracking-[.2em] text-white/35">Best matches</p><span className="font-mono text-[10px] text-white/25">{searchQuery.data?.length || 0} found</span></div>
+                {groupedResults.map((group) => {
+                  const config = typeConfig[group.type];
+                  return <section key={group.type} className="mb-4 last:mb-0"><div className="mb-1.5 flex items-center gap-2 px-2 py-1"><config.icon className="h-3.5 w-3.5 text-white/35" /><h3 className="text-[10px] font-black uppercase tracking-[.18em] text-white/45">{config.label}</h3><span className="font-mono text-[9px] text-white/20">{group.items.length}</span></div><div className="space-y-1">{group.items.map((item) => {
+                    flatIndex += 1;
+                    const itemIndex = flatIndex;
+                    const Icon = typeConfig[item.result_type].icon;
+                    const active = itemIndex === activeIndex;
+                    return <button id={`global-result-${itemIndex}`} key={`${item.result_type}-${item.id}`} type="button" role="option" aria-selected={active} onMouseEnter={() => setActiveIndex(itemIndex)} onClick={() => openResult(item)} className={cn("group grid w-full grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border px-2.5 py-2.5 text-left transition", active ? "border-orange-400/25 bg-[linear-gradient(90deg,rgba(249,115,22,.13),rgba(255,255,255,.035))]" : "border-transparent hover:bg-white/[0.045]")}><span className={cn("grid h-11 w-11 place-items-center overflow-hidden rounded-xl", typeConfig[item.result_type].tint)}>{item.image_url ? <img src={item.image_url} alt="" className="h-full w-full object-cover" /> : <Icon className="h-4 w-4" />}</span><span className="min-w-0"><span className="block truncate text-sm font-bold text-white"><Highlight value={item.title} query={debouncedTerm} /></span><span className="mt-0.5 block truncate text-xs text-white/38">{item.subtitle || item.description || config.label}</span></span><span className={cn("flex items-center gap-1.5 pr-2 text-[10px] font-bold text-white/25 transition", active && "text-orange-300")}><span className="hidden sm:inline">Open</span><CornerDownLeft className="h-3.5 w-3.5" /></span></button>;
+                  })}</div></section>;
+                })}
+              </div>
+            ) : (
+              <div className="px-6 py-14 text-center" aria-live="polite"><div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.035]"><Compass className="h-5 w-5 text-white/35" /></div><h3 className="mt-4 text-base font-black">No exact match yet</h3><p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/40">Search the full discovery hub for <span className="font-semibold text-white/65">“{searchTerm.trim()}”</span>, or record what you want the city to answer.</p><button type="button" onClick={openFullSearch} className="mt-5 rounded-full bg-orange-500 px-5 py-2.5 text-xs font-black text-black transition hover:bg-orange-400">Continue in full search <ArrowRight className="ml-1.5 inline h-3.5 w-3.5" /></button></div>
             )}
           </div>
-
-          {/* Quick Filter Tag Suggestions */}
-          {searchTerm.length < 2 && (
-            <div className="p-6 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50">
-                <Sparkles className="h-3.5 w-3.5 text-primary" /> {t("headerSearch.popularSearches")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {["Chinese food", "Egg fried rice", "Kingston Moments", "Live music", "Nearby offers"].map((term) => (
-                  <button
-                    key={term}
-                    onClick={() => setSearchTerm(term)}
-                    className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/80 hover:border-primary hover:text-primary transition"
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Results List */}
-          {searchTerm.length >= 2 && (
-            <div className="max-h-[380px] overflow-y-auto p-3 space-y-1 divide-y divide-white/5">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-10 text-white/50 text-xs">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" /> {t("headerSearch.searching")}
-                </div>
-              ) : results && results.length > 0 ? (
-                results.map((item) => (
-                  <div
-                    key={`${item.result_type}-${item.id}`}
-                    onClick={() => handleSelectResult(item.path)}
-                    className="group flex items-center justify-between p-3 rounded-2xl hover:bg-white/[0.06] transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-10 w-10 shrink-0 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center text-primary">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.title} className="h-full w-full object-cover" />
-                        ) : (
-                          getTypeIcon(item.result_type)
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary">
-                            {item.result_type}
-                          </span>
-                          {item.subtitle && (
-                            <span className="text-xs text-white/40 truncate">{item.subtitle}</span>
-                          )}
-                        </div>
-                        <h4 className="text-sm font-bold text-white group-hover:text-primary transition truncate">
-                          {item.title}
-                        </h4>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-white/30 group-hover:text-primary group-hover:translate-x-1 transition shrink-0 ml-2" />
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-10 space-y-2">
-                  <p className="text-sm text-white/70">{t("findOrAsk.noExactTitle")}</p>
-                  <p className="text-xs text-white/45">{t("findOrAsk.noExactCopy")}</p>
-                  <button
-                    onClick={() => handleSelectResult(`/search?q=${encodeURIComponent(searchTerm)}`)}
-                    className="text-xs font-bold text-primary hover:underline"
-                  >
-                    {t("findOrAsk.entry")} →
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Footer View All Link */}
-          <div className="border-t border-white/10 bg-white/[0.02] p-3 text-center">
-            <Link
-              to={searchTerm ? `/search?q=${encodeURIComponent(searchTerm)}` : "/search"}
-              onClick={() => setIsOpen(false)}
-              className="text-xs font-bold text-white/70 hover:text-primary transition"
-            >
-              Open Full Search Hub →
-            </Link>
-          </div>
+          <footer className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[0.025] px-5 py-3 text-[10px] text-white/30 sm:px-6"><span className="hidden items-center gap-3 sm:flex"><span><kbd className="font-mono text-white/50">↑↓</kbd> navigate</span><span><kbd className="font-mono text-white/50">↵</kbd> open</span><span><kbd className="font-mono text-white/50">esc</kbd> close</span></span><button type="button" onClick={openFullSearch} className="ml-auto flex items-center gap-2 font-black uppercase tracking-[.14em] text-white/55 transition hover:text-orange-300">All results <ArrowRight className="h-3.5 w-3.5" /></button></footer>
         </DialogContent>
       </Dialog>
     </>

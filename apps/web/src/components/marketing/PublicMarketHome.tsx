@@ -159,8 +159,8 @@ export default function PublicMarketHome() {
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto grid max-w-[1440px] gap-8 sm:gap-10 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.04fr)_minmax(440px,.76fr)] lg:items-center">
-          <div className="max-w-4xl py-2 sm:py-6 md:py-10">
+        <div className="relative mx-auto grid w-full min-w-0 max-w-[1440px] gap-8 sm:gap-10 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.04fr)_minmax(0,.76fr)] lg:items-center">
+          <div className="min-w-0 max-w-4xl py-2 sm:py-6 md:py-10">
             <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> {t("clarity.heroKicker")}</p>
             <h1 className="mt-4 max-w-[12ch] text-[clamp(2.65rem,12vw,4rem)] font-black leading-[0.95] sm:mt-6 sm:max-w-[11ch] sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
               {t("clarity.heroTitle", { market: marketName })}
@@ -178,7 +178,7 @@ export default function PublicMarketHome() {
               {t("clarity.heroProof")}
             </p>
           </div>
-          <div className="relative pb-2 lg:min-h-[34rem] lg:pb-0">
+          <div className="relative min-w-0 max-w-full pb-2 lg:min-h-[34rem] lg:pb-0">
             <div className="pointer-events-none absolute inset-8 rounded-full bg-orange-500/20 blur-3xl" />
             <CurrentArc variant="return" className="marketing-promocard-return-arc" />
             <div className="relative flex flex-col justify-center lg:min-h-[34rem]">
@@ -189,7 +189,7 @@ export default function PublicMarketHome() {
                 </div>
                 <span className="h-2.5 w-2.5 rounded-full bg-orange-400 shadow-[0_0_24px_rgba(251,146,60,.95)]" />
               </div>
-              <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="group relative block transition duration-500 sm:rotate-[-1.5deg] sm:hover:rotate-0 sm:hover:scale-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
+              <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="group relative block min-w-0 max-w-full transition duration-500 sm:rotate-[-1.5deg] sm:hover:rotate-0 sm:hover:scale-[1.015] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
                 <PromoCardFace
                   holder={t("clarity.yourPromoCard")}
                   available={t("clarity.whatOpens")}

@@ -1,9 +1,10 @@
 // Promorang Production PWA Service Worker
-const CACHE_NAME = 'promorang-pwa-shell-v2026-09-25';
+const CACHE_NAME = 'promorang-pwa-shell-v2026-09-26';
 const STATIC_ASSETS = [
   '/manifest.webmanifest',
-  '/favicon.png',
-  '/apple-touch-icon.png',
+  '/pwa-192.png',
+  '/pwa-512.png',
+  '/pwa-apple-touch-icon.png',
 ];
 
 // Install Event: Pre-cache core app shell

@@ -12,6 +12,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+const PWA_DISMISSAL_KEY = "promorang:pwa_prompt_dismissed:mobile-home-v2";
+
 export function PWAInstallPrompt() {
   const { t } = useI18n();
   const location = useLocation();
@@ -41,8 +43,11 @@ export function PWAInstallPrompt() {
       return;
     }
 
+    const isMobileBrowser = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches;
+    if (!isMobileBrowser) return;
+
     // Check 7-day dismissal cooldown
-    const lastDismissed = localStorage.getItem("promorang:pwa_prompt_dismissed");
+    const lastDismissed = localStorage.getItem(PWA_DISMISSAL_KEY);
     if (lastDismissed) {
       const daysSince = (Date.now() - Number(lastDismissed)) / (1000 * 60 * 60 * 24);
       if (daysSince < 7) {
@@ -50,16 +55,17 @@ export function PWAInstallPrompt() {
       }
     }
 
-    // Detect iOS Safari
+    // iOS does not expose beforeinstallprompt. All modern iOS browsers use
+    // the share sheet for installation, so keep the guidance browser-agnostic.
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOS = /iphone|ipad|ipod/.test(userAgent);
-    const isSafari = /safari/.test(userAgent) && !/chrome|crios|fxios/.test(userAgent);
+    const isIOS = /iphone|ipad|ipod/.test(userAgent) ||
+      (userAgent.includes("macintosh") && window.navigator.maxTouchPoints > 1);
 
-    if (isIOS && isSafari) {
+    if (isIOS) {
       const timer = setTimeout(() => {
         setShowIOSPrompt(true);
         setDismissed(false);
-      }, 4000);
+      }, 2500);
       return () => clearTimeout(timer);
     }
 
@@ -71,7 +77,16 @@ export function PWAInstallPrompt() {
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    const installedHandler = () => {
+      setDeferredPrompt(null);
+      setDismissed(true);
+      localStorage.setItem("promorang:pwa_installed", String(Date.now()));
+    };
+    window.addEventListener("appinstalled", installedHandler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, [suppressedForParticipantWorld]);
 
   const handleInstall = async () => {
@@ -90,13 +105,13 @@ export function PWAInstallPrompt() {
     triggerHaptic("light");
     setDismissed(true);
     setShowIOSPrompt(false);
-    localStorage.setItem("promorang:pwa_prompt_dismissed", String(Date.now()));
+    localStorage.setItem(PWA_DISMISSAL_KEY, String(Date.now()));
   };
 
   if (suppressedForParticipantWorld || dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
 
   return (
-    <aside aria-label={t("pwa.installTitle")} className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-[9998] md:left-auto md:right-6 md:bottom-6 md:w-96 rounded-3xl bg-[#0e0e11]/95 border border-primary/30 p-4 shadow-2xl backdrop-blur-2xl text-white animate-in slide-in-from-bottom-5 duration-300">
+    <aside aria-label={t("pwa.installTitle")} className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] left-3 right-3 z-[9998] rounded-2xl border border-primary/30 bg-[#0e0e11]/95 p-4 text-white shadow-2xl backdrop-blur-2xl animate-in slide-in-from-bottom-5 duration-300 sm:left-auto sm:right-4 sm:w-96">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-amber-500 p-1.5 flex items-center justify-center shrink-0 shadow-md">
@@ -125,9 +140,9 @@ export function PWAInstallPrompt() {
         </button>
       </div>
 
-      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
         {showIOSPrompt ? (
-          <p className="text-[11px] text-white/90 flex items-center gap-1.5 font-medium">
+          <p className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-white/90">
             <span>Tap</span>
             <Share className="h-3.5 w-3.5 text-primary inline" />
             <span>then</span>
@@ -142,7 +157,7 @@ export function PWAInstallPrompt() {
           <button
             type="button"
             onClick={handleInstall}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-black font-black text-xs hover:bg-orange-400 transition-all shadow-[0_0_15px_rgba(255,106,0,0.4)] active:scale-95"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-black text-black shadow-[0_0_15px_rgba(255,106,0,0.4)] transition-all hover:bg-orange-400 active:scale-95"
           >
             <Download className="w-3.5 h-3.5" />
             {t("pwa.installButton")}

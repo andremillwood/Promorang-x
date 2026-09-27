@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { WorkspaceRole } from "@/lib/auth-roles";
 import { firstGivenName } from "@promorang/shared";
+import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
 
 type ParticipantWorldLayoutProps = {
   children: ReactNode;
@@ -28,7 +29,7 @@ const navItems = [
   { label: "Vault", to: "/vault", icon: Vault },
 ];
 
-const discoveryRoots = ["/discover", "/discovery", "/discoveries", "/scenes", "/moments"];
+const discoveryRoots = ["/discover", "/discovery", "/discoveries", "/scenes", "/moments", "/venues"];
 
 const roleLabels: Partial<Record<WorkspaceRole, { label: string; icon: typeof UserRound }>> = {
   participant: { label: "Participant", icon: UserRound },
@@ -112,6 +113,10 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
               </NavLink>
             ))}
           </nav>
+
+          <div className="w-10 shrink-0 lg:min-w-[220px] lg:max-w-sm lg:flex-1 lg:px-3 xl:px-6">
+            <HeaderSearchPreview className="h-10 w-10 justify-center px-0 [&>span>span]:hidden lg:h-auto lg:w-full lg:justify-between lg:px-3.5 lg:[&>span>span]:inline" />
+          </div>
 
           <div className="flex items-center gap-1.5">
             <NavLink
