@@ -111,7 +111,7 @@ export function PWAInstallPrompt() {
   if (suppressedForParticipantWorld || dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
 
   return (
-    <aside aria-label={t("pwa.installTitle")} className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] left-3 right-3 z-[9998] rounded-2xl border border-primary/30 bg-[#0e0e11]/95 p-4 text-white shadow-2xl backdrop-blur-2xl animate-in slide-in-from-bottom-5 duration-300 sm:left-auto sm:right-4 sm:w-96">
+    <aside aria-label={t("pwa.installTitle")} className={`fixed ${location.pathname === "/" ? "bottom-[calc(6.25rem+env(safe-area-inset-bottom,0px))]" : "bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))]"} left-3 right-3 z-[9998] rounded-2xl border border-primary/30 bg-[#0e0e11]/95 p-4 text-white shadow-2xl backdrop-blur-2xl animate-in slide-in-from-bottom-5 duration-300 sm:bottom-4 sm:left-auto sm:right-4 sm:w-96`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-amber-500 p-1.5 flex items-center justify-center shrink-0 shadow-md">

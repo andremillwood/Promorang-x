@@ -106,3 +106,29 @@ No actionable P0, P1 or P2 findings remain in the verified desktop participant p
 - Checked browser console output for application errors.
 
 final result: passed
+
+---
+
+# Public homepage feed-convergence QA
+
+## Automated checks
+
+- TypeScript: passed (`tsc --noEmit`)
+- Production build: passed
+- English, Spanish, and Portuguese localization tests: 16 passed
+- Changed-file lint: passed for the homepage, PWA prompt, and catalog. `AppLayout.tsx` retains three pre-existing lint findings unrelated to this change.
+- Whitespace/error scan: passed
+
+## Responsive source review
+
+- Mobile feed uses a single-column composition with horizontal snap rails and no fixed-width page containers.
+- Card rails use viewport-relative minimum widths at phone sizes and fixed card widths from the small breakpoint upward.
+- The fixed mobile navigation is hidden from the desktop breakpoint onward.
+- The PWA install prompt is lifted above the mobile navigation on the public homepage.
+- Empty data shelves collapse and the page shows one honest market-specific empty state.
+
+## Browser comparison
+
+Final result: blocked
+
+The local production app builds successfully and the preview server starts, but the available browser-automation runtime exits before opening either Chrome or the in-app browser. Because of that environment failure, screenshots and pixel-level checks at 320, 360, 390, 430, 768, and desktop widths could not be captured in this run.
