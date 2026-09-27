@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/promorang-logo-full.png";
+import mark from "@/assets/promorang-mark.png";
 import { ArrowRight, WalletCards } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
@@ -14,8 +15,9 @@ export function PublicHomeBar() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 px-4 pt-[max(0.25rem,env(safe-area-inset-top))] text-white backdrop-blur-xl md:px-6">
       <div className="mx-auto max-w-[1440px]">
         <div className="flex h-14 items-center justify-between gap-3 md:h-[4.25rem]">
-          <Link to="/" className="flex min-w-0 items-center" aria-label="Promorang home">
-            <img src={logo} alt="Promorang" className="h-6 w-auto md:h-7" />
+          <Link to="/" className="flex shrink-0 items-center" aria-label="Promorang home">
+            <img src={mark} alt="" className="h-7 w-7 object-contain md:hidden" />
+            <img src={logo} alt="Promorang" className="hidden h-7 w-auto md:block" />
           </Link>
 
           <nav aria-label="Primary navigation" className="hidden h-full items-center lg:flex">
@@ -39,6 +41,10 @@ export function PublicHomeBar() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-1.5 md:hidden">
+              <CityQuickSwitcher className="h-9 min-w-0 max-w-[9.5rem] justify-between px-2" />
+              <LanguageSelector tone="marketing" className="h-9 shrink-0 px-2" />
+            </div>
             <div className="hidden items-center gap-2 md:flex">
               <CityQuickSwitcher className="h-9 max-w-[190px]" />
               <LanguageSelector tone="marketing" className="h-9" />
@@ -54,16 +60,12 @@ export function PublicHomeBar() {
             >
               <WalletCards className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{user ? t("publicNav.myCard") : t("publicNav.promoCard")}</span>
-              <span className="sm:hidden">{user ? t("publicNav.card") : t("publicNav.join")}</span>
+              <span>{user ? t("publicNav.card") : t("publicNav.promoCard")}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 border-t border-white/[0.07] py-2 md:hidden" aria-label={t("publicNav.settings")}>
-          <CityQuickSwitcher className="h-9 min-w-0 flex-1 justify-between" />
-          <LanguageSelector tone="marketing" className="h-9 shrink-0" />
-        </div>
       </div>
       <span className="marketing-current-nav-line" aria-hidden="true" />
     </header>
