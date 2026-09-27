@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { searchPromorang } from "@/lib/global-search";
@@ -25,9 +25,11 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
 import { FindOrAskRecoveryPanel } from "@/components/discovery/FindOrAskRecoveryPanel";
+import { useInstantSearch } from "@/hooks/useInstantSearch";
 
 const SearchPage = () => {
   const { t, locale } = useI18n();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const initialCategory = searchParams.get("category") || "all";
@@ -38,6 +40,10 @@ const SearchPage = () => {
 
   const [inputValue, setInputValue] = useState(query);
   const [activeTab, setActiveTab] = useState(initialCategory);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [autocompleteIndex, setAutocompleteIndex] = useState(0);
+  const instant = useInstantSearch(inputValue);
+  const autocompleteResults = (instant.data || []).slice(0, 7);
 
   useEffect(() => {
     setInputValue(query);
@@ -135,11 +141,18 @@ const SearchPage = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSearch} className="relative mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:block">
+        <form onSubmit={handleSearch} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setShowAutocomplete(false); }} className="relative mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:block">
           <SearchIcon className="absolute left-4 top-7 h-5 w-5 -translate-y-1/2 text-white/40" />
           <Input
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => { setInputValue(e.target.value); setShowAutocomplete(true); setAutocompleteIndex(0); }}
+            onFocus={() => setShowAutocomplete(true)}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowDown" && autocompleteResults.length) { event.preventDefault(); setAutocompleteIndex((current) => (current + 1) % autocompleteResults.length); }
+              if (event.key === "ArrowUp" && autocompleteResults.length) { event.preventDefault(); setAutocompleteIndex((current) => (current - 1 + autocompleteResults.length) % autocompleteResults.length); }
+              if (event.key === "Enter" && showAutocomplete && autocompleteResults[autocompleteIndex]) { event.preventDefault(); setShowAutocomplete(false); navigate(autocompleteResults[autocompleteIndex].path); }
+              if (event.key === "Escape") setShowAutocomplete(false);
+            }}
             placeholder={t("search.placeholder")}
             className="h-14 rounded-2xl border-white/15 bg-white/[0.08] pl-12 text-base text-white shadow-2xl placeholder:text-white/40 sm:pr-32 sm:text-lg focus:border-[#ff5500]"
           />
@@ -150,6 +163,10 @@ const SearchPage = () => {
           >
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("search.button")}
           </Button>
+          {showAutocomplete && inputValue.trim().length >= 2 ? <div role="listbox" className="absolute left-0 right-0 top-[calc(100%+.5rem)] z-50 overflow-hidden rounded-2xl border border-white/15 bg-[#0b0b0b]/98 p-2 text-left shadow-[0_28px_90px_rgba(0,0,0,.78)] backdrop-blur-xl">
+            {instant.isSearching && !autocompleteResults.length ? <div className="flex items-center gap-2 px-4 py-5 text-xs text-white/55"><Loader2 className="h-4 w-4 animate-spin text-orange-400" />{t("search.searching")}</div> : autocompleteResults.map((result, index) => <button key={`${result.result_type}-${result.id}`} type="button" role="option" aria-selected={index === autocompleteIndex} onMouseEnter={() => setAutocompleteIndex(index)} onClick={() => { setShowAutocomplete(false); navigate(result.path); }} className={cn("grid w-full grid-cols-[46px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-2.5 py-2.5 text-left transition", index === autocompleteIndex ? "bg-orange-500/12" : "hover:bg-white/[.05]")}><span className="grid h-11 w-11 place-items-center overflow-hidden rounded-xl bg-white/[.06] text-orange-300">{result.image_url ? <img src={result.image_url} alt="" className="h-full w-full object-cover" /> : getTypeIcon(result.result_type)}</span><span className="min-w-0"><span className="block truncate text-sm font-bold text-white">{result.title}</span><span className="mt-0.5 block truncate text-xs text-white/45">{result.subtitle || result.description}</span></span><span className="pr-2 text-[9px] font-black uppercase tracking-[.08em] text-white/35">{result.result_type}</span></button>)}
+            {autocompleteResults.length ? <button type="submit" className="mt-1 flex w-full items-center justify-between border-t border-white/10 px-3 py-3 text-xs font-black text-orange-300">{t("search.button")} “{inputValue.trim()}”<ArrowRight className="h-4 w-4" /></button> : null}
+          </div> : null}
         </form>
 
         <div className="mx-auto mt-5 flex max-w-3xl flex-wrap justify-center gap-2">
