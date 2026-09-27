@@ -10,6 +10,7 @@ import { hasAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
 import { consumePostAuthNext, peekPostAuthNext, persistPostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 import { resolveSavedLandingPreference } from "@/lib/landing-page-preference";
+import { queueWelcomeBack } from "@/lib/auth-journey";
 
 /**
  * Post-Login Router
@@ -44,18 +45,18 @@ export function PostLoginRouter() {
       const appliedRole = intendedRole ? await applyIntendedRole(user.id, intendedRole) : activeRole;
       const effectiveRole = appliedRole || activeRole;
 
-      // Outcome-led business acquisition is allowed to show the recommendation
-      // before signup, but a new operator still needs minimum workspace setup
-      // before continuing into the campaign planner.
-      if (requestedNext?.startsWith("/business/") && effectiveRole !== "admin") {
+      // Every new account completes setup before resuming an interrupted job.
+      // This keeps deep links without letting them silently bypass onboarding.
+      let onboardingCompleted = true;
+      if (effectiveRole !== "admin") {
         const { data, error } = await supabase
           .from("user_preferences")
           .select("user_id")
           .eq("user_id", user.id)
           .maybeSingle();
-        const onboardingCompleted = !error && Boolean(data?.user_id);
+        onboardingCompleted = !error && Boolean(data?.user_id);
         if (!onboardingCompleted) {
-          persistPostAuthNext(requestedNext);
+          if (requestedNext) persistPostAuthNext(requestedNext);
           navigate(effectiveRole === "brand" ? "/onboarding/brand" : "/onboarding", { replace: true });
           return;
         }
@@ -79,22 +80,6 @@ export function PostLoginRouter() {
         return;
       }
 
-      // Onboarding remains the only prerequisite for non-admin accounts.
-      let onboardingCompleted = true;
-      if (effectiveRole !== "admin") {
-        const { data, error } = await supabase
-          .from("user_preferences")
-          .select("user_id")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        onboardingCompleted = !error && Boolean(data?.user_id);
-      }
-
-      if (!onboardingCompleted) {
-        navigate(resolvePostAuthPath({ role: effectiveRole, onboardingCompleted: false }), { replace: true });
-        return;
-      }
-
       // Account-level preference is stored in auth metadata so it follows the
       // user across browsers/devices. Only enumerated internal destinations are
       // accepted; stale or unauthorized values fall back to the role default.
@@ -106,6 +91,7 @@ export function PostLoginRouter() {
       });
 
       if (preferredLanding?.path) {
+        queueWelcomeBack(effectiveRole);
         if (preferredLanding.role && preferredLanding.role !== activeRole) {
           setActiveRole(preferredLanding.role);
         }
@@ -113,6 +99,7 @@ export function PostLoginRouter() {
         return;
       }
 
+      queueWelcomeBack(effectiveRole);
       navigate(resolvePostAuthPath({
         role: effectiveRole,
         onboardingCompleted: true,

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
   ArrowRight,
   ArrowLeft,
   X,
@@ -9,9 +8,7 @@ import {
   ChevronUp,
   Minimize2,
   CheckCircle2,
-  Compass,
   RotateCcw,
-  ShieldCheck
 } from 'lucide-react';
 import {
   ROLE_PILOT_CONFIGS,
@@ -69,9 +66,10 @@ export function PromorangRolePilotHUD() {
 
   // Listen for custom launch events from anywhere in the app (e.g. Header button)
   useEffect(() => {
-    const handleLaunchTour = (event: CustomEvent<{ role?: PilotRoleId }>) => {
-      const targetRole = event.detail?.role && ROLE_PILOT_CONFIGS[event.detail.role]
-        ? event.detail.role
+    const handleLaunchTour = (event: Event) => {
+      const customEvent = event as CustomEvent<{ role?: PilotRoleId }>;
+      const targetRole = customEvent.detail?.role && ROLE_PILOT_CONFIGS[customEvent.detail.role]
+        ? customEvent.detail.role
         : 'explorer';
       setActive(true);
       setMinimized(false);
@@ -83,9 +81,9 @@ export function PromorangRolePilotHUD() {
       navigate(ROLE_PILOT_CONFIGS[targetRole].steps[0].path);
     };
 
-    window.addEventListener('promorang:start-role-pilot' as any, handleLaunchTour);
+    window.addEventListener('promorang:start-role-pilot', handleLaunchTour);
     return () => {
-      window.removeEventListener('promorang:start-role-pilot' as any, handleLaunchTour);
+      window.removeEventListener('promorang:start-role-pilot', handleLaunchTour);
     };
   }, [navigate]);
 

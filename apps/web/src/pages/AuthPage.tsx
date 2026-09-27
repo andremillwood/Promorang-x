@@ -27,7 +27,7 @@ import {
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
 
-type UserRole = "participant" | "creator" | "host" | "brand" | "merchant";
+type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency";
 
 const roleInfo: Record<UserRole, { icon: typeof Users; title: string; description: string }> = {
   participant: {
@@ -54,6 +54,11 @@ const roleInfo: Record<UserRole, { icon: typeof Users; title: string; descriptio
     icon: Store,
     title: "For Venues",
     description: "Welcome moments to your location",
+  },
+  agency: {
+    icon: Briefcase,
+    title: "For Agencies",
+    description: "Plan and prove client programmes",
   },
 };
 

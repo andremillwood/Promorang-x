@@ -8,10 +8,11 @@ import {
   Building2,
   QrCode,
   Target,
+  CheckCircle2,
   LucideIcon
 } from 'lucide-react';
 
-export type PilotRoleId = 'explorer' | 'creator' | 'host' | 'merchant' | 'brand';
+export type PilotRoleId = 'explorer' | 'creator' | 'host' | 'merchant' | 'brand' | 'agency';
 
 export interface PilotStep {
   step: number;
@@ -227,6 +228,18 @@ export const ROLE_PILOT_CONFIGS: Record<PilotRoleId, RoleTourConfig> = {
         icon: Ticket,
         badgeColor: 'text-[#10b981] bg-[#10b98115] border-[#10b98133]'
       }
+    ]
+  },
+  agency: {
+    id: 'agency',
+    name: 'Agency',
+    icon: Target,
+    themeColor: '#eab308',
+    tagline: 'Shape the client outcome, coordinate the people who deliver it, and keep proof in one place.',
+    steps: [
+      { step: 1, stage: 'STAGE 01 · BRIEF', title: 'Shape the client outcome', path: '/business/start?pilot=agency&step=1', insight: 'Begin with the business result and audience. PROMORANG turns that into a programme rather than an empty campaign shell.', actionLabel: 'Next: Review active work ➔', icon: Target, badgeColor: 'text-[#eab308] bg-[#eab30815] border-[#eab30833]' },
+      { step: 2, stage: 'STAGE 02 · WORKSPACE', title: 'Coordinate the programme', path: '/dashboard?view=studio&pilot=agency&step=2', insight: 'Use Studio to keep the client, participating partners, inventory and live moments in one operating view.', actionLabel: 'Next: See the evidence ➔', icon: Building2, badgeColor: 'text-[#3b82f6] bg-[#3b82f615] border-[#3b82f633]' },
+      { step: 3, stage: 'STAGE 03 · PROOF', title: 'Review attributed movement', path: '/activity?pilot=agency&step=3', insight: 'Report claims, arrivals, validations and delivery—the consequences the client can act on.', actionLabel: 'Complete agency walkthrough ➔', icon: CheckCircle2, badgeColor: 'text-[#10b981] bg-[#10b98115] border-[#10b98133]' }
     ]
   }
 };

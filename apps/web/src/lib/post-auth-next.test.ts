@@ -29,6 +29,8 @@ describe("post-auth-next", () => {
     expect(roleFromNext("/for-creators")).toBe("creator");
     expect(roleFromNext("/for-merchants")).toBe("merchant");
     expect(roleFromNext("/for-brands")).toBe("brand");
+    expect(roleFromNext("/for-agencies")).toBe("agency");
+    expect(roleFromNext("/business/start?role=agency")).toBe("agency");
     expect(roleFromNext("/stock")).toBe("merchant");
     expect(roleFromNext("/create/moment")).toBe("host");
     expect(roleFromNext("/create/campaign")).toBe("brand");

@@ -10,12 +10,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Building2, Globe, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { consumePostAuthNext } from '@/lib/post-auth-next';
+import { useCreateUserPreferences } from '@/hooks/useUserPreferences';
+import { startRolePilot } from '@/lib/auth-journey';
 
 export default function BrandOnboarding() {
-    const { user, refreshWorkspaceContext } = useAuth();
+    const { user, refreshWorkspaceContext, setActiveRole } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
+    const createPreferences = useCreateUserPreferences();
     const [formData, setFormData] = useState({
         name: '',
         type: 'brand', // Default to brand
@@ -42,20 +45,31 @@ export default function BrandOnboarding() {
             });
             if (error) throw error;
 
+            // The preferences row is the durable onboarding receipt used by
+            // post-login routing. Business setup must create it as well.
+            await createPreferences.mutateAsync({
+                preferred_categories: [],
+                lifestyle_tags: [],
+                preferred_times: [],
+                notification_enabled: true,
+            });
+
             toast({
                 title: "Brand account ready",
                 description: `${formData.name} is ready to continue the programme you were shaping.`,
             });
 
             await refreshWorkspaceContext();
+            setActiveRole(formData.type as 'brand' | 'merchant' | 'agency');
+            startRolePilot(formData.type);
 
             // Resume the exact commercial job when onboarding interrupted an outcome brief.
             navigate(consumePostAuthNext() || '/business/start?resume=1');
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast({
                 title: "Error",
-                description: error.message,
+                description: error instanceof Error ? error.message : "We couldn't create this workspace. Please try again.",
                 variant: "destructive"
             });
         } finally {
@@ -157,7 +171,7 @@ export default function BrandOnboarding() {
                         </CardContent>
                         <CardFooter>
                             <Button type="submit" className="w-full" variant="hero" disabled={loading}>
-                                {loading ? "Creating..." : "Create Brand Account"}
+                                {loading ? "Creating..." : "Continue to my workspace"}
                             </Button>
                         </CardFooter>
                     </form>

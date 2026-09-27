@@ -85,12 +85,12 @@ export function roleFromNext(next?: string | null): Exclude<PostAuthRole, null |
   const value = sanitizePostAuthNext(next);
   if (!value) return null;
   const inferred = inferStakeholderRoleFromPath(value);
-  if (inferred && inferred !== "admin" && inferred !== "agency" && inferred !== "promoter" && inferred !== "marketing") {
+  if (inferred && inferred !== "admin" && inferred !== "promoter" && inferred !== "marketing") {
     return inferred;
   }
   const params = new URLSearchParams(value.split("?")[1] || "");
   const requested = params.get("role") || params.get("audience");
-  if (requested === "creator" || requested === "host" || requested === "brand" || requested === "merchant") {
+  if (requested === "creator" || requested === "host" || requested === "brand" || requested === "merchant" || requested === "agency") {
     return requested;
   }
   const path = value.split("?")[0];
@@ -98,6 +98,7 @@ export function roleFromNext(next?: string | null): Exclude<PostAuthRole, null |
   if (path.startsWith("/for-creators")) return "creator";
   if (path.startsWith("/for-merchants")) return "merchant";
   if (path.startsWith("/for-brands")) return "brand";
+  if (path.startsWith("/for-agencies")) return "agency";
   if (path.startsWith("/propose") || path.startsWith("/hosting") || path.startsWith("/for-communities")) return "host";
   return null;
 }

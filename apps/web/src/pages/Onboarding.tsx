@@ -8,6 +8,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { landingPathForRole, promoCardAimPath } from "@promorang/shared";
 import { readPromoCardAim } from "@/lib/promocard-aim";
 import { consumePostAuthNext, defaultPostAuthPath } from "@/lib/post-auth-next";
+import { startRolePilot } from "@/lib/auth-journey";
 
 const Onboarding = () => {
   const { t } = useI18n();
@@ -35,7 +36,7 @@ const Onboarding = () => {
       idempotencyKey: `growth:onboarding:${getAnonymousId()}`,
     });
     
-    // Automatically trigger role pilot HUD co-pilot for the user's chosen persona
+    // Automatically trigger the role-specific first-use guide.
     const roleMap: Record<string, string> = {
       explorer: "participant",
       creator: "creator",
@@ -45,9 +46,7 @@ const Onboarding = () => {
       agency: "agency",
     };
     const roleId = (personaChoice && roleMap[personaChoice]) || activeRole || "participant";
-    sessionStorage.setItem('promorang_role_pilot_active', 'true');
-    sessionStorage.setItem('promorang_role_pilot_role', roleId);
-    sessionStorage.setItem('promorang_role_pilot_step', '0');
+    startRolePilot(roleId);
     
     const next = consumePostAuthNext() || landingPathForRole(roleId);
     navigate(next === "/card" ? promoCardAimPath(readPromoCardAim()) : next);

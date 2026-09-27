@@ -22,6 +22,7 @@ import { MarketProvider } from "@/contexts/MarketContext";
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
 import { MidasDemonstrationTour } from "./components/demo/MidasDemonstrationTour";
 import { PromorangRolePilotHUD } from "./components/onboarding/PromorangRolePilotHUD";
+import { WelcomeBackBrief } from "./components/onboarding/WelcomeBackBrief";
 import { IntentGoalModal } from "./components/intent/IntentGoalModal";
 
 // Route-level code splitting — each page loads on demand
@@ -228,6 +229,7 @@ const App = () => (
                 <RouteScrollManager />
                 <MidasDemonstrationTour />
                 <PromorangRolePilotHUD />
+                <WelcomeBackBrief />
                 <IntentGoalModal />
                 <ChunkErrorBoundary>
                   <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
