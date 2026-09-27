@@ -16,20 +16,20 @@ function show(proof_state: "pending" | "verified" | "rejected") {
 describe("participant proof decision", () => {
   it("keeps pending evidence distinct from approval and issued rewards", () => {
     show("pending");
-    expect(container.querySelector("h2")).toHaveTextContent("under review");
+    expect(container.querySelector("h2")).toHaveTextContent("We’re checking it");
     expect(container.querySelector("a")).not.toBeInTheDocument();
     expect(container).toHaveTextContent("Attendance and any rewards await a decision");
     expect(document.querySelector('[data-proof-state="pending"]')).toBeInTheDocument();
   });
   it("links approval to retained history without claiming a reward was issued", () => {
     show("verified");
-    expect(container.querySelector("h2")).toHaveTextContent("approved");
+    expect(container.querySelector("h2")).toHaveTextContent("You were part of this");
     expect(container.querySelector("a")).toHaveAttribute("href", "/vault");
     expect(document.body).not.toHaveTextContent("Reward unlocked");
   });
   it("gives rejected proof a recovery path", () => {
     show("rejected");
-    expect(container.querySelector("h2")).toHaveTextContent("needs attention");
+    expect(container.querySelector("h2")).toHaveTextContent("We need a little more");
     expect(container.querySelector("a")).toHaveAttribute("href", `/moments/${momentId}/checkin`);
   });
 });

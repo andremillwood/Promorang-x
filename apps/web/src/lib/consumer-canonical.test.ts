@@ -2,15 +2,14 @@ import { describe, expect, it } from "vitest";
 import { CONSUMER_PRIMARY_NAV } from "./consumer-canonical";
 
 describe("consumer primary nav", () => {
-  it("keeps Home on the public homepage and PromoCard in the first five destinations", () => {
+  it("keeps the signed-in Today surface first and PromoCard in the primary destinations", () => {
     expect(CONSUMER_PRIMARY_NAV.map((item) => item.label)).toEqual([
-      "Home",
+      "Today",
       "Discover",
       "PromoCard",
-      "Rewards",
-      "You",
+      "Vault",
     ]);
-    expect(CONSUMER_PRIMARY_NAV[0].href).toBe("/");
+    expect(CONSUMER_PRIMARY_NAV[0].href).toBe("/today");
     expect(CONSUMER_PRIMARY_NAV.find((item) => item.label === "PromoCard")?.href).toBe("/card");
   });
 });
