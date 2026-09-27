@@ -12,6 +12,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+const PWA_DISMISSAL_KEY = "promorang:pwa_prompt_dismissed:mobile-home-v2";
+
 export function PWAInstallPrompt() {
   const { t } = useI18n();
   const location = useLocation();
@@ -45,7 +47,7 @@ export function PWAInstallPrompt() {
     if (!isMobileBrowser) return;
 
     // Check 7-day dismissal cooldown
-    const lastDismissed = localStorage.getItem("promorang:pwa_prompt_dismissed");
+    const lastDismissed = localStorage.getItem(PWA_DISMISSAL_KEY);
     if (lastDismissed) {
       const daysSince = (Date.now() - Number(lastDismissed)) / (1000 * 60 * 60 * 24);
       if (daysSince < 7) {
@@ -103,7 +105,7 @@ export function PWAInstallPrompt() {
     triggerHaptic("light");
     setDismissed(true);
     setShowIOSPrompt(false);
-    localStorage.setItem("promorang:pwa_prompt_dismissed", String(Date.now()));
+    localStorage.setItem(PWA_DISMISSAL_KEY, String(Date.now()));
   };
 
   if (suppressedForParticipantWorld || dismissed || (!deferredPrompt && !showIOSPrompt)) return null;
