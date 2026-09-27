@@ -39,10 +39,10 @@ type PulseMoment = {
 };
 
 const pulseTone = {
-  dormant: "border-border/70 bg-card text-muted-foreground",
-  forming: "border-primary/20 bg-primary/10 text-primary",
-  live: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-  cooling: "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  dormant: "border-white/20 bg-black/75 text-white/75",
+  forming: "border-orange-400/35 bg-orange-500/15 text-orange-300",
+  live: "border-emerald-400/35 bg-emerald-500/15 text-emerald-300",
+  cooling: "border-amber-400/35 bg-amber-500/15 text-amber-300",
 } as const;
 
 const formatStartTime = (value?: string | null, notPostedText = "Time not posted") => {
@@ -95,7 +95,7 @@ const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured
       <div className="relative overflow-hidden p-5 sm:p-6">
         <div className="relative">
           <div className="flex items-start justify-between gap-3">
-            <span className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/65">
               {isLive ? t("pulsePage.happening") : t("pulsePage.building")}
             </span>
             <span className="text-[11px] font-black uppercase tracking-[0.18em] text-primary">{isLive ? t("pulsePage.checkInEligible") : t("pulsePage.joinEarly")}</span>
@@ -117,7 +117,7 @@ const PulseCard = ({ moment, featured = false }: { moment: PulseMoment; featured
               {formatStartTime(moment.starts_at, t("pulsePage.timeNotPosted"))}
             </span>
             {moment.city ? (
-              <span className="text-muted-foreground/80">{moment.city}</span>
+              <span className="text-white/55">{moment.city}</span>
             ) : null}
           </div>
 
@@ -182,10 +182,10 @@ const PulseSection = ({
     <section id={title.toLowerCase().startsWith("live") ? "live" : title.toLowerCase().startsWith("forming") ? "forming" : "cooling"} className="scroll-mt-24 space-y-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="font-serif text-2xl font-bold text-foreground">{title}</h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>
+          <h2 className="font-sans text-2xl font-black text-white">{title}</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-white/65">{description}</p>
         </div>
-        <span className="text-[11px] font-black uppercase tracking-[0.24em] text-muted-foreground">
+        <span className="text-[11px] font-black uppercase tracking-[0.18em] text-white/55">
           {moments.length === 1 ? t("pulsePage.countSingular") : t("pulsePage.countPlural", { count: moments.length.toString() })}
         </span>
       </div>
@@ -272,11 +272,12 @@ const Pulse = () => {
   );
 
   return (
-    <main className="mx-auto max-w-7xl space-y-8 px-4 py-5 text-white sm:space-y-10 sm:px-6 sm:py-8">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black">
+    <main className="min-h-screen bg-[#050505] px-4 py-5 text-white sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-7xl space-y-8 sm:space-y-10">
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-white/15 bg-black sm:rounded-[2rem]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_28%,rgba(255,105,0,.24),transparent_30%),linear-gradient(135deg,#24150e,#050505_62%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_28%,rgba(255,105,0,.22),transparent_28%),linear-gradient(90deg,#050505_8%,rgba(5,5,5,.88)_48%,rgba(5,5,5,.36))]" />
-        <div className="relative grid min-h-[460px] gap-8 p-6 sm:p-10 lg:grid-cols-[1fr_390px] lg:items-end lg:p-12">
+        <div className="relative grid min-h-[390px] gap-8 p-5 sm:min-h-[440px] sm:p-10 lg:grid-cols-[1fr_390px] lg:items-end lg:p-12">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-red-400">
               <span className="relative flex h-2 w-2">
@@ -285,8 +286,8 @@ const Pulse = () => {
               </span>
               {user ? t("pulsePage.liveMovement") : t("pulsePage.publicPulsePreview")}
             </div>
-            <h1 className="mt-6 max-w-3xl font-sans text-6xl font-black uppercase leading-[0.82] tracking-[-0.075em] sm:text-8xl lg:text-9xl">{t("pulsePage.heroTitle")}</h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
+            <h1 className="mt-5 max-w-3xl font-sans text-[clamp(3.15rem,14vw,7rem)] font-black uppercase leading-[0.9] tracking-[-0.06em]">{t("pulsePage.heroTitle")}</h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg">
               {t("pulsePage.heroSubtitle")} Now showing {city.name}.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -359,10 +360,10 @@ const Pulse = () => {
           ))}
         </div>
       ) : pulseMoments.length === 0 ? (
-        <div className="rounded-[2rem] border border-dashed border-border bg-card/50 p-10 text-center">
+        <div className="rounded-[1.5rem] border border-white/20 bg-white/[0.04] p-6 text-center sm:rounded-[2rem] sm:p-10">
           <Sparkles className="mx-auto h-10 w-10 text-primary" />
-          <h2 className="mt-4 font-serif text-3xl font-bold text-foreground">{t("pulsePage.noActivePulseTitle")}</h2>
-          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+          <h2 className="mt-4 font-sans text-3xl font-black text-white">{t("pulsePage.noActivePulseTitle")}</h2>
+          <p className="mx-auto mt-3 max-w-xl leading-7 text-white/65">
             Nothing is live in {city.name} right now. {city.id === "kingston" ? t("pulsePage.noActivePulseDesc") : "Kingston is the live pulse — switch hubs to see forming and live Moments."}
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
@@ -399,6 +400,7 @@ const Pulse = () => {
           />
         </div>
       )}
+      </div>
     </main>
   );
 };
