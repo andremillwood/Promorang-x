@@ -37,6 +37,14 @@ import coffeeCode from "@/assets/moments/coffee-code.jpg";
 import concert from "@/assets/moment-concert.jpg";
 
 const money = (value: number) => value ? `J$${Math.round(value).toLocaleString()}` : "J$0";
+const OPERATOR_GUIDE_OPEN_KEY = "promorang.operator-guide-open";
+const operatorGuideStartsOpen = () => {
+  try {
+    return typeof window !== "undefined" && window.localStorage.getItem(OPERATOR_GUIDE_OPEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
 const vibeTracks = [
   { label: "Music", icon: Music2, image: jazzNight, href: "/discover?tab=moments&category=music" },
@@ -312,10 +320,15 @@ export default function PeopleHome() {
     >
       {isPreview ? <nav aria-label={t("people.previewRoles")} className="pr-world-strip">{PREVIEW_ROLES.map((item) => <Link key={item} to={`/app-preview?role=${item}`} data-active={lens.role === item} className="pr-world-chip">{item}</Link>)}</nav> : null}
 
-      <ParticipationEconomy variant="operator" className="border-y border-white/10 py-8" />
+      <LiveLoopActions role={String(activeRole || role)} title="What to do next" />
+
+      <details className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
+        <summary className="cursor-pointer list-none text-sm font-black text-white/70">Need a walkthrough for this role?</summary>
+        <div className="mt-6"><StakeholderSetupPlaybook role={lensRole} /></div>
+      </details>
 
       <section aria-labelledby="objects-in-play">
-        <div className="flex items-end justify-between gap-4"><div><p className="pr-world-kicker">Canonical objects</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What is in play.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">The same objects, seen through the work this role must perform.</p></div>
+        <div className="flex items-end justify-between gap-4"><div><p className="pr-world-kicker">Working context</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Your work right now.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">What you can put in, what has been recorded, and where your work can create movement.</p></div>
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_.8fr_.8fr]">
           <StakeholderPutInPass role={lensRole} />
           {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(claimed), strong: true }]} footer={ticker} /> : <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.025] p-6"><ShieldCheck className="h-5 w-5 text-white/35" /><p className="mt-8 pr-world-kicker">Evidence</p><h3 className="mt-2 font-serif text-2xl font-bold">Nothing verified yet.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your receipt appears only after recorded activity. Empty remains empty.</p></div>}
@@ -325,14 +338,28 @@ export default function PeopleHome() {
         </div>
       </section>
 
-      <section aria-labelledby="live-signals"><p className="pr-world-kicker">Production truth</p><h2 id="live-signals" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Live operating signals.</h2><div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">{[["People", Number(data?.people || 0)], ["On PromoCards", claimed], ["Verified", verified]].map(([label, value]) => <div key={String(label)} className="bg-[#0d0d0e] p-6"><p className="font-['Anton'] text-5xl text-white">{value}</p><p className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff7a35]">{label}</p></div>)}</div></section>
-
-      <LiveLoopActions role={String(activeRole || role)} title={t("people.makeLive")} />
+      <section aria-labelledby="live-signals"><p className="pr-world-kicker">Results so far</p><h2 id="live-signals" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What your work has moved.</h2><div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">{[["People reached", Number(data?.people || 0)], ["On PromoCards", claimed], ["Verified actions", verified]].map(([label, value]) => <div key={String(label)} className="bg-[#0d0d0e] p-6"><p className="font-['Anton'] text-5xl text-white">{value}</p><p className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff7a35]">{label}</p></div>)}</div></section>
       <section className="space-y-4"><div className="flex items-center justify-between"><div><p className="pr-world-kicker">Demand</p><h2 className="mt-2 font-serif text-3xl font-bold">{t("people.whatTheyAsked")}</h2></div><Users className="h-5 w-5 text-[#ff5a1f]" /></div><DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" /></section>
 
       {data?.perks?.length ? <section className="space-y-3"><p className="pr-world-kicker">Live inventory</p><h2 className="font-serif text-3xl font-bold">{t("people.perksYouCanGive")}</h2><div className="grid gap-3 md:grid-cols-2">{data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => <Link key={perk.id} to={to("/give")}><TicketPass kicker={perk.source === "yours" ? t("people.yours") : t("people.available")} title={perk.title} detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")} stub="DROP" stubLabel="Perk" /></Link>)}</div></section> : null}
 
-      <details className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6"><summary className="cursor-pointer list-none text-sm font-black text-white/70">How this role puts value into PROMORANG</summary><div className="mt-6"><StakeholderSetupPlaybook role={lensRole} /></div></details>
+      <details
+        defaultOpen={operatorGuideStartsOpen()}
+        onToggle={(event) => {
+          try {
+            window.localStorage.setItem(OPERATOR_GUIDE_OPEN_KEY, event.currentTarget.open ? "1" : "0");
+          } catch {
+            /* Preference persistence is optional. */
+          }
+        }}
+        className="group rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6"
+      >
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-sm font-black text-white/70 marker:content-none">
+          <span><span className="block text-[10px] uppercase tracking-[.18em] text-[#ff7a35]">Optional guide</span><span className="mt-1 block">How PROMORANG turns this work into value</span></span>
+          <span aria-hidden="true" className="text-xl font-normal text-white/35 transition group-open:rotate-45">+</span>
+        </summary>
+        <ParticipationEconomy variant="operator" className="mt-6 border-t border-white/10 pt-8" />
+      </details>
       <Link to="/dashboard?view=studio" className="block text-center text-xs text-white/30">{t("people.olderStudio")}</Link>
     </ExperienceShell>
   );
