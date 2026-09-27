@@ -60,7 +60,7 @@ export function PublicHomeBar() {
             >
               <WalletCards className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{user ? t("publicNav.myCard") : t("publicNav.promoCard")}</span>
-              <span>{user ? t("publicNav.card") : t("publicNav.promoCard")}</span>
+              <span className="sm:hidden">{user ? t("publicNav.card") : t("publicNav.promoCard")}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>

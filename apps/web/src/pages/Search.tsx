@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { searchPromorang, type GlobalSearchResult as SearchResult } from "@/lib/global-search";
+import { searchPromorang } from "@/lib/global-search";
 import SEO from "@/components/SEO";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import {
   Flame,
   Compass,
   MapPin,
-  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nContext";
@@ -115,19 +114,20 @@ const SearchPage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 text-white">
+    <main className="min-h-screen bg-[#050505] px-4 py-7 text-white sm:px-6 sm:py-10 lg:px-8 xl:px-12 2xl:px-16">
+      <div className="mx-auto max-w-[1600px]">
       <SEO
         title={t("search.seoTitle")}
         description={t("search.seoDescription")}
       />
 
-      <section className="mb-10 overflow-hidden rounded-[2.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,85,0,0.2),transparent_40%),linear-gradient(135deg,rgba(15,15,18,0.98),rgba(9,9,11,0.95))] p-6 sm:p-10 shadow-2xl xl:mb-14 xl:py-16">
+      <section className="mb-8 overflow-hidden rounded-[1.5rem] border border-white/15 bg-[radial-gradient(circle_at_top_left,rgba(255,85,0,0.2),transparent_40%),linear-gradient(135deg,rgba(15,15,18,0.98),rgba(9,9,11,0.95))] p-5 shadow-2xl sm:mb-10 sm:rounded-[2.5rem] sm:p-10 xl:mb-14 xl:py-16">
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#ff5500]/30 bg-[#ff5500]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[0.2em] text-[#ff5500]">
             <Zap className="h-3.5 w-3.5" />
             {t("search.eyebrow")}
           </div>
-          <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-white sm:text-6xl xl:text-7xl">
+          <h1 className="font-sans text-4xl font-black leading-[1.02] tracking-[-0.045em] text-white sm:text-6xl xl:text-7xl">
             {t("search.title")}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
@@ -145,7 +145,7 @@ const SearchPage = () => {
           />
           <Button
             type="submit"
-            className="h-11 w-full rounded-xl bg-[#ff5500] text-white font-bold hover:bg-[#e04b00] sm:absolute sm:right-2 sm:top-1/2 sm:h-10 sm:w-auto sm:-translate-y-1/2"
+            className="h-11 w-full rounded-xl bg-[#ff6a00] font-black text-black hover:bg-[#ff812b] sm:absolute sm:right-2 sm:top-1/2 sm:h-10 sm:w-auto sm:-translate-y-1/2"
             disabled={isLoading}
           >
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("search.button")}
@@ -183,7 +183,7 @@ const SearchPage = () => {
       </section>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-8 w-full justify-start gap-4 rounded-none border-b border-white/10 bg-transparent p-0 sm:gap-8">
+        <TabsList className="mb-8 flex h-auto w-full justify-start gap-5 overflow-x-auto rounded-none border-b border-white/15 bg-transparent p-0 [scrollbar-width:none] sm:gap-8 [&::-webkit-scrollbar]:hidden">
           <TabsTrigger value="all" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.all")}</TabsTrigger>
           <TabsTrigger value="moment" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("search.moments")}</TabsTrigger>
           <TabsTrigger value="discovery" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#ff5500] data-[state=active]:text-[#ff5500] data-[state=active]:bg-transparent pb-4 px-1 text-white/60">{t("findOrAsk.resultDiscoveries")}</TabsTrigger>
@@ -229,7 +229,7 @@ const SearchPage = () => {
                     <Flame className="h-4 w-4 text-[#ff5500]" /> {t("search.trending")}
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {trendingMoments.map((item: any) => (
+                    {trendingMoments.map((item) => (
                       <Link
                         key={item.id}
                         to={`/moments/${item.id}`}
@@ -333,7 +333,8 @@ const SearchPage = () => {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </main>
   );
 };
 
