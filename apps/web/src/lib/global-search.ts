@@ -42,7 +42,7 @@ function result(row: any, type: GlobalSearchResultType, query: string): GlobalSe
   return {
     id: String(row.id), title, subtitle, description,
     result_type: type,
-    image_url: row.image_url || row.cover_image || "",
+    image_url: row.image_url || row.cover_image || (Array.isArray(row.images) ? (typeof row.images[0] === "string" ? row.images[0] : row.images[0]?.url) : "") || "",
     path: isMoment ? `/moments/${row.slug || row.id}` : isDiscovery ? `/discoveries/${row.slug || row.id}` : isVenue ? `/venues/${row.slug || row.id}` : isProduct ? `/shop/${encodeURIComponent(row.listing_id || row.id)}` : type === "offer" ? `/offers/${row.id}` : row.path || "/discover",
     relevance_score: relevance,
   };
@@ -59,7 +59,7 @@ export async function searchPromorang(query: string): Promise<GlobalSearchResult
     safe(client.rpc("fn_global_search", { search_term: term })),
     safe(client.from("moments").select("id,slug,title,description,category,location,venue_name,reward,image_url").eq("is_active", true).limit(200)),
     safe(client.from("discoveries").select("id,slug,title,description,category,city,country,cover_image").eq("verification_status", "approved").limit(200)),
-    safe(client.from("view_public_venue_directory").select("id,slug,name,description,location,address,city,venue_type,image_url").limit(200)),
+    safe(client.from("view_public_venue_directory").select("id,slug,name,description,location,address,city,venue_type,images").limit(200)),
     safe(client.from("offers").select("id,title,description,reward_type,fulfillment_type,status").in("status", ["active", "published", "live"]).limit(200)),
     safe(client.from("view_public_commerce_directory").select("listing_id,name,description,category,merchant_name,venue_name,city,location,listing_kind,image_url,is_active").eq("is_active", true).limit(200)),
   ]);
