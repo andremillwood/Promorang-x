@@ -86,6 +86,16 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
     });
 }
 
+const syncDisplayMode = () => {
+    const standalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+    document.documentElement.toggleAttribute("data-pwa", standalone);
+};
+
+syncDisplayMode();
+window.matchMedia("(display-mode: standalone)").addEventListener?.("change", syncDisplayMode);
+
 createRoot(document.getElementById("root")!).render(
     <HelmetProvider>
         <I18nProvider>

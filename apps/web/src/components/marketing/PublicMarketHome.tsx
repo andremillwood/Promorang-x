@@ -159,7 +159,7 @@ export default function PublicMarketHome() {
         style={{ backgroundImage: `url("${heroMoments}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto grid max-w-[1440px] gap-8 sm:gap-10 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.04fr)_minmax(440px,.76fr)] lg:items-center">
+        <div className="relative mx-auto grid max-w-[1440px] gap-8 sm:gap-10 lg:min-h-[42rem] lg:grid-cols-[minmax(0,1.04fr)_minmax(0,.76fr)] lg:items-center">
           <div className="max-w-4xl py-2 sm:py-6 md:py-10">
             <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> {t("clarity.heroKicker")}</p>
             <h1 className="mt-4 max-w-[12ch] text-[clamp(2.65rem,12vw,4rem)] font-black leading-[0.95] sm:mt-6 sm:max-w-[11ch] sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
