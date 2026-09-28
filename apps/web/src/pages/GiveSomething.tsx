@@ -1,5 +1,5 @@
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AUDIENCE_LABELS, PERK_KIND_LABELS, dropShareCopy, type DropAudience, type PerkKind } from "@promorang/shared";
 import { useGiveablePerks, useExperienceActions } from "@/hooks/usePeopleExperience";
@@ -44,6 +44,10 @@ export default function GiveSomething() {
   const [limit, setLimit] = useState("50");
   const [offerId, setOfferId] = useState<string | null>(params.get("offer"));
   const [shareUrl, setShareUrl] = useState("");
+  const receipt = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (shareUrl) receipt.current?.focus();
+  }, [shareUrl]);
   const momentId = params.get("moment") || undefined;
   const releaseId = params.get("release") || undefined;
 
@@ -77,7 +81,7 @@ export default function GiveSomething() {
       const url = `${window.location.origin}/drop/${drop.slug}`;
       setShareUrl(url);
       const message = dropShareCopy(giverName, title || selectedPerk?.title || PERK_KIND_LABELS[kind]);
-      await navigator.clipboard.writeText(`${message} ${url}`).catch(() => undefined);
+      await navigator.clipboard?.writeText(`${message} ${url}`).catch(() => undefined);
       toast({ title: t("give.dropped"), description: message });
     } catch (error) {
       toast({ title: t("give.dropFailed"), description: (error as Error).message, variant: "destructive" });
@@ -92,6 +96,7 @@ export default function GiveSomething() {
       backTo="/dashboard"
     >
       {shareUrl && params.get("scene_slug") ? <Link to={`/scenes/${encodeURIComponent(params.get("scene_slug")!)}`} className="inline-flex min-h-12 items-center text-primary">{t("launch.open")}</Link> : null}
+      {!shareUrl ? <>
       <StakeholderHowLead role={lensRole} surface="give" />
       {momentId ? (
         <p className="rounded-[1.3rem] border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-white/70">
@@ -212,13 +217,17 @@ export default function GiveSomething() {
         {createDrop.isPending ? t("give.dropping") : t("give.dropIt")}
       </button>
 
+      </> : null}
+
       {shareUrl ? (
         <div className="rounded-[1.5rem] border border-primary/40 bg-primary/10 px-4 py-4">
+          <h2 ref={receipt} tabIndex={-1} role="status" className="mb-3 font-serif text-2xl font-bold">{t("launch.offerSaved")}</h2>
           <p className="font-serif text-xl font-bold">
             {dropShareCopy(giverName, title || selectedPerk?.title || PERK_KIND_LABELS[kind])}
           </p>
           <p className="mt-2 text-sm text-white/70">{t("give.sendClaim")}</p>
           <p className="mt-3 break-all font-mono text-xs text-primary">{shareUrl}</p>
+          <Link to={new URL(shareUrl).pathname} className="mt-4 flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 text-center text-sm font-black text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">{t("launch.viewOffer")}</Link>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button
               type="button"
