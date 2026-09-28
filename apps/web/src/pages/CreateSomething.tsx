@@ -1,5 +1,5 @@
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CREATE_INTENTS, resolveCreateIntent } from "@promorang/shared";
 import { useExperienceActions } from "@/hooks/usePeopleExperience";
@@ -22,6 +22,11 @@ export default function CreateSomething() {
   const { activeRole } = useAuth();
   const selected = resolveCreateIntent(params.get("intent"));
   const [question, setQuestion] = useState("");
+  const [saved, setSaved] = useState<{ id: string; question: string } | null>(null);
+  const receipt = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (saved) receipt.current?.focus();
+  }, [saved]);
 
   const submitAsk = async () => {
     try {
@@ -32,8 +37,11 @@ export default function CreateSomething() {
         kind: params.get("hub") ? "demand" : undefined,
       });
       if (params.get("hub") && result?.id) void trackGrowthEvent({ eventName: "cta_clicked", journey: "participant", stage: "outcome", entityType: "scene", entityId: params.get("hub")!, properties: { action: "scene_contribution_completed", kind: "want", contributionId: result.id } });
-      toast({ title: t("create.asked"), description: t("create.askedCopy") });
-      navigate(params.get("scene_slug") ? `/scenes/${encodeURIComponent(params.get("scene_slug")!)}` : to("/happened"));
+      if (params.get("scene_slug") && result?.id) setSaved({ id: result.id, question: question.trim() });
+      else {
+        toast({ title: t("create.asked"), description: t("create.askedCopy") });
+        navigate(to("/happened"));
+      }
     } catch (error) {
       toast({ title: t("create.askFailed"), description: (error as Error).message, variant: "destructive" });
     }
@@ -68,7 +76,13 @@ export default function CreateSomething() {
         ))}
       </div>
 
-      {selected.intent === "answer" ? (
+      {saved ? (
+        <section className="space-y-4 rounded-[1.6rem] border border-primary/40 bg-primary/10 p-5">
+          <h2 ref={receipt} tabIndex={-1} role="status" className="font-serif text-2xl font-bold">{t("launch.wantSaved")}</h2>
+          <p className="break-words text-white/75">{saved.question}</p>
+          <Link to={`/scenes/${encodeURIComponent(params.get("scene_slug")!)}?want=${encodeURIComponent(saved.id)}#want-${encodeURIComponent(saved.id)}`} className="flex min-h-12 items-center justify-center rounded-full bg-primary px-5 py-3 text-center text-sm font-black text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">{t("launch.viewWant")}</Link>
+        </section>
+      ) : selected.intent === "answer" ? (
         <section className="space-y-3 rounded-[1.6rem] border border-white/10 bg-white/[0.04] p-4">
           <h2 className="font-serif text-2xl font-bold">{t("create.askTitle")}</h2>
           <textarea
@@ -77,7 +91,7 @@ export default function CreateSomething() {
             onChange={(event) => setQuestion(event.target.value)}
             rows={4}
             placeholder={t("create.askPh")}
-            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none"
+            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           />
           <button
             type="button"

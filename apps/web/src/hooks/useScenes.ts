@@ -20,10 +20,10 @@ export function useScenes(filters?: { city?: string; country?: string; limit?: n
   });
 }
 
-export function useScene(slug?: string) {
+export function useScene(slug?: string, wantId?: string) {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["scene", slug, user?.id],
+    queryKey: ["scene", slug, user?.id, wantId],
     enabled: Boolean(slug),
     queryFn: async () => {
       const { data: scene, error } = await db.from("scenes").select("*").eq("slug", slug).maybeSingle();
@@ -37,6 +37,13 @@ export function useScene(slug?: string) {
         db.from("community_drops").select("id,slug,title,description,remaining").eq("scene_id", scene.id).eq("status", "active").gt("remaining", 0).limit(8),
       ]);
       if (membershipResult.error) throw membershipResult.error;
+      // A shared or newly saved Want may sit outside the eight most-supported Wants.
+      // Keep the lookup constrained to this Scene and its existing demand records.
+      if (wantId && !demandResult.error && !(demandResult.data || []).some((item: any) => item.id === wantId)) {
+        const focused = await db.from("discovery_questions").select("id,scene_id,semantic_kind,question,category,total_votes,discovery_options!discovery_options_discovery_id_fkey(id,option_text,votes_count)").eq("scene_id", scene.id).eq("semantic_kind", "demand").eq("id", wantId).maybeSingle();
+        if (focused.error) demandResult.error = focused.error;
+        if (focused.data) demandResult.data = [focused.data, ...(demandResult.data || [])];
+      }
       const moments = (linksResult.data || []).map((link: any) => link.moments).filter(Boolean);
       const demandIds = (demandResult.data || []).map((item: any) => item.id);
       const responsesResult = demandIds.length
