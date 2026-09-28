@@ -174,7 +174,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                   <ChevronDown className="hidden h-3.5 w-3.5 text-stone-500 sm:block" aria-hidden="true" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[calc(100vw-1rem)] max-w-sm max-h-[min(78dvh,680px)] overflow-y-auto overscroll-contain border-white/10 bg-[#11110f] p-2 text-stone-100 sm:w-80">
+              <DropdownMenuContent align="end" className="w-[calc(100vw-1rem)] max-w-sm max-h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1rem)] overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] border-white/10 bg-[#11110f] p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-stone-100 sm:w-80 sm:max-h-[min(78dvh,680px)]">
                 <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
                   <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-orange-500 to-amber-300 font-black text-black">
                     {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : (user?.email || "?").charAt(0).toUpperCase()}
