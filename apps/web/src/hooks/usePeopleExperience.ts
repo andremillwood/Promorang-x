@@ -142,6 +142,7 @@ export function useExperienceActions() {
     queryClient.invalidateQueries({ queryKey: ["experience-progress"] });
     queryClient.invalidateQueries({ queryKey: ["experience-guild"] });
     queryClient.invalidateQueries({ queryKey: ["scene"] });
+    queryClient.invalidateQueries({ queryKey: ["scenes"] });
   };
 
   const createDrop = useMutation({

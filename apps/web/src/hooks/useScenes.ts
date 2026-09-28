@@ -29,12 +29,14 @@ export function useScene(slug?: string) {
       const { data: scene, error } = await db.from("scenes").select("*").eq("slug", slug).maybeSingle();
       if (error) throw error;
       if (!scene) return null;
-      const [membershipResult, linksResult, discoveriesResult, demandResult] = await Promise.all([
-        user ? db.from("scene_memberships").select("*").eq("scene_id", scene.id).eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+      const [membershipResult, linksResult, discoveriesResult, demandResult, offersResult] = await Promise.all([
+        user ? db.from("scene_memberships").select("*").eq("scene_id", scene.id).eq("user_id", user.id).eq("membership_state", "active").limit(1).maybeSingle() : Promise.resolve({ data: null }),
         db.from("moment_scene_links").select("relationship,moments(*)").eq("scene_id", scene.id).limit(12),
         db.from("discoveries").select("*").eq("scene_id", scene.id).eq("verification_status", "approved").order("created_at", { ascending: false }).limit(12),
-        db.from("discovery_questions").select("id,scene_id,question,category,total_votes,threshold_for_moment,is_moment_triggered,created_at,discovery_options(id,option_text,votes_count)").eq("scene_id", scene.id).order("total_votes", { ascending: false }).limit(8),
+        db.from("discovery_questions").select("id,scene_id,semantic_kind,question,category,total_votes,threshold_for_moment,is_moment_triggered,created_at,discovery_options!discovery_options_discovery_id_fkey(id,option_text,votes_count)").eq("scene_id", scene.id).eq("semantic_kind", "demand").order("total_votes", { ascending: false }).limit(8),
+        db.from("community_drops").select("id,slug,title,description,remaining").eq("scene_id", scene.id).eq("status", "active").gt("remaining", 0).limit(8),
       ]);
+      if (membershipResult.error) throw membershipResult.error;
       const moments = (linksResult.data || []).map((link: any) => link.moments).filter(Boolean);
       const demandIds = (demandResult.data || []).map((item: any) => item.id);
       const responsesResult = demandIds.length
@@ -47,15 +49,21 @@ export function useScene(slug?: string) {
           ? db.from("view_public_venue_directory").select("id,slug,name,city,country,images").in("id", venueIds)
           : Promise.resolve({ data: [] }),
         personIds.length
-          ? db.from("profiles").select("id,user_id,full_name,display_name,username,avatar_url,location").in("user_id", personIds)
+          ? db.from("profiles").select("id,user_id,display_name,username,avatar_url").in("user_id", personIds)
           : Promise.resolve({ data: [] }),
       ]);
+      // Some deployed databases predate the existing public-discovery-graph migration.
+      // Omit unsupported Scene enrichment; never infer a relationship from city/category.
+      const discoveryLinkUnavailable = discoveriesResult.error?.code === "42703"
+        && discoveriesResult.error.message?.includes("scene_id");
       return {
+        hasContentError: [linksResult, ...(discoveryLinkUnavailable ? [] : [discoveriesResult]), demandResult, offersResult, responsesResult, placesResult, peopleResult].some((result) => result.error),
         scene: scene as Scene,
         membership: (membershipResult.data || null) as SceneMembership | null,
         moments,
         discoveries: discoveriesResult.data || [],
         demand: demandResult.data || [],
+        offers: offersResult.data || [],
         demandResponses: responsesResult.data || [],
         places: placesResult.data || [],
         people: peopleResult.data || [],
@@ -88,6 +96,11 @@ export function useJoinScene(scene?: Scene | null) {
         }, { onConflict: "scene_id,member_user_id" });
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["scene", scene?.slug] }),
+    onSuccess: async () => {
+      await Promise.all([
+        ["scene", scene?.slug], ["movement-feed-scene-memberships"],
+        ["experience-home"], ["experience-card"], ["experience-hub"],
+      ].map((queryKey) => queryClient.invalidateQueries({ queryKey })));
+    },
   });
 }

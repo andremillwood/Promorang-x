@@ -1,3 +1,4 @@
+import type { Scene } from "@promorang/shared";
 import { useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -15,10 +16,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
 import { rankParticipantFeed, type ParticipantFeedItem, type ParticipantFeedKind } from "@/lib/participant-feed";
 
-type SceneMembershipRow = { scene_id: string; membership_state: string };
+type SceneMembershipRow = { scene_id: string; membership_state: string; scenes: Scene | null };
 type MomentSceneLinkRow = { moment_id: string; scene_id: string };
 // The generated client types lag these already-migrated market-construction tables.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const marketDb = supabase as any;
 
 const kindLabel: Record<ParticipantFeedKind, string> = {
@@ -100,7 +100,7 @@ export function ParticipationFeed() {
   const discoveries = useListingDiscoveryPolls(5);
   const scenes = useScenes({ city: city.id === "all-jamaica" ? undefined : city.name, limit: 6 });
   const feedImpressionSent = useRef(false);
-  const sceneMemberships = useQuery<SceneMembershipRow[]>({ queryKey: ["movement-feed-scene-memberships", user?.id], enabled: Boolean(user?.id), queryFn: async () => { const { data, error } = await marketDb.from("scene_memberships").select("scene_id,membership_state").eq("user_id", user!.id).eq("membership_state", "active"); if (error) throw error; return (data || []) as SceneMembershipRow[]; } });
+  const sceneMemberships = useQuery<SceneMembershipRow[]>({ queryKey: ["movement-feed-scene-memberships", user?.id], enabled: Boolean(user?.id), queryFn: async () => { const { data, error } = await marketDb.from("scene_memberships").select("scene_id,membership_state,scenes(*)").eq("user_id", user!.id).eq("membership_state", "active"); if (error) throw error; return (data || []) as SceneMembershipRow[]; } });
   const joinedSceneIds = useMemo(() => (sceneMemberships.data || []).map((membership) => membership.scene_id), [sceneMemberships.data]);
   const momentIds = useMemo(() => (moments.data?.moments || []).map((moment) => moment.id).filter(Boolean), [moments.data?.moments]);
   const sceneMomentLinks = useQuery<MomentSceneLinkRow[]>({ queryKey: ["movement-feed-scene-moment-links", joinedSceneIds, momentIds], enabled: Boolean(joinedSceneIds.length && momentIds.length), queryFn: async () => { const { data, error } = await marketDb.from("moment_scene_links").select("moment_id,scene_id").in("scene_id", joinedSceneIds).in("moment_id", momentIds); if (error) throw error; return (data || []) as MomentSceneLinkRow[]; } });
@@ -113,9 +113,11 @@ export function ParticipationFeed() {
     const offerItems = (nearby.data || []).slice(0, 4).map((perk) => { const remaining = perk.availableQuantity ?? perk.remainingQuantity ?? null; const claimed = Boolean(perk.redemption?.code || perk.redemption?.recorded || perk.fulfillmentState === "redeemed"); return { id: String(perk.id), kind: "offer" as const, source: "promocard_nearby", title: perk.title, subtitle: perk.detail || perk.description, location: perk.locationLabel || perk.merchantName || perk.issuer?.name, availability: remaining === null ? null : `${remaining} left`, primaryAction: { label: claimed ? "Open card" : "See offer", href: livePerkHref(perk), state: claimed ? "claimed" as const : "available" as const }, signals: { local: perk.availability !== "anywhere", available: !claimed && (remaining === null || remaining > 0), freshAt: perk.expiresAt } }; });
     const wantItems = (discoveries.data || []).slice(0, 5).map((discovery) => ({ id: String(discovery.id), kind: "want" as const, source: "listing_discovery_poll", title: discovery.question, subtitle: discovery.description || "Add your voice to a real signal.", socialProof: `${discovery.totalVotes || 0} recorded response${discovery.totalVotes === 1 ? "" : "s"}`, optionPreview: (discovery.options || []).map((option) => option.text), primaryAction: { label: discovery.userVotedOptionId ? "View" : "Answer", href: discovery.detailUrl || (discovery.slug ? `/discover/${discovery.slug}` : "/discover"), state: discovery.userVotedOptionId ? "completed" as const : "available" as const }, signals: { local: true, socialProof: discovery.totalVotes || 0, available: !discovery.userVotedOptionId } }));
     const dropItems = (drops.data || []).slice(0, 4).map((drop) => ({ id: String(drop.id), kind: "drop" as const, source: "content_distribution", title: drop.title, subtitle: drop.description, imageUrl: drop.content_distribution_assets?.find((asset) => asset.media_url)?.media_url || null, startsAt: drop.starts_at, primaryAction: { label: "Open", href: `/content-drops/${drop.id}`, state: "available" as const }, signals: { startsAt: drop.starts_at, available: true, freshAt: drop.starts_at } }));
-    const sceneItems = (scenes.data || []).slice(0, 6).map((scene) => { const joined = membershipIds.has(String(scene.id)); return { id: String(scene.id), kind: "scene" as const, source: "scenes", title: scene.title, subtitle: scene.metadata?.tagline || scene.description || (joined ? "See what your people are moving." : "Join the people shaping what happens next."), imageUrl: scene.image_url, location: [scene.city, scene.country].filter(Boolean).join(", ") || null, primaryAction: { label: joined ? "Enter" : "See Scene", href: `/scenes/${scene.slug}`, state: joined ? "joined" as const : "available" as const }, signals: { local: !scene.city || scene.city.toLowerCase().includes(cityNeedle), joinedScene: joined, freshAt: scene.updated_at } }; });
+    const followedScenes = (sceneMemberships.data || []).flatMap((membership) => membership.scenes?.status === "active" ? [membership.scenes] : []);
+    const sceneCandidates = [...new Map([...followedScenes, ...(scenes.data || [])].map((scene) => [scene.id, scene])).values()];
+    const sceneItems = sceneCandidates.map((scene) => { const joined = membershipIds.has(String(scene.id)); return { id: String(scene.id), kind: "scene" as const, source: "scenes", title: scene.title, subtitle: scene.metadata?.tagline || scene.description || (joined ? "See what your people are moving." : "Join the people shaping what happens next."), imageUrl: scene.image_url, location: [scene.city, scene.country].filter(Boolean).join(", ") || null, primaryAction: { label: joined ? "Enter" : "See Scene", href: `/scenes/${scene.slug}`, state: joined ? "joined" as const : "available" as const }, signals: { local: !scene.city || scene.city.toLowerCase().includes(cityNeedle), joinedScene: joined, freshAt: scene.updated_at } }; });
     return rankParticipantFeed([...momentItems, ...offerItems, ...wantItems, ...dropItems, ...sceneItems], { limit: 11 });
-  }, [cityNeedle, discoveries.data, drops.data, joinedMomentIds, membershipIds, moments.data?.moments, nearby.data, scenes.data]);
+  }, [cityNeedle, discoveries.data, drops.data, joinedMomentIds, membershipIds, moments.data?.moments, nearby.data, scenes.data, sceneMemberships.data]);
 
   useEffect(() => { if (!feedItems.length || feedImpressionSent.current) return; feedImpressionSent.current = true; void trackGrowthEvent({ eventName: "participant_feed_impression", journey: "participant", stage: "acquired", entityType: "participant_feed", properties: { city: city.name, itemCount: feedItems.length, composition: feedItems.map((item) => item.kind) } }); }, [city.name, feedItems]);
 

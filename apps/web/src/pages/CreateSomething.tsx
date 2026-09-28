@@ -1,3 +1,4 @@
+import { trackGrowthEvent } from "@/lib/marketing-attribution";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CREATE_INTENTS, resolveCreateIntent } from "@promorang/shared";
@@ -24,13 +25,15 @@ export default function CreateSomething() {
 
   const submitAsk = async () => {
     try {
-      await ask.mutateAsync({
+      const result = await ask.mutateAsync({
         question,
         sceneId: params.get("hub") || undefined,
         category: "community",
+        kind: params.get("hub") ? "demand" : undefined,
       });
+      if (params.get("hub") && result?.id) void trackGrowthEvent({ eventName: "cta_clicked", journey: "participant", stage: "outcome", entityType: "scene", entityId: params.get("hub")!, properties: { action: "scene_contribution_completed", kind: "want", contributionId: result.id } });
       toast({ title: t("create.asked"), description: t("create.askedCopy") });
-      navigate(to("/happened"));
+      navigate(params.get("scene_slug") ? `/scenes/${encodeURIComponent(params.get("scene_slug")!)}` : to("/happened"));
     } catch (error) {
       toast({ title: t("create.askFailed"), description: (error as Error).message, variant: "destructive" });
     }
@@ -49,7 +52,7 @@ export default function CreateSomething() {
           <Link
             key={item.intent}
             to={(() => {
-              if (item.intent === "answer") return `${to("/create")}?intent=answer`;
+              if (item.intent === "answer") return `${to("/create")}?intent=answer${params.get("hub") ? `&hub=${encodeURIComponent(params.get("hub")!)}&scene_slug=${encodeURIComponent(params.get("scene_slug") || "")}` : ""}`;
               const [path, qs] = item.href.split("?");
               const stayInPeople = ["/give", "/people", "/create", "/earn", "/happened", "/card", "/start"].some(
                 (prefix) => path === prefix || path.startsWith(`${prefix}/`),
@@ -69,6 +72,7 @@ export default function CreateSomething() {
         <section className="space-y-3 rounded-[1.6rem] border border-white/10 bg-white/[0.04] p-4">
           <h2 className="font-serif text-2xl font-bold">{t("create.askTitle")}</h2>
           <textarea
+            aria-label={t("create.askTitle")}
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             rows={4}

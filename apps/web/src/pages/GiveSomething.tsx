@@ -1,3 +1,4 @@
+import { trackGrowthEvent } from "@/lib/marketing-attribution";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AUDIENCE_LABELS, PERK_KIND_LABELS, dropShareCopy, type DropAudience, type PerkKind } from "@promorang/shared";
@@ -71,6 +72,8 @@ export default function GiveSomething() {
         sourceKind: releaseId ? "release" : undefined,
         sourceId: releaseId || undefined,
       });
+      const sceneId = params.get("scene_id") || params.get("hub");
+      if (sceneId && drop.id) void trackGrowthEvent({ eventName: "cta_clicked", journey: "participant", stage: "outcome", entityType: "scene", entityId: sceneId, properties: { action: "scene_contribution_completed", kind: "offer", contributionId: drop.id } });
       const url = `${window.location.origin}/drop/${drop.slug}`;
       setShareUrl(url);
       const message = dropShareCopy(giverName, title || selectedPerk?.title || PERK_KIND_LABELS[kind]);
@@ -88,6 +91,7 @@ export default function GiveSomething() {
       description={t("give.copy")}
       backTo="/dashboard"
     >
+      {shareUrl && params.get("scene_slug") ? <Link to={`/scenes/${encodeURIComponent(params.get("scene_slug")!)}`} className="inline-flex min-h-12 items-center text-primary">{t("launch.open")}</Link> : null}
       <StakeholderHowLead role={lensRole} surface="give" />
       {momentId ? (
         <p className="rounded-[1.3rem] border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-white/70">

@@ -139,3 +139,38 @@ test('createDrop stores the host moment on drop attribution', async () => {
   expect(inserted.value.attribution.moment_id).toBe('moment-4');
   expect(inserted.value.offer_id).toBe('offer-9');
 });
+
+test('Scene creation keeps the Promise and audience in metadata and never assumes a country', async () => {
+  const writes = [];
+  const db = {
+    from(table) {
+      const result = { data: null, error: null };
+      for (const method of ['select', 'eq', 'in', 'order', 'limit', 'maybeSingle', 'single']) result[method] = () => result;
+      result.insert = (value) => {
+        writes.push({ table, value });
+        result.data = table === 'scenes' ? { id: 'scene-1', ...value } : null;
+        return result;
+      };
+      result.upsert = () => result;
+      return result;
+    },
+  };
+  const result = await createPeopleExperienceService(db).startCommunity('person-1', {
+    name: '  Night walks  ', description: 'Walk together', city: 'Lisboa', promise: 'Find a walk worth taking', audience: 'Night walkers',
+  });
+  expect(result.scene).toMatchObject({ title: 'Night walks', country: null, city: 'Lisboa', metadata: { tagline: 'Find a walk worth taking', audience: 'Night walkers' } });
+  expect(writes.filter((row) => row.table === 'scenes')).toHaveLength(1);
+});
+
+test('Scene creation rejects whitespace-only names before writing', async () => {
+  const db = database(null);
+  await expect(createPeopleExperienceService(db).startCommunity('person-1', { name: '   ' })).rejects.toThrow();
+  expect(db.writes).toEqual([]);
+});
+
+test('Scene wants use the existing demand semantics with zero support', async () => {
+  const db = database(null);
+  await createPeopleExperienceService(db).createAsk('person-1', { question: 'A night walk?', sceneId: 'scene-1', kind: 'demand' });
+  const write = db.writes.find((row) => row.table === 'discovery_questions');
+  expect(write.value).toMatchObject({ scene_id: 'scene-1', semantic_kind: 'demand', origin_user_id: 'person-1', total_votes: 0, status: 'active' });
+});

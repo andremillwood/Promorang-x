@@ -155,6 +155,7 @@ export default function PublicMarketHome() {
           <h1 className="mt-4 max-w-[11ch] font-sans text-[clamp(2.65rem,12vw,5.8rem)] font-black leading-[.92] tracking-[-.055em]">{t("publicHome.title")}</h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-white/68 sm:text-lg">{t("publicHome.copy", { market: marketName })}</p>
           <FindOrAskEntry source="home" city={marketName} compact className="mt-6 max-w-3xl" />
+          <div className="mt-7 max-w-2xl border-t border-white/20 pt-5"><h2 className="font-serif text-2xl font-bold sm:text-3xl">{t("launch.title")}</h2><p className="mt-3 text-sm leading-6 text-white/70">{t("launch.copy")}</p><div className="mt-4 flex flex-wrap gap-3"><Link to="/scenes" className="inline-flex min-h-12 items-center bg-primary px-5 py-3 text-sm font-bold text-black">{t("launch.explore")}</Link><Link to="/start" className="inline-flex min-h-12 items-center border border-white/25 px-5 py-3 text-sm font-bold">{t("launch.start")}</Link></div></div>
         </div>
       </section>
 

@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Heart, MapPin, Search, Users } from "lucide-react";
-import { AFTRHRS_COPY, isAftrHrsSceneSlug, sceneLocation } from "@promorang/shared";
+import { sceneLocation } from "@promorang/shared";
 import SEO from "@/components/SEO";
 import { MobileBottomNav } from "@/components/culture/CultureCards";
 import { useScenes } from "@/hooks/useScenes";
@@ -11,6 +12,8 @@ import { useI18n } from "@/i18n/I18nContext";
 export default function Communities() {
   const { t } = useI18n();
   const scenes = useScenes();
+  const [search, setSearch] = useState("");
+  const visible = (scenes.data || []).filter((scene) => [scene.title, scene.metadata?.tagline, scene.description, scene.city, scene.country].filter(Boolean).join(" ").toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   const featured = scenes.data?.[0];
   return (
     <main className="min-h-full flex-1 bg-black pb-24 text-white">
@@ -23,12 +26,12 @@ export default function Communities() {
           <div className="grid w-full gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end xl:grid-cols-[minmax(0,1fr)_420px] xl:gap-16">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">{t("scenes.eyebrow")}</p>
-              <h1 className="mt-5 max-w-6xl font-serif text-6xl font-bold leading-[.84] tracking-[-.06em] sm:text-8xl lg:text-[7.5rem] xl:text-[9rem]">{t("scenes.hero1")}<br /><em className="font-normal text-primary">{t("scenes.hero2")}</em></h1>
-              <p className="mt-7 max-w-2xl text-base leading-7 text-white/62 sm:text-lg">{t("scenes.heroCopy")}</p>
+              <h1 className="mt-5 max-w-6xl font-serif text-[clamp(2.5rem,12vw,3.75rem)] break-words font-bold leading-[.94] tracking-[-.06em] sm:text-8xl lg:text-[7.5rem] xl:text-[9rem]">{t("scenes.hero1")}<br /><em className="font-normal text-primary">{t("scenes.hero2")}</em></h1>
+              <p className="mt-7 max-w-2xl text-base leading-7 text-white/62 sm:text-lg">{t("launch.copy")}</p>
             </div>
             <div className="border-y border-white/15 py-5">
               <Link to="/search" className="flex min-h-12 items-center gap-3 text-sm text-white/55 transition hover:text-white"><Search className="h-4 w-4 text-primary" />{t("scenes.search")}</Link>
-              <Link to="/start" className="mt-4 flex min-h-12 items-center gap-3 border-t border-white/10 pt-4 text-sm font-bold text-primary">{t("scenes.startCommunity")}</Link>
+              <Link to="/start" className="mt-4 flex min-h-12 items-center gap-3 border-t border-white/10 pt-4 text-sm font-bold text-primary">{t("launch.start")}</Link>
               <p className="pt-3 text-xs leading-5 text-white/38">{t("scenes.searchHelp")}</p>
             </div>
           </div>
@@ -40,19 +43,20 @@ export default function Communities() {
           <div><p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{t("scenes.living")}</p><h2 className="mt-3 font-serif text-4xl font-bold sm:text-5xl">{t("scenes.returning")}</h2></div>
           <Link to="/discover" className="hidden items-center gap-2 text-sm font-bold text-white/50 hover:text-primary sm:flex">{t("scenes.more")} <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        {scenes.isLoading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-[440px] animate-pulse  bg-white/[.05]" /><div className="h-[440px] animate-pulse  bg-white/[.05]" /></div> : scenes.data?.length ? (
+        <label className="mb-8 block max-w-xl text-sm text-white/70">{t("launch.search")}<input type="search" value={search} onChange={(event) => setSearch(event.target.value)} className="mt-3 min-h-12 w-full border border-white/20 bg-white/5 px-4 text-base" /></label>
+        {scenes.isError ? <div role="alert" className="py-8"><p>{t("launch.loadError")}</p><button type="button" onClick={() => void scenes.refetch()} className="mt-4 min-h-12 border border-white/20 px-5">{t("common.tryAgain")}</button></div> : scenes.isLoading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-[440px] animate-pulse  bg-white/[.05]" /><div className="h-[440px] animate-pulse  bg-white/[.05]" /></div> : visible.length ? (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-12">
-            {scenes.data.map((scene, index) => (
-              <Link key={scene.id} to={`/scenes/${scene.slug}`} className={`group relative isolate min-h-[440px] overflow-hidden  border border-white/10 ${index % 3 === 0 ? "xl:col-span-7" : "xl:col-span-5"}`}>
-                {scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,.32),transparent_34%),#15110e]" />}
+            {visible.map((scene, index) => (
+              <Link key={scene.id} to={`/scenes/${scene.slug}`} className={`group relative isolate flex items-end min-h-[440px] overflow-hidden  border border-white/10 ${index % 3 === 0 ? "xl:col-span-7" : "xl:col-span-5"}`}>
+                {scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 motion-safe:group-hover:scale-105" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(249,115,22,.32),transparent_34%),#15110e]" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/18 to-black/10" />
-                <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-primary"><MapPin className="h-3.5 w-3.5" />{isAftrHrsSceneSlug(scene.slug) ? AFTRHRS_COPY.sceneMomentLine : sceneLocation(scene)}</p><h3 className="mt-4 font-serif text-4xl font-bold leading-none sm:text-5xl">{scene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/58">{isAftrHrsSceneSlug(scene.slug) ? AFTRHRS_COPY.sceneListBody : (scene.metadata.tagline || scene.description)}</p></div>
+                <div className="relative w-full min-w-0 break-words p-7 sm:p-9"><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.22em] text-primary"><MapPin className="h-3.5 w-3.5" />{sceneLocation(scene)}</p><h3 className="mt-4 font-serif text-4xl font-bold leading-none sm:text-5xl">{scene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/58">{scene.metadata?.tagline || scene.description}</p></div>
                 <span className="absolute right-5 top-5 grid h-12 w-12 place-items-center border border-white/20 bg-black/30 backdrop-blur transition group-hover:bg-primary group-hover:text-black"><ArrowRight className="h-4 w-4" /></span>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="grid gap-8 border-y border-white/10 py-14 md:grid-cols-[1fr_1.2fr] md:items-center"><div><Heart className="h-8 w-8 text-primary" /><h3 className="mt-5 font-serif text-4xl font-bold">{t("scenes.emptyTitle")}</h3></div><div><p className="max-w-xl text-sm leading-7 text-white/50">{t("scenes.emptyCopy")}</p><Link to="/discover" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary">{t("scenes.findMoment")} <ArrowRight className="h-4 w-4" /></Link></div></div>
+          <div className="grid gap-8 border-y border-white/10 py-14 md:grid-cols-[1fr_1.2fr] md:items-center"><div><Heart className="h-8 w-8 text-primary" /><h3 className="mt-5 font-serif text-4xl font-bold">{t("scenes.emptyTitle")}</h3></div><div><p className="max-w-xl text-sm leading-7 text-white/50">{search ? t("launch.noMatches") : t("scenes.emptyCopy")}</p><Link to="/start" className="mt-6 inline-flex min-h-12 items-center gap-2 text-sm font-bold text-primary">{t("launch.start")} <ArrowRight className="h-4 w-4" /></Link></div></div>
         )}
       </section>
       <section className="mx-auto max-w-[1600px] px-6 pb-12 lg:px-8 xl:px-12 2xl:px-16"><div className="grid gap-6 border-t border-white/10 py-10 sm:grid-cols-3">{[[Users,t("scenes.people"),t("scenes.peopleCopy")],[MapPin,t("scenes.places"),t("scenes.placesCopy")],[Heart,t("scenes.rituals"),t("scenes.ritualsCopy")]].map(([Icon,title,body]) => { const C=Icon as typeof Users; return <div key={title as string} className="border-l border-white/10 pl-5"><C className="h-4 w-4 text-primary"/><h3 className="mt-5 font-serif text-xl font-bold">{title as string}</h3><p className="mt-2 text-xs leading-5 text-white/42">{body as string}</p></div>; })}</div></section>

@@ -5,6 +5,7 @@ export type SceneMembershipState = "invited" | "active" | "paused" | "left" | "r
 
 export type SceneMetadata = {
   tagline?: string;
+  audience?: string;
   welcome?: string;
   vibe?: string[];
   accessibility?: string[];
