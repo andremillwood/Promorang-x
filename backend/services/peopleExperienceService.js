@@ -1814,19 +1814,22 @@ function createPeopleExperienceService(db = defaultDb) {
 
   async function startCommunity(userId, payload) {
     if (!userId) throw new Error('Sign in to start a community');
-    if (!payload?.name) throw new Error('What should we call it?');
+    if (!String(payload?.name || '').trim()) throw new Error('What should we call it?');
     const slug = uniqueSlug(payload.name);
     const inserted = await db.from('scenes').insert({
       slug,
-      title: payload.name,
-      description: payload.description || `${payload.name} — a community on PROMORANG.`,
+      title: payload.name.trim(),
+      description: payload.description?.trim() || null,
       city: payload.city || payload.location || null,
-      country: payload.country || 'Jamaica',
+      country: payload.country?.trim() || null,
+      image_url: /^https:\/\//.test(payload.imageUrl || '') ? payload.imageUrl : null,
       visibility: 'public',
       status: 'active',
       steward_id: userId,
       metadata: {
         theme: payload.theme || 'other',
+        tagline: String(payload.promise || '').trim().slice(0, 280),
+        audience: String(payload.audience || '').trim().slice(0, 500),
         reach: payload.reach || [],
         welcome: `Welcome to ${payload.name}.`,
       },
@@ -1843,9 +1846,9 @@ function createPeopleExperienceService(db = defaultDb) {
     });
 
     const [perks, opportunities, invite] = await Promise.all([
-      getGiveablePerks(userId),
-      getOpportunities(userId, inserted.data.id),
-      inviteToHub(userId, slug),
+      getGiveablePerks(userId).catch(() => []),
+      getOpportunities(userId, inserted.data.id).catch(() => []),
+      inviteToHub(userId, slug).catch(() => null),
     ]);
 
     return {
@@ -2127,6 +2130,7 @@ function createPeopleExperienceService(db = defaultDb) {
     const inserted = await maybe(db.from('discovery_questions').insert({
       scene_id: payload.sceneId || null,
       question: payload.question,
+      ...(payload.kind === 'demand' ? { semantic_kind: 'demand', origin_user_id: userId, status: 'active', total_votes: 0 } : {}),
       category: payload.category || payload.theme || 'community',
       author_name: payload.authorName || 'Community',
       threshold_for_moment: payload.threshold || 25,
