@@ -357,7 +357,18 @@ app.use('/api/featured-marketplace', require('./featured-marketplace')); // Feat
 app.use('/api/payouts', requireAuth, require('./payouts')); // Host Payouts
 app.use('/api/bounty', requireAuth, require('./bounty'));
 app.use('/api/community', communityRouter);
-app.use('/api/matrix', requireAuth, require('./matrix'));
+// The historical Matrix endpoint returned demo earnings and recruit data.
+// Keep it available only for an explicit local/demo opt-in; production users
+// use the authenticated, product-led community network surface instead.
+const legacyMatrixRouter = require('./matrix');
+app.use('/api/matrix', requireAuth, (req, res, next) => {
+  if (process.env.ENABLE_LEGACY_MATRIX_DEMO === 'true') return legacyMatrixRouter(req, res, next);
+  return res.status(410).json({
+    success: false,
+    error: 'The legacy Matrix demo API is retired. Use the member network experience.',
+    next: '/community/network',
+  });
+});
 app.use('/api/maturity', require('./maturity'));
 app.use('/api/merchant-sampling', require('./merchantSampling'));
 app.use('/api/cold-start', require('./coldStartBootstrap')); // Cold Start Bootstrap System
