@@ -53,7 +53,6 @@ const Communities = lazy(() => import("./pages/Communities"));
 const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
 const Creators = lazy(() => import("./pages/Creators"));
 const CreatorDetail = lazy(() => import("./pages/CreatorDetail"));
-const EventExperienceDetail = lazy(() => import("./pages/EventExperienceDetail"));
 const GrowthHub = lazy(() => import("./pages/GrowthHub"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const PioneerPoints = lazy(() => import("./pages/PioneerPoints"));
@@ -181,6 +180,12 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const PromorangPresents = lazy(() => import("./pages/PromorangPresents"));
 const PromorangAccess = lazy(() => import("./pages/PromorangAccess"));
 const PromorangCrew = lazy(() => import("./pages/PromorangCrew"));
+
+const CanonicalEventRedirect = () => {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/moments/${encodeURIComponent(slug || "")}`} replace />;
+};
+
 
 // Campaign Expansion Pages
 const ReferralSprintPage = lazy(() => import("./pages/ReferralSprintPage"));
@@ -385,7 +390,7 @@ const App = () => (
                     <Route path="/rewards" element={<Navigate to="/discover/rewards" replace />} />
                     <Route path="/explore/content" element={<Navigate to="/discover/content" replace />} />
                     <Route path="/events" element={<Navigate to="/discover/moments" replace />} />
-                    <Route path="/events/:slug" element={<EventExperienceDetail />} />
+                    <Route path="/events/:slug" element={<CanonicalEventRedirect />} />
                     <Route path="/momentum" element={<Momentum />} />
                     <Route path="/pulse" element={<Pulse />} />
                     <Route path="/pulse-feed" element={<Navigate to="/live" replace />} />
