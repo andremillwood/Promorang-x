@@ -1,6 +1,6 @@
 # Activation repairs: compatibility and rollback decision
 
-Scope: local repair branch only. No publication, merge, deployment or shared database changes are authorized. See [verification evidence](activation-flow-repairs.md) and [baseline comparison](activation-baseline-comparison.json).
+Release preparation update: the user requested progress toward coordinated merge and deployment. Prepare source publication as a draft PR, with automatic Vercel deployments disabled for `repair/promorang-activation-flows`. Do not merge or deploy until the documented compatibility gates are satisfied; no shared database changes have been executed. See [verification evidence](activation-flow-repairs.md) and [baseline comparison](activation-baseline-comparison.json).
 
 ## Independent safe subset
 
@@ -32,3 +32,11 @@ The merchant management RPC, paid PromoPush journey and business contact capture
 ## Local PostgreSQL follow-up
 
 Docker PostgreSQL 17.11 was available without paid resources, external credentials or production data. The fixture suite and separate-session lock-contention checks passed; see the main report. This improves local concurrency evidence only. Full schema/auth/ledger and Stripe test-mode checks above remain the release gate. Pause further implementation pending those access and release decisions.
+
+## Read-only release preflight — 2026-10-08
+
+Remote `main` still resolves to base `2d40fb0ae436586442831ed7d8f28508b0bdb253`; the repair is current with that base. A catalog-only query against PromorangVerc confirms all 13 checked prerequisite tables and seven checked functions exist, including campaigns, proposals, canonical reserves, CRM/growth tables, secure/refund, launch and purchased-Gem fulfillment. This establishes object presence only, not compatible definitions, policies or data. No customer rows were retrieved or mutated.
+
+The existing environment contains a live-mode Stripe credential, not a test credential. PromorangVerc has only its default branch. Connected Supabase branch pricing failed with `UNAVAILABLE: MCP tool get_cost was not returned by tools/list`; no branch was created. Preview web currently shares Supabase configuration scopes and repository rewrites point to the production API. API preview lacks the required service-role/Stripe-secret/webhook configuration. Automatic previews for the repair branch are disabled in root, backend and web Vercel configurations before publication. CI remains enabled; production `main` deployment behavior is unchanged.
+
+Draft PR readiness is distinct from release readiness. Outstanding gates remain isolated schema/auth/payment verification, safe preview wiring and a rehearsed coordinated migration/API/web transition.
