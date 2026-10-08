@@ -2,20 +2,12 @@ const crypto = require('crypto');
 const express = require('express');
 const router = express.Router();
 const { supabase } = require('../lib/supabase');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requirePlatformAdmin } = require('../middleware/auth');
 const roleService = require('../services/roleService');
 const {
   normalizePromoPushCommercialInput,
   validatePromoPushCommercialInput,
 } = require('../services/promoPushCommercialService');
-
-const CHANNELS = [
-  { type: 'qr_code', label: 'QR Code' },
-  { type: 'meta_ads', label: 'Meta Ads' },
-  { type: 'direct_link', label: 'Direct Link' },
-  { type: 'creator_link', label: 'Creator Link' },
-  { type: 'street_activation', label: 'Street Activation' },
-];
 
 function isAdmin(user = {}) {
   const roles = [user.role, user.user_type, ...(Array.isArray(user.roles) ? user.roles : [])].filter(Boolean);
@@ -213,9 +205,19 @@ router.get('/campaigns', requireAuth, async (req, res) => {
       metrics = metricRows || [];
     }
 
+    const proposalIds = (campaigns || []).map(c => c.proposal_id).filter(Boolean);
+    const reserves = new Map();
+    if (proposalIds.length) {
+      const { data, error: reserveError } = await supabase.from('activation_gem_reserves')
+        .select('proposal_id,secured_gems,released_gems,refunded_gems').in('proposal_id', proposalIds);
+      if (reserveError) throw reserveError;
+      for (const reserve of data || []) reserves.set(reserve.proposal_id,
+        Number(reserve.secured_gems) - Number(reserve.released_gems) - Number(reserve.refunded_gems));
+    }
     const metricsByChannel = new Map(metrics.map((row) => [row.channel_id, row]));
     res.json((campaigns || []).map((campaign) => ({
       ...campaign,
+      funding_available_gems: reserves.get(campaign.proposal_id) || 0,
       channels: (campaign.channels || []).map((channel) => ({
         ...channel,
         metrics: metricsByChannel.get(channel.id) || {
@@ -277,7 +279,7 @@ router.post('/campaigns', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Missing required PromoPush campaign fields' });
     }
 
-    const allowedStatuses = new Set(['draft', 'active', 'completed', 'paused']);
+    const allowedStatuses = new Set(['draft', 'active']);
     if (!allowedStatuses.has(status)) {
       return res.status(400).json({ error: 'Invalid PromoPush campaign status' });
     }
@@ -297,66 +299,24 @@ router.post('/campaigns', requireAuth, async (req, res) => {
     if (momentError) throw momentError;
     if (!moment) return res.status(404).json({ error: 'Linked Moment not found' });
 
-    const hostId = moment.host_id || moment.organizer_id || req.user.id;
-    const { data: campaign, error: campaignError } = await supabase
-      .from('promopush_campaigns')
-      .insert({
-        title,
-        linked_moment_id,
-        host_id: hostId,
-        brand_id: brand_id || req.user.id,
-        geo_radius_meters,
-        geo_center_lat,
-        geo_center_lng,
-        geo_label,
-        start_time,
-        end_time,
-        budget,
-        reward_rules: reward_rules || {},
-        request_creative_support: !!request_creative_support,
-        ...commercial,
-        status: 'draft',
-        created_by: req.user.id,
-      })
-      .select()
-      .single();
-
-    if (campaignError) throw campaignError;
-
-    const origin = publicBaseUrl(req);
-    const channels = CHANNELS.map((channel) => {
-      const trackingCode = codeFor(channel.type);
-      return {
-        campaign_id: campaign.id,
-        channel_type: channel.type,
-        label: channel.label,
-        tracking_code: trackingCode,
-        tracking_link: `${origin}/go/${trackingCode}`,
-        moment_entry_endpoint: `/moments/${linked_moment_id}?campaign=${campaign.id}&channel=${trackingCode}`,
-        reward_per_verified_action: Number(reward_rules?.creator_verified_action_gems || 0),
-      };
-    });
-
-    const { data: insertedChannels, error: channelError } = await supabase
-      .from('promopush_channels')
-      .insert(channels)
-      .select();
-
-    if (channelError) throw channelError;
-
-    let creativeTasks = [];
-    if (request_creative_support) {
-      const { data: tasks, error: taskError } = await supabase
-        .from('promopush_creative_tasks')
-        .insert(['flyer_design', 'qr_layout', 'ad_creative'].map((task_type) => ({
-          campaign_id: campaign.id,
-          task_type,
-        })))
-        .select();
-      if (taskError) throw taskError;
-      creativeTasks = tasks || [];
+    if (![moment.host_id, moment.organizer_id].includes(req.user.id)) {
+      return res.status(403).json({ error: 'You must own or organize the linked Moment' });
     }
-
+    if (['pricing', 'proposal_id', 'funding_status', 'launched_at'].some(key => key in req.body)
+      || (brand_id && brand_id !== req.user.id)) {
+      return res.status(400).json({ error: 'Ownership, pricing and funding are server managed' });
+    }
+    if (commercial.push_mode !== 'organic' && status !== 'draft') {
+      return res.status(409).json({ error: 'Save a draft, review its quote and secure Gems before launching' });
+    }
+    const creationKey = req.body.idempotency_key;
+    if (typeof creationKey !== 'string' || creationKey.length < 8 || creationKey.length > 160) {
+      return res.status(400).json({ error: 'A stable request key is required' });
+    }
+    const { data: campaign, error: campaignError } = await supabase.rpc('create_promopush_draft', {
+      p_actor: req.user.id, p_key: creationKey, p_input: req.body, p_origin: publicBaseUrl(req),
+    });
+    if (campaignError) throw campaignError;
     let publishedCampaign = campaign;
     if (status !== 'draft') {
       if (status !== 'active') {
@@ -368,11 +328,32 @@ router.post('/campaigns', requireAuth, async (req, res) => {
       publishedCampaign = transitionedCampaign;
     }
 
-    res.status(201).json({ campaign: publishedCampaign, channels: insertedChannels || [], creative_tasks: creativeTasks });
+    res.status(201).json({ campaign: publishedCampaign, channels: [] });
   } catch (error) {
     console.error('Create PromoPush error:', error);
-    res.status(500).json({ error: 'Failed to create PromoPush campaign' });
+    res.status(error.code === 'P0001' ? 409 : 500).json({ error: error.code === 'P0001' ? error.message : 'Failed to create PromoPush campaign' });
   }
+});
+
+// Quote issuance is a platform privilege, never inferred from a customer-selected role.
+router.post('/admin/campaigns/:id/quote', requireAuth, requirePlatformAdmin, async (req, res) => {
+  if (!requireDb(res)) return;
+  const { data, error } = await supabase.rpc('quote_promopush', {
+    p_campaign_id: req.params.id, p_actor: req.user.id,
+    p_total_gems: req.body.total_gems, p_expires_at: req.body.expires_at, p_key: req.body.quote_id,
+  });
+  if (error) return res.status(409).json({ error: error.message });
+  return res.json({ campaign: data });
+});
+
+router.post('/campaigns/:id/launch', requireAuth, async (req, res) => {
+  if (!requireDb(res)) return;
+  if (Object.keys(req.body || {}).length) return res.status(400).json({ error: 'Launch does not accept pricing or proposal overrides' });
+  const { data, error } = await supabase.rpc('launch_promopush_campaign', {
+    p_campaign_id: req.params.id, p_actor_user_id: req.user.id,
+  });
+  if (error) return res.status(409).json({ error: error.message });
+  return res.json({ campaign: data });
 });
 
 router.get('/active-campaigns', requireAuth, async (req, res) => {

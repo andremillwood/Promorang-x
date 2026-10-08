@@ -1,3 +1,4 @@
+import { activationRpc } from "@/lib/activation-rpc";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,6 +39,20 @@ export interface Campaign {
   payout_per_purchase_proof_jmd?: number | null;
   compiler_metadata?: any;
   activation_proposal_id?: string | null;
+}
+
+// The RPC scopes management detail, including public live campaigns, to owners/members.
+export function useCampaign(id: string) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["brand-campaigns", "detail", id, user?.id],
+    enabled: !!user && !!id,
+    queryFn: async () => {
+      const { data, error } = await activationRpc("get_campaign_workspace_detail", { p_campaign_id: id });
+      if (error) throw error;
+      return data as unknown as Campaign | null;
+    },
+  });
 }
 
 export function useBrandCampaigns() {

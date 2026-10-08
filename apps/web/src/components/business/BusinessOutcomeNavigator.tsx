@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { trackBusinessStep } from "@/lib/business-growth";
+import { BusinessLeadCapture } from "./BusinessLeadCapture";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Compass, Sparkles } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,7 +27,7 @@ type Step = "outcome" | "business" | "success" | "context" | "recommendation";
 export function BusinessOutcomeNavigator() {
   const { user } = useAuth();
   const { city } = useMarket();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const stored = useMemo(() => params.get("resume") === "1" ? readBusinessOutcomeBrief() : null, [params]);
 
   const queryOutcome = getOutcome(params.get("outcome"))?.id || null;
@@ -39,6 +41,20 @@ export function BusinessOutcomeNavigator() {
   const [audience, setAudience] = useState(stored?.audience || "");
   const [availableValue, setAvailableValue] = useState(stored?.availableValue || "");
   const [brief, setBrief] = useState(stored);
+
+  const [attempt] = useState(() => {
+    try {
+      const key = "business-navigator-attempt";
+      const id = stored?.id || sessionStorage.getItem(key) || crypto.randomUUID();
+      sessionStorage.setItem(key, id);
+      return id;
+    } catch { return crypto.randomUUID(); }
+  });
+  useEffect(() => {
+    trackBusinessStep(attempt, "started", "outcome");
+    trackBusinessStep(attempt, "progress", step);
+    if (stored && user) trackBusinessStep(attempt, "auth_resumed", "recommendation");
+  }, [attempt, step, stored, user]);
 
   const outcome = getOutcome(outcomeId);
   const programme = getProgramme(brief?.programmeId);
@@ -58,7 +74,10 @@ export function BusinessOutcomeNavigator() {
       audience: audience.trim(),
       availableValue: availableValue.trim(),
     });
+    next.id = attempt;
     saveBusinessOutcomeBrief(next);
+    trackBusinessStep(attempt, "completed", "recommendation");
+    setParams({ resume: "1" }, { replace: true });
     setBrief(next);
     setStep("recommendation");
   }
@@ -168,10 +187,11 @@ export function BusinessOutcomeNavigator() {
                 <div className="flex justify-between gap-5"><dt className="text-white/40">Reason to act</dt><dd className="max-w-[14rem] text-right font-bold">{brief.availableValue || "Shape this next"}</dd></div>
               </dl>
               {user ? (
-                <Link to={continuePath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">Customize this programme <ArrowRight className="h-4 w-4" /></Link>
+                <Link onClick={() => trackBusinessStep(attempt, "continued", "recommendation")} to={continuePath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">Customize this programme <ArrowRight className="h-4 w-4" /></Link>
               ) : (
-                <Link to={authPath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">Save and continue <ArrowRight className="h-4 w-4" /></Link>
+                <Link onClick={() => trackBusinessStep(attempt, "auth_started", "recommendation")} to={authPath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">Save and continue <ArrowRight className="h-4 w-4" /></Link>
               )}
+              <BusinessLeadCapture brief={brief} />
               <div className="mt-4 grid gap-2 text-center">
                 <Link to="/#wanted" className="text-xs font-bold text-white/55 hover:text-white">Show me what people want instead</Link>
                 <Link to={user ? "/create/campaign" : authPathForReturn("/create/campaign", { mode: "signup", role: roleForBusinessType(brief.businessType) })} className="text-xs font-bold text-white/55 hover:text-white">I already know what I want to run</Link>
