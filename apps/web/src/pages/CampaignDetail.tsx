@@ -17,7 +17,7 @@ import {
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBrandCampaigns, type Campaign } from "@/hooks/useCampaigns";
+import { useCampaign, type Campaign } from "@/hooks/useCampaigns";
 import { useCampaignProofOutcome } from "@/hooks/useProofOutcome";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -61,9 +61,9 @@ const CampaignDetail = () => {
   const { id = "" } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user, activeRole } = useAuth();
-  const campaignsQuery = useBrandCampaigns();
-  const campaign = campaignsQuery.data?.find((entry) => entry.id === id);
+  const { user, loading } = useAuth();
+  const campaignsQuery = useCampaign(id);
+  const campaign = campaignsQuery.data;
   const outcomeQuery = useCampaignProofOutcome(campaign?.is_active ? id : undefined);
   const metadata = (campaign?.compiler_metadata || {}) as CampaignPlanMetadata;
   const isDraft = Boolean(campaign && !campaign.is_active);
@@ -84,8 +84,9 @@ const CampaignDetail = () => {
     onError: (error: Error) => toast.error(error.message || "The activation studio could not be opened."),
   });
 
-  if (!user) return <Navigate to="/auth" replace />;
-  if (activeRole !== "brand" && activeRole !== "agency" && activeRole !== "admin") return <Navigate to="/dashboard" replace />;
+  if (loading) return <Skeleton className="m-8 h-48" />;
+  if (!user) return <Navigate to={`/auth?next=${encodeURIComponent(`/dashboard/campaigns/${id}`)}`} replace />;
+  if (campaignsQuery.error) return <main className="p-8"><p>Campaign access could not be verified.</p><Button onClick={() => campaignsQuery.refetch()}>Retry</Button></main>;
 
   if (campaignsQuery.isLoading) {
     return <main className="min-h-screen bg-[#f2eee5] px-5 py-10"><div className="mx-auto max-w-7xl"><Skeleton className="h-12 w-72" /><Skeleton className="mt-8 h-[520px] w-full" /></div></main>;

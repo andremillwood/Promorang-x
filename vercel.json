@@ -51,7 +51,8 @@
   "git": {
     "deploymentEnabled": {
       "design/canonical-object-system-v1": false,
-      "andre/public-experience-convergence-v2": false
+      "andre/public-experience-convergence-v2": false,
+      "repair/promorang-activation-flows": false
     }
   }
 }

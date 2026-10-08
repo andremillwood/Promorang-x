@@ -1,3 +1,4 @@
+import { acquisitionJourney } from "@/lib/business-growth";
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,11 +20,11 @@ export default function GrowthTracker() {
     void trackStoredReferralClick();
     void trackGrowthEvent({
       eventName: "page_view",
-      journey: location.pathname.startsWith("/for-brands") || location.pathname.startsWith("/for-communities") ? "commercial" : "participant",
+      journey: acquisitionJourney(location.pathname, location.search),
       stage: "acquired",
       entityType: "route",
       entityId: location.pathname,
-      properties: { search: location.search },
+      properties: {},
     });
   }, [location.pathname, location.search]);
 

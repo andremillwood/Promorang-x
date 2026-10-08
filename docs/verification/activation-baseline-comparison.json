@@ -1,0 +1,26 @@
+{
+  "base_revision": "2d40fb0ae436586442831ed7d8f28508b0bdb253",
+  "base_directory": "/tmp/promorang-base-2d40fb0",
+  "current_directory": "/workspace/Promorang-x",
+  "method": "git archive of unchanged base; root, apps/web and backend node_modules symlinked to same installed dependencies; shared package sources verified unchanged",
+  "typecheck_command": "node node_modules/typescript/bin/tsc -p apps/web/tsconfig.app.json --noEmit",
+  "base_errors": 562,
+  "current_errors": 562,
+  "base_diagnostics_sha256": "297db698b3354e70b7a93535fae157d57b4ef94d6d9e2b5bc0623e3fecde8c8d",
+  "current_diagnostics_sha256": "297db698b3354e70b7a93535fae157d57b4ef94d6d9e2b5bc0623e3fecde8c8d",
+  "introduced": [],
+  "removed": [],
+  "normalization": "Repository path prefix and line/column positions only; compare diagnostic header multisets including multiplicity.",
+  "web_test": {
+    "file": "src/pages/AftrHrsExperience.test.tsx",
+    "base": "1 failed, 3 passed",
+    "current": "1 failed, 3 passed",
+    "assertion": "CommunityDetail.tsx does not contain sceneMomentsWithAftrHrs"
+  },
+  "backend_test": {
+    "file": "tests/unit/promoCardBenefit.test.js",
+    "base": "1 failed, 6 passed",
+    "current": "1 failed, 6 passed",
+    "assertion": "Expected claimed, received expired; fixture expires 2026-10-01"
+  }
+}

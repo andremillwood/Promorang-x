@@ -63,5 +63,10 @@
                 }
             ]
         }
-    ]
+    ],
+    "git": {
+        "deploymentEnabled": {
+            "repair/promorang-activation-flows": false
+        }
+    }
 }

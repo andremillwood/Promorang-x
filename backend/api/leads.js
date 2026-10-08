@@ -4,6 +4,7 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 const FUNNELS = {
+  business: { stakeholder: "merchant", weight: 70, label: "Business Outcome Brief" },
   scene: { stakeholder: 'participant', weight: 4, label: 'Find Your Scene' },
   moment: { stakeholder: 'host', weight: 14, label: 'Moment Potential Score' },
   demand: { stakeholder: 'merchant', weight: 16, label: 'Local Demand Snapshot' },
@@ -50,6 +51,13 @@ router.post('/capture', captureRateLimit, async (req, res) => {
     if (!validEmail(email) || !funnel || !input.result || !input.answers || typeof input.answers !== 'object') {
       return res.status(400).json({ success: false, error: 'A valid email, funnel, answers, and result are required' });
     }
+    // A business brief becomes a lead only at the explicit contact boundary.
+    if (input.funnelKey === 'business') {
+      if (input.contactConsent !== true) return res.status(400).json({ success: false, error: 'Contact consent is required' });
+      input.answers = Object.fromEntries(['outcomeId', 'businessType', 'successAction', 'programmeId']
+        .map(key => [key, clean(input.answers[key], 80)]));
+      input.result = { name: 'Business Outcome Brief', score: 0, insight: 'Requested help shaping a business activation', moves: [] };
+    }
     const now = new Date().toISOString();
     const score = qualification(input, funnel);
     const attribution = input.attribution || {};
@@ -65,8 +73,9 @@ router.post('/capture', captureRateLimit, async (req, res) => {
       source: clean(attribution.utm_source || attribution.source, 160), medium: clean(attribution.utm_medium || attribution.medium, 160),
       campaign: clean(attribution.utm_campaign || attribution.campaign, 200), content: clean(attribution.utm_content, 200), term: clean(attribution.utm_term, 200),
       landing_path: clean(input.landingPath, 500), referrer_url: clean(input.referrerUrl, 1000), anonymous_id: clean(input.anonymousId, 160),
-      marketing_consent: Boolean(input.marketingConsent), consent_text: input.marketingConsent ? clean(input.consentText, 1000) : null,
-      consent_at: input.marketingConsent ? now : null, last_captured_at: now,
+      marketing_consent: input.funnelKey === 'business' ? false : Boolean(input.marketingConsent),
+      consent_text: input.funnelKey === 'business' ? 'Contact me about this business route.' : input.marketingConsent ? clean(input.consentText, 1000) : null,
+      consent_at: input.funnelKey === 'business' || input.marketingConsent ? now : null, last_captured_at: now,
       lifecycle_stage: existing.data?.lifecycle_stage === 'new' && score >= 70 ? 'qualified' : (existing.data?.lifecycle_stage || (score >= 70 ? 'qualified' : 'new')),
       capture_count: Number(existing.data?.capture_count || 0) + 1,
     };
@@ -79,6 +88,11 @@ router.post('/capture', captureRateLimit, async (req, res) => {
       if (created.error) throw created.error; lead = created.data;
     }
     await activity(lead.id, 'captured', `${funnel.label} completed`, `Diagnostic score ${lead.diagnostic_score}; qualification ${lead.qualification_score}.`, { answers: input.answers, result: input.result, attribution });
+    if (input.funnelKey === 'business') {
+      // Contact request only: no diagnostic score or broad marketing enrollment.
+      await activity(lead.id, 'note', 'Business route contact requested', 'User explicitly requested contact about this route.', { contact_consent: true });
+      return res.status(existing.data ? 200 : 201).json({ success: true, data: { leadId: lead.id, saved: true, qualification: lead.qualification_score } });
+    }
     try {
       const { sendEmail, getBaseTemplate } = require('../services/resendService');
       const moves = (Array.isArray(input.result.moves) ? input.result.moves : []).map(move => `<li style="margin-bottom:8px">${escapeHtml(move)}</li>`).join('');
