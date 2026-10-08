@@ -1,4 +1,4 @@
--- Apply only after staging validation, never from the web client.
+-- Apply through the coordinated release process, never from the web client.
 -- Uses existing proposals, Gem ledger/reserves, organization membership and user roles.
 -- Existing CRM capture uses a constrained funnel vocabulary; add the explicit-contact route.
 alter table public.crm_leads drop constraint if exists crm_leads_funnel_key_check;

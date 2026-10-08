@@ -311,7 +311,7 @@ router.post('/campaigns', requireAuth, async (req, res) => {
     }
     const creationKey = req.body.idempotency_key;
     if (typeof creationKey !== 'string' || creationKey.length < 8 || creationKey.length > 160) {
-      return res.status(400).json({ error: 'A stable request key is required' });
+      return res.status(400).json({ error: 'Refresh this page to load the latest PromoPush form, then retry. A stable request key is required' });
     }
     const { data: campaign, error: campaignError } = await supabase.rpc('create_promopush_draft', {
       p_actor: req.user.id, p_key: creationKey, p_input: req.body, p_origin: publicBaseUrl(req),
