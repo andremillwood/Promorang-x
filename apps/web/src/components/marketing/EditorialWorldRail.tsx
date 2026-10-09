@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import foodImage from "@/assets/moment-food-festival.jpg";
@@ -17,6 +18,7 @@ const lenses = [
 ];
 
 export function EditorialWorldRail() {
+  const { t: webT } = useWebI18n();
   return (
     <section aria-labelledby="editorial-world-heading">
       <div className="marketing-section-head">
@@ -38,7 +40,7 @@ export function EditorialWorldRail() {
             <img src={lens.image} alt="" aria-hidden="true" />
             <span className="marketing-world-card__veil" />
             <span className="marketing-world-card__copy">
-              <span className="marketing-world-card__eyebrow">Explore</span>
+              <span className="marketing-world-card__eyebrow">{webT("publicHome.navExplore")}</span>
               <strong>{lens.label}</strong>
               <small>{lens.note}</small>
             </span>

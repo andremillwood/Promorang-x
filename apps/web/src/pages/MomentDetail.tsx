@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMomentJourney } from "@/hooks/useMomentJourney";
 import { PublicMomentDetail } from "@/components/moments/PublicMomentDetail";
 import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
@@ -149,6 +150,7 @@ type PaymentIntentLike = {
 type MomentTab = "overview" | "perks" | "community" | "host" | "admin";
 
 const SignedInMomentDetail = () => {
+  const { t: webT } = useI18n();
   const { t, formatDate: i18nFormatDate, formatTime: i18nFormatTime } = useI18n();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -711,7 +713,7 @@ const SignedInMomentDetail = () => {
       return i18nFormatTime ? i18nFormatTime(dateString, {
         hour: "numeric",
         minute: "2-digit",
-      }) : new Intl.DateTimeFormat("en", {
+      }) : new Intl.DateTimeFormat(currentUiLocale(), {
         hour: "numeric",
         minute: "2-digit",
       }).format(new Date(dateString));
@@ -827,7 +829,7 @@ const SignedInMomentDetail = () => {
               className="rounded-full border border-white/15 bg-black/50 text-white/90 backdrop-blur-md hover:bg-white/15 hover:text-white transition-all"
               onClick={() => navigate(-1)}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              <ArrowLeft className="mr-2 h-4 w-4" /> {webT("common.back")}
             </Button>
 
             <div className="flex items-center gap-2">
@@ -868,7 +870,7 @@ const SignedInMomentDetail = () => {
               {/* Category & Status Pills */}
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className="rounded-full bg-[#ff5500] text-white font-bold text-xs px-3.5 py-1 uppercase tracking-wider border-none shadow-md shadow-[#ff5500]/20">
-                  {moment.category || "Event"}
+                  {moment.category || webT("publicHome.moment")}
                 </Badge>
                 {isPast ? (
                   <Badge variant="outline" className="rounded-full border-white/20 bg-white/5 text-white/60 text-xs px-3 py-1">
@@ -909,7 +911,7 @@ const SignedInMomentDetail = () => {
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">{t("momentDetail.admission")}</span>
                   <p className="text-2xl font-black text-white mt-0.5">
-                    {entryFeeJmd > 0 ? `$${entryFeeJmd.toLocaleString()} JMD` : t("momentDetail.free")}
+                    {entryFeeJmd > 0 ? `$${entryFeeJmd.toLocaleString(currentUiLocale())} JMD` : t("momentDetail.free")}
                   </p>
                 </div>
                 <div className="text-right">
@@ -940,7 +942,7 @@ const SignedInMomentDetail = () => {
                 {!!user && !isHost && isJoined && (
                   <div className="space-y-4">
                     {journey.isLoading ? <p role="status" className="text-sm text-white/65">Loading your participation…</p> : journey.isError || !journey.data ? (
-                      <div role="status"><p className="text-sm text-white/65">Your reservation is saved. Your latest participation status couldn’t load.</p><button type="button" onClick={() => void journey.refetch()} className="min-h-11 text-sm underline">Refresh status</button></div>
+                      <div role="status"><p className="text-sm text-white/65">Your reservation is saved. Your latest participation status couldn’t load.</p><button type="button" onClick={() => void journey.refetch()} className="min-h-11 text-sm underline">{webT("web.refreshStatus")}</button></div>
                     ) : <ParticipantProofArtifact journey={journey.data} />}
                     {!isPast && journey.data && !journey.isError && !journey.data.proof_submission_id && !journey.data?.checked_in_at ? <details className="text-xs text-white/60"><summary className="min-h-11 cursor-pointer py-3">Reservation options</summary><button type="button" disabled={isJoining} onClick={handleJoin} className="min-h-11 underline">Cancel my RSVP</button></details> : null}
                   </div>
@@ -1337,7 +1339,7 @@ const SignedInMomentDetail = () => {
                             </div>
 
                             <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                              <span className="font-extrabold text-xs text-[#ff5500]">+{sub.points} pts</span>
+                              <span className="font-extrabold text-xs text-[#ff5500]">+{sub.points} {webT("web.pts")}</span>
                               <Button
                                 size="sm"
                                 className="rounded-xl bg-white text-black hover:bg-white/90 font-bold text-xs px-4"
@@ -1494,8 +1496,8 @@ const SignedInMomentDetail = () => {
                     <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
                       <div><dt className="text-white/35">Moment ID</dt><dd className="mt-1 break-all font-mono text-xs text-white/75">{moment.id}</dd></div>
                       <div><dt className="text-white/35">Host ID</dt><dd className="mt-1 break-all font-mono text-xs text-white/75">{moment.host_id || "No host recorded"}</dd></div>
-                      <div><dt className="text-white/35">Starts</dt><dd className="mt-1 text-white/75">{displayStartsAt ? new Date(displayStartsAt).toLocaleString("en-JM", { timeZone: "America/Jamaica" }) : "Not recorded"}</dd></div>
-                      <div><dt className="text-white/35">Venue</dt><dd className="mt-1 text-white/75">{moment.venue_name || moment.location || "Not recorded"}</dd></div>
+                      <div><dt className="text-white/35">Starts</dt><dd className="mt-1 text-white/75">{displayStartsAt ? new Date(displayStartsAt).toLocaleString(currentUiLocale(), { timeZone: "America/Jamaica" }) : webT("activationCommerce.notRecorded")}</dd></div>
+                      <div><dt className="text-white/35">{webT("aftrhrs.venue")}</dt><dd className="mt-1 text-white/75">{moment.venue_name || moment.location || webT("activationCommerce.notRecorded")}</dd></div>
                     </dl>
                   </div>
 
@@ -1507,7 +1509,7 @@ const SignedInMomentDetail = () => {
                           <div key={requirement.id} className="rounded-xl border border-white/10 bg-black/20 p-3">
                             <p className="text-sm font-black text-white">{requirement.label || requirement.requirement_type}</p>
                             <p className="mt-1 text-xs leading-5 text-white/40">
-                              {requirement.is_required ? "Required" : "Optional"}
+                              {requirement.is_required ? webT("web.required") : webT("discover.pathBrowseEyebrow")}
                               {requirement.instructions ? ` · ${requirement.instructions}` : ""}
                             </p>
                           </div>
@@ -1525,9 +1527,9 @@ const SignedInMomentDetail = () => {
                     <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                       {[
                         ["Money source", economy.economics.money_source],
-                        ["Entry fee", economy.economics.entry_fee_jmd != null ? `J$${Number(economy.economics.entry_fee_jmd).toLocaleString()}` : "None"],
-                        ["Funded", `J$${Number(economy.economics.total_funded_jmd || 0).toLocaleString()}`],
-                        ["Reward pool", `J$${Number(economy.economics.reward_pool_jmd || 0).toLocaleString()}`],
+                        ["Entry fee", economy.economics.entry_fee_jmd != null ? `J$${Number(economy.economics.entry_fee_jmd).toLocaleString(currentUiLocale())}` : "None"],
+                        ["Funded", `J$${Number(economy.economics.total_funded_jmd || 0).toLocaleString(currentUiLocale())}`],
+                        ["Reward pool", `J$${Number(economy.economics.reward_pool_jmd || 0).toLocaleString(currentUiLocale())}`],
                         ["Payout", economy.economics.payout_status || "not recorded"],
                       ].map(([label, value]) => (
                         <div key={label}><p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">{label}</p><p className="mt-2 text-sm font-black text-white/75">{value}</p></div>

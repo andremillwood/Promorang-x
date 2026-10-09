@@ -1,6 +1,8 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import MarketRoleLanding from "@/components/marketing/MarketRoleLanding";
 
 export default function ForCauses() {
+  const { t: webT } = useWebI18n();
   return (
     <MarketRoleLanding
       seoTitle="PROMORANG for Causes — Mobilize around real needs"
@@ -9,7 +11,7 @@ export default function ForCauses() {
       title="Make the need visible. Then give people a real way to respond."
       intro="A cause does not need another vanity campaign. PROMORANG can help you understand what a community cares about, give people a meaningful next move, and see what participation followed."
       primaryCta={{ label: "Discuss a cause response", href: "/contact" }}
-      secondaryCta={{ label: "See what people want", href: "/demand" }}
+      secondaryCta={{ label: webT("compression.seeDemand"), href: "/demand" }}
       roleJob="Make the need clear, give people a useful way to respond, and report participation without turning every click into impact."
       discoveryUse="Use Discoveries to understand the places, organizations, issues and opportunities already present in the community."
       demandUse="Use questions, votes and asks to understand what people say they need or are willing to support before you design the response."

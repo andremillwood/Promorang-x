@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { QRCodeSVG } from "qrcode.react";
 import { Download, QrCode, RefreshCcw, ScanLine, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,7 @@ function downloadQr(label: string, code: string) {
 }
 
 export default function PromoPushPromoterPortal() {
+  const { t: webT } = useWebI18n();
   const assignmentsQuery = usePromoPushPromoterAssignments();
   const assignments = assignmentsQuery.data || [];
 
@@ -35,7 +38,7 @@ export default function PromoPushPromoterPortal() {
         <div className="border-b border-white/10 pb-6">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#FF6A00]/40 bg-[#FF6A00]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#FFC300]">
             <QrCode className="h-3.5 w-3.5" />
-            Promoter Portal
+            {webT("promoPush.promoterPortal")}
           </div>
           <h1 className="text-3xl font-black tracking-tight sm:text-5xl">Assigned street activations</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">Access campaign QR codes, download printable assets, and review your scans and confirmed actions.</p>
@@ -43,14 +46,14 @@ export default function PromoPushPromoterPortal() {
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
-            { label: "Scans", value: totals.scans, icon: ScanLine },
-            { label: "Joins", value: totals.joins, icon: Users },
-            { label: "Verified Actions", value: totals.verified, icon: ShieldCheck },
+            { label: webT("web.scans"), value: totals.scans, icon: ScanLine },
+            { label: webT("promoPushCreatorPage.thJoins"), value: totals.joins, icon: Users },
+            { label: webT("promoPushCreatorPage.statVerifiedActions"), value: totals.verified, icon: ShieldCheck },
           ].map((metric) => (
             <Card key={metric.label} className="border-white/10 bg-white/[0.04] text-white">
               <CardContent className="p-4">
                 <metric.icon className="mb-3 h-5 w-5 text-[#FF6A00]" />
-                <p className="text-2xl font-black">{metricsReady ? metric.value.toLocaleString() : "—"}</p>
+                <p className="text-2xl font-black">{metricsReady ? metric.value.toLocaleString(currentUiLocale()) : "—"}</p>
                 <p className="text-xs font-medium text-white/55">{metric.label}</p>
               </CardContent>
             </Card>
@@ -91,15 +94,15 @@ export default function PromoPushPromoterPortal() {
                     <div className="grid grid-cols-3 gap-2 text-sm">
                       <div className="rounded-md bg-black/35 p-3">
                         <p className="font-black">{assignment.channel?.metrics?.clicks || 0}</p>
-                        <p className="text-xs text-white/55">Scans</p>
+                        <p className="text-xs text-white/55">{webT("web.scans")}</p>
                       </div>
                       <div className="rounded-md bg-black/35 p-3">
                         <p className="font-black">{assignment.channel?.metrics?.joins || 0}</p>
-                        <p className="text-xs text-white/55">Joins</p>
+                        <p className="text-xs text-white/55">{webT("promoPushCreatorPage.thJoins")}</p>
                       </div>
                       <div className="rounded-md bg-black/35 p-3">
                         <p className="font-black">{assignment.channel?.metrics?.proof_verified || 0}</p>
-                        <p className="text-xs text-white/55">Verified</p>
+                        <p className="text-xs text-white/55">{webT("kyc.badgeVerified")}</p>
                       </div>
                     </div>
                     <Button className="w-full bg-[#FF6A00] text-white hover:bg-[#e65f00]" onClick={() => downloadQr(assignment.channel?.label || "promopush", assignment.channel?.tracking_code)}>

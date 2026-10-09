@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,6 +12,7 @@ interface O2OAnalyticsPanelProps {
 }
 
 export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
 
   const query = useQuery({
@@ -53,7 +56,7 @@ export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">O2O Attribution</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{webT("forCreators.attributionBadge")}</p>
         <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Digital to Physical Performance</h3>
       </div>
 
@@ -66,7 +69,7 @@ export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
         ].map((item) => (
           <div key={item.label} className="rounded-2xl border border-border/60 bg-card p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">{item.label}</p>
-            <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{Number(item.value).toLocaleString()}</p>
+            <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{Number(item.value).toLocaleString(currentUiLocale())}</p>
           </div>
         ))}
       </div>

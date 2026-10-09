@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,6 +59,7 @@ export function ProductDialog({
     product,
     organizationId,
 }: ProductDialogProps) {
+  const { t: webT } = useWebI18n();
     const [loading, setLoading] = useState(false);
     const createProduct = useCreateProduct();
     const isEditing = !!product;
@@ -126,7 +128,7 @@ export function ProductDialog({
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || "Something went wrong");
+            toast.error(error.message || webT("wallet.somethingWrong"));
         } finally {
             setLoading(false);
         }
@@ -153,7 +155,7 @@ export function ProductDialog({
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2">
                                         <Package className="w-4 h-4 text-muted-foreground" />
-                                        Item Name
+                                        {webT("gemRushPage.itemName")}
                                     </FormLabel>
                                     <FormControl>
                                         <Input placeholder="e.g. Professional Photography" {...field} className="rounded-xl shadow-inner" />
@@ -171,12 +173,12 @@ export function ProductDialog({
                                     <FormItem>
                                         <FormLabel className="flex items-center gap-2">
                                             <Tag className="w-4 h-4 text-muted-foreground" />
-                                            Type
+                                            {webT("wallet.type")}
                                         </FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className="rounded-xl shadow-inner">
-                                                    <SelectValue placeholder="Select type" />
+                                                    <SelectValue placeholder={webT("web.selectType")} />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
@@ -214,7 +216,7 @@ export function ProductDialog({
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Description</FormLabel>
+                                    <FormLabel>{webT("offerStudio.descLabel")}</FormLabel>
                                     <FormControl>
                                         <Textarea
                                             placeholder="Detail what's included and your expertise..."
@@ -243,13 +245,13 @@ export function ProductDialog({
 
                         <DialogFooter className="gap-2 sm:gap-0 pt-4">
                             <Button type="button" variant="ghost" onClick={onClose} className="rounded-xl">
-                                Cancel
+                                {webT("findOrAsk.cancel")}
                             </Button>
                             <Button type="submit" disabled={loading} className="rounded-xl px-8 shadow-soft">
                                 {loading ? (
                                     <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Saving...
+                                        {webT("editMoment.saving")}
                                     </>
                                 ) : (
                                     isEditing ? "Update Item" : "Add to Catalog"

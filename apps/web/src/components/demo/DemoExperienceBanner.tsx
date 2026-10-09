@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -31,6 +32,7 @@ interface DemoExperienceBannerProps {
 }
 
 export function DemoExperienceBanner({ role, variant = "full" }: DemoExperienceBannerProps) {
+  const { t: webT } = useWebI18n();
   const {
     isActive,
     session,
@@ -150,7 +152,7 @@ export function DemoExperienceBanner({ role, variant = "full" }: DemoExperienceB
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary/80">
-                        Step {index + 1}
+                        {webT("web.step")} {index + 1}
                       </p>
                       <p className="mt-2 text-base font-semibold text-foreground">{step.title}</p>
                     </div>

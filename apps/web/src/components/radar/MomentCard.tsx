@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React from 'react';
 import { Clock, MapPin, Key, Users, ArrowRight, ShieldCheck } from 'lucide-react';
 
@@ -51,6 +52,7 @@ export const MomentCard: React.FC<MomentProps> = ({
   onViewDetails,
   onClaimListing,
 }) => {
+  const { t: webT } = useWebI18n();
   const editorial = ownership === 'EDITORIAL DISCOVERY' && !isClaimed;
 
   return (
@@ -60,9 +62,9 @@ export const MomentCard: React.FC<MomentProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-[#101012] via-black/12 to-transparent" />
         <div className="absolute left-4 top-4 flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-white/15 bg-black/55 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.18em] text-white backdrop-blur-md">{intentCopy[intentType]}</span>
-          <span className="rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.12em] text-white/60 backdrop-blur-md">{editorial ? 'Discovery' : ownership.replace('PROMORANG ', '')}</span>
+          <span className="rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.12em] text-white/60 backdrop-blur-md">{editorial ? webT("sceneDetail.discovery") : ownership.replace('PROMORANG ', '')}</span>
         </div>
-        {promoKeysAvailable > 0 ? <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-[#f4c66c]/35 bg-black/55 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#f4c66c] backdrop-blur-md"><Key className="h-3 w-3" />{promoKeysAvailable} available</span> : null}
+        {promoKeysAvailable > 0 ? <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-[#f4c66c]/35 bg-black/55 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.12em] text-[#f4c66c] backdrop-blur-md"><Key className="h-3 w-3" />{promoKeysAvailable} {webT("web.availableLower")}</span> : null}
       </button>
 
       <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
@@ -86,7 +88,7 @@ export const MomentCard: React.FC<MomentProps> = ({
           {editorial ? (
             <button type="button" onClick={() => onClaimListing ? onClaimListing(id, venueName) : (window.location.href = `/join/venue?venue=${encodeURIComponent(venueName)}`)} className="pr-world-chip border-amber-300/30 text-amber-200"><ShieldCheck className="h-3.5 w-3.5" />Claim listing</button>
           ) : promoKeysAvailable > 0 && onClaimKey ? (
-            <button type="button" onClick={() => onClaimKey(id)} className="pr-world-primary min-h-10 px-4 text-xs"><Key className="h-3.5 w-3.5" />Open access</button>
+            <button type="button" onClick={() => onClaimKey(id)} className="pr-world-primary min-h-10 px-4 text-xs"><Key className="h-3.5 w-3.5" />{webT("commercial.open.access.339")}</button>
           ) : (
             <button type="button" onClick={() => onViewDetails?.(id)} className="pr-world-link inline-flex items-center gap-1">Enter Moment <ArrowRight className="h-3.5 w-3.5" /></button>
           )}

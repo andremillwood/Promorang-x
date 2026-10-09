@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ArrowRight, BarChart3, MapPin, QrCode, ShoppingBag, Store, Vote } from "lucide-react";
@@ -14,6 +15,7 @@ import { BusinessOutcomeEntry } from "@/components/business/BusinessOutcomeEntry
 import coffeeCode from "@/assets/moments/coffee-code.jpg";
 
 export function MerchantDashboardV2() {
+  const { t: webT } = useWebI18n();
   const { data: venues, isLoading: venuesLoading } = useMerchantVenues();
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "storefront";
@@ -38,9 +40,9 @@ export function MerchantDashboardV2() {
     { id: "demand", label: "Customer demand", hint: "What people are asking for", icon: Vote, action: "Listen" },
     { id: "storefront", label: "Offers & products", hint: "What customers can actually act on", icon: Store, action: "Supply" },
     { id: "redemptions", label: "Verify actions", hint: "Claims and redemptions", icon: QrCode, action: "Validate" },
-    { id: "commerce", label: "Orders", hint: "Payment, receipts and fulfillment", icon: ShoppingBag, action: "Operate" },
-    { id: "venues", label: "Places", hint: "Where customers show up", icon: MapPin, action: venuesLoading ? "Checking" : `${venueCount} ${venueCount === 1 ? "place" : "places"}` },
-    { id: "analytics", label: "Results", hint: "What the evidence says", icon: BarChart3, action: "Review" },
+    { id: "commerce", label: webT("merchantDash.orders"), hint: "Payment, receipts and fulfillment", icon: ShoppingBag, action: "Operate" },
+    { id: "venues", label: webT("findOrAsk.resultPlaces"), hint: "Where customers show up", icon: MapPin, action: venuesLoading ? "Checking" : `${venueCount} ${venueCount === 1 ? "place" : "places"}` },
+    { id: "analytics", label: webT("lens.agency.activity"), hint: "What the evidence says", icon: BarChart3, action: "Review" },
   ];
   const active = tabs.find((tab) => tab.id === activeTab) || tabs[1];
 
@@ -88,7 +90,7 @@ export function MerchantDashboardV2() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="sr-only">
-          <TabsTrigger value="demand">Demand</TabsTrigger><TabsTrigger value="storefront">Offers</TabsTrigger><TabsTrigger value="redemptions">Verification</TabsTrigger><TabsTrigger value="commerce">Orders</TabsTrigger><TabsTrigger value="venues">Places</TabsTrigger><TabsTrigger value="analytics">Results</TabsTrigger>
+          <TabsTrigger value="demand">{webT("lens.demand")}</TabsTrigger><TabsTrigger value="storefront">{webT("publicNav.perks")}</TabsTrigger><TabsTrigger value="redemptions">{webT("pricing.verification")}</TabsTrigger><TabsTrigger value="commerce">{webT("merchantDash.orders")}</TabsTrigger><TabsTrigger value="venues">{webT("findOrAsk.resultPlaces")}</TabsTrigger><TabsTrigger value="analytics">{webT("lens.agency.activity")}</TabsTrigger>
         </TabsList>
         <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="merchant" sceneId={searchParams.get("scene_id") || undefined} /></TabsContent>
         <TabsContent value="storefront" className="mt-0"><MerchantStorefrontConsole onOpenProducts={() => handleTabChange("storefront")} onOpenScanner={() => handleTabChange("redemptions")} /></TabsContent>

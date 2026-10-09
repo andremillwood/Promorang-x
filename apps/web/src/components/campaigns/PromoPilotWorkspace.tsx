@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -52,6 +53,7 @@ const channelNames: Record<DistributionChannel, string> = {
 const stages = ["Outcome", "People", "Experience", "Shared value", "Reach", "Impact"];
 
 export function PromoPilotWorkspace({ plan, saving, onBack, onChange, onSave }: Props) {
+  const { t: webT } = useWebI18n();
   const [openSection, setOpenSection] = useState("outcome");
 
   const enabledValues = plan.sharedValue.filter((value) => value.enabled !== false);
@@ -102,9 +104,9 @@ export function PromoPilotWorkspace({ plan, saving, onBack, onChange, onSave }: 
     <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#f2eee5] text-[#191816]">
       <div className="border-b border-black/15 bg-[#191816] text-white">
         <div className="mx-auto flex max-w-[1540px] items-center justify-between gap-4 px-5 py-4 sm:px-10 lg:px-16">
-          <button type="button" onClick={onBack} className="flex min-h-11 items-center gap-2 text-sm font-bold text-white/65 hover:text-white"><ArrowLeft className="h-4 w-4" /> Change the outcome</button>
-          <div className="flex items-center gap-3"><Sparkles className="h-4 w-4 text-orange-300" /><span className="text-xs font-black uppercase tracking-[.22em]">PromoPilot</span></div>
-          <span className="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/60">Draft · not live</span>
+          <button type="button" onClick={onBack} className="flex min-h-11 items-center gap-2 text-sm font-bold text-white/65 hover:text-white"><ArrowLeft className="h-4 w-4" /> {webT("createCampaign.changeOutcome")}</button>
+          <div className="flex items-center gap-3"><Sparkles className="h-4 w-4 text-orange-300" /><span className="text-xs font-black uppercase tracking-[.22em]">{webT("createCampaign.eyebrow")}</span></div>
+          <span className="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/60">{webT("createCampaign.draftBadge")}</span>
         </div>
       </div>
 
@@ -123,10 +125,10 @@ export function PromoPilotWorkspace({ plan, saving, onBack, onChange, onSave }: 
 
             <div className="mt-8">
               {sectionButton("outcome", "01", "What should happen?", plan.intent.statement)}
-              {openSection === "outcome" && <div className="grid gap-5 pb-8 sm:grid-cols-2"><label className="text-xs font-black uppercase tracking-wider">Organization<Input value={plan.intent.businessName || ""} onChange={(event) => patchIntent({ businessName: event.target.value })} placeholder="Who is running this?" className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider">Timing<Input value={plan.intent.timeframe || ""} onChange={(event) => patchIntent({ timeframe: event.target.value })} placeholder="When should it happen?" className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider sm:col-span-2">The change you want<Textarea value={plan.intent.statement} onChange={(event) => patchIntent({ statement: event.target.value })} className="mt-2 min-h-24 bg-white" /></label></div>}
+              {openSection === "outcome" && <div className="grid gap-5 pb-8 sm:grid-cols-2"><label className="text-xs font-black uppercase tracking-wider">{webT("web.organization")}<Input value={plan.intent.businessName || ""} onChange={(event) => patchIntent({ businessName: event.target.value })} placeholder="Who is running this?" className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider">{webT("editMoment.timingHeading")}<Input value={plan.intent.timeframe || ""} onChange={(event) => patchIntent({ timeframe: event.target.value })} placeholder="When should it happen?" className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider sm:col-span-2">The change you want<Textarea value={plan.intent.statement} onChange={(event) => patchIntent({ statement: event.target.value })} className="mt-2 min-h-24 bg-white" /></label></div>}
 
               {sectionButton("people", "02", "Who is it for?", plan.people.audience)}
-              {openSection === "people" && <div className="grid gap-5 pb-8 sm:grid-cols-2"><label className="text-xs font-black uppercase tracking-wider">Audience<Input value={plan.people.audience} onChange={(event) => patchPeople({ audience: event.target.value })} className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider">Participation target<Input type="number" min={1} value={plan.people.participantLimit || ""} onChange={(event) => patchPeople({ participantLimit: Number(event.target.value) || null })} className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider sm:col-span-2">Place<Input value={plan.intent.location || ""} onChange={(event) => patchIntent({ location: event.target.value })} placeholder="Where will it happen?" className="mt-2 bg-white" /></label></div>}
+              {openSection === "people" && <div className="grid gap-5 pb-8 sm:grid-cols-2"><label className="text-xs font-black uppercase tracking-wider">{webT("commercial.audience.211")}<Input value={plan.people.audience} onChange={(event) => patchPeople({ audience: event.target.value })} className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider">Participation target<Input type="number" min={1} value={plan.people.participantLimit || ""} onChange={(event) => patchPeople({ participantLimit: Number(event.target.value) || null })} className="mt-2 bg-white" /></label><label className="text-xs font-black uppercase tracking-wider sm:col-span-2">{webT("launch.place")}<Input value={plan.intent.location || ""} onChange={(event) => patchIntent({ location: event.target.value })} placeholder="Where will it happen?" className="mt-2 bg-white" /></label></div>}
 
               {sectionButton("experience", "03", "What will people experience?", plan.experience.actions.find((action) => action.required)?.label || plan.experience.invitation)}
               {openSection === "experience" && <div className="pb-8"><div className="bg-[#191816] p-6 text-white"><p className="text-xs font-black uppercase tracking-wider text-orange-300">The participation path</p><div className="mt-5 grid gap-4 sm:grid-cols-3">{plan.experience.actions.filter((action) => action.type !== "discover").slice(0, 3).map((action, index) => <div key={action.id} className="flex gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/25 text-xs">{index + 1}</span><div><p className="text-sm font-bold">{action.label}</p><p className="mt-1 text-xs text-white/45">{action.proof ? `Confirmed by ${action.proof.replace("_", " ")}` : "No proof required"}</p></div></div>)}</div></div></div>}
@@ -153,13 +155,13 @@ export function PromoPilotWorkspace({ plan, saving, onBack, onChange, onSave }: 
                 {readiness.missing.length ? readiness.missing.map((item) => <button key={item} type="button" onClick={() => setOpenSection(item.includes("organization") || item.includes("timing") ? "outcome" : item.includes("place") || item.includes("participation") ? "people" : "value")} className="flex w-full items-center gap-3 py-2 text-left text-sm text-black/60"><span className="h-4 w-4 rounded-full border border-black/20" />{item}<ArrowRight className="ml-auto h-3 w-3" /></button>) : <p className="flex items-center gap-3 text-sm font-bold text-emerald-800"><Check className="h-4 w-4" />Core decisions are complete</p>}
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3 text-center"><div className="bg-black/[.04] p-3"><p className="text-2xl font-black">{plan.people.participantLimit || "—"}</p><p className="text-[9px] font-black uppercase tracking-wider text-black/40">People</p></div><div className="bg-black/[.04] p-3"><p className="text-2xl font-black">{enabledChannels.length}</p><p className="text-[9px] font-black uppercase tracking-wider text-black/40">Channels</p></div></div>
+              <div className="mt-5 grid grid-cols-2 gap-3 text-center"><div className="bg-black/[.04] p-3"><p className="text-2xl font-black">{plan.people.participantLimit || "—"}</p><p className="text-[9px] font-black uppercase tracking-wider text-black/40">{webT("lens.participant.workspace")}</p></div><div className="bg-black/[.04] p-3"><p className="text-2xl font-black">{enabledChannels.length}</p><p className="text-[9px] font-black uppercase tracking-wider text-black/40">Channels</p></div></div>
 
               <Button onClick={onSave} disabled={saving} className="mt-6 h-14 w-full rounded-full bg-[#d85b24] text-base font-black text-white hover:bg-[#ba4618]">{saving ? "Saving PromoPilot plan…" : "Save campaign plan"}<ArrowRight className="ml-2 h-4 w-4" /></Button>
-              <p aria-live="polite" className="mt-4 text-center text-xs leading-5 text-black/42">Nothing will be published or charged.</p>
+              <p aria-live="polite" className="mt-4 text-center text-xs leading-5 text-black/42">{webT("createCampaign.noChargeNotice")}</p>
             </div>
 
-            <div className="mt-4 grid grid-cols-3 gap-px bg-black/10 text-center"><div className="bg-[#191816] p-4 text-white"><Gift className="mx-auto h-4 w-4 text-orange-300" /><p className="mt-2 text-[9px] uppercase">Value</p></div><div className="bg-[#191816] p-4 text-white"><MessageCircle className="mx-auto h-4 w-4 text-orange-300" /><p className="mt-2 text-[9px] uppercase">Reach</p></div><div className="bg-[#191816] p-4 text-white"><ShieldCheck className="mx-auto h-4 w-4 text-orange-300" /><p className="mt-2 text-[9px] uppercase">Proof</p></div></div>
+            <div className="mt-4 grid grid-cols-3 gap-px bg-black/10 text-center"><div className="bg-[#191816] p-4 text-white"><Gift className="mx-auto h-4 w-4 text-orange-300" /><p className="mt-2 text-[9px] uppercase">{webT("createProposal.step6Short")}</p></div><div className="bg-[#191816] p-4 text-white"><MessageCircle className="mx-auto h-4 w-4 text-orange-300" /><p className="mt-2 text-[9px] uppercase">{webT("web.reach")}</p></div><div className="bg-[#191816] p-4 text-white"><ShieldCheck className="mx-auto h-4 w-4 text-orange-300" /><p className="mt-2 text-[9px] uppercase">{webT("promoPushLandingPage.step3Title")}</p></div></div>
           </aside>
         </div>
       </div>

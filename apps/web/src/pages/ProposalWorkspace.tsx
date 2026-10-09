@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMemo, useState } from "react";
 import { ACTIVATION_REVIEW_DECISION_ACTIONS, ACTIVATION_REVIEW_NEXT_DECISIONS } from "@promorang/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -119,7 +120,7 @@ export default function ProposalWorkspace() {
         <section className="mt-6 grid gap-3 sm:grid-cols-3">
           <Metric icon={Sparkles} label={t("proposalWorkspace.metricPlans")} value={String(data.length)} detail={t("proposalWorkspace.metricPlansDetail")} />
           <Metric icon={CalendarDays} label={t("proposalWorkspace.metricLive")} value={String(liveCount)} detail={t("proposalWorkspace.metricLiveDetail")} />
-          <Metric icon={CircleDollarSign} label={t("proposalWorkspace.metricFunding")} value={openFunding ? `J$${openFunding.toLocaleString()}` : t("proposalWorkspace.metricOpen")} detail={t("proposalWorkspace.metricFundingDetail")} />
+          <Metric icon={CircleDollarSign} label={t("proposalWorkspace.metricFunding")} value={openFunding ? `J$${openFunding.toLocaleString(currentUiLocale())}` : t("proposalWorkspace.metricOpen")} detail={t("proposalWorkspace.metricFundingDetail")} />
         </section>
 
         <section className="mt-5 rounded-[2rem] border border-primary/20 bg-primary/[0.06] p-5">
@@ -188,7 +189,7 @@ function ActivationCard({ activation, onOpen }: { activation: Activation; onOpen
         {activation.latestOutcome && <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-4"><p className="text-[9px] font-black uppercase tracking-[0.16em] text-primary">{t("proposalWorkspace.latestReview")}</p><p className="mt-2 text-sm leading-6 text-white/60">{activation.latestOutcome.human_return_summary || activation.latestOutcome.commercial_return_summary || t("proposalWorkspace.reviewRecorded")}</p>{activation.latestOutcome.scene_learning_summary && <p className="mt-2 text-xs leading-5 text-white/40">{t("proposalWorkspace.sceneLearning", { learning: activation.latestOutcome.scene_learning_summary })}</p>}</div>}
       </div>
       <aside className="flex flex-col justify-between border-t border-white/10 bg-black/30 p-6 lg:border-l lg:border-t-0">
-        <div><p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/35">{t("proposalWorkspace.nextMove")}</p><h3 className="mt-3 font-serif text-2xl font-bold">{decision?.title || statusTitle}</h3><p className="mt-2 text-xs leading-5 text-white/45">{activation.latestOutcome?.next_decision_note || decision?.detail || statusDetail}</p>{activation.budget ? <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-[8px] font-black uppercase tracking-[0.16em] text-white/30">{t("proposalWorkspace.fundingRequested")}</p><p className="mt-1 text-xl font-bold">J${Number(activation.budget).toLocaleString()}</p></div> : null}</div>
+        <div><p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/35">{t("proposalWorkspace.nextMove")}</p><h3 className="mt-3 font-serif text-2xl font-bold">{decision?.title || statusTitle}</h3><p className="mt-2 text-xs leading-5 text-white/45">{activation.latestOutcome?.next_decision_note || decision?.detail || statusDetail}</p>{activation.budget ? <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-[8px] font-black uppercase tracking-[0.16em] text-white/30">{t("proposalWorkspace.fundingRequested")}</p><p className="mt-1 text-xl font-bold">J${Number(activation.budget).toLocaleString(currentUiLocale())}</p></div> : null}</div>
         <Button onClick={onOpen} variant="outline" className="mt-7 w-full justify-between border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white">{t("proposalWorkspace.openActivation")} <ArrowRight className="h-4 w-4" /></Button>
       </aside>
     </div>

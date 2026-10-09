@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { QRCodeSVG } from "qrcode.react";
 import { BadgeDollarSign, CheckCircle2, Copy, Link2, Megaphone, MousePointerClick, Plus, RefreshCcw, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,10 +11,11 @@ import {
 import { useI18n } from "@/i18n/I18nContext";
 
 function money(value: number) {
-  return `JMD ${Number(value || 0).toLocaleString()}`;
+  return `JMD ${Number(value || 0).toLocaleString(currentUiLocale())}`;
 }
 
 export default function PromoPushCreator() {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const activeCampaignsQuery = usePromoPushActiveCampaigns();
   const creatorLinksQuery = usePromoPushCreatorLinks();
@@ -80,7 +82,7 @@ export default function PromoPushCreator() {
                   <p className="font-bold text-white">Available campaigns are unavailable.</p>
                   <p className="mt-1">We couldn’t load campaigns right now.</p>
                   <Button type="button" size="sm" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => activeCampaignsQuery.refetch()}>
-                    <RefreshCcw className="mr-2 h-4 w-4" />Retry campaign source
+                    <RefreshCcw className="mr-2 h-4 w-4" />{webT("web.retryCampaign")}
                   </Button>
                 </div>
               ) : availableCampaigns.length === 0 ? (

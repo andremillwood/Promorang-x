@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState, useRef } from "react";
 import {
   ShieldCheck,
@@ -71,6 +72,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
   showShareActions = true,
   allowTear = true,
 }) => {
+  const { t: webT } = useWebI18n();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
@@ -337,7 +339,7 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
                 className="flex-1 border-white/15 bg-white/[0.04] text-xs font-semibold text-white hover:bg-white/10 hover:text-white"
               >
                 {copied ? <Check className="mr-1.5 h-3.5 w-3.5 text-emerald-400" /> : <Copy className="mr-1.5 h-3.5 w-3.5 text-white/70" />}
-                {copied ? "Link Copied" : "Copy Link"}
+                {copied ? "Link Copied" : webT("shareButton.copyLink")}
               </Button>
               <Button
                 variant="outline"
@@ -346,14 +348,14 @@ export const TactileValueReceipt: React.FC<TactileValueReceiptProps> = ({
                 className="border-primary/30 bg-primary/10 px-3 text-xs text-primary hover:bg-primary/20"
                 title="Create 9:16 Social Story"
               >
-                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Story
+                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> {webT("createProposal.step4Short")}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleShareX}
                 className="border-white/15 bg-white/[0.04] px-3 text-xs text-white hover:bg-white/10"
-                title="Share on X"
+                title={webT("web.shareX")}
               >
                 <Share2 className="h-3.5 w-3.5" />
               </Button>

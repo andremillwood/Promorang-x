@@ -1,3 +1,5 @@
+import { translate } from "@/i18n/I18nContext";
+import { localizeLens, type Translate } from "@/i18n/localize";
 import {
   Activity,
   Briefcase,
@@ -66,8 +68,8 @@ const EXTRA_ICONS: Record<string, LucideIcon> = {
   "/content-drops": Radio,
 };
 
-export function stakeholderNavItems(role: StakeholderNavRole): StakeholderNavItem[] {
-  const lens = getStakeholderLens(role);
+export function stakeholderNavItems(role: StakeholderNavRole, t: Translate = translate): StakeholderNavItem[] {
+  const lens = localizeLens(getStakeholderLens(role), t);
   const primary = lens.destinations.map((item) => ({
     icon: item.id === "putIn" ? PUT_IN_ICONS[lens.role] || Plus : OBJECT_ICONS[item.id],
     label: item.label,
@@ -84,8 +86,8 @@ export function stakeholderNavItems(role: StakeholderNavRole): StakeholderNavIte
   return [...primary, ...extras];
 }
 
-export function stakeholderMobileNav(role: StakeholderNavRole): StakeholderNavItem[] {
-  return stakeholderNavItems(role)
+export function stakeholderMobileNav(role: StakeholderNavRole, t: Translate = translate): StakeholderNavItem[] {
+  return stakeholderNavItems(role, t)
     .filter((item) => item.group === "primary")
     .map((item) => ({ ...item, accent: item.accent }));
 }

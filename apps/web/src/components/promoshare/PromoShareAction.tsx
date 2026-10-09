@@ -48,6 +48,7 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
   className = '',
   buttonLabel,
 }) => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { generateShareLink, referralCode, referralCodeRecorded } = usePromoShareRail();
   const [modalOpen, setModalOpen] = useState(false);
@@ -140,7 +141,7 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-xs font-bold text-orange-400 transition-all ${className}`}
         >
           <Share2 className="w-3.5 h-3.5" />
-          <span>{shareSheetCompleted ? 'Shared' : label}</span>
+          <span>{shareSheetCompleted ? webT("promoShare.shared") : label}</span>
         </button>
       );
     }
@@ -164,7 +165,7 @@ export const PromoShareAction: React.FC<PromoShareActionProps> = ({
         className={`border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 font-bold gap-2 text-xs rounded-xl ${className}`}
       >
         <Share2 className="w-3.5 h-3.5" />
-        <span>{shareSheetCompleted ? 'Shared' : label}</span>
+        <span>{shareSheetCompleted ? webT("promoShare.shared") : label}</span>
       </Button>
     );
   };

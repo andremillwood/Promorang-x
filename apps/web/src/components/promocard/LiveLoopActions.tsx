@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { Check, Circle, Clock3 } from "lucide-react";
 import { firstActionsForRole, getStakeholderLens, type FirstAction } from "@promorang/shared";
@@ -21,6 +22,7 @@ export function LiveLoopActions({
   title?: string;
   completedActionIds?: string[];
 }) {
+  const { t: webT } = useWebI18n();
   const items = actions || firstActionsForRole(role);
   const lens = getStakeholderLens(role);
   const completed = new Set(completedActionIds);
@@ -37,7 +39,7 @@ export function LiveLoopActions({
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">{roleOutcome[lens.role] || lens.promise}</p>
         </div>
         <div className="text-right">
-          <p className="rounded-full border border-white/10 bg-black/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-white/45">{completedCount} of {items.length} complete</p>
+          <p className="rounded-full border border-white/10 bg-black/25 px-3 py-2 text-[10px] font-black uppercase tracking-[.14em] text-white/45">{completedCount} {webT("web.of")} {items.length} complete</p>
           <p className="mt-2 text-[10px] text-white/30">Based on recorded activity</p>
         </div>
       </div>
@@ -54,7 +56,7 @@ export function LiveLoopActions({
               className={`rounded-2xl border px-4 py-4 transition hover:border-primary/50 ${isNext ? "border-primary/40 bg-primary/[.08]" : isComplete ? "border-emerald-300/20 bg-emerald-300/[.045]" : "border-white/10 bg-white/[0.04]"}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <p className={`text-[10px] font-black uppercase tracking-[0.16em] ${isNext ? "text-primary" : isComplete ? "text-emerald-200" : "text-white/40"}`}>{isComplete ? "Completed" : isNext ? "Do this next" : "After that"}</p>
+                <p className={`text-[10px] font-black uppercase tracking-[0.16em] ${isNext ? "text-primary" : isComplete ? "text-emerald-200" : "text-white/40"}`}>{isComplete ? webT("web.completed") : isNext ? "Do this next" : "After that"}</p>
                 <Icon className={`h-4 w-4 ${isNext ? "text-primary" : isComplete ? "text-emerald-200" : "text-white/25"}`} />
               </div>
               <p className="mt-3 text-sm font-black text-white/85">{action.label}</p>

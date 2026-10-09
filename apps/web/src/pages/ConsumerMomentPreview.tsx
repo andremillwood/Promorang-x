@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, MapPin, Share2, Users, CheckCircle2, Ticket, Sparkles } from "lucide-react";
@@ -10,13 +12,14 @@ import { useReferralCodes } from "@/hooks/useReferrals";
 const formatDate = (value?: string | null) => {
   if (!value) return "Time TBA";
   try {
-    return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
+    return new Intl.DateTimeFormat(currentUiLocale(), { weekday: "long", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
   } catch {
     return "Time TBA";
   }
 };
 
 export default function ConsumerMomentPreview() {
+  const { t: webT } = useWebI18n();
   const id = new URLSearchParams(window.location.search).get("moment") || undefined;
   const { user, profile } = useAuth();
   const joined = useJoinedMoments();
@@ -48,7 +51,7 @@ export default function ConsumerMomentPreview() {
     const url = `${window.location.origin}/moments/${moment?.slug || moment?.id}${referralCode ? `?ref=${encodeURIComponent(referralCode)}` : ""}`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: moment?.title || "Promorang Moment", text: `Come check this out with me on Promorang.`, url });
+        await navigator.share({ title: moment?.title || webT("aftrhrs.momentEyebrow"), text: `Come check this out with me on Promorang.`, url });
         return;
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return;
@@ -71,11 +74,11 @@ export default function ConsumerMomentPreview() {
         <section className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(340px,.75fr)] lg:gap-12">
           <div>
             <div className="overflow-hidden bg-muted aspect-[16/10] md:aspect-[16/9]">
-              {moment.image_url ? <img src={moment.image_url} alt={moment.title} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center text-muted-foreground">Promorang Moment</div>}
+              {moment.image_url ? <img src={moment.image_url} alt={moment.title} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center text-muted-foreground">{webT("aftrhrs.momentEyebrow")}</div>}
             </div>
 
             <div className="py-7 md:py-9">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">Moment · {moment.category || "Culture"}</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-primary">Moment · {moment.category || webT("publicHome.category.culture")}</p>
               <h1 className="mt-2 max-w-4xl font-serif text-5xl font-semibold leading-[0.92] tracking-[-0.05em] md:text-7xl">{moment.title}</h1>
               <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" />{formatDate(moment.starts_at)}</span>
@@ -94,7 +97,7 @@ export default function ConsumerMomentPreview() {
             </section>
 
             <section className="mt-10">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">The loop</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{webT("commercial.the.loop.175")}</p>
               <h2 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.04em] md:text-4xl">See it. Plan it. Bring people. Show up.</h2>
               <div className="mt-6 grid gap-4 sm:grid-cols-4">
                 {["Signal interest", "Add to your plan", "Invite your crew", "Verify attendance"].map((label, index) => (
@@ -110,24 +113,24 @@ export default function ConsumerMomentPreview() {
               <h2 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.04em]">{planned ? "This is on your radar." : "Worth moving for?"}</h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">{planned ? "Promorang will keep this visible in your plans and event-day context." : "Signal intent now. You can still change your mind later."}</p>
               <div className="mt-5 grid gap-2">
-                <button onClick={() => setLocalPlanned(true)} className="w-full bg-primary px-4 py-3 text-sm font-black text-primary-foreground">{planned ? "In your plan" : "I'm interested"}</button>
+                <button onClick={() => setLocalPlanned(true)} className="w-full bg-primary px-4 py-3 text-sm font-black text-primary-foreground">{planned ? "In your plan" : webT("aftrhrs.interested")}</button>
                 <button onClick={shareMoment} className="inline-flex w-full items-center justify-center gap-2 border border-border bg-background px-4 py-3 text-sm font-black"><Share2 className="h-4 w-4" /> Invite your crew</button>
               </div>
             </section>
 
             <section className="border-t border-border pt-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Access</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{webT("web.access")}</p>
               <div className="mt-3 flex items-start gap-3"><Ticket className="mt-1 h-5 w-5 text-primary" /><div><strong className="block">Member access may unlock here</strong><p className="mt-1 text-sm leading-6 text-muted-foreground">PromoKeys and perks should appear when eligibility is real—not as permanent clutter.</p></div></div>
             </section>
 
             <section className="border-t border-border pt-5">
               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Event day</p>
               <div className="mt-3 flex items-start gap-3"><Users className="mt-1 h-5 w-5 text-primary" /><div><strong className="block">When you're there, prove it.</strong><p className="mt-1 text-sm leading-6 text-muted-foreground">Check-in should become relevant only when attendance is plausible.</p></div></div>
-              {isJoined && user ? <button onClick={() => checkIn.mutate(moment.id)} disabled={checkIn.isPending} className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-border bg-background px-4 py-3 text-sm font-black"><CheckCircle2 className="h-4 w-4" />{checkIn.isPending ? "Checking in…" : "Check in"}</button> : null}
+              {isJoined && user ? <button onClick={() => checkIn.mutate(moment.id)} disabled={checkIn.isPending} className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-border bg-background px-4 py-3 text-sm font-black"><CheckCircle2 className="h-4 w-4" />{checkIn.isPending ? "Checking in…" : webT("venueProfile.checkIn")}</button> : null}
             </section>
 
             <section className="border-t border-border pt-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Proof</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{webT("promoPushLandingPage.step3Title")}</p>
               <div className="mt-3 flex items-start gap-3"><Sparkles className="mt-1 h-5 w-5 text-primary" /><div><strong className="block">Participation should leave a trace.</strong><p className="mt-1 text-sm leading-6 text-muted-foreground">Verified attendance can feed Memories, Pieces, rewards and your cultural history.</p></div></div>
             </section>
           </aside>

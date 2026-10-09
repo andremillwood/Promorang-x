@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +25,7 @@ interface PlatformConfig {
 }
 
 export function AdminConfigTab() {
+  const { t: webT } = useWebI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [config, setConfig] = useState<PlatformConfig>({
@@ -195,7 +197,7 @@ export function AdminConfigTab() {
                             Maintenance Mode
                             {config.maintenance_mode && (
                                 <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-[10px] uppercase font-bold rounded-full animate-pulse">
-                                    ACTIVE
+                                    {webT("web.activeUpper")}
                                 </span>
                             )}
                         </CardTitle>

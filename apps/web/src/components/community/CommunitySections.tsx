@@ -1,10 +1,12 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Clock3, Gem, Plus } from 'lucide-react';
 import type { CommunityAction, CommunityGoal, CommunityMove, CommunityWork, CommunityWorkspaceData } from '@/types/community';
 import { buttonClass, secondaryClass, Field, inputClass, moveForm, postForm, type CommunityForm } from './CommunityForms';
 
-export const dateLabel = (value: string | null, withTime = false) => value ? new Date(value.length === 10 ? `${value}T12:00:00` : value).toLocaleString('en-JM', {
+export const dateLabel = (value: string | null, withTime = false) => value ? new Date(value.length === 10 ? `${value}T12:00:00` : value).toLocaleString(currentUiLocale(), {
   month: 'short', day: 'numeric', ...(withTime ? { hour: 'numeric', minute: '2-digit', timeZone: 'America/Jamaica' } : {}),
 }) : 'Not set';
 export const human = (value: string) => value.replace(/_/g, ' ');
@@ -17,11 +19,12 @@ export function Empty({ children }: { children: ReactNode }) {
 export function ActionButton({ action, values, onAction, children, secondary = false }: {
   action: string; values: Record<string, unknown>; onAction: CommunityAction; children: ReactNode; secondary?: boolean;
 }) {
+  const { t: webT } = useWebI18n();
   const [pending, setPending] = useState(false); const [error, setError] = useState('');
   return <div><button className={secondary ? secondaryClass : buttonClass} disabled={pending} onClick={async () => {
     setPending(true); setError('');
     try { await onAction(action, values); } catch (e) { setError(e instanceof Error ? e.message : 'Please try again.'); } finally { setPending(false); }
-  }}>{pending ? 'Saving…' : children}</button>{error && <p role="alert" className="mt-2 max-w-lg text-sm text-red-200">{error}</p>}</div>;
+  }}>{pending ? webT("funnel.saving") : children}</button>{error && <p role="alert" className="mt-2 max-w-lg text-sm text-red-200">{error}</p>}</div>;
 }
 export function GoalTrail({ goals }: { goals: CommunityGoal[] }) {
   if (!goals.length) return <Empty>The next shared goal is being shaped. Bring an idea to the General Room or ask a lead to open the first goal.</Empty>;
@@ -30,7 +33,7 @@ export function GoalTrail({ goals }: { goals: CommunityGoal[] }) {
     <p className="mt-2 text-sm leading-6 text-white/65">{g.why}</p>
     <div className="mt-5 space-y-5">{g.results.map(r => {
       const percent = Math.min(100, Math.max(0, Number(r.current_value) / Number(r.target) * 100));
-      return <div key={r.id}><div className="mb-2 flex items-end justify-between gap-3"><p className="text-sm">{r.title}</p><span className="shrink-0 text-xs text-orange-200">{Number(r.current_value).toLocaleString()} / {Number(r.target).toLocaleString()} {r.unit}</span></div>
+      return <div key={r.id}><div className="mb-2 flex items-end justify-between gap-3"><p className="text-sm">{r.title}</p><span className="shrink-0 text-xs text-orange-200">{Number(r.current_value).toLocaleString(currentUiLocale())} / {Number(r.target).toLocaleString(currentUiLocale())} {r.unit}</span></div>
         <div role="progressbar" aria-label={r.title} aria-valuemin={0} aria-valuemax={Number(r.target)} aria-valuenow={Math.min(Number(r.target), Number(r.current_value))} className="h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-orange-400" style={{ width: `${percent}%` }} /></div></div>;
     })}</div>
   </article>)}</div>;
@@ -44,6 +47,7 @@ export function proofForm(work: CommunityWork): CommunityForm {
     transform: v => ({ ...v, proof_url: v.proof_url || null }) };
 }
 function WorkSlip({ move, work, data, onForm, onAction }: { move: CommunityMove; work?: CommunityWork; data: CommunityWorkspaceData; onForm: (f: CommunityForm) => void; onAction: CommunityAction }) {
+  const { t: webT } = useWebI18n();
   const win = data.goals.flatMap(g => g.results).find(r => r.id === move.result_id);
   const canSubmit = work && ['claimed', 'changes_requested'].includes(work.status);
   const canClaim = !work && move.eligible && move.status === 'open' && Date.parse(move.due_at) > Date.now();
@@ -61,7 +65,7 @@ function WorkSlip({ move, work, data, onForm, onAction }: { move: CommunityMove;
       </div>
     </div><div className="relative flex shrink-0 flex-row items-center justify-between gap-3 border-t border-dashed border-white/25 bg-white/[.025] px-5 py-4 sm:w-40 sm:flex-col sm:items-start sm:justify-center sm:border-l sm:border-t-0 sm:py-6">
       <div><p className="text-2xl font-bold text-orange-200">+{move.points}</p><p className="text-xs text-white/65">contribution points</p></div>
-      <div>{Number(move.gems) > 0 ? <><p className="flex items-center gap-1.5 text-lg font-bold"><Gem className="h-4 w-4 text-orange-300" />{Number(move.gems).toLocaleString()} Gems</p><p className="mt-1 text-xs text-white/60">{move.status === 'proposed' ? 'Proposed reward' : 'Set aside per approval'}</p></> : <p className="text-xs text-white/65">Points contribution<br />No Gem payment</p>}</div>
+      <div>{Number(move.gems) > 0 ? <><p className="flex items-center gap-1.5 text-lg font-bold"><Gem className="h-4 w-4 text-orange-300" />{Number(move.gems).toLocaleString(currentUiLocale())} {webT("wallet.gemsLabel")}</p><p className="mt-1 text-xs text-white/60">{move.status === 'proposed' ? 'Proposed reward' : 'Set aside per approval'}</p></> : <p className="text-xs text-white/65">Points contribution<br />No Gem payment</p>}</div>
       <p className="text-xs leading-5 text-white/65">Due {dateLabel(move.due_at, true)}<br />Jamaica time</p>
     </div></div>
   </article>;
@@ -78,6 +82,7 @@ export function MoveBoard({ data, onForm, onAction }: { data: CommunityWorkspace
 }
 
 export function Rhythm({ data, onAction }: { data: CommunityWorkspaceData; onAction: CommunityAction }) {
+  const { t: webT } = useWebI18n();
   const [week, setWeek] = useState(1);
   const selected = data.framework.weeks.find(w => w.week === week)!;
   return <><SectionHeading kicker="Community rhythm" title="A reason to come back." />
@@ -88,7 +93,7 @@ export function Rhythm({ data, onAction }: { data: CommunityWorkspaceData; onAct
         {s.joined && <span className="inline-flex items-center gap-2 text-sm text-emerald-200"><Check className="h-4 w-4" /> You’re on the list</span>}
         {!ended && s.join_url && <a href={s.join_url} rel="noopener noreferrer" target="_blank" className={secondaryClass}>Open session</a>}
         {s.replay_url && <a href={s.replay_url} target="_blank" rel="noopener noreferrer" className={secondaryClass}>Watch the recording</a>}
-        {s.moment_id && <Link to={`/moments/${s.moment_id}`} className={secondaryClass}>See the Moment</Link>}
+        {s.moment_id && <Link to={`/moments/${s.moment_id}`} className={secondaryClass}>{webT("web.seeMoment")}</Link>}
       </div></div></article>;
     })}{!data.sessions.length && <Empty>Sessions will appear here when a lead confirms the date and details. Explore the community’s planned rhythm below.</Empty>}</div></section>
     <section><SectionHeading kicker="The four-week playbook" title="From hello to your next win." /><p className="mb-5 text-sm leading-6 text-white/65">These are programming templates. Booked dates and access links appear on the calendar above. Free, Premium, and Super refer to your community membership.</p>
@@ -101,13 +106,14 @@ export function Rhythm({ data, onAction }: { data: CommunityWorkspaceData; onAct
 }
 
 export function Roles({ data, onForm }: { data: CommunityWorkspaceData; onForm: (f: CommunityForm) => void }) {
+  const { t: webT } = useWebI18n();
   return <><SectionHeading kicker="Find your place" title="A role you can make your own." /><p className="mb-8 max-w-2xl text-sm leading-7 text-white/65">Roles recognize useful work and open the corresponding role room and resources. Your standing follows accepted contributions. A lead reviews your progress before the next round.</p>
     <div className="space-y-8">{data.framework.roles.map(r => {
       const d = data.definitions.find(d => d.slug === r.id)!; const seat = data.myRoles.find(s => s.role_slug === r.id);
       const eligible = r.tiers.includes(data.membership.tier);
       return <article key={r.id} className="border-t border-white/20 pt-6"><div className="flex flex-wrap justify-between gap-3"><h3 className="font-serif text-2xl font-bold">{r.name}</h3><span className="text-xs font-semibold uppercase tracking-wider text-orange-200">{seat ? human(seat.effective_status || seat.status) : eligible ? 'Applications open' : 'Premium & Super'}</span></div>
         <p className="mt-2 text-sm leading-6 text-white/75">{r.purpose}</p>
-        <p className="mt-4 text-sm text-white/70">Keep it moving: <strong className="text-white">{d.min_points} points + {d.min_moves} accepted {d.kind} moves</strong> every {d.review_days} days.</p>
+        <p className="mt-4 text-sm text-white/70">Keep it moving: <strong className="text-white">{d.min_points} points + {d.min_moves} {webT("proposalWorkspace.filterAccepted")} {d.kind} {webT("web.moves")}</strong> every {d.review_days} days.</p>
         <p className="mt-2 text-xs leading-6 text-white/60">{d.term_days}-day term · {d.grace_days}-day grace period after a check-in is due. {r.proof}</p>
         <div className="mt-4 flex flex-wrap gap-2">{r.privileges.map(p => <span className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/70" key={p}>{p}</span>)}</div>
         {seat && <div className="mt-5 border-l-2 border-orange-400 pl-4"><p className="text-sm">Your progress: {seat.points} points · {seat.moves}/{d.min_moves} role moves</p><p className="mt-2 text-xs leading-6 text-white/60">Check-in: {dateLabel(seat.review_at)} · Term ends: {dateLabel(seat.term_ends_at)}{seat.grace_until ? ` · Grace ends: ${dateLabel(seat.grace_until)}` : ''}</p>{seat.review_note && <p className="mt-2 text-sm text-orange-100">{seat.review_note}</p>}</div>}
@@ -128,10 +134,11 @@ export function Rooms({ data, onForm }: { data: CommunityWorkspaceData; onForm: 
   </>;
 }
 export function Wins({ data }: { data: CommunityWorkspaceData }) {
+  const { t: webT } = useWebI18n();
   return <><SectionHeading kicker="What changed because you took part" title="Keep your receipts." />
-    <div className="mb-10 flex flex-wrap gap-x-10 gap-y-5 border-y border-white/20 py-6">{[[data.totals.points, 'contribution points earned'], [data.totals.earnedGems, 'Gems earned from approved jobs'], [data.totals.pendingGems, 'Gems awaiting work approval']].map(([v, l]) => <div key={l}><p className="font-serif text-3xl font-bold text-orange-100">{Number(v).toLocaleString()}</p><p className="mt-1 text-xs text-white/65">{l}</p></div>)}</div>
+    <div className="mb-10 flex flex-wrap gap-x-10 gap-y-5 border-y border-white/20 py-6">{[[data.totals.points, 'contribution points earned'], [data.totals.earnedGems, 'Gems earned from approved jobs'], [data.totals.pendingGems, 'Gems awaiting work approval']].map(([v, l]) => <div key={l}><p className="font-serif text-3xl font-bold text-orange-100">{Number(v).toLocaleString(currentUiLocale())}</p><p className="mt-1 text-xs text-white/65">{l}</p></div>)}</div>
     <p className="mb-8 text-sm leading-7 text-white/65">Contribution points count your verified work even after you use PromoPoints elsewhere. Gems are credited to your existing account when a paid job is approved. These are earned totals, not your available balance. <Link className="font-semibold text-orange-200" to="/wallet">Open your wallet →</Link></p>
-    <div className="grid gap-6 sm:grid-cols-2">{data.receipts.map(s => <article key={s.id} className="relative border-b-4 border-dashed border-[#101012] bg-[#eee8dc] px-6 py-7 text-[#242321]"><p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#6b5743]">Promorang · Contribution receipt</p><h3 className="mt-4 font-serif text-2xl font-bold">{s.move.title}</h3><div className="my-5 border-t border-dashed border-[#958c7e]" /><dl className="space-y-3 text-sm"><div className="flex justify-between"><dt>Points earned</dt><dd className="font-bold">+{s.points_awarded}</dd></div><div className="flex justify-between"><dt>Gems earned</dt><dd className="font-bold">{Number(s.gems_awarded)}</dd></div><div className="flex justify-between"><dt>Verified result</dt><dd>{Number(s.verified_value)}</dd></div></dl><p className="mt-5 text-sm leading-6">{s.feedback}</p><p className="mt-5 text-xs">Approved {dateLabel(s.reviewed_at, true)} · Jamaica</p><p className="mt-2 break-all font-mono text-[10px] text-[#6b5743]">{s.id}</p></article>)}</div>
+    <div className="grid gap-6 sm:grid-cols-2">{data.receipts.map(s => <article key={s.id} className="relative border-b-4 border-dashed border-[#101012] bg-[#eee8dc] px-6 py-7 text-[#242321]"><p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#6b5743]">Promorang · Contribution receipt</p><h3 className="mt-4 font-serif text-2xl font-bold">{s.move.title}</h3><div className="my-5 border-t border-dashed border-[#958c7e]" /><dl className="space-y-3 text-sm"><div className="flex justify-between"><dt>{webT("referrals.pointsEarned")}</dt><dd className="font-bold">+{s.points_awarded}</dd></div><div className="flex justify-between"><dt>{webT("referrals.gemsEarned")}</dt><dd className="font-bold">{Number(s.gems_awarded)}</dd></div><div className="flex justify-between"><dt>Verified result</dt><dd>{Number(s.verified_value)}</dd></div></dl><p className="mt-5 text-sm leading-6">{s.feedback}</p><p className="mt-5 text-xs">{webT("web.approved")} {dateLabel(s.reviewed_at, true)} · Jamaica</p><p className="mt-2 break-all font-mono text-[10px] text-[#6b5743]">{s.id}</p></article>)}</div>
     {!data.receipts.length && <Empty>Your first receipt starts with one useful move. Take a brief, show what you did, and return here after approval.</Empty>}
   </>;
 }

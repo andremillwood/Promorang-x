@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, CheckCircle2, MapPin, Sparkles, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -31,19 +32,20 @@ export function PoweredParticipation({
   missionId,
   isHost,
 }: PoweredParticipationProps) {
+  const { t: webT } = useWebI18n();
   const plan = [
     {
-      label: "Join",
+      label: webT("publicNav.join"),
       detail: "Save your place and get the access details.",
       Icon: Ticket,
     },
     {
-      label: "Show up",
+      label: webT("wallet.step1Title"),
       detail: venueName ? `Check in at ${venueName} when you arrive.` : "Check in when you arrive.",
       Icon: MapPin,
     },
     {
-      label: "Keep",
+      label: webT("home.trail04Label"),
       detail: reward || "A verified memory of being there.",
       Icon: CheckCircle2,
     },

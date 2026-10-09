@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Send, MoreHorizontal, Reply, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,6 +53,7 @@ export function CommentSection({
     disabledReason = "Join this Moment to post on its Wall.",
     className,
 }: CommentSectionProps) {
+  const { t: webT } = useWebI18n();
     const { toast } = useToast();
     const comments = initialComments;
     const [newComment, setNewComment] = useState("");
@@ -70,7 +73,7 @@ export function CommentSection({
         } catch (error) {
             toast({
                 title: "Post not saved",
-                description: error instanceof Error ? error.message : "Please try again.",
+                description: error instanceof Error ? error.message : webT("web.tryAgain"),
                 variant: "destructive",
             });
         } finally {
@@ -91,7 +94,7 @@ export function CommentSection({
         } catch (error) {
             toast({
                 title: "Reply not saved",
-                description: error instanceof Error ? error.message : "Please try again.",
+                description: error instanceof Error ? error.message : webT("web.tryAgain"),
                 variant: "destructive",
             });
         } finally {
@@ -106,7 +109,7 @@ export function CommentSection({
         } catch (error) {
             toast({
                 title: "Post not removed",
-                description: error instanceof Error ? error.message : "Please try again.",
+                description: error instanceof Error ? error.message : webT("web.tryAgain"),
                 variant: "destructive",
             });
         }
@@ -124,7 +127,7 @@ export function CommentSection({
         if (diffMins < 60) return `${diffMins}m ago`;
         if (diffHours < 24) return `${diffHours}h ago`;
         if (diffDays < 7) return `${diffDays}d ago`;
-        return date.toLocaleDateString();
+        return date.toLocaleDateString(currentUiLocale());
     };
 
     const CommentItem = ({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) => (
@@ -170,7 +173,7 @@ export function CommentSection({
                                 <button
                                     onClick={() => handleDelete(comment.id)}
                                     className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                                    title="Delete"
+                                    title={webT("serviceCatalogPage.delete")}
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
                                 </button>
@@ -227,7 +230,7 @@ export function CommentSection({
             {/* Add Comment */}
             <div className="flex gap-3">
                 <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-medium">
-                    {currentUserId ? "Y" : "?"}
+                    {currentUserId ? "Y" : webT("notFound.titlePart3")}
                 </div>
                 <div className="flex-1 flex gap-2">
                     <Input
@@ -243,7 +246,7 @@ export function CommentSection({
                         disabled={!newComment.trim() || isSubmitting || !canInteract || !currentUserId}
                     >
                         <Send className="h-4 w-4 mr-2" />
-                        Post
+                        {webT("findOrAsk.postNow")}
                     </Button>
                 </div>
             </div>

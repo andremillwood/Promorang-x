@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -84,10 +85,11 @@ const formatCurrency = (value: number, currency = "USD", locale = "en") =>
     maximumFractionDigits: 2,
   }).format(value);
 
-const formatSignedValue = (value: number) => `${value >= 0 ? "+" : ""}${Number(value).toLocaleString()}`;
+const formatSignedValue = (value: number) => `${value >= 0 ? "+" : ""}${Number(value).toLocaleString(currentUiLocale())}`;
 const errorMessage = (error: unknown, fallback: string) => error instanceof Error ? error.message : fallback;
 
 const Wallet = () => {
+  const { t: webT } = useI18n();
   const { t, locale, formatNumber } = useI18n();
   const { user, session } = useAuth();
   const { toast } = useToast();
@@ -404,7 +406,7 @@ const Wallet = () => {
                   <span className="p-1.5 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30">
                     <Coins className="h-4 w-4" />
                   </span>
-                  Points
+                  {webT("wallet.pointsLabel")}
                 </CardTitle>
                 <Badge variant="outline" className="border-amber-500/30 text-amber-400 text-[10px] uppercase font-black tracking-wider">
                   Participation
@@ -418,7 +420,7 @@ const Wallet = () => {
               ) : (
                 <div>
                   <div className="text-3xl font-black text-foreground tracking-tight">
-                    {walletBalance?.points?.toLocaleString() || 0}
+                    {walletBalance?.points?.toLocaleString(currentUiLocale()) || 0}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">{t("wallet.pointsBody")}</p>
                 </div>
@@ -442,7 +444,7 @@ const Wallet = () => {
                 onClick={() => setConvertDialogOpen(true)}
                 disabled={availableConversions < 1}
               >
-                Convert to PromoKeys
+                {webT("wallet.convertToKeys")}
               </Button>
             </CardContent>
           </Card>
@@ -456,7 +458,7 @@ const Wallet = () => {
                   <span className="p-1.5 rounded-lg bg-primary/15 text-primary border border-primary/30">
                     <KeyRound className="h-4 w-4" />
                   </span>
-                  PromoKeys
+                  {webT("wallet.keysLabel")}
                 </CardTitle>
                 <Badge variant="outline" className="border-primary/30 text-primary text-[10px] uppercase font-black tracking-wider">
                   Access Key
@@ -498,7 +500,7 @@ const Wallet = () => {
                   <span className="p-1.5 rounded-lg bg-violet-500/15 text-violet-400 border border-violet-500/30">
                     <Gem className="h-4 w-4" />
                   </span>
-                  Gems
+                  {webT("wallet.gemsLabel")}
                 </CardTitle>
                 <Badge variant="outline" className="border-violet-500/30 text-violet-400 text-[10px] uppercase font-black tracking-wider">
                   $1 = 1 Gem
@@ -513,7 +515,7 @@ const Wallet = () => {
                 <>
                   <div>
                     <div className="text-3xl font-black text-foreground tracking-tight">
-                      {gems.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">Gems</span>
+                      {gems.toLocaleString(currentUiLocale())} <span className="text-sm font-normal text-muted-foreground">{webT("wallet.gemsLabel")}</span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Spendable on Pieces, Moments, & Creator drops.
@@ -522,11 +524,11 @@ const Wallet = () => {
                   <div className="space-y-1 rounded-xl border border-violet-500/20 bg-violet-950/20 p-2.5 text-[11px] text-muted-foreground">
                     <div className="flex justify-between">
                       <span>Available:</span>
-                      <span className="font-semibold text-foreground">{formatNumber(gems)} Gems</span>
+                      <span className="font-semibold text-foreground">{formatNumber(gems)} {webT("wallet.gemsLabel")}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Pending settlement:</span>
-                      <span className="font-semibold text-violet-300">{formatNumber(pendingWithdrawalGems)} Gems</span>
+                      <span className="font-semibold text-violet-300">{formatNumber(pendingWithdrawalGems)} {webT("wallet.gemsLabel")}</span>
                     </div>
                   </div>
                 </>
@@ -539,7 +541,7 @@ const Wallet = () => {
                   onClick={() => { setCheckoutActive(false); setBuyDialogOpen(true); }}
                 >
                   <CreditCard className="mr-1.5 h-3.5 w-3.5" />
-                  {canBuyGems ? t("wallet.buy") : "Unavailable"}
+                  {canBuyGems ? t("wallet.buy") : webT("web.unavailable")}
                 </Button>
                 <Button
                   size="sm"
@@ -567,7 +569,7 @@ const Wallet = () => {
                   Withdrawal Queue
                 </CardTitle>
                 <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 text-[10px] uppercase font-black tracking-wider">
-                  Settlement
+                  {webT("web.settlement")}
                 </Badge>
               </div>
               <CardDescription className="text-xs">{t("wallet.queueCopy")}</CardDescription>
@@ -575,10 +577,10 @@ const Wallet = () => {
             <CardContent className="pt-2 space-y-4">
               <div>
                 <div className="text-3xl font-black text-foreground tracking-tight">
-                  {pendingWithdrawalGems.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">Gems</span>
+                  {pendingWithdrawalGems.toLocaleString(currentUiLocale())} <span className="text-sm font-normal text-muted-foreground">{webT("wallet.gemsLabel")}</span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  ≈ ${pendingWithdrawalGems.toLocaleString()} USD in review.
+                  ≈ ${pendingWithdrawalGems.toLocaleString(currentUiLocale())} USD in review.
                 </p>
               </div>
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-2.5 text-xs text-muted-foreground">
@@ -655,7 +657,7 @@ const Wallet = () => {
                           </TableCell>
                           <TableCell>
                             <span className={`font-black text-sm ${transaction.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                              {formatSignedValue(transaction.amount)} Gems
+                              {formatSignedValue(transaction.amount)} {webT("wallet.gemsLabel")}
                             </span>
                             {transaction.fiat_amount ? (
                               <div className="text-[11px] text-muted-foreground">
@@ -664,7 +666,7 @@ const Wallet = () => {
                             ) : null}
                           </TableCell>
                           <TableCell className="font-semibold text-xs text-foreground">
-                            {transaction.balance_after == null ? "Not recorded" : `${Number(transaction.balance_after).toLocaleString()} Gems`}
+                            {transaction.balance_after == null ? webT("activationCommerce.notRecorded") : `${Number(transaction.balance_after).toLocaleString(currentUiLocale())} Gems`}
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                             {new Date(transaction.created_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -697,8 +699,8 @@ const Wallet = () => {
                   gemWithdrawals.slice(0, 4).map((request) => (
                     <div key={request.id} className="rounded-xl border border-border/60 bg-neutral-900/40 p-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-bold text-sm text-foreground">{Number(request.gems_amount).toLocaleString()} Gems</p>
-                        <p className="text-xs text-muted-foreground">US${Number(request.usd_amount).toLocaleString()} · {new Date(request.created_at).toLocaleDateString()}</p>
+                        <p className="font-bold text-sm text-foreground">{Number(request.gems_amount).toLocaleString(currentUiLocale())} {webT("wallet.gemsLabel")}</p>
+                        <p className="text-xs text-muted-foreground">US${Number(request.usd_amount).toLocaleString(currentUiLocale())} · {new Date(request.created_at).toLocaleDateString(currentUiLocale())}</p>
                       </div>
                       <div className="text-right space-y-1">
                         <Badge variant={request.status === "requested" ? "secondary" : "outline"} className="capitalize text-[10px]">
@@ -890,7 +892,7 @@ const Wallet = () => {
           <div className="space-y-5">
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="flex items-center justify-between"><span className="text-sm text-muted-foreground">{t("wallet.availablePoints")}</span><strong>{formatNumber(points)}</strong></div>
-              <div className="mt-2 flex items-center justify-between"><span className="text-sm text-muted-foreground">{t("wallet.conversion")}</span><strong>{formatNumber(convertQuantity * pointsPerKey)} Points → {formatNumber(convertQuantity)} PromoKeys</strong></div>
+              <div className="mt-2 flex items-center justify-between"><span className="text-sm text-muted-foreground">{t("wallet.conversion")}</span><strong>{formatNumber(convertQuantity * pointsPerKey)} Points → {formatNumber(convertQuantity)} {webT("wallet.keysLabel")}</strong></div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="promokey-quantity">{t("wallet.keysToUnlock")}</Label>
@@ -944,7 +946,7 @@ const Wallet = () => {
                   >
                     <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">{t("wallet.pack")}</div>
                     <div className="mt-2 text-2xl font-bold">${amount}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{amount} Gems</div>
+                    <div className="mt-1 text-sm text-muted-foreground">{amount} {webT("wallet.gemsLabel")}</div>
                   </button>
                 ))}
               </div>
@@ -968,7 +970,7 @@ const Wallet = () => {
               <div className="rounded-2xl border border-border bg-muted/20 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm text-muted-foreground">{t("wallet.receive")}</span>
-                  <span className="text-lg font-semibold">{Number(purchaseAmount || 0).toLocaleString()} Gems</span>
+                  <span className="text-lg font-semibold">{Number(purchaseAmount || 0).toLocaleString(currentUiLocale())} {webT("wallet.gemsLabel")}</span>
                 </div>
               </div>
 

@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMomentJourney } from "@/hooks/useMomentJourney";
 import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
 import { useState, useEffect } from "react";
@@ -29,6 +30,7 @@ type ProofRequirement = {
 };
 
 const CheckIn = () => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -299,13 +301,13 @@ const CheckIn = () => {
             origin: moment.title,
             perk: payload.checkin.memory.perk?.title || "Kept from showing up",
             place: moment.venue_name || moment.location,
-            date: new Date().toLocaleDateString(),
+            date: new Date().toLocaleDateString(currentUiLocale()),
           });
         }
 
         const verificationPending = payload?.checkin?.verification_status === "pending" || Boolean(payload?.submission?.id);
         toast({
-          title: verificationPending ? "We got it" : t("checkIn.toastComplete"),
+          title: verificationPending ? webT("web.weGotIt") : t("checkIn.toastComplete"),
           description: verificationPending
             ? "We’re checking what you sent. If it counts, anything you earned or kept will show up after."
             : t("checkIn.toastCompleteDesc"),
@@ -360,7 +362,7 @@ const CheckIn = () => {
     );
   }
 
-  if (loadError) return <main className="participant-world min-h-screen p-8 text-white"><h1 className="font-serif text-3xl">This Moment couldn’t load.</h1><button type="button" onClick={() => void fetchMoment()} className="pr-world-primary mt-5">Try again</button><Link to="/discover" className="ml-5 underline">Back to Discover</Link></main>;
+  if (loadError) return <main className="participant-world min-h-screen p-8 text-white"><h1 className="font-serif text-3xl">This Moment couldn’t load.</h1><button type="button" onClick={() => void fetchMoment()} className="pr-world-primary mt-5">{webT("release.18")}</button><Link to="/discover" className="ml-5 underline">{webT("web.backDiscover")}</Link></main>;
 
   if (!moment) {
     return (
@@ -376,7 +378,7 @@ const CheckIn = () => {
 
       <main className="proof-world mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
         {!success && journey.data && ["pending", "verified"].includes(journey.data.proof_state || "") ? (
-          <div className="mx-auto max-w-xl space-y-6"><ParticipantProofArtifact journey={journey.data} /><Link to={`/moments/${id}`} className="inline-flex min-h-11 items-center text-sm underline">Back to Moment</Link><button type="button" onClick={() => void journey.refetch()} className="ml-6 min-h-11 text-sm underline">Refresh status</button></div>
+          <div className="mx-auto max-w-xl space-y-6"><ParticipantProofArtifact journey={journey.data} /><Link to={`/moments/${id}`} className="inline-flex min-h-11 items-center text-sm underline">Back to Moment</Link><button type="button" onClick={() => void journey.refetch()} className="ml-6 min-h-11 text-sm underline">{webT("web.refreshStatus")}</button></div>
         ) : success ? (
           <div className="mx-auto max-w-xl space-y-6 pt-8 animate-in fade-in duration-300">
             <div className="text-center">
@@ -397,7 +399,7 @@ const CheckIn = () => {
             </div>
 
             {consequence && !consequence.counted ? (
-              <section className="pr-proof-artifact" data-proof-state="pending"><p className="pr-proof-stamp">We got it</p><h2 className="mt-4 font-serif text-3xl font-bold">We’re checking it.</h2><p className="mt-3 text-sm leading-6">If it counts, anything you earned or kept will show up after.</p></section>
+              <section className="pr-proof-artifact" data-proof-state="pending"><p className="pr-proof-stamp">{webT("web.weGotIt")}</p><h2 className="mt-4 font-serif text-3xl font-bold">We’re checking it.</h2><p className="mt-3 text-sm leading-6">If it counts, anything you earned or kept will show up after.</p></section>
             ) : consequence ? (
               <ConsequenceReceipt receipt={consequence} reveal={keptMemory} />
             ) : (
@@ -405,7 +407,7 @@ const CheckIn = () => {
                 <div className="flex items-center gap-3">
                   <ShieldCheck className="h-6 w-6 text-amber-400" />
                   <div>
-                    <h4 className="font-bold text-white text-base">We got it</h4>
+                    <h4 className="font-bold text-white text-base">{webT("web.weGotIt")}</h4>
                     <p className="text-xs text-white/60">We’re checking it. Nothing has opened or been added to your story yet.</p>
                   </div>
                 </div>
@@ -463,7 +465,7 @@ const CheckIn = () => {
               </div>
 
               {journey.data?.proof_state === "rejected" || journey.data?.proof_state === "expired" ? <p role="status" className="border-l-2 border-red-500 pl-3 text-sm">Your previous proof was not approved. Check the requirements below.</p> : null}
-              {proofRequirements.length ? <ul className="divide-y divide-current/15 border-y border-current/15">{proofRequirements.map((requirement) => <li key={requirement.id} className="py-3 text-sm"><strong>{requirement.label || requirement.requirement_type.replace(/_/g, " ")}</strong><span className="ml-2 text-xs opacity-60">{requirement.is_required === false ? "Optional" : "Required"}</span>{requirement.instructions ? <p className="mt-1 leading-6 opacity-75">{requirement.instructions}</p> : null}</li>)}</ul> : null}
+              {proofRequirements.length ? <ul className="divide-y divide-current/15 border-y border-current/15">{proofRequirements.map((requirement) => <li key={requirement.id} className="py-3 text-sm"><strong>{requirement.label || requirement.requirement_type.replace(/_/g, " ")}</strong><span className="ml-2 text-xs opacity-60">{requirement.is_required === false ? webT("discover.pathBrowseEyebrow") : webT("web.required")}</span>{requirement.instructions ? <p className="mt-1 leading-6 opacity-75">{requirement.instructions}</p> : null}</li>)}</ul> : null}
               <form onSubmit={handleCheckIn} className="space-y-5">
                 {(requiresCode || proofRequirements.length === 0) && (
                   <div className="space-y-2">

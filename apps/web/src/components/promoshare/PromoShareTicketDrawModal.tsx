@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,7 @@ export function PromoShareTicketDrawModal({
   poolTitle = "PromoShare Draw",
   trigger,
 }: PromoShareTicketDrawModalProps) {
+  const { t: webT } = useWebI18n();
   const recordedJackpot = Math.max(0, Number(jackpotAmount || 0));
   const recordedEntries = Math.max(0, Number(userTickets || 0));
 
@@ -51,8 +54,8 @@ export function PromoShareTicketDrawModal({
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-center">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">Recorded pool</p>
-              <p className="mt-1 text-3xl font-black text-white">{recordedJackpot.toLocaleString()} Gems</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">{webT("web.recordedPool")}</p>
+              <p className="mt-1 text-3xl font-black text-white">{recordedJackpot.toLocaleString(currentUiLocale())} {webT("wallet.gemsLabel")}</p>
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">Your recorded entries</p>

@@ -30,6 +30,8 @@ export const localizePath = (pathname: string, locale: Locale) => {
 export const routerBasename = () => {
   if (typeof window === "undefined") return undefined;
   const locale = localeFromPath(window.location.pathname);
-  return locale ? localePrefixes[locale] : undefined;
+  // Match the actual accepted prefix (including /es-419 and /pt aliases).
+  // Canonical navigation and SEO still use localePrefixes.
+  return locale ? `/${window.location.pathname.split("/").filter(Boolean)[0]}` : undefined;
 };
 

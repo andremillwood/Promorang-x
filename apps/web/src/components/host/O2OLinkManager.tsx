@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -41,6 +42,7 @@ type O2OLinkManagerProps = {
 };
 
 export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManagerProps) {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -213,11 +215,11 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">The path people will experience</p>
             <div className="mt-5 space-y-3">
               {[
-                { label: "Story", value: selectedContent?.title || "Choose a published story", icon: PlayCircle },
-                { label: "Action", value: selectedActions.length ? selectedActions.map((item) => item.replaceAll("_", " ")).join(" · ") : "Choose what people do", icon: ArrowRight },
-                { label: "Moment", value: selectedMoment?.title || "Choose where the story leads", icon: MapPin },
-                { label: "Proof", value: selectedActions.includes("check_in") ? "Verified check-in" : "Tracked completion", icon: ShieldCheck },
-                { label: "Unlock", value: unlockSummary || "Define what completion opens", icon: Gift },
+                { label: webT("createProposal.step4Short"), value: selectedContent?.title || "Choose a published story", icon: PlayCircle },
+                { label: webT("forBrands.reason1Step3Badge"), value: selectedActions.length ? selectedActions.map((item) => item.replaceAll("_", " ")).join(" · ") : "Choose what people do", icon: ArrowRight },
+                { label: webT("promoShare.typeMoment"), value: selectedMoment?.title || "Choose where the story leads", icon: MapPin },
+                { label: webT("promoPushLandingPage.step3Title"), value: selectedActions.includes("check_in") ? "Verified check-in" : "Tracked completion", icon: ShieldCheck },
+                { label: webT("wallet.step3Title"), value: unlockSummary || "Define what completion opens", icon: Gift },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-4 border-b border-white/10 py-3 last:border-b-0">
                   <item.icon className="h-4 w-4 shrink-0 text-orange-400" />

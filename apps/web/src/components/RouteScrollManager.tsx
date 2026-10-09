@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,6 +40,7 @@ function focusResumableAction(intent: ResumableIntent) {
 }
 
 export default function RouteScrollManager() {
+  const { t: webT } = useWebI18n();
   const location = useLocation();
   const { user } = useAuth();
   const [resumeIntent, setResumeIntent] = useState<ResumableIntent | null>(null);
@@ -143,7 +145,7 @@ export default function RouteScrollManager() {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button type="button" onClick={dismissIntent} className="min-h-10 rounded-full px-4 text-xs font-bold text-muted-foreground hover:text-foreground">Not now</button>
-          <button type="button" onClick={continueIntent} className="min-h-10 rounded-full bg-primary px-5 text-xs font-black text-primary-foreground">Continue</button>
+          <button type="button" onClick={continueIntent} className="min-h-10 rounded-full bg-primary px-5 text-xs font-black text-primary-foreground">{webT("funnel.continue")}</button>
         </div>
       </div>
     </aside>

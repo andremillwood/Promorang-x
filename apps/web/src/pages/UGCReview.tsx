@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Camera, Check, X, ArrowLeft, Image, Eye, Clock, Filter, Loader2, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -13,6 +14,7 @@ import { format } from "date-fns";
 type StatusFilter = "pending" | "approved" | "rejected" | "all";
 
 const UGCReview = () => {
+  const { t: webT } = useWebI18n();
     const { user } = useAuth();
     const { data: hostedMoments } = useHostedMoments();
     const moderateMedia = useModerateMedia();
@@ -60,10 +62,10 @@ const UGCReview = () => {
     };
 
     const filterOptions: { value: StatusFilter; label: string; count: number }[] = [
-        { value: "pending", label: "Pending", count: pendingCount },
-        { value: "approved", label: "Approved", count: approvedCount },
-        { value: "rejected", label: "Rejected", count: rejectedCount },
-        { value: "all", label: "All", count: allMedia?.length || 0 },
+        { value: "pending", label: webT("promoPushCreatorPage.thPending"), count: pendingCount },
+        { value: "approved", label: webT("web.approved"), count: approvedCount },
+        { value: "rejected", label: webT("kyc.badgeRejected"), count: rejectedCount },
+        { value: "all", label: webT("citySwitcher.all"), count: allMedia?.length || 0 },
     ];
 
     return (
@@ -78,7 +80,7 @@ const UGCReview = () => {
                     </Button>
                     <div>
                         <h1 className="font-serif text-3xl font-bold tracking-tight">
-                            Review <span className="italic text-primary">Content</span>
+                            {webT("createProposal.step7Short")} <span className="italic text-primary">{webT("explorePage.secContentTitle")}</span>
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
                             Approve or reject photos and videos from your moments
@@ -97,15 +99,15 @@ const UGCReview = () => {
             <div className="grid grid-cols-3 gap-4">
                 <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 text-center">
                     <p className="text-2xl font-bold text-amber-600">{pendingCount}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Pending</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{webT("promoPushCreatorPage.thPending")}</p>
                 </div>
                 <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 text-center">
                     <p className="text-2xl font-bold text-emerald-600">{approvedCount}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Approved</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{webT("web.approved")}</p>
                 </div>
                 <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 text-center">
                     <p className="text-2xl font-bold text-red-500">{rejectedCount}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">Rejected</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{webT("kyc.badgeRejected")}</p>
                 </div>
             </div>
 
@@ -211,7 +213,7 @@ const UGCReview = () => {
                                             onClick={() => handleModerate(item.id, "approved")}
                                             disabled={moderateMedia.isPending}
                                         >
-                                            <Check className="w-3.5 h-3.5" /> Approve
+                                            <Check className="w-3.5 h-3.5" /> {webT("web.approve")}
                                         </Button>
                                         <Button
                                             size="sm"
@@ -220,7 +222,7 @@ const UGCReview = () => {
                                             onClick={() => handleModerate(item.id, "rejected")}
                                             disabled={moderateMedia.isPending}
                                         >
-                                            <X className="w-3.5 h-3.5" /> Reject
+                                            <X className="w-3.5 h-3.5" /> {webT("web.reject")}
                                         </Button>
                                     </div>
                                 )}

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { FormEvent, useEffect, useState } from "react";
 import { AlertTriangle, BadgeCheck, KeyRound, ReceiptText, ShieldCheck, Wifi, WifiOff } from "lucide-react";
 import { decodeOfferRedeemPayload } from "@promorang/shared";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRedeemOffer } from "@/hooks/useOffers";
 
 export function MerchantScannerStation({ venueName = "Merchant station" }: { venueName?: string }) {
+  const { t: webT } = useWebI18n();
   const { toast } = useToast();
   const redeem = useRedeemOffer();
   const [code, setCode] = useState("");
@@ -108,7 +110,7 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
               />
               <Button type="submit" disabled={!code.trim() || redeem.isPending || !online} className="h-12 w-full bg-emerald-500 font-black text-zinc-950 hover:bg-emerald-400">
                 <KeyRound className="mr-2 h-4 w-4" />
-                {redeem.isPending ? "Checking…" : online ? "Validate use" : "Offline · unavailable"}
+                {redeem.isPending ? webT("aftrhrs.doorChecking") : online ? "Validate use" : "Offline · unavailable"}
               </Button>
             </form>
 

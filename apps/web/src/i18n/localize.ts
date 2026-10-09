@@ -7,7 +7,7 @@ import {
 } from "@promorang/shared";
 import type { TranslationKey } from "./translations";
 
-type Translate = (key: TranslationKey, variables?: Record<string, string | number>) => string;
+export type Translate = (key: TranslationKey, variables?: Record<string, string | number>) => string;
 
 const ROLE_KEYS: StakeholderNavRole[] = [
   "participant",
@@ -65,6 +65,17 @@ export function localizeLens(lens: StakeholderLens, t: Translate): StakeholderLe
       if (item.href === "/dashboard/settings") return { ...item, label: t("lens.settings") };
       if (item.href === "/people") return { ...item, label: t("lens.people") };
       if (item.href === "/demand") return { ...item, label: t("lens.demand") };
+      const extraKeys: Record<string, TranslationKey> = {
+        "/content-drops": "web.contentDrops",
+        "/organizer/check-ins": "web.doorCheckins",
+        "/dashboard/venues/add": "web.addVenue",
+        "/dashboard?view=studio&tab=storefront": "web.storefront",
+        "/staff/scanner": "web.redeem",
+        "/create/campaign": "web.launchCampaign",
+        "/dashboard?view=studio&tab=clients": "web.clients",
+      };
+      if (item.href === "/dashboard?view=studio") return { ...item, label: t(role === "brand" ? "web.campaigns" : "web.studio") };
+      if (extraKeys[item.href]) return { ...item, label: t(extraKeys[item.href]) };
       return item;
     }),
   };

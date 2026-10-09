@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, Radio } from "lucide-react";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
@@ -14,6 +15,7 @@ export function DiscoveryDemandInbox({
   variant?: "full" | "peek";
   sceneId?: string;
 }) {
+  const { t: webT } = useWebI18n();
   const { city, country } = useMarket();
   const { inbox, isLoading } = useDiscoveryDemand(
     city.name,
@@ -34,7 +36,7 @@ export function DiscoveryDemandInbox({
         <Radio className="h-4 w-4 text-primary" />
       </div>
       {isLoading ? (
-        <p className="mt-3 text-sm text-white/40">Loading what people want…</p>
+        <p className="mt-3 text-sm text-white/40">{webT("publicDiscover.loadingWants")}</p>
       ) : topMiss ? (
         <>
           <p className="mt-3 font-serif text-2xl font-bold text-white">“{topMiss.query}”</p>
@@ -51,7 +53,7 @@ export function DiscoveryDemandInbox({
           <p className="mt-2 text-sm text-white/45">When people start leaning the same way, PROMORANG will bring it here.</p>
         </>
       )}
-      <span className="mt-4 inline-flex items-center gap-2 text-xs font-black text-primary">Open market pulse <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
+      <span className="mt-4 inline-flex items-center gap-2 text-xs font-black text-primary">{webT("commercial.open.market.pulse.166")} <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
     </Link>
   );
 }

@@ -1,12 +1,13 @@
+import { withI18n } from "@/test/withI18n";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { LiveLoopActions } from "./LiveLoopActions";
 
 const renderActions = (role: string, completedActionIds: string[] = []) => render(
-  <MemoryRouter>
+  withI18n(<MemoryRouter>
     <LiveLoopActions role={role} completedActionIds={completedActionIds} />
-  </MemoryRouter>,
+  </MemoryRouter>),
 );
 
 describe("LiveLoopActions", () => {

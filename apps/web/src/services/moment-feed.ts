@@ -1,3 +1,4 @@
+import { translate } from "@/i18n/I18nContext";
 import { API_BASE_URL } from "@/lib/api";
 
 export type MomentLifecycle = "live" | "starting_soon" | "upcoming" | "recently_ended";
@@ -65,8 +66,8 @@ export async function getCanonicalMomentFeed(): Promise<CanonicalMomentFeed> {
 }
 
 export function momentLifecycleLabel(lifecycle: MomentLifecycle) {
-  if (lifecycle === "live") return "Live now";
-  if (lifecycle === "starting_soon") return "Starting soon";
-  if (lifecycle === "recently_ended") return "Last night";
-  return "Coming up";
+  if (lifecycle === "live") return translate("web.liveNow");
+  if (lifecycle === "starting_soon") return translate("web.startingSoon");
+  if (lifecycle === "recently_ended") return translate("web.lastNight");
+  return translate("web.comingUp");
 }

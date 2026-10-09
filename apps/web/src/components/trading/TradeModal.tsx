@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 /**
  * Trade Modal Component
  * Handles buying/selling pieces with Gems
@@ -43,6 +44,7 @@ export function TradeModal({
   gemsBalanceAvailable,
   userPieces 
 }: TradeModalProps) {
+  const { t: webT } = useWebI18n();
   const [amount, setAmount] = useState(1);
   const [quote, setQuote] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -133,7 +135,7 @@ export function TradeModal({
     } catch (error: any) {
       toast({
         title: 'Trade Failed',
-        description: error.message || 'Please try again',
+        description: error.message || webT("guestPassPage.tryAgain"),
         variant: 'destructive',
       });
     } finally {
@@ -156,14 +158,14 @@ export function TradeModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {action === 'buy' ? 'Buy' : 'Sell'} {piece.title || 'Piece'}
+            {action === 'buy' ? webT("web.buy") : webT("web.sell")} {piece.title || webT("promoShare.typePiece")}
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6 py-4">
           {/* Amount Input */}
           <div className="space-y-2">
-            <Label>Amount ({action === 'buy' ? 'Pieces' : 'Pieces to Sell'})</Label>
+            <Label>Amount ({action === 'buy' ? webT("growthHub.tilePiecesTitle") : 'Pieces to Sell'})</Label>
             <div className="flex items-center gap-4">
               <Input
                 type="number"
@@ -174,7 +176,7 @@ export function TradeModal({
                 className="text-lg"
               />
               <span className="text-sm text-muted-foreground whitespace-nowrap">
-                {action === 'buy' ? 'Pieces' : 'Pieces'}
+                {action === 'buy' ? webT("growthHub.tilePiecesTitle") : webT("growthHub.tilePiecesTitle")}
               </span>
             </div>
             <Slider
@@ -191,7 +193,7 @@ export function TradeModal({
             <div className="bg-muted rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Price per Piece</span>
-                <span>{piece.last_price.toFixed(2)} Gems</span>
+                <span>{piece.last_price.toFixed(2)} {webT("wallet.gemsLabel")}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{action === 'buy' ? 'You Pay' : 'You Receive'}</span>
@@ -266,14 +268,14 @@ export function TradeModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {webT("findOrAsk.cancel")}
           </Button>
           <Button 
             onClick={handleTrade}
             disabled={!canAfford || !quote || loading || fetchingQuote || highImpact}
             className={action === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}
           >
-            {loading ? 'Processing...' : action === 'buy' ? 'Confirm Purchase' : 'Confirm Sale'}
+            {loading ? webT("web.processing") : action === 'buy' ? webT("gemRushPage.confirmPurchase") : 'Confirm Sale'}
           </Button>
         </DialogFooter>
       </DialogContent>

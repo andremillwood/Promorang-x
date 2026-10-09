@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMerchantProducts } from "@/hooks/useMerchantProducts";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -193,6 +194,7 @@ const initialForm = {
 };
 
 const OfferStudio = () => {
+  const { t: webT } = useI18n();
   const merchantProducts = useMerchantProducts();
   const [checkoutKind, setCheckoutKind] = useState('');
   const [checkoutCategory, setCheckoutCategory] = useState('');
@@ -282,7 +284,7 @@ const OfferStudio = () => {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!hasCommittedBacking) {
-      toast.error(t("offerStudio.mustCoverLiability", { amount: maxLiability.toLocaleString(), currency: form.value_currency }));
+      toast.error(t("offerStudio.mustCoverLiability", { amount: maxLiability.toLocaleString(currentUiLocale()), currency: form.value_currency }));
       return;
     }
     try {
@@ -416,9 +418,9 @@ const OfferStudio = () => {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><ReceiptText className="h-5 w-5 text-primary" /> {t("offerStudio.liabilityPreview")}</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <div className="flex justify-between gap-3"><span className="text-muted-foreground">{t("offerStudio.maxLiability")}</span><span className="font-bold">{maxLiability.toLocaleString()} {form.value_currency}</span></div>
-              <div className="flex justify-between gap-3"><span className="text-muted-foreground">{t("offerStudio.committedBacking")}</span><span className="font-bold">{needsCashBacking ? committedValue.toLocaleString() : t("offerStudio.inventoryInKind")} {needsCashBacking ? form.value_currency : ""}</span></div>
-              <div className="flex justify-between gap-3"><span className="text-muted-foreground">{t("offerStudio.promoshareAllocation")}</span><span className="font-bold">{promoShareAllocation.toLocaleString()} {form.value_currency}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground">{t("offerStudio.maxLiability")}</span><span className="font-bold">{maxLiability.toLocaleString(currentUiLocale())} {form.value_currency}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground">{t("offerStudio.committedBacking")}</span><span className="font-bold">{needsCashBacking ? committedValue.toLocaleString(currentUiLocale()) : t("offerStudio.inventoryInKind")} {needsCashBacking ? form.value_currency : ""}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-muted-foreground">{t("offerStudio.promoshareAllocation")}</span><span className="font-bold">{promoShareAllocation.toLocaleString(currentUiLocale())} {form.value_currency}</span></div>
               <Badge variant={hasCommittedBacking ? "default" : "destructive"}>{hasCommittedBacking ? t("offerStudio.launchSafe") : t("offerStudio.needsFunding")}</Badge>
             </CardContent>
           </Card>
@@ -556,7 +558,7 @@ const OfferStudio = () => {
                 <div className="grid gap-4 sm:grid-cols-2"><div><Label>{t("offerStudio.rewardTypeLabel")}</Label><Select value={form.reward_type} onValueChange={(value) => update("reward_type", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["coupon", "product", "voucher", "experience", "cash", "gems", "points", "keys", "other"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select></div><div><Label>{t("offerStudio.fulfillmentLabel")}</Label><Select value={form.fulfillment_type} onValueChange={(value) => update("fulfillment_type", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["merchant_validation", "code", "qr", "automatic", "manual", "shipping"].map((value) => <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>)}</SelectContent></Select><p className="mt-2 text-xs text-muted-foreground">{fulfillmentHelp[form.fulfillment_type] || "Choose how the person actually receives this."}</p></div></div>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div><Label>{t("offerStudio.fundingSourceLabel")}</Label><Select value={form.funding_source} onValueChange={(value) => update("funding_source", value)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{["merchant_inventory", "in_kind_perk", "sponsor_budget", "campaign_revenue", "featured_placement_revenue"].map((value) => <SelectItem key={value} value={value}>{value.replaceAll("_", " ")}</SelectItem>)}</SelectContent></Select></div>
-                  <div><Label>{t("offerStudio.committedBacking")}</Label><Input type="number" min="0" value={form.committed_value} onChange={(e) => update("committed_value", e.target.value)} placeholder={needsCashBacking ? "Must cover liability" : "Optional"} disabled={!needsCashBacking} /></div>
+                  <div><Label>{t("offerStudio.committedBacking")}</Label><Input type="number" min="0" value={form.committed_value} onChange={(e) => update("committed_value", e.target.value)} placeholder={needsCashBacking ? "Must cover liability" : webT("discover.pathBrowseEyebrow")} disabled={!needsCashBacking} /></div>
                   <div><Label>{t("offerStudio.promoshareRateLabel")}</Label><Input type="number" min="0" max="25" value={form.promoshare_rate} onChange={(e) => update("promoshare_rate", e.target.value)} /></div>
                 </div>
               </div>
@@ -568,10 +570,10 @@ const OfferStudio = () => {
             <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
               <p className="font-bold text-foreground">{t("offerStudio.launchRuleTitle")}</p>
               <p className="mt-1">{t("offerStudio.launchRuleCapped", { count: (quantityTotal || 0).toString(), proof: form.proof_required.replaceAll("_", " ") })}</p>
-              <p className="mt-2">{t("offerStudio.launchRulePromoshare", { amount: promoShareAllocation.toLocaleString(), currency: form.value_currency })}</p>
+              <p className="mt-2">{t("offerStudio.launchRulePromoshare", { amount: promoShareAllocation.toLocaleString(currentUiLocale()), currency: form.value_currency })}</p>
             </div>
             <Button type="submit" className="w-full" disabled={createOffer.isPending || !hasCommittedBacking}><Plus className="mr-2 h-4 w-4" />{t("offerStudio.publishButton")}</Button>
-            {!hasCommittedBacking && <p className="text-sm text-destructive">{t("offerStudio.mustCoverLiability", { amount: maxLiability.toLocaleString(), currency: form.value_currency })}</p>}
+            {!hasCommittedBacking && <p className="text-sm text-destructive">{t("offerStudio.mustCoverLiability", { amount: maxLiability.toLocaleString(currentUiLocale()), currency: form.value_currency })}</p>}
             <Button asChild variant="outline" className="w-full">
               <Link to="/create/moment?firstTime=true">{t("offerStudio.createLinkedMoment")}</Link>
             </Button>

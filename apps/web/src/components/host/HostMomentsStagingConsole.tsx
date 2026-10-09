@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, Clock, ExternalLink, MapPin, Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,7 @@ function formatDate(value?: string | null) {
 }
 
 export function HostMomentsStagingConsole() {
+  const { t: webT } = useWebI18n();
   const { data: moments = [], isLoading, isError } = useHostedMoments();
 
   return (
@@ -30,7 +33,7 @@ export function HostMomentsStagingConsole() {
             </p>
           </div>
           <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
-            <Link to="/create/moment"><Plus className="mr-2 h-4 w-4" />Create a Moment</Link>
+            <Link to="/create/moment"><Plus className="mr-2 h-4 w-4" />{webT("how.creatorStep1Cta")}</Link>
           </Button>
         </div>
       </section>
@@ -51,7 +54,7 @@ export function HostMomentsStagingConsole() {
             Create the first real Moment before PROMORANG shows stage operations, arrivals, proof or results.
           </p>
           <Button asChild className="mt-5 rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
-            <Link to="/create/moment">Create your first Moment</Link>
+            <Link to="/create/moment">{webT("hostDash.first")}</Link>
           </Button>
         </div>
       ) : (
@@ -79,14 +82,14 @@ export function HostMomentsStagingConsole() {
                   <div>
                     <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[.14em]">
                       <span className={`rounded-full border px-2.5 py-1 ${moment.is_active ? "border-amber-400/25 bg-amber-400/10 text-amber-300" : "border-white/10 bg-white/[.03] text-white/40"}`}>
-                        {moment.is_active ? "Active" : "Scheduled / inactive"}
+                        {moment.is_active ? webT("commercial.active") : "Scheduled / inactive"}
                       </span>
                       <span className="inline-flex items-center gap-1.5 text-white/35"><Clock className="h-3.5 w-3.5" />{formatDate(moment.starts_at)}</span>
                     </div>
-                    <h3 className="mt-3 text-xl font-black text-white">{moment.title || "Untitled Moment"}</h3>
+                    <h3 className="mt-3 text-xl font-black text-white">{moment.title || webT("web.untitledMoment")}</h3>
                     <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-white/45">
                       <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" />
-                      {moment.venue_name || moment.location || "Location not recorded"}
+                      {moment.venue_name || moment.location || webT("findOrAsk.locationNotRecorded")}
                     </p>
                     {moment.description ? <p className="mt-3 line-clamp-3 text-xs leading-5 text-white/50">{moment.description}</p> : null}
                   </div>
@@ -94,19 +97,19 @@ export function HostMomentsStagingConsole() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
                       <p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">RSVP / participant record</p>
-                      <p className="mt-2 text-lg font-black text-white">{hasParticipantCount ? participantCount.toLocaleString() : "Not recorded"}</p>
+                      <p className="mt-2 text-lg font-black text-white">{hasParticipantCount ? participantCount.toLocaleString(currentUiLocale()) : webT("activationCommerce.notRecorded")}</p>
                       <p className="mt-1 text-[10px] leading-4 text-white/30">Not the same as verified attendance.</p>
                     </div>
                     <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
-                      <p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">Capacity</p>
-                      <p className="mt-2 text-lg font-black text-white">{hasCapacity ? capacity.toLocaleString() : "Not recorded"}</p>
+                      <p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">{webT("momentDetail.capacity")}</p>
+                      <p className="mt-2 text-lg font-black text-white">{hasCapacity ? capacity.toLocaleString(currentUiLocale()) : webT("activationCommerce.notRecorded")}</p>
                       {occupancy !== null ? <p className="mt-1 text-[10px] leading-4 text-white/30">{occupancy}% of recorded capacity by participant count.</p> : null}
                     </div>
                   </div>
 
                   <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                     <p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">Configured participant value</p>
-                    <p className="mt-2 text-sm font-black text-white">{hasReward ? moment.reward : "No reward recorded"}</p>
+                    <p className="mt-2 text-sm font-black text-white">{hasReward ? moment.reward : webT("web.noRewardRecorded")}</p>
                     <p className="mt-1 text-[10px] leading-4 text-white/30">Configured value does not imply issuance or settlement.</p>
                   </div>
 

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -21,6 +22,7 @@ const STORAGE_ROLE_KEY = 'promorang_role_pilot_role';
 const STORAGE_STEP_KEY = 'promorang_role_pilot_step';
 
 export function PromorangRolePilotHUD() {
+  const { t: webT } = useWebI18n();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -175,7 +177,7 @@ export function PromorangRolePilotHUD() {
                 title="Switch guided role perspective"
               >
                 <RoleIcon className="w-3.5 h-3.5" style={{ color: roleConfig.themeColor }} />
-                <span>{roleConfig.name} Path</span>
+                <span>{roleConfig.name} {webT("how.memberStep4Badge")}</span>
                 <ChevronDown className="w-3 h-3 text-stone-400" />
               </button>
 
@@ -210,7 +212,7 @@ export function PromorangRolePilotHUD() {
 
             <span className="text-stone-600 text-xs">/</span>
             <span className="text-xs font-mono text-amber-400 font-bold">
-              Step {currentStep.step} of {roleConfig.steps.length}
+              {webT("web.step")} {currentStep.step} {webT("web.of")} {roleConfig.steps.length}
             </span>
           </div>
 
@@ -299,7 +301,7 @@ export function PromorangRolePilotHUD() {
             }`}
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back</span>
+            <span>{webT("common.back")}</span>
           </button>
 
           <div className="flex items-center gap-2">

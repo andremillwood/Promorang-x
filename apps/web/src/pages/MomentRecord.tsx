@@ -33,6 +33,7 @@ interface RecordStats {
 }
 
 const MomentRecord = () => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -220,7 +221,7 @@ const MomentRecord = () => {
                   {moment.title}
                 </h1>
                 <p className="text-muted-foreground">
-                  Hosted by {hostProfile?.full_name || "Anonymous Host"}
+                  {webT("event.hostedBy")} {hostProfile?.full_name || "Anonymous Host"}
                 </p>
               </div>
               <MomentStatusBadge status={status as any} />
@@ -249,9 +250,9 @@ const MomentRecord = () => {
 
             <div className="mt-6 grid gap-3 sm:grid-cols-4">
               {[
-                { label: "Joined", value: stats?.totalParticipants || 0 },
-                { label: "Marks", value: stats?.verifiedParticipants || 0 },
-                { label: "Rewards", value: stats?.rewardsClaimed || 0 },
+                { label: webT("pulsePage.statJoined"), value: stats?.totalParticipants || 0 },
+                { label: webT("forBrands.statMarks"), value: stats?.verifiedParticipants || 0 },
+                { label: webT("explorePage.guideRewardsTitle"), value: stats?.rewardsClaimed || 0 },
                 { label: "Memory", value: status === "closed" ? "Kept" : "Forming" },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl border border-border/60 bg-background/70 p-4">
@@ -272,12 +273,12 @@ const MomentRecord = () => {
             <div className="bg-card rounded-xl p-5 border border-border">
               <CheckCircle className="w-5 h-5 text-emerald-500 mb-3" />
               <p className="text-2xl font-bold text-foreground">{stats?.verifiedParticipants || 0}</p>
-              <p className="text-sm text-muted-foreground">Verified Check-ins</p>
+              <p className="text-sm text-muted-foreground">{webT("web.verifiedCheckins")}</p>
             </div>
             <div className="bg-card rounded-xl p-5 border border-border">
               <Gift className="w-5 h-5 text-accent mb-3" />
               <p className="text-2xl font-bold text-foreground">{stats?.rewardsIssued || 0}</p>
-              <p className="text-sm text-muted-foreground">Rewards Issued</p>
+              <p className="text-sm text-muted-foreground">{webT("adminDash.rewardsIssued")}</p>
             </div>
             <div className="bg-card rounded-xl p-5 border border-border">
               <Gift className="w-5 h-5 text-blue-500 mb-3" />
@@ -308,7 +309,7 @@ const MomentRecord = () => {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium text-foreground">Location</p>
+                    <p className="font-medium text-foreground">{webT("promoPushCareersPage.labelLocation")}</p>
                     {moment.venue_name && (
                       <p className="text-sm text-muted-foreground">{moment.venue_name}</p>
                     )}
@@ -333,11 +334,11 @@ const MomentRecord = () => {
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">Check-in Rate</span>
+                    <span className="text-muted-foreground">{webT("web.checkinRate")}</span>
                     <span className="font-medium text-foreground">
                       {stats?.totalParticipants
                         ? `${Math.round((stats.verifiedParticipants / stats.totalParticipants) * 100)}%`
-                        : "N/A"}
+                        : webT("kyc.na")}
                     </span>
                   </div>
                   <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -384,7 +385,7 @@ const MomentRecord = () => {
           {/* Description */}
           {moment.description && (
             <div className="bg-card border border-border rounded-xl p-6 mb-8">
-              <h3 className="font-semibold text-foreground mb-2">Description</h3>
+              <h3 className="font-semibold text-foreground mb-2">{webT("offerStudio.descLabel")}</h3>
               <p className="text-muted-foreground">{moment.description}</p>
             </div>
           )}

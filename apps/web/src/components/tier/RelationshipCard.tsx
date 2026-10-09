@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Building2, User, Crown, Handshake, Heart, Star, Award } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +18,7 @@ export function VenueRelationshipCard({
   venueName,
   venueCategory 
 }: VenueRelationshipCardProps) {
+  const { t: webT } = useWebI18n();
   const { data: relationship, isLoading } = useVenueRelationship(venueId);
   
   if (isLoading) {
@@ -84,7 +87,7 @@ export function VenueRelationshipCard({
           <div className="text-right">
             <Badge variant={isRegular ? "default" : "outline"} className="gap-1">
               <Award className="w-3 h-3" />
-              {markCount} {markCount === 1 ? 'Mark' : 'Marks'}
+              {markCount} {markCount === 1 ? 'Mark' : webT("forBrands.statMarks")}
             </Badge>
           </div>
         </div>
@@ -98,9 +101,9 @@ export function VenueRelationshipCard({
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              First Mark: {new Date(firstMarkDate).toLocaleDateString()}
+              First Mark: {new Date(firstMarkDate).toLocaleDateString(currentUiLocale())}
               {lastMarkDate && (
-                <> • Last: {new Date(lastMarkDate).toLocaleDateString()}</>
+                <> • Last: {new Date(lastMarkDate).toLocaleDateString(currentUiLocale())}</>
               )}
             </p>
           </div>
@@ -122,6 +125,7 @@ export function HostRelationshipCard({
   hostName,
   hostTier = 'host'
 }: HostRelationshipCardProps) {
+  const { t: webT } = useWebI18n();
   const { useTierStatus } = useUserTier();
   const { data: myTier } = useTierStatus();
   
@@ -151,7 +155,7 @@ export function HostRelationshipCard({
               <TierBadge tier={hostTier} size="sm" />
             </div>
             <p className="text-sm text-muted-foreground">
-              {hasRelationship ? 'Collaborative Partner' : 'Host'}
+              {hasRelationship ? 'Collaborative Partner' : webT("settings.rankHost")}
             </p>
           </div>
           <div className="text-2xl">
@@ -173,6 +177,7 @@ export function HostRelationshipCard({
 
 // Community relationship summary
 export function CommunityRelationshipSummary() {
+  const { t: webT } = useWebI18n();
   const { useTierStatus } = useUserTier();
   const { data: status } = useTierStatus();
   
@@ -188,7 +193,7 @@ export function CommunityRelationshipSummary() {
         
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Status</span>
+            <span className="text-sm text-muted-foreground">{webT("kyc.statusLabel")}</span>
             <TierBadge tier={current_tier} />
           </div>
           

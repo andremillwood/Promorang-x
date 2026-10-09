@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Check, Loader2, MessageCircle } from "lucide-react";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 type Step = "vote" | "capture" | "results";
 
 export default function DiscoveryAcquisitionPage() {
+  const { t: webT } = useWebI18n();
   const { slug = "" } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -342,7 +344,7 @@ export default function DiscoveryAcquisitionPage() {
                 />
               </label>
               <label className="block">
-                <span className="text-xs text-[#b5a89a] mb-1.5 block">Email (optional)</span>
+                <span className="text-xs text-[#b5a89a] mb-1.5 block">{webT("guestPassPage.emailPlaceholder")}</span>
                 <input
                   type="email"
                   autoComplete="email"
@@ -372,7 +374,7 @@ export default function DiscoveryAcquisitionPage() {
               <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3">
                 {pointsAwarded > 0 && (
                   <>
-                    <p className="font-semibold text-amber-200">+{pointsAwarded} PromoPoints</p>
+                    <p className="font-semibold text-amber-200">+{pointsAwarded} {webT("give.kind.points")}</p>
                     <p className="text-xs text-[#d9cfc3] mt-0.5">
                       You helped shape what the community wants.
                     </p>
@@ -463,7 +465,7 @@ export default function DiscoveryAcquisitionPage() {
                   onClick={() => handleNextAction("view_moment")}
                   className="w-full text-sm text-orange-300 underline underline-offset-2"
                 >
-                  {discovery.nextActionLabel || "See the Moment"}
+                  {discovery.nextActionLabel || webT("web.seeMoment")}
                 </button>
               )}
             </div>
@@ -486,7 +488,7 @@ export default function DiscoveryAcquisitionPage() {
                       }}
                       className="rounded-xl bg-white text-black py-3 text-sm font-semibold"
                     >
-                      See the Moment
+                      {webT("web.seeMoment")}
                     </button>
                   ))}
                 <button

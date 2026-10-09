@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,6 +46,7 @@ interface Moment {
 }
 
 const HostDiscovery = () => {
+  const { t: webT } = useWebI18n();
     const { user } = useAuth();
     const { toast } = useToast();
     const [searchParams] = useSearchParams();
@@ -164,10 +167,10 @@ const HostDiscovery = () => {
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
-                            <Label htmlFor="category">Category</Label>
+                            <Label htmlFor="category">{webT("support.category")}</Label>
                             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                                 <SelectTrigger id="category">
-                                    <SelectValue placeholder="All Categories" />
+                                    <SelectValue placeholder={webT("web.allCategories")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {CATEGORIES.map((cat) => (
@@ -180,7 +183,7 @@ const HostDiscovery = () => {
                         </div>
 
                         <div>
-                            <Label htmlFor="location">Location</Label>
+                            <Label htmlFor="location">{webT("promoPushCareersPage.labelLocation")}</Label>
                             <Input
                                 id="location"
                                 placeholder="e.g., New York"
@@ -214,7 +217,7 @@ const HostDiscovery = () => {
 
                     <Button onClick={fetchHosts} className="mt-4">
                         <Search className="w-4 h-4 mr-2" />
-                        Search
+                        {webT("search.button")}
                     </Button>
                 </CardContent>
             </Card>
@@ -241,7 +244,7 @@ const HostDiscovery = () => {
                                     <div>
                                         <CardTitle className="flex items-center gap-2">
                                             {host.hostName}
-                                            <Badge variant="secondary">{host.moments.length} Moments</Badge>
+                                            <Badge variant="secondary">{host.moments.length} {webT("findOrAsk.moments")}</Badge>
                                         </CardTitle>
                                         <CardDescription className="mt-1">
                                             {host.hostEmail}
@@ -280,7 +283,7 @@ const HostDiscovery = () => {
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Calendar className="w-3 h-3" />
-                                                        {new Date(moment.startsAt).toLocaleDateString()}
+                                                        {new Date(moment.startsAt).toLocaleDateString(currentUiLocale())}
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Users className="w-3 h-3" />
@@ -307,7 +310,7 @@ const HostDiscovery = () => {
                                                     ) : (
                                                         <>
                                                             <Sparkles className="w-4 h-4 mr-2" />
-                                                            Sponsor
+                                                            {webT("findOrAsk.route.sponsor")}
                                                         </>
                                                     )}
                                                 </Button>

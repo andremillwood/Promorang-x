@@ -43,7 +43,7 @@ const readStoredCityId = () => {
 
 export function MarketProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { setLocale } = useI18n();
+  const { locale, setLocale } = useI18n();
   const routeCountry = location.pathname.match(/^\/locations\/([^/]+)/)?.[1];
   const routeCity = location.pathname.match(/^\/locations\/[^/]+\/([^/]+)/)?.[1];
   const [countryCode, setCountryCode] = useState(() => {
@@ -123,9 +123,9 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     setCountry,
     setCity,
     isFeatureEnabled: (feature) => isMarketFeatureEnabled(country, feature),
-    formatCurrency: (amount, options) => new Intl.NumberFormat(country.locale, { style: "currency", currency: country.currency, ...options }).format(amount),
-    formatLocalDate: (date, options, timezone = country.timezone) => new Intl.DateTimeFormat(country.locale, { timeZone: timezone, ...options }).format(new Date(date)),
-  }), [country, city, setCountry, setCity]);
+    formatCurrency: (amount, options) => new Intl.NumberFormat(locale, { style: "currency", currency: country.currency, ...options }).format(amount),
+    formatLocalDate: (date, options, timezone = country.timezone) => new Intl.DateTimeFormat(locale, { timeZone: timezone, ...options }).format(new Date(date)),
+  }), [country, city, locale, setCountry, setCity]);
 
   return <MarketContext.Provider value={value}>{children}</MarketContext.Provider>;
 }

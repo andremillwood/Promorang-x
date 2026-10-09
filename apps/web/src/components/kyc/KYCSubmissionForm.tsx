@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 /**
  * KYC Submission Form
  * Users submit identity documents for verification
@@ -31,6 +32,7 @@ interface KYCSubmissionFormProps {
 const API_BASE = import.meta.env.VITE_API_URL || 'https://api.promorang.co/api';
 
 export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
+  const { t: webT } = useWebI18n();
   const { user } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
@@ -136,7 +138,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
 
       if (response.ok) {
         toast({
-          title: 'KYC Submitted',
+          title: webT("kyc.submitted"),
           description: 'Your documents have been submitted for review. This usually takes 1-2 business days.',
         });
         onSubmitted();
@@ -309,7 +311,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
           <option value="savings">Savings</option>
           <option value="inheritance">Inheritance</option>
           <option value="gift">Gift</option>
-          <option value="other">Other</option>
+          <option value="other">{webT("support.catOther")}</option>
         </select>
       </div>
     </div>
@@ -348,7 +350,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
                 alt="ID Front Preview"
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{webT("web.uploaded")}</Badge>
             </div>
           ) : (
             <>
@@ -380,7 +382,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
                 alt="ID Back Preview"
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{webT("web.uploaded")}</Badge>
             </div>
           ) : (
             <>
@@ -419,7 +421,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
                 alt="Selfie Preview"
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{webT("web.uploaded")}</Badge>
             </div>
           ) : (
             <>
@@ -455,7 +457,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
                 alt="Proof of Address Preview"
                 className="max-h-32 mx-auto rounded"
               />
-              <Badge className="absolute top-2 right-2 bg-green-500">Uploaded</Badge>
+              <Badge className="absolute top-2 right-2 bg-green-500">{webT("web.uploaded")}</Badge>
             </div>
           ) : (
             <>
@@ -496,7 +498,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          Identity Verification
+          {webT("kyc.title")}
         </CardTitle>
         <CardDescription>
           Submit your documents to start trading. This usually takes 1-2 business days to review.
@@ -525,7 +527,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
           <span>Personal Info</span>
           <span>Address</span>
           <span>ID Document</span>
-          <span>Verification</span>
+          <span>{webT("pricing.verification")}</span>
         </div>
 
         {/* Form Content */}
@@ -542,7 +544,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
             disabled={step === 1}
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Back
+            {webT("common.back")}
           </Button>
           
           {step < 4 ? (
@@ -550,7 +552,7 @@ export function KYCSubmissionForm({ onSubmitted }: KYCSubmissionFormProps) {
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
             >
-              Next
+              {webT("funnel.pending")}
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (

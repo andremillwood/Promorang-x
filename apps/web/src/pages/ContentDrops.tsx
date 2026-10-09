@@ -54,6 +54,7 @@ function getAssets(drop: ContentDistributionCampaign) {
 }
 
 function DropCard({ drop }: { drop: ContentDistributionCampaign }) {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const assets = getAssets(drop);
   const primary = assets[0];
@@ -83,7 +84,7 @@ function DropCard({ drop }: { drop: ContentDistributionCampaign }) {
           </div>
           <div className="flex min-w-0 flex-col justify-between p-5">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Content Drop</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{webT("dashboard.contentDrop")}</p>
               <h2 className="mt-2 line-clamp-2 text-2xl font-black tracking-tight">{drop.title}</h2>
               <p className="mt-2 line-clamp-3 text-sm leading-6 text-white/50">{drop.description || "Open the release to see what action is expected and what counts as proof."}</p>
             </div>
@@ -120,6 +121,7 @@ function DropCard({ drop }: { drop: ContentDistributionCampaign }) {
 }
 
 export default function ContentDrops() {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const { session, activeRole } = useAuth();
   const { toast } = useToast();
@@ -241,7 +243,7 @@ export default function ContentDrops() {
           <div className="mt-6 grid max-w-2xl grid-cols-3 gap-2">
             {[
               { label: "Live releases", value: liveTotalsAvailable ? totals.active : null, icon: RadioTower },
-              { label: "Assets", value: liveTotalsAvailable ? totals.assets : null, icon: Link2 },
+              { label: webT("drops.assets"), value: liveTotalsAvailable ? totals.assets : null, icon: Link2 },
               { label: "Linked Moments", value: liveTotalsAvailable ? totals.linked : null, icon: BadgeCheck },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
@@ -305,8 +307,8 @@ export default function ContentDrops() {
                     <div><Label>{t("drops.platform")}</Label><Select value={draft.platform} onValueChange={(value) => updateDraft("platform", value)}><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger><SelectContent>{platformOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select></div>
                     <div><Label htmlFor="external-url">{t("drops.externalLink")}</Label><Input id="external-url" required type="url" value={draft.external_url} onChange={(e) => updateDraft("external_url", e.target.value)} className="mt-2" placeholder="https://..." /></div>
                     <div className="lg:col-span-2"><Label htmlFor="asset-title">{t("drops.assetLabel")}</Label><Input id="asset-title" value={draft.asset_title} onChange={(e) => updateDraft("asset_title", e.target.value)} className="mt-2" placeholder={t("drops.assetPlaceholder")} /></div>
-                    <div><Label htmlFor="linked-moment">Attach a Moment ID</Label><Input id="linked-moment" value={draft.linked_moment_id} onChange={(e) => updateDraft("linked_moment_id", e.target.value)} className="mt-2" placeholder="Optional" /></div>
-                    <div><Label htmlFor="linked-offer">Attach an offer ID</Label><Input id="linked-offer" value={draft.linked_offer_id} onChange={(e) => updateDraft("linked_offer_id", e.target.value)} className="mt-2" placeholder="Optional" /></div>
+                    <div><Label htmlFor="linked-moment">Attach a Moment ID</Label><Input id="linked-moment" value={draft.linked_moment_id} onChange={(e) => updateDraft("linked_moment_id", e.target.value)} className="mt-2" placeholder={webT("discover.pathBrowseEyebrow")} /></div>
+                    <div><Label htmlFor="linked-offer">Attach an offer ID</Label><Input id="linked-offer" value={draft.linked_offer_id} onChange={(e) => updateDraft("linked_offer_id", e.target.value)} className="mt-2" placeholder={webT("discover.pathBrowseEyebrow")} /></div>
                     <div className="lg:col-span-2"><Label htmlFor="drop-description">What should this release cause?</Label><Textarea id="drop-description" required value={draft.description} onChange={(e) => updateDraft("description", e.target.value)} className="mt-2 min-h-[110px]" placeholder="Describe the audience action and why it matters." /></div>
                     <div><Label htmlFor="base-points">Points per accepted action</Label><Input id="base-points" type="number" min="0" value={draft.base_points} onChange={(e) => updateDraft("base_points", e.target.value)} className="mt-2" /></div>
                     <div><Label htmlFor="entries">PromoShare entries per action</Label><Input id="entries" type="number" min="0" value={draft.entries_per_action} onChange={(e) => updateDraft("entries_per_action", e.target.value)} className="mt-2" /></div>

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { ArrowRight, Briefcase, Building2, CalendarDays, Megaphone, Sparkles, Store, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -65,6 +66,7 @@ const specialistPaths = [
 ];
 
 export default function Join() {
+  const { t: webT } = useWebI18n();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selected = specialistPaths[selectedIndex];
   const SelectedIcon = selected.icon;
@@ -79,7 +81,7 @@ export default function Join() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
         <div className="relative mx-auto max-w-[1440px]">
           <p className="marketing-kicker">Enter PROMORANG</p>
-          <h1 className="mt-5 max-w-[12ch] text-5xl font-black sm:text-6xl lg:text-7xl">What brings you here?</h1>
+          <h1 className="mt-5 max-w-[12ch] text-5xl font-black sm:text-6xl lg:text-7xl">{webT("homeIntro.paths")}</h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">You do not need to learn the product map first. Start as a person looking for something, a business trying to change something, or a specialist with a clear operating role.</p>
         </div>
       </section>
@@ -93,7 +95,7 @@ export default function Join() {
               <p className="marketing-kicker"><UserRound className="h-3.5 w-3.5" /> I want to find, ask or join</p>
               <h2 className="mt-3 text-4xl font-black">Start as a participant.</h2>
               <p className="mt-3 max-w-xl text-sm leading-7 text-white/60">Discover what is happening, tell PROMORANG what you want, add your voice and keep useful things on PromoCard.</p>
-              <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Get my PromoCard <ArrowRight className="h-4 w-4" /></span>
+              <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{webT("clarity.getMyCard")} <ArrowRight className="h-4 w-4" /></span>
             </div>
           </Link>
 

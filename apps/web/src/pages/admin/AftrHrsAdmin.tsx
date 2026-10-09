@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { FormEvent, ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -74,6 +76,7 @@ function Field({
 }
 
 export default function AftrHrsAdmin() {
+  const { t: webT } = useWebI18n();
   const [selectedFriday, setSelectedFriday] = useState("");
   const { data, isError, isLoading, token, update, updatePass, digitalRelease } = useAftrHrsAdmin(selectedFriday || undefined);
   const [allocation, setAllocation] = useState("");
@@ -122,7 +125,7 @@ export default function AftrHrsAdmin() {
   const viewingCurrentNight = selectedNight === String(data.currentFriday || selectedNight);
   const formatNight = (friday: string) => {
     if (!friday) return "Current Friday";
-    return new Intl.DateTimeFormat("en-JM", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })
+    return new Intl.DateTimeFormat(currentUiLocale(), { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })
       .format(new Date(`${friday}T12:00:00Z`));
   };
   const allEntries = [
@@ -214,7 +217,7 @@ export default function AftrHrsAdmin() {
           <p className="mt-1 max-w-xl text-sm leading-6 text-white/60">{copy.guestRsvpHelp}</p>
           <p className="mt-3 text-sm text-white/70">{digitalOpen ? copy.digitalOpen : copy.digitalClosed}</p>
           <p className="mt-1 text-sm text-white/50">
-            Friday list spots left: {Number(data.rsvpRemaining ?? 0)}. Digital drop claimed: {Number(release?.claimed || 0)} of {Number(release?.allocation || 0)}.
+            Friday list spots left: {Number(data.rsvpRemaining ?? 0)}. Digital drop claimed: {Number(release?.claimed || 0)} {webT("web.of")} {Number(release?.allocation || 0)}.
           </p>
           {viewingCurrentNight ? <div className="mt-4 flex flex-wrap gap-3">
             {digitalOpen ? (
@@ -254,17 +257,17 @@ export default function AftrHrsAdmin() {
             </select>
             <select aria-label="Filter by status" value={guestStatus} onChange={(event) => setGuestStatus(event.target.value as typeof guestStatus)} className="h-11 rounded-xl border border-white/15 bg-black px-3 text-sm">
               <option value="all">All statuses</option>
-              <option value="active">Ready</option>
-              <option value="redeemed">Checked in</option>
+              <option value="active">{webT("aftrhrs.passReady")}</option>
+              <option value="redeemed">{webT("aftrhrs.doorCheckedIn")}</option>
             </select>
           </div>
-          <p className="mt-3 text-xs text-white/45">Showing {visibleEntries.length} of {allEntries.length} records for this night.</p>
+          <p className="mt-3 text-xs text-white/45">{webT("web.showing")} {visibleEntries.length} {webT("web.of")} {allEntries.length} records for this night.</p>
           {visibleEntries.length ? (
             <ul className="mt-5 space-y-3">
               {visibleEntries.slice(0, 100).map((row) => (
                 <li key={`${row.entryType}-${row.id || row.unique_code}`} className="rounded-2xl border border-white/10 px-4 py-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="font-semibold">{row.full_name || row.name || "Promorang member"}</p>
+                    <p className="font-semibold">{row.full_name || row.name || webT("referrals.member")}</p>
                     <span className="rounded-full border border-white/15 px-2.5 py-1 text-xs text-white/65">{row.entryType === "rsvp" ? "Guest list" : "Digital pass"}</span>
                   </div>
                   <p className="mt-1 text-sm text-white/70">{adminPassStatus(row.status)}</p>

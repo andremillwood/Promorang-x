@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import momentConcert from "@/assets/moment-concert.jpg";
 import momentFoodFestival from "@/assets/moment-food-festival.jpg";
 import momentCoffee from "@/assets/moment-coffee-meetup.jpg";
@@ -26,10 +27,10 @@ export const cultureImages = {
 };
 
 const formatMomentDate = (value: string) =>
-  new Intl.DateTimeFormat("en", { month: "short", day: "2-digit", timeZone: "America/Jamaica" }).format(new Date(value));
+  new Intl.DateTimeFormat(currentUiLocale(), { month: "short", day: "2-digit", timeZone: "America/Jamaica" }).format(new Date(value));
 
 const formatMomentTime = (value: string) =>
-  new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit", timeZone: "America/Jamaica" }).format(new Date(value));
+  new Intl.DateTimeFormat(currentUiLocale(), { hour: "numeric", minute: "2-digit", timeZone: "America/Jamaica" }).format(new Date(value));
 
 const slugify = (value: string) =>
   value

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
@@ -230,6 +232,7 @@ const PRESET_RECEIPTS: Record<string, { receipt: ValueReceiptData; causation: Ca
 const RELEASE_PRESET_RECEIPTS = import.meta.env.DEV || import.meta.env.MODE === "test" ? PRESET_RECEIPTS : {};
 
 export default function PublicValueReceipt() {
+  const { t: webT } = useWebI18n();
   const { id } = useParams<{ id: string }>();
   const [receipt, setReceipt] = useState<ValueReceiptData | null>(null);
   const [causation, setCausation] = useState<CausationNode | null>(null);
@@ -264,15 +267,15 @@ export default function PublicValueReceipt() {
               actionType: raw.proof?.action_type || "share",
               actionTitle: raw.headline || "Verified Contribution",
               targetEntity: raw.description || "Promorang Opportunity",
-              timestamp: new Date(raw.created_at).toLocaleString(),
+              timestamp: new Date(raw.created_at).toLocaleString(currentUiLocale()),
               status: raw.lifecycle_status === "verified" ? "verified" : "completed",
               verificationMethod: raw.proof?.verification_method || "Automated Audit Engine",
               proofHash: raw.proof?.hash || `0x${raw.id.replace(/-/g, "").slice(0, 16)}`,
               hostQuote: raw.proof?.host_quote || undefined,
               hostSigner: raw.proof?.host_signer || undefined,
               metrics: raw.proof?.metrics || [
-                { label: "Attribution", value: "100%" },
-                { label: "Status", value: raw.lifecycle_status, highlight: true },
+                { label: webT("how.promoterStep3Badge"), value: "100%" },
+                { label: webT("kyc.statusLabel"), value: raw.lifecycle_status, highlight: true },
               ],
               rewards: (raw.rewards || []).map((r: any) => ({
                 type: r.currency === "gems" || r.currency === "usd" ? "cash" : "points",
@@ -305,7 +308,7 @@ export default function PublicValueReceipt() {
     }
 
     loadReceipt();
-  }, [id]);
+  }, [id, webT]);
 
   if (loading) {
     return (
@@ -348,7 +351,7 @@ export default function PublicValueReceipt() {
           </div>
           <Link to="/explore">
             <Button size="sm" className="bg-primary text-xs font-black text-black hover:bg-primary/90">
-              Explore Moments
+              {webT("galleryPage.exploreMoments")}
             </Button>
           </Link>
         </div>
@@ -436,7 +439,7 @@ export default function PublicValueReceipt() {
 
                   <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl border border-white/5 bg-black/40 p-3">
-                      <div className="font-mono text-lg font-black text-white">100%</div>
+                      <div className="font-mono text-lg font-black text-white">{webT("how.brandPreviewStat")}</div>
                       <div className="text-[9px] uppercase tracking-wider text-white/40">Direct Causation</div>
                     </div>
                     <div className="rounded-xl border border-white/5 bg-black/40 p-3">
@@ -453,7 +456,7 @@ export default function PublicValueReceipt() {
                     <span className="text-xs text-white/70">Want to generate your own Value Receipts?</span>
                     <Link to="/explore">
                       <Button size="sm" className="bg-primary text-xs font-bold text-black hover:bg-primary/90">
-                        Get Started <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                        {webT("onboarding.start")} <ChevronRight className="ml-1 h-3.5 w-3.5" />
                       </Button>
                     </Link>
                   </div>

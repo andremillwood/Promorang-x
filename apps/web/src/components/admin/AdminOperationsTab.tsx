@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import {
   Gem,
@@ -84,14 +86,16 @@ type OperationsOverview = {
 };
 
 function MiniPill({ demo }: { demo: boolean }) {
+  const { t: webT } = useWebI18n();
   return (
     <Badge variant="outline" className={demo ? "border-amber-500/30 text-amber-700" : "border-emerald-500/30 text-emerald-700"}>
-      {demo ? "Demo" : "Live"}
+      {demo ? "Demo" : webT("common.live")}
     </Badge>
   );
 }
 
 export function AdminOperationsTab() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const [data, setData] = useState<OperationsOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -142,7 +146,7 @@ export function AdminOperationsTab() {
         </div>
         <Button variant="outline" onClick={() => fetchOverview()} disabled={loading}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-          Refresh
+          {webT("common.refresh")}
         </Button>
       </div>
 
@@ -176,9 +180,9 @@ export function AdminOperationsTab() {
                   <Gem className="h-4 w-4" />
                   <span className="text-[11px] font-black uppercase tracking-[0.22em]">Gems On Hold</span>
                 </div>
-                <div className="text-3xl font-black">{Number(data.gems.held_balance || 0).toLocaleString()}</div>
+                <div className="text-3xl font-black">{Number(data.gems.held_balance || 0).toLocaleString(currentUiLocale())}</div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {Number(data.gems.locked_bonus_balance || 0).toLocaleString()} locked bonus Gems.
+                  {Number(data.gems.locked_bonus_balance || 0).toLocaleString(currentUiLocale())} locked bonus Gems.
                   {" "}
                   {data.gems.unlock_ready_count} grants ready to unlock.
                 </p>
@@ -202,7 +206,7 @@ export function AdminOperationsTab() {
               <CardContent className="p-5">
                 <div className="mb-3 flex items-center gap-2 text-emerald-600">
                   <ShieldCheck className="h-4 w-4" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.22em]">KYC Queue</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.22em]">{webT("web.kycQueue")}</span>
                 </div>
                 <div className="text-3xl font-black">{data.kyc.pending_review + data.kyc.in_review}</div>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -252,8 +256,8 @@ export function AdminOperationsTab() {
               </div>
               <TabsList className="h-auto justify-start overflow-x-auto bg-background/70 p-1">
                 <TabsTrigger value="gems">Gems holds</TabsTrigger>
-                <TabsTrigger value="redemptions">Redemptions</TabsTrigger>
-                <TabsTrigger value="support">Support</TabsTrigger>
+                <TabsTrigger value="redemptions">{webT("merchantDash.redemptions")}</TabsTrigger>
+                <TabsTrigger value="support">{webT("footer.support")}</TabsTrigger>
               </TabsList>
             </div>
           </CardHeader>
@@ -264,13 +268,13 @@ export function AdminOperationsTab() {
               <>
                 <TabsContent value="gems" className="m-0">
                   <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] gap-3 border-b border-border bg-muted/20 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
-                    <span>Account</span><span>State</span><span>Amount</span><span>Source</span>
+                    <span>{webT("support.catAccount")}</span><span>{webT("onboarding.state")}</span><span>{webT("wallet.amount")}</span><span>{webT("receipt.source")}</span>
                   </div>
                   {data.gems.recent_activity.length ? data.gems.recent_activity.map((row) => (
                     <div key={row.id} className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] items-center gap-3 border-b border-border/60 px-5 py-4 text-sm last:border-0 hover:bg-muted/20">
                       <span className="truncate font-semibold">{row.email || row.id.slice(0, 8)}</span>
                       <span className="truncate text-muted-foreground">{row.transaction_type} · {row.redemption_status.replace(/_/g, " ")}</span>
-                      <span className="font-black">{row.amount.toLocaleString()} Gems</span>
+                      <span className="font-black">{row.amount.toLocaleString(currentUiLocale())} {webT("wallet.gemsLabel")}</span>
                       <MiniPill demo={row.is_demo} />
                     </div>
                   )) : <div className="p-8 text-center text-sm text-muted-foreground">No recent Gems hold activity.</div>}
@@ -278,13 +282,13 @@ export function AdminOperationsTab() {
 
                 <TabsContent value="redemptions" className="m-0">
                   <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] gap-3 border-b border-border bg-muted/20 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
-                    <span>Account</span><span>Method</span><span>Amount</span><span>Status</span>
+                    <span>{webT("support.catAccount")}</span><span>{webT("guestPassPage.receiptMethod")}</span><span>{webT("wallet.amount")}</span><span>{webT("kyc.statusLabel")}</span>
                   </div>
                   {data.redemptions.recent_attempts.length ? data.redemptions.recent_attempts.map((row) => (
                     <div key={row.id} className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] items-center gap-3 border-b border-border/60 px-5 py-4 text-sm last:border-0 hover:bg-muted/20">
                       <span className="truncate font-semibold">{row.email || row.id.slice(0, 8)}</span>
                       <span className="truncate text-muted-foreground">{row.withdrawal_method || "withdrawal"}</span>
-                      <span className="font-black">${row.amount.toLocaleString()}</span>
+                      <span className="font-black">${row.amount.toLocaleString(currentUiLocale())}</span>
                       <Badge variant="outline" className="w-fit capitalize">{row.status}</Badge>
                     </div>
                   )) : <div className="p-8 text-center text-sm text-muted-foreground">No recent redemption attempts.</div>}
@@ -292,7 +296,7 @@ export function AdminOperationsTab() {
 
                 <TabsContent value="support" className="m-0">
                   <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] gap-3 border-b border-border bg-muted/20 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
-                    <span>Issue</span><span>Category</span><span>Priority</span><span>Source</span>
+                    <span>Issue</span><span>{webT("support.category")}</span><span>{webT("support.priority")}</span><span>{webT("receipt.source")}</span>
                   </div>
                   {data.support.recent_escalations.length ? data.support.recent_escalations.map((ticket) => (
                     <div key={ticket.id} className="grid grid-cols-[minmax(0,1.4fr)_minmax(120px,0.7fr)_110px_90px] items-center gap-3 border-b border-border/60 px-5 py-4 text-sm last:border-0 hover:bg-muted/20">

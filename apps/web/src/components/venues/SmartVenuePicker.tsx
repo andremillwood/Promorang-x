@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Building2, Compass, MapPin, Search } from "lucide-react";
@@ -68,6 +69,7 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
   onManualNameChange,
   onManualAddressChange,
 }) => {
+  const { t: webT } = useWebI18n();
   const [searchTerm, setSearchTerm] = useState(selectedVenueName || "");
   const [isOpen, setIsOpen] = useState(false);
   const [activeType, setActiveType] = useState("all");
@@ -232,10 +234,10 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
                         </div>
                         <p className="flex items-center gap-1 truncate text-[11px] text-white/50">
                           <MapPin className="h-3 w-3 shrink-0 text-primary" />
-                          <span>{venueLocation(venue) || "Location not recorded"}</span>
+                          <span>{venueLocation(venue) || webT("findOrAsk.locationNotRecorded")}</span>
                         </p>
                         <p className="truncate text-[10px] text-white/35">
-                          {venue.venue_type || "Venue"} · {venue.city || venue.country || "Location not recorded"}
+                          {venue.venue_type || webT("aftrhrs.venue")} · {venue.city || venue.country || webT("findOrAsk.locationNotRecorded")}
                         </p>
                       </div>
                     </button>
@@ -261,11 +263,11 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
             </div>
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
               {[
-                { id: "all", label: "All" },
-                { id: "restaurant", label: "Restaurants" },
+                { id: "all", label: webT("citySwitcher.all") },
+                { id: "restaurant", label: webT("web.restaurants") },
                 { id: "bar", label: "Bars" },
                 { id: "cafe", label: "Cafes" },
-                { id: "retail", label: "Retail" },
+                { id: "retail", label: webT("web.retail") },
               ].map((pill) => (
                 <button
                   key={pill.id}
@@ -304,7 +306,7 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
                     <div className="relative z-10 flex items-start justify-between p-2.5">
                       <span className="rounded-full border border-white/10 bg-black/60 px-2 py-0.5 text-[9px] font-bold text-white/70 backdrop-blur-md">
-                        {venue.venue_type || "Venue"}
+                        {venue.venue_type || webT("aftrhrs.venue")}
                       </span>
                       <span className="rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-white/65">
                         {venueLabel(venue)}
@@ -314,7 +316,7 @@ export const SmartVenuePicker: React.FC<SmartVenuePickerProps> = ({
                       <p className="truncate text-xs font-black text-white transition group-hover:text-primary">{venue.name}</p>
                       <p className="flex items-center gap-1 truncate text-[10px] text-white/60">
                         <MapPin className="h-2.5 w-2.5 shrink-0 text-primary" />
-                        <span>{venueLocation(venue) || "Location not recorded"}</span>
+                        <span>{venueLocation(venue) || webT("findOrAsk.locationNotRecorded")}</span>
                       </p>
                     </div>
                   </button>

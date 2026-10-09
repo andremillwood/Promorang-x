@@ -42,6 +42,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
   onVote,
   onAddOption,
 }) => {
+  const { t: webT } = useI18n();
   const navigate = useNavigate();
   const { t, formatNumber } = useI18n();
   const [options, setOptions] = useState<DiscoveryOption[]>(initialOptions);
@@ -115,7 +116,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4 border-y border-white/10 py-3 text-[10px] font-black uppercase tracking-[.13em] text-white/38">
-        <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{formatNumber(totalVotes)} voices</span>
+        <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{formatNumber(totalVotes)} {webT("web.voices")}</span>
         <span>{signalKind === "live_offer" ? "Something is open" : "People want this"}</span>
         <span className="ml-auto text-white/26">A strong want can invite a response. It does not create one.</span>
       </div>
@@ -163,7 +164,7 @@ export const DiscoveryWidget: React.FC<DiscoveryProps> = ({
       {showAddOption ? (
         <form onSubmit={handleAddOptionSubmit} className="mt-5 flex gap-2" onClick={(event) => event.stopPropagation()}>
           <input value={newOptionText} onChange={(event) => setNewOptionText(event.target.value)} placeholder={t("radar.nominatePlaceholder")} className="min-h-12 flex-1 rounded-2xl border border-white/12 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#ff5a1f]/60" />
-          <button type="submit" disabled={addingOption} className="pr-world-primary min-h-12 disabled:cursor-not-allowed disabled:opacity-50">{addingOption ? "Adding…" : "Add"}</button>
+          <button type="submit" disabled={addingOption} className="pr-world-primary min-h-12 disabled:cursor-not-allowed disabled:opacity-50">{addingOption ? "Adding…" : webT("web.add")}</button>
         </form>
       ) : null}
 

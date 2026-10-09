@@ -69,6 +69,7 @@ function asBenefit(perk: LivePerkLike, participatingPlace: string): PromoCardBen
 }
 
 export function LivePerkCard({ perk, intent = "claim" }: { perk: LivePerkLike; intent?: "claim" | "share" }) {
+  const { t: webT } = useI18n();
   const { t, formatDate } = useI18n();
   const href = livePerkHref(perk, intent);
   const benefit = asBenefit(perk, t("perk.participatingPlace"));
@@ -89,7 +90,7 @@ export function LivePerkCard({ perk, intent = "claim" }: { perk: LivePerkLike; i
               <p className="pr-world-kicker text-emerald-300">{issuer}</p>
               <p className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-white/34"><MapPin className="h-3.5 w-3.5" />{place}</p>
             </div>
-            <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] ${used ? "border-white/10 text-white/35" : "border-emerald-300/25 bg-emerald-300/[.06] text-emerald-200"}`}>{used ? "Used" : "Available"}</span>
+            <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] ${used ? "border-white/10 text-white/35" : "border-emerald-300/25 bg-emerald-300/[.06] text-emerald-200"}`}>{used ? webT("lens.merchant.activity") : webT("web.available")}</span>
           </div>
 
           <h4 className="mt-5 max-w-[92%] font-serif text-[2rem] font-bold leading-[.96] tracking-[-.045em] text-white transition group-hover:text-emerald-200">{headline}</h4>

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import {
     UserPlus,
@@ -54,6 +56,7 @@ const eventColors: Record<string, string> = {
 };
 
 export function ActivityFeed({ events, className }: ActivityFeedProps) {
+  const { t: webT } = useWebI18n();
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -66,7 +69,7 @@ export function ActivityFeed({ events, className }: ActivityFeedProps) {
         if (diffMins < 60) return `${diffMins}m`;
         if (diffHours < 24) return `${diffHours}h`;
         if (diffDays < 7) return `${diffDays}d`;
-        return date.toLocaleDateString();
+        return date.toLocaleDateString(currentUiLocale());
     };
 
     const getEventMessage = (event: ActivityEvent): string => {
@@ -99,8 +102,8 @@ export function ActivityFeed({ events, className }: ActivityFeedProps) {
         <div className={cn("", className)}>
             <div className="mb-4 flex items-center gap-2">
                 <Bell className="h-5 w-5 text-orange-400" />
-                <h3 className="text-lg font-bold text-white">Latest signals</h3>
-                <span className="text-xs text-white/35">Recorded feed entries</span>
+                <h3 className="text-lg font-bold text-white">{webT("web.latestSignals")}</h3>
+                <span className="text-xs text-white/35">{webT("web.recordedFeed")}</span>
             </div>
 
             <div className="space-y-1">

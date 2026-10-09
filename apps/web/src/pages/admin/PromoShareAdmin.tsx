@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -72,6 +74,7 @@ interface SimulationResult {
 }
 
 const PromoShareAdmin = () => {
+  const { t: webT } = useWebI18n();
   const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState('cycles');
   const [cycles, setCycles] = useState<Cycle[]>([]);
@@ -345,8 +348,8 @@ const PromoShareAdmin = () => {
           <TabsTrigger value="cycles">Cycles</TabsTrigger>
           <TabsTrigger value="simulation">Simulation</TabsTrigger>
           <TabsTrigger value="users">Qualified Users</TabsTrigger>
-          <TabsTrigger value="audit">Audit Log</TabsTrigger>
-          <TabsTrigger value="create">Create Cycle</TabsTrigger>
+          <TabsTrigger value="audit">{webT("web.auditLog")}</TabsTrigger>
+          <TabsTrigger value="create">{webT("web.createCycle")}</TabsTrigger>
         </TabsList>
 
         {/* CYCLES TAB */}
@@ -360,7 +363,7 @@ const PromoShareAdmin = () => {
                     <Badge className={getStatusColor(cycle.status)}>{cycle.status}</Badge>
                   </div>
                   <CardDescription>
-                    {new Date(cycle.start_at).toLocaleDateString()} - {new Date(cycle.end_at).toLocaleDateString()}
+                    {new Date(cycle.start_at).toLocaleDateString(currentUiLocale())} - {new Date(cycle.end_at).toLocaleDateString(currentUiLocale())}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -375,7 +378,7 @@ const PromoShareAdmin = () => {
                       className="flex-1"
                       onClick={() => setSelectedCycle(cycle)}
                     >
-                      Select
+                      {webT("how.promoterStep1Badge")}
                     </Button>
                     {cycle.status === 'active' && (
                       <Button
@@ -385,7 +388,7 @@ const PromoShareAdmin = () => {
                         disabled={loading}
                       >
                         <Play className="w-4 h-4 mr-1" />
-                        Draw
+                        {webT("web.draw")}
                       </Button>
                     )}
                   </div>
@@ -402,7 +405,7 @@ const PromoShareAdmin = () => {
                 <p className="text-muted-foreground mb-4">Create your first PromoShare cycle to get started</p>
                 <Button onClick={() => setActiveTab('create')}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Cycle
+                  {webT("web.createCycle")}
                 </Button>
               </CardContent>
             </Card>
@@ -494,7 +497,7 @@ const PromoShareAdmin = () => {
                                     <span className="text-muted-foreground">Top candidates: </span>
                                     {bucket.top_candidates.map((c, i) => (
                                       <span key={c.user_id} className="font-medium">
-                                        User {c.user_id.slice(0, 8)}... ({c.weight} weight)
+                                        {webT("profile.user")} {c.user_id.slice(0, 8)}... ({c.weight} weight)
                                         {i < bucket.top_candidates.length - 1 ? ', ' : ''}
                                       </span>
                                     ))}
@@ -532,7 +535,7 @@ const PromoShareAdmin = () => {
                 </div>
                 <Button onClick={fetchQualifiedUsers}>
                   <Users className="w-4 h-4 mr-2" />
-                  Refresh
+                  {webT("common.refresh")}
                 </Button>
               </div>
             </CardHeader>
@@ -549,7 +552,7 @@ const PromoShareAdmin = () => {
                           <span className="text-sm text-muted-foreground w-8">#{index + 1}</span>
                           <div>
                             <p className="font-medium">{user.users?.username || user.users?.email || user.user_id}</p>
-                            <p className="text-xs text-muted-foreground">{user.users?.user_tier || 'free'} tier</p>
+                            <p className="text-xs text-muted-foreground">{user.users?.user_tier || 'free'} {webT("web.tierLower")}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -583,12 +586,12 @@ const PromoShareAdmin = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Audit Log</CardTitle>
+                  <CardTitle>{webT("web.auditLog")}</CardTitle>
                   <CardDescription>Complete history of PromoShare operations</CardDescription>
                 </div>
                 <Button onClick={fetchAuditLog}>
                   <Activity className="w-4 h-4 mr-2" />
-                  Refresh
+                  {webT("common.refresh")}
                 </Button>
               </div>
             </CardHeader>
@@ -607,7 +610,7 @@ const PromoShareAdmin = () => {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium capitalize">{log.action_type.replace('_', ' ')}</p>
                           <p className="text-sm text-muted-foreground">
-                            by {log.actor_type} • {new Date(log.created_at).toLocaleString()}
+                            by {log.actor_type} • {new Date(log.created_at).toLocaleString(currentUiLocale())}
                           </p>
                           {log.payload && Object.keys(log.payload).length > 0 && (
                             <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
@@ -657,9 +660,9 @@ const PromoShareAdmin = () => {
                     value={newCycle.cycle_type}
                     onChange={(e) => setNewCycle({ ...newCycle, cycle_type: e.target.value })}
                   >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
+                    <option value="daily">{webT("editMoment.freqDaily")}</option>
+                    <option value="weekly">{webT("editMoment.freqWeekly")}</option>
+                    <option value="monthly">{webT("editMoment.freqMonthly")}</option>
                     <option value="grand">Grand</option>
                     <option value="campaign">Campaign-Specific</option>
                   </select>
@@ -771,7 +774,7 @@ const PromoShareAdmin = () => {
                 disabled={loading || !newCycle.cycle_name || !newCycle.start_at || !newCycle.end_at}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Create Cycle
+                {webT("web.createCycle")}
               </Button>
             </CardContent>
           </Card>

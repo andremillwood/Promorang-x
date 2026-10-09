@@ -1,8 +1,10 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BUSINESS_OUTCOMES, PROGRAMMES } from "@/lib/business-outcomes";
 
 export function BusinessOutcomeEntry({ role }: { role: "brand" | "merchant" }) {
+  const { t: webT } = useWebI18n();
   const visible = role === "merchant"
     ? BUSINESS_OUTCOMES.filter((item) => ["bring-people-in", "quiet-period", "move-this", "bring-back"].includes(item.id))
     : BUSINESS_OUTCOMES.filter((item) => ["launch", "try-it", "move-this", "learn-demand"].includes(item.id));
@@ -12,7 +14,7 @@ export function BusinessOutcomeEntry({ role }: { role: "brand" | "merchant" }) {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Start from the outcome</p>
-          <h2 className="mt-2 max-w-3xl text-2xl font-black sm:text-3xl">What do you need to make happen?</h2>
+          <h2 className="mt-2 max-w-3xl text-2xl font-black sm:text-3xl">{webT("commercial.what.do.you.need.to.make.happen.195")}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">Choose the business change. PROMORANG can shape the programme and then hand you the operating tools.</p>
         </div>
         <Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">Build a programme <Sparkles className="h-4 w-4" /></Link>

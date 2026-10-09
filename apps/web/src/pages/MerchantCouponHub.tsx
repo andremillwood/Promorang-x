@@ -1,9 +1,12 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sparkles, Calculator, CheckCircle2, ShieldCheck, Tag, ArrowRight, Zap, TrendingUp, QrCode, Plus } from "lucide-react";
 import { PostPerkModal } from "@/components/merchant/PostPerkModal";
 
 export default function MerchantCouponHub() {
+  const { t: webT } = useWebI18n();
   const [productPrice, setProductPrice] = useState(50);
   const [targetOrders, setTargetOrders] = useState(100);
   const [postPerkOpen, setPostPerkOpen] = useState(false);
@@ -98,7 +101,7 @@ export default function MerchantCouponHub() {
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 flex flex-col justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-white/50">Estimated Financial Outcomes</span>
-              <h3 className="mt-2 text-3xl font-black text-[#10B981]">${netRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })} Net Revenue</h3>
+              <h3 className="mt-2 text-3xl font-black text-[#10B981]">${netRevenue.toLocaleString(currentUiLocale(), { minimumFractionDigits: 2 })} Net Revenue</h3>
               <p className="mt-1 text-xs text-white/60">Estimated cash collected directly into your store after performance fees.</p>
 
               <div className="mt-8 space-y-4 border-t border-white/10 pt-6">
@@ -108,11 +111,11 @@ export default function MerchantCouponHub() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-white/70">Gross Order Sales</span>
-                  <span className="font-mono font-bold text-white">${grossRevenue.toLocaleString()} USD</span>
+                  <span className="font-mono font-bold text-white">${grossRevenue.toLocaleString(currentUiLocale())} USD</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-white/70">Promorang Performance Fee (10%)</span>
-                  <span className="font-mono font-bold text-white/60">-${platformFee.toLocaleString()} USD</span>
+                  <span className="font-mono font-bold text-white/60">-${platformFee.toLocaleString(currentUiLocale())} USD</span>
                 </div>
               </div>
             </div>
@@ -135,11 +138,11 @@ export default function MerchantCouponHub() {
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Issued</span>
+              <span className="text-xs text-white/60">{webT("offerStudio.statIssued")}</span>
               <p className="mt-1 text-2xl font-black text-white">500</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs text-white/60">Claimed</span>
+              <span className="text-xs text-white/60">{webT("people.claimed")}</span>
               <p className="mt-1 text-2xl font-black text-white">342</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">

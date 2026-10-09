@@ -35,6 +35,7 @@ export function ShareButton({
   size = "sm",
   className = "",
 }: ShareButtonProps) {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -150,7 +151,7 @@ export function ShareButton({
             <div>
               <p className="text-xs font-black text-amber-200">PromoShare Reward</p>
               <p className="text-[11px] text-white/70 leading-relaxed mt-0.5">
-                Earn <strong className="text-white">50 Gems ($0.50)</strong> for every friend who RSVPs + <strong className="text-white">10% commission</strong> on ticket passes.
+                {webT("common.earn")} <strong className="text-white">50 Gems ($0.50)</strong> for every friend who RSVPs + <strong className="text-white">10% commission</strong> on ticket passes.
               </p>
             </div>
           </div>
@@ -192,12 +193,12 @@ export function ShareButton({
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 mr-1.5" />
-                  Copied
+                  {webT("card.copied")}
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5 mr-1.5" />
-                  Copy Link
+                  {webT("shareButton.copyLink")}
                 </>
               )}
             </Button>

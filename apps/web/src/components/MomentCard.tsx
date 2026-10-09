@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Bookmark, MapPin, Calendar, Users, Clock, Flame, Sparkles, Repeat2 } from "lucide-react";
@@ -110,6 +111,7 @@ export function MomentCard({
   onSave,
   className
 }: MomentCardProps) {
+  const { t: webT } = useI18n();
   const { t, formatDate, formatNumber } = useI18n();
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(moment.is_saved || false);
@@ -143,7 +145,7 @@ export function MomentCard({
 
   const formatCardTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString(undefined, {
+    return date.toLocaleTimeString(currentUiLocale(), {
       hour: "numeric",
       minute: "2-digit",
     });
@@ -234,7 +236,7 @@ export function MomentCard({
               isSaved && "bg-primary text-primary-foreground hover:bg-primary"
             )}
             onClick={handleSave}
-            aria-label={isSaved ? "Remove saved moment" : "Save moment"}
+            aria-label={isSaved ? "Remove saved moment" : webT("event.save")}
           >
             <Bookmark className={cn("h-4 w-4", isSaved && "fill-current")} />
           </Button>
@@ -365,7 +367,7 @@ export function MomentCard({
           className="mt-4"
           steps={[
             { label: actionLabel },
-            { label: moment.proof_type || "Proof" },
+            { label: moment.proof_type || webT("promoPushLandingPage.step3Title") },
             { label: unlockLabel },
           ]}
         />

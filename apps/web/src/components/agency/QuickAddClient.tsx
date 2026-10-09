@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -46,6 +47,7 @@ export function QuickAddClient({
   onSuccess,
   trigger,
 }: QuickAddClientProps) {
+  const { t: webT } = useWebI18n();
   const { toast } = useToast();
   const { activeOrgId, refreshWorkspaceContext } = useAuth();
   const scopedOrganizationId = organizationId || activeOrgId;
@@ -130,7 +132,7 @@ export function QuickAddClient({
     } catch (error: unknown) {
       toast({
         title: "Relationship update failed",
-        description: error instanceof Error ? error.message : "Try again.",
+        description: error instanceof Error ? error.message : webT("web.tryAgainShort"),
         variant: "destructive",
       });
     }
@@ -244,14 +246,14 @@ export function QuickAddClient({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="brand">Brand</SelectItem>
+                      <SelectItem value="brand">{webT("lens.brand.workspace")}</SelectItem>
                       <SelectItem value="merchant">Venue / merchant</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="website" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    Website
+                    {webT("brandProfilePage.website")}
                   </Label>
                   <Input
                     id="website"
@@ -308,7 +310,7 @@ export function QuickAddClient({
 
           <DialogFooter className="gap-3 sm:gap-3">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-              Cancel
+              {webT("findOrAsk.cancel")}
             </Button>
             <Button
               type="submit"

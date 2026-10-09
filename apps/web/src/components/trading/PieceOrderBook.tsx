@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from 'react';
 import { Loader2, RotateCcw, ShoppingCart, Tag, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,6 +33,7 @@ type Position = {
 const money = (value: number) => `${Number(value || 0).toFixed(2)} Gems`;
 
 export function PieceOrderBook({ pieceType, assetId }: { pieceType: string; assetId: string }) {
+  const { t: webT } = useWebI18n();
   const { session, user } = useAuth();
   const { toast } = useToast();
   const [sellListings, setSellListings] = useState<Listing[]>([]);
@@ -152,19 +155,19 @@ export function PieceOrderBook({ pieceType, assetId }: { pieceType: string; asse
       <div className="grid gap-2 rounded-xl border bg-muted/30 p-3 text-xs sm:grid-cols-3">
         <div><p className="text-muted-foreground">Best ask</p><p className="font-bold">{bestAsk ? money(bestAsk) : 'No asks'}</p></div>
         <div><p className="text-muted-foreground">Best bid</p><p className="font-bold">{bestBid ? money(bestBid) : 'No bids'}</p></div>
-        <div><p className="text-muted-foreground">Owned</p><p className="font-bold">{Number(ownedPosition?.pieces_owned || 0).toLocaleString()} Pieces</p></div>
+        <div><p className="text-muted-foreground">Owned</p><p className="font-bold">{Number(ownedPosition?.pieces_owned || 0).toLocaleString(currentUiLocale())} {webT("growthHub.tilePiecesTitle")}</p></div>
       </div>
 
       <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="buy">Buy</TabsTrigger>
-        <TabsTrigger value="sell">Sell</TabsTrigger>
-        <TabsTrigger value="manage">Manage</TabsTrigger>
+        <TabsTrigger value="buy">{webT("web.buy")}</TabsTrigger>
+        <TabsTrigger value="sell">{webT("web.sell")}</TabsTrigger>
+        <TabsTrigger value="manage">{webT("offerStudio.tabManage")}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="buy" className="space-y-3">
         <div className="flex items-end gap-2">
           <div className="flex-1">
-            <Label htmlFor="piece-buy-quantity">Quantity</Label>
+            <Label htmlFor="piece-buy-quantity">{webT("release.13")}</Label>
             <Input id="piece-buy-quantity" type="number" min="0.01" step="0.01" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
           </div>
           <Button variant="outline" size="icon" onClick={() => void refresh()}>
@@ -177,11 +180,11 @@ export function PieceOrderBook({ pieceType, assetId }: { pieceType: string; asse
           <div key={x.id} className="flex items-center justify-between rounded-lg border p-3">
             <div>
               <b>{money(x.price_per_piece)}</b>
-              <p className="text-xs text-muted-foreground">{Number(x.quantity).toLocaleString()} available</p>
+              <p className="text-xs text-muted-foreground">{Number(x.quantity).toLocaleString(currentUiLocale())} {webT("web.availableLower")}</p>
             </div>
             <Button size="sm" disabled={!!busy || x.seller_id === user?.id} onClick={() => buy(x)}>
               {busy === `buy:${x.id}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-1 h-4 w-4" />}
-              {x.seller_id === user?.id ? 'Yours' : 'Buy'}
+              {x.seller_id === user?.id ? webT("give.yours") : webT("web.buy")}
             </Button>
           </div>
         ))}
@@ -189,11 +192,11 @@ export function PieceOrderBook({ pieceType, assetId }: { pieceType: string; asse
 
       <TabsContent value="sell" className="space-y-3">
         <div className="rounded-lg border bg-muted/30 p-3 text-sm">
-          You can list up to <b>{Number(ownedPosition?.pieces_owned || 0).toLocaleString()}</b> Pieces from this position.
+          You can list up to <b>{Number(ownedPosition?.pieces_owned || 0).toLocaleString(currentUiLocale())}</b> Pieces from this position.
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <Label htmlFor="piece-sell-quantity">Quantity</Label>
+            <Label htmlFor="piece-sell-quantity">{webT("release.13")}</Label>
             <Input id="piece-sell-quantity" type="number" min="0.01" step="0.01" value={sellQuantity} onChange={(e) => setSellQuantity(e.target.value)} />
           </div>
           <div>
@@ -214,11 +217,11 @@ export function PieceOrderBook({ pieceType, assetId }: { pieceType: string; asse
           <div key={x.id} className="flex items-center justify-between rounded-lg border p-3">
             <div>
               <div className="flex items-center gap-2"><b>{money(x.price_per_piece)}</b><Badge variant="secondary">{x.status}</Badge></div>
-              <p className="text-xs text-muted-foreground">{Number(x.quantity).toLocaleString()} listed</p>
+              <p className="text-xs text-muted-foreground">{Number(x.quantity).toLocaleString(currentUiLocale())} listed</p>
             </div>
             <Button size="sm" variant="outline" disabled={!!busy} onClick={() => cancel(x.id)}>
               {busy === `cancel:${x.id}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="mr-1 h-4 w-4" />}
-              Cancel
+              {webT("findOrAsk.cancel")}
             </Button>
           </div>
         ))}

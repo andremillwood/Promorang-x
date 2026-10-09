@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ArrowRight, CheckCircle2, Repeat2, ScanSearch, Target } from "lucide-react";
@@ -35,6 +37,7 @@ export function ProofOutcomeRail({
   ctaLabel,
   guidanceId,
 }: ProofOutcomeRailProps) {
+  const { t: webT } = useWebI18n();
   if (isLoading) {
     return (
       <Card className="border-primary/15 bg-gradient-to-br from-primary/5 via-background to-amber-500/5">
@@ -63,24 +66,24 @@ export function ProofOutcomeRail({
   }
 
   const chainItems = [
-    { label: "Action", value: data.chain.action, icon: Target },
-    { label: "Verified", value: data.chain.verification, icon: ScanSearch },
-    { label: "Outcome", value: data.chain.outcome, icon: CheckCircle2 },
+    { label: webT("forBrands.reason1Step3Badge"), value: data.chain.action, icon: Target },
+    { label: webT("kyc.badgeVerified"), value: data.chain.verification, icon: ScanSearch },
+    { label: webT("createProposal.step1Short"), value: data.chain.outcome, icon: CheckCircle2 },
     { label: "Repeat", value: data.chain.repeatability, icon: Repeat2 },
   ];
 
   const metrics = [
-    { label: "Check-ins", value: data.metrics.check_ins },
+    { label: webT("momentsAppPage.checkIns"), value: data.metrics.check_ins },
     { label: "Verified proofs", value: data.metrics.verified_proofs },
     { label: "Proof completion", value: `${data.metrics.proof_completion_rate}%` },
     { label: "Content approval", value: `${data.metrics.content_approval_rate}%` },
   ];
 
   if (typeof data.spend_usd === "number") {
-    metrics.push({ label: "Spend", value: `$${data.spend_usd.toLocaleString()}` });
+    metrics.push({ label: webT("web.spend"), value: `$${data.spend_usd.toLocaleString(currentUiLocale())}` });
   }
   if (typeof data.spend_per_verified_proof === "number") {
-    metrics.push({ label: "Spend / verified proof", value: `$${data.spend_per_verified_proof.toLocaleString()}` });
+    metrics.push({ label: "Spend / verified proof", value: `$${data.spend_per_verified_proof.toLocaleString(currentUiLocale())}` });
   }
 
   const rail = (
@@ -144,15 +147,15 @@ export function ProofOutcomeRail({
                         {[formatDate(moment.starts_at), moment.venue_name].filter(Boolean).join(" • ") || "Tracked activity unit"}
                       </p>
                     </div>
-                    <Badge variant="outline">{moment.verified_proofs} verified</Badge>
+                    <Badge variant="outline">{moment.verified_proofs} {webT("web.verifiedLower")}</Badge>
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground">Joins</p>
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("promoPushCreatorPage.thJoins")}</p>
                       <p className="mt-1 font-semibold">{moment.joins}</p>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground">Rewards</p>
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("explorePage.guideRewardsTitle")}</p>
                       <p className="mt-1 font-semibold">{moment.reward_units}</p>
                     </div>
                   </div>

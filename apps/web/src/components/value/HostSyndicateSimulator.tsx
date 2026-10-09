@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -86,7 +87,7 @@ export const HostSyndicateSimulator: React.FC = () => {
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold text-white/90">Upfront Production Budget (Venue, Sound, Talent)</span>
                 <span className="font-mono text-cyan-400 font-bold text-sm">
-                  ${productionCost.toLocaleString()} USD
+                  ${productionCost.toLocaleString(currentUiLocale())} USD
                 </span>
               </div>
               <Slider
@@ -196,7 +197,7 @@ export const HostSyndicateSimulator: React.FC = () => {
                 <span className="text-base font-semibold text-white/50 ml-2">Co-Producer Backers</span>
               </div>
               <div className="text-xs text-cyan-300 font-mono mt-1">
-                at ${coProducerTierPrice}/pass = ${productionCost.toLocaleString()} in modeled commitments
+                at ${coProducerTierPrice}/pass = ${productionCost.toLocaleString(currentUiLocale())} in modeled commitments
               </div>
             </div>
 
@@ -208,12 +209,12 @@ export const HostSyndicateSimulator: React.FC = () => {
               </div>
               <div className="flex justify-between text-white/70">
                 <span>Projected GA Box Office Revenue:</span>
-                <span className="font-mono font-bold text-white">${syndicateMetrics.projectedGaRevenue.toLocaleString()}</span>
+                <span className="font-mono font-bold text-white">${syndicateMetrics.projectedGaRevenue.toLocaleString(currentUiLocale())}</span>
               </div>
               <div className="flex justify-between text-white/70">
                 <span>Projected Net Producer Profit:</span>
                 <span className="font-mono font-bold text-emerald-400 text-sm">
-                  +${syndicateMetrics.netProducerProfit.toLocaleString()} USD
+                  +${syndicateMetrics.netProducerProfit.toLocaleString(currentUiLocale())} USD
                 </span>
               </div>
             </div>

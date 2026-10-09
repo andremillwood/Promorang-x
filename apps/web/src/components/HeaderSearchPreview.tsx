@@ -48,6 +48,7 @@ function Highlight({ value, query }: { value: string; query: string }) {
 }
 
 export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ className = "" }) => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -133,19 +134,19 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
   let flatIndex = -1;
   return (
     <>
-      <button onClick={() => setIsOpen(true)} type="button" aria-label="Search Promorang" className={cn("group flex w-full min-w-0 items-center justify-between gap-3 rounded-full border border-white/10 bg-white/[0.045] px-3.5 py-2 text-xs text-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] transition hover:border-orange-400/35 hover:bg-white/[0.075] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/70", className)}>
+      <button onClick={() => setIsOpen(true)} type="button" aria-label={webT("findOrAsk.discoverSearchLabel")} className={cn("group flex w-full min-w-0 items-center justify-between gap-3 rounded-full border border-white/10 bg-white/[0.045] px-3.5 py-2 text-xs text-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] transition hover:border-orange-400/35 hover:bg-white/[0.075] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/70", className)}>
         <span className="flex min-w-0 items-center gap-2.5"><Search className="h-3.5 w-3.5 shrink-0 text-orange-400 transition group-hover:scale-110" /><span className="truncate text-white/55 transition group-hover:text-white/80">{t("headerSearch.triggerPlaceholder")}</span></span>
         <kbd className="hidden h-5 shrink-0 items-center rounded-md border border-white/10 bg-black/20 px-1.5 font-mono text-[9px] font-semibold text-white/40 md:inline-flex">⌘K</kbd>
       </button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="search-command overflow-hidden border-white/12 bg-[#0b0b0a] p-0 text-white shadow-[0_32px_120px_rgba(0,0,0,.72)] sm:max-w-3xl sm:rounded-[1.75rem] [&>button]:right-4 [&>button]:top-4 [&>button]:z-20 [&>button]:text-white/45">
-          <DialogTitle className="sr-only">Search Promorang</DialogTitle>
+          <DialogTitle className="sr-only">{webT("findOrAsk.discoverSearchLabel")}</DialogTitle>
           <div className="h-1 bg-[linear-gradient(90deg,#ff5a00,#ff9a3d_45%,transparent)]" />
           <div className="relative flex items-center gap-3 border-b border-white/10 px-5 py-4 sm:px-6 sm:py-5">
             {searching ? <Loader2 className="h-5 w-5 shrink-0 animate-spin text-orange-400" /> : <Search className="h-5 w-5 shrink-0 text-orange-400" />}
             <input ref={inputRef} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} onKeyDown={handleInputKeyDown} placeholder="Search moments, places, offers, people…" role="combobox" aria-expanded={visibleResults.length > 0} aria-controls="global-search-results" aria-activedescendant={visibleResults.length ? `global-result-${activeIndex}` : undefined} aria-autocomplete="list" className="min-w-0 flex-1 bg-transparent text-base font-semibold tracking-[-0.01em] text-white outline-none placeholder:text-white/30 sm:text-lg" />
-            {searchTerm ? <button type="button" onClick={() => setSearchTerm("")} aria-label="Clear search" className="grid h-8 w-8 place-items-center rounded-full text-white/35 transition hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
+            {searchTerm ? <button type="button" onClick={() => setSearchTerm("")} aria-label={webT("publicDiscover.clearSearch")} className="grid h-8 w-8 place-items-center rounded-full text-white/35 transition hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
           </div>
 
           <div id="global-search-results" role="listbox" className="max-h-[min(68vh,590px)] overflow-y-auto overscroll-contain">
@@ -166,7 +167,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
                     const itemIndex = flatIndex;
                     const Icon = typeConfig[item.result_type].icon;
                     const active = itemIndex === activeIndex;
-                    return <button id={`global-result-${itemIndex}`} key={`${item.result_type}-${item.id}`} type="button" role="option" aria-selected={active} onMouseEnter={() => setActiveIndex(itemIndex)} onClick={() => openResult(item)} className={cn("group grid w-full grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border px-2.5 py-2.5 text-left transition", active ? "border-orange-400/25 bg-[linear-gradient(90deg,rgba(249,115,22,.13),rgba(255,255,255,.035))]" : "border-transparent hover:bg-white/[0.045]")}><span className={cn("grid h-11 w-11 place-items-center overflow-hidden rounded-xl", typeConfig[item.result_type].tint)}>{item.image_url ? <img src={item.image_url} alt="" className="h-full w-full object-cover" /> : <Icon className="h-4 w-4" />}</span><span className="min-w-0"><span className="block truncate text-sm font-bold text-white"><Highlight value={item.title} query={debouncedTerm} /></span><span className="mt-0.5 block truncate text-xs text-white/38">{item.subtitle || item.description || config.label}</span></span><span className={cn("flex items-center gap-1.5 pr-2 text-[10px] font-bold text-white/25 transition", active && "text-orange-300")}><span className="hidden sm:inline">Open</span><CornerDownLeft className="h-3.5 w-3.5" /></span></button>;
+                    return <button id={`global-result-${itemIndex}`} key={`${item.result_type}-${item.id}`} type="button" role="option" aria-selected={active} onMouseEnter={() => setActiveIndex(itemIndex)} onClick={() => openResult(item)} className={cn("group grid w-full grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border px-2.5 py-2.5 text-left transition", active ? "border-orange-400/25 bg-[linear-gradient(90deg,rgba(249,115,22,.13),rgba(255,255,255,.035))]" : "border-transparent hover:bg-white/[0.045]")}><span className={cn("grid h-11 w-11 place-items-center overflow-hidden rounded-xl", typeConfig[item.result_type].tint)}>{item.image_url ? <img src={item.image_url} alt="" className="h-full w-full object-cover" /> : <Icon className="h-4 w-4" />}</span><span className="min-w-0"><span className="block truncate text-sm font-bold text-white"><Highlight value={item.title} query={debouncedTerm} /></span><span className="mt-0.5 block truncate text-xs text-white/38">{item.subtitle || item.description || config.label}</span></span><span className={cn("flex items-center gap-1.5 pr-2 text-[10px] font-bold text-white/25 transition", active && "text-orange-300")}><span className="hidden sm:inline">{webT("auth.open")}</span><CornerDownLeft className="h-3.5 w-3.5" /></span></button>;
                   })}</div></section>;
                 })}
               </div>
@@ -174,7 +175,7 @@ export const HeaderSearchPreview: React.FC<{ className?: string }> = ({ classNam
               <div className="px-6 py-14 text-center" aria-live="polite"><div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.035]"><Compass className="h-5 w-5 text-white/35" /></div><h3 className="mt-4 text-base font-black">No exact match yet</h3><p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/40">Search the full discovery hub for <span className="font-semibold text-white/65">“{searchTerm.trim()}”</span>, or record what you want the city to answer.</p><button type="button" onClick={openFullSearch} className="mt-5 rounded-full bg-orange-500 px-5 py-2.5 text-xs font-black text-black transition hover:bg-orange-400">Continue in full search <ArrowRight className="ml-1.5 inline h-3.5 w-3.5" /></button></div>
             )}
           </div>
-          <footer className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[0.025] px-5 py-3 text-[10px] text-white/30 sm:px-6"><span className="hidden items-center gap-3 sm:flex"><span><kbd className="font-mono text-white/50">↑↓</kbd> navigate</span><span><kbd className="font-mono text-white/50">↵</kbd> open</span><span><kbd className="font-mono text-white/50">esc</kbd> close</span></span><button type="button" onClick={openFullSearch} className="ml-auto flex items-center gap-2 font-black uppercase tracking-[.14em] text-white/55 transition hover:text-orange-300">All results <ArrowRight className="h-3.5 w-3.5" /></button></footer>
+          <footer className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[0.025] px-5 py-3 text-[10px] text-white/30 sm:px-6"><span className="hidden items-center gap-3 sm:flex"><span><kbd className="font-mono text-white/50">↑↓</kbd> navigate</span><span><kbd className="font-mono text-white/50">↵</kbd> {webT("support.statusOpen")}</span><span><kbd className="font-mono text-white/50">esc</kbd> close</span></span><button type="button" onClick={openFullSearch} className="ml-auto flex items-center gap-2 font-black uppercase tracking-[.14em] text-white/55 transition hover:text-orange-300">{webT("publicDiscover.allResults")} <ArrowRight className="h-3.5 w-3.5" /></button></footer>
         </DialogContent>
       </Dialog>
     </>

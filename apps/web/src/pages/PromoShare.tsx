@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import SEO from '@/components/SEO';
@@ -127,6 +128,7 @@ interface FeaturedPoolPlacement {
 }
 
 const PromoShare = () => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { user, session, activeRole } = useAuth();
   const [data, setData] = useState<PromoShareData | null>(null);
@@ -276,7 +278,7 @@ const PromoShare = () => {
           title={VALUE_INSTRUMENTS["promoshare-tickets"].job}
           body={VALUE_STORY.namedDrawPays}
           meta={['perk draws pay Keys', 'Save & Win pays Gems', 'not a guarantee']}
-          primary={user ? undefined : { label: 'Sign in', href: '/auth' }}
+          primary={user ? undefined : { label: webT("publicNav.signIn"), href: '/auth' }}
           secondary={{ label: 'How tickets work', href: '/economy/promoshare' }}
         />
         <div className="mt-6 max-w-2xl">
@@ -303,7 +305,7 @@ const PromoShare = () => {
   const activeSponsorPools = sponsorPools.filter((pool) => pool.status === 'active');
   const recentReceiptItems = (data.recent_entries || []).slice(0, 4).map((entry) => ({
     label: entry.source_action?.replaceAll('_', ' ') || entry.source_type,
-    detail: `${entry.cycles?.cycle_name || entry.cycles?.cycle_type || 'PromoShare'} · ${new Date(entry.created_at).toLocaleDateString()}`,
+    detail: `${entry.cycles?.cycle_name || entry.cycles?.cycle_type || 'PromoShare'} · ${new Date(entry.created_at).toLocaleDateString(currentUiLocale())}`,
     value: `+${entry.entry_count} entries`,
   }));
 
@@ -374,7 +376,7 @@ const PromoShare = () => {
                 </GuidanceDisclosure>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg bg-muted p-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Active Pools</p>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">{webT("tradingMarketplace.activePools")}</p>
                     <p className="mt-1 text-2xl font-bold">{activeSponsorPools.length}</p>
                   </div>
                   <div className="rounded-lg bg-muted p-3">
@@ -432,7 +434,7 @@ const PromoShare = () => {
                 </GuidanceDisclosure>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="rounded-lg bg-muted p-3">
-                    <p className="text-sm font-medium">Join Moments</p>
+                    <p className="text-sm font-medium">{webT("web.joinMomentsTitle")}</p>
                     <p className="mt-1 text-xs text-muted-foreground">First-time joins now count into qualification.</p>
                   </div>
                   <div className="rounded-lg bg-muted p-3">
@@ -446,10 +448,10 @@ const PromoShare = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm">
-                    <Link to="/moments">Browse Moments</Link>
+                    <Link to="/moments">{webT("momentRecord.browseMoments")}</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <Link to="/create/moment">Create Moment</Link>
+                    <Link to="/create/moment">{webT("findOrAsk.route.createMoment")}</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -560,7 +562,7 @@ const PromoShare = () => {
                   <div className="flex-1">
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Your Weight Score</span>
-                      <span className="text-sm text-muted-foreground">{primaryCycle.weight} points</span>
+                      <span className="text-sm text-muted-foreground">{primaryCycle.weight} {webT("drops.points")}</span>
                     </div>
                     <Progress value={Math.min((primaryCycle.weight / 50) * 100, 100)} className="h-3" />
                   </div>
@@ -582,7 +584,7 @@ const PromoShare = () => {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Verified Actions</p>
+                          <p className="text-sm font-medium">{webT("promoPushCreatorPage.statVerifiedActions")}</p>
                           <p className="text-xs text-muted-foreground">
                             {primaryCycle.progress_to_qualify?.moves?.current || 0} / {primaryCycle.progress_to_qualify?.moves?.required || 3}
                           </p>
@@ -600,7 +602,7 @@ const PromoShare = () => {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Join Moments</p>
+                          <p className="text-sm font-medium">{webT("web.joinMomentsTitle")}</p>
                           <p className="text-xs text-muted-foreground">
                             {primaryCycle.progress_to_qualify?.moments?.current || 0} / {primaryCycle.progress_to_qualify?.moments?.required || 1}
                           </p>
@@ -665,10 +667,10 @@ const PromoShare = () => {
               <CardHeader>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <CardTitle className="capitalize">{draw.cycle_type} Draw</CardTitle>
+                    <CardTitle className="capitalize">{draw.cycle_type} {webT("web.draw")}</CardTitle>
                     <CardDescription>{formatTimeRemaining(draw.end_at)}</CardDescription>
                   </div>
-                  <Badge variant="secondary">{draw.userTickets} entries</Badge>
+                  <Badge variant="secondary">{draw.userTickets} {webT("drops.entries")}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
@@ -676,12 +678,12 @@ const PromoShare = () => {
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-muted-foreground mb-1">Jackpot</p>
-                      <p className="text-2xl font-bold text-primary">{draw.jackpot_amount.toLocaleString()} Gems</p>
+                      <p className="text-2xl font-bold text-primary">{draw.jackpot_amount.toLocaleString(currentUiLocale())} {webT("wallet.gemsLabel")}</p>
                     </div>
                     <Separator orientation="vertical" className="hidden h-12 sm:block" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-muted-foreground mb-1">Total Entries</p>
-                      <p className="text-2xl font-bold">{draw.totalTickets.toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground mb-1">{webT("promoshare.totalEntries")}</p>
+                      <p className="text-2xl font-bold">{draw.totalTickets.toLocaleString(currentUiLocale())}</p>
                     </div>
                     <Separator orientation="vertical" className="hidden h-12 sm:block" />
                     <div className="min-w-0 flex-1">
@@ -756,7 +758,7 @@ const PromoShare = () => {
                         <div className="min-w-0">
                           <p className="font-medium capitalize">{entry.source_action || entry.source_type}</p>
                           <p className="text-xs text-muted-foreground">
-                            {entry.cycles?.cycle_name || entry.cycles?.cycle_type || 'PromoShare'}
+                            {entry.cycles?.cycle_name || entry.cycles?.cycle_type || webT("economy.navPromoShare")}
                           </p>
                         </div>
                       </div>
@@ -765,7 +767,7 @@ const PromoShare = () => {
                           +{entry.weight_value} weight
                         </Badge>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(entry.created_at).toLocaleDateString()}
+                          {new Date(entry.created_at).toLocaleDateString(currentUiLocale())}
                         </p>
                       </div>
                     </div>
@@ -832,7 +834,7 @@ const PromoShare = () => {
                             {win.cycles?.cycle_name || win.cycles?.cycle_type} • {win.selection_bucket}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(win.created_at).toLocaleDateString()}
+                            {new Date(win.created_at).toLocaleDateString(currentUiLocale())}
                           </p>
                         </div>
                       </div>

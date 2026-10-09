@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Loader2, MapPin, ShieldCheck, XCircle } from "lucide-react";
@@ -34,6 +35,7 @@ function displayValue(value: ReviewItem["proposed_value"]) {
 }
 
 export function AdminEnrichmentReviewTab() {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const queryClient = useQueryClient();
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -91,11 +93,11 @@ export function AdminEnrichmentReviewTab() {
             <div className="border-b border-border bg-muted/30 p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <div className="flex flex-wrap items-center gap-2"><Badge>{item.field_key.replace(/_/g, " ")}</Badge><span className="text-xs text-muted-foreground">Submitted {new Date(item.submitted_at).toLocaleString()}</span></div>
+                  <div className="flex flex-wrap items-center gap-2"><Badge>{item.field_key.replace(/_/g, " ")}</Badge><span className="text-xs text-muted-foreground">{webT("kyc.submittedLabel")} {new Date(item.submitted_at).toLocaleString(currentUiLocale())}</span></div>
                   <h3 className="mt-3 text-2xl font-bold">{item.title}</h3>
                   <Link to={`/venues/${item.venue_slug}`} className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"><MapPin className="h-3.5 w-3.5" />{item.venue_name} · {item.city}</Link>
                 </div>
-                <div className="rounded-2xl bg-amber-500/10 px-4 py-3 text-right"><p className="text-xs font-bold uppercase tracking-wider text-amber-600">Approval reward</p><p className="text-2xl font-black text-amber-600">{item.reward_points} pts</p></div>
+                <div className="rounded-2xl bg-amber-500/10 px-4 py-3 text-right"><p className="text-xs font-bold uppercase tracking-wider text-amber-600">Approval reward</p><p className="text-2xl font-black text-amber-600">{item.reward_points} {webT("web.pts")}</p></div>
               </div>
             </div>
             <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -107,7 +109,7 @@ export function AdminEnrichmentReviewTab() {
                 <p className="mt-5 text-xs text-muted-foreground">Contributor: {item.contributor_name || item.contributor_username || item.contributor_id}</p>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Evidence</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{webT("commercial.evidence.78")}</p>
                 <div className="mt-2 space-y-2">
                   {item.proof?.length ? item.proof.map((proof, index) => proof.url ? (
                     <a key={`${proof.url}-${index}`} href={proof.url} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-xl border border-border p-3 text-sm font-semibold hover:bg-muted"><span>Open evidence {index + 1}</span><ExternalLink className="h-4 w-4" /></a>

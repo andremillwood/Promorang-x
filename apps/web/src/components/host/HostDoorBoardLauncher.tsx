@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, CalendarDays, MapPin, Radio, TicketCheck } from "lucide-react";
 import { useHostedMoments } from "@/hooks/useMoments";
@@ -17,6 +18,7 @@ function formatMomentTime(value?: string | null) {
 }
 
 export default function HostDoorBoardLauncher() {
+  const { t: webT } = useWebI18n();
   const { data: moments = [], isLoading, isError } = useHostedMoments();
   const ordered = [...moments].sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
   const now = Date.now();
@@ -54,7 +56,7 @@ export default function HostDoorBoardLauncher() {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">No active door</p>
             <h3 className="mt-2 text-2xl font-black text-white">Choose or create a Moment before opening arrivals.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">The Door Board is attached to a real hosted Moment. PROMORANG does not manufacture a live room when no Moment is available.</p>
-            <Button asChild className="mt-5 rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300"><Link to="/create/moment">Create a Moment</Link></Button>
+            <Button asChild className="mt-5 rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300"><Link to="/create/moment">{webT("how.creatorStep1Cta")}</Link></Button>
           </div>
         </div>
       </section>
@@ -69,7 +71,7 @@ export default function HostDoorBoardLauncher() {
           <h2 className="mt-2 text-2xl font-black text-white">Open the real Door Board.</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">Select the Moment you are operating. RSVP demand stays separate from arrivals, and check-ins are recorded only inside that Moment's Door Board.</p>
         </div>
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-white/50"><Radio className="h-3.5 w-3.5 text-amber-300" /> {relevant.length} operational {relevant.length === 1 ? "Moment" : "Moments"}</span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-white/50"><Radio className="h-3.5 w-3.5 text-amber-300" /> {relevant.length} operational {relevant.length === 1 ? webT("promoShare.typeMoment") : webT("findOrAsk.moments")}</span>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
@@ -78,12 +80,12 @@ export default function HostDoorBoardLauncher() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.13em] text-amber-300">{moment.is_active ? "Active" : "Scheduled"}</span>
+                  <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.13em] text-amber-300">{moment.is_active ? webT("commercial.active") : "Scheduled"}</span>
                   <span className="text-[10px] text-white/35">{formatMomentTime(moment.starts_at)}</span>
                 </div>
                 <h3 className="mt-3 text-xl font-black tracking-[-0.03em]">{moment.title}</h3>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/50">
-                  <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-amber-300" />{moment.venue_name || moment.location || "Location pending"}</span>
+                  <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-amber-300" />{moment.venue_name || moment.location || webT("venueProfile.locationPending")}</span>
                   <span className="inline-flex items-center gap-1.5"><TicketCheck className="h-3.5 w-3.5 text-amber-300" />Arrival records live here</span>
                 </div>
               </div>

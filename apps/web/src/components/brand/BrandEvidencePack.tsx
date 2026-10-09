@@ -1,8 +1,10 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { FileCheck2, Scale } from "lucide-react";
 import { O2OAnalyticsPanel } from "@/components/analytics/O2OAnalyticsPanel";
 import BrandIntelligenceConsole from "@/components/brand/BrandIntelligenceConsole";
 
 export default function BrandEvidencePack() {
+  const { t: webT } = useWebI18n();
   return (
     <div className="space-y-6">
       <section className="rounded-3xl border border-primary/20 bg-primary/5 p-5 sm:p-6">
@@ -17,7 +19,7 @@ export default function BrandEvidencePack() {
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-[#0e1015] p-4 sm:p-6">
-        <div className="mb-5 flex items-center gap-2 text-sm font-black text-white"><FileCheck2 className="h-4 w-4 text-primary" />Evidence</div>
+        <div className="mb-5 flex items-center gap-2 text-sm font-black text-white"><FileCheck2 className="h-4 w-4 text-primary" />{webT("commercial.evidence.78")}</div>
         <O2OAnalyticsPanel audience="brand" />
       </section>
 

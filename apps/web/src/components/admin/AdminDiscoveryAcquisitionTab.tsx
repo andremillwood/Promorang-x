@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BarChart3, ExternalLink, Loader2, Plus, RefreshCw } from "lucide-react";
@@ -48,6 +49,7 @@ const emptyForm = () => ({
 });
 
 export function AdminDiscoveryAcquisitionTab() {
+  const { t: webT } = useWebI18n();
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -184,7 +186,7 @@ export function AdminDiscoveryAcquisitionTab() {
             <p className="text-sm text-muted-foreground">/{analytics.discovery?.slug}</p>
           </div>
           <Button variant="outline" onClick={() => setMode("list")}>
-            Back
+            {webT("common.back")}
           </Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -240,7 +242,7 @@ export function AdminDiscoveryAcquisitionTab() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{form.id ? "Edit Discovery" : "New Discovery"}</h2>
           <Button variant="outline" onClick={() => { setMode("list"); setForm(emptyForm()); }}>
-            Cancel
+            {webT("findOrAsk.cancel")}
           </Button>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
@@ -255,7 +257,7 @@ export function AdminDiscoveryAcquisitionTab() {
               <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="final-song" />
             </div>
             <div>
-              <Label>Status</Label>
+              <Label>{webT("kyc.statusLabel")}</Label>
               <select
                 className="w-full h-10 rounded-md border px-3 text-sm"
                 value={form.status}
@@ -272,7 +274,7 @@ export function AdminDiscoveryAcquisitionTab() {
             <Input value={form.eyebrow} onChange={(e) => setForm({ ...form, eyebrow: e.target.value })} />
           </div>
           <div>
-            <Label>Description</Label>
+            <Label>{webT("offerStudio.descLabel")}</Label>
             <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} />
           </div>
           <div>
@@ -281,7 +283,7 @@ export function AdminDiscoveryAcquisitionTab() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Type</Label>
+              <Label>{webT("wallet.type")}</Label>
               <select
                 className="w-full h-10 rounded-md border px-3 text-sm"
                 value={form.discoveryType}
@@ -360,7 +362,7 @@ export function AdminDiscoveryAcquisitionTab() {
                 disabled={form.choices.length >= 8}
                 onClick={() => setForm({ ...form, choices: [...form.choices, { label: "", imageUrl: "" }] })}
               >
-                <Plus className="h-3.5 w-3.5 mr-1" /> Add
+                <Plus className="h-3.5 w-3.5 mr-1" /> {webT("web.add")}
               </Button>
             </div>
             {form.choices.map((choice, idx) => (
@@ -399,7 +401,7 @@ export function AdminDiscoveryAcquisitionTab() {
                   disabled={form.choices.length <= 2}
                   onClick={() => setForm({ ...form, choices: form.choices.filter((_, i) => i !== idx) })}
                 >
-                  Remove
+                  {webT("release.14")}
                 </Button>
               </div>
             ))}
@@ -424,7 +426,7 @@ export function AdminDiscoveryAcquisitionTab() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={refresh}>
-            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+            <RefreshCw className="h-3.5 w-3.5 mr-1" /> {webT("common.refresh")}
           </Button>
           <Button
             size="sm"
@@ -433,7 +435,7 @@ export function AdminDiscoveryAcquisitionTab() {
               setMode("edit");
             }}
           >
-            <Plus className="h-3.5 w-3.5 mr-1" /> New
+            <Plus className="h-3.5 w-3.5 mr-1" /> {webT("hostCard.new")}
           </Button>
         </div>
       </div>
@@ -465,14 +467,14 @@ export function AdminDiscoveryAcquisitionTab() {
               <div className="flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="outline">
                   <Link to={`/d/${row.slug}`} target="_blank">
-                    <ExternalLink className="h-3.5 w-3.5 mr-1" /> Open
+                    <ExternalLink className="h-3.5 w-3.5 mr-1" /> {webT("auth.open")}
                   </Link>
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => openAnalytics(row.id)}>
-                  <BarChart3 className="h-3.5 w-3.5 mr-1" /> Analytics
+                  <BarChart3 className="h-3.5 w-3.5 mr-1" /> {webT("growthHub.tileAnalyticsTitle")}
                 </Button>
                 <Button size="sm" onClick={() => openEdit(row.id)}>
-                  Edit
+                  {webT("serviceCatalogPage.edit")}
                 </Button>
               </div>
               <p className="text-[11px] text-muted-foreground sm:hidden">

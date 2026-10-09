@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { FormEvent, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -22,6 +23,7 @@ function signalState(votesRemaining: number, closeness: "unlocking" | "warming" 
 }
 
 export function ExploreRewards() {
+  const { t: webT } = useWebI18n();
   const { city, country } = useMarket();
   const { inbox, recordAsk, isLoading } = useDiscoveryDemand(
     city.name,
@@ -95,7 +97,7 @@ export function ExploreRewards() {
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">Start with what people are asking for, then see the offers, perks and Moments that are actually live. Want something missing? Tell PROMORANG.</p>
           </div>
           <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">How it works</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{webT("compression.howWorks")}</p>
             <p className="mt-3 font-serif text-2xl font-bold">Want it → someone responds → people act.</p>
             <p className="mt-2 text-xs leading-5 text-white/45">A popular ask can get attention, but something only appears here when someone actually puts it up.</p>
           </div>
@@ -119,7 +121,7 @@ export function ExploreRewards() {
                 />
               </div>
               <button type="submit" disabled={!ask.trim() || submitting} className="min-h-12 rounded-[1rem] bg-primary px-5 text-xs font-black uppercase tracking-[0.12em] text-black disabled:opacity-40">
-                {submitting ? "Saving…" : "Keep looking for this"}
+                {submitting ? webT("funnel.saving") : "Keep looking for this"}
               </button>
             </div>
             {result ? (
@@ -135,13 +137,13 @@ export function ExploreRewards() {
         <section className="py-14" id="wanted">
           <div className="mb-7 flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">What people want</p>
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">{webT("publicNav.wanted")}</p>
               <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What people are asking for.</h2>
             </div>
             <p className="max-w-md text-xs leading-5 text-white/40">Votes show interest. They are not a reservation or purchase.</p>
           </div>
 
-          {isLoading ? <p className="text-sm text-white/40">Loading what people want…</p> : liveSignals.length ? (
+          {isLoading ? <p className="text-sm text-white/40">{webT("publicDiscover.loadingWants")}</p> : liveSignals.length ? (
             <div className="grid gap-5 lg:grid-cols-2">
               {liveSignals.map((question) => {
                 const href = discoverPathHref(question.poll.question);
@@ -176,7 +178,7 @@ export function ExploreRewards() {
               <Radio className="h-6 w-6 text-primary" />
               <h3 className="mt-4 font-serif text-2xl font-bold">No one has asked for anything here yet.</h3>
               <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Be first to tell PROMORANG what you’re looking for, or explore what’s already happening.</p>
-              <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">Explore Discoveries <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/discover" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary">{webT("about.explore")} <ArrowRight className="h-4 w-4" /></Link>
             </div>
           )}
         </section>
@@ -190,7 +192,7 @@ export function ExploreRewards() {
             <p className="text-xs leading-5 text-white/40">These are live offers and perks. Open one to see the terms before you claim it.</p>
           </div>
 
-          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Offers couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : offers.length ? (
+          {offersQuery.isLoading ? <p className="text-sm text-white/40">Loading offers…</p> : offersQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Gift className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Offers couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">{webT("release.58")}</p></div> : offers.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {offers.map((offer) => (
                 <article key={offer.id} className="flex min-h-[250px] flex-col border border-white/10 bg-white/[0.025] p-5">
@@ -211,7 +213,7 @@ export function ExploreRewards() {
           ) : (
             <div className="border border-dashed border-white/12 p-7">
               <Gift className="h-6 w-6 text-primary" />
-              <h3 className="mt-4 font-serif text-2xl font-bold">No direct offers right now.</h3>
+              <h3 className="mt-4 font-serif text-2xl font-bold">{webT("web.noDirectOffers")}</h3>
               <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">Check the Moments below. Some may still include access or perks.</p>
             </div>
           )}
@@ -226,7 +228,7 @@ export function ExploreRewards() {
             <p className="text-xs leading-5 text-white/40">Open one to see what’s included and how to join.</p>
           </div>
 
-          {responsesQuery.isLoading ? <p className="text-sm text-white/40">Loading responses…</p> : responsesQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Sparkles className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Moments couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">Try again in a moment.</p></div> : responses.length ? (
+          {responsesQuery.isLoading ? <p className="text-sm text-white/40">Loading responses…</p> : responsesQuery.isError ? <div className="border border-dashed border-amber-300/20 p-7"><Sparkles className="h-6 w-6 text-amber-300" /><h3 className="mt-4 text-2xl font-black">Moments couldn’t load right now.</h3><p className="mt-2 text-sm leading-6 text-white/45">{webT("release.58")}</p></div> : responses.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {responses.map((moment) => {
                 const href = `/moments/${moment.slug || moment.id}`;
@@ -235,19 +237,19 @@ export function ExploreRewards() {
                     <div className="relative h-36 bg-white/[0.04]">
                       {moment.image_url ? <img src={moment.image_url} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><Sparkles className="h-7 w-7 text-white/15" /></div>}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                      <span className="absolute left-3 top-3 rounded-full border border-emerald-300/20 bg-black/65 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-200"><CheckCircle2 className="mr-1 inline h-3 w-3" />Live Moment</span>
+                      <span className="absolute left-3 top-3 rounded-full border border-emerald-300/20 bg-black/65 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-200"><CheckCircle2 className="mr-1 inline h-3 w-3" />{webT("discover.shareLiveMoment")}</span>
                     </div>
                     <div className="p-4">
-                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-primary">{moment.category || "Moment"}</p>
+                      <p className="text-[9px] font-black uppercase tracking-[0.16em] text-primary">{moment.category || webT("promoShare.typeMoment")}</p>
                       <h3 className="mt-2 font-serif text-xl font-bold leading-tight">{moment.title}</h3>
-                      <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/40"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-primary" />{moment.venue_name || moment.location || "Location on Moment"}</p>
+                      <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/40"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-primary" />{moment.venue_name || moment.location || webT("web.locationOnMoment")}</p>
                       <div className="mt-4 rounded-xl border border-white/10 bg-black/25 p-3">
                         <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.14em] text-white/35"><Gift className="h-3 w-3 text-primary" />Included</p>
                         <p className="mt-1 text-xs font-bold text-white/75">{moment.reward}</p>
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <Link to={href} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-primary px-4 text-[11px] font-black text-black">Open <ArrowRight className="h-3.5 w-3.5" /></Link>
-                        <WatchMarketObjectButton type="moment" id={String(moment.id)} title={moment.title || "Moment"} subtitle={moment.reward || null} image={moment.image_url || null} href={href} compact />
+                        <Link to={href} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-primary px-4 text-[11px] font-black text-black">{webT("auth.open")} <ArrowRight className="h-3.5 w-3.5" /></Link>
+                        <WatchMarketObjectButton type="moment" id={String(moment.id)} title={moment.title || webT("promoShare.typeMoment")} subtitle={moment.reward || null} image={moment.image_url || null} href={href} compact />
                       </div>
                     </div>
                   </article>

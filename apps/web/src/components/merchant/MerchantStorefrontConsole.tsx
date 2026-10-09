@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Check, Copy, ExternalLink, Flame, Package, Store, TrendingUp } from "lucide-react";
@@ -14,6 +15,7 @@ export function MerchantStorefrontConsole({
   onOpenProducts?: () => void;
   onOpenScanner?: () => void;
 }) {
+  const { t: webT } = useWebI18n();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -73,7 +75,7 @@ export function MerchantStorefrontConsole({
               <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">
                 <Link to={`/storefront/${user?.id}`} target="_blank">
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  View storefront
+                  {webT("merchantDash.viewStorefront")}
                 </Link>
               </Button>
             ) : null}
@@ -85,7 +87,7 @@ export function MerchantStorefrontConsole({
               className="rounded-xl border-white/10 bg-white/[.03] text-white"
             >
               {copied ? <Check className="mr-2 h-4 w-4 text-emerald-300" /> : <Copy className="mr-2 h-4 w-4" />}
-              {copied ? "Copied" : "Copy storefront link"}
+              {copied ? webT("card.copied") : "Copy storefront link"}
             </Button>
           </div>
         </div>
@@ -120,7 +122,7 @@ export function MerchantStorefrontConsole({
                 max="100"
                 value={discount}
                 onChange={(event) => setDiscount(event.target.value)}
-                placeholder="Optional"
+                placeholder={webT("discover.pathBrowseEyebrow")}
                 className="h-11 rounded-xl border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
               />
               <span className="text-sm font-black text-white/45">%</span>

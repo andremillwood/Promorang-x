@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import type { ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Archive, BriefcaseBusiness, Check, ChevronDown, Coins, Compass, CreditCard, Gem, Home, KeyRound, LogOut, Settings, Store, Ticket, UserRound, UserRoundPlus, Vault, WandSparkles } from "lucide-react";
@@ -44,6 +46,7 @@ const roleLabels: Partial<Record<WorkspaceRole, { label: string; icon: typeof Us
 };
 
 export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps) {
+  const { t: webT } = useWebI18n();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { activeRole, roles, setActiveRole, signOut, profile, user } = useAuth();
@@ -122,11 +125,11 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
             <NavLink
               to="/wallet"
               className="hidden items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.04] divide-x divide-white/10 transition-colors hover:border-orange-500/35 hover:bg-white/[0.07] xl:flex"
-              aria-label={`${balances.points.toLocaleString()} points, ${balances.keys.toLocaleString()} keys, ${balances.gems.toLocaleString()} gems. Open wallet.`}
+              aria-label={`${balances.points.toLocaleString(currentUiLocale())} points, ${balances.keys.toLocaleString(currentUiLocale())} keys, ${balances.gems.toLocaleString(currentUiLocale())} gems. Open wallet.`}
             >
-              <BalanceItem icon={Coins} value={balances.points} label="Points" iconClass="text-amber-400" />
-              <BalanceItem icon={KeyRound} value={balances.keys} label="Keys" iconClass="text-orange-400" />
-              <BalanceItem icon={Gem} value={balances.gems} label="Gems" iconClass="text-violet-400" />
+              <BalanceItem icon={Coins} value={balances.points} label={webT("wallet.pointsLabel")} iconClass="text-amber-400" />
+              <BalanceItem icon={KeyRound} value={balances.keys} label={webT("whyJoin.keysTitle")} iconClass="text-orange-400" />
+              <BalanceItem icon={Gem} value={balances.gems} label={webT("wallet.gemsLabel")} iconClass="text-violet-400" />
             </NavLink>
 
             <DropdownMenu>
@@ -142,7 +145,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel>Switch workspace</DropdownMenuLabel>
+                <DropdownMenuLabel>{webT("dashboard.switchWorkspace")}</DropdownMenuLabel>
                 {roles.map((role) => {
                   const roleInfo = roleLabels[role];
                   const RoleIcon = roleInfo?.icon || UserRound;
@@ -158,7 +161,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                 })}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <NavLink to="/help" className="text-stone-500">How role access works</NavLink>
+                  <NavLink to="/help" className="text-stone-500">{webT("dashboard.howRoleAccessWorks")}</NavLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -182,14 +185,14 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                   <div className="min-w-0"><p className="truncate text-sm font-bold">{displayName}</p><p className="truncate text-xs text-stone-500">{user?.email}</p></div>
                 </div>
 
-                <NavLink to="/wallet" className="my-2 grid grid-cols-3 gap-1 rounded-xl border border-white/10 bg-black/25 p-2" aria-label="Open wallet">
-                  <MenuBalance value={balances.points} label="Points" className="text-amber-400" />
-                  <MenuBalance value={balances.keys} label="Keys" className="text-orange-400" />
-                  <MenuBalance value={balances.gems} label="Gems" className="text-violet-400" />
+                <NavLink to="/wallet" className="my-2 grid grid-cols-3 gap-1 rounded-xl border border-white/10 bg-black/25 p-2" aria-label={webT("rewards.openWallet")}>
+                  <MenuBalance value={balances.points} label={webT("wallet.pointsLabel")} className="text-amber-400" />
+                  <MenuBalance value={balances.keys} label={webT("whyJoin.keysTitle")} className="text-orange-400" />
+                  <MenuBalance value={balances.gems} label={webT("wallet.gemsLabel")} className="text-violet-400" />
                 </NavLink>
 
                 <div className="2xl:hidden">
-                  <DropdownMenuLabel className="sticky top-0 z-10 bg-[#11110f] py-2 text-[10px] uppercase tracking-widest text-stone-500">Switch workspace</DropdownMenuLabel>
+                  <DropdownMenuLabel className="sticky top-0 z-10 bg-[#11110f] py-2 text-[10px] uppercase tracking-widest text-stone-500">{webT("dashboard.switchWorkspace")}</DropdownMenuLabel>
                   <div className="grid grid-cols-2 gap-1 sm:grid-cols-1">
                     {roles.map((role) => {
                       const roleInfo = roleLabels[role];
@@ -201,11 +204,11 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                 </div>
 
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-stone-500">Your account</DropdownMenuLabel>
-                <DropdownMenuItem asChild><NavLink to="/profile" className="flex items-center gap-2.5"><UserRound className="h-4 w-4" />Profile</NavLink></DropdownMenuItem>
+                <DropdownMenuItem asChild><NavLink to="/profile" className="flex items-center gap-2.5"><UserRound className="h-4 w-4" />{webT("how.merchantStep1Badge")}</NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/promoshare" className="flex items-center gap-2.5"><Ticket className="h-4 w-4 text-violet-400" /><span><strong className="block font-semibold">PromoShare entries</strong><span className="block text-[10px] text-stone-500">Draws, eligibility and activity</span></span></NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/growth/referrals" className="flex items-center gap-2.5"><UserRoundPlus className="h-4 w-4 text-orange-400" /><span><strong className="block font-semibold">Invite &amp; earn</strong><span className="block text-[10px] text-stone-500">Referral links and commissions</span></span></NavLink></DropdownMenuItem>
-                <DropdownMenuItem asChild><NavLink to="/vault" className="flex items-center gap-2.5"><Archive className="h-4 w-4" />Vault</NavLink></DropdownMenuItem>
-                <DropdownMenuItem asChild><NavLink to="/dashboard/settings" className="flex items-center gap-2.5"><Settings className="h-4 w-4" />Settings</NavLink></DropdownMenuItem>
+                <DropdownMenuItem asChild><NavLink to="/vault" className="flex items-center gap-2.5"><Archive className="h-4 w-4" />{webT("how.layer3Link3")}</NavLink></DropdownMenuItem>
+                <DropdownMenuItem asChild><NavLink to="/dashboard/settings" className="flex items-center gap-2.5"><Settings className="h-4 w-4" />{webT("lens.settings")}</NavLink></DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/10" />
                 <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2.5 text-rose-400 focus:text-rose-300"><LogOut className="h-4 w-4" />Sign out</DropdownMenuItem>
               </DropdownMenuContent>
@@ -240,9 +243,9 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
 }
 
 function BalanceItem({ icon: Icon, value, label, iconClass }: { icon: typeof Coins; value: number; label: string; iconClass: string }) {
-  return <span className="flex items-center gap-1.5 px-2.5 py-2 text-xs" title={label}><Icon className={cn("h-3.5 w-3.5", iconClass)} aria-hidden="true" /><strong className="font-mono text-stone-100">{value.toLocaleString()}</strong><span className="hidden text-stone-500 2xl:inline">{label}</span></span>;
+  return <span className="flex items-center gap-1.5 px-2.5 py-2 text-xs" title={label}><Icon className={cn("h-3.5 w-3.5", iconClass)} aria-hidden="true" /><strong className="font-mono text-stone-100">{value.toLocaleString(currentUiLocale())}</strong><span className="hidden text-stone-500 2xl:inline">{label}</span></span>;
 }
 
 function MenuBalance({ value, label, className }: { value: number; label: string; className: string }) {
-  return <span className="min-w-0 rounded-lg px-1.5 py-1.5 text-center"><strong className={cn("block truncate font-mono text-sm", className)}>{value.toLocaleString()}</strong><span className="block text-[9px] uppercase tracking-wider text-stone-500">{label}</span></span>;
+  return <span className="min-w-0 rounded-lg px-1.5 py-1.5 text-center"><strong className={cn("block truncate font-mono text-sm", className)}>{value.toLocaleString(currentUiLocale())}</strong><span className="block text-[9px] uppercase tracking-wider text-stone-500">{label}</span></span>;
 }

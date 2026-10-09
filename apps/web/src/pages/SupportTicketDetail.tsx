@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -26,6 +27,7 @@ type SupportTicket = {
 const apiBase = import.meta.env.VITE_API_URL || "https://api.promorang.co";
 
 export default function SupportTicketDetail() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const [ticket, setTicket] = useState<SupportTicket | null>(null);
@@ -105,11 +107,11 @@ export default function SupportTicketDetail() {
             </div>
           ) : (
             <>
-              {ticket.receipt_id ? <section className="rounded-2xl border border-primary/20 bg-primary/[.04] p-5"><p className="text-[10px] font-black uppercase tracking-[.22em] text-primary">Commerce case journey</p><div className="relative mt-5 grid grid-cols-4 before:absolute before:left-[12%] before:right-[12%] before:top-3 before:h-px before:bg-border">{resolveCommerceCaseJourney(ticket.status as any, Boolean(ticket.resolution?.merchant_response)).steps.map((step)=><div key={step.id} className="relative z-10 text-center"><span className={`mx-auto block h-6 w-6 rounded-full border-4 border-background ${step.state==='complete'?'bg-emerald-500':step.state==='current'?'bg-primary':'bg-muted'}`}/><p className="mt-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{step.label}</p></div>)}</div>{ticket.merchant_response_due_at && !ticket.resolution?.merchant_response ? <p className="mt-5 text-xs text-muted-foreground">Merchant response due {new Date(ticket.merchant_response_due_at).toLocaleString()}.</p> : null}</section> : null}
+              {ticket.receipt_id ? <section className="rounded-2xl border border-primary/20 bg-primary/[.04] p-5"><p className="text-[10px] font-black uppercase tracking-[.22em] text-primary">Commerce case journey</p><div className="relative mt-5 grid grid-cols-4 before:absolute before:left-[12%] before:right-[12%] before:top-3 before:h-px before:bg-border">{resolveCommerceCaseJourney(ticket.status as any, Boolean(ticket.resolution?.merchant_response)).steps.map((step)=><div key={step.id} className="relative z-10 text-center"><span className={`mx-auto block h-6 w-6 rounded-full border-4 border-background ${step.state==='complete'?'bg-emerald-500':step.state==='current'?'bg-primary':'bg-muted'}`}/><p className="mt-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{step.label}</p></div>)}</div>{ticket.merchant_response_due_at && !ticket.resolution?.merchant_response ? <p className="mt-5 text-xs text-muted-foreground">Merchant response due {new Date(ticket.merchant_response_due_at).toLocaleString(currentUiLocale())}.</p> : null}</section> : null}
               <section className="rounded-xl border border-border bg-card p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Ticket #{ticket.id}</p>
+                    <p className="text-sm text-muted-foreground">{webT("web.ticketNumber")}{ticket.id}</p>
                     <h1 className="mt-2 text-3xl font-semibold">{ticket.subject}</h1>
                   </div>
                   <span className="rounded-full border border-border bg-muted px-3 py-1 text-sm font-medium capitalize">
@@ -119,16 +121,16 @@ export default function SupportTicketDetail() {
 
                 <div className="mt-6 grid gap-4 sm:grid-cols-3">
                   <div className="rounded-lg border border-border p-4">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Category</p>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">{webT("support.category")}</p>
                     <p className="mt-2 font-medium capitalize">{ticket.category.replace("_", " ")}</p>
                   </div>
                   <div className="rounded-lg border border-border p-4">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Priority</p>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">{webT("support.priority")}</p>
                     <p className="mt-2 font-medium capitalize">{ticket.priority}</p>
                   </div>
                   <div className="rounded-lg border border-border p-4">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">Last updated</p>
-                    <p className="mt-2 font-medium">{new Date(ticket.updated_at || ticket.created_at).toLocaleString()}</p>
+                    <p className="mt-2 font-medium">{new Date(ticket.updated_at || ticket.created_at).toLocaleString(currentUiLocale())}</p>
                   </div>
                 </div>
               </section>
@@ -141,7 +143,7 @@ export default function SupportTicketDetail() {
                 <p className="whitespace-pre-wrap leading-7 text-foreground/90">{ticket.message}</p>
                 <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <Clock3 className="h-4 w-4" />
-                  Submitted {new Date(ticket.created_at).toLocaleString()}
+                  {webT("kyc.submittedLabel")} {new Date(ticket.created_at).toLocaleString(currentUiLocale())}
                 </div>
               </section>
 

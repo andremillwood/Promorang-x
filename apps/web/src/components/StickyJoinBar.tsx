@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,7 @@ export function StickyJoinBar({
     missionPointTotal = 0,
     onExploreMissions,
 }: StickyJoinBarProps) {
+  const { t: webT } = useWebI18n();
     const [isVisible, setIsVisible] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -128,7 +130,7 @@ export function StickyJoinBar({
                             <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                     <Users className="h-4 w-4" />
-                                    {participantCount} joined
+                                    {participantCount} {webT("web.joined")}
                                 </span>
                                 {accessState && !isJoined && (
                                     <span className="font-medium text-foreground">
@@ -178,7 +180,7 @@ export function StickyJoinBar({
                                     )}
                                 </div>
                                 <p className="text-sm text-muted-foreground truncate">
-                                    {participantCount} {participantCount === 1 ? "person" : "people"} joined
+                                    {participantCount} {participantCount === 1 ? "person" : "people"} {webT("web.joined")}
                                     {maxParticipants && ` • ${maxParticipants - participantCount} spots left`}
                                     {accessState && !isJoined && ` • ${accessState.label}`}
                                 </p>

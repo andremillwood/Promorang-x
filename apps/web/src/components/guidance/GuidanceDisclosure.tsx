@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ReactNode, useEffect, useState } from "react";
 import { ChevronDown, HelpCircle, X } from "lucide-react";
 
@@ -27,6 +28,7 @@ export function GuidanceDisclosure({
   compactClassName,
   tone = "dark",
 }: GuidanceDisclosureProps) {
+  const { t: webT } = useWebI18n();
   const { density, loading, shouldStartOpen, markCollapsed, markOpened } = useGuidanceProgress(id);
   const [open, setOpen] = useState(false);
 
@@ -78,7 +80,7 @@ export function GuidanceDisclosure({
               aria-label={open ? "Collapse guide" : "Open guide"}
             >
               {open ? <X className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              {density === "minimal" ? <span>{open ? "Hide" : "Guide"}</span> : null}
+              {density === "minimal" ? <span>{open ? webT("auth.hide") : "Guide"}</span> : null}
             </Button>
           </CollapsibleTrigger>
         </div>

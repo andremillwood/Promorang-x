@@ -33,6 +33,7 @@ interface AskQuestionModalProps {
 }
 
 export function AskQuestionModal({ onQuestionCreated, trigger, defaultCity = "Kingston" }: AskQuestionModalProps) {
+  const { t: webT } = useI18n();
   const { user } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -214,7 +215,7 @@ export function AskQuestionModal({ onQuestionCreated, trigger, defaultCity = "Ki
             {intent === "request" ? <div className="space-y-1.5">
               <Label className="text-xs font-bold text-gray-300">{t("askMarket.category")}</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="rounded-xl border-gray-800 bg-gray-900 text-xs text-white"><SelectValue placeholder="Category" /></SelectTrigger>
+                <SelectTrigger className="rounded-xl border-gray-800 bg-gray-900 text-xs text-white"><SelectValue placeholder={webT("support.category")} /></SelectTrigger>
                 <SelectContent className="border-gray-800 bg-gray-900 text-xs text-white">
                   <SelectItem value="Market Intelligence">Market Intelligence</SelectItem>
                   <SelectItem value="Nightlife & Dining">Nightlife & Dining</SelectItem>

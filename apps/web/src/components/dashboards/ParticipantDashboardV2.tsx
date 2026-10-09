@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import {
   GEM_LANGUAGE,
   getCurrentMove,
@@ -54,6 +56,7 @@ type JoinedMoment = Moment & {
 };
 
 const ParticipantDashboardV2 = () => {
+  const { t: webT } = useWebI18n();
   const { user, session, profile } = useAuth();
   const maturityState = profile?.maturity_state || 0;
   const { useTierStatus } = useUserTier();
@@ -127,29 +130,29 @@ const ParticipantDashboardV2 = () => {
 
   const statCards = [
     {
-      label: "Upcoming",
-      value: upcomingMoments.length.toLocaleString(),
+      label: webT("publicHome.lifecycleUpcoming"),
+      value: upcomingMoments.length.toLocaleString(currentUiLocale()),
       helper: hasJoinedMoments ? "Moments on your calendar" : "Nothing scheduled yet",
       icon: Calendar,
       accent: "text-primary",
     },
     {
       label: "Times out",
-      value: (socialReturn?.moments || stats?.checkedIn || 0).toLocaleString(),
+      value: (socialReturn?.moments || stats?.checkedIn || 0).toLocaleString(currentUiLocale()),
       helper: "Moments you were part of",
       icon: CheckCircle,
       accent: "text-emerald-500",
     },
     {
-      label: "Points",
-      value: (balance?.points || 0).toLocaleString(),
+      label: webT("wallet.pointsLabel"),
+      value: (balance?.points || 0).toLocaleString(currentUiLocale()),
       helper: `${Math.round(progressPercent)}% to next key`,
       icon: Sparkles,
       accent: "text-amber-500",
     },
     {
-      label: "Keys",
-      value: (balance?.promokeys || 0).toLocaleString(),
+      label: webT("whyJoin.keysTitle"),
+      value: (balance?.promokeys || 0).toLocaleString(currentUiLocale()),
       helper: "Access and unlocks",
       icon: Key,
       accent: "text-sky-500",
@@ -163,9 +166,9 @@ const ParticipantDashboardV2 = () => {
         title={isNewUser ? `Start moving, ${firstName}` : `Welcome back, ${firstName}`}
         description="Find what is live, show up, meet the Scene, and see what opens. Your participation should feel like a more connected life, not a report."
         actions={[
-          { label: "Live now", href: "/pulse", icon: TrendingUp },
-          { label: "Discover", href: "/discover", icon: Compass },
-          { label: "Vault", href: "/vault", icon: Gift },
+          { label: webT("web.liveNow"), href: "/pulse", icon: TrendingUp },
+          { label: webT("publicNav.discover"), href: "/discover", icon: Compass },
+          { label: webT("how.layer3Link3"), href: "/vault", icon: Gift },
         ]}
         stats={statCards.map((stat) => ({ ...stat, accentClass: stat.accent }))}
         isLoading={balanceLoading || statsLoading}
@@ -211,11 +214,11 @@ const ParticipantDashboardV2 = () => {
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {[
-                  { label: "Times out", value: (socialReturn?.moments || visibleMarks).toLocaleString(), helper: "Moments you were part of", icon: CheckCircle },
-                  { label: "My people", value: (socialReturn?.connections || 0).toLocaleString(), helper: "Connections that grew around Moments", icon: Users },
-                  { label: "My places", value: uniquePlaces.toLocaleString(), helper: "Venues and locations in your story", icon: MapPin },
+                  { label: "Times out", value: (socialReturn?.moments || visibleMarks).toLocaleString(currentUiLocale()), helper: "Moments you were part of", icon: CheckCircle },
+                  { label: "My people", value: (socialReturn?.connections || 0).toLocaleString(currentUiLocale()), helper: "Connections that grew around Moments", icon: Users },
+                  { label: "My places", value: uniquePlaces.toLocaleString(currentUiLocale()), helper: "Venues and locations in your story", icon: MapPin },
                   { label: "My streak", value: String(profile?.streak_count || 0), helper: "Consistency over time", icon: Zap },
-                  { label: "My memories", value: (socialReturn?.memories || visibleMemories).toLocaleString(), helper: "Moments that stayed with you", icon: HeartHandshake },
+                  { label: "My memories", value: (socialReturn?.memories || visibleMemories).toLocaleString(currentUiLocale()), helper: webT("web.momentsStayed"), icon: HeartHandshake },
                 ].map((item) => (
                   <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
                     <item.icon className="h-4 w-4 text-primary" />
@@ -310,13 +313,13 @@ const ParticipantDashboardV2 = () => {
                         <Button asChild>
                           <Link to="/discover">
                             <Compass className="mr-2 h-4 w-4" />
-                            Discover
+                            {webT("publicNav.discover")}
                           </Link>
                         </Button>
                         <Button variant="outline" asChild>
                           <Link to="/pulse">
                             <TrendingUp className="mr-2 h-4 w-4" />
-                            Live Pulse
+                            {webT("citySwitcher.livePulse")}
                           </Link>
                         </Button>
                       </div>
@@ -366,7 +369,7 @@ const ParticipantDashboardV2 = () => {
                                 className="rounded-full"
                               >
                                 <CheckCircle className="mr-2 h-4 w-4" />
-                                Check in
+                                {webT("venueProfile.checkIn")}
                               </Button>
                             ) : null}
                             <CalendarButton
@@ -399,7 +402,7 @@ const ParticipantDashboardV2 = () => {
                 <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
                     <Badge variant="outline" className="mb-3 rounded-full">
-                      Momentum
+                      {webT("web.momentum")}
                     </Badge>
                     <h2 className="text-2xl font-black tracking-[-0.04em]">What showing up is opening</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -432,7 +435,7 @@ const ParticipantDashboardV2 = () => {
                     <div className="rounded-2xl bg-muted/30 p-4">
                       <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                         <Target className="h-4 w-4 text-primary" />
-                        Rewards
+                        {webT("explorePage.guideRewardsTitle")}
                       </div>
                       <div className="text-2xl font-semibold">{stats?.rewardsClaimed || 0}</div>
                       <div className="text-xs text-muted-foreground">Claimed so far</div>
@@ -506,7 +509,7 @@ const ParticipantDashboardV2 = () => {
                     <div className="rounded-2xl border border-border/60 p-4">
                       <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                         <Key className="h-4 w-4 text-sky-500" />
-                        PromoKeys
+                        {webT("wallet.keysLabel")}
                       </div>
                       <div className="text-2xl font-semibold">{balance?.promokeys || 0}</div>
                       <div className="text-xs text-muted-foreground">For gated access and unlocks</div>
@@ -514,7 +517,7 @@ const ParticipantDashboardV2 = () => {
                     <div className="rounded-2xl border border-border/60 p-4">
                       <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                         <Wallet className="h-4 w-4 text-emerald-500" />
-                        Gems
+                        {webT("wallet.gemsLabel")}
                       </div>
                       <div className="text-2xl font-semibold">{balance?.gems || 0}</div>
                       <div className="text-xs text-muted-foreground">For platform purchases and pieces</div>
@@ -523,7 +526,7 @@ const ParticipantDashboardV2 = () => {
 
                   <div className="flex flex-wrap gap-3">
                     <Button variant="outline" asChild>
-                      <Link to="/wallet">Open Wallet</Link>
+                      <Link to="/wallet">{webT("how.layer3Link1")}</Link>
                     </Button>
                     <Button variant="ghost" asChild>
                       <Link to="/saved">Saved collections</Link>
@@ -579,7 +582,7 @@ const ParticipantDashboardV2 = () => {
                 <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-sm font-medium">Pieces</div>
+                      <div className="text-sm font-medium">{webT("growthHub.tilePiecesTitle")}</div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         Pieces can represent a deeper stake in something you helped grow. Advanced value mechanics stay here when they become relevant.
                       </div>
@@ -589,7 +592,7 @@ const ParticipantDashboardV2 = () => {
                         <Link to="/portfolio">Portfolio</Link>
                       </Button>
                       <Button size="sm" variant="ghost" asChild>
-                        <Link to="/marketplace">Market</Link>
+                        <Link to="/marketplace">{webT("commercial.market.72")}</Link>
                       </Button>
                     </div>
                   </div>
@@ -598,7 +601,7 @@ const ParticipantDashboardV2 = () => {
                 <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-sm font-medium">Liquidity</div>
+                      <div className="text-sm font-medium">{webT("web.liquidity")}</div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         Liquidity is where active value gets circulation. It should feel earned, not dumped into the first-run participant path.
                       </div>
@@ -612,13 +615,13 @@ const ParticipantDashboardV2 = () => {
                 <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-sm font-medium">PromoShare</div>
+                      <div className="text-sm font-medium">{webT("economy.navPromoShare")}</div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         PromoShare shows what your story or invitation set in motion and which people actually joined, visited, or returned.
                       </div>
                     </div>
                     <Button size="sm" variant="outline" asChild>
-                      <Link to="/promoshare">Open PromoShare</Link>
+                      <Link to="/promoshare">{webT("how.memberStep2Cta")}</Link>
                     </Button>
                   </div>
                 </div>
@@ -630,11 +633,11 @@ const ParticipantDashboardV2 = () => {
             title="More value tools"
             description="These deepen the experience after someone has discovered, joined, and become part of a few Moments."
             routes={[
-              { label: "Saved", href: "/saved", icon: Gift },
-              { label: "Wallet", href: "/wallet", icon: Wallet },
-              { label: "Pieces", href: "/portfolio", icon: Layers },
-              { label: "Liquidity", href: "/liquidity", icon: TrendingUp },
-              { label: "PromoShare", href: "/promoshare", icon: Zap },
+              { label: webT("discoveryDetail.saved"), href: "/saved", icon: Gift },
+              { label: webT("lens.wallet"), href: "/wallet", icon: Wallet },
+              { label: webT("growthHub.tilePiecesTitle"), href: "/portfolio", icon: Layers },
+              { label: webT("web.liquidity"), href: "/liquidity", icon: TrendingUp },
+              { label: webT("economy.navPromoShare"), href: "/promoshare", icon: Zap },
             ]}
           /> : null}
 
@@ -655,9 +658,9 @@ const ParticipantDashboardV2 = () => {
 
                 <div className="grid grid-cols-3 gap-2 text-center">
                   {[
-                    { step: 1, label: "Explorer" },
-                    { step: 2, label: "Contributor" },
-                    { step: 3, label: "Host" },
+                    { step: 1, label: webT("settings.rankExplorer") },
+                    { step: 2, label: webT("settings.rankContributor") },
+                    { step: 3, label: webT("settings.rankHost") },
                   ].map((item) => {
                     const done = maturityState >= item.step;
                     return (

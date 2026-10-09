@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useI18n } from "@/i18n/I18nContext";
 
 export default function ActionDetail() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -93,7 +94,7 @@ export default function ActionDetail() {
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                 <div className="flex items-center justify-center text-emerald-400 font-bold mb-1">
                   <Gem className="w-5 h-5 mr-1" />
-                  Gems
+                  {webT("wallet.gemsLabel")}
                 </div>
                 <div className="text-2xl font-black text-white">${action.gems_reward_amount.toFixed(2)}</div>
                 <div className="text-[10px] text-slate-500 font-mono">1 Gem = $1 USD</div>
@@ -102,7 +103,7 @@ export default function ActionDetail() {
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                 <div className="flex items-center justify-center text-amber-400 font-bold mb-1">
                   <Zap className="w-5 h-5 mr-1" />
-                  PromoPoints
+                  {webT("give.kind.points")}
                 </div>
                 <div className="text-2xl font-black text-white">+{action.points_reward}</div>
                 <div className="text-[10px] text-slate-500 font-mono">Participation</div>
@@ -111,7 +112,7 @@ export default function ActionDetail() {
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                 <div className="flex items-center justify-center text-purple-400 font-bold mb-1">
                   <Award className="w-5 h-5 mr-1" />
-                  PromoShare
+                  {webT("economy.navPromoShare")}
                 </div>
                 <div className="text-2xl font-black text-white">{action.promoshare_tickets}</div>
                 <div className="text-[10px] text-slate-500 font-mono">Draw Tickets</div>

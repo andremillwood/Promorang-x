@@ -8,6 +8,7 @@ import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
 import { useI18n } from "@/i18n/I18nContext";
 
 export function PublicHomeBar() {
+  const { t: webT } = useI18n();
   const { user } = useAuth();
   const { t } = useI18n();
 
@@ -15,7 +16,7 @@ export function PublicHomeBar() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 px-4 pt-[max(0.25rem,env(safe-area-inset-top))] text-white backdrop-blur-xl md:px-6">
       <div className="mx-auto max-w-[1440px]">
         <div className="flex h-14 items-center justify-between gap-3 md:h-[4.25rem]">
-          <Link to="/" className="flex shrink-0 items-center" aria-label="Promorang home">
+          <Link to="/" className="flex shrink-0 items-center" aria-label={webT("web.homeAlt")}>
             <img src={mark} alt="" className="h-7 w-7 object-contain md:hidden" />
             <img src={logo} alt="Promorang" className="hidden h-7 w-auto md:block" />
           </Link>

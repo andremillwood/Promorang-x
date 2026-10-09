@@ -1,3 +1,4 @@
+import { withI18n } from "@/test/withI18n";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
@@ -11,7 +12,7 @@ beforeEach(() => { vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true); container = 
 afterEach(() => { act(() => root.unmount()); container.remove(); vi.unstubAllGlobals(); });
 const momentId = "8f562782-b44a-4d4d-8e32-16b5a201fef7";
 function show(proof_state: "pending" | "verified" | "rejected") {
-  act(() => root.render(<MemoryRouter><ParticipantProofArtifact journey={resolveMomentJourney({ moment_id: momentId, joined_at: "2026-09-17", proof_state, proof_submission_id: "evidence-123" })} /></MemoryRouter>));
+  act(() => root.render(withI18n(<MemoryRouter><ParticipantProofArtifact journey={resolveMomentJourney({ moment_id: momentId, joined_at: "2026-09-17", proof_state, proof_submission_id: "evidence-123" })} /></MemoryRouter>)));
 }
 describe("participant proof decision", () => {
   it("keeps pending evidence distinct from approval and issued rewards", () => {

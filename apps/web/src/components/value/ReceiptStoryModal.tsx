@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useRef, useState, useEffect } from "react";
 import {
   Download,
@@ -25,6 +26,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t: webT } = useWebI18n();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { toast } = useToast();
   const [downloading, setDownloading] = useState(false);
@@ -259,7 +261,7 @@ export const ReceiptStoryModal: React.FC<ReceiptStoryModalProps> = ({
             className="border-white/15 bg-white/[0.05] font-bold text-white hover:bg-white/10"
           >
             {copiedImage ? <Check className="mr-2 h-4 w-4 text-emerald-400" /> : <Copy className="mr-2 h-4 w-4" />}
-            {copiedImage ? "Copied" : "Copy Image"}
+            {copiedImage ? webT("card.copied") : "Copy Image"}
           </Button>
         </div>
       </DialogContent>

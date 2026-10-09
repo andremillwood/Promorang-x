@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -618,6 +619,7 @@ const conceptData: Record<
 };
 
 function PromoCardDemo() {
+  const { t: webT } = useI18n();
   const [applied, setApplied] = useState(false);
   return (
     <div className="space-y-4">
@@ -643,8 +645,8 @@ function PromoCardDemo() {
           heading="Hold at the door"
           lines={[
             { label: "Perk", value: "Velvet Lounge tasting" },
-            { label: "Code", value: "VL-TASTE" },
-            { label: "Status", value: "Not used until they validate it", strong: true },
+            { label: webT("web.code"), value: "VL-TASTE" },
+            { label: webT("kyc.statusLabel"), value: "Not used until they validate it", strong: true },
           ]}
           footer="Not a prepaid balance. A merchant has to record this."
         />
@@ -666,13 +668,14 @@ function PromoCardDemo() {
 }
 
 function MomentDemo() {
+  const { t: webT } = useI18n();
   const [inRoom, setInRoom] = useState(false);
   return (
     <div className="overflow-hidden rounded-[1.8rem] border border-white/12 bg-[#14110e]">
       <div className="relative aspect-[16/10] bg-[radial-gradient(circle_at_30%_20%,rgba(255,113,16,0.35),transparent_42%),#1a1410]">
         <div className="absolute inset-0 bg-gradient-to-t from-[#14110e] via-transparent to-transparent" />
         <div className="absolute left-4 top-4">
-          <StatusChip ok={inRoom}>{inRoom ? "You're in" : "Tonight · Austin"}</StatusChip>
+          <StatusChip ok={inRoom}>{inRoom ? webT("aftrhrs.youreIn") : "Tonight · Austin"}</StatusChip>
         </div>
         <div className="absolute bottom-4 left-4 right-4">
           <p className="flex items-center gap-1.5 text-xs text-amber-200">
@@ -705,6 +708,7 @@ function MomentDemo() {
 }
 
 function PointsDemo() {
+  const { t: webT } = useI18n();
   const [points, setPoints] = useState(1450);
   const [keys, setKeys] = useState(2);
   const canConvert = points >= 500;
@@ -720,7 +724,7 @@ function PointsDemo() {
             />
           ))}
         </div>
-        <p className="mt-4 font-serif text-3xl font-bold text-amber-100">{points.toLocaleString()} Points</p>
+        <p className="mt-4 font-serif text-3xl font-bold text-amber-100">{points.toLocaleString(currentUiLocale())} {webT("wallet.pointsLabel")}</p>
         <p className="mt-1 text-sm text-white/60">{keys} Keys ready · 500 Points makes 1 Key</p>
       </article>
       <TactileButton
@@ -795,20 +799,21 @@ function MasterKeyDemo() {
 }
 
 function GemsDemo() {
+  const { t: webT } = useI18n();
   const [step, setStep] = useState<"buy" | "earn" | "spend">("buy");
   const receipt =
     step === "buy"
       ? { heading: "Illustrative Gem purchase", lines: [{ label: "Purchase price", value: "$25.00" }, { label: "Example credited amount", value: "25 Gems", strong: true }], footer: "Purchase pricing does not make every Gem immediately withdrawable cash." }
       : step === "earn"
-        ? { heading: "Illustrative funded outcome", lines: [{ label: "Eligibility", value: "Would require a recorded rule" }, { label: "Issuance", value: "Shown only after the ledger records it", strong: true }], footer: "Configured reward ≠ earned ≠ issued ≠ settled." }
-        : { heading: "Illustrative Gem use", lines: [{ label: "Spend", value: "Only where a live product accepts Gems" }, { label: "PromoShare", value: "Entry only if an eligibility rule issues one", strong: true }], footer: "No bonus, ticket, or financial consequence is assumed from a Gem spend." };
+        ? { heading: "Illustrative funded outcome", lines: [{ label: webT("card.eligibility"), value: "Would require a recorded rule" }, { label: "Issuance", value: "Shown only after the ledger records it", strong: true }], footer: "Configured reward ≠ earned ≠ issued ≠ settled." }
+        : { heading: "Illustrative Gem use", lines: [{ label: webT("web.spend"), value: "Only where a live product accepts Gems" }, { label: webT("economy.navPromoShare"), value: "Entry only if an eligibility rule issues one", strong: true }], footer: "No bonus, ticket, or financial consequence is assumed from a Gem spend." };
   return (
     <div className="space-y-4">
       <PaperReceipt heading={receipt.heading} lines={receipt.lines} footer={receipt.footer} />
       <div className="grid grid-cols-3 gap-2">
         {(["buy", "earn", "spend"] as const).map((key) => (
           <TactileButton key={key} variant={step === key ? "primary" : "obsidian"} size="sm" fullWidth onClick={() => setStep(key)}>
-            {key === "buy" ? "Buy" : key === "earn" ? "Earn" : "Spend"}
+            {key === "buy" ? webT("web.buy") : key === "earn" ? webT("common.earn") : webT("web.spend")}
           </TactileButton>
         ))}
       </div>
@@ -820,6 +825,7 @@ function GemsDemo() {
 }
 
 function HeroObject({ concept }: { concept: ConceptKey }) {
+  const { t: webT } = useI18n();
   switch (concept) {
     case "moments":
       return <MomentDemo />;
@@ -847,7 +853,7 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
           heading="Local perks pot"
           lines={[
             { label: "Parked principal", value: "Illustrative", strong: true },
-            { label: "Entries", value: "Only when recorded" },
+            { label: webT("web.entries"), value: "Only when recorded" },
             { label: "Result", value: "Separate from settlement" },
           ]}
           footer="A real pot's exit, draw and settlement terms come from its recorded state."
@@ -894,7 +900,7 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
           lines={[
             { label: "Funding", value: "Needs a source record", strong: true },
             { label: "Earning", value: "Separate lifecycle state" },
-            { label: "Settlement", value: "Shown only when recorded" },
+            { label: webT("web.settlement"), value: "Shown only when recorded" },
           ]}
           footer="Interface categories do not by themselves prove legal custody or fund segregation."
         />
@@ -907,6 +913,7 @@ function HeroObject({ concept }: { concept: ConceptKey }) {
 }
 
 export default function EconomyConcept() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { concept } = useParams();
   const [searchParams] = useSearchParams();
@@ -988,10 +995,10 @@ export default function EconomyConcept() {
               eyebrow="One night"
               title="Follow Maya from the door to the receipt"
               steps={[
-                { label: "Arrive", title: "She finds a tasting nearby", text: "Velvet Lounge is hosting a Moment. The perk is a drink pass if she checks in." },
+                { label: webT("how.memberStep3Badge"), title: "She finds a tasting nearby", text: "Velvet Lounge is hosting a Moment. The perk is a drink pass if she checks in." },
                 { label: "Scan", title: "She is actually there", text: "The live code only works in the room, so the pass goes to Maya — not a bot." },
-                { label: "Show", title: "She flips the PromoCard", text: "The tasting is on the face. The code is on the back. Nothing is used until staff records VALID." },
-                { label: "Keep", title: "The Return is eligibility", text: "The visit is stamped. The next benefit is a new claim — not a fake refill." },
+                { label: webT("publicDiscover.show"), title: "She flips the PromoCard", text: "The tasting is on the face. The code is on the back. Nothing is used until staff records VALID." },
+                { label: webT("home.trail04Label"), title: webT("web.returnEligibility"), text: "The visit is stamped. The next benefit is a new claim — not a fake refill." },
               ]}
             />
           </div>
@@ -1073,7 +1080,7 @@ export default function EconomyConcept() {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <TactileButton variant="primary" size="xl" asChild>
               <Link to="/explore/moments">
-                Find a Moment
+                {webT("venueProfile.findMoment")}
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </TactileButton>

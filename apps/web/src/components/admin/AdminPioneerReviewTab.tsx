@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Clock3, MapPin, RotateCcw, ShieldCheck, X } from "lucide-react";
@@ -35,6 +37,7 @@ async function adminRequest(path: string, init?: RequestInit) {
 }
 
 export function AdminPioneerReviewTab() {
+  const { t: webT } = useWebI18n();
   const [status, setStatus] = useState("pending");
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
@@ -53,7 +56,7 @@ export function AdminPioneerReviewTab() {
       queryClient.invalidateQueries({ queryKey: ["admin", "pioneer-events"] });
       toast({ title: `Receipt ${variables.decision}`, description: "The audited Pioneer record has been updated." });
     },
-    onError: (error: Error) => toast({ title: "Review failed", description: error.message, variant: "destructive" }),
+    onError: (error: Error) => toast({ title: webT("web.reviewFailed"), description: error.message, variant: "destructive" }),
   });
 
   return (
@@ -67,7 +70,7 @@ export function AdminPioneerReviewTab() {
 
       {query.isLoading && <div className="h-48 animate-pulse rounded-2xl bg-muted" />}
       {query.error && <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-5 text-sm">{(query.error as Error).message}</div>}
-      {!query.isLoading && !query.data?.events.length && <div className="rounded-2xl border border-dashed border-border p-10 text-center"><ShieldCheck className="mx-auto h-7 w-7 text-primary" /><p className="mt-3 font-black">No {status} receipts</p><p className="mt-1 text-sm text-muted-foreground">The queue is clear.</p></div>}
+      {!query.isLoading && !query.data?.events.length && <div className="rounded-2xl border border-dashed border-border p-10 text-center"><ShieldCheck className="mx-auto h-7 w-7 text-primary" /><p className="mt-3 font-black">{webT("web.no")} {status} {webT("web.receiptsLower")}</p><p className="mt-1 text-sm text-muted-foreground">The queue is clear.</p></div>}
 
       <div className="space-y-3">
         {query.data?.events.map((event) => (
@@ -78,13 +81,13 @@ export function AdminPioneerReviewTab() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2"><p className="font-black">{event.venue?.name || event.metadata?.venue_name as string || "Pioneer contribution"}</p><span className="rounded-full bg-amber-400/10 px-2 py-1 text-[9px] font-black uppercase text-amber-600">{event.status}</span></div>
                   <p className="mt-1 text-sm text-muted-foreground">{event.venue?.address || "User contribution"} · {event.event_type.replaceAll("_", " ")}</p>
-                  <div className="mt-3 flex items-center gap-4 text-xs"><span className="font-black text-primary">+{Number(event.points).toLocaleString()} points</span><span className="flex items-center gap-1 text-muted-foreground"><Clock3 className="h-3 w-3" />{new Date(event.occurred_at).toLocaleString()}</span></div>
+                  <div className="mt-3 flex items-center gap-4 text-xs"><span className="font-black text-primary">+{Number(event.points).toLocaleString(currentUiLocale())} {webT("drops.points")}</span><span className="flex items-center gap-1 text-muted-foreground"><Clock3 className="h-3 w-3" />{new Date(event.occurred_at).toLocaleString(currentUiLocale())}</span></div>
                   {event.reason && <p className="mt-3 rounded-lg bg-muted p-3 text-xs text-muted-foreground">Reason: {event.reason}</p>}
                 </div>
               </div>
               {event.status === "pending" && <div className="space-y-3">
                 <Textarea aria-label="Reason for rejection" placeholder="Reason required only when rejecting…" value={reasons[event.id] || ""} onChange={(e) => setReasons((current) => ({ ...current, [event.id]: e.target.value }))} />
-                <div className="flex gap-2"><Button className="flex-1" onClick={() => review.mutate({ id: event.id, decision: "verified" })} disabled={review.isPending}><Check className="mr-2 h-4 w-4" />Verify</Button><Button variant="outline" onClick={() => review.mutate({ id: event.id, decision: "rejected" })} disabled={review.isPending || !reasons[event.id]?.trim()}><X className="mr-2 h-4 w-4" />Reject</Button></div>
+                <div className="flex gap-2"><Button className="flex-1" onClick={() => review.mutate({ id: event.id, decision: "verified" })} disabled={review.isPending}><Check className="mr-2 h-4 w-4" />{webT("commercial.verify.125")}</Button><Button variant="outline" onClick={() => review.mutate({ id: event.id, decision: "rejected" })} disabled={review.isPending || !reasons[event.id]?.trim()}><X className="mr-2 h-4 w-4" />{webT("web.reject")}</Button></div>
               </div>}
               {event.status === "verified" && <div className="space-y-3"><Textarea aria-label="Reason for reversal" placeholder="Required reason for reversal…" value={reasons[event.id] || ""} onChange={(e) => setReasons((current) => ({ ...current, [event.id]: e.target.value }))} /><Button variant="destructive" className="w-full" onClick={() => review.mutate({ id: event.id, decision: "reversed" })} disabled={review.isPending || !reasons[event.id]?.trim()}><RotateCcw className="mr-2 h-4 w-4" />Reverse receipt</Button></div>}
             </div>

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Building2, CalendarDays, Loader2, MapPin, Sparkles, Users } from "lucide-react";
@@ -19,6 +20,7 @@ const pageTypes = [
 type PageType = (typeof pageTypes)[number]["id"];
 
 export function AdminClaimablePagesTab() {
+  const { t: webT } = useWebI18n();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [type, setType] = useState<PageType>("scene");
@@ -70,7 +72,7 @@ export function AdminClaimablePagesTab() {
       });
       setForm({ name: "", ownerEmail: "", description: "", location: "", startsAt: "", website: "" });
     } catch (error) {
-      toast({ title: "Could not create page", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
+      toast({ title: "Could not create page", description: error instanceof Error ? error.message : webT("web.tryAgain"), variant: "destructive" });
     } finally {
       setBusy(false);
     }
@@ -89,7 +91,7 @@ export function AdminClaimablePagesTab() {
       await queryClient.invalidateQueries({ queryKey: ["admin-page-ownership-requests"] });
       toast({ title: decision === "approved" ? "Ownership granted" : "Claim rejected", description: "The claimant’s request has been reviewed." });
     } catch (error) {
-      toast({ title: "Review failed", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
+      toast({ title: webT("web.reviewFailed"), description: error instanceof Error ? error.message : webT("web.tryAgain"), variant: "destructive" });
     } finally {
       setReviewing(null);
     }
@@ -129,10 +131,10 @@ export function AdminClaimablePagesTab() {
           <CardContent className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2"><Label htmlFor="claim-page-name">Page name</Label><Input id="claim-page-name" required value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Name people will recognize" /></div>
             <div className="space-y-2"><Label htmlFor="claim-owner-email">Owner email</Label><Input id="claim-owner-email" required type="email" value={form.ownerEmail} onChange={(e) => update("ownerEmail", e.target.value)} placeholder="owner@example.com" /></div>
-            <div className="space-y-2 sm:col-span-2"><Label htmlFor="claim-description">Description</Label><Textarea id="claim-description" value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="What should people know about this page?" rows={4} /></div>
-            {(type === "scene" || type === "moment" || type === "venue") && <div className="space-y-2"><Label htmlFor="claim-location">{type === "scene" ? "City" : "Location"}</Label><Input id="claim-location" value={form.location} onChange={(e) => update("location", e.target.value)} /></div>}
+            <div className="space-y-2 sm:col-span-2"><Label htmlFor="claim-description">{webT("offerStudio.descLabel")}</Label><Textarea id="claim-description" value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="What should people know about this page?" rows={4} /></div>
+            {(type === "scene" || type === "moment" || type === "venue") && <div className="space-y-2"><Label htmlFor="claim-location">{type === "scene" ? webT("demand.receiptCity") : webT("promoPushCareersPage.labelLocation")}</Label><Input id="claim-location" value={form.location} onChange={(e) => update("location", e.target.value)} /></div>}
             {type === "moment" && <div className="space-y-2"><Label htmlFor="claim-start">Starts at</Label><Input id="claim-start" type="datetime-local" value={form.startsAt} onChange={(e) => update("startsAt", e.target.value)} /></div>}
-            {(type === "brand" || type === "venue") && <div className="space-y-2"><Label htmlFor="claim-website">Website</Label><Input id="claim-website" type="url" value={form.website} onChange={(e) => update("website", e.target.value)} placeholder="https://" /></div>}
+            {(type === "brand" || type === "venue") && <div className="space-y-2"><Label htmlFor="claim-website">{webT("brandProfilePage.website")}</Label><Input id="claim-website" type="url" value={form.website} onChange={(e) => update("website", e.target.value)} placeholder="https://" /></div>}
             <div className="flex items-center justify-end sm:col-span-2"><Button disabled={busy} className="min-w-44">{busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Create claimable page</Button></div>
           </CardContent>
         </Card>
@@ -145,7 +147,7 @@ export function AdminClaimablePagesTab() {
           <Card key={request.id}>
             <CardContent className="grid gap-5 p-5 sm:grid-cols-[1fr_16rem]">
               <div><p className="text-xs font-bold uppercase tracking-wider text-primary">{request.entity_type}</p><h3 className="mt-1 text-xl font-bold">{request.display_name}</h3><p className="mt-1 text-sm text-muted-foreground">{request.intended_owner_email}</p><p className="mt-4 whitespace-pre-wrap text-sm leading-6">{request.claimant_note || "No supporting note was provided."}</p>{Array.isArray((request.claimant_evidence as { supporting_links?: string[] } | null)?.supporting_links) && <div className="mt-4 space-y-1">{(request.claimant_evidence as { supporting_links: string[] }).supporting_links.map((link) => <a key={link} href={link} target="_blank" rel="noreferrer" className="block break-all text-sm font-medium text-primary underline">{link}</a>)}</div>}</div>
-              <div className="space-y-3"><label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Verification method<select className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm normal-case tracking-normal" value={verificationMethods[request.id] || ""} onChange={(event) => setVerificationMethods((current) => ({ ...current, [request.id]: event.target.value }))}><option value="">Ownership only · verification pending</option><option value="company_domain_email">Company-domain email</option><option value="website_control">Website control</option><option value="official_social_account">Official social account</option><option value="business_documentation">Business documentation</option><option value="manual_admin_review">Manual admin review</option></select></label><Textarea value={reviewNotes[request.id] || ""} onChange={(event) => setReviewNotes((current) => ({ ...current, [request.id]: event.target.value }))} placeholder="Review note (required for rejection)" rows={3} /><div className="grid grid-cols-2 gap-2"><Button type="button" disabled={reviewing === request.id} onClick={() => review(request.id, "approved")}>Approve</Button><Button type="button" variant="destructive" disabled={reviewing === request.id} onClick={() => review(request.id, "rejected")}>Reject</Button></div></div>
+              <div className="space-y-3"><label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Verification method<select className="mt-2 h-10 w-full rounded-md border border-input bg-background px-3 text-sm normal-case tracking-normal" value={verificationMethods[request.id] || ""} onChange={(event) => setVerificationMethods((current) => ({ ...current, [request.id]: event.target.value }))}><option value="">Ownership only · verification pending</option><option value="company_domain_email">Company-domain email</option><option value="website_control">Website control</option><option value="official_social_account">Official social account</option><option value="business_documentation">Business documentation</option><option value="manual_admin_review">Manual admin review</option></select></label><Textarea value={reviewNotes[request.id] || ""} onChange={(event) => setReviewNotes((current) => ({ ...current, [request.id]: event.target.value }))} placeholder="Review note (required for rejection)" rows={3} /><div className="grid grid-cols-2 gap-2"><Button type="button" disabled={reviewing === request.id} onClick={() => review(request.id, "approved")}>{webT("web.approve")}</Button><Button type="button" variant="destructive" disabled={reviewing === request.id} onClick={() => review(request.id, "rejected")}>{webT("web.reject")}</Button></div></div>
             </CardContent>
           </Card>
         ))}

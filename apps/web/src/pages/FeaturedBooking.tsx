@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 /**
  * FEATURED BOOKING INTERFACE
  * 
@@ -80,6 +81,7 @@ const ENTITY_TYPES = [
 ];
 
 export default function FeaturedBooking() {
+  const { t: webT } = useWebI18n();
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -469,7 +471,7 @@ export default function FeaturedBooking() {
                       <Separator />
                       
                       <div className="flex items-center justify-between gap-3 text-lg font-bold">
-                        <span>Total</span>
+                        <span>{webT("promoPushCreatorPage.thTotal")}</span>
                         <span className="text-primary">${pricing.final_price.toFixed(2)}</span>
                       </div>
                     </div>
@@ -508,7 +510,7 @@ export default function FeaturedBooking() {
                   {isBooking ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
+                      {webT("web.processing")}
                     </>
                   ) : (
                     <>

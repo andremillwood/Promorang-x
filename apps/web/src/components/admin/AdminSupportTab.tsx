@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -55,6 +57,7 @@ const statusTone: Record<SupportTicket["status"], string> = {
 };
 
 export function AdminSupportTab() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -98,7 +101,7 @@ export function AdminSupportTab() {
       const payload = await response.json().catch(() => []);
 
       if (!response.ok) {
-        throw new Error(payload.error || "Failed to load support tickets");
+        throw new Error(payload.error || webT("support.loadFailed"));
       }
 
       const rows = Array.isArray(payload) ? payload : [];
@@ -190,7 +193,7 @@ export function AdminSupportTab() {
             <h3 className="font-semibold">Tickets</h3>
             <Button variant="outline" size="sm" onClick={() => fetchTickets()} disabled={loading}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Clock3 className="mr-2 h-4 w-4" />}
-              Refresh
+              {webT("common.refresh")}
             </Button>
           </div>
 
@@ -240,7 +243,7 @@ export function AdminSupportTab() {
             <div className="space-y-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Ticket #{selectedTicket.id}</p>
+                  <p className="text-xs text-muted-foreground">{webT("web.ticketNumber")}{selectedTicket.id}</p>
                   <h3 className="mt-1 text-xl font-semibold">{selectedTicket.subject}</h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                     <Mail className="h-4 w-4" />
@@ -254,28 +257,28 @@ export function AdminSupportTab() {
 
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Category</p>
+                  <p className="text-xs uppercase text-muted-foreground">{webT("support.category")}</p>
                   <p className="mt-1 text-sm font-medium capitalize">{selectedTicket.category.replace("_", " ")}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Priority</p>
+                  <p className="text-xs uppercase text-muted-foreground">{webT("support.priority")}</p>
                   <p className="mt-1 text-sm font-medium capitalize">{selectedTicket.priority}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Created</p>
-                  <p className="mt-1 text-sm font-medium">{new Date(selectedTicket.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs uppercase text-muted-foreground">{webT("web.created")}</p>
+                  <p className="mt-1 text-sm font-medium">{new Date(selectedTicket.created_at).toLocaleDateString(currentUiLocale())}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs uppercase text-muted-foreground">Owner</p>
+                  <p className="text-xs uppercase text-muted-foreground">{webT("web.owner")}</p>
                   <p className="mt-1 text-sm font-medium">{selectedTicket.assignee?.display_name || selectedTicket.assignee?.email || "Unassigned"}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
                   <p className="text-xs uppercase text-muted-foreground">SLA due</p>
-                  <p className="mt-1 text-sm font-medium">{selectedTicket.sla_due_at ? new Date(selectedTicket.sla_due_at).toLocaleString() : "Not set"}</p>
+                  <p className="mt-1 text-sm font-medium">{selectedTicket.sla_due_at ? new Date(selectedTicket.sla_due_at).toLocaleString(currentUiLocale()) : "Not set"}</p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
                   <p className="text-xs uppercase text-muted-foreground">First response</p>
-                  <p className="mt-1 text-sm font-medium">{selectedTicket.first_response_at ? new Date(selectedTicket.first_response_at).toLocaleString() : "Waiting"}</p>
+                  <p className="mt-1 text-sm font-medium">{selectedTicket.first_response_at ? new Date(selectedTicket.first_response_at).toLocaleString(currentUiLocale()) : webT("common.waiting")}</p>
                 </div>
               </div>
 
@@ -286,11 +289,11 @@ export function AdminSupportTab() {
                 </div>
               </div>
 
-              {selectedTicket.receipt_id ? <div className="rounded-2xl border border-primary/25 bg-primary/[.04] p-4"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">Execute commerce resolution</p><p className="mt-2 text-sm text-muted-foreground">Receipt #{selectedTicket.receipt_id.slice(0,8)} · {selectedTicket.commerce_reason?.replaceAll("_"," ")}</p><div className="mt-4 grid gap-3 sm:grid-cols-3"><select value={remedy} onChange={(event)=>setRemedy(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="refund">Refund purchase</option><option value="restore_reward">Restore reward</option><option value="gems_credit">Credit Gems</option><option value="no_adjustment">No adjustment</option></select>{remedy === "gems_credit" ? <input type="number" min="1" max="100000" value={gems} onChange={(event)=>setGems(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="Gems"/> : null}{remedy === "restore_reward" ? <input value={couponAssignmentId} onChange={(event)=>setCouponAssignmentId(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="Coupon assignment ID"/> : null}<Button onClick={resolveCommerceCase} disabled={saving || !replyText.trim()}><CheckCircle2 className="mr-2 h-4 w-4"/>Execute resolution</Button></div><p className="mt-3 text-xs text-muted-foreground">The response above becomes the decision note. Financial and wallet actions are idempotent.</p></div> : null}
+              {selectedTicket.receipt_id ? <div className="rounded-2xl border border-primary/25 bg-primary/[.04] p-4"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">Execute commerce resolution</p><p className="mt-2 text-sm text-muted-foreground">Receipt #{selectedTicket.receipt_id.slice(0,8)} · {selectedTicket.commerce_reason?.replaceAll("_"," ")}</p><div className="mt-4 grid gap-3 sm:grid-cols-3"><select value={remedy} onChange={(event)=>setRemedy(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="refund">Refund purchase</option><option value="restore_reward">Restore reward</option><option value="gems_credit">Credit Gems</option><option value="no_adjustment">No adjustment</option></select>{remedy === "gems_credit" ? <input type="number" min="1" max="100000" value={gems} onChange={(event)=>setGems(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder={webT("wallet.gemsLabel")}/> : null}{remedy === "restore_reward" ? <input value={couponAssignmentId} onChange={(event)=>setCouponAssignmentId(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm" placeholder="Coupon assignment ID"/> : null}<Button onClick={resolveCommerceCase} disabled={saving || !replyText.trim()}><CheckCircle2 className="mr-2 h-4 w-4"/>Execute resolution</Button></div><p className="mt-3 text-xs text-muted-foreground">The response above becomes the decision note. Financial and wallet actions are idempotent.</p></div> : null}
 
               <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
                 <div className="space-y-2">
-                  <label htmlFor="support-reply" className="text-sm font-medium">Response</label>
+                  <label htmlFor="support-reply" className="text-sm font-medium">{webT("hostCard.response")}</label>
                   <Textarea
                     id="support-reply"
                     value={replyText}
@@ -300,14 +303,14 @@ export function AdminSupportTab() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="support-status" className="text-sm font-medium">Status</label>
+                  <label htmlFor="support-status" className="text-sm font-medium">{webT("kyc.statusLabel")}</label>
                   <select
                     id="support-status"
                     value={nextStatus}
                     onChange={(event) => setNextStatus(event.target.value as SupportTicket["status"])}
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                   >
-                    <option value="open">Open</option>
+                    <option value="open">{webT("auth.open")}</option>
                     <option value="in_progress">In progress</option>
                     <option value="resolved">Resolved</option>
                     <option value="closed">Closed</option>
@@ -331,7 +334,7 @@ export function AdminSupportTab() {
                     <div key={event.id} className="rounded-lg border border-border p-3 text-sm">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <Badge variant="secondary">{event.event_type.replace("_", " ")}</Badge>
-                        <span className="text-xs text-muted-foreground">{new Date(event.created_at).toLocaleString()}</span>
+                        <span className="text-xs text-muted-foreground">{new Date(event.created_at).toLocaleString(currentUiLocale())}</span>
                       </div>
                       {event.previous_status && event.new_status && (
                         <p className="mt-2 text-xs text-muted-foreground">{event.previous_status} to {event.new_status}</p>

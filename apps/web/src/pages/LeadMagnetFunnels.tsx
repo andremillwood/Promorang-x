@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Check, ChevronLeft, Clock3, Lightbulb, LockKeyhole, Sparkles } from "lucide-react";
@@ -169,6 +170,7 @@ const funnels: Record<FunnelKey, Funnel> = {
 const funnelLinks = Object.values(funnels);
 
 export default function LeadMagnetFunnels() {
+  const { t: webT } = useWebI18n();
   const { funnel = "scene" } = useParams();
   const config = funnels[funnel as FunnelKey] || funnels.scene;
   const [started, setStarted] = useState(false);
@@ -258,7 +260,7 @@ export default function LeadMagnetFunnels() {
             </div>
             <aside className="lm-report-card" aria-label="What you receive">
               <div className="lm-report-top"><span>Promorang field report</span><span>Free / {config.index}</span></div>
-              <div className="lm-score-preview"><b>?</b><span>YOUR<br/>SIGNAL</span></div>
+              <div className="lm-score-preview"><b>{webT("notFound.titlePart3")}</b><span>YOUR<br/>SIGNAL</span></div>
               <p>{config.proof}</p>
               <ul>{config.pillars.map(p => <li key={p.label}><Check /> {p.label}</li>)}</ul>
               <div className="lm-stamp">Built for action<br/>not vanity</div>
@@ -282,7 +284,7 @@ export default function LeadMagnetFunnels() {
             ) : !complete ? (
               <div className="lm-question-card" aria-live="polite">
                 <div className="lm-progress"><span style={{ width: `${progress}%` }} /></div>
-                <p className="lm-section-label">Question {step + 1} of {config.questions.length}</p>
+                <p className="lm-section-label">{webT("findOrAsk.questionLabel")} {step + 1} {webT("web.of")} {config.questions.length}</p>
                 <h2>{question.prompt}</h2>
                 <p>{question.note}</p>
                 <div className="lm-options">
@@ -300,13 +302,13 @@ export default function LeadMagnetFunnels() {
                   <div className="lm-demand-board" aria-label="What the nearby demand is">
                     <p className="lm-section-label">What the demand actually is</p>
                     <div className="lm-demand-grid">
-                      <article><span>When</span><p>{result.demand.when}</p></article>
-                      <article><span>Who is looking</span><p>{result.demand.who}</p></article>
-                      <article><span>What to put up</span><p>{result.demand.offer}</p></article>
-                      <article><span>Why you win</span><p>{result.demand.win}</p></article>
+                      <article><span>{webT("forMerchants.demandWhenLabel")}</span><p>{result.demand.when}</p></article>
+                      <article><span>{webT("forMerchants.demandWhoLabel")}</span><p>{result.demand.who}</p></article>
+                      <article><span>{webT("forMerchants.demandOfferLabel")}</span><p>{result.demand.offer}</p></article>
+                      <article><span>{webT("forMerchants.demandWinLabel")}</span><p>{result.demand.win}</p></article>
                     </div>
                     <aside className="lm-demand-perk">
-                      <span>Example perk</span>
+                      <span>{webT("forMerchants.demandPerkLabel")}</span>
                       <p>{result.demand.perkExample}</p>
                     </aside>
                   </div>
@@ -318,11 +320,11 @@ export default function LeadMagnetFunnels() {
                 <form className="lm-capture" onSubmit={capture}>
                   <div><p className="lm-section-label">Keep the result</p><h3>Email this field report to yourself.</h3><p>We will also send relevant Promorang opportunities. Unsubscribe anytime.</p></div>
                   <div className="lm-capture-fields">
-                    <div className="lm-field-row"><label><span>Your name</span><input value={fullName} onChange={e=>setFullName(e.target.value)} placeholder="How should we address you?"/></label><label><span>Organization <i>optional</i></span><input value={organizationName} onChange={e=>setOrganizationName(e.target.value)} placeholder="Business or community"/></label></div>
-                    <div className="lm-field-row"><label><span>Email</span><input type="email" required value={email} onChange={e => { setEmail(e.target.value); setSaved(false); }} placeholder="you@example.com"/></label><label><span>Phone <i>optional</i></span><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="For requested follow-up"/></label></div>
+                    <div className="lm-field-row"><label><span>{webT("funnel.name")}</span><input value={fullName} onChange={e=>setFullName(e.target.value)} placeholder="How should we address you?"/></label><label><span>{webT("web.organization")} <i>{webT("commercial.optional.206")}</i></span><input value={organizationName} onChange={e=>setOrganizationName(e.target.value)} placeholder="Business or community"/></label></div>
+                    <div className="lm-field-row"><label><span>{webT("funnel.email")}</span><input type="email" required value={email} onChange={e => { setEmail(e.target.value); setSaved(false); }} placeholder="you@example.com"/></label><label><span>{webT("promoPushCareersPage.labelPhone")} <i>{webT("commercial.optional.206")}</i></span><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="For requested follow-up"/></label></div>
                     <label className="lm-consent"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>Send me relevant Promorang opportunities and updates. I can unsubscribe at any time.</span></label>
                     <input className="lm-honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" name="website"/>
-                    <button className="lm-send" type="submit" disabled={saving}>{saving?"Saving…":"Save my report"}</button>
+                    <button className="lm-send" type="submit" disabled={saving}>{saving?webT("funnel.saving"):"Save my report"}</button>
                     {saved && <p className="lm-saved" role="status"><Check /> Your report is saved and your next Promorang route is ready.</p>}{captureError&&<p className="lm-capture-error" role="alert">{captureError}</p>}
                   </div>
                 </form>

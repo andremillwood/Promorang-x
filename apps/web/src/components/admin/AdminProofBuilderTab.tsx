@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -77,7 +79,7 @@ function percent(value: number, target: number) {
 }
 
 function formatCount(result: CountResult) {
-  return result.available ? result.value.toLocaleString() : "Setup";
+  return result.available ? result.value.toLocaleString(currentUiLocale()) : "Setup";
 }
 
 function ProofMetricCard({
@@ -108,6 +110,7 @@ function ProofMetricCard({
 }
 
 function ProofLadderStep({ step }: { step: ProofStep }) {
+  const { t: webT } = useWebI18n();
   const progress = step.unavailable ? 0 : percent(step.value, step.target);
   const complete = progress >= 100;
 
@@ -121,10 +124,10 @@ function ProofLadderStep({ step }: { step: ProofStep }) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-bold text-foreground">{step.label}</p>
-              {complete ? <Badge className="bg-emerald-600">Ready</Badge> : <Badge variant="outline">Build</Badge>}
+              {complete ? <Badge className="bg-emerald-600">{webT("aftrhrs.passReady")}</Badge> : <Badge variant="outline">{webT("publicNav.build")}</Badge>}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              {step.unavailable ? "Data relation is not available in this environment." : `${step.value.toLocaleString()} of ${step.target.toLocaleString()} target`}
+              {step.unavailable ? "Data relation is not available in this environment." : `${step.value.toLocaleString(currentUiLocale())} of ${step.target.toLocaleString(currentUiLocale())} target`}
             </p>
           </div>
         </div>
@@ -138,6 +141,7 @@ function ProofLadderStep({ step }: { step: ProofStep }) {
 }
 
 export function AdminProofBuilderTab() {
+  const { t: webT } = useWebI18n();
   const proofQuery = useQuery({
     queryKey: ["admin-proof-builder"],
     queryFn: async (): Promise<ProofBuilderData> => {
@@ -253,7 +257,7 @@ export function AdminProofBuilderTab() {
         </div>
         <Button variant="outline" onClick={() => proofQuery.refetch()} disabled={proofQuery.isFetching}>
           {proofQuery.isFetching ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-          Refresh
+          {webT("common.refresh")}
         </Button>
       </div>
 

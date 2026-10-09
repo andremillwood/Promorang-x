@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +15,7 @@ import { useCreateUserPreferences } from '@/hooks/useUserPreferences';
 import { startRolePilot } from '@/lib/auth-journey';
 
 export default function BrandOnboarding() {
+  const { t: webT } = useWebI18n();
     const { user, refreshWorkspaceContext, setActiveRole } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
@@ -68,7 +70,7 @@ export default function BrandOnboarding() {
 
         } catch (error: unknown) {
             toast({
-                title: "Error",
+                title: webT("kyc.error"),
                 description: error instanceof Error ? error.message : "We couldn't create this workspace. Please try again.",
                 variant: "destructive"
             });
@@ -119,7 +121,7 @@ export default function BrandOnboarding() {
                                     onValueChange={(val) => handleChange('type', val)}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
+                                        <SelectValue placeholder={webT("web.selectType")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="brand">Brand (I want to run activations)</SelectItem>
@@ -140,7 +142,7 @@ export default function BrandOnboarding() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="website">Website</Label>
+                                <Label htmlFor="website">{webT("brandProfilePage.website")}</Label>
                                 <div className="relative">
                                     <Globe className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
@@ -171,7 +173,7 @@ export default function BrandOnboarding() {
                         </CardContent>
                         <CardFooter>
                             <Button type="submit" className="w-full" variant="hero" disabled={loading}>
-                                {loading ? "Creating..." : "Continue to my workspace"}
+                                {loading ? webT("promoPush.generatingButton") : "Continue to my workspace"}
                             </Button>
                         </CardFooter>
                     </form>

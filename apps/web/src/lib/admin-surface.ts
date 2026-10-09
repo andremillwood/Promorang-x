@@ -1,3 +1,4 @@
+import { translate } from "@/i18n/I18nContext";
 import { AFTRHRS_MOMENT_ID, AFTRHRS_MOMENT_SLUG, AFTRHRS_PATHS } from "@promorang/shared";
 
 export const ADMIN_AFTRHRS_TAB_HREF = "/admin?tab=aftrhrs";
@@ -20,7 +21,7 @@ export function isAftrHrsMoment(moment: {
   return id === AFTRHRS_MOMENT_ID || slug === AFTRHRS_MOMENT_SLUG || title === "aftrhrs";
 }
 
-export function adminChromePageMeta(pathname: string, search = ""): { label: string; description: string } | null {
+export function adminChromePageMeta(pathname: string, search = "", t = translate): { label: string; description: string } | null {
   const tab = new URLSearchParams(search).get("tab");
   const onAftrHrs =
     pathname === AFTRHRS_PATHS.admin ||
@@ -30,14 +31,14 @@ export function adminChromePageMeta(pathname: string, search = ""): { label: str
   if (onAftrHrs) {
     return {
       label: "AftrHrs",
-      description: "RSVPs, digital passes, and Sea Deck door controls.",
+      description: t("web.adminAftrHrsCopy"),
     };
   }
 
   if (pathname === "/admin" && tab === "moments") {
     return {
       label: "Moments",
-      description: "Review Moments and open AftrHrs RSVPs from the list.",
+      description: t("web.adminMomentsCopy"),
     };
   }
 

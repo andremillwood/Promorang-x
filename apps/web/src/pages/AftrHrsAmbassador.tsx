@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
 
 export default function AftrHrsAmbassador() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { user } = useAuth();
   const { data, isError, fulfill, isLoading } = useAftrHrsAmbassador();
@@ -112,7 +113,7 @@ export default function AftrHrsAmbassador() {
             ))}
           </ul>
         </section>
-        <Link to={AFTRHRS_PATHS.moment} className="mt-10 inline-block text-sm uppercase tracking-[0.16em] text-white/40">Back to AftrHrs</Link>
+        <Link to={AFTRHRS_PATHS.moment} className="mt-10 inline-block text-sm uppercase tracking-[0.16em] text-white/40">{webT("auth.backAftrHrs")}</Link>
       </div>
     </main>
   );

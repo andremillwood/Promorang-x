@@ -96,6 +96,7 @@ export const MomentLineupBuilder: React.FC<MomentLineupBuilderProps> = ({
   collaborators,
   onChange,
 }) => {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [name, setName] = useState('');
@@ -235,7 +236,7 @@ export const MomentLineupBuilder: React.FC<MomentLineupBuilderProps> = ({
                               {creator.full_name || creator.display_name}
                             </span>
                             <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">
-                              Verified
+                              {webT("kyc.badgeVerified")}
                             </Badge>
                           </div>
                         ))}
@@ -336,7 +337,7 @@ export const MomentLineupBuilder: React.FC<MomentLineupBuilderProps> = ({
                     onClick={() => setIsAddOpen(false)}
                     className="text-xs text-white/70"
                   >
-                    Cancel
+                    {webT("findOrAsk.cancel")}
                   </Button>
                   <Button
                     type="button"

@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useI18n } from "@/i18n/I18nContext";
 
 export default function StewardDashboard() {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const [showCreateActionModal, setShowCreateActionModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -207,9 +208,9 @@ export default function StewardDashboard() {
                       </Badge>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400">
-                      <span className="text-emerald-400 font-bold">${act.gems.toFixed(2)} Gems</span>
-                      <span className="text-amber-400">+{act.points} Points</span>
-                      <span className="text-purple-400">{act.tickets} PromoShare</span>
+                      <span className="text-emerald-400 font-bold">${act.gems.toFixed(2)} {webT("wallet.gemsLabel")}</span>
+                      <span className="text-amber-400">+{act.points} {webT("wallet.pointsLabel")}</span>
+                      <span className="text-purple-400">{act.tickets} {webT("economy.navPromoShare")}</span>
                       <span className="text-slate-500">Verification: {act.verification}</span>
                     </div>
                   </div>

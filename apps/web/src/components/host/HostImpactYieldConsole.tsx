@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { BarChart3, Calendar, CheckCircle2, RotateCcw, ShieldCheck, Users } from "lucide-react";
 import { useHostedMoments } from "@/hooks/useMoments";
 import { useRoleSuccessProgress } from "@/hooks/useRoleSuccessProgress";
@@ -31,17 +32,17 @@ export function HostImpactYieldConsole() {
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <Calendar className="h-4 w-4 text-amber-300" />
-          <p className="mt-3 text-3xl font-black text-white">{momentsQuery.isLoading ? "—" : moments.length.toLocaleString()}</p>
+          <p className="mt-3 text-3xl font-black text-white">{momentsQuery.isLoading ? "—" : moments.length.toLocaleString(currentUiLocale())}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Recorded Moments</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <ShieldCheck className="h-4 w-4 text-emerald-300" />
-          <p className="mt-3 text-3xl font-black text-white">{progressQuery.isLoading ? "—" : verifiedParticipants.toLocaleString()}</p>
+          <p className="mt-3 text-3xl font-black text-white">{progressQuery.isLoading ? "—" : verifiedParticipants.toLocaleString(currentUiLocale())}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Verified participants</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <Users className="h-4 w-4 text-cyan-300" />
-          <p className="mt-3 text-3xl font-black text-white">{progressQuery.isLoading ? "—" : `${verifiedParticipants.toLocaleString()} / ${target.toLocaleString()}`}</p>
+          <p className="mt-3 text-3xl font-black text-white">{progressQuery.isLoading ? "—" : `${verifiedParticipants.toLocaleString(currentUiLocale())} / ${target.toLocaleString(currentUiLocale())}`}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Current proof target</p>
         </div>
       </div>

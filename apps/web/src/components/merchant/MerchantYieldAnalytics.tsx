@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import React from "react";
 import {
   Activity,
@@ -46,7 +47,7 @@ export function MerchantYieldAnalytics() {
             </span>
           </div>
           <div>
-            <p className="text-3xl font-black text-white">{isLoading ? "—" : pointsRecorded.toLocaleString()}</p>
+            <p className="text-3xl font-black text-white">{isLoading ? "—" : pointsRecorded.toLocaleString(currentUiLocale())}</p>
             <p className="mt-1 text-xs text-white/45">From recorded Moment transactions</p>
           </div>
         </div>
@@ -59,7 +60,7 @@ export function MerchantYieldAnalytics() {
             </span>
           </div>
           <div>
-            <p className="text-3xl font-black text-white">{isLoading ? "—" : recordedActions.toLocaleString()}</p>
+            <p className="text-3xl font-black text-white">{isLoading ? "—" : recordedActions.toLocaleString(currentUiLocale())}</p>
             <p className="mt-1 text-xs text-white/45">Not automatically labelled visits or sales</p>
           </div>
         </div>

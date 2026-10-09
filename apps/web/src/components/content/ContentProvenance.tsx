@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +8,7 @@ type ContentProvenanceBadgeProps = {
 };
 
 export function ContentProvenanceBadge({ className, compact = false }: ContentProvenanceBadgeProps) {
+  const { t: webT } = useWebI18n();
   return (
     <span
       className={cn(
@@ -17,7 +19,7 @@ export function ContentProvenanceBadge({ className, compact = false }: ContentPr
       title="Illustrative content provided by Promorang"
     >
       <FlaskConical className="h-3 w-3 text-primary" aria-hidden="true" />
-      Sample
+      {webT("market.sample")}
     </span>
   );
 }
@@ -28,6 +30,7 @@ type SampleContentNoticeProps = {
 };
 
 export function SampleContentNotice({ className, noun = "content" }: SampleContentNoticeProps) {
+  const { t: webT } = useWebI18n();
   return (
     <aside
       className={cn(
@@ -38,7 +41,7 @@ export function SampleContentNotice({ className, noun = "content" }: SampleConte
     >
       <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
       <p>
-        <strong className="font-bold text-white/85">Sample {noun}.</strong>{" "}
+        <strong className="font-bold text-white/85">{webT("market.sample")} {noun}.</strong>{" "}
         These examples show how Promorang works. They are illustrative, not live listings or verified activity.
       </p>
     </aside>

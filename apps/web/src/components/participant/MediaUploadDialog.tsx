@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useCallback } from "react";
 import { Camera, Upload, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ interface MediaUploadDialogProps {
 }
 
 export function MediaUploadDialog({ momentId, trigger }: MediaUploadDialogProps) {
+  const { t: webT } = useWebI18n();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -96,7 +98,7 @@ export function MediaUploadDialog({ momentId, trigger }: MediaUploadDialogProps)
                   <Upload className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Click to upload</p>
+                  <p className="font-medium text-foreground">{webT("web.clickUpload")}</p>
                   <p className="text-sm text-muted-foreground">
                     Photos or videos up to 50MB
                   </p>
@@ -114,7 +116,7 @@ export function MediaUploadDialog({ momentId, trigger }: MediaUploadDialogProps)
               ) : (
                 <img
                   src={preview || undefined}
-                  alt="Preview"
+                  alt={webT("pulsePage.previewBadge")}
                   className="w-full h-48 object-cover"
                 />
               )}
@@ -148,7 +150,7 @@ export function MediaUploadDialog({ momentId, trigger }: MediaUploadDialogProps)
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            {webT("findOrAsk.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -157,7 +159,7 @@ export function MediaUploadDialog({ momentId, trigger }: MediaUploadDialogProps)
             {uploadMedia.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Uploading...
+                {webT("web.uploading")}
               </>
             ) : (
               <>

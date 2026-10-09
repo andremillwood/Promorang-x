@@ -1,6 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   countryCodeToLocale,
+  currentUiLocale,
+  getCookie,
+  localeRequestHeaders,
   getSavedLocalePreference,
   hasExplicitLocaleChoice,
   markExplicitLocaleChoice,
@@ -10,9 +13,14 @@ import {
 
 describe("geo-locale mapping and persistence", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
+    window.history.replaceState({}, "", "/");
     window.localStorage.clear();
+    document.cookie = "promorang_locale_explicit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "promorang_locale=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   });
+
+  afterEach(() => { vi.restoreAllMocks(); window.history.replaceState({}, "", "/"); });
 
   it("maps Latin American countries to es-419", () => {
     expect(countryCodeToLocale("MX")).toBe("es-419");
@@ -57,4 +65,30 @@ describe("geo-locale mapping and persistence", () => {
     expect(hasExplicitLocaleChoice()).toBe(true);
     expect(shouldApplyMarketLocale()).toBe(false);
   });
+  it("uses the URL locale for API requests and formatters ahead of a saved preference", () => {
+    saveLocalePreference("en");
+    window.history.replaceState({}, "", "/pt-br/moments/example");
+    expect(currentUiLocale()).toBe("pt-BR");
+    expect(localeRequestHeaders()).toEqual({ "X-Promorang-Locale": "pt-BR" });
+    window.history.replaceState({}, "", "/es/discover");
+    expect(currentUiLocale()).toBe("es-419");
+  });
+
+  it("reads a cookie even when it is not first in the cookie string", () => {
+    document.cookie = "another_cookie=example; path=/;";
+    document.cookie = "promorang_locale=pt-BR; path=/;";
+    expect(getCookie("promorang_locale")).toBe("pt-BR");
+    document.cookie = "another_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  });
+
+  it("keeps language selection usable when browser storage is blocked", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new DOMException("Blocked", "SecurityError"); });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new DOMException("Blocked", "SecurityError"); });
+    saveLocalePreference("es-419");
+    markExplicitLocaleChoice();
+    expect(getSavedLocalePreference()).toBe("es-419");
+    expect(hasExplicitLocaleChoice()).toBe(true);
+    expect(shouldApplyMarketLocale()).toBe(false);
+  });
+
 });

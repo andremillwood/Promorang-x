@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,7 +44,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Header = () => {
-  const { t } = useI18n();
+  const { t: webT } = useI18n();
+  const { t, formatNumber } = useI18n();
   const {
     user,
     signOut,
@@ -274,9 +276,9 @@ const Header = () => {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                          Save &amp; Win Vaults <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">TERMS APPLY</span>
+                          {webT("web.saveWinVaults")} <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40">{webT("web.termsApply")}</span>
                         </p>
-                        <p className="text-[10px] text-white/50 leading-tight">Eligibility, access, and withdrawal terms apply</p>
+                        <p className="text-[10px] text-white/50 leading-tight">{webT("web.eligibilityTerms")}</p>
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -441,8 +443,8 @@ const Header = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-80 p-2 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11] text-white">
                     <div className="p-2 pb-2 border-b border-white/10 flex items-center justify-between">
-                      <p className="font-bold text-xs uppercase tracking-wider text-white/70">Activity Pulse</p>
-                      <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono">Live</span>
+                      <p className="font-bold text-xs uppercase tracking-wider text-white/70">{webT("web.activityPulse")}</p>
+                      <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono">{webT("common.live")}</span>
                     </div>
                     <div className="flex flex-col gap-1 py-1">
                       <div className="flex items-start gap-2.5 p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] transition cursor-pointer">
@@ -451,9 +453,9 @@ const Header = () => {
                         </div>
                         <div className="space-y-0.5">
                           <p className="text-xs leading-tight text-white">
-                            <span className="font-bold">Sarah Drop</span> hyped your moment 🔥
+                            <span className="font-bold">Sarah Drop</span> {webT("web.hypedMoment")}
                           </p>
-                          <p className="text-[10px] text-white/40">2m ago</p>
+                          <p className="text-[10px] text-white/40">{webT("web.twoMinutes")}</p>
                         </div>
                       </div>
                     </div>
@@ -463,7 +465,7 @@ const Header = () => {
                         onClick={() => navigate("/activity")}
                         className="w-full text-xs text-white/60 hover:text-white h-7 rounded-lg"
                       >
-                        View All Activity →
+                        {webT("web.viewAllActivity")}
                       </Button>
                     </div>
                   </DropdownMenuContent>
@@ -505,7 +507,7 @@ const Header = () => {
                         <div className="flex items-center gap-1.5">
                           <p className="text-xs font-bold text-white truncate">{userDisplayName}</p>
                           <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/20 text-primary font-mono font-bold shrink-0">
-                            {activeRole || "Member"}
+                            {activeRole || webT("referralSprintPage.thMember")}
                           </span>
                         </div>
                         <p className="text-[10px] text-white/50 truncate mt-0.5">{user?.email}</p>
@@ -516,7 +518,7 @@ const Header = () => {
                     {isAgencyMode && (
                       <div className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
                         <div className="flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-wider text-white/40">
-                          <span>Workspaces</span>
+                          <span>{webT("web.workspaces")}</span>
                           {activeOrg && <span className="text-primary truncate max-w-[120px] font-normal">{activeOrg.name}</span>}
                         </div>
                         {organizations?.map((org) => (
@@ -543,7 +545,7 @@ const Header = () => {
 
                         {agencyClients && agencyClients.length > 0 && (
                           <div className="pt-1 mt-1 border-t border-white/5 space-y-0.5">
-                            <p className="text-[9px] font-bold uppercase tracking-wider text-primary/70 px-1">Agency Clients</p>
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-primary/70 px-1">{webT("web.agencyClients")}</p>
                             {agencyClients.map((client) => (
                               <button
                                 key={client.id}
@@ -575,9 +577,9 @@ const Header = () => {
                           <Coins className="w-3.5 h-3.5" />
                         </div>
                         <div>
-                          <p className="text-[10px] uppercase font-bold text-white/60 leading-none">Wallet Balance</p>
+                          <p className="text-[10px] uppercase font-bold text-white/60 leading-none">{webT("web.walletBalance")}</p>
                           <p className="text-xs font-black text-white mt-0.5">
-                            {profile?.points ? `${profile.points.toLocaleString()} Points` : "0 Points"}
+                            {t("web.pointsCount", { count: formatNumber(profile?.points || 0) })}
                           </p>
                         </div>
                       </div>
@@ -590,49 +592,49 @@ const Header = () => {
                     <DropdownMenuItem asChild>
                       <Link to="/portfolio" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-cyan-500/10 text-cyan-300 transition cursor-pointer font-semibold">
                         <Coins className="w-4 h-4 text-cyan-400" />
-                        <span className="text-xs">My Pieces Portfolio</span>
+                        <span className="text-xs">{webT("web.piecesPortfolio")}</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
                       <Link to="/marketplace" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
                         <Gem className="w-4 h-4 text-violet-400" />
-                        <span className="text-xs font-medium">Pieces Marketplace</span>
+                        <span className="text-xs font-medium">{webT("web.piecesMarketplace")}</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
                         <Compass className="w-4 h-4 text-primary" />
-                        <span className="text-xs font-medium">Dashboard & Workspace</span>
+                        <span className="text-xs font-medium">{webT("web.dashboardWorkspace")}</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
                       <Link to="/profile" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
                         <UserIcon className="w-4 h-4 text-white/60" />
-                        <span className="text-xs font-medium">Public Profile</span>
+                        <span className="text-xs font-medium">{webT("web.publicProfile")}</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
                       <Link to="/hosting" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
                         <Sparkles className="w-4 h-4 text-amber-400" />
-                        <span className="text-xs font-medium">Host a Moment</span>
+                        <span className="text-xs font-medium">{webT("web.hostMoment")}</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
                       <Link to="/saved" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
                         <Bookmark className="w-4 h-4 text-white/60" />
-                        <span className="text-xs font-medium">Saved Items</span>
+                        <span className="text-xs font-medium">{webT("dashboard.savedItems")}</span>
                       </Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard/settings" className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/[0.08] transition cursor-pointer">
                         <Settings className="w-4 h-4 text-white/60" />
-                        <span className="text-xs font-medium">Account Settings</span>
+                        <span className="text-xs font-medium">{webT("dashboard.accountSettings")}</span>
                       </Link>
                     </DropdownMenuItem>
 
@@ -644,7 +646,7 @@ const Header = () => {
                       className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 transition cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span className="text-xs font-medium">Sign Out</span>
+                      <span className="text-xs font-medium">{webT("nav.signOut")}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -734,7 +736,7 @@ const Header = () => {
                   className="flex items-center gap-2 p-3 rounded-2xl bg-primary/10 border border-primary/30 text-xs font-bold text-primary"
                 >
                   <Gem className="w-4 h-4" />
-                  <span>PromoShare</span>
+                  <span>{webT("economy.navPromoShare")}</span>
                 </Link>
               </div>
 
@@ -790,7 +792,7 @@ const Header = () => {
                     className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-medium transition col-span-2"
                   >
                     <Coins className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Save &amp; Win Vaults</span>
+                    <span>{webT("web.saveWinVaults")}</span>
                   </Link>
                 </div>
               </div>
@@ -846,7 +848,7 @@ const Header = () => {
 
               {/* Mobile Preferences (Language + Theme) */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/10">
-                <span className="text-xs text-white/60 font-medium">Preferences</span>
+                <span className="text-xs text-white/60 font-medium">{webT("settings.preferences")}</span>
                 <div className="flex items-center gap-2">
                   <LanguageSelector tone="marketing" />
                   <ThemeToggle tone="marketing" />
@@ -866,8 +868,8 @@ const Header = () => {
                         <UserRoundPlus className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold text-xs text-white">Invite Friends & Earn</p>
-                        <p className="text-[10px] text-white/60">Share your link and earn referral rewards</p>
+                        <p className="font-bold text-xs text-white">{webT("web.inviteEarn")}</p>
+                        <p className="text-[10px] text-white/60">{webT("web.shareReferral")}</p>
                       </div>
                     </Link>
                     <Button

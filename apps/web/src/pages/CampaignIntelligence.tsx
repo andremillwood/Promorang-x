@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from 'react';
 import { 
   Sparkles, 
@@ -121,6 +123,7 @@ interface DiagnosticData {
 }
 
 export default function CampaignIntelligence() {
+  const { t: webT } = useWebI18n();
   const [operatorMode, setOperatorMode] = useState<'compiler' | 'live_operator'>('compiler');
 
   // Compiler Form State
@@ -450,7 +453,7 @@ export default function CampaignIntelligence() {
               onClick={() => setOperatorMode('compiler')}
               className={operatorMode === 'compiler' ? 'bg-purple-600 text-white text-xs' : 'text-slate-400 text-xs'}
             >
-              <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Campaign Compiler
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" /> {webT("adminDash.compiler")}
             </Button>
             <Button
               size="sm"
@@ -542,7 +545,7 @@ export default function CampaignIntelligence() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-rose-400" /> Location
+                          <MapPin className="w-3.5 h-3.5 text-rose-400" /> {webT("promoPushCareersPage.labelLocation")}
                         </label>
                         <Input 
                           value={location}
@@ -641,7 +644,7 @@ export default function CampaignIntelligence() {
                         <span className="font-medium text-slate-200">{planReport.targetAudience}</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[10px]">Location</span>
+                        <span className="text-slate-400 block text-[10px]">{webT("promoPushCareersPage.labelLocation")}</span>
                         <span className="font-medium text-slate-200">{planReport.location}</span>
                       </div>
                     </div>
@@ -678,7 +681,7 @@ export default function CampaignIntelligence() {
                               <div className="font-semibold text-slate-200">@{c.username}</div>
                               <div className="text-slate-400 text-[11px] mt-0.5">{c.name}</div>
                               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-900 text-[10px]">
-                                <span className="text-purple-400 font-medium">{c.followerCount.toLocaleString()} followers</span>
+                                <span className="text-purple-400 font-medium">{c.followerCount.toLocaleString(currentUiLocale())} {webT("event.followers")}</span>
                                 <Badge variant="outline" className="text-[9px] uppercase px-1.5 py-0">{c.tier}</Badge>
                               </div>
                             </div>
@@ -695,7 +698,7 @@ export default function CampaignIntelligence() {
                             <div key={m.id} className="bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs flex items-start justify-between">
                               <div>
                                 <div className="font-semibold text-slate-200">{m.name}</div>
-                                <div className="text-slate-400 text-[11px] mt-0.5">{m.location || 'Kingston'}</div>
+                                <div className="text-slate-400 text-[11px] mt-0.5">{m.location || webT("findOrAsk.searchSuggestionKingston")}</div>
                               </div>
                               {m.capacity && (
                                 <Badge className="bg-indigo-950 text-indigo-300 border-indigo-800 text-[10px]">
@@ -739,16 +742,16 @@ export default function CampaignIntelligence() {
                         <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
                           <div className="text-xs text-slate-400 font-semibold uppercase">Token Reward Structure</div>
                           <div className="text-2xl font-extrabold text-emerald-400">
-                            {planReport.rewardEconomics.rewardStructure?.totalGemsPool.toLocaleString()} <span className="text-xs font-normal text-slate-300">Gems Pool</span>
+                            {planReport.rewardEconomics.rewardStructure?.totalGemsPool.toLocaleString(currentUiLocale())} <span className="text-xs font-normal text-slate-300">Gems Pool</span>
                           </div>
                           <div className="text-xs text-slate-300 pt-2 border-t border-slate-900 space-y-1">
                             <div className="flex justify-between">
                               <span className="text-slate-400">PromoPoints:</span>
-                              <span>{planReport.rewardEconomics.rewardStructure?.totalPointsDistributed.toLocaleString()} Points</span>
+                              <span>{planReport.rewardEconomics.rewardStructure?.totalPointsDistributed.toLocaleString(currentUiLocale())} {webT("wallet.pointsLabel")}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-slate-400">PromoKeys Required:</span>
-                              <span>{planReport.rewardEconomics.rewardStructure?.keysRequired} Keys</span>
+                              <span>{planReport.rewardEconomics.rewardStructure?.keysRequired} {webT("whyJoin.keysTitle")}</span>
                             </div>
                           </div>
                         </div>
@@ -775,7 +778,7 @@ export default function CampaignIntelligence() {
                           <Lock className="w-4 h-4 text-emerald-400" /> Human Review & Budget Locking
                         </h3>
                         <p className="text-xs text-slate-300">
-                          Publishing this campaign transitions its status from <strong>DRAFT</strong> to <strong>ACTIVE</strong>, locking <strong>${planReport.rewardEconomics.economicsSummary?.estimatedUsdValue} USD</strong> from your organization brand budget into escrow.
+                          Publishing this campaign transitions its status from <strong>DRAFT</strong> to <strong>{webT("web.activeUpper")}</strong>, locking <strong>${planReport.rewardEconomics.economicsSummary?.estimatedUsdValue} USD</strong> from your organization brand budget into escrow.
                         </p>
 
                         <div className="flex items-center gap-3 bg-slate-900 border border-slate-800 p-3 rounded-lg">
@@ -909,10 +912,10 @@ export default function CampaignIntelligence() {
                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl">
                     <div className="text-[11px] text-slate-400 uppercase font-semibold">Gem Reward Burn</div>
                     <div className="text-2xl font-extrabold text-emerald-400 mt-1">
-                      {telemetry?.gemRewardBurn.toLocaleString()}
+                      {telemetry?.gemRewardBurn.toLocaleString(currentUiLocale())}
                     </div>
                     <div className="text-[10px] text-slate-400 font-medium mt-1">
-                      {telemetry?.promoPointsDistributed.toLocaleString()} PromoPoints issued
+                      {telemetry?.promoPointsDistributed.toLocaleString(currentUiLocale())} PromoPoints issued
                     </div>
                   </div>
 

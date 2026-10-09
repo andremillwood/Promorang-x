@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, Circle, ShieldCheck, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,7 @@ export function JobFirstWorkspaceGuide({
   primaryAction,
   className,
 }: JobFirstWorkspaceGuideProps) {
+  const { t: webT } = useWebI18n();
   const progressQuery = useRoleSuccessProgress(role);
   const progress = progressQuery.data;
   const nextAction = primaryAction || progress?.nextAction;
@@ -54,7 +57,7 @@ export function JobFirstWorkspaceGuide({
       value: proofText,
     },
     {
-      label: "What happens next",
+      label: webT("findOrAsk.nextChoiceLabel"),
       value: nextIfWorks,
     },
   ];
@@ -86,7 +89,7 @@ export function JobFirstWorkspaceGuide({
             <div className="rounded-2xl border border-border/70 bg-background/60 px-4 py-3 text-left lg:text-right">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Verified progress</p>
               <p className="mt-1 text-lg font-black text-foreground">
-                {progress.current.toLocaleString()} / {progress.target.toLocaleString()}
+                {progress.current.toLocaleString(currentUiLocale())} / {progress.target.toLocaleString(currentUiLocale())}
               </p>
               <p className="text-xs text-muted-foreground">{progress.unit}</p>
             </div>

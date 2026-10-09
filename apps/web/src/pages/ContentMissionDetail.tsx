@@ -22,6 +22,7 @@ const pulseTone = {
 } as const;
 
 export default function ContentMissionDetail() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const { user, session } = useAuth();
@@ -276,10 +277,10 @@ export default function ContentMissionDetail() {
                 {mission.moment?.venue_name || mission.moment?.location}
               </p>
               <p>
-                {t("contentMission.rewardLabel")} <span className="font-semibold text-foreground">{mission.moment?.reward || "No reward recorded"}</span>
+                {t("contentMission.rewardLabel")} <span className="font-semibold text-foreground">{mission.moment?.reward || webT("web.noRewardRecorded")}</span>
               </p>
               <p>
-                {t("contentMission.o2oConversionLabel")} <span className="font-semibold text-foreground">{mission.o2o_conversion_rate == null ? "Not recorded" : `${Number(mission.o2o_conversion_rate).toFixed(1)}%`}</span>
+                {t("contentMission.o2oConversionLabel")} <span className="font-semibold text-foreground">{mission.o2o_conversion_rate == null ? webT("activationCommerce.notRecorded") : `${Number(mission.o2o_conversion_rate).toFixed(1)}%`}</span>
               </p>
             </div>
             <div className="mt-5 flex flex-col gap-3">

@@ -102,6 +102,7 @@ export function DiscoveryPath({
   syncUrl = true,
   surface = "page",
 }: DiscoveryPathProps) {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -433,10 +434,10 @@ export function DiscoveryPath({
           eyebrow={t("discover.pathHowEyebrow")}
           title={t("discover.pathHowTitle")}
           steps={[
-            { label: "01", title: t("discover.pathStep1Title"), text: t("discover.pathStep1Copy") },
-            { label: "02", title: t("discover.pathStep2Title"), text: t("discover.pathStep2Copy") },
-            { label: "03", title: t("discover.pathStep3Title"), text: t("discover.pathStep3Copy") },
-            { label: "04", title: t("discover.pathStep4Title"), text: t("discover.pathStep4Copy") },
+            { label: webT("home.journey1Label"), title: t("discover.pathStep1Title"), text: t("discover.pathStep1Copy") },
+            { label: webT("home.journey2Label"), title: t("discover.pathStep2Title"), text: t("discover.pathStep2Copy") },
+            { label: webT("home.journey3Label"), title: t("discover.pathStep3Title"), text: t("discover.pathStep3Copy") },
+            { label: webT("home.journey4Label"), title: t("discover.pathStep4Title"), text: t("discover.pathStep4Copy") },
           ]}
         />
       ) : namedIntent && current ? (

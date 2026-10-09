@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +44,7 @@ const categories = [
 const DEFAULT_MOMENT_TYPE = "community";
 
 export const AdminCreateMomentTab = () => {
+  const { t: webT } = useWebI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -109,7 +111,7 @@ export const AdminCreateMomentTab = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedHostId) {
-            toast({ title: "Error", description: "Please select a host for this moment.", variant: "destructive" });
+            toast({ title: webT("kyc.error"), description: "Please select a host for this moment.", variant: "destructive" });
             return;
         }
 
@@ -194,7 +196,7 @@ export const AdminCreateMomentTab = () => {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Title</Label>
+                                <Label>{webT("offerStudio.titleLabel")}</Label>
                                 <Input 
                                     required 
                                     placeholder="e.g., Grand Opening Celebration" 
@@ -203,7 +205,7 @@ export const AdminCreateMomentTab = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Description</Label>
+                                <Label>{webT("offerStudio.descLabel")}</Label>
                                 <Textarea 
                                     required 
                                     placeholder="Explain the purpose of this moment..." 
@@ -214,7 +216,7 @@ export const AdminCreateMomentTab = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Category</Label>
+                                    <Label>{webT("support.category")}</Label>
                                     <Select value={formData.category} onValueChange={v => setFormData({...formData, category: v})}>
                                         <SelectTrigger>
                                             <SelectValue />
@@ -227,7 +229,7 @@ export const AdminCreateMomentTab = () => {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Max Participants</Label>
+                                    <Label>{webT("editMoment.maxParticipantsLabel")}</Label>
                                     <Input 
                                         type="number" 
                                         value={formData.maxParticipants}
@@ -273,7 +275,7 @@ export const AdminCreateMomentTab = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Venue Category</Label>
+                                    <Label>{webT("editMoment.venueCategoryLabel")}</Label>
                                     <Select value={formData.venueCategory} onValueChange={v => setFormData({...formData, venueCategory: v})}>
                                         <SelectTrigger>
                                             <SelectValue />
@@ -286,7 +288,7 @@ export const AdminCreateMomentTab = () => {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Proof type</Label>
+                                    <Label>{webT("editMoment.proofTypeLabel")}</Label>
                                     <Select value={formData.proofType} onValueChange={v => setFormData({...formData, proofType: v})}>
                                         <SelectTrigger>
                                             <SelectValue />
@@ -342,7 +344,7 @@ export const AdminCreateMomentTab = () => {
                                         {hosts.map(h => (
                                             <SelectItem key={h.user_id} value={h.user_id}>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold">{h.profiles?.full_name || "Merchant"}</span>
+                                                    <span className="font-bold">{h.profiles?.full_name || webT("lens.merchant.workspace")}</span>
                                                     <span className="text-[10px] text-muted-foreground">{h.profiles?.email}</span>
                                                 </div>
                                             </SelectItem>

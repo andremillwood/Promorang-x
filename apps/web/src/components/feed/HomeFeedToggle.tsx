@@ -1,8 +1,10 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Sparkles, Calendar } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 export function HomeFeedToggle() {
+  const { t: webT } = useWebI18n();
   const location = useLocation();
   const isForYou = location.pathname === "/for-you";
   const isToday = location.pathname === "/" || location.pathname === "/live";
@@ -20,7 +22,7 @@ export function HomeFeedToggle() {
           )}
         >
           <Calendar className="h-3.5 w-3.5" />
-          Today
+          {webT("lens.today")}
         </Link>
         <Link
           to="/for-you"
@@ -32,7 +34,7 @@ export function HomeFeedToggle() {
           )}
         >
           <Sparkles className="h-3.5 w-3.5" />
-          For You
+          {webT("explorePage.guideForYouTitle")}
         </Link>
       </div>
 

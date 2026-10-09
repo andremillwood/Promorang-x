@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { Link } from "react-router-dom";
 import { FileCheck2, History, Scale, ShieldCheck } from "lucide-react";
 import { useModerationOverview } from "@/hooks/useAdmin";
@@ -56,7 +57,7 @@ export function AdminVerificationHub() {
           {metrics.map((metric) => (
             <div key={metric.label} className="rounded-2xl border border-white/10 bg-black/30 p-5">
               <p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">{metric.label}</p>
-              <p className="mt-3 text-4xl font-black text-white">{moderation.isLoading ? "…" : metric.value.toLocaleString()}</p>
+              <p className="mt-3 text-4xl font-black text-white">{moderation.isLoading ? "…" : metric.value.toLocaleString(currentUiLocale())}</p>
               <p className="mt-2 text-xs leading-5 text-white/38">{metric.helper}</p>
             </div>
           ))}

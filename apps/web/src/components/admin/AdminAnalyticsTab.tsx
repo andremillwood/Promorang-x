@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { AdminFunnelSummary } from "@/components/funnels/AdminFunnelSummary";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +24,7 @@ import { format, subDays } from "date-fns";
 const COLORS = ["hsl(24, 100%, 50%)", "hsl(45, 100%, 55%)", "hsl(142, 76%, 36%)", "hsl(217, 91%, 60%)", "hsl(280, 65%, 60%)"];
 
 export function AdminAnalyticsTab() {
+  const { t: webT } = useWebI18n();
   // Fetch user signup trend (last 14 days)
   const { data: signupTrend, isLoading: signupLoading } = useQuery({
     queryKey: ["admin-signup-trend"],
@@ -233,7 +236,7 @@ export function AdminAnalyticsTab() {
             </ResponsiveContainer>
           ) : (
             <div className="h-64 flex items-center justify-center text-muted-foreground">
-              No data available
+              {webT("web.noData")}
             </div>
           )}
         </div>
@@ -261,7 +264,7 @@ export function AdminAnalyticsTab() {
             </ResponsiveContainer>
           ) : (
             <div className="h-64 flex items-center justify-center text-muted-foreground">
-              No data available
+              {webT("web.noData")}
             </div>
           )}
         </div>
@@ -276,14 +279,14 @@ export function AdminAnalyticsTab() {
           <div className="grid md:grid-cols-3 gap-6">
             <div>
               <p className="text-sm text-muted-foreground">Total Participations</p>
-              <p className="text-3xl font-bold text-foreground">{checkInRate?.total.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-foreground">{checkInRate?.total.toLocaleString(currentUiLocale())}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Verified Check-ins</p>
-              <p className="text-3xl font-bold text-emerald-500">{checkInRate?.checkedIn.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">{webT("web.verifiedCheckins")}</p>
+              <p className="text-3xl font-bold text-emerald-500">{checkInRate?.checkedIn.toLocaleString(currentUiLocale())}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Check-in Rate</p>
+              <p className="text-sm text-muted-foreground">{webT("web.checkinRate")}</p>
               <p className="text-3xl font-bold text-primary">{checkInRate?.rate}%</p>
               <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
                 <div

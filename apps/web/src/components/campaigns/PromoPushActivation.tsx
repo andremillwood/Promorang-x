@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +9,7 @@ import type { PromoPushCampaign } from "@/hooks/usePromoPush";
 import { Button } from "@/components/ui/button";
 
 export function PromoPushActivation({ campaign }: { campaign: PromoPushCampaign }) {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const client = useQueryClient();
   const action = useMutation({
@@ -38,15 +41,15 @@ export function PromoPushActivation({ campaign }: { campaign: PromoPushCampaign 
       ? "Gems secured. Review your distribution details before launch."
       : !quote?.quote_id ? "Awaiting a staff quote. Nothing has been charged or launched."
       : expired ? "Quote expired. Request a new quote before funding."
-      : `Quote: ${Number(quote.total_gems).toLocaleString()} Gems. Valid until ${new Date(quote.expires_at!).toLocaleString()}.`}</p>
+      : `Quote: ${Number(quote.total_gems).toLocaleString(currentUiLocale())} Gems. Valid until ${new Date(quote.expires_at!).toLocaleString(currentUiLocale())}.`}</p>
     {!secured && campaign.push_mode !== "organic" && <p className="text-sm text-white/60">Funding uses your Gem wallet. If your balance is insufficient, <Link className="underline" to="/wallet">add Gems in your wallet</Link> and return here. Pending, failed or cancelled payments do not secure this campaign; wait for the verified wallet credit, then retry.</p>}
     {action.error && <p role="alert">{action.error.message}</p>}
     {action.isPending && <p role="status">Checking server state…</p>}
     <div className="flex flex-wrap gap-3">
-      {!secured && quote?.quote_id && !expired && <Button disabled={action.isPending} onClick={() => action.mutate("fund")}>Approve quote and secure {quote.total_gems} Gems</Button>}
-      {(secured || campaign.push_mode === "organic") && <Button disabled={action.isPending} onClick={() => action.mutate("launch")}>Launch PromoPush</Button>}
+      {!secured && quote?.quote_id && !expired && <Button disabled={action.isPending} onClick={() => action.mutate("fund")}>Approve quote and secure {quote.total_gems} {webT("wallet.gemsLabel")}</Button>}
+      {(secured || campaign.push_mode === "organic") && <Button disabled={action.isPending} onClick={() => action.mutate("launch")}>{webT("how.creatorStep3Cta")}</Button>}
       <Button variant="outline" disabled={action.isPending} onClick={() => action.mutate("cancel")}>Cancel draft{secured ? " and return Gems" : ""}</Button>
-      <Button variant="outline" disabled={action.isPending} onClick={() => client.invalidateQueries({ queryKey: ["promopush-campaigns"] })}>Refresh status</Button>
+      <Button variant="outline" disabled={action.isPending} onClick={() => client.invalidateQueries({ queryKey: ["promopush-campaigns"] })}>{webT("web.refreshStatus")}</Button>
     </div>
   </div>;
 }

@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
@@ -508,13 +509,13 @@ export default function ArlaCampaignHub() {
 
               <div className="p-3 bg-black/60 border border-white/10">
                 <span className="text-[9px] text-white/40 block">REGULAR STORE COST</span>
-                <strong className="text-xl font-black text-red-400 font-sans line-through">J${regTotal.toLocaleString()}</strong>
+                <strong className="text-xl font-black text-red-400 font-sans line-through">J${regTotal.toLocaleString(currentUiLocale())}</strong>
                 <span className="text-[10px] text-white/50 block mt-0.5">Separate Creams</span>
               </div>
 
               <div className="p-3 bg-emerald-950/40 border border-emerald-500/40">
                 <span className="text-[9px] text-emerald-400 block font-bold">PROPOSED ROADSHOW PRICE</span>
-                <strong className="text-2xl font-black text-emerald-400 font-sans">J${roadshowTotal.toLocaleString()}</strong>
+                <strong className="text-2xl font-black text-emerald-400 font-sans">J${roadshowTotal.toLocaleString(currentUiLocale())}</strong>
                 <span className="text-[10px] text-emerald-300 block font-bold mt-0.5">J$1,200 per 1L</span>
               </div>
             </div>
@@ -526,7 +527,7 @@ export default function ArlaCampaignHub() {
                   ILLUSTRATIVE PRICE DIFFERENCE
                 </span>
                 <p className="text-3xl font-black text-white font-serif font-sans mt-0.5">
-                  Save J${savingsTotal.toLocaleString()} In Your Pocket (56%)
+                  Save J${savingsTotal.toLocaleString(currentUiLocale())} In Your Pocket (56%)
                 </p>
               </div>
 

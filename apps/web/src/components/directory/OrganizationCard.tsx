@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,7 @@ export const OrganizationCard = ({
     stats,
     className
 }: OrganizationCardProps) => {
+  const { t: webT } = useWebI18n();
     const getProfilePath = () => {
         const identifier = slug || id;
         switch (type) {
@@ -99,7 +101,7 @@ export const OrganizationCard = ({
                     </div>
                 )}
                 <CardDescription className="text-sm line-clamp-3 min-h-[4.5rem]">
-                    {description || "No description provided."}
+                    {description || webT("serviceCatalogPage.noDescription")}
                 </CardDescription>
 
                 {stats && stats.length > 0 && (
@@ -120,7 +122,7 @@ export const OrganizationCard = ({
                     <Button variant="ghost" size="sm" asChild className="h-8 group/link">
                         <a href={website} target="_blank" rel="noopener noreferrer">
                             <Globe className="w-4 h-4 mr-2 group-hover/link:animate-pulse" />
-                            Website
+                            {webT("brandProfilePage.website")}
                         </a>
                     </Button>
                 ) : (
@@ -128,7 +130,7 @@ export const OrganizationCard = ({
                 )}
                 <Button size="sm" asChild className="h-8 shadow-sm">
                     <Link to={getProfilePath()}>
-                        View Profile
+                        {webT("hostCard.viewProfile")}
                         <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </Button>

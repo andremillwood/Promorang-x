@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export function ImageUpload({
   frameUrl,
   allowVideo = false,
 }: ImageUploadProps) {
+  const { t: webT } = useWebI18n();
   const [preview, setPreview] = useState<string | null>(value || null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -110,7 +112,7 @@ export function ImageUpload({
             <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm text-muted-foreground">Uploading...</span>
+                <span className="text-sm text-muted-foreground">{webT("web.uploading")}</span>
               </div>
             </div>
           )}
@@ -130,7 +132,7 @@ export function ImageUpload({
             <ImageIcon className="w-6 h-6 text-primary" />
           </div>
           <div className="text-center">
-            <p className="font-medium text-foreground">Click to upload</p>
+            <p className="font-medium text-foreground">{webT("web.clickUpload")}</p>
             <p className="text-sm text-muted-foreground">
               {allowVideo ? "Image or video (max 50MB)" : "JPEG, PNG, WebP or GIF (max 5MB)"}
             </p>

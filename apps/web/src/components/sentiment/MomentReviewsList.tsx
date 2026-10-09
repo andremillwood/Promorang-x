@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Star, ThumbsUp, Verified, Award, MessageSquare, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +36,7 @@ interface ReviewWithUser {
 }
 
 function ReviewCard({ review }: { review: ReviewWithUser }) {
+  const { t: webT } = useWebI18n();
   const { markHelpful } = useMomentSentiment();
 
   const handleHelpful = () => {
@@ -57,14 +60,14 @@ function ReviewCard({ review }: { review: ReviewWithUser }) {
             {review.is_verified_attendee && (
               <Badge variant="secondary" className="text-xs gap-1">
                 <Verified className="w-3 h-3" />
-                Verified
+                {webT("kyc.badgeVerified")}
               </Badge>
             )}
             
             {review.is_featured && (
               <Badge className="text-xs gap-1 bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
                 <Award className="w-3 h-3" />
-                Featured
+                {webT("galleryPage.featuredBadge")}
               </Badge>
             )}
           </div>
@@ -82,7 +85,7 @@ function ReviewCard({ review }: { review: ReviewWithUser }) {
               />
             ))}
             <span className="text-xs text-muted-foreground ml-2">
-              {new Date(review.submitted_at).toLocaleDateString()}
+              {new Date(review.submitted_at).toLocaleDateString(currentUiLocale())}
             </span>
           </div>
 
@@ -152,6 +155,7 @@ function ReviewCard({ review }: { review: ReviewWithUser }) {
 }
 
 function SentimentStats({ momentId }: { momentId: string }) {
+  const { t: webT } = useWebI18n();
   const { useMomentSentimentStats } = useMomentSentiment();
   const { data: stats, isLoading } = useMomentSentimentStats(momentId);
 
@@ -195,7 +199,7 @@ function SentimentStats({ momentId }: { momentId: string }) {
         </div>
         <p className="text-xs text-muted-foreground mt-1">
           {stats.verified_reviews > 0 && (
-            <span className="text-green-600">{stats.verified_reviews} verified</span>
+            <span className="text-green-600">{stats.verified_reviews} {webT("web.verifiedLower")}</span>
           )}
         </p>
         <p className="text-xs text-muted-foreground">Total Reviews</p>
@@ -226,6 +230,7 @@ export function MomentReviewsList({
   limit = 10,
   showStats = true 
 }: MomentReviewsListProps) {
+  const { t: webT } = useWebI18n();
   const { useMomentReviews } = useMomentSentiment();
   const { data: reviews, isLoading, error } = useMomentReviews(momentId);
 
@@ -294,7 +299,7 @@ export function MomentReviewsList({
 
         {reviews && reviews.length > limit && (
           <Button variant="outline" className="w-full">
-            View all {reviews.length} reviews
+            {webT("hostDash.viewAll")} {reviews.length} {webT("commercial.reviews.321")}
           </Button>
         )}
       </CardContent>

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -69,6 +70,7 @@ const PRESETS: PerkPreset[] = [
 ];
 
 export const GuestPerkSimulator: React.FC = () => {
+  const { t: webT } = useWebI18n();
   const [selectedPreset, setSelectedPreset] = useState<PerkPreset>(PRESETS[0]);
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
@@ -178,7 +180,7 @@ export const GuestPerkSimulator: React.FC = () => {
                   {/* Bottom / Unlock State */}
                   <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] uppercase font-mono tracking-wider text-white/40">Status</div>
+                      <div className="text-[10px] uppercase font-mono tracking-wider text-white/40">{webT("kyc.statusLabel")}</div>
                       <div className="text-xs font-bold text-white flex items-center gap-1.5 mt-0.5">
                         {isUnlocked ? (
                           <>

@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 /**
  * Shared utilities for analytics components
  * Formatting, calculations, and data transformations
@@ -7,58 +8,26 @@
  * Format currency values
  */
 export const formatCurrency = (value: number | null | undefined): string => {
-    if (value === null || value === undefined) return '$0.00';
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(currentUiLocale(), {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-    }).format(value);
+    }).format(value ?? 0);
 };
 
 /**
  * Format compact currency (e.g., $1.2K, $3.5M)
  */
-export const formatCompactCurrency = (value: number | null | undefined): string => {
-    if (value === null || value === undefined) return '$0';
+export const formatCompactCurrency = (value: number | null | undefined): string =>
+    new Intl.NumberFormat(currentUiLocale(), { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 }).format(value ?? 0);
 
-    const absValue = Math.abs(value);
-    const sign = value < 0 ? '-' : '';
+/** Input is a percentage (12 means 12%, not 1200%). */
+export const formatPercent = (value: number | null | undefined, decimals = 1): string =>
+    new Intl.NumberFormat(currentUiLocale(), { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format((value ?? 0) / 100);
 
-    if (absValue >= 1000000) {
-        return `${sign}$${(absValue / 1000000).toFixed(1)}M`;
-    }
-    if (absValue >= 1000) {
-        return `${sign}$${(absValue / 1000).toFixed(1)}K`;
-    }
-    return `${sign}$${absValue.toFixed(0)}`;
-};
-
-/**
- * Format percentage
- */
-export const formatPercent = (value: number | null | undefined, decimals = 1): string => {
-    if (value === null || value === undefined) return '0%';
-    return `${value.toFixed(decimals)}%`;
-};
-
-/**
- * Format large numbers with K/M suffix
- */
-export const formatCompactNumber = (value: number | null | undefined): string => {
-    if (value === null || value === undefined) return '0';
-
-    const absValue = Math.abs(value);
-    const sign = value < 0 ? '-' : '';
-
-    if (absValue >= 1000000) {
-        return `${sign}${(absValue / 1000000).toFixed(1)}M`;
-    }
-    if (absValue >= 1000) {
-        return `${sign}${(absValue / 1000).toFixed(1)}K`;
-    }
-    return `${sign}${absValue.toFixed(0)}`;
-};
+export const formatCompactNumber = (value: number | null | undefined): string =>
+    new Intl.NumberFormat(currentUiLocale(), { notation: 'compact', maximumFractionDigits: 1 }).format(value ?? 0);
 
 /**
  * Calculate percentage change between two values
@@ -80,7 +49,7 @@ export const calculateGrowthRate = (current: number, previous: number): {
     return {
         value: change,
         isPositive: change >= 0,
-        formatted: `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`,
+        formatted: new Intl.NumberFormat(currentUiLocale(), { style: 'percent', signDisplay: 'exceptZero', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(change / 100),
     };
 };
 
@@ -89,7 +58,7 @@ export const calculateGrowthRate = (current: number, previous: number): {
  */
 export const formatDate = (date: string | Date): string => {
     const d = typeof date === 'string' ? new Date(date) : date;
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat(currentUiLocale(), {
         month: 'short',
         day: 'numeric',
         year: 'numeric',

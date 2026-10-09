@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import type { LucideIcon } from "lucide-react";
 import { BadgeCheck, Banknote, Gem, Gift, MousePointerClick, Ticket, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -55,6 +56,7 @@ export function ValueExchangeSummary({
   className?: string;
   dark?: boolean;
 }) {
+  const { t: webT } = useWebI18n();
   return (
     <section className={cn("overflow-hidden rounded-2xl border", dark ? "border-white/10 bg-white/[0.04]" : "border-border/70 bg-muted/20", className)} aria-label="Value exchange">
       <div className="grid md:grid-cols-[0.75fr_0.75fr_1.5fr]">
@@ -63,11 +65,11 @@ export function ValueExchangeSummary({
           <p className={cn("mt-2 text-sm font-bold", dark ? "text-white/85" : "text-foreground")}>{action}</p>
         </div>
         <div className={cn("border-t p-3.5 md:border-r md:border-t-0", dark ? "border-white/10" : "border-border/60")}>
-          <div className={cn("flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.17em]", dark ? "text-white/38" : "text-muted-foreground")}><BadgeCheck className="h-3.5 w-3.5" />What counts</div>
+          <div className={cn("flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.17em]", dark ? "text-white/38" : "text-muted-foreground")}><BadgeCheck className="h-3.5 w-3.5" />{webT("campaignDetail.whatCounts")}</div>
           <p className={cn("mt-2 text-sm font-bold", dark ? "text-white/85" : "text-foreground")}>{proof}</p>
         </div>
         <div className={cn("border-t p-3.5 md:border-t-0", dark ? "border-white/10" : "border-border/60")}>
-          <p className={cn("text-[9px] font-black uppercase tracking-[0.17em]", dark ? "text-white/38" : "text-muted-foreground")}>What you keep</p>
+          <p className={cn("text-[9px] font-black uppercase tracking-[0.17em]", dark ? "text-white/38" : "text-muted-foreground")}>{webT("forMerchants.perkKeepTitle")}</p>
           {outcomes.length > 0 ? <ValueOutcomeChips outcomes={outcomes} className="mt-2" /> : <p className={cn("mt-2 text-sm", dark ? "text-white/55" : "text-muted-foreground")}>No additional outcome has been disclosed.</p>}
         </div>
       </div>

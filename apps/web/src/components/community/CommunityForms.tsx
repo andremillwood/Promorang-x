@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import type { CommunityAction, CommunityWorkspaceData } from '@/types/community';
@@ -12,6 +13,7 @@ export type CommunityForm = { action: string; title: string; description: string
   values?: Record<string, unknown>; transform?: (values: Record<string, FormDataEntryValue>) => Record<string, unknown>; submit?: string };
 
 export function CommunityFormDialog({ form, onClose, onAction }: { form: CommunityForm | null; onClose: () => void; onAction: CommunityAction }) {
+  const { t: webT } = useWebI18n();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -32,7 +34,7 @@ export function CommunityFormDialog({ form, onClose, onAction }: { form: Communi
       <form key={`${form?.action}-${JSON.stringify(form?.values)}`} onSubmit={submit} className="mt-3 space-y-5">
         {form?.fields}
         {error && <p role="alert" className="rounded-xl border border-red-300/30 bg-red-400/10 p-3 text-sm text-red-100">{error}</p>}
-        <button disabled={pending} className={buttonClass} type="submit">{pending ? 'Saving…' : form?.submit || 'Save'}</button>
+        <button disabled={pending} className={buttonClass} type="submit">{pending ? webT("funnel.saving") : form?.submit || webT("discoveryDetail.save")}</button>
       </form>
     </DialogContent>
   </Dialog>;

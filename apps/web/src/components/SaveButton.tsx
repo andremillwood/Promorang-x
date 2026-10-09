@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { Bookmark, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export function SaveButton({
     className,
     onSaved,
 }: SaveButtonProps) {
+  const { t: webT } = useWebI18n();
     const { toast } = useToast();
     const { user } = useAuth();
     const [isSaved, setIsSaved] = useState(initialSaved);
@@ -95,7 +97,7 @@ export function SaveButton({
         if (nextSaved) setTimeout(() => setShowSuccess(false), 1500);
         onSaved?.(nextSaved);
         setIsLoading(false);
-        toast({ title: nextSaved ? "Saved" : "Removed", description: nextSaved ? "This Moment is now in All Saved." : "This Moment was removed from your saved ledger." });
+        toast({ title: nextSaved ? webT("discoveryDetail.saved") : "Removed", description: nextSaved ? "This Moment is now in All Saved." : "This Moment was removed from your saved ledger." });
     };
 
     const sizeClasses = { sm: "h-8 w-8", md: "h-9 w-9", lg: "h-10 w-10" };
@@ -116,7 +118,7 @@ export function SaveButton({
 
     return (
         <Button variant={isSaved ? "hero" : "outline"} size={size === "lg" ? "lg" : "sm"} className={cn("gap-2 transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-200", className)} onClick={handleSave} disabled={isLoading}>
-            {showSuccess ? <><Check className="h-4 w-4" />Saved</> : <><Bookmark className={cn("h-4 w-4", isSaved && "fill-current")} />{isSaved ? "Saved" : "Save"}</>}
+            {showSuccess ? <><Check className="h-4 w-4" />{webT("discoveryDetail.saved")}</> : <><Bookmark className={cn("h-4 w-4", isSaved && "fill-current")} />{isSaved ? webT("discoveryDetail.saved") : webT("discoveryDetail.save")}</>}
         </Button>
     );
 }

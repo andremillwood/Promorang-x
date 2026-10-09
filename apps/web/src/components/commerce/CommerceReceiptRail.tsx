@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { BadgeCheck, Bookmark, Gift, Receipt, ShoppingBag, TicketCheck } from 'lucide-react';
@@ -49,7 +50,7 @@ function receiptTitle(receipt: CommerceReceipt) {
 function receiptValue(receipt: CommerceReceipt) {
   const amount = Number(receipt.amount || 0);
   if (receipt.redemption_code) return receipt.redemption_code;
-  if (amount > 0) return new Intl.NumberFormat(undefined, {
+  if (amount > 0) return new Intl.NumberFormat(currentUiLocale(), {
     style: 'currency',
     currency: receipt.currency || 'USD',
   }).format(amount);

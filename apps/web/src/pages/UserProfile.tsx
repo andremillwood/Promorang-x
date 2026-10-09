@@ -46,6 +46,7 @@ interface ProfileStats {
 }
 
 const UserProfilePage = () => {
+  const { t: webT } = useI18n();
     const { t, formatNumber } = useI18n();
     const { userId } = useParams<{ userId: string }>();
     const { user } = useAuth();
@@ -405,11 +406,11 @@ const UserProfilePage = () => {
                         </div>
                         <div className="border-r border-white/10 px-3 py-6 md:px-6">
                             <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.followers) : "—"}</p>
-                            <p className="text-sm text-white/40">Followers</p>
+                            <p className="text-sm text-white/40">{webT("creatorProfile.followers")}</p>
                         </div>
                         <div className="px-3 py-6 md:px-6">
                             <p className="text-2xl font-black text-white">{stats ? formatNumber(stats.following) : "—"}</p>
-                            <p className="text-sm text-white/40">Following</p>
+                            <p className="text-sm text-white/40">{webT("launch.following")}</p>
                         </div>
                     </div>
                     {stats?.rating !== undefined ? <p className="mb-8 flex items-center gap-2 text-xs font-bold text-white/50"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400"/>{stats.rating.toFixed(1)} from {stats.reviewCount} rating{stats.reviewCount === 1 ? "" : "s"}</p> : null}

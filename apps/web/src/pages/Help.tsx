@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, BookOpen, Building2, Compass, CreditCard, FileCheck2, Search, ShieldCheck, Sparkles, Users } from "lucide-react";
@@ -150,6 +151,7 @@ const categories: Array<{ id: HelpCategory; label: string; icon: typeof Users }>
 ];
 
 export default function HelpCenter() {
+  const { t: webT } = useWebI18n();
   const [category, setCategory] = useState<HelpCategory>("all");
   const [search, setSearch] = useState("");
   const [openFaq, setOpenFaq] = useState<string | null>(null);
@@ -175,7 +177,7 @@ export default function HelpCenter() {
           <h1 className="mt-3 max-w-4xl font-serif text-5xl font-bold leading-[.94] tracking-[-.055em] sm:text-7xl">Find your way around PROMORANG.</h1>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">PROMORANG helps you understand what you found, what people want, what opened up, and what happened next.</p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link to="/what-is-promorang" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-black">What is PROMORANG? <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/what-is-promorang" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-xs font-black text-black">{webT("web.whatIs")} <ArrowRight className="h-4 w-4" /></Link>
             <Link to="/how-it-works" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black text-white">See the full journey</Link>
           </div>
         </header>
@@ -204,13 +206,13 @@ export default function HelpCenter() {
               <h3 className="mt-3 font-serif text-3xl font-bold tracking-[-.03em]">{guide.title}</h3>
               <p className="mt-3 text-sm leading-6 text-white/50">{guide.summary}</p>
               <ol className="mt-5 space-y-3">{guide.steps.map((step, index) => <li key={step} className="grid grid-cols-[28px_1fr] gap-3 text-sm leading-6 text-white/65"><span className="grid h-7 w-7 place-items-center rounded-full border border-white/10 font-mono text-[10px] text-primary">{index + 1}</span><span>{step}</span></li>)}</ol>
-              {guide.href ? <Link to={guide.href} className="mt-6 inline-flex items-center gap-2 text-sm font-black text-primary">{guide.action || "Open"} <ArrowRight className="h-4 w-4" /></Link> : null}
+              {guide.href ? <Link to={guide.href} className="mt-6 inline-flex items-center gap-2 text-sm font-black text-primary">{guide.action || webT("auth.open")} <ArrowRight className="h-4 w-4" /></Link> : null}
             </article>
           ))}</div> : <p className="text-sm text-white/40">No guides match that search.</p>}
         </section>
 
         <section className="border-t border-white/10 py-12">
-          <div className="mb-6"><p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">FAQ</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Common questions.</h2></div>
+          <div className="mb-6"><p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">{webT("forCreators.faqBadge")}</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Common questions.</h2></div>
           <div className="divide-y divide-white/10 border-y border-white/10">
             {visibleFaqs.map((faq) => {
               const open = openFaq === faq.q;
@@ -220,9 +222,9 @@ export default function HelpCenter() {
         </section>
 
         <section className="grid gap-4 border-t border-white/10 pt-10 sm:grid-cols-3">
-          <Link to="/discover" className="rounded-[1.5rem] border border-white/10 p-5"><Compass className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Discover</p><p className="mt-2 text-xs leading-5 text-white/45">Start with something worth knowing.</p></Link>
-          <Link to="/card" className="rounded-[1.5rem] border border-white/10 p-5"><CreditCard className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">PromoCard</p><p className="mt-2 text-xs leading-5 text-white/45">Keep what you’re watching, access you have, and what you’ve been part of.</p></Link>
-          <Link to="/for-brands" className="rounded-[1.5rem] border border-white/10 p-5"><Sparkles className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">Respond</p><p className="mt-2 text-xs leading-5 text-white/45">See how businesses can respond when people want something.</p></Link>
+          <Link to="/discover" className="rounded-[1.5rem] border border-white/10 p-5"><Compass className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">{webT("publicNav.discover")}</p><p className="mt-2 text-xs leading-5 text-white/45">Start with something worth knowing.</p></Link>
+          <Link to="/card" className="rounded-[1.5rem] border border-white/10 p-5"><CreditCard className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">{webT("card.eyebrow")}</p><p className="mt-2 text-xs leading-5 text-white/45">Keep what you’re watching, access you have, and what you’ve been part of.</p></Link>
+          <Link to="/for-brands" className="rounded-[1.5rem] border border-white/10 p-5"><Sparkles className="h-5 w-5 text-primary" /><p className="mt-4 font-serif text-2xl font-bold">{webT("commercial.respond.122")}</p><p className="mt-2 text-xs leading-5 text-white/45">See how businesses can respond when people want something.</p></Link>
         </section>
       </div>
     </main>

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, Award, BadgeCheck, Circle, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,7 @@ const tierLabels: Record<string, string> = {
 };
 
 export function CreatorReputationDeck() {
+  const { t: webT } = useWebI18n();
   const progressQuery = useRoleSuccessProgress("creator");
   const profileQuery = useCreatorEconomicProfile();
 
@@ -54,7 +57,7 @@ export function CreatorReputationDeck() {
           <div className="rounded-2xl border border-white/10 bg-black/30 px-5 py-4">
             <p className="text-[9px] font-black uppercase tracking-[.16em] text-white/30">Recorded economic tier</p>
             <p className="mt-2 text-lg font-black text-white">
-              {profileQuery.isLoading ? "Checking…" : recordedTier || "No tier recorded"}
+              {profileQuery.isLoading ? webT("aftrhrs.doorChecking") : recordedTier || "No tier recorded"}
             </p>
             <p className="mt-1 text-xs text-white/35">
               A tier appears only when the creator economic profile records one.
@@ -65,10 +68,10 @@ export function CreatorReputationDeck() {
 
       <section className="grid gap-4 lg:grid-cols-[.85fr_1.15fr]">
         <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
-          <p className="text-[9px] font-black uppercase tracking-[.18em] text-purple-300">Verified movement</p>
+          <p className="text-[9px] font-black uppercase tracking-[.18em] text-purple-300">{webT("pioneersPage.leadersEyebrow")}</p>
           <div className="mt-5 flex items-end gap-3">
-            <span className="text-5xl font-black text-white">{progressQuery.isLoading ? "—" : current.toLocaleString()}</span>
-            <span className="pb-1 text-sm font-bold text-white/35">/ {target.toLocaleString()} {progress?.unit || "verified supporter actions"}</span>
+            <span className="text-5xl font-black text-white">{progressQuery.isLoading ? "—" : current.toLocaleString(currentUiLocale())}</span>
+            <span className="pb-1 text-sm font-bold text-white/35">/ {target.toLocaleString(currentUiLocale())} {progress?.unit || "verified supporter actions"}</span>
           </div>
           <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/8">
             <div className="h-full rounded-full bg-purple-400 transition-[width]" style={{ width: `${completion}%` }} />

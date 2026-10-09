@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { CheckCircle2, Clock, Coins, Hourglass, PieChart, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -80,7 +81,7 @@ export function CreatorEarningsTab() {
           <CardContent>
             {recent.length ? <div className="space-y-3">{recent.map((earning: any) => (
               <div key={earning.id} className="flex flex-col gap-2 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div><p className="font-medium">{SOURCE_LABELS[earning.source_type] || earning.source_type}</p><p className="mt-1 text-xs text-muted-foreground">{statusLabel(earning.status)} · {new Date(earning.created_at).toLocaleDateString()}</p></div>
+                <div><p className="font-medium">{SOURCE_LABELS[earning.source_type] || earning.source_type}</p><p className="mt-1 text-xs text-muted-foreground">{statusLabel(earning.status)} · {new Date(earning.created_at).toLocaleDateString(currentUiLocale())}</p></div>
                 <div className="text-left sm:text-right"><p className="font-bold">{formatCurrency(earning.creator_share_amount)}</p><p className="text-xs text-muted-foreground">{formatNumber(earning.unit_count || 0)} unit{earning.unit_count === 1 ? "" : "s"}</p></div>
               </div>
             ))}</div> : <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">No creator value events yet.</div>}

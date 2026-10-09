@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -63,6 +64,7 @@ interface Product {
 }
 
 const ProductCatalogManager = () => {
+  const { t: webT } = useWebI18n();
     const { user, session } = useAuth();
     const { toast } = useToast();
     const [products, setProducts] = useState<Product[]>([]);
@@ -113,7 +115,7 @@ const ProductCatalogManager = () => {
             setProducts(data);
         } catch (error: any) {
             toast({
-                title: "Error",
+                title: webT("kyc.error"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -168,7 +170,7 @@ const ProductCatalogManager = () => {
             if (!response.ok) throw new Error('Failed to save product');
 
             toast({
-                title: "Success",
+                title: webT("commercial.success.193"),
                 description: `Product ${editingProduct ? 'updated' : 'created'} successfully`,
             });
 
@@ -177,7 +179,7 @@ const ProductCatalogManager = () => {
             fetchProducts();
         } catch (error: any) {
             toast({
-                title: "Error",
+                title: webT("kyc.error"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -223,14 +225,14 @@ const ProductCatalogManager = () => {
             if (!response.ok) throw new Error('Failed to delete product');
 
             toast({
-                title: "Success",
+                title: webT("commercial.success.193"),
                 description: "Product deleted successfully",
             });
 
             fetchProducts();
         } catch (error: any) {
             toast({
-                title: "Error",
+                title: webT("kyc.error"),
                 description: error.message,
                 variant: "destructive",
             });
@@ -306,7 +308,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div className="sm:col-span-2">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">{webT("offerStudio.descLabel")}</Label>
                                     <Textarea
                                         id="description"
                                         value={formData.description}
@@ -316,7 +318,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="category">Category</Label>
+                                    <Label htmlFor="category">{webT("support.category")}</Label>
                                     <Select
                                         value={formData.category}
                                         onValueChange={(value) => setFormData({
@@ -327,14 +329,14 @@ const ProductCatalogManager = () => {
                                         })}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select category" />
+                                            <SelectValue placeholder={webT("web.selectCategory")} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="food">Food & Beverage</SelectItem>
-                                            <SelectItem value="retail">Retail</SelectItem>
-                                            <SelectItem value="service">Service</SelectItem>
+                                            <SelectItem value="food">{webT("createMoment.categories.food")}</SelectItem>
+                                            <SelectItem value="retail">{webT("web.retail")}</SelectItem>
+                                            <SelectItem value="service">{webT("market.service")}</SelectItem>
                                             <SelectItem value="entertainment">Entertainment</SelectItem>
-                                            <SelectItem value="other">Other</SelectItem>
+                                            <SelectItem value="other">{webT("support.catOther")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -349,9 +351,9 @@ const ProductCatalogManager = () => {
                                             <SelectValue placeholder="Listing type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="product">Product</SelectItem>
-                                            <SelectItem value="service">Service</SelectItem>
-                                            <SelectItem value="experience">Experience</SelectItem>
+                                            <SelectItem value="product">{webT("receipt.product")}</SelectItem>
+                                            <SelectItem value="service">{webT("market.service")}</SelectItem>
+                                            <SelectItem value="experience">{webT("web.experience")}</SelectItem>
                                             <SelectItem value="perk">Perk</SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -368,7 +370,7 @@ const ProductCatalogManager = () => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="fulfillment_mode">Fulfillment</Label>
+                                    <Label htmlFor="fulfillment_mode">{webT("offerStudio.fulfillmentLabel")}</Label>
                                     <Select
                                         value={formData.fulfillment_mode}
                                         onValueChange={(value) => setFormData({ ...formData, fulfillment_mode: value })}
@@ -377,9 +379,9 @@ const ProductCatalogManager = () => {
                                             <SelectValue placeholder="Fulfillment mode" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="pickup">Pickup</SelectItem>
+                                            <SelectItem value="pickup">{webT("storefront.pickup")}</SelectItem>
                                             <SelectItem value="booking">Booking</SelectItem>
-                                            <SelectItem value="reservation">Reservation</SelectItem>
+                                            <SelectItem value="reservation">{webT("web.receiptType.reservation")}</SelectItem>
                                             <SelectItem value="online">Online</SelectItem>
                                             <SelectItem value="onsite">On-site redemption</SelectItem>
                                         </SelectContent>
@@ -410,7 +412,7 @@ const ProductCatalogManager = () => {
                                         onValueChange={(value) => setFormData({ ...formData, discount_type: value })}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
+                                            <SelectValue placeholder={webT("web.selectType")} />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="percentage">Percentage Off</SelectItem>
@@ -461,7 +463,7 @@ const ProductCatalogManager = () => {
                                         type="number"
                                         value={formData.inventory_count}
                                         onChange={(e) => setFormData({ ...formData, inventory_count: e.target.value })}
-                                        placeholder="Leave empty for unlimited"
+                                        placeholder={webT("editMoment.maxParticipantsPlaceholder")}
                                     />
                                 </div>
 
@@ -531,7 +533,7 @@ const ProductCatalogManager = () => {
 
                             <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
-                                    Cancel
+                                    {webT("findOrAsk.cancel")}
                                 </Button>
                                 <Button type="submit" className="flex-1">
                                     {editingProduct ? 'Update Product' : 'Create Product'}
@@ -544,7 +546,7 @@ const ProductCatalogManager = () => {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Products</CardTitle>
+                    <CardTitle>{webT("findOrAsk.resultProducts")}</CardTitle>
                     <CardDescription>
                         {products.length} product{products.length !== 1 ? 's' : ''} in catalog
                     </CardDescription>
@@ -560,13 +562,13 @@ const ProductCatalogManager = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>Storefront</TableHead>
-                                    <TableHead>Price</TableHead>
-                                    <TableHead>Inventory</TableHead>
-                                    <TableHead>Sales</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                    <TableHead>{webT("receipt.product")}</TableHead>
+                                    <TableHead>{webT("merchantDash.storefront")}</TableHead>
+                                    <TableHead>{webT("pieceProfile.price")}</TableHead>
+                                    <TableHead>{webT("people.inventory")}</TableHead>
+                                    <TableHead>{webT("web.sales")}</TableHead>
+                                    <TableHead>{webT("kyc.statusLabel")}</TableHead>
+                                    <TableHead className="text-right">{webT("sceneDetailPage.actionsLabel")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -576,14 +578,14 @@ const ProductCatalogManager = () => {
                                             <span className="block min-w-[11rem] max-w-[18rem] truncate">{product.name}</span>
                                             {product.discount_value ? (
                                                 <span className="mt-1 block text-xs text-primary">
-                                                    {product.discount_value}{product.discount_type === "percentage" ? "%" : ""} offer
+                                                    {product.discount_value}{product.discount_type === "percentage" ? "%" : ""} {webT("web.offerLower")}
                                                 </span>
                                             ) : null}
                                         </TableCell>
                                         <TableCell>
                                             <div className="min-w-[10rem] space-y-1">
-                                                <span className="block truncate capitalize">{product.listing_kind || product.category || 'Product'}</span>
-                                                <span className="block text-xs text-muted-foreground capitalize">{product.fulfillment_mode || 'pickup'} · {product.visibility || 'public'}</span>
+                                                <span className="block truncate capitalize">{product.listing_kind || product.category || webT("receipt.product")}</span>
+                                                <span className="block text-xs text-muted-foreground capitalize">{product.fulfillment_mode || 'pickup'} · {product.visibility || webT("web.publicLower")}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -602,14 +604,14 @@ const ProductCatalogManager = () => {
                                                         )}
                                                     </>
                                                 ) : (
-                                                    <span className="text-muted-foreground">Unlimited</span>
+                                                    <span className="text-muted-foreground">{webT("momentDetail.unlimited")}</span>
                                                 )}
                                             </div>
                                         </TableCell>
                                         <TableCell>{product.total_sales || 0}</TableCell>
                                         <TableCell>
                                             <Badge variant={product.is_active ? "default" : "secondary"}>
-                                                {product.is_active ? 'Active' : 'Inactive'}
+                                                {product.is_active ? webT("commercial.active") : 'Inactive'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">

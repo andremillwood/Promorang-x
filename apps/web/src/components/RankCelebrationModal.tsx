@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Award, Star, CheckCircle, TrendingUp } from 'lucide-react';
@@ -26,6 +27,7 @@ export const RankCelebrationModal: React.FC<RankCelebrationModalProps> = ({
     isOpen,
     onClose,
 }) => {
+  const { t: webT } = useWebI18n();
     const rank = RANK_DETAILS[Math.min(currentRank, RANK_DETAILS.length - 1)];
     const Icon = rank.icon;
 
@@ -64,7 +66,7 @@ export const RankCelebrationModal: React.FC<RankCelebrationModalProps> = ({
                                 Welcome to <span className="italic text-primary-light">{rank.name}</span>
                             </h2>
                             <p className="text-muted-foreground mb-8 text-sm leading-relaxed px-4">
-                                You've reached <span className="font-bold text-foreground">Access Rank {currentRank}</span>.
+                                You've reached <span className="font-bold text-foreground">{webT("momentsAppPage.accessRank")} {currentRank}</span>.
                                 Keep building your consistency to unlock more exclusive brand opportunities and platform features.
                             </p>
                         </motion.div>

@@ -23,6 +23,7 @@ const KINDS = (Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>).fi
 );
 
 export default function PutInventoryUp() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [params] = useSearchParams();
   const { user, profile, activeRole } = useAuth();
@@ -213,7 +214,7 @@ export default function PutInventoryUp() {
       </label>
 
       <section className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/40">Proof contract</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/40">{webT("web.proofContract")}</p>
         <p className="mt-2 text-sm leading-6 text-white/65">
           A claim shows intent. The selected fulfillment path determines the stronger proof that follows. Do not describe a claim as a purchase or completed visit unless that later action is actually recorded.
         </p>

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, Clock, MapPin, Target, Users } from "lucide-react";
@@ -7,6 +9,7 @@ import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
 
 export function BrandOpportunityRadar() {
+  const { t: webT } = useWebI18n();
   const feed = useCanonicalMomentFeed();
   const [activeCategory, setActiveCategory] = useState("all");
   const readyMoments = useMemo(() => (feed.data?.moments || []).filter((moment) => moment.sponsorship_ready), [feed.data]);
@@ -33,7 +36,7 @@ export function BrandOpportunityRadar() {
       </div>
 
       {categories.length > 1 ? <div className="flex gap-2 overflow-x-auto pb-1">
-        <button onClick={() => setActiveCategory("all")} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${activeCategory === "all" ? "bg-primary text-black" : "border border-white/10 bg-white/5 text-white/70"}`}>All</button>
+        <button onClick={() => setActiveCategory("all")} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${activeCategory === "all" ? "bg-primary text-black" : "border border-white/10 bg-white/5 text-white/70"}`}>{webT("citySwitcher.all")}</button>
         {categories.map((category) => <button key={category} onClick={() => setActiveCategory(category.toLowerCase())} className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${activeCategory === category.toLowerCase() ? "bg-primary text-black" : "border border-white/10 bg-white/5 text-white/70"}`}>{category}</button>)}
       </div> : null}
 
@@ -43,7 +46,7 @@ export function BrandOpportunityRadar() {
         <div role="alert" className="rounded-3xl border border-amber-500/25 bg-amber-500/5 p-8 text-center">
           <h3 className="text-lg font-black text-white">Current inventory could not be verified</h3>
           <p className="mt-2 text-sm text-white/55">No sample sponsorship opportunities have been substituted.</p>
-          <Button variant="outline" className="mt-5" onClick={() => feed.refetch()}>Try again</Button>
+          <Button variant="outline" className="mt-5" onClick={() => feed.refetch()}>{webT("release.18")}</Button>
         </div>
       ) : opportunities.length === 0 ? (
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center">
@@ -67,12 +70,12 @@ export function BrandOpportunityRadar() {
               </div>
               <div className="space-y-4 p-5">
                 <div className="grid grid-cols-2 gap-3 text-xs text-white/65">
-                  <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-primary" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
+                  <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-primary" />{new Date(moment.starts_at).toLocaleString(currentUiLocale(), { timeZone: "America/Jamaica", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
                   <span className="flex items-center justify-end gap-1.5"><Users className="h-3.5 w-3.5 text-primary" />{moment.participant_count} interested</span>
                 </div>
                 {moment.associated_brand_names.length > 0 ? <p className="text-xs text-white/50">Already associated: {moment.associated_brand_names.join(", ")}</p> : <p className="text-xs text-emerald-300">No brand association recorded yet</p>}
                 <div className="flex gap-2 border-t border-white/5 pt-4">
-                  <Button asChild variant="outline" size="sm" className="flex-1"><Link to={`/moments/${moment.slug || moment.id}`}>View</Link></Button>
+                  <Button asChild variant="outline" size="sm" className="flex-1"><Link to={`/moments/${moment.slug || moment.id}`}>{webT("web.view")}</Link></Button>
                   <Button asChild size="sm" className="flex-1 font-bold"><Link to={`/create/campaign?moment=${encodeURIComponent(moment.id)}`}>Build activation <ArrowRight className="ml-1 h-3.5 w-3.5" /></Link></Button>
                 </div>
               </div>

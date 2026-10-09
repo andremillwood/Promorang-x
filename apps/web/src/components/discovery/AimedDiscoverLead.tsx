@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { promoCardUnlockHref, type PromoCardAim } from "@promorang/shared";
@@ -9,6 +10,7 @@ type AimedDiscoverLeadProps = {
 };
 
 export function AimedDiscoverLead({ aim, authenticated, href }: AimedDiscoverLeadProps) {
+  const { t: webT } = useWebI18n();
   const toCard = href || promoCardUnlockHref({ authenticated, aim });
   return (
     <section className="rounded-[1.4rem] border border-amber-200/20 bg-amber-200/5 px-4 py-4 sm:px-5">
@@ -23,7 +25,7 @@ export function AimedDiscoverLead({ aim, authenticated, href }: AimedDiscoverLea
         to={toCard}
         className="mt-3 inline-flex min-h-11 items-center gap-1.5 text-sm font-black text-primary"
       >
-        {authenticated ? "Open your PromoCard" : "Unlock this"}
+        {authenticated ? webT("people.openCardAria") : webT("perk.unlockThis")}
         <ArrowRight aria-hidden="true" className="h-4 w-4" />
       </Link>
     </section>

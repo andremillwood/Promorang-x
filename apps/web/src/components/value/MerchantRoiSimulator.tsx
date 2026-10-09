@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -180,21 +181,21 @@ export const MerchantRoiSimulator: React.FC = () => {
             <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] uppercase font-mono tracking-wider text-white/50">Illustrative Gross Sales</div>
               <div className="text-lg md:text-xl font-black text-white mt-1">
-                ${economics.grossRevenue.toLocaleString()}
+                ${economics.grossRevenue.toLocaleString(currentUiLocale())}
               </div>
               <div className="text-[10px] text-emerald-400/80 mt-0.5">Assumption: arrivals × average check</div>
             </div>
             <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
               <div className="text-[10px] uppercase font-mono tracking-wider text-emerald-300">Illustrative Contribution</div>
               <div className="text-lg md:text-xl font-black text-emerald-400 mt-1">
-                +${Math.round(economics.netProfitLift).toLocaleString()}
+                +${Math.round(economics.netProfitLift).toLocaleString(currentUiLocale())}
               </div>
               <div className="text-[10px] text-emerald-300/80 mt-0.5">Using the scenario margin assumption</div>
             </div>
             <div className="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30">
               <div className="text-[10px] uppercase font-mono tracking-wider text-amber-300">Illustrative Ad-Cost Difference</div>
               <div className="text-lg md:text-xl font-black text-amber-400 mt-1">
-                ${Math.round(economics.wastedAdSpendSaved).toLocaleString()}
+                ${Math.round(economics.wastedAdSpendSaved).toLocaleString(currentUiLocale())}
               </div>
               <div className="text-[10px] text-amber-300/80 mt-0.5">Uses a hypothetical comparison cost</div>
             </div>

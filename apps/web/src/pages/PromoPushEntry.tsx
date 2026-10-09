@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { resolvePromoPushEntry } from "@/hooks/usePromoPush";
 
 export default function PromoPushEntry() {
+  const { t: webT } = useWebI18n();
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -46,7 +48,7 @@ export default function PromoPushEntry() {
             <p className="mt-3 text-sm text-white/65">{error}</p>
             <Button asChild className="mt-6 bg-[#FF6A00] text-white hover:bg-[#e65f00]">
               <Link to="/discover/moments">
-                Find Moments
+                {webT("whyJoin.findMoments")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

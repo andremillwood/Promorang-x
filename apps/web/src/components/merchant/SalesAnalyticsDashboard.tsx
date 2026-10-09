@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +38,7 @@ interface CustomerInsights {
 }
 
 const SalesAnalyticsDashboard = () => {
+  const { t: webT } = useWebI18n();
     const { user, session } = useAuth();
     const [timeRange, setTimeRange] = useState("30");
     const [summary, setSummary] = useState<SalesSummary | null>(null);
@@ -153,7 +156,7 @@ const SalesAnalyticsDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                        <CardTitle className="text-sm font-medium">{webT("web.totalRevenue")}</CardTitle>
                         <DollarSign className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -161,7 +164,7 @@ const SalesAnalyticsDashboard = () => {
                             ${summary?.totalRevenue?.toFixed(2) || '0.00'}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            {summary?.totalSales || 0} sales
+                            {summary?.totalSales || 0} {webT("web.salesLower")}
                         </p>
                     </CardContent>
                 </Card>
@@ -199,7 +202,7 @@ const SalesAnalyticsDashboard = () => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {summary?.totalPointsRedeemed.toLocaleString() || 0}
+                            {summary?.totalPointsRedeemed.toLocaleString(currentUiLocale()) || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">Platform points</p>
                     </CardContent>
@@ -265,7 +268,7 @@ const SalesAnalyticsDashboard = () => {
                                     </div>
                                     <Badge variant="secondary">
                                         <Package className="w-3 h-3 mr-1" />
-                                        {product.salesCount} sales
+                                        {product.salesCount} {webT("web.salesLower")}
                                     </Badge>
                                 </div>
                             ))}
@@ -310,7 +313,7 @@ const SalesAnalyticsDashboard = () => {
                             <Badge variant="default">{summary?.validatedRedemptions || 0}</Badge>
                         </div>
                         <div className="flex items-center justify-between gap-3">
-                            <span className="text-sm text-muted-foreground">Pending</span>
+                            <span className="text-sm text-muted-foreground">{webT("promoPushCreatorPage.thPending")}</span>
                             <Badge variant="secondary">{summary?.pendingRedemptions || 0}</Badge>
                         </div>
                     </CardContent>

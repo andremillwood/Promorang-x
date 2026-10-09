@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
@@ -38,6 +39,7 @@ import { Badge } from '@/components/ui/badge';
 import { getSiteUrl } from '@/lib/discovery';
 
 export default function MidasCommercialProposal() {
+  const { t: webT } = useWebI18n();
   const [currentChapter, setCurrentChapter] = useState<number>(1);
   const navigate = useNavigate();
 
@@ -45,7 +47,7 @@ export default function MidasCommercialProposal() {
 
   const chapterTitles = [
     { num: 1, id: 'why', title: 'Why Look at This', subtitle: 'The $0 Monday Problem' },
-    { num: 2, id: 'how', title: 'How It Works', subtitle: 'The 4-Step Fan Journey' },
+    { num: 2, id: 'how', title: webT("forCreators.howBadge"), subtitle: 'The 4-Step Fan Journey' },
     { num: 3, id: 'events', title: 'Your Two Events', subtitle: 'Flyers & Aitix Ticketing' },
     { num: 4, id: 'promopush', title: 'PromoPush & Sponsor Revenue', subtitle: 'Host Commissions & Brand ROI' },
     { num: 5, id: 'tour', title: 'Interactive Tour', subtitle: '5-Minute Live Preview' },
@@ -231,7 +233,7 @@ export default function MidasCommercialProposal() {
 
             {/* Step Counter Indicator */}
             <div className="hidden md:flex items-center gap-2 text-xs font-mono text-stone-400 pl-4 border-l border-white/15">
-              <span>Chapter {currentChapter} of {totalChapters}</span>
+              <span>Chapter {currentChapter} {webT("web.of")} {totalChapters}</span>
             </div>
 
           </div>
@@ -372,7 +374,7 @@ export default function MidasCommercialProposal() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="font-mono text-2xl font-black text-[#ff5a1f]">01</span>
+                <span className="font-mono text-2xl font-black text-[#ff5a1f]">{webT("home.journey1Label")}</span>
                 <h4 className="font-serif text-lg font-bold text-white">Partygoer Votes on Poll</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
                   On Promorang: <em>"How are you ending summer 2026?"</em>. User taps Beach Party or Live Concert.
@@ -383,7 +385,7 @@ export default function MidasCommercialProposal() {
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="font-mono text-2xl font-black text-[#ff5a1f]">02</span>
+                <span className="font-mono text-2xl font-black text-[#ff5a1f]">{webT("home.journey2Label")}</span>
                 <h4 className="font-serif text-lg font-bold text-white">Claims Free Gate Perk</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
                   They see <strong>PROMORANG PRESENTS: Sophisticated / Capleton</strong> and claim an Express Gate Pass or drink token by submitting their phone.
@@ -392,7 +394,7 @@ export default function MidasCommercialProposal() {
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#ffffff15] space-y-3">
-                <span className="font-mono text-2xl font-black text-[#ffcf38]">03</span>
+                <span className="font-mono text-2xl font-black text-[#ffcf38]">{webT("home.journey3Label")}</span>
                 <h4 className="font-serif text-lg font-bold text-white">Shares Pass with Crew</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
                   They tap <em>"Send to Crew on WhatsApp"</em>. Their friends get pass codes and direct links to buy tickets on <strong>Aitix</strong>.
@@ -401,7 +403,7 @@ export default function MidasCommercialProposal() {
               </div>
 
               <div className="p-6 rounded-sm bg-[#141210] border-2 border-[#10b981]/40 space-y-3">
-                <span className="font-mono text-2xl font-black text-[#10b981]">04</span>
+                <span className="font-mono text-2xl font-black text-[#10b981]">{webT("home.journey4Label")}</span>
                 <h4 className="font-serif text-lg font-bold text-white">Scans at Plantation Cove</h4>
                 <p className="text-xs text-stone-300 leading-relaxed">
                   At the gate, door staff verify the express pass in 2 seconds on the Promorang Door Scanner.
@@ -1001,7 +1003,7 @@ export default function MidasCommercialProposal() {
                   <strong className="text-white text-xs block group-hover:text-[#ff5a1f] truncate">{s.title}</strong>
                   <p className="text-[10px] text-stone-400 leading-snug">{s.desc}</p>
                   <span className="text-[10px] font-mono text-[#ffcf38] flex items-center gap-1 pt-1">
-                    <span>Open</span>
+                    <span>{webT("auth.open")}</span>
                     <ArrowRight className="w-3 h-3" />
                   </span>
                 </button>

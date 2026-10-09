@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Archive, Compass, Home, WalletCards } from "lucide-react";
@@ -24,6 +25,7 @@ const isActivePath = (pathname: string, href: string) => {
 };
 
 const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: ConsumerShellProps) => {
+  const { t: webT } = useWebI18n();
   const location = useLocation();
   const { user } = useAuth();
 
@@ -32,7 +34,7 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
       <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#09090b]/80 text-white backdrop-blur-xl">
         <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-5">
-            <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="Promorang home">
+            <Link to="/" className="flex shrink-0 items-center gap-2" aria-label={webT("web.homeAlt")}>
               <img src={promorangLogo} alt="Promorang" className="h-8 w-auto" />
             </Link>
             <button
@@ -64,7 +66,7 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
             {actions || (
               <>
                 <Link to="/how-it-works" className="text-sm font-semibold text-white/80 hover:text-white">
-                  How it works
+                  {webT("compression.howWorks")}
                 </Link>
                 {user ? (
                   <Link
@@ -79,7 +81,7 @@ const ConsumerShell = ({ children, locationLabel = "Kingston", actions }: Consum
                     to="/auth"
                     className="rounded-full bg-white px-4 py-2 text-xs font-black text-black"
                   >
-                    Log in
+                    {webT("nav.login")}
                   </Link>
                 )}
               </>

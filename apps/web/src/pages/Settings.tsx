@@ -66,6 +66,7 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Settings = () => {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const categoryLabels: Record<string, string> = { Music: t("settings.catMusic"), Food: t("settings.catFood"), Nightlife: t("settings.catNightlife"), Fitness: t("settings.catFitness"), Arts: t("settings.catArts"), Fashion: t("settings.catFashion"), Wellness: t("settings.catWellness"), Community: t("settings.catCommunity") };
   const timeLabels: Record<string, string> = { "Weekday mornings": t("settings.timeMornings"), "Weekday evenings": t("settings.timeEvenings"), "Friday nights": t("settings.timeFriday"), Weekends: t("settings.timeWeekends") };
@@ -551,7 +552,7 @@ const Settings = () => {
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Button asChild variant="outline"><Link to="/wallet">View recorded value</Link></Button>
-                  <Button asChild variant="ghost"><Link to="/support/tickets">Contact Support</Link></Button>
+                  <Button asChild variant="ghost"><Link to="/support/tickets">{webT("help.hubSupportCta")}</Link></Button>
                 </div>
               </div>
             </div>
@@ -733,7 +734,7 @@ const Settings = () => {
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                       <p className="text-sm font-semibold text-foreground">Password changes are not completed from this screen.</p>
                       <p className="mt-1 text-xs leading-5 text-muted-foreground">The current web app does not yet have a complete password-recovery destination. Use Support rather than assuming a reset request has been saved or completed.</p>
-                      <Button asChild variant="outline" className="mt-3"><Link to="/support/tickets">Open Support</Link></Button>
+                      <Button asChild variant="outline" className="mt-3"><Link to="/support/tickets">{webT("web.openSupport")}</Link></Button>
                     </div>
                   </div>
                 </div>

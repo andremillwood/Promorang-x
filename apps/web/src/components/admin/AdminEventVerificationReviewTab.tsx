@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Loader2 } from "lucide-react";
@@ -25,6 +26,7 @@ type Item = {
 };
 
 export function AdminEventVerificationReviewTab() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const client = useQueryClient();
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -71,9 +73,9 @@ export function AdminEventVerificationReviewTab() {
               <div>
                 <Badge>{item.mission_type}</Badge>
                 <h3 className="mt-3 text-2xl font-bold">{item.event_title}</h3>
-                <p className="text-sm text-muted-foreground">{item.proposed_venue || "Venue unresolved"} · {item.proposed_start ? new Date(item.proposed_start).toLocaleDateString() : "Date unresolved"}</p>
+                <p className="text-sm text-muted-foreground">{item.proposed_venue || "Venue unresolved"} · {item.proposed_start ? new Date(item.proposed_start).toLocaleDateString(currentUiLocale()) : "Date unresolved"}</p>
               </div>
-              <span className="font-bold text-amber-500">{item.reward_points} pts</span>
+              <span className="font-bold text-amber-500">{item.reward_points} {webT("web.pts")}</span>
             </div>
             <div className="mt-5 rounded-xl border bg-background p-4">
               <p className="text-xs font-bold uppercase text-muted-foreground">Submitted evidence</p>

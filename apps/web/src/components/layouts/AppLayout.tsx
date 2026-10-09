@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useLocation, Outlet as RouterOutlet } from "react-router-dom";
 const Outlet = RouterOutlet as any;
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +17,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
+  const { t: webT } = useWebI18n();
     const { user, roles, activeRole, loading, profile } = useAuth();
     const location = useLocation();
 
@@ -99,7 +101,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground animate-pulse">
-                Initializing...
+                {webT("web.initializing")}
             </div>
         );
     }

@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useExperienceNetwork, useExperienceActions } from "@/hooks/usePeopleExperience";
@@ -63,7 +64,7 @@ export default function MyPeople() {
                   <p className="text-xs text-white/40">{t("peopleNet.verified", { count: person.verifiedActions })}</p>
                 </div>
                 {person.attributedValue ? (
-                  <p className="mt-2 text-sm text-primary">{t("peopleNet.attributed", { amount: Math.round(person.attributedValue).toLocaleString() })}</p>
+                  <p className="mt-2 text-sm text-primary">{t("peopleNet.attributed", { amount: Math.round(person.attributedValue).toLocaleString(currentUiLocale()) })}</p>
                 ) : null}
               </article>
             ))}

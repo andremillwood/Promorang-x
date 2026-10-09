@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export function OfferShippingAddressForm({
   submitLabel: string;
   onSubmit: (address: OfferShippingAddress) => Promise<void> | void;
 }) {
+  const { t: webT } = useWebI18n();
   const [address, setAddress] = useState<OfferShippingAddress>({ ...emptyAddress, ...initial });
 
   const update = (key: keyof OfferShippingAddress, value: string) => {
@@ -53,7 +55,7 @@ export function OfferShippingAddressForm({
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <Label htmlFor="ship-city">City</Label>
+          <Label htmlFor="ship-city">{webT("demand.receiptCity")}</Label>
           <Input id="ship-city" value={address.city} onChange={(event) => update("city", event.target.value)} required />
         </div>
         <div>
@@ -72,10 +74,10 @@ export function OfferShippingAddressForm({
         </div>
       </div>
       <div>
-        <Label htmlFor="ship-phone">Phone</Label>
+        <Label htmlFor="ship-phone">{webT("promoPushCareersPage.labelPhone")}</Label>
         <Input id="ship-phone" value={address.phone || ""} onChange={(event) => update("phone", event.target.value)} />
       </div>
-      <Button type="submit" disabled={pending}>{pending ? "Saving…" : submitLabel}</Button>
+      <Button type="submit" disabled={pending}>{pending ? webT("funnel.saving") : submitLabel}</Button>
     </form>
   );
 }

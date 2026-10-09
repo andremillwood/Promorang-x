@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +34,7 @@ const venueCategories = [
 ];
 
 const AddVenue = () => {
+  const { t: webT } = useWebI18n();
   const { user, roles } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -161,7 +163,7 @@ const AddVenue = () => {
           </div>
 
           <div>
-            <Label htmlFor="address">Address *</Label>
+            <Label htmlFor="address">{webT("editMoment.addressLabel")}</Label>
             <Input
               id="address"
               value={formData.address}
@@ -172,13 +174,13 @@ const AddVenue = () => {
           </div>
 
           <div>
-            <Label htmlFor="category">Category *</Label>
+            <Label htmlFor="category">{webT("editMoment.categoryLabel")}</Label>
             <Select
               value={formData.category}
               onValueChange={(value) => setFormData({ ...formData, category: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={webT("web.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
                 {venueCategories.map((cat) => (
@@ -191,7 +193,7 @@ const AddVenue = () => {
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{webT("offerStudio.descLabel")}</Label>
             <Textarea
               id="description"
               value={formData.description}
@@ -208,7 +210,7 @@ const AddVenue = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{webT("promoPushCareersPage.labelPhone")}</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -218,7 +220,7 @@ const AddVenue = () => {
               />
             </div>
             <div>
-              <Label htmlFor="website">Website</Label>
+              <Label htmlFor="website">{webT("brandProfilePage.website")}</Label>
               <Input
                 id="website"
                 type="url"
@@ -246,7 +248,7 @@ const AddVenue = () => {
             className="flex-1"
             disabled={createVenue.isPending || uploading || !formData.name || !formData.address}
           >
-            {createVenue.isPending || uploading ? "Saving..." : "Add Venue"}
+            {createVenue.isPending || uploading ? webT("editMoment.saving") : webT("merchantDash.addVenueCta")}
           </Button>
         </div>
       </form>

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { KeyRound, Loader2, Plus, RefreshCw, Save, ShieldCheck, XCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -132,6 +133,7 @@ function formPayload(form: FormState) {
 }
 
 export function AdminAccessRulesTab() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const [rules, setRules] = useState<AccessRule[]>([]);
@@ -252,7 +254,7 @@ export function AdminAccessRulesTab() {
         </div>
         <Button variant="outline" onClick={() => fetchRules()} disabled={loading}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-          Refresh
+          {webT("common.refresh")}
         </Button>
       </div>
 
@@ -305,7 +307,7 @@ export function AdminAccessRulesTab() {
             </div>
 
             <div className="space-y-2">
-              <Label>Object ID</Label>
+              <Label>{webT("findOrAsk.objectIdPlaceholder")}</Label>
               <Input value={form.object_id} onChange={(event) => updateForm("object_id", event.target.value)} placeholder="Moment, drop, reward, or pool ID" />
             </div>
 
@@ -335,7 +337,7 @@ export function AdminAccessRulesTab() {
                 <Input type="number" min="0" value={form.reward_value_cost} onChange={(event) => updateForm("reward_value_cost", event.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Demand</Label>
+                <Label>{webT("lens.demand")}</Label>
                 <Input type="number" min="0" value={form.demand_cost} onChange={(event) => updateForm("demand_cost", event.target.value)} />
               </div>
             </div>
@@ -346,7 +348,7 @@ export function AdminAccessRulesTab() {
                 <Input type="number" min="0" value={form.sponsor_subsidy_keys} onChange={(event) => updateForm("sponsor_subsidy_keys", event.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Capacity</Label>
+                <Label>{webT("momentDetail.capacity")}</Label>
                 <Input type="number" min="0" value={form.capacity_limit} onChange={(event) => updateForm("capacity_limit", event.target.value)} placeholder="No limit" />
               </div>
             </div>
@@ -358,7 +360,7 @@ export function AdminAccessRulesTab() {
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <Checkbox checked={form.is_active} onCheckedChange={(checked) => updateForm("is_active", checked === true)} />
-                Active
+                {webT("commercial.active")}
               </label>
             </div>
 
@@ -374,7 +376,7 @@ export function AdminAccessRulesTab() {
               </Button>
               <Button variant="outline" onClick={() => { setForm(emptyForm); setSelectedPreset(""); }}>
                 <Plus className="mr-2 h-4 w-4" />
-                New
+                {webT("hostCard.new")}
               </Button>
             </div>
           </CardContent>
@@ -399,13 +401,13 @@ export function AdminAccessRulesTab() {
                 <table className="w-full min-w-[760px] text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs uppercase text-muted-foreground">
-                      <th className="py-2 pr-3">Target</th>
-                      <th className="py-2 pr-3">Action</th>
+                      <th className="py-2 pr-3">{webT("commercial.target.205")}</th>
+                      <th className="py-2 pr-3">{webT("forBrands.reason1Step3Badge")}</th>
                       <th className="py-2 pr-3">Raw Cost</th>
                       <th className="py-2 pr-3">Tier</th>
-                      <th className="py-2 pr-3">Capacity</th>
-                      <th className="py-2 pr-3">Status</th>
-                      <th className="py-2 text-right">Actions</th>
+                      <th className="py-2 pr-3">{webT("momentDetail.capacity")}</th>
+                      <th className="py-2 pr-3">{webT("kyc.statusLabel")}</th>
+                      <th className="py-2 text-right">{webT("sceneDetailPage.actionsLabel")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -426,15 +428,15 @@ export function AdminAccessRulesTab() {
                             <div className="max-w-[220px] truncate text-xs text-muted-foreground">{rule.object_id}</div>
                           </td>
                           <td className="py-3 pr-3">{rule.access_type}</td>
-                          <td className="py-3 pr-3">{rawCost} Keys</td>
-                          <td className="py-3 pr-3">{rule.min_tier_key || "none"}</td>
-                          <td className="py-3 pr-3">{rule.capacity_limit ?? "none"}</td>
+                          <td className="py-3 pr-3">{rawCost} {webT("whyJoin.keysTitle")}</td>
+                          <td className="py-3 pr-3">{rule.min_tier_key || webT("web.none")}</td>
+                          <td className="py-3 pr-3">{rule.capacity_limit ?? webT("web.none")}</td>
                           <td className="py-3 pr-3">
-                            <Badge variant={rule.is_active ? "default" : "secondary"}>{rule.is_active ? "active" : "inactive"}</Badge>
+                            <Badge variant={rule.is_active ? "default" : "secondary"}>{rule.is_active ? webT("web.activeLower") : "inactive"}</Badge>
                           </td>
                           <td className="py-3 text-right">
                             <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="sm" onClick={() => setForm(toForm(rule))}>Edit</Button>
+                              <Button variant="outline" size="sm" onClick={() => setForm(toForm(rule))}>{webT("serviceCatalogPage.edit")}</Button>
                               {rule.is_active ? (
                                 <Button variant="ghost" size="icon" onClick={() => deactivateRule(rule.id)}>
                                   <XCircle className="h-4 w-4" />

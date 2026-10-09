@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -186,7 +187,7 @@ export default function SupportTickets() {
                           <p className="text-sm text-muted-foreground">#{ticket.id.slice(0, 8)}</p>
                           <h3 className="truncate font-semibold">{ticket.subject}</h3>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            {new Date(ticket.created_at).toLocaleString()}
+                            {new Date(ticket.created_at).toLocaleString(currentUiLocale())}
                           </p>
                         </div>
                         <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusTone[ticket.status] || "bg-muted text-foreground border-border"}`}>

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import {
   Bell,
@@ -25,6 +26,7 @@ interface DeviceNotificationStepProps {
 }
 
 export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNotificationStepProps) {
+  const { t: webT } = useWebI18n();
   const { isSubscribed, subscribe, loading } = usePushNotifications();
   const { toast } = useToast();
   const [isMobile, setIsMobile] = useState(false);
@@ -97,7 +99,7 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
           {isMobile ? <Bell className="h-7 w-7 animate-pulse" /> : <Smartphone className="h-7 w-7 text-primary" />}
         </div>
         <h2 className="text-2xl sm:text-3xl font-black">
-          {isMobile ? "Never Miss a Moment or Perk" : "Connect Promorang to Your Phone"}
+          {isMobile ? "Never Miss a Moment or Perk" : webT("notificationBridge.title")}
         </h2>
         <p className="text-sm text-white/60 max-w-md mx-auto">
           {isMobile
@@ -134,8 +136,8 @@ export function DeviceNotificationStep({ onComplete, personaChoice }: DeviceNoti
             <div className="p-3 rounded-2xl border border-primary/30 bg-primary/10 text-xs text-white/80 flex items-center gap-2">
               <span className="shrink-0 font-bold text-primary">Tip for iPhone:</span>
               <span>
-                Tap <Share className="h-3.5 w-3.5 inline text-primary mx-0.5" /> then{" "}
-                <strong className="text-white">Add to Home Screen</strong>{" "}
+                {webT("web.tap")} <Share className="h-3.5 w-3.5 inline text-primary mx-0.5" /> {webT("web.then")}{" "}
+                <strong className="text-white">{webT("web.addHome")}</strong>{" "}
                 <PlusSquare className="h-3.5 w-3.5 inline text-primary mx-0.5" /> to run Promorang as an installed web app where your device supports it.
               </span>
             </div>

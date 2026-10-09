@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { PromoPushQuoteForm } from "./PromoPushQuoteForm";
 import { useMemo, useState } from "react";
 import { Copy, Loader2, Megaphone, Palette, QrCode, RefreshCcw, UserPlus } from "lucide-react";
@@ -15,6 +16,7 @@ import {
 } from "@/hooks/usePromoPush";
 
 export function AdminPromoPushTab() {
+  const { t: webT } = useWebI18n();
   const adminQuery = usePromoPushAdmin();
   const assignPromoter = useAssignPromoPushPromoter();
   const updateTask = useUpdatePromoPushCreativeTask();
@@ -70,13 +72,13 @@ export function AdminPromoPushTab() {
         </div>
         <Button variant="outline" onClick={() => adminQuery.refetch()}>
           <Megaphone className="mr-2 h-4 w-4" />
-          Refresh
+          {webT("common.refresh")}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         {[
-          { label: "Campaigns", value: data?.campaigns?.length || 0 },
+          { label: webT("brandsPage.campaignsStat"), value: data?.campaigns?.length || 0 },
           { label: "Applications", value: data?.applications?.length || 0 },
           { label: "Creative Tasks", value: data?.creative_tasks?.length || 0 },
           { label: "Assignments", value: data?.assignments?.length || 0 },
@@ -100,7 +102,7 @@ export function AdminPromoPushTab() {
           <CardContent>
             <form onSubmit={submitAssignment} className="space-y-4">
               <div>
-                <Label>Campaign</Label>
+                <Label>{webT("web.campaign")}</Label>
                 <Select value={assignment.campaign_id} onValueChange={(value) => setAssignment((current) => ({ ...current, campaign_id: value }))}>
                   <SelectTrigger className="mt-2">
                     <SelectValue placeholder="Select active campaign" />
@@ -226,7 +228,7 @@ export function AdminPromoPushTab() {
             (data?.creative_tasks || []).map((task) => (
               <div key={task.id} className="grid gap-3 rounded-lg border border-border p-4 lg:grid-cols-[1fr_160px_1fr_1fr]">
                 <div>
-                  <p className="font-semibold">{task.campaign?.title || "Campaign"}</p>
+                  <p className="font-semibold">{task.campaign?.title || webT("web.campaign")}</p>
                   <p className="text-xs uppercase tracking-[0.18em] text-primary">{task.task_type.replace(/_/g, " ")}</p>
                 </div>
                 <Select value={task.status} onValueChange={(status) => updateTask.mutate({ id: task.id, status })}>
@@ -276,13 +278,13 @@ export function AdminPromoPushTab() {
             (data?.assignments || []).map((assignment) => (
               <div key={assignment.id} className="grid gap-3 rounded-lg border border-border p-4 md:grid-cols-[1fr_1fr_auto] md:items-center">
                 <div>
-                  <p className="font-semibold">{assignment.campaign?.title || "Campaign"}</p>
+                  <p className="font-semibold">{assignment.campaign?.title || webT("web.campaign")}</p>
                   <p className="text-sm text-muted-foreground">Promoter: {assignment.promoter_id}</p>
                 </div>
                 <p className="break-all text-sm text-muted-foreground">{assignment.channel?.tracking_link || "No channel link"}</p>
                 <Button type="button" variant="outline" onClick={() => navigator.clipboard.writeText(assignment.channel?.tracking_link || "")}>
                   <Copy className="mr-2 h-4 w-4" />
-                  Copy
+                  {webT("promoShare.copy")}
                 </Button>
               </div>
             ))

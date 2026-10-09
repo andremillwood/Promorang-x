@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
@@ -6,9 +7,10 @@ import { cn } from "@/lib/utils";
 export { PromoCardFace, PromorangValidReceipt } from "@/components/promorang/PromoCardObject";
 
 export function PlainEnglish({ children }: { children: ReactNode }) {
+  const { t: webT } = useWebI18n();
   return (
     <aside className="rounded-2xl border border-amber-300/25 bg-amber-300/[0.08] px-4 py-3.5 sm:px-5">
-      <p className="text-[11px] font-bold tracking-[0.16em] text-amber-200">In plain English</p>
+      <p className="text-[11px] font-bold tracking-[0.16em] text-amber-200">{webT("web.plainLanguage")}</p>
       <p className="mt-1.5 text-sm leading-6 text-zinc-100 sm:text-base">{children}</p>
     </aside>
   );
@@ -37,23 +39,24 @@ export function PromoCardWorldContext({
   nearestUnlock?: string | null;
   latestPiece?: string | null;
 }) {
+  const { t: webT } = useWebI18n();
   const rows = [
-    scene ? { label: "Scene", value: scene } : null,
-    season ? { label: "Season", value: season } : null,
-    crew ? { label: "Crew", value: crew } : null,
-    run ? { label: "Run", value: run } : null,
-    identityLine ? { label: "How you move", value: identityLine } : formingLine ? { label: "How you move", value: formingLine } : null,
-    pathCue && !identityLine ? { label: "Path", value: pathCue } : null,
-    latestReturn ? { label: "Latest Return", value: latestReturn } : null,
-    latestPiece ? { label: "Kept", value: latestPiece } : null,
-    nearestUnlock ? { label: "Closest opening", value: nearestUnlock } : null,
+    scene ? { label: webT("promoCardMoment.communityLabel"), value: scene } : null,
+    season ? { label: webT("web.season"), value: season } : null,
+    crew ? { label: webT("crews.eyebrow"), value: crew } : null,
+    run ? { label: webT("web.run"), value: run } : null,
+    identityLine ? { label: webT("progress.howYouMove"), value: identityLine } : formingLine ? { label: webT("progress.howYouMove"), value: formingLine } : null,
+    pathCue && !identityLine ? { label: webT("how.memberStep4Badge"), value: pathCue } : null,
+    latestReturn ? { label: webT("people.latestReturn"), value: latestReturn } : null,
+    latestPiece ? { label: webT("web.kept"), value: latestPiece } : null,
+    nearestUnlock ? { label: webT("web.closestOpening"), value: nearestUnlock } : null,
   ].filter((row): row is { label: string; value: string } => Boolean(row));
 
   if (!rows.length) return null;
 
   return (
-    <section className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-4" aria-label="PromoCard world context">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Around the card</p>
+    <section className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-4" aria-label={webT("web.cardWorldContext")}>
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{webT("web.aroundCard")}</p>
       <dl className="mt-3 space-y-2">
         {rows.map((row) => (
           <div key={row.label} className="flex items-start justify-between gap-3 text-sm">
@@ -119,6 +122,7 @@ type PaperReceiptProps = {
 };
 
 export function PaperReceipt({ heading, lines, footer, pictures, className }: PaperReceiptProps) {
+  const { t: webT } = useWebI18n();
   const shots = (pictures || []).filter((picture) => picture?.url).slice(0, 2);
   return (
     <article className={cn("pr-receipt px-5 py-7 font-mono", className)}>
@@ -131,7 +135,7 @@ export function PaperReceipt({ heading, lines, footer, pictures, className }: Pa
               <img src={picture.url} alt={picture.title || heading} className="aspect-[16/10] w-full object-cover" />
               {picture.title ? (
                 <figcaption className="px-2 py-1.5 text-[10px] uppercase tracking-[0.14em] text-[#7a6554]">
-                  {picture.kind === "place" ? "Place" : picture.kind === "moment" ? "Moment" : picture.kind === "scene" ? "Scene" : "Kept"}
+                  {picture.kind === "place" ? webT("launch.place") : picture.kind === "moment" ? webT("promoShare.typeMoment") : picture.kind === "scene" ? webT("promoCardMoment.communityLabel") : webT("web.kept")}
                   {" · "}
                   {picture.title}
                 </figcaption>

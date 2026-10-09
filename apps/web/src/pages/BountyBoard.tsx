@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,7 @@ const BountyCard = ({ bounty, onClaim }: { bounty: MomentBounty; onClaim: () => 
         <div>
           <p className="text-xs text-muted-foreground">{t("bountyBoard.payout")}</p>
           <p className="text-2xl font-bold text-primary">
-            ${bounty.payout_amount.toLocaleString()}
+            ${bounty.payout_amount.toLocaleString(currentUiLocale())}
           </p>
         </div>
         <Button variant="hero" onClick={onClaim} className="w-full sm:w-auto">
@@ -149,7 +150,7 @@ const BountyBoard = () => {
             </div>
             <div className="text-center p-4 bg-card rounded-xl border border-border">
               <p className="text-2xl font-bold text-primary">
-                ${bounties?.reduce((sum, b) => sum + b.payout_amount, 0).toLocaleString() || 0}
+                ${bounties?.reduce((sum, b) => sum + b.payout_amount, 0).toLocaleString(currentUiLocale()) || 0}
               </p>
               <p className="text-xs text-muted-foreground">{t("bountyBoard.totalAvailable")}</p>
             </div>

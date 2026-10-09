@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import {
@@ -18,6 +19,7 @@ const layerMark: Record<ValueLayerId, string> = {
 };
 
 function InstrumentSlip({ instrument, compact }: { instrument: ValueInstrument; compact?: boolean }) {
+  const { t: webT } = useWebI18n();
   return (
     <Link
       to={instrument.href}
@@ -26,7 +28,7 @@ function InstrumentSlip({ instrument, compact }: { instrument: ValueInstrument; 
       <div className="flex items-start justify-between gap-3">
         <p className="font-serif text-xl font-bold text-white">{instrument.name}</p>
         <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200/80">
-          {instrument.layer === "everyday" ? "Use" : instrument.layer === "value" ? "Hold" : instrument.layer === "access" ? "Open" : instrument.id === "save-and-win" ? "Money" : "Chance"}
+          {instrument.layer === "everyday" ? webT("web.use") : instrument.layer === "value" ? "Hold" : instrument.layer === "access" ? webT("auth.open") : instrument.id === "save-and-win" ? "Money" : webT("web.chance")}
         </span>
       </div>
       <p className="mt-2 text-sm leading-6 text-zinc-200">{instrument.like}</p>
@@ -51,12 +53,13 @@ export function WhatIsWhatMap({
   showStory?: boolean;
   homeLink?: boolean;
 }) {
+  const { t: webT } = useWebI18n();
   const layers = getValueInstrumentsByLayer();
 
   return (
     <section aria-labelledby="what-is-what-title" className="space-y-8">
       <div className="max-w-2xl">
-        <p className="text-xs font-bold tracking-[0.2em] text-primary">What is what</p>
+        <p className="text-xs font-bold tracking-[0.2em] text-primary">{webT("wallet.whatIsWhat")}</p>
         <h2 id="what-is-what-title" className="mt-2 font-serif text-3xl font-bold md:text-4xl">
           Eight names. The draw names the prize.
         </h2>
@@ -110,6 +113,7 @@ export function WhatIsWhatMap({
 }
 
 export function NamedDrawPays({ className }: { className?: string }) {
+  const { t: webT } = useWebI18n();
   const perk = PROMOSHARE_DRAW_FAMILIES.perk;
   const money = PROMOSHARE_DRAW_FAMILIES["save-and-win"];
   return (
@@ -129,7 +133,7 @@ export function NamedDrawPays({ className }: { className?: string }) {
         <p className="mt-2 text-sm leading-6 text-zinc-200">{money.pays}</p>
         <p className="mt-3 text-xs leading-5 text-white/45">{money.doesNotPay}</p>
         <Link to="/economy/save-and-win" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-200 hover:text-white">
-          Save & Win <ArrowRight className="h-4 w-4" />
+          {webT("economy.navSaveWin")} <ArrowRight className="h-4 w-4" />
         </Link>
       </article>
     </section>

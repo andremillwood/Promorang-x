@@ -12,7 +12,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "i18n:audit": "node scripts/audit-i18n.mjs",
+    "i18n:check": "node scripts/audit-i18n.mjs --strict",
+    "i18n:report": "node scripts/audit-i18n.mjs --report",
+    "test:i18n": "node --test scripts/audit-i18n.test.mjs && vitest run --pool=threads --maxWorkers=1 --minWorkers=1 src/i18n"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

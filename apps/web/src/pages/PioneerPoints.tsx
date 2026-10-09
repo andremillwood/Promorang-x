@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { Link } from "react-router-dom";
 import { ArrowRight, Building2, CalendarDays, CheckCircle2, Clock3, Sparkles, Users, CircleDot } from "lucide-react";
 import SEO from "@/components/SEO";
@@ -99,7 +100,7 @@ export default function PioneerPoints() {
               <div className="mt-6 divide-y divide-white/10">
                 {data.recent.length ? data.recent.map((event) => (
                   <article key={event.id} className="grid gap-2 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
-                    <div><p className="font-black">{eventLabels[event.event_type] || event.event_type.replaceAll("_", " ")}</p><p className="mt-1 text-xs text-white/38">{labels[event.contributor_type] || event.contributor_type} · {new Date(event.occurred_at).toLocaleDateString()}</p></div>
+                    <div><p className="font-black">{eventLabels[event.event_type] || event.event_type.replaceAll("_", " ")}</p><p className="mt-1 text-xs text-white/38">{labels[event.contributor_type] || event.contributor_type} · {new Date(event.occurred_at).toLocaleDateString(currentUiLocale())}</p></div>
                     <div className="flex items-center gap-3"><span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-wider ${event.status === "verified" ? "bg-emerald-400/10 text-emerald-300" : "bg-amber-300/10 text-amber-200"}`}>{event.status}</span><span className="font-black text-primary">+{formatNumber(event.points)}</span></div>
                   </article>
                 )) : <div className="py-8 text-sm text-white/42">{t("pioneerPoints.noReceipts")}</div>}
@@ -126,7 +127,7 @@ export default function PioneerPoints() {
             {!!data.notifications?.length && <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.025] p-6">
               <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{t("pioneerPoints.notificationsEyebrow")}</p><h2 className="mt-1 text-2xl font-black">{t("pioneerPoints.notificationsTitle")}</h2></div>
               <div className="mt-5 divide-y divide-white/10">
-                {data.notifications.map((notification) => <div key={notification.id} className="flex gap-3 py-4"><span className={`mt-2 h-2 w-2 shrink-0 rounded-full ${notification.read_at?"bg-white/20":"bg-primary"}`} /><div><p className="font-black">{notification.title}</p><p className="mt-1 text-sm text-white/45">{notification.body}</p><p className="mt-2 text-[10px] uppercase text-white/25">{new Date(notification.created_at).toLocaleString()}</p></div></div>)}
+                {data.notifications.map((notification) => <div key={notification.id} className="flex gap-3 py-4"><span className={`mt-2 h-2 w-2 shrink-0 rounded-full ${notification.read_at?"bg-white/20":"bg-primary"}`} /><div><p className="font-black">{notification.title}</p><p className="mt-1 text-sm text-white/45">{notification.body}</p><p className="mt-2 text-[10px] uppercase text-white/25">{new Date(notification.created_at).toLocaleString(currentUiLocale())}</p></div></div>)}
               </div>
             </section>}
           </>

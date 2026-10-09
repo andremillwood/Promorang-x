@@ -1,8 +1,11 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { Gem, Info, LockKeyhole, ShieldCheck } from "lucide-react";
 import { usePromoShareRail } from "@/hooks/usePromoShareRail";
 
 export const LiquidityVaultDashboard = () => {
+  const { t: webT } = useWebI18n();
   const { balances } = usePromoShareRail();
   const availableGems = Number(balances.gems || 0);
 
@@ -21,7 +24,7 @@ export const LiquidityVaultDashboard = () => {
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3">
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Your recorded Gems</p>
-          <p className="mt-1 text-2xl font-black text-white">{availableGems.toLocaleString()}</p>
+          <p className="mt-1 text-2xl font-black text-white">{availableGems.toLocaleString(currentUiLocale())}</p>
           <p className="mt-1 text-xs text-slate-500">Shown from your current PROMORANG balance only.</p>
         </div>
       </div>
@@ -46,7 +49,7 @@ export const LiquidityVaultDashboard = () => {
 
       <div className="flex flex-wrap gap-3">
         <Link to="/wallet" className="inline-flex min-h-11 items-center rounded-xl bg-blue-500 px-5 text-sm font-black text-white hover:bg-blue-400">
-          Open Wallet
+          {webT("how.layer3Link1")}
         </Link>
         <Link to="/missions" className="inline-flex min-h-11 items-center rounded-xl border border-slate-700 px-5 text-sm font-black text-white hover:bg-slate-900">
           Find verified ways to earn value

@@ -26,6 +26,12 @@ jobs:
       - name: Install
         run: npm ci --legacy-peer-deps
 
+      - name: Prevent new untranslated web copy
+        run: npm run i18n:audit --workspace apps/web
+
+      - name: Test localization
+        run: npm run test:i18n --workspace apps/web
+
       - name: Test public market continuity
         shell: bash
         run: |

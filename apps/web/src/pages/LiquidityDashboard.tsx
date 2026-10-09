@@ -77,6 +77,7 @@ const typeColors: Record<Pool["piece_type"], string> = {
 };
 
 export function LiquidityDashboard() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { session } = useAuth();
   const [pools, setPools] = useState<Pool[]>([]);
@@ -229,14 +230,14 @@ export function LiquidityDashboard() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground"><Wallet className="h-4 w-4" />Recorded Gems committed</div>
-              <div className="mt-1 text-2xl font-bold">{totalDeposited.toFixed(2)} Gems</div>
+              <div className="mt-1 text-2xl font-bold">{totalDeposited.toFixed(2)} {webT("wallet.gemsLabel")}</div>
               <div className="text-sm text-muted-foreground">Across your recorded LP positions</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground"><TrendingUp className="h-4 w-4" />Recorded fee accrual</div>
-              <div className="mt-1 text-2xl font-bold text-green-600">+{totalFeesEarned.toFixed(4)} Gems</div>
+              <div className="mt-1 text-2xl font-bold text-green-600">+{totalFeesEarned.toFixed(4)} {webT("wallet.gemsLabel")}</div>
               <div className="text-sm text-muted-foreground">From LP position records</div>
             </CardContent>
           </Card>
@@ -279,7 +280,7 @@ export function LiquidityDashboard() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <Badge className={typeColors[pool.piece_type]}>{typeLabels[pool.piece_type]}</Badge>
-                            <CardTitle className="mt-2 text-lg">{pool.asset?.title || pool.asset?.name || "Recorded pool"}</CardTitle>
+                            <CardTitle className="mt-2 text-lg">{pool.asset?.title || pool.asset?.name || webT("web.recordedPool")}</CardTitle>
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-green-600">{estimate == null ? "—" : `${estimate.toFixed(0)}%`}</div>
@@ -288,7 +289,7 @@ export function LiquidityDashboard() {
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4 text-sm">
-                        <div className="flex justify-between"><span className="text-muted-foreground">Piece reserve</span><span>{Number(pool.pieces_reserve || 0).toFixed(0)} Pieces</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Piece reserve</span><span>{Number(pool.pieces_reserve || 0).toFixed(0)} {webT("growthHub.tilePiecesTitle")}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Recorded price</span><span>{pool.last_price == null ? "—" : `${Number(pool.last_price).toFixed(2)} Gems`}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">24h volume</span><span>{pool.volume_24h == null ? "—" : `${Number(pool.volume_24h).toFixed(0)} Gems`}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Configured LP fee</span><span>{pool.lp_fee_percent == null ? "—" : `${(Number(pool.lp_fee_percent) * 100).toFixed(2)}%`}</span></div>
@@ -320,7 +321,7 @@ export function LiquidityDashboard() {
                   <Card key={position.pool_id}>
                     <CardHeader>
                       <Badge className={typeColors[position.pool.piece_type]}>{typeLabels[position.pool.piece_type]}</Badge>
-                      <CardTitle className="mt-2 text-lg">{position.pool.asset?.title || position.pool.asset?.name || "Recorded pool"}</CardTitle>
+                      <CardTitle className="mt-2 text-lg">{position.pool.asset?.title || position.pool.asset?.name || webT("web.recordedPool")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
                       <div className="flex justify-between"><span className="text-muted-foreground">LP tokens</span><span>{Number(position.lp_tokens || 0).toFixed(4)}</span></div>
@@ -348,7 +349,7 @@ export function LiquidityDashboard() {
                 {rankedPools.map(({ pool, estimate }) => (
                   <Card key={pool.id}>
                     <CardHeader>
-                      <CardTitle>{pool.asset?.title || pool.asset?.name || "Recorded pool"}</CardTitle>
+                      <CardTitle>{pool.asset?.title || pool.asset?.name || webT("web.recordedPool")}</CardTitle>
                       <CardDescription>{estimate.toFixed(1)}% annualized fee estimate from current 24h volume</CardDescription>
                     </CardHeader>
                     <CardContent>

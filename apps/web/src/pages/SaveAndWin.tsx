@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
 import { VALUE_INSTRUMENTS, VALUE_STORY } from "@promorang/shared";
@@ -13,6 +15,7 @@ function formatDrawTime(value: string) {
 }
 
 export default function SaveAndWin() {
+  const { t: webT } = useWebI18n();
   const pot = VALUE_INSTRUMENTS["save-and-win"];
   const pools = useQuery({
     queryKey: ["save-and-win", "active-pools"],
@@ -59,7 +62,7 @@ export default function SaveAndWin() {
             </p>
           </div>
           <Link to="/promoshare" className="inline-flex items-center gap-2 text-sm font-bold text-amber-200 hover:text-white">
-            Open PromoShare <ArrowRight className="h-4 w-4" />
+            {webT("how.memberStep2Cta")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -78,14 +81,14 @@ export default function SaveAndWin() {
               <article key={pool.id} className="rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-6">
                 <div className="flex items-center justify-between gap-3">
                   <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-[.16em] text-amber-200">
-                    {pool.cadence || "Draw"}
+                    {pool.cadence || webT("web.draw")}
                   </span>
                   <Ticket className="h-5 w-5 text-amber-300" />
                 </div>
                 <h3 className="mt-5 font-serif text-2xl font-bold">{pool.pool_name}</h3>
                 <div className="mt-5 space-y-3 border-t border-white/10 pt-4 text-sm text-white/55">
-                  <p className="flex items-center justify-between gap-4"><span>Published pot</span><strong className="text-white">${Number(pool.current_prize_pot_usd || 0).toLocaleString()}</strong></p>
-                  <p className="flex items-center justify-between gap-4"><span>Eligibility</span><strong className="text-white">{String(pool.tier_eligibility || "all").replaceAll("_", " ")}</strong></p>
+                  <p className="flex items-center justify-between gap-4"><span>Published pot</span><strong className="text-white">${Number(pool.current_prize_pot_usd || 0).toLocaleString(currentUiLocale())}</strong></p>
+                  <p className="flex items-center justify-between gap-4"><span>{webT("card.eligibility")}</span><strong className="text-white">{String(pool.tier_eligibility || "all").replaceAll("_", " ")}</strong></p>
                   <p className="flex items-start justify-between gap-4"><span className="inline-flex items-center gap-1.5"><CalendarClock className="mt-0.5 h-4 w-4" />Next draw</span><strong className="max-w-[11rem] text-right text-white">{formatDrawTime(pool.next_draw_at)}</strong></p>
                 </div>
                 <p className="mt-5 flex items-start gap-2 text-[11px] leading-5 text-white/35"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />Published pool ≠ personal entry · entry ≠ win · win ≠ settlement until recorded.</p>
@@ -103,9 +106,9 @@ export default function SaveAndWin() {
 
       <section className="container px-4 md:px-6">
         <div className="grid gap-4 rounded-[1.8rem] border border-white/10 bg-white/[0.02] p-6 sm:grid-cols-3">
-          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Keep</p><p className="mt-2 font-serif text-xl font-bold">Vault records what remains yours.</p></div>
-          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Chance</p><p className="mt-2 font-serif text-xl font-bold">PromoShare records the named draw and entries.</p></div>
-          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Outcome</p><p className="mt-2 font-serif text-xl font-bold">Only a draw/winner/settlement record advances the state.</p></div>
+          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{webT("home.trail04Label")}</p><p className="mt-2 font-serif text-xl font-bold">Vault records what remains yours.</p></div>
+          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{webT("web.chance")}</p><p className="mt-2 font-serif text-xl font-bold">PromoShare records the named draw and entries.</p></div>
+          <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{webT("createProposal.step1Short")}</p><p className="mt-2 font-serif text-xl font-bold">Only a draw/winner/settlement record advances the state.</p></div>
         </div>
       </section>
     </main>

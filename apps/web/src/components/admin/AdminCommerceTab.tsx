@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -78,7 +80,7 @@ async function adminCommerceRequest<T>(path: string, token?: string, options: Re
 }
 
 const money = (amount: number | string | null | undefined, currency = "USD") =>
-  new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2 }).format(Number(amount || 0));
+  new Intl.NumberFormat(currentUiLocale(), { style: "currency", currency, maximumFractionDigits: 2 }).format(Number(amount || 0));
 
 function receiptLabel(receipt: ReceiptRow) {
   if (receipt.merchant_products?.name) return receipt.merchant_products.name;
@@ -95,6 +97,7 @@ function statusClass(status: string) {
 }
 
 export function AdminCommerceTab() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -187,14 +190,14 @@ export function AdminCommerceTab() {
             </div>
             <Button variant="outline" onClick={() => overview.refetch()}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
+              {webT("common.refresh")}
             </Button>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[
               { label: "Issued / pending", value: summary.issued_or_pending || 0, icon: AlertTriangle },
-              { label: "Fulfilled", value: summary.fulfilled || 0, icon: BadgeCheck },
+              { label: webT("web.fulfilled"), value: summary.fulfilled || 0, icon: BadgeCheck },
               { label: "Paid revenue", value: money(summary.paid_revenue || 0), icon: ShoppingBag },
               { label: "Automation attention", value: summary.automation_failures || 0, icon: WandSparkles },
             ].map((item) => (
@@ -233,19 +236,19 @@ export function AdminCommerceTab() {
                   </div>
                   <h3 className="truncate font-black capitalize">{receiptLabel(receipt)}</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(receipt.occurred_at).toLocaleString()} · User {receipt.user_id.slice(0, 8)} · Merchant {receipt.merchant_id?.slice(0, 8) || "none"}
+                    {new Date(receipt.occurred_at).toLocaleString(currentUiLocale())} · User {receipt.user_id.slice(0, 8)} · Merchant {receipt.merchant_id?.slice(0, 8) || webT("web.none")}
                   </p>
                   <p className="mt-1 font-mono text-xs text-muted-foreground">{receipt.redemption_code || money(receipt.amount, receipt.currency)}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="secondary">
-                    <Link to={`/receipts/${receipt.id}`}>View receipt</Link>
+                    <Link to={`/receipts/${receipt.id}`}>{webT("web.viewReceipt")}</Link>
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => receiptStatus.mutate({ id: receipt.id, status: "fulfilled" })} disabled={receiptStatus.isPending}>
-                    <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Fulfill
+                    <ShieldCheck className="mr-1 h-3.5 w-3.5" /> {webT("web.fulfill")}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => receiptStatus.mutate({ id: receipt.id, status: "cancelled" })} disabled={receiptStatus.isPending}>
-                    Cancel
+                    {webT("findOrAsk.cancel")}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => receiptStatus.mutate({ id: receipt.id, status: "refunded" })} disabled={receiptStatus.isPending}>
                     Execute refund
@@ -267,23 +270,23 @@ export function AdminCommerceTab() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="mb-2 flex flex-wrap gap-2">
-                      <Badge variant="outline" className={product.is_active === false ? statusClass("cancelled") : statusClass("fulfilled")}>{product.is_active === false ? "inactive" : "active"}</Badge>
-                      <Badge variant="secondary">{product.visibility || "public"}</Badge>
+                      <Badge variant="outline" className={product.is_active === false ? statusClass("cancelled") : statusClass("fulfilled")}>{product.is_active === false ? "inactive" : webT("web.activeLower")}</Badge>
+                      <Badge variant="secondary">{product.visibility || webT("web.publicLower")}</Badge>
                     </div>
                     <h3 className="truncate font-black">{product.name || "Untitled listing"}</h3>
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description || product.category || "No description"}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">Merchant {product.merchant_id?.slice(0, 8) || "none"} · {money(product.price || 0, product.currency || "USD")}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{webT("lens.merchant.workspace")} {product.merchant_id?.slice(0, 8) || webT("web.none")} · {money(product.price || 0, product.currency || "USD")}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => productModeration.mutate({ id: product.id, action: "approve" })} disabled={productModeration.isPending}>
-                    <BadgeCheck className="mr-1 h-3.5 w-3.5" /> Approve
+                    <BadgeCheck className="mr-1 h-3.5 w-3.5" /> {webT("web.approve")}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => productModeration.mutate({ id: product.id, action: "pause" })} disabled={productModeration.isPending}>
-                    <PauseCircle className="mr-1 h-3.5 w-3.5" /> Pause
+                    <PauseCircle className="mr-1 h-3.5 w-3.5" /> {webT("offerStudio.pause")}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => productModeration.mutate({ id: product.id, action: "hide" })} disabled={productModeration.isPending}>
-                    <EyeOff className="mr-1 h-3.5 w-3.5" /> Hide
+                    <EyeOff className="mr-1 h-3.5 w-3.5" /> {webT("auth.hide")}
                   </Button>
                 </div>
               </CardContent>
@@ -310,8 +313,8 @@ export function AdminCommerceTab() {
                     <Badge variant="outline" className={automation.status === "completed" ? statusClass("fulfilled") : automation.status === "failed" ? statusClass("cancelled") : statusClass("pending")}>{automation.status}</Badge>
                     <Badge variant="secondary" className="capitalize">{automation.action.replaceAll("_", " ")}</Badge>
                   </div>
-                  <h3 className="font-black capitalize">{automation.source_type || "Experience"} → {automation.target_type || "reward"}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{new Date(automation.created_at).toLocaleString()} · Target {automation.target_id?.slice(0, 8) || "recorded"}</p>
+                  <h3 className="font-black capitalize">{automation.source_type || webT("web.experience")} → {automation.target_type || "reward"}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{new Date(automation.created_at).toLocaleString(currentUiLocale())} · Target {automation.target_id?.slice(0, 8) || "recorded"}</p>
                   <p className={`mt-2 text-sm ${automation.status === "failed" ? "text-destructive" : "text-muted-foreground"}`}>
                     {automation.error_message || (automation.status === "completed" ? "Reward or eligibility was delivered and attributed." : "Automation is being evaluated.")}
                   </p>
@@ -321,7 +324,7 @@ export function AdminCommerceTab() {
                     <RefreshCw className="mr-2 h-4 w-4" /> Retry safely
                   </Button>
                 ) : automation.result?.receipt_id ? (
-                  <Button asChild variant="secondary"><Link to={`/receipts/${automation.result.receipt_id}`}>View receipt</Link></Button>
+                  <Button asChild variant="secondary"><Link to={`/receipts/${automation.result.receipt_id}`}>{webT("web.viewReceipt")}</Link></Button>
                 ) : null}
               </CardContent>
             </Card>

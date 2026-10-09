@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -62,6 +64,7 @@ async function readError(response: Response, fallback: string) {
 }
 
 export default function DeveloperConsole() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const [keys, setKeys] = useState<ApiKeyItem[]>([]);
   const [loadingKeys, setLoadingKeys] = useState(false);
@@ -256,7 +259,7 @@ export default function DeveloperConsole() {
               <span className="min-w-0 flex-1 truncate">{revealedKey}</span>
               <Button size="sm" variant="outline" className="h-8 border-amber-500/30" onClick={() => copyToClipboard(revealedKey)}>
                 {copiedKey ? <Check className="mr-1 h-3.5 w-3.5 text-emerald-400" /> : <Copy className="mr-1 h-3.5 w-3.5" />}
-                {copiedKey ? "Copied" : "Copy"}
+                {copiedKey ? webT("card.copied") : webT("promoShare.copy")}
               </Button>
             </div>
             <Button size="sm" variant="ghost" className="text-xs text-amber-300 hover:text-amber-100" onClick={() => setRevealedKey(null)}>
@@ -315,8 +318,8 @@ export default function DeveloperConsole() {
                         ))}
                       </div>
                       <p className="text-[11px] text-muted-foreground">
-                        Created {key.createdAt ? new Date(key.createdAt).toLocaleString() : "date unavailable"}
-                        {key.lastUsedAt ? ` · Last used ${new Date(key.lastUsedAt).toLocaleString()}` : ""}
+                        {webT("web.created")} {key.createdAt ? new Date(key.createdAt).toLocaleString(currentUiLocale()) : "date unavailable"}
+                        {key.lastUsedAt ? ` · Last used ${new Date(key.lastUsedAt).toLocaleString(currentUiLocale())}` : ""}
                       </p>
                     </div>
                     <Button
@@ -409,9 +412,9 @@ export default function DeveloperConsole() {
           </div>
 
           <DialogFooter className="sm:justify-between">
-            <Button variant="ghost" onClick={() => setCreateModalOpen(false)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => setCreateModalOpen(false)}>{webT("findOrAsk.cancel")}</Button>
             <Button onClick={handleCreateKey} disabled={creatingKey}>
-              {creatingKey ? "Creating…" : "Create key"}
+              {creatingKey ? webT("start.creating") : "Create key"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
@@ -34,6 +36,7 @@ import { toast } from 'sonner';
 import { getSiteUrl } from '@/lib/discovery';
 
 export default function MidasBrandSponsorshipProposal() {
+  const { t: webT } = useWebI18n();
   const [activeTab, setActiveTab] = useState<'problem' | 'packages' | 'calculator' | 'analytics'>('problem');
   const [selectedBudget, setSelectedBudget] = useState<number>(500000); // J$500,000 default
 
@@ -263,7 +266,7 @@ export default function MidasBrandSponsorshipProposal() {
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-white">Bar Sampling Bounty</h3>
                   <div className="font-mono text-2xl font-black text-white">
-                    J$350,000 <span className="text-xs font-normal text-stone-400">/ weekend</span>
+                    J$350,000 <span className="text-xs font-normal text-stone-400">{webT("web.weekend")}</span>
                   </div>
                   <p className="text-xs text-stone-300 leading-relaxed">
                     Ideal for ready-to-drink beverages, beer, and energy drinks looking to drive high-volume physical trials.
@@ -279,7 +282,7 @@ export default function MidasBrandSponsorshipProposal() {
                   onClick={() => { setSelectedBudget(350000); setActiveTab('calculator'); }}
                   className="w-full bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase py-3 rounded-sm border border-white/15"
                 >
-                  Simulate ROI ➔
+                  {webT("web.simulateRoi")}
                 </Button>
               </div>
 
@@ -288,11 +291,11 @@ export default function MidasBrandSponsorshipProposal() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold text-[#ffcf38] uppercase">Tier 2 · Viral Reach</span>
-                    <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">MOST POPULAR</Badge>
+                    <Badge className="bg-[#ff5a1f] text-white font-mono text-[10px]">{webT("pricing.mostPopular")}</Badge>
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-white">Creator UGC & Viral Lounge</h3>
                   <div className="font-mono text-2xl font-black text-white">
-                    J$750,000 <span className="text-xs font-normal text-stone-400">/ weekend</span>
+                    J$750,000 <span className="text-xs font-normal text-stone-400">{webT("web.weekend")}</span>
                   </div>
                   <p className="text-xs text-stone-300 leading-relaxed">
                     Combines dedicated bar activation with 50+ micro-creator bounties generating massive social buzz.
@@ -308,7 +311,7 @@ export default function MidasBrandSponsorshipProposal() {
                   onClick={() => { setSelectedBudget(750000); setActiveTab('calculator'); }}
                   className="w-full bg-[#ff5a1f] hover:bg-[#ff6b35] text-white font-mono font-bold text-xs uppercase py-3 rounded-sm shadow-md"
                 >
-                  Simulate ROI ➔
+                  {webT("web.simulateRoi")}
                 </Button>
               </div>
 
@@ -321,7 +324,7 @@ export default function MidasBrandSponsorshipProposal() {
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-white">Title Stage & VIP Deck</h3>
                   <div className="font-mono text-2xl font-black text-white">
-                    J$1,500,000 <span className="text-xs font-normal text-stone-400">/ weekend</span>
+                    J$1,500,000 <span className="text-xs font-normal text-stone-400">{webT("web.weekend")}</span>
                   </div>
                   <p className="text-xs text-stone-300 leading-relaxed">
                     Full stage/deck naming rights, official digital Moment Pieces in the Memory Vault, and 100% owned lead capture.
@@ -337,7 +340,7 @@ export default function MidasBrandSponsorshipProposal() {
                   onClick={() => { setSelectedBudget(1500000); setActiveTab('calculator'); }}
                   className="w-full bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs uppercase py-3 rounded-sm"
                 >
-                  Simulate ROI ➔
+                  {webT("web.simulateRoi")}
                 </Button>
               </div>
 
@@ -511,7 +514,7 @@ export default function MidasBrandSponsorshipProposal() {
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-mono font-bold text-stone-300 uppercase">Activation Budget:</span>
                     <strong className="font-mono text-2xl font-black text-[#ffcf38]">
-                      J${selectedBudget.toLocaleString()}
+                      J${selectedBudget.toLocaleString(currentUiLocale())}
                     </strong>
                   </div>
                   <input
@@ -566,7 +569,7 @@ export default function MidasBrandSponsorshipProposal() {
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">
                     <span className="text-[10px] text-stone-400 uppercase block">Verified Drink Check-Ins</span>
                     <strong className="text-2xl font-serif font-black text-white block">
-                      {calculatedRedemptions.toLocaleString()}+
+                      {calculatedRedemptions.toLocaleString(currentUiLocale())}+
                     </strong>
                     <span className="text-[10px] text-emerald-400">Product-trial target</span>
                   </div>
@@ -574,7 +577,7 @@ export default function MidasBrandSponsorshipProposal() {
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">
                     <span className="text-[10px] text-stone-400 uppercase block">Creator Video Stories</span>
                     <strong className="text-2xl font-serif font-black text-[#ffcf38] block">
-                      {calculatedUGCVideos.toLocaleString()}+
+                      {calculatedUGCVideos.toLocaleString(currentUiLocale())}+
                     </strong>
                     <span className="text-[10px] text-yellow-400">TikTok & IG Reels</span>
                   </div>
@@ -582,7 +585,7 @@ export default function MidasBrandSponsorshipProposal() {
                   <div className="p-3.5 bg-black/50 border border-white/10 rounded-sm space-y-1">
                     <span className="text-[10px] text-stone-400 uppercase block">Estimated Social Reach</span>
                     <strong className="text-2xl font-serif font-black text-[#ff5a1f] block">
-                      {calculatedReach.toLocaleString()}
+                      {calculatedReach.toLocaleString(currentUiLocale())}
                     </strong>
                     <span className="text-[10px] text-orange-400">Targeted Jamaican fans</span>
                   </div>

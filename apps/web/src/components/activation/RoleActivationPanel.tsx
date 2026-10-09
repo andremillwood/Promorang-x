@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { CheckCircle2, Circle, CircleDot, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ export function RoleActivationPanel({
   description,
   items,
 }: RoleActivationPanelProps) {
+  const { t: webT } = useWebI18n();
   const completed = items.filter((item) => item.status === "done").length;
   const progress = items.length ? Math.round((completed / items.length) * 100) : 0;
 
@@ -51,9 +53,9 @@ export function RoleActivationPanel({
           <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="w-full rounded-lg border border-border/50 bg-background/70 p-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">Progress</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">{webT("home.playProgress")}</p>
           <p className="mt-2 text-3xl font-bold text-foreground">{progress}%</p>
-          <p className="mt-1 text-xs text-muted-foreground">{completed} of {items.length} first wins complete</p>
+          <p className="mt-1 text-xs text-muted-foreground">{completed} {webT("web.of")} {items.length} first wins complete</p>
         </div>
       </div>
 
@@ -76,7 +78,7 @@ export function RoleActivationPanel({
                   <div className="flex items-start justify-between gap-3">
                     <p className="min-w-0 break-words font-semibold leading-snug text-foreground">{index + 1}. {item.title}</p>
                     <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
-                      {item.status === "done" ? "Done" : item.status === "current" ? "Now" : "Next"}
+                      {item.status === "done" ? webT("web.done") : item.status === "current" ? webT("commercial.now.66") : webT("funnel.pending")}
                     </span>
                   </div>
                   <p className="mt-1 break-words text-sm text-muted-foreground">{item.description}</p>
@@ -84,21 +86,21 @@ export function RoleActivationPanel({
                     item.href.startsWith("/") ? (
                       <Button variant="outline" size="sm" className="mt-4 w-full sm:w-auto" asChild>
                         <Link to={item.href}>
-                          {item.ctaLabel || "Open"}
+                          {item.ctaLabel || webT("auth.open")}
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                       </Button>
                     ) : (
                       <Button variant="outline" size="sm" className="mt-4 w-full sm:w-auto" asChild>
                         <a href={item.href}>
-                          {item.ctaLabel || "Open"}
+                          {item.ctaLabel || webT("auth.open")}
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </a>
                       </Button>
                     )
                   ) : item.onClick ? (
                     <Button variant="outline" size="sm" className="mt-4 w-full sm:w-auto" onClick={item.onClick}>
-                      {item.ctaLabel || "Open"}
+                      {item.ctaLabel || webT("auth.open")}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   ) : null}

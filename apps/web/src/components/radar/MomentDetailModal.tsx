@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React from 'react';
 import { X, Sparkles, CheckCircle2, Award, ArrowRight, Target, Camera, Share2, Compass, ShieldCheck } from 'lucide-react';
 import { MomentProps } from './MomentCard';
@@ -291,6 +292,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
   moment,
   onClaimKey
 }) => {
+  const { t: webT } = useWebI18n();
   const [selectedMission, setSelectedMission] = React.useState<SubMoment | null>(null);
   const [missionStatuses, setMissionStatuses] = React.useState<Record<string, 'AVAILABLE' | 'ACTIVE' | 'SUBMITTED' | 'COMPLETED'>>({});
 
@@ -373,7 +375,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
               </div>
               <div className="text-right">
                 <span className="text-xl font-black text-orange-600 dark:text-orange-400">+{totalSubPoints}</span>
-                <span className="text-xs font-bold text-orange-900 dark:text-orange-300 ml-1">Points</span>
+                <span className="text-xs font-bold text-orange-900 dark:text-orange-300 ml-1">{webT("wallet.pointsLabel")}</span>
               </div>
             </div>
 
@@ -418,7 +420,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
 
                       <div className="flex items-center justify-between md:justify-end space-x-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100 dark:border-gray-800">
                         <span className="text-xs font-black text-purple-700 dark:text-purple-300 bg-purple-100/70 dark:bg-purple-900/50 px-2.5 py-1 rounded-lg">
-                          +{sub.points} pts
+                          +{sub.points} {webT("web.pts")}
                         </span>
                         {mStatus === 'COMPLETED' ? (
                           <button
@@ -426,7 +428,7 @@ export const MomentDetailModal: React.FC<MomentDetailModalProps> = ({
                             className="px-3 py-1.5 bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-xl flex items-center space-x-1"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Completed</span>
+                            <span>{webT("web.completed")}</span>
                           </button>
                         ) : mStatus === 'SUBMITTED' ? (
                           <button

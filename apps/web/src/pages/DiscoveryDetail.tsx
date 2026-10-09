@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CheckCircle2, Compass, ExternalLink, MapPin, Share2, UserRound } from "lucide-react";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
@@ -17,6 +18,7 @@ function realLocation(discovery: { location_address?: string | null; city?: stri
 }
 
 export default function DiscoveryDetail() {
+  const { t: webT } = useWebI18n();
   const { slug } = useParams<{ slug: string }>();
   const query = useDiscovery(slug);
   const relatedQuery = useDiscoveries({ limit: 12 });
@@ -28,7 +30,7 @@ export default function DiscoveryDetail() {
   if (query.isError) {
     return (
       <main className="grid min-h-screen place-items-center bg-black px-6 text-center text-white">
-        <div className="max-w-lg"><Compass className="mx-auto h-9 w-9 text-primary" /><h1 className="mt-5 font-serif text-4xl font-bold">Discovery unavailable</h1><p className="mt-3 text-sm leading-6 text-white/50">We couldn’t load this Discovery right now. Try again in a moment.</p><Link to="/discover" className="mt-6 inline-flex items-center gap-2 font-bold text-primary"><ArrowLeft className="h-4 w-4" />Back to Discover</Link></div>
+        <div className="max-w-lg"><Compass className="mx-auto h-9 w-9 text-primary" /><h1 className="mt-5 font-serif text-4xl font-bold">Discovery unavailable</h1><p className="mt-3 text-sm leading-6 text-white/50">We couldn’t load this Discovery right now. Try again in a moment.</p><Link to="/discover" className="mt-6 inline-flex items-center gap-2 font-bold text-primary"><ArrowLeft className="h-4 w-4" />{webT("web.backDiscover")}</Link></div>
       </main>
     );
   }
@@ -75,7 +77,7 @@ export default function DiscoveryDetail() {
             <div>
               <Link to="/discover" className="inline-flex items-center gap-2 text-xs font-bold text-white/50 transition hover:text-white"><ArrowLeft className="h-4 w-4" />All Discoveries</Link>
               <div className="mt-10 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-200"><CheckCircle2 className="h-3.5 w-3.5" />Discovery</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-200"><CheckCircle2 className="h-3.5 w-3.5" />{webT("sceneDetail.discovery")}</span>
                 <span className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-primary">{formatDiscoveryCategory(discovery.category)}</span>
               </div>
               <h1 className="mt-5 max-w-5xl font-serif text-6xl font-bold leading-[.86] tracking-[-.055em] sm:text-8xl lg:text-[7rem]">{discovery.title}</h1>
@@ -97,7 +99,7 @@ export default function DiscoveryDetail() {
                   href={discoveryHref}
                   metadata={{ category: discovery.category || null, city: discovery.city || null }}
                 />
-                {discovery.scene ? <Link to={`/scenes/${discovery.scene.slug}`} className="inline-flex min-h-12 items-center justify-between rounded-full bg-primary px-5 text-sm font-black text-black">Open {discovery.scene.title}<ArrowRight className="h-4 w-4" /></Link> : <Link to="/scenes" className="inline-flex min-h-12 items-center justify-between rounded-full bg-primary px-5 text-sm font-black text-black">Explore Scenes<ArrowRight className="h-4 w-4" /></Link>}
+                {discovery.scene ? <Link to={`/scenes/${discovery.scene.slug}`} className="inline-flex min-h-12 items-center justify-between rounded-full bg-primary px-5 text-sm font-black text-black">{webT("auth.open")} {discovery.scene.title}<ArrowRight className="h-4 w-4" /></Link> : <Link to="/scenes" className="inline-flex min-h-12 items-center justify-between rounded-full bg-primary px-5 text-sm font-black text-black">{webT("launch.explore")}<ArrowRight className="h-4 w-4" /></Link>}
                 <button type="button" onClick={share} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-5 text-sm font-bold text-white"><Share2 className="h-4 w-4" />Share Discovery</button>
               </div>
             </aside>
@@ -124,7 +126,7 @@ export default function DiscoveryDetail() {
             <p className="mt-4 max-w-lg text-sm leading-7 text-white/50">Open the real Scene, place or contributor already connected to this Discovery. Missing relationships stay missing rather than being invented.</p>
           </div>
           <div className="space-y-3">
-            {discovery.scene ? <Link to={`/scenes/${discovery.scene.slug}`} className="group flex items-center justify-between rounded-[1.6rem] border border-white/10 p-5 transition hover:border-primary/40"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Scene</p><h3 className="mt-2 font-serif text-2xl font-bold">{discovery.scene.title}</h3><p className="mt-1 text-xs text-white/45">Persistent context for related people, places, knowledge and Moments.</p></div><ArrowRight className="h-5 w-5 text-white/30 transition group-hover:text-primary" /></Link> : <div className="rounded-[1.6rem] border border-dashed border-white/10 p-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Scene</p><h3 className="mt-2 font-serif text-2xl font-bold">Not linked yet</h3><p className="mt-1 text-xs text-white/45">The platform is not inventing a Scene relationship for this record.</p></div>}
+            {discovery.scene ? <Link to={`/scenes/${discovery.scene.slug}`} className="group flex items-center justify-between rounded-[1.6rem] border border-white/10 p-5 transition hover:border-primary/40"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("promoCardMoment.communityLabel")}</p><h3 className="mt-2 font-serif text-2xl font-bold">{discovery.scene.title}</h3><p className="mt-1 text-xs text-white/45">Persistent context for related people, places, knowledge and Moments.</p></div><ArrowRight className="h-5 w-5 text-white/30 transition group-hover:text-primary" /></Link> : <div className="rounded-[1.6rem] border border-dashed border-white/10 p-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">{webT("promoCardMoment.communityLabel")}</p><h3 className="mt-2 font-serif text-2xl font-bold">Not linked yet</h3><p className="mt-1 text-xs text-white/45">The platform is not inventing a Scene relationship for this record.</p></div>}
             {discovery.venue ? <Link to={`/venues/${discovery.venue.slug || discovery.venue.id}`} className="group flex items-center justify-between rounded-[1.6rem] border border-white/10 p-5 transition hover:border-primary/40"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Around this place</p><h3 className="mt-2 font-serif text-2xl font-bold">{discovery.venue.name}</h3><p className="mt-1 text-xs text-white/45">{discovery.venue.city || "Location held on the linked place record"}</p></div><ArrowRight className="h-5 w-5 text-white/30 transition group-hover:text-primary" /></Link> : null}
             {discovery.creator_profile ? <Link to={`/creators/${discovery.creator_profile.username || discovery.creator_profile.id}`} className="group flex items-center justify-between rounded-[1.6rem] border border-white/10 p-5 transition hover:border-primary/40"><div className="flex items-center gap-4"><div className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-white/10">{discovery.creator_profile.avatar_url ? <img src={discovery.creator_profile.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserRound className="h-5 w-5 text-white/40" />}</div><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">People moving this</p><p className="mt-1 text-sm font-bold text-white">{discovery.creator_profile.display_name || discovery.creator_profile.username || "Community contributor"}</p></div></div><ArrowRight className="h-5 w-5 text-white/30 transition group-hover:text-primary" /></Link> : null}
           </div>
@@ -133,7 +135,7 @@ export default function DiscoveryDetail() {
 
       {images.length > 1 ? (
         <section className="container px-6 py-12">
-          <div className="mb-6 border-b border-white/10 pb-5"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Photos</p><h2 className="mt-2 font-serif text-3xl font-bold">Images on this Discovery</h2></div>
+          <div className="mb-6 border-b border-white/10 pb-5"><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{webT("galleryPage.filterPhotos")}</p><h2 className="mt-2 font-serif text-3xl font-bold">Images on this Discovery</h2></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{images.map((image) => <div key={image} className="aspect-[4/3] overflow-hidden rounded-[1.6rem] border border-white/10"><img src={image} alt="" className="h-full w-full object-cover" /></div>)}</div>
         </section>
       ) : null}
@@ -143,7 +145,7 @@ export default function DiscoveryDetail() {
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8">
             <p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Source links</p>
             <div className="mt-4 flex flex-wrap gap-3">
-              {website ? <a href={website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-bold text-white/75 hover:text-white">Website <ExternalLink className="h-3.5 w-3.5" /></a> : null}
+              {website ? <a href={website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-bold text-white/75 hover:text-white">{webT("brandProfilePage.website")} <ExternalLink className="h-3.5 w-3.5" /></a> : null}
               {instagram ? <a href={`https://instagram.com/${instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-bold text-white/75 hover:text-white">Instagram <ExternalLink className="h-3.5 w-3.5" /></a> : null}
             </div>
           </div>
@@ -151,10 +153,10 @@ export default function DiscoveryDetail() {
       ) : null}
 
       <section className="container px-6 py-14">
-        <div className="mb-7 flex items-end justify-between border-b border-white/10 pb-5"><div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">Keep exploring</p><h2 className="mt-2 font-serif text-4xl font-bold">More worth knowing.</h2></div><Link to="/discover" className="hidden items-center gap-2 text-sm font-bold text-primary sm:flex">All Discoveries<ArrowRight className="h-4 w-4"/></Link></div>
+        <div className="mb-7 flex items-end justify-between border-b border-white/10 pb-5"><div><p className="text-[10px] font-black uppercase tracking-[.24em] text-primary">{webT("web.keepExploring")}</p><h2 className="mt-2 font-serif text-4xl font-bold">More worth knowing.</h2></div><Link to="/discover" className="hidden items-center gap-2 text-sm font-bold text-primary sm:flex">All Discoveries<ArrowRight className="h-4 w-4"/></Link></div>
         {relatedDiscoveries.length ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{relatedDiscoveries.map((item) => <Link key={item.id} to={`/discoveries/${item.slug}`} className="group overflow-hidden border border-white/10 bg-white/[.025]"><div className="aspect-[4/3] overflow-hidden bg-white/[.04]">{item.cover_image ? <img src={item.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><Compass className="h-7 w-7 text-white/20"/></div>}</div><div className="p-4"><p className="text-[9px] font-black uppercase tracking-[.14em] text-primary">{formatDiscoveryCategory(item.category)}</p><h3 className="mt-2 font-serif text-xl font-bold leading-tight">{item.title}</h3><p className="mt-2 text-[11px] text-white/42">{realLocation(item)}</p></div></Link>)}</div> : <p className="text-sm text-white/45">No related Discoveries to show yet.</p>}
       </section>
-      <section className="border-t border-white/10 bg-white/[.02]"><div className="container flex flex-col gap-5 px-6 py-10 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">PromoCard</p><h2 className="mt-2 font-serif text-2xl font-bold">Want to remember this?</h2><p className="mt-2 text-xs text-white/42">Watch it now. Come back when something real changes.</p></div><WatchMarketObjectButton type="discovery" id={String(discovery.id)} title={discovery.title} subtitle={location} image={discovery.cover_image || null} href={discoveryHref} metadata={{ category: discovery.category || null, city: discovery.city || null }} /></div></section>
+      <section className="border-t border-white/10 bg-white/[.02]"><div className="container flex flex-col gap-5 px-6 py-10 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("card.eyebrow")}</p><h2 className="mt-2 font-serif text-2xl font-bold">{webT("web.rememberThis")}</h2><p className="mt-2 text-xs text-white/42">Watch it now. Come back when something real changes.</p></div><WatchMarketObjectButton type="discovery" id={String(discovery.id)} title={discovery.title} subtitle={location} image={discovery.cover_image || null} href={discoveryHref} metadata={{ category: discovery.category || null, city: discovery.city || null }} /></div></section>
       <MobileBottomNav />
     </main>
   );

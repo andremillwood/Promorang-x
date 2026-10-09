@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { CalendarDays, Crown, Gift, ShieldCheck, Ticket, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,7 @@ export function PromoShareEligibilityPanel({
   poolLabel = "matching pools",
   funded = false,
 }: PromoShareEligibilityPanelProps) {
+  const { t: webT } = useWebI18n();
   if (variant === "compact") {
     return (
       <div className={cn("rounded-2xl border border-primary/20 bg-primary/5 p-3", className)}>
@@ -44,7 +46,7 @@ export function PromoShareEligibilityPanel({
       <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge className="w-fit">PromoShare</Badge>
+            <Badge className="w-fit">{webT("economy.navPromoShare")}</Badge>
             <Badge variant={funded ? "default" : "outline"}>{funded ? "Funded reward mode" : "Progress mode"}</Badge>
           </div>
           <h2 className="mt-3 font-serif text-2xl font-bold text-foreground">Funded value follows the pool rules.</h2>
@@ -54,12 +56,12 @@ export function PromoShareEligibilityPanel({
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
               <CalendarDays className="h-5 w-5 text-primary" />
-              <p className="mt-3 text-sm font-bold text-foreground">Today</p>
+              <p className="mt-3 text-sm font-bold text-foreground">{webT("lens.today")}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">Actions counted today can open today's value.</p>
             </div>
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
               <Trophy className="h-5 w-5 text-primary" />
-              <p className="mt-3 text-sm font-bold text-foreground">Weekly</p>
+              <p className="mt-3 text-sm font-bold text-foreground">{webT("editMoment.freqWeekly")}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">Eligible weekly actions can build reward chances.</p>
             </div>
             <div className="rounded-2xl border border-border/70 bg-background/75 p-4">
@@ -95,7 +97,7 @@ export function PromoShareEligibilityPanel({
             </div>
           </div>
           <Button asChild className="mt-5 w-full" variant="outline">
-            <Link to="/promoshare">Open PromoShare</Link>
+            <Link to="/promoshare">{webT("how.memberStep2Cta")}</Link>
           </Button>
         </div>
       </div>

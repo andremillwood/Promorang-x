@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,6 +61,7 @@ const categories = [
 ];
 
 export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
+  const { t: webT } = useWebI18n();
   const navigate = useNavigate();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
@@ -149,7 +151,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{webT("offerStudio.descLabel")}</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Describe your product..."
@@ -168,11 +170,11 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>{webT("support.category")}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
+                        <SelectValue placeholder={webT("web.selectCategory")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -274,7 +276,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
 
         {/* Inventory */}
         <div className="space-y-6 rounded-xl border border-border bg-card p-4 sm:p-6">
-          <h3 className="font-semibold text-foreground">Inventory</h3>
+          <h3 className="font-semibold text-foreground">{webT("people.inventory")}</h3>
 
           <FormField
             control={form.control}
@@ -296,7 +298,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             render={({ field }) => (
               <FormItem className="flex flex-col gap-4 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <FormLabel className="text-base">Active</FormLabel>
+                  <FormLabel className="text-base">{webT("commercial.active")}</FormLabel>
                   <FormDescription>
                     Product is visible and available for purchase
                   </FormDescription>
@@ -368,13 +370,13 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             onClick={() => navigate(-1)}
             className="flex-1"
           >
-            Cancel
+            {webT("findOrAsk.cancel")}
           </Button>
           <Button type="submit" disabled={isPending} className="flex-1">
             {isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
+                {webT("editMoment.saving")}
               </>
             ) : (
               <>

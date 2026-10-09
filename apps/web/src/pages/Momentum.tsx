@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -102,6 +104,7 @@ function FlowNode({
   active?: boolean;
   isLast?: boolean;
 }) {
+  const { t: webT } = useWebI18n();
   return (
     <div className="relative flex-1 min-w-[180px]">
       <motion.div
@@ -125,7 +128,7 @@ function FlowNode({
               {active && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary-foreground shadow-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                  Active
+                  {webT("commercial.active")}
                 </span>
               )}
             </div>
@@ -218,6 +221,7 @@ function MovePill({
 }
 
 export default function Momentum() {
+  const { t: webT } = useWebI18n();
   const { user, session, activeRole } = useAuth();
   const [sidebarTab, setSidebarTab] = useState<"receipt" | "actions" | "markets">("receipt");
   const dropsQuery = useContentDrops("active");
@@ -392,9 +396,9 @@ export default function Momentum() {
               {/* Integrated Hero Metric Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full lg:w-[420px] shrink-0 pt-2 lg:pt-0">
                 {[
-                  { label: "Signals", value: drops.length, icon: RadioTower, color: "text-primary" },
+                  { label: webT("brandDash.signals"), value: drops.length, icon: RadioTower, color: "text-primary" },
                   { label: "Landings", value: activeMoments.length, icon: MapPin, color: "text-amber-500" },
-                  { label: "Entries", value: promoShareTotals.entries, icon: Ticket, color: "text-accent" },
+                  { label: webT("web.entries"), value: promoShareTotals.entries, icon: Ticket, color: "text-accent" },
                   { label: "Markets", value: pieces.length, icon: WalletCards, color: "text-emerald-500" },
                 ].map((stat) => (
                   <div
@@ -538,9 +542,9 @@ export default function Momentum() {
 
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
                       <div className="flex flex-wrap gap-2">
-                        <MovePill icon={MousePointerClick} label="Open" detail="track click" />
-                        <MovePill icon={Share2} label="Share" detail="prove reach" />
-                        <MovePill icon={Ticket} label="Earn" detail="tickets" />
+                        <MovePill icon={MousePointerClick} label={webT("auth.open")} detail="track click" />
+                        <MovePill icon={Share2} label={webT("promoShare.shareAria")} detail="prove reach" />
+                        <MovePill icon={Ticket} label={webT("common.earn")} detail="tickets" />
                       </div>
                       <span className="inline-flex items-center gap-1 text-xs font-black text-primary group-hover:translate-x-0.5 transition-transform">
                         Open drop
@@ -645,7 +649,7 @@ export default function Momentum() {
                 )}
               >
                 <BadgeCheck className="h-3.5 w-3.5" />
-                Receipt
+                {webT("web.receiptType.receipt")}
               </button>
               <button
                 type="button"
@@ -658,7 +662,7 @@ export default function Momentum() {
                 )}
               >
                 <Zap className="h-3.5 w-3.5" />
-                Actions
+                {webT("sceneDetailPage.actionsLabel")}
               </button>
               <button
                 type="button"
@@ -699,7 +703,7 @@ export default function Momentum() {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="rounded-lg border border-border/80 bg-background/80 p-2.5 text-center">
                       <p className="text-xl font-black text-foreground">{promoShareTotals.entries}</p>
-                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">entries</p>
+                      <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{webT("drops.entries")}</p>
                     </div>
                     <div className="rounded-lg border border-border/80 bg-background/80 p-2.5 text-center">
                       <p className="text-xl font-black text-foreground">{promoShareTotals.weight.toFixed(1)}</p>
@@ -801,7 +805,7 @@ export default function Momentum() {
                       <Trophy className="h-4 w-4 text-primary" />
                       <p className="font-black text-sm text-foreground">Contributor Lanes</p>
                     </div>
-                    <Badge variant="outline" className="text-[10px] font-bold">Rank</Badge>
+                    <Badge variant="outline" className="text-[10px] font-bold">{webT("referralSprintPage.thRank")}</Badge>
                   </div>
                   <div className="space-y-2">
                     {[
@@ -843,7 +847,7 @@ export default function Momentum() {
                           {piece.asset?.title || piece.asset?.name || piece.title || "Content piece"}
                         </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">
-                          {piece.piece_type} · {Number(piece.volume_24h || 0).toLocaleString()} volume
+                          {piece.piece_type} · {Number(piece.volume_24h || 0).toLocaleString(currentUiLocale())} volume
                         </p>
                       </Link>
                     ))}

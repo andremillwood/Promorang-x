@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -49,7 +50,7 @@ const formatStartTime = (value?: string | null, notPostedText = "Time not posted
   if (!value) return notPostedText;
 
   try {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat(currentUiLocale(), {
       month: "short",
       day: "numeric",
       hour: "numeric",
@@ -200,6 +201,7 @@ const PulseSection = ({
 };
 
 const Pulse = () => {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const { user } = useAuth();
   const { city, setCity } = useMarket();
@@ -369,7 +371,7 @@ const Pulse = () => {
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             {city.id !== "kingston" ? (
               <Button size="lg" onClick={() => setCity(getDefaultCityHub())}>
-                Browse Kingston
+                {webT("discover.browseKingston")}
               </Button>
             ) : (
               <Button asChild variant="hero" size="lg">

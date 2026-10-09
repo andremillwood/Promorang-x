@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -50,6 +51,7 @@ const STOCK_COVERS = [
 ];
 
 export function CreateMoment() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -304,7 +306,7 @@ export function CreateMoment() {
                 onClick={() => navigate(-1)}
                 className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-white/55 transition hover:text-white"
               >
-                <ArrowLeft className="h-4 w-4" /> Back
+                <ArrowLeft className="h-4 w-4" /> {webT("common.back")}
               </button>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Badge className="border-primary/30 bg-primary/15 text-primary">
@@ -329,7 +331,7 @@ export function CreateMoment() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-black/25 p-4 lg:max-w-xs">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Proof contract</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">{webT("web.proofContract")}</p>
               <p className="mt-2 text-sm font-bold text-white">Verified arrival, not RSVP alone</p>
               <p className="mt-1 text-xs leading-5 text-white/50">{proofSummary}</p>
             </div>
@@ -344,7 +346,7 @@ export function CreateMoment() {
 
         <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2">
           {[
-            { num: 1, title: "Outcome" },
+            { num: 1, title: webT("createProposal.step1Short") },
             { num: 2, title: "Time & place" },
             { num: 3, title: "Team" },
             { num: 4, title: "Proof & capacity" },
@@ -394,7 +396,7 @@ export function CreateMoment() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="block space-y-1.5">
-                    <Label className="text-xs font-bold text-white/80">Category</Label>
+                    <Label className="text-xs font-bold text-white/80">{webT("support.category")}</Label>
                     <select
                       value={category}
                       onChange={(event) => setCategory(event.target.value)}
@@ -501,7 +503,7 @@ export function CreateMoment() {
                 />
 
                 <div className="flex gap-3">
-                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="rounded-2xl border-white/10">Back</Button>
+                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="rounded-2xl border-white/10">{webT("common.back")}</Button>
                   <Button type="button" disabled={!canLeaveStepTwo} onClick={() => setStep(3)} className="flex-1 rounded-2xl font-black">Add team <ArrowRight className="ml-2 h-4 w-4" /></Button>
                 </div>
               </section>
@@ -523,7 +525,7 @@ export function CreateMoment() {
                 </div>
 
                 <div className="flex gap-3">
-                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="rounded-2xl border-white/10">Back</Button>
+                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="rounded-2xl border-white/10">{webT("common.back")}</Button>
                   <Button type="button" onClick={() => setStep(4)} className="flex-1 rounded-2xl font-black">Set proof and capacity <ArrowRight className="ml-2 h-4 w-4" /></Button>
                 </div>
               </section>
@@ -576,7 +578,7 @@ export function CreateMoment() {
                 </div>
 
                 <div className="flex gap-3 border-t border-white/10 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setStep(3)} className="rounded-2xl border-white/10">Back</Button>
+                  <Button type="button" variant="outline" onClick={() => setStep(3)} className="rounded-2xl border-white/10">{webT("common.back")}</Button>
                   <Button type="submit" disabled={submitting || uploading} className="flex-1 rounded-2xl font-black">
                     {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Publishing…</> : <><Sparkles className="mr-2 h-4 w-4" />Publish Moment</>}
                   </Button>
@@ -605,7 +607,7 @@ export function CreateMoment() {
               <div className="space-y-3 p-5">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
                   <Calendar className="h-3.5 w-3.5" />
-                  <span>{startsAt ? new Date(startsAt).toLocaleString() : "Time not set"}</span>
+                  <span>{startsAt ? new Date(startsAt).toLocaleString(currentUiLocale()) : "Time not set"}</span>
                 </div>
                 <h3 className="text-lg font-black leading-tight text-white">{title || "Moment title not set"}</h3>
                 <p className="text-xs leading-relaxed text-white/55">{description || "Explain why this experience is worth attending."}</p>

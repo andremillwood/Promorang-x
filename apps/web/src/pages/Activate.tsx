@@ -16,6 +16,7 @@ import SEO from '@/components/SEO';
 import { useI18n } from '@/i18n/I18nContext';
 
 export default function ActivatePage() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ export default function ActivatePage() {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <div className="animate-spin w-12 h-12 border-3 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-muted-foreground font-medium">Loading...</p>
+          <p className="text-muted-foreground font-medium">{webT("common.loading")}</p>
         </div>
       </div>
     );

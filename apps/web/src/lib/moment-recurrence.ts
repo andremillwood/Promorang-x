@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 export type RecurringMomentLike = {
   starts_at: string;
   ends_at?: string | null;
@@ -20,7 +21,7 @@ export type ResolvedMomentOccurrence = {
 };
 
 function zonedParts(date: Date, timeZone: string) {
-  const parts = new Intl.DateTimeFormat("en-US", {
+  const parts = new Intl.DateTimeFormat(currentUiLocale(), {
     timeZone,
     year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit",
@@ -74,7 +75,7 @@ export function resolveMomentOccurrence(moment: RecurringMomentLike, referenceDa
   } catch {
     originalWallParts = zonedParts(originalStart, "UTC");
   }
-  const effectiveTimeZone = (() => { try { new Intl.DateTimeFormat("en", { timeZone }).format(); return timeZone; } catch { return "UTC"; } })();
+  const effectiveTimeZone = (() => { try { new Intl.DateTimeFormat(currentUiLocale(), { timeZone }).format(); return timeZone; } catch { return "UTC"; } })();
   const originalWall = new Date(Date.UTC(originalWallParts.year, originalWallParts.month - 1, originalWallParts.day, originalWallParts.hour, originalWallParts.minute, originalWallParts.second, originalStart.getUTCMilliseconds()));
   let candidate = new Date(originalStart);
   let occurrenceNumber = 1;

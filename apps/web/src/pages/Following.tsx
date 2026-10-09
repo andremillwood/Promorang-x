@@ -46,6 +46,7 @@ interface SuggestedUser {
 }
 
 const Following = () => {
+  const { t: webT } = useI18n();
     const { t, formatNumber } = useI18n();
     const { user } = useAuth();
     const [filter, setFilter] = useState<"all" | "upcoming" | "new">("all");
@@ -309,7 +310,7 @@ const Following = () => {
                     {/* Page Header */}
                     <div className="hidden items-center justify-between mb-8">
                         <div>
-                            <h1 className="font-serif text-3xl font-bold">Following</h1>
+                            <h1 className="font-serif text-3xl font-bold">{webT("launch.following")}</h1>
                             <p className="text-muted-foreground">
                                 Moments from people you follow
                             </p>
@@ -317,7 +318,7 @@ const Following = () => {
                         <Button variant="outline" asChild>
                             <Link to="/discover">
                                 <Sparkles className="h-4 w-4 mr-2" />
-                                Explore More
+                                {webT("momentsAppPage.exploreMore")}
                             </Link>
                         </Button>
                     </div>
@@ -352,7 +353,7 @@ const Following = () => {
                                         <p className="mt-1 text-xs leading-5 text-white/50">The account follow graph or Moment source could not be read, so PROMORANG is not showing an empty state.</p>
                                     </div>
                                 </div>
-                                <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="shrink-0 text-xs font-bold text-orange-300 hover:text-orange-200">Try again</button>
+                                <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="shrink-0 text-xs font-bold text-orange-300 hover:text-orange-200">{webT("release.18")}</button>
                             </div>
                         ) : followingUsers.length > 0 ? (
                             <div className="flex gap-4 overflow-x-auto pb-2">
@@ -504,7 +505,7 @@ const Following = () => {
                             <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-amber-300" />
                             <h3 className="font-bold text-white">Following Moments are unavailable.</h3>
                             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-white/50">The source failed, so this is not being presented as “no Moments.”</p>
-                            <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="mt-4 text-sm font-bold text-orange-300 hover:text-orange-200">Try again</button>
+                            <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="mt-4 text-sm font-bold text-orange-300 hover:text-orange-200">{webT("release.18")}</button>
                         </div>
                     ) : filteredMoments.length > 0 ? (
                         <MasonryGrid>

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -30,10 +32,11 @@ const typeMeta = {
 
 const formatDate = (value?: string) => {
   if (!value) return null;
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
+  return new Intl.DateTimeFormat(currentUiLocale(), { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 };
 
 export function EditorialFeedCard({ item, featured = false, wide = false }: { item: FeedItem; featured?: boolean; wide?: boolean }) {
+  const { t: webT } = useWebI18n();
   const meta = typeMeta[item.object_type];
   const Icon = meta.icon;
   const href = item.primary_cta.href || "/discover";
@@ -89,9 +92,9 @@ export function EditorialFeedCard({ item, featured = false, wide = false }: { it
             <Link to={href} className="mt-6 inline-flex items-center gap-2 text-sm font-black text-violet-300 hover:text-white">{item.primary_cta.label} <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
           <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-white/10">
-            <PieceMetric label="Price" value={`$${Number(raw.current_price || 0).toFixed(2)}`} />
-            <PieceMetric label="Available" value={String(raw.available_pieces || 0)} />
-            <PieceMetric label="Holders" value={String(raw.holder_count || 0)} />
+            <PieceMetric label={webT("pieceProfile.price")} value={`$${Number(raw.current_price || 0).toFixed(2)}`} />
+            <PieceMetric label={webT("people.available")} value={String(raw.available_pieces || 0)} />
+            <PieceMetric label={webT("pieceProfile.holders")} value={String(raw.holder_count || 0)} />
           </div>
         </div>
       </article>

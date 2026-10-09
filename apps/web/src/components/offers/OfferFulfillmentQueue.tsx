@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Package, Truck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { useFulfillOffer, usePendingFulfillments, type OfferIssuance } from "@/h
 import { toast } from "sonner";
 
 function FulfillmentRow({ issuance }: { issuance: OfferIssuance }) {
+  const { t: webT } = useWebI18n();
   const fulfill = useFulfillOffer();
   const [tracking, setTracking] = useState(issuance.fulfillment_data?.tracking_number || "");
   const [carrier, setCarrier] = useState(issuance.fulfillment_data?.carrier || "");
@@ -34,8 +36,8 @@ function FulfillmentRow({ issuance }: { issuance: OfferIssuance }) {
       <PaperReceipt
         heading={issuance.offers.title}
         lines={[
-          { label: "Code", value: issuance.redemption_code, strong: true },
-          { label: "Journey", value: type.replaceAll("_", " ") },
+          { label: webT("web.code"), value: issuance.redemption_code, strong: true },
+          { label: webT("activatePage.journeyTitle"), value: type.replaceAll("_", " ") },
           { label: "Stage", value: (stage || issuance.status).replaceAll("_", " ") },
           ...(address?.name ? [{ label: "Send to", value: `${address.name}, ${address.line1}, ${address.city}` }] : []),
           ...(issuance.fulfillment_data?.tracking_number ? [{ label: "Tracking", value: String(issuance.fulfillment_data.tracking_number) }] : []),

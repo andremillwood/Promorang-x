@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { Link2, Users, TrendingUp, Copy, Check, Plus, Share2, Gem, Coins } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -230,5 +231,5 @@ function EmptyState({ text }: { text: string }) {
 function formatCommission(amount: number, currency: string) {
   const value = Number(amount || 0);
   if (currency === "usd") return `$${value.toFixed(2)}`;
-  return `${value.toLocaleString()} ${currency === "gems" ? "Gems" : "Points"}`;
+  return `${value.toLocaleString(currentUiLocale())} ${currency === "gems" ? "Gems" : "Points"}`;
 }

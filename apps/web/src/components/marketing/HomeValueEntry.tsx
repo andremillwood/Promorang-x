@@ -51,6 +51,7 @@ export function HomeValueEntry({ market }: { market: string }) {
 }
 
 export function HomeOfferRequest({ market }: { market: string }) {
+  const { t: webT } = useI18n();
   const { t, locale } = useI18n();
   const [interest, setInterest] = useState<string>("");
   const [request, setRequest] = useState("");
@@ -63,7 +64,7 @@ export function HomeOfferRequest({ market }: { market: string }) {
       <div className="home-demand-choices">
         {interests.map(key => { const Icon = interestIcons[key]; return <button key={key} type="button" aria-pressed={interest === key} onClick={() => { setInterest(key); setRequest(key === "other" ? "" : t(`homeValue.${key}` as TranslationKey)); }} className="home-demand-choice"><img className="home-demand-choice-photo" src={interestPhotos[key]} alt="" loading="lazy" decoding="async" /><Icon size={21} aria-hidden="true" /><span>{t(`homeValue.${key}` as TranslationKey)}</span><ArrowRight size={16} aria-hidden="true" /></button>; })}
       </div>
-      <p className="home-demand-route"><span className={interest ? "is-complete" : "is-current"}>01 {t("homeDemand.choose")}</span><ArrowRight size={13} aria-hidden="true" /><span className={interest ? "is-current" : ""}>02 {t("homeDemand.define")}</span></p>
+      <p className="home-demand-route"><span className={interest ? "is-complete" : "is-current"}>{webT("home.journey1Label")} {t("homeDemand.choose")}</span><ArrowRight size={13} aria-hidden="true" /><span className={interest ? "is-current" : ""}>{webT("home.journey2Label")} {t("homeDemand.define")}</span></p>
       {interest ? <div className="home-demand-detail">
         <label htmlFor="home-offer-request" className="block text-sm font-bold">{t("homeValue.detail")}</label>
         {interest === "food" ? <div className="mt-3 flex flex-wrap gap-2">{["two", "group", "lunch"].map(key => <button type="button" key={key} aria-pressed={request === t(`homeValue.${key}` as TranslationKey)} onClick={() => setRequest(t(`homeValue.${key}` as TranslationKey))} className="min-h-11 rounded-xl border border-white/20 px-3 text-left text-sm text-orange-200 hover:border-orange-300">{t(`homeValue.${key}` as TranslationKey)}</button>)}</div> : null}

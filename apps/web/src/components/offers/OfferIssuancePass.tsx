@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { QRCodeSVG } from "qrcode.react";
 import { encodeOfferRedeemPayload, isPresentablePass, participantJourneyLabel } from "@promorang/shared";
 import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
@@ -7,6 +8,7 @@ import { useClaimIssuance, useSaveOfferAddress, type OfferIssuance } from "@/hoo
 import { toast } from "sonner";
 
 export function OfferIssuancePass({ issuance }: { issuance: OfferIssuance }) {
+  const { t: webT } = useWebI18n();
   const claim = useClaimIssuance();
   const saveAddress = useSaveOfferAddress();
   const offer = issuance.offers;
@@ -85,10 +87,10 @@ export function OfferIssuancePass({ issuance }: { issuance: OfferIssuance }) {
         <PaperReceipt
           heading={label}
           lines={[
-            { label: "Offer", value: offer.title },
-            { label: "Code", value: issuance.redemption_code },
-            ...(offer.value_amount ? [{ label: "Value", value: `${offer.value_amount} ${offer.value_currency || ""}`.trim(), strong: true }] : []),
-            ...(data.automatic?.wallet ? [{ label: "Wallet", value: `${data.automatic.amount || ""} ${data.automatic.wallet}`.trim() }] : []),
+            { label: webT("coupon.offer"), value: offer.title },
+            { label: webT("web.code"), value: issuance.redemption_code },
+            ...(offer.value_amount ? [{ label: webT("createProposal.step6Short"), value: `${offer.value_amount} ${offer.value_currency || ""}`.trim(), strong: true }] : []),
+            ...(data.automatic?.wallet ? [{ label: webT("lens.wallet"), value: `${data.automatic.amount || ""} ${data.automatic.wallet}`.trim() }] : []),
             ...(data.carrier ? [{ label: "Carrier", value: String(data.carrier) }] : []),
             ...(data.tracking_number ? [{ label: "Tracking", value: String(data.tracking_number), strong: true }] : []),
           ]}

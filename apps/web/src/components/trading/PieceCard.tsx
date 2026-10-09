@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 /**
  * Piece Card Component
  * Shows a tradable piece with 3D perspective tilt, holographic foil sheen, and trading actions
@@ -35,6 +36,7 @@ interface PieceCardProps {
 }
 
 export function PieceCard({ piece, onTrade }: PieceCardProps) {
+  const { t: webT } = useWebI18n();
   const [showDetails, setShowDetails] = useState(false);
   const assetId = piece.asset?.id || piece.asset_id || piece.id;
 
@@ -124,7 +126,7 @@ export function PieceCard({ piece, onTrade }: PieceCardProps) {
               <span className="text-xl font-black text-white">
                 {piece.last_price.toFixed(2)}
               </span>
-              <span className="ml-1 text-xs font-bold text-violet-400">Gems</span>
+              <span className="ml-1 text-xs font-bold text-violet-400">{webT("wallet.gemsLabel")}</span>
             </div>
             <div className={`flex items-center text-xs font-bold ${isPriceUp ? 'text-emerald-400' : 'text-rose-400'}`}>
               {isPriceUp ? (
@@ -139,14 +141,14 @@ export function PieceCard({ piece, onTrade }: PieceCardProps) {
           {/* Volume */}
           {piece.volume_24h ? (
             <div className="text-[11px] text-white/40 font-medium">
-              24h Vol: {piece.volume_24h.toFixed(0)} Gems
+              24h Vol: {piece.volume_24h.toFixed(0)} {webT("wallet.gemsLabel")}
             </div>
           ) : null}
 
           {/* Actions */}
           <div className="flex gap-2 pt-1">
             <Button asChild variant="outline" size="sm" className="flex-1 rounded-xl border-white/15 bg-white/5 text-xs font-bold text-white hover:bg-white/10 hover:text-white">
-              <Link to={`/pieces/${piece.piece_type}/${assetId}`}>Details</Link>
+              <Link to={`/pieces/${piece.piece_type}/${assetId}`}>{webT("support.details")}</Link>
             </Button>
             <Button 
               size="sm"
@@ -154,7 +156,7 @@ export function PieceCard({ piece, onTrade }: PieceCardProps) {
               onClick={() => onTrade(piece, 'buy')}
             >
               <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-              Buy
+              {webT("web.buy")}
             </Button>
             <Button 
               size="sm"
@@ -162,7 +164,7 @@ export function PieceCard({ piece, onTrade }: PieceCardProps) {
               className="rounded-xl border-white/15 bg-white/5 text-xs font-bold text-white hover:bg-white/10 hover:text-white"
               onClick={() => onTrade(piece, 'sell')}
             >
-              Sell
+              {webT("web.sell")}
             </Button>
             
             <Dialog open={showDetails} onOpenChange={setShowDetails}>
@@ -177,17 +179,17 @@ export function PieceCard({ piece, onTrade }: PieceCardProps) {
                 </DialogHeader>
                 <div className="space-y-4 text-sm">
                   <div>
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Type</label>
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">{webT("wallet.type")}</label>
                     <p className="font-semibold text-white capitalize">{piece.piece_type}</p>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Current Price</label>
-                    <p className="text-lg font-black text-white">{piece.last_price.toFixed(2)} Gems</p>
+                    <p className="text-lg font-black text-white">{piece.last_price.toFixed(2)} {webT("wallet.gemsLabel")}</p>
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">24h Volume</label>
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">{webT("tradingMarketplace.volume24h")}</label>
                     <p className="text-white/80 font-medium">
-                      {piece.volume_24h?.toFixed(0) || '0'} Gems
+                      {piece.volume_24h?.toFixed(0) || '0'} {webT("wallet.gemsLabel")}
                     </p>
                   </div>
                   <div>

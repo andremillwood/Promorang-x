@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Crown, Award, Zap, Home, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -113,6 +114,7 @@ export function TierComparison({
   userTier: UserTier; 
   targetTier: UserTier;
 }) {
+  const { t: webT } = useWebI18n();
   const userInfo = userTiers[userTier];
   const targetInfo = userTiers[targetTier];
   
@@ -136,7 +138,7 @@ export function TierComparison({
       <span className="text-muted-foreground">→</span>
       <TierBadge tier={targetTier} size="sm" />
       <span className="text-amber-600 text-xs">
-        {targetLevel - userLevel} tier{targetLevel - userLevel > 1 ? 's' : ''} above you
+        {targetLevel - userLevel} {webT("web.tierLower")}{targetLevel - userLevel > 1 ? 's' : ''} above you
       </span>
     </div>
   );

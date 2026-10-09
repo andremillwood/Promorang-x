@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
@@ -39,6 +40,7 @@ async function api(path: string, options?: RequestInit) {
 }
 
 export default function HostGuestOperations() {
+  const { t: webT } = useWebI18n();
   const { momentId = "" } = useParams();
   const [search, setSearch] = useState("");
   const [code, setCode] = useState("");
@@ -136,7 +138,7 @@ export default function HostGuestOperations() {
         <p className="text-[10px] font-black uppercase tracking-[.22em] text-destructive">Door board unavailable</p>
         <h1 className="mt-3 text-4xl font-black tracking-[-.04em]">Guest operations could not load.</h1>
         <p className="mt-3 text-muted-foreground">{query.error.message}</p>
-        <Button className="mt-6" onClick={() => query.refetch()}>Try again</Button>
+        <Button className="mt-6" onClick={() => query.refetch()}>{webT("release.18")}</Button>
       </main>
     );
   }
@@ -157,7 +159,7 @@ export default function HostGuestOperations() {
               {online ? "Live sync" : "Offline · writes paused"}
             </span>
             <Button variant="outline" size="sm" disabled={query.isFetching || !online} onClick={() => query.refetch()} className="min-h-9 rounded-full">
-              <RefreshCw className={`mr-2 h-3.5 w-3.5 ${query.isFetching ? "animate-spin" : ""}`} /> Refresh
+              <RefreshCw className={`mr-2 h-3.5 w-3.5 ${query.isFetching ? "animate-spin" : ""}`} /> {webT("common.refresh")}
             </Button>
           </div>
         </div>
@@ -172,10 +174,10 @@ export default function HostGuestOperations() {
           </div>
           <div className="min-w-[15rem] rounded-[1.35rem] border border-primary/20 bg-primary/[.06] px-5 py-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Moment</p>
+              <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("promoShare.typeMoment")}</p>
               <span className="rounded-full border border-border/70 px-2 py-1 text-[9px] font-black uppercase tracking-wider">{moment.status}</span>
             </div>
-            <p className="mt-3 text-sm font-bold">{moment.location || "Location pending"}</p>
+            <p className="mt-3 text-sm font-bold">{moment.location || webT("venueProfile.locationPending")}</p>
             <p className="mt-1 text-[11px] text-muted-foreground">{lastUpdated ? `Last confirmed sync ${lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Sync time unavailable"}</p>
           </div>
         </header>
@@ -231,7 +233,7 @@ export default function HostGuestOperations() {
             <label className="mt-6 block text-[10px] font-black uppercase tracking-[.18em] text-white/45" htmlFor="pass-code">Pass code</label>
             <Input id="pass-code" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} onKeyDown={(event) => event.key === "Enter" && void checkIn(code)} placeholder="PR-12AB34CD" disabled={!online || busy} className="mt-2 h-14 border-white/15 bg-white/5 font-mono text-lg uppercase tracking-[.12em] text-white" />
             <Button disabled={busy || !code.trim() || !online} onClick={() => void checkIn(code)} className="mt-3 h-12 w-full bg-primary font-black text-black">
-              {busy ? "Checking…" : online ? "Confirm arrival" : "Offline · unavailable"}
+              {busy ? webT("aftrhrs.doorChecking") : online ? "Confirm arrival" : "Offline · unavailable"}
             </Button>
 
             <div aria-live="polite" className="mt-4 min-h-16 rounded-xl border border-white/10 bg-white/[.03] p-3 text-sm text-white/65">
@@ -276,7 +278,7 @@ export default function HostGuestOperations() {
                           </button>
                         ) : null}
                       </div>
-                      <p className="mt-2 text-xs text-muted-foreground">{guest.group_name || "Individual"} · {guest.guest_count} {guest.guest_count === 1 ? "place" : "places"} · {guest.meeting_point || "No meeting point"}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{guest.group_name || "Individual"} · {guest.guest_count} {guest.guest_count === 1 ? webT("rsvp.place") : webT("rsvp.places")} · {guest.meeting_point || "No meeting point"}</p>
                       <p className="mt-2 font-mono text-xs text-muted-foreground">{guest.pass_code}</p>
                     </div>
                     {confirmed ? (

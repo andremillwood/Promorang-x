@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ export const SocialShareOGCard: React.FC<SocialShareOGCardProps> = ({
   onClose,
   moment,
 }) => {
+  const { t: webT } = useWebI18n();
   const [copied, setCopied] = useState(false);
   const shareUrl = `${window.location.origin}/moments/${moment.id}`;
   const shareText = `Check out ${moment.title} on Promorang! ${moment.reward ? `Reward: ${moment.reward}` : ''}`;
@@ -70,7 +73,7 @@ export const SocialShareOGCard: React.FC<SocialShareOGCardProps> = ({
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#16161a] via-transparent to-transparent" />
             <Badge className="absolute top-3 left-3 bg-black/70 text-white backdrop-blur-md border border-white/10 font-bold text-[10px]">
-              Promorang Moment
+              {webT("aftrhrs.momentEyebrow")}
             </Badge>
           </div>
 
@@ -78,11 +81,11 @@ export const SocialShareOGCard: React.FC<SocialShareOGCardProps> = ({
             <h3 className="font-extrabold text-xl text-white leading-tight">{moment.title}</h3>
             <div className="flex flex-wrap items-center gap-3 text-xs text-white/60">
               <span className="flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 text-[#ff5500]" /> {moment.venue_name || moment.location || "Venue"}
+                <MapPin className="h-3.5 w-3.5 text-[#ff5500]" /> {moment.venue_name || moment.location || webT("aftrhrs.venue")}
               </span>
               {moment.starts_at && (
                 <span className="flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5 text-[#ff5500]" /> {new Date(moment.starts_at).toLocaleDateString()}
+                  <Calendar className="h-3.5 w-3.5 text-[#ff5500]" /> {new Date(moment.starts_at).toLocaleDateString(currentUiLocale())}
                 </span>
               )}
             </div>
@@ -100,13 +103,13 @@ export const SocialShareOGCard: React.FC<SocialShareOGCardProps> = ({
             onClick={handleWhatsApp}
             className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-xs py-5"
           >
-            <MessageCircle className="mr-2 h-4 w-4" /> Share on WhatsApp
+            <MessageCircle className="mr-2 h-4 w-4" /> {webT("promoShare.whatsapp")}
           </Button>
           <Button
             onClick={handleTwitter}
             className="rounded-xl bg-sky-600 text-white hover:bg-sky-700 font-bold text-xs py-5"
           >
-            <Twitter className="mr-2 h-4 w-4" /> Share on X
+            <Twitter className="mr-2 h-4 w-4" /> {webT("web.shareX")}
           </Button>
         </div>
 

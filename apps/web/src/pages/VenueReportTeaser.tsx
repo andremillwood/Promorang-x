@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowRight, Building2, Camera, MapPin, Users } from "lucide-react";
@@ -15,6 +16,7 @@ type VenueReport = {
 };
 
 export default function VenueReportTeaser() {
+  const { t: webT } = useWebI18n();
   const { id } = useParams<{ id: string }>();
   const reportQuery = useQuery({
     queryKey: ["venue-teaser-report", id],
@@ -60,7 +62,7 @@ export default function VenueReportTeaser() {
           <AlertCircle className="mx-auto h-8 w-8 text-primary" />
           <h1 className="mt-5 font-serif text-3xl font-bold">This report is unavailable.</h1>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">PROMORANG could not verify the source record, so no activity totals are being substituted. Try again shortly.</p>
-          <Button className="mt-6" variant="outline" onClick={() => reportQuery.refetch()}>Try again</Button>
+          <Button className="mt-6" variant="outline" onClick={() => reportQuery.refetch()}>{webT("release.18")}</Button>
         </section>
       </main>
     );
@@ -92,7 +94,7 @@ export default function VenueReportTeaser() {
         <div className="container relative z-10 px-6"><div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-bold uppercase tracking-widest text-primary">Recorded Moment activity</p>
           <h1 className="mt-5 font-serif text-4xl font-bold md:text-5xl">{venueLabel}</h1>
-          {report.location ? <p className="mt-3 flex items-center justify-center gap-2 text-sm text-white/60"><MapPin className="h-4 w-4" />{report.location}</p> : <p className="mt-3 text-sm text-white/45">Location not recorded</p>}
+          {report.location ? <p className="mt-3 flex items-center justify-center gap-2 text-sm text-white/60"><MapPin className="h-4 w-4" />{report.location}</p> : <p className="mt-3 text-sm text-white/45">{webT("findOrAsk.locationNotRecorded")}</p>}
         </div></div>
       </header>
 

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ function safeNotificationRoute(route?: string | null) {
 }
 
 const Activity = () => {
+  const { t: webT } = useWebI18n();
   const { user, roles, activeRole } = useAuth();
   const primaryRole = activeRole || roles[0] || "participant";
   const lens = getStakeholderLens(primaryRole);
@@ -100,11 +103,11 @@ const Activity = () => {
                   <div className="grid gap-3 py-5 sm:grid-cols-[auto_1fr_auto] sm:items-center">
                     <div className={`grid h-10 w-10 place-items-center rounded-full border ${item.type === "market_watch_changed" ? "border-primary/30 bg-primary/10" : "border-white/10 bg-white/[0.03]"}`}><Bell className={`h-4 w-4 ${item.type === "market_watch_changed" ? "text-primary" : "text-white/45"}`} /></div>
                     <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2"><p className="font-serif text-xl font-bold text-white">{item.title}</p>{!item.is_read ? <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.12em] text-black">New</span> : null}</div>
+                      <div className="flex flex-wrap items-center gap-2"><p className="font-serif text-xl font-bold text-white">{item.title}</p>{!item.is_read ? <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.12em] text-black">{webT("hostCard.new")}</span> : null}</div>
                       {item.message ? <p className="mt-1 text-sm leading-6 text-white/45">{item.message}</p> : null}
-                      <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-white/25">{item.type === "market_watch_changed" ? "Something you’re watching" : item.type.replace(/_/g, " ")} · {new Date(item.created_at).toLocaleString()}</p>
+                      <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-white/25">{item.type === "market_watch_changed" ? "Something you’re watching" : item.type.replace(/_/g, " ")} · {new Date(item.created_at).toLocaleString(currentUiLocale())}</p>
                     </div>
-                    {route ? <span className="inline-flex items-center gap-1 text-xs font-black text-primary">Open <ArrowRight className="h-3.5 w-3.5" /></span> : null}
+                    {route ? <span className="inline-flex items-center gap-1 text-xs font-black text-primary">{webT("auth.open")} <ArrowRight className="h-3.5 w-3.5" /></span> : null}
                   </div>
                 );
                 return route ? <Link key={item.id} to={route} onClick={() => { if (!item.is_read) markRead.mutate(item.id); }} className="block transition hover:bg-white/[0.02]">{row}</Link> : <button key={item.id} type="button" onClick={() => { if (!item.is_read) markRead.mutate(item.id); }} className="block w-full text-left">{row}</button>;
@@ -125,7 +128,7 @@ const Activity = () => {
         <section>
           <div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
             <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Broader activity</p><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">People + activity around you.</h2></div>
-            <div className="flex gap-2">{["all", "social", "proof"].map((value) => <button key={value} type="button" onClick={() => setFilter(value)} className={`min-h-9 rounded-full border px-4 text-xs font-bold capitalize ${filter === value ? "border-primary bg-primary text-black" : "border-white/10 text-white/50"}`}>{value === "proof" ? "actions" : value}</button>)}</div>
+            <div className="flex gap-2">{["all", "social", "proof"].map((value) => <button key={value} type="button" onClick={() => setFilter(value)} className={`min-h-9 rounded-full border px-4 text-xs font-bold capitalize ${filter === value ? "border-primary bg-primary text-black" : "border-white/10 text-white/50"}`}>{value === "proof" ? webT("commercial.actions.327") : value}</button>)}</div>
           </div>
 
           <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#111]">
@@ -136,7 +139,7 @@ const Activity = () => {
                 <Bell className="h-7 w-7 text-amber-300" />
                 <h3 className="font-serif text-3xl font-bold">Activity is unavailable.</h3>
                 <p className="max-w-lg text-sm leading-6 text-white/45">We couldn’t load activity right now. Try again in a moment.</p>
-                <Button type="button" variant="outline" onClick={() => void refetch()}>Try again</Button>
+                <Button type="button" variant="outline" onClick={() => void refetch()}>{webT("release.18")}</Button>
               </div>
             ) : filteredEvents.length ? (
               <div className="p-3 sm:p-5"><ActivityFeed events={filteredEvents} /></div>

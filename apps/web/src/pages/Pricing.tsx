@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, Building2, CreditCard, ShieldCheck, Sparkles, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -12,6 +13,7 @@ const paidResponseTypes = [
 ];
 
 export default function PricingPage() {
+  const { t: webT } = useWebI18n();
   return (
     <main className="min-h-screen bg-[#070707] text-white">
       <SEO title="PROMORANG Pricing — Scope the programme around the outcome" description="Start from the outcome, understand the programme scope, and keep PROMORANG fees, participant value and operator proceeds distinct." />
@@ -29,10 +31,10 @@ export default function PricingPage() {
           </div>
           <PaperReceipt heading="A programme may include" lines={[
             { label: "PROMORANG", value: "software / service fee" },
-            { label: "Participant value", value: "reward / perk pool", strong: true },
-            { label: "Distribution", value: "creator / media / placement" },
+            { label: webT("web.participantValue"), value: "reward / perk pool", strong: true },
+            { label: webT("how.brandStep3Badge"), value: "creator / media / placement" },
             { label: "Operations", value: "delivery / verification" },
-            { label: "Outcome", value: "measured, not guaranteed" },
+            { label: webT("createProposal.step1Short"), value: "measured, not guaranteed" },
           ]} footer="The configured order or agreement is the authority for the amount." />
         </div>
       </section>
@@ -116,7 +118,7 @@ export default function PricingPage() {
       <section className="px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 border-t border-white/10 pt-10 md:flex-row md:items-center md:justify-between">
           <div><p className="font-serif text-2xl font-bold">Need an actual number?</p><p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">Start the outcome brief so the scope can be tied to a real audience, geography, duration, participant value and evidence requirement.</p></div>
-          <div className="flex flex-wrap gap-3"><Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">Build my brief <ArrowRight className="h-4 w-4" /></Link><Link to="/contact" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">Discuss commercial scope</Link></div>
+          <div className="flex flex-wrap gap-3"><Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">{webT("leadMagnet.brand.cta")} <ArrowRight className="h-4 w-4" /></Link><Link to="/contact" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">Discuss commercial scope</Link></div>
         </div>
       </section>
     </main>

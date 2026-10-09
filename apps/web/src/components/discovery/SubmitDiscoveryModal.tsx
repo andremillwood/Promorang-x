@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -40,6 +41,7 @@ function slugify(value: string) {
 }
 
 export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModalProps) {
+  const { t: webT } = useWebI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -142,9 +144,9 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="category" className="text-xs font-bold text-white/80">Category</Label>
+            <Label htmlFor="category" className="text-xs font-bold text-white/80">{webT("support.category")}</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="border-white/10 bg-white/[0.06] text-white"><SelectValue placeholder="Select category" /></SelectTrigger>
+              <SelectTrigger className="border-white/10 bg-white/[0.06] text-white"><SelectValue placeholder={webT("web.selectCategory")} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="restaurant">Food & Dining</SelectItem>
                 <SelectItem value="beach">Beaches & Coastlines</SelectItem>
@@ -159,7 +161,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="coverImage" className="text-xs font-bold text-white/80">Photo URL <span className="font-normal text-white/40">(optional)</span></Label>
+            <Label htmlFor="coverImage" className="text-xs font-bold text-white/80">Photo URL <span className="font-normal text-white/40">{webT("release.25")}</span></Label>
             <Input id="coverImage" placeholder="https://..." value={coverImage} onChange={(e) => setCoverImage(e.target.value)} className="border-white/10 bg-white/[0.06] text-xs text-white placeholder:text-white/30" />
             {coverImage.trim() ? <div className="mt-2 h-32 overflow-hidden rounded-xl border border-white/10"><img src={coverImage} alt="Proposal preview" className="h-full w-full object-cover" /></div> : null}
           </div>
@@ -170,7 +172,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label htmlFor="city" className="text-xs font-bold text-white/80">City / Region</Label><Input id="city" placeholder="Kingston" value={city} onChange={(e) => setCity(e.target.value)} className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30" /></div>
+            <div className="space-y-1.5"><Label htmlFor="city" className="text-xs font-bold text-white/80">{webT("settings.region")}</Label><Input id="city" placeholder={webT("findOrAsk.searchSuggestionKingston")} value={city} onChange={(e) => setCity(e.target.value)} className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30" /></div>
             <div className="space-y-1.5"><Label htmlFor="country" className="text-xs font-bold text-white/80">Country</Label><Input id="country" placeholder="Jamaica" value={country} onChange={(e) => setCountry(e.target.value)} className="border-white/10 bg-white/[0.06] text-white placeholder:text-white/30" /></div>
           </div>
 
@@ -184,7 +186,7 @@ export function SubmitDiscoveryModal({ onSuccess, trigger }: SubmitDiscoveryModa
           </div>
 
           <Button type="submit" disabled={loading} className="h-12 w-full rounded-full bg-primary text-sm font-bold text-black hover:bg-orange-400">
-            {loading ? "Submitting..." : "Submit for review"}
+            {loading ? webT("deletion.submitting") : "Submit for review"}
           </Button>
         </form>
       </DialogContent>

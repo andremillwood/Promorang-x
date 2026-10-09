@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/I18nContext";
 import React, { Component, ReactNode } from "react";
 
 interface Props {
@@ -58,18 +59,24 @@ export class ChunkErrorBoundary extends Component<Props, State> {
       return this.props.children;
     }
 
-    if (this.state.isChunkError) {
+    return <ChunkErrorContent isChunkError={this.state.isChunkError} onRetry={this.retryView} />;
+  }
+}
+
+function ChunkErrorContent({ isChunkError, onRetry }: { isChunkError: boolean; onRetry: () => void }) {
+  const { t } = useI18n();
+    if (isChunkError) {
       return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center bg-background text-foreground">
-          <h2 className="text-xl font-bold mb-2">Application Updated</h2>
+          <h2 className="text-xl font-bold mb-2">{t("web.appUpdated")}</h2>
           <p className="text-muted-foreground mb-4 max-w-md">
-            The browser is holding an older application chunk. Reload to use the latest Promorang build.
+            {t("web.oldChunk")}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="px-5 py-2.5 bg-primary text-primary-foreground rounded-full font-medium shadow hover:opacity-90 transition-opacity"
           >
-            Reload latest app
+            {t("web.reloadLatest")}
           </button>
         </div>
       );
@@ -77,27 +84,26 @@ export class ChunkErrorBoundary extends Component<Props, State> {
 
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center bg-background text-foreground">
-        <h2 className="text-xl font-bold mb-2">This view hit an error</h2>
+        <h2 className="text-xl font-bold mb-2">{t("web.viewError")}</h2>
         <p className="text-muted-foreground mb-5 max-w-md">
-          This is not being treated as an application update. Retry the view, or reload if the problem persists.
+          {t("web.viewErrorHelp")}
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           <button
-            onClick={this.retryView}
+            onClick={onRetry}
             className="px-5 py-2.5 border border-border bg-card text-foreground rounded-full font-medium hover:bg-muted transition-colors"
           >
-            Retry view
+            {t("web.retryView")}
           </button>
           <button
             onClick={() => window.location.reload()}
             className="px-5 py-2.5 bg-primary text-primary-foreground rounded-full font-medium shadow hover:opacity-90 transition-opacity"
           >
-            Reload page
+            {t("web.reloadPage")}
           </button>
         </div>
       </div>
     );
-  }
 }
 
 export default ChunkErrorBoundary;

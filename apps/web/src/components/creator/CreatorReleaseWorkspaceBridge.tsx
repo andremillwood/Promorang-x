@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, FileText, RadioTower, WandSparkles } from "lucide-react";
 import { useContentDrops, useMyContentDrops } from "@/hooks/useContentDistribution";
@@ -8,6 +9,7 @@ type CreatorReleaseWorkspaceBridgeProps = {
 };
 
 export default function CreatorReleaseWorkspaceBridge({ mode }: CreatorReleaseWorkspaceBridgeProps) {
+  const { t: webT } = useWebI18n();
   const opportunitiesQuery = useContentDrops("active");
   const mineQuery = useMyContentDrops("all");
   const opportunities = opportunitiesQuery.data || [];
@@ -67,7 +69,7 @@ export default function CreatorReleaseWorkspaceBridge({ mode }: CreatorReleaseWo
                   <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-white/45">
                     <span className="rounded-full border border-white/10 px-2 py-1">{reward} Points base</span>
                     <span className="rounded-full border border-white/10 px-2 py-1">{assets} {assets === 1 ? "asset" : "assets"}</span>
-                    {drop.linked_moment_id ? <span className="rounded-full border border-purple-400/20 bg-purple-400/10 px-2 py-1 text-purple-200">Moment linked</span> : null}
+                    {drop.linked_moment_id ? <span className="rounded-full border border-purple-400/20 bg-purple-400/10 px-2 py-1 text-purple-200">{webT("drops.linked")}</span> : null}
                   </div>
                   <Button asChild variant="outline" className="mt-4 w-full border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.07]"><Link to={`/content-drops/${drop.id}`}>Open opportunity <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
                 </article>
@@ -98,7 +100,7 @@ export default function CreatorReleaseWorkspaceBridge({ mode }: CreatorReleaseWo
 
       <div className="grid gap-3 md:grid-cols-3">
         <div className="rounded-[1.25rem] border border-white/10 bg-[#101010] p-5 text-white"><span className="text-[9px] font-black uppercase tracking-[0.14em] text-white/35">Your releases</span><strong className="mt-3 block text-3xl font-black">{mine.length}</strong><p className="mt-1 text-xs text-white/45">Real release records in your workspace</p></div>
-        <div className="rounded-[1.25rem] border border-white/10 bg-[#101010] p-5 text-white"><span className="text-[9px] font-black uppercase tracking-[0.14em] text-white/35">Active</span><strong className="mt-3 block text-3xl font-black">{mine.filter((drop) => drop.status === "active").length}</strong><p className="mt-1 text-xs text-white/45">Currently published</p></div>
+        <div className="rounded-[1.25rem] border border-white/10 bg-[#101010] p-5 text-white"><span className="text-[9px] font-black uppercase tracking-[0.14em] text-white/35">{webT("commercial.active")}</span><strong className="mt-3 block text-3xl font-black">{mine.filter((drop) => drop.status === "active").length}</strong><p className="mt-1 text-xs text-white/45">Currently published</p></div>
         <div className="rounded-[1.25rem] border border-white/10 bg-[#101010] p-5 text-white"><span className="text-[9px] font-black uppercase tracking-[0.14em] text-white/35">Linked work</span><strong className="mt-3 block text-3xl font-black">{mine.filter((drop) => Boolean(drop.linked_moment_id)).length}</strong><p className="mt-1 text-xs text-white/45">Connected to a Moment</p></div>
       </div>
 

@@ -1,7 +1,9 @@
 import type { Locale } from "./translations";
+import { localeFromPath } from "./locale-routing";
 
 const STORAGE_KEY = "promorang:locale";
 const EXPLICIT_KEY = "promorang:locale_explicit";
+const EXPLICIT_COOKIE_NAME = "promorang_locale_explicit";
 const COOKIE_NAME = "promorang_locale";
 const GEO_CACHE_KEY = "promorang:geo_country";
 
@@ -25,8 +27,9 @@ export function countryCodeToLocale(countryCode?: string | null): Locale {
 
 export function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp(`(^|;\\s*)(${name})=([^;]*)`));
-  return match ? decodeURIComponent(match[3]) : null;
+  const prefix = `${name}=`;
+  const entry = document.cookie.split(";").map(part => part.trim()).find(part => part.startsWith(prefix));
+  try { return entry ? decodeURIComponent(entry.slice(prefix.length)) : null; } catch { return null; }
 }
 
 export function setCookie(name: string, value: string, days = 365): void {
@@ -37,7 +40,8 @@ export function setCookie(name: string, value: string, days = 365): void {
 
 export function getSavedLocalePreference(): Locale | null {
   if (typeof window === "undefined") return null;
-  const localVal = window.localStorage.getItem(STORAGE_KEY);
+  let localVal: string | null = null;
+  try { localVal = window.localStorage.getItem(STORAGE_KEY); } catch { /* Cookie fallback when storage is blocked. */ }
   if (localVal === "es-419" || localVal === "pt-BR" || localVal === "en") return localVal;
   const cookieVal = getCookie(COOKIE_NAME);
   if (cookieVal === "es-419" || cookieVal === "pt-BR" || cookieVal === "en") return cookieVal;
@@ -46,18 +50,19 @@ export function getSavedLocalePreference(): Locale | null {
 
 export function saveLocalePreference(locale: Locale): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, locale);
+  try { window.localStorage.setItem(STORAGE_KEY, locale); } catch { /* Cookies can still persist the preference. */ }
   setCookie(COOKIE_NAME, locale);
 }
 
 export function hasExplicitLocaleChoice(): boolean {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(EXPLICIT_KEY) === "1";
+  try { return window.localStorage.getItem(EXPLICIT_KEY) === "1" || getCookie(EXPLICIT_COOKIE_NAME) === "1"; } catch { return getCookie(EXPLICIT_COOKIE_NAME) === "1"; }
 }
 
 export function markExplicitLocaleChoice(): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(EXPLICIT_KEY, "1");
+  try { window.localStorage.setItem(EXPLICIT_KEY, "1"); } catch { /* Persist the explicit choice in a cookie too. */ }
+  setCookie(EXPLICIT_COOKIE_NAME, "1");
 }
 
 /** City / market locale may suggest a language, but never override a signed-in user's choice. */
@@ -74,7 +79,8 @@ export function detectBrowserLocale(): Locale {
 }
 
 export function currentUiLocale(): Locale {
-  return getSavedLocalePreference() || detectBrowserLocale();
+  if (typeof window === "undefined") return "en";
+  return localeFromPath(window.location.pathname) || getSavedLocalePreference() || detectBrowserLocale();
 }
 
 export function localeRequestHeaders(): Record<string, string> {

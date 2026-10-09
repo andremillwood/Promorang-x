@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { Locale, supportedLocales, TranslationKey, translations } from "./translations";
 import { localeFromPath, localizePath } from "./locale-routing";
 import {
-  detectBrowserLocale,
+  currentUiLocale,
   detectGeoIpLocale,
   getSavedLocalePreference,
   hasExplicitLocaleChoice,
@@ -18,14 +18,7 @@ export const normalizeLocale = (value?: string | null): Locale => {
   return "en";
 };
 
-const getInitialLocale = (): Locale => {
-  if (typeof window === "undefined") return "en";
-  const pathLocale = localeFromPath(window.location.pathname);
-  if (pathLocale) return pathLocale;
-  const saved = getSavedLocalePreference();
-  if (saved) return saved;
-  return detectBrowserLocale();
-};
+const getInitialLocale = (): Locale => currentUiLocale();
 
 export type SetLocaleOptions = {
   /** User-facing language pickers should leave this true (default). Market / geo suggestions pass false. */
@@ -49,7 +42,7 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
   const setLocale = useCallback((nextLocale: Locale, options?: SetLocaleOptions) => {
     if (!supportedLocales.includes(nextLocale)) return;
     const isExplicit = options?.explicit !== false;
-    if (!isExplicit && hasExplicitLocaleChoice()) return;
+    if (!isExplicit && (hasExplicitLocaleChoice() || localeFromPath(window.location.pathname))) return;
     saveLocalePreference(nextLocale);
     if (isExplicit) markExplicitLocaleChoice();
     const nextPath = localizePath(window.location.pathname, nextLocale);
@@ -71,6 +64,8 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
 
     const controller = new AbortController();
     void detectGeoIpLocale(controller.signal).then(({ locale: geoLocale }) => {
+      // A delayed suggestion must not undo a language selected while the request was pending.
+      if (controller.signal.aborted || getSavedLocalePreference() || localeFromPath(window.location.pathname)) return;
       if (geoLocale && geoLocale !== locale && supportedLocales.includes(geoLocale)) {
         // If geo-location indicates Spanish or Portuguese, adopt it seamlessly
         setLocaleState(geoLocale);
@@ -83,6 +78,11 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     document.documentElement.lang = locale;
+    // A localized URL is an explicit choice, including when followed by a plain anchor.
+    if (localeFromPath(window.location.pathname)) {
+      saveLocalePreference(locale);
+      markExplicitLocaleChoice();
+    }
   }, [locale]);
 
   const value = useMemo<I18nValue>(() => ({

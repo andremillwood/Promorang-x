@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useMemo, useState } from "react";
 import {
   ACTIVATION_COLLABORATORS,
@@ -452,7 +453,7 @@ function ActivationStory({ form }: { form: BuilderForm }) {
       <div className="grid gap-px bg-white/10 sm:grid-cols-3">
         <StoryPanel icon={Camera} label={t("createProposal.storyTravels")} value={form.contentNeeds.map((item) => item.replaceAll("_", " ")).join(" · ")} />
         <StoryPanel icon={UserRoundPlus} label={t("createProposal.roomComesAlive")} value={form.collaborators.map((item) => item.replaceAll("_", " ")).join(" · ")} />
-        <StoryPanel icon={WalletCards} label={t("createProposal.gemReserveToSecure")} value={form.fundingRequest ? `${Number(form.fundingRequest).toLocaleString()} Gems · US$${Number(form.fundingRequest).toLocaleString()} platform value` : t("createProposal.agreeGemReserve")} />
+        <StoryPanel icon={WalletCards} label={t("createProposal.gemReserveToSecure")} value={form.fundingRequest ? `${Number(form.fundingRequest).toLocaleString(currentUiLocale())} Gems · US$${Number(form.fundingRequest).toLocaleString(currentUiLocale())} platform value` : t("createProposal.agreeGemReserve")} />
       </div>
     </div>
     <div className="mt-5 grid gap-3 sm:grid-cols-2"><ReviewCard label={t("createProposal.peopleLeaveWith")} value={form.participantReturns.join(" · ")} /><ReviewCard label={t("createProposal.partnersMakePossible")} value={form.funderContribution || t("createProposal.partnersDefault")} /><ReviewCard label={t("createProposal.humanReturn")} value={form.socialReturn} /><ReviewCard label={t("createProposal.commercialReturn")} value={form.commercialReturn} /></div>

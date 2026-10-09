@@ -1,7 +1,10 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { BarChart3, CheckCircle2, CircleDollarSign, Megaphone, Scale, ShieldCheck } from "lucide-react";
 import { useBrandCampaigns } from "@/hooks/useCampaigns";
 
 export function BrandIntelligenceConsole() {
+  const { t: webT } = useWebI18n();
   const campaignsQuery = useBrandCampaigns();
   const campaigns = campaignsQuery.data || [];
   const activeCampaigns = campaigns.filter((campaign) => campaign.is_active);
@@ -28,7 +31,7 @@ export function BrandIntelligenceConsole() {
           <p className="font-black text-white">Campaign evidence source unavailable.</p>
           <p className="mt-2">Campaign results couldn’t load right now.</p>
           <button type="button" className="mt-4 rounded-xl border border-white/15 px-4 py-2 text-xs font-black text-white hover:bg-white/5" onClick={() => campaignsQuery.refetch()}>
-            Retry campaign source
+            {webT("web.retryCampaign")}
           </button>
         </section>
       ) : null}
@@ -36,17 +39,17 @@ export function BrandIntelligenceConsole() {
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <Megaphone className="h-4 w-4 text-primary" />
-          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? campaigns.length.toLocaleString() : "—"}</p>
+          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? campaigns.length.toLocaleString(currentUiLocale()) : "—"}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Campaign records</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? activeCampaigns.length.toLocaleString() : "—"}</p>
-          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Active campaigns</p>
+          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? activeCampaigns.length.toLocaleString(currentUiLocale()) : "—"}</p>
+          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">{webT("brandDash.activeCampaigns")}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <ShieldCheck className="h-4 w-4 text-cyan-300" />
-          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? verifiedResults.toLocaleString() : "—"}</p>
+          <p className="mt-3 text-3xl font-black text-white">{sourceReady ? verifiedResults.toLocaleString(currentUiLocale()) : "—"}</p>
           <p className="mt-1 text-[10px] font-black uppercase tracking-[0.15em] text-white/40">Redemptions / results</p>
         </div>
       </div>

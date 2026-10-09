@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import SEO from "@/components/SEO";
@@ -6,6 +7,7 @@ import { AFTRHRS_COPY, AFTRHRS_OG_IMAGE, AFTRHRS_PATHS, guestPassStatus, guestPa
 import { useAftrHrsGuestTicket } from "@/hooks/useAftrHrs";
 
 export default function AftrHrsGuestTicket() {
+  const { t: webT } = useWebI18n();
   const { code } = useParams();
   const ticket = useAftrHrsGuestTicket(code);
   const data = ticket.data;
@@ -44,7 +46,7 @@ export default function AftrHrsGuestTicket() {
           </article>
         )}
         <Link to={AFTRHRS_PATHS.landing} className="mt-8 block text-center text-sm uppercase tracking-[0.16em] text-white/50">
-          Back to AftrHrs
+          {webT("auth.backAftrHrs")}
         </Link>
       </div>
     </main>

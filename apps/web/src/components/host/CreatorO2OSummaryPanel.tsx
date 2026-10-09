@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,6 +8,7 @@ import { PlayCircle, MapPin, Sparkles, TrendingUp, Coins, Flame, Trophy } from "
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export function CreatorO2OSummaryPanel() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
 
   const summaryQuery = useQuery({
@@ -75,7 +77,7 @@ export function CreatorO2OSummaryPanel() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Studio</p>
-          <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">O2O Conversion</h3>
+          <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">{webT("watchUnlock.o2oConversion")}</h3>
         </div>
         <Badge className="bg-primary/10 text-primary border border-primary/20">
           Content to Foot Traffic
@@ -103,7 +105,7 @@ export function CreatorO2OSummaryPanel() {
         <div className="rounded-2xl border border-border/60 bg-card p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Creator Economics</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{webT("forCreators.economicsBadge")}</p>
               <h4 className="mt-2 font-serif text-xl font-bold text-foreground">Momentum Yield</h4>
             </div>
             <Badge className="border border-primary/20 bg-primary/10 text-primary">

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { normalizeLocale } from "./I18nContext";
 import { supportedLocales, translations } from "./translations";
-import { localeFromPath, localizePath, stripLocalePrefix } from "./locale-routing";
+import { localeFromPath, localizePath, routerBasename, stripLocalePrefix } from "./locale-routing";
 import { helpFaqTranslations, helpGuideTranslations } from "./help-content";
 
 describe("localization", () => {
@@ -28,7 +28,6 @@ describe("localization", () => {
   it("preserves interpolation variables in every translation", () => {
     const variables = (value: string) => [...value.matchAll(/\{\{(\w+)\}\}/g)].map(match => match[1]).sort();
     for (const [key, value] of Object.entries(translations.en)) {
-      if (!key.startsWith("release.") && !key.startsWith("cart.") && !key.startsWith("offer.") && !key.startsWith("homeDemand.")) continue;
       for (const locale of supportedLocales) expect(variables(translations[locale][key as keyof typeof translations.en]), key).toEqual(variables(value));
     }
   });
@@ -39,6 +38,12 @@ describe("localization", () => {
     expect(stripLocalePrefix("/es/discover")).toBe("/discover");
     expect(localizePath("/es/discover", "pt-BR")).toBe("/pt-br/discover");
     expect(localizePath("/pt-br/scenes", "en")).toBe("/scenes");
+  });
+
+  it.each([["/es-419/discover", "/es-419"], ["/pt/moments/example", "/pt"], ["/pt-br/discover", "/pt-br"]])("matches the real router prefix for %s", (pathname, basename) => {
+    window.history.replaceState({}, "", pathname);
+    try { expect(routerBasename()).toBe(basename); }
+    finally { window.history.replaceState({}, "", "/"); }
   });
 
   it.each(["es-419", "pt-BR"] as const)("keeps %s Help editorial content complete", (locale) => {

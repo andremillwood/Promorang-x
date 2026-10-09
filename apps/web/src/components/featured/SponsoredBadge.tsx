@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 /**
  * SPONSORED BADGE
  * 
@@ -47,6 +49,7 @@ export default function SponsoredBadge({
   sponsorName,
   className = '' 
 }: SponsoredBadgeProps) {
+  const { t: webT } = useWebI18n();
   const config = BADGE_CONFIG[tier];
   const Icon = config.icon;
 
@@ -69,7 +72,7 @@ export default function SponsoredBadge({
           <p className="font-medium">{config.tooltip}</p>
           {sponsorName && (
             <p className="text-xs text-muted-foreground mt-1">
-              Sponsored by {sponsorName}
+              {webT("web.sponsoredBy")} {sponsorName}
             </p>
           )}
         </TooltipContent>
@@ -100,6 +103,7 @@ export function SponsoredPoolCard({
   };
   onClick?: () => void;
 }) {
+  const { t: webT } = useWebI18n();
   const tier = pool.tier || 'sponsored';
   const config = BADGE_CONFIG[tier];
   const Icon = config.icon;
@@ -148,14 +152,14 @@ export function SponsoredPoolCard({
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Prize Pool</p>
-              <p className="font-bold text-lg">${pool.prize_pool.toLocaleString()}</p>
+              <p className="font-bold text-lg">${pool.prize_pool.toLocaleString(currentUiLocale())}</p>
             </div>
           </div>
           
           {pool.participant_count !== undefined && (
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Participants</p>
-              <p className="font-semibold">{pool.participant_count.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">{webT("participantsPage.title")}</p>
+              <p className="font-semibold">{pool.participant_count.toLocaleString(currentUiLocale())}</p>
             </div>
           )}
         </div>
@@ -177,7 +181,7 @@ export function SponsoredPoolCard({
               </div>
             )}
             <span className="text-sm text-muted-foreground">
-              Sponsored by <span className="font-medium text-foreground">{pool.sponsor_name}</span>
+              {webT("web.sponsoredBy")} <span className="font-medium text-foreground">{pool.sponsor_name}</span>
             </span>
           </div>
         )}
@@ -208,6 +212,7 @@ export function SponsoredPoolBanner({
   };
   onClick?: () => void;
 }) {
+  const { t: webT } = useWebI18n();
   return (
     <div 
       onClick={onClick}
@@ -261,7 +266,7 @@ export function SponsoredPoolBanner({
                 </span>
               </div>
             )}
-            <span>Sponsored by {pool.sponsor_name}</span>
+            <span>{webT("web.sponsoredBy")} {pool.sponsor_name}</span>
           </div>
         </div>
 
@@ -269,11 +274,11 @@ export function SponsoredPoolBanner({
         <div className="flex flex-col items-start md:items-end gap-2">
           <div className="text-white/70 text-sm">Grand Prize</div>
           <div className="text-3xl md:text-4xl font-bold text-white">
-            ${pool.prize_pool.toLocaleString()}
+            ${pool.prize_pool.toLocaleString(currentUiLocale())}
           </div>
           {pool.participant_count !== undefined && (
             <div className="text-white/60 text-sm">
-              {pool.participant_count.toLocaleString()} participants joined
+              {pool.participant_count.toLocaleString(currentUiLocale())} participants joined
             </div>
           )}
         </div>

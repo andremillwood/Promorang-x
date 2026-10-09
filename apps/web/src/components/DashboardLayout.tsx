@@ -1,3 +1,7 @@
+import { localizeLens } from "@/i18n/localize";
+import type { TranslationKey } from "@/i18n/translations";
+type WebTranslator = (key: TranslationKey, variables?: Record<string, string | number>) => string;
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -79,40 +83,40 @@ const showExperimentalEconomy =
 const filterReleaseNav = <T extends NavItem>(items: T[]) =>
   items.filter((item) => !item.experimental || showExperimentalEconomy);
 
-const pageLabels: Array<{ match: string; label: string; description: string }> = [
-  { match: "/how-it-works", label: "How Promorang Works", description: "The operating map for participation, commerce, value, Pieces, growth, and liquidity." },
-  { match: "/momentum", label: "Momentum", description: "See how participation, content, Gems, access, and return connect across Promorang." },
-  { match: "/pulse", label: "Pulse", description: "What is forming now and where real-world energy is already visible." },
-  { match: "/content-drops", label: "Content Drops", description: "Creator content wrapped in attribution, distribution incentives, and contributor rank." },
-  { match: "/scenes", label: "Scenes", description: "The rooms, rituals, creators, and places that turn moments into belonging." },
-  { match: "/creators", label: "Creators", description: "Discover the people shaping culture and carrying its stories forward." },
-  { match: "/discover", label: "Discover", description: "Name what you want, then answer one live question." },
-  { match: "/shop", label: "Shop", description: "Browse verified merchant products, services, offers, and clearly separated sample previews." },
-  { match: "/create", label: "Create", description: "Launch a Moment, contribution prompt, or activation with clear human and commercial return." },
-  { match: "/vault", label: "Vault", description: "Memories, active perks, and the value that stays with the participant." },
-  { match: "/wallet", label: "Wallet", description: "Balances, transactions, and advanced value tools." },
-  { match: "/nodes", label: "Save & Win Vaults", description: "Savings-linked community draws with published eligibility and withdrawal terms." },
-  { match: "/portfolio", label: "Pieces", description: "Your complementary piece positions, related value, and collectible exposure." },
-  { match: "/liquidity", label: "Liquidity", description: "Pools, LP positions, and the layer that keeps value moving." },
-  { match: "/promoshare", label: "PromoShare", description: "Qualified actions, creator movement, Gems-funded value, and sponsor-backed return." },
-  { match: "/missions", label: "Missions", description: "Contribution prompts linked to creator, host, or sponsor value." },
-  { match: "/activity", label: "Activity", description: "Notifications, updates, and the recent pulse around your account." },
-  { match: "/saved", label: "Saved", description: "Things worth returning to without having to rediscover them." },
-  { match: "/dashboard/analytics", label: "Analytics", description: "Operational reporting for the active hub." },
-  { match: "/dashboard/settings", label: "Settings", description: "Personal, role, and hub-level configuration." },
-  { match: "/demand", label: "Demand", description: "Named asks and finds from Discover." },
-  { match: "/people", label: "People", description: "The network you built and the people helping you build it." },
-  { match: "/give", label: "Give Something", description: "Drop a perk onto your people’s PromoCards." },
-  { match: "/earn", label: "Earn", description: "Opportunities you can take and earn from." },
-  { match: "/happened", label: "What Happened", description: "What your people actually did." },
-  { match: "/progress", label: "Progress", description: "What happened because of you, and what you are becoming good at." },
-  { match: "/crews", label: "Crews", description: "3–8 people you actually move with." },
-  { match: "/guilds", label: "Guilds", description: "2–6 Crews coordinating one Scene." },
-  { match: "/card", label: "Card", description: "Your perks, access, points and keys." },
-  { match: "/start", label: "Start a Community", description: "Name a community and give people something immediately." },
-  { match: "/stock", label: "Put Something Up", description: "Open inventory so other people can move it." },
-  { match: "/dashboard", label: "Today", description: "Your PromoCard, what’s happening, and what happened." },
-  { match: "/admin", label: "Admin", description: "Platform-wide operations, moderation, and system controls." },
+const getPageLabels = (webT: WebTranslator): Array<{ match: string; label: string; description: string }> => [
+  { match: "/how-it-works", label: webT("web.navHow"), description: webT("web.navHowCopy") },
+  { match: "/momentum", label: webT("web.momentum"), description: webT("web.navMomentumCopy") },
+  { match: "/pulse", label: webT("hostDash.pulse"), description: webT("web.navPulseCopy") },
+  { match: "/content-drops", label: webT("commercial.content.drops.244"), description: webT("web.navContentCopy") },
+  { match: "/scenes", label: webT("publicHome.filterScenes"), description: webT("web.navScenesCopy") },
+  { match: "/creators", label: webT("hosts.catCreators"), description: webT("web.navCreatorsCopy") },
+  { match: "/discover", label: webT("publicNav.discover"), description: webT("web.navDiscoverCopy") },
+  { match: "/shop", label: webT("publicNav.shop"), description: webT("web.navShopCopy") },
+  { match: "/create", label: webT("start.createCta"), description: webT("web.navCreateCopy") },
+  { match: "/vault", label: webT("how.layer3Link3"), description: webT("web.navVaultCopy") },
+  { match: "/wallet", label: webT("lens.wallet"), description: webT("web.navWalletCopy") },
+  { match: "/nodes", label: webT("web.saveWinVaults"), description: webT("web.navNodesCopy") },
+  { match: "/portfolio", label: webT("growthHub.tilePiecesTitle"), description: webT("web.navPortfolioCopy") },
+  { match: "/liquidity", label: webT("web.liquidity"), description: webT("web.navLiquidityCopy") },
+  { match: "/promoshare", label: webT("economy.navPromoShare"), description: webT("web.navPromoShareCopy") },
+  { match: "/missions", label: webT("homeOpportunity.missions"), description: webT("web.navMissionsCopy") },
+  { match: "/activity", label: webT("lens.admin.activity"), description: webT("web.navActivityCopy") },
+  { match: "/saved", label: webT("discoveryDetail.saved"), description: webT("web.navSavedCopy") },
+  { match: "/dashboard/analytics", label: webT("growthHub.tileAnalyticsTitle"), description: webT("web.navAnalyticsCopy") },
+  { match: "/dashboard/settings", label: webT("lens.settings"), description: webT("web.navSettingsCopy") },
+  { match: "/demand", label: webT("lens.demand"), description: webT("web.navDemandCopy") },
+  { match: "/people", label: webT("lens.participant.workspace"), description: webT("web.navPeopleCopy") },
+  { match: "/give", label: webT("web.giveSomething"), description: webT("web.navGiveCopy") },
+  { match: "/earn", label: webT("common.earn"), description: webT("web.navEarnCopy") },
+  { match: "/happened", label: webT("web.whatHappened"), description: webT("web.navHappenedCopy") },
+  { match: "/progress", label: webT("home.playProgress"), description: webT("web.navProgressCopy") },
+  { match: "/crews", label: webT("guilds.crews"), description: webT("web.navCrewsCopy") },
+  { match: "/guilds", label: webT("home.playGuilds"), description: webT("web.navGuildsCopy") },
+  { match: "/card", label: webT("lens.card"), description: webT("web.navCardCopy") },
+  { match: "/start", label: webT("web.startCommunity"), description: webT("web.navStartCopy") },
+  { match: "/stock", label: webT("web.putSomethingUp"), description: webT("web.navStockCopy") },
+  { match: "/dashboard", label: webT("lens.today"), description: webT("web.navTodayCopy") },
+  { match: "/admin", label: webT("web.admin"), description: webT("web.navAdminCopy") },
 ];
 
 const isNavItemActive = (pathname: string, href: string, search: string) => {
@@ -126,11 +130,12 @@ const isNavItemActive = (pathname: string, href: string, search: string) => {
   return pathname === itemPath || pathname.startsWith(itemPath + "/");
 };
 
-const getPageMeta = (pathname: string, search: string, role: UserRole) => {
-  const adminMeta = adminChromePageMeta(pathname, search);
+const getPageMeta = (pathname: string, search: string, role: UserRole, webT: WebTranslator) => {
+  const pageLabels = getPageLabels(webT);
+  const adminMeta = adminChromePageMeta(pathname, search, webT);
   if (adminMeta) return adminMeta;
 
-  const lensMatch = getStakeholderLens(role).destinations.find((item) =>
+  const lensMatch = localizeLens(getStakeholderLens(role), webT).destinations.find((item) =>
     isNavItemActive(pathname, item.href, search) && item.id !== "today",
   );
   if (lensMatch) {
@@ -142,20 +147,20 @@ const getPageMeta = (pathname: string, search: string, role: UserRole) => {
     const tab = params.get("tab");
     if (tab === "publish") {
       return {
-        label: "Publish",
-        description: "Upload creator content, add its preview asset, and prepare it for mission linking.",
+        label: webT("how.creatorStep1Badge"),
+        description: webT("web.navPublishCopy"),
       };
     }
     if (tab === "missions") {
       return {
-        label: "Create Mission",
-        description: "Link a creator story to a real-world moment and define the unlock path.",
+        label: webT("web.createMission"),
+        description: webT("web.navCreateMissionCopy"),
       };
     }
     if (tab === "content") {
       return {
-        label: "My Content",
-        description: "Review the stories you have already published and reuse them in new mission loops.",
+        label: webT("web.myContent"),
+        description: webT("web.navMyContentCopy"),
       };
     }
   }
@@ -163,50 +168,48 @@ const getPageMeta = (pathname: string, search: string, role: UserRole) => {
   return pageLabels.find((item) => pathname === item.match || pathname.startsWith(item.match + "/")) || pageLabels[pageLabels.length - 2];
 };
 
-const roleNavItems: Record<UserRole, NavItem[]> = {
-  participant: stakeholderNavItems("participant"),
-  creator: stakeholderNavItems("creator"),
-  host: stakeholderNavItems("host"),
-  merchant: stakeholderNavItems("merchant"),
-  brand: stakeholderNavItems("brand"),
-  agency: stakeholderNavItems("agency"),
-  promoter: stakeholderNavItems("promoter"),
-  marketing: stakeholderNavItems("marketing"),
+const getRoleNavItems = (webT: WebTranslator): Record<UserRole, NavItem[]> => ({
+  participant: stakeholderNavItems("participant", webT),
+  creator: stakeholderNavItems("creator", webT),
+  host: stakeholderNavItems("host", webT),
+  merchant: stakeholderNavItems("merchant", webT),
+  brand: stakeholderNavItems("brand", webT),
+  agency: stakeholderNavItems("agency", webT),
+  promoter: stakeholderNavItems("promoter", webT),
+  marketing: stakeholderNavItems("marketing", webT),
   admin: [
-    { icon: Home, label: "Command Center", href: "/admin?tab=command", group: "primary" },
-    { icon: Users, label: "Users & KYC", href: "/admin?tab=users", group: "primary" },
-    { icon: Calendar, label: "Moments & Venues", href: "/admin?tab=moments", group: "primary" },
-    { icon: Music2, label: "AftrHrs RSVPs", href: ADMIN_AFTRHRS_TAB_HREF, group: "primary" },
-    { icon: Coins, label: "Community Vaults", href: "/nodes", group: "primary" },
-    { icon: Compass, label: "Discover", href: "/discover", group: "primary" },
-    { icon: WalletCards, label: "Platform Wallet", href: "/wallet", group: "utility" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings", group: "utility" },
+    { icon: Home, label: webT("web.commandCenter"), href: "/admin?tab=command", group: "primary" },
+    { icon: Users, label: webT("web.usersKyc"), href: "/admin?tab=users", group: "primary" },
+    { icon: Calendar, label: webT("web.momentsVenues"), href: "/admin?tab=moments", group: "primary" },
+    { icon: Music2, label: webT("web.aftrHrsRsvps"), href: ADMIN_AFTRHRS_TAB_HREF, group: "primary" },
+    { icon: Coins, label: webT("web.communityVaults"), href: "/nodes", group: "primary" },
+    { icon: Compass, label: webT("publicNav.discover"), href: "/discover", group: "primary" },
+    { icon: WalletCards, label: webT("web.platformWallet"), href: "/wallet", group: "utility" },
+    { icon: Settings, label: webT("lens.settings"), href: "/dashboard/settings", group: "utility" },
   ],
-};
+});
 
-const roleLabels: Record<UserRole, { icon: typeof Users; label: string; color: string }> = {
-  participant: { icon: Users, label: "Participant", color: "bg-blue-500" },
-  creator: { icon: PlayCircle, label: "Creator", color: "bg-fuchsia-500" },
-  host: { icon: Sparkles, label: "Host", color: "bg-primary" },
-  brand: { icon: Building2, label: "Brand", color: "bg-primary" },
-  merchant: { icon: Store, label: "Merchant", color: "bg-emerald-500" },
-  agency: { icon: Briefcase, label: "Agency", color: "bg-sky-600" },
-  promoter: { icon: Megaphone, label: "Promoter", color: "bg-[#FF6A00]" },
-  marketing: { icon: Megaphone, label: "Marketing", color: "bg-[#FFC300]" },
-  admin: { icon: Settings, label: "Admin", color: "bg-destructive" },
-};
+const getRoleLabels = (webT: WebTranslator): Record<UserRole, { icon: typeof Users; label: string; color: string }> => ({
+  participant: { icon: Users, label: webT("web.participant"), color: "bg-blue-500" },
+  creator: { icon: PlayCircle, label: webT("web.creator"), color: "bg-fuchsia-500" },
+  host: { icon: Sparkles, label: webT("web.host"), color: "bg-primary" },
+  brand: { icon: Building2, label: webT("web.brand"), color: "bg-primary" },
+  merchant: { icon: Store, label: webT("web.merchant"), color: "bg-emerald-500" },
+  agency: { icon: Briefcase, label: webT("web.agency"), color: "bg-sky-600" },
+  promoter: { icon: Megaphone, label: webT("web.promoter"), color: "bg-[#FF6A00]" },
+  marketing: { icon: Megaphone, label: webT("web.marketing"), color: "bg-[#FFC300]" },
+  admin: { icon: Settings, label: webT("web.admin"), color: "bg-destructive" },
+});
 
-// Version: 1.1.0-STABILIZED - Crash-Proof Role Resolution
-const FALLBACK_ROLE_INFO = { icon: Users, label: "Participant", color: "bg-blue-500" };
-const FALLBACK_NAV = roleNavItems.participant;
-
-const safeRoleInfo = (role: string | undefined | null) => {
-  if (!role) return FALLBACK_ROLE_INFO;
-  return roleLabels[role as UserRole] || FALLBACK_ROLE_INFO;
+const safeRoleInfo = (role: string | undefined | null, webT: WebTranslator) => {
+  const roleLabels = getRoleLabels(webT);
+  return roleLabels[role as UserRole] || roleLabels.participant;
 };
 
 const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
+  const webT = t;
+  const roleNavItems = getRoleNavItems(t);
   const { user, roles, organizations, activeOrgId, setActiveOrgId, agencyClients, setActiveRole, signOut, profile } = useAuth();
   const { city } = useMarket();
   const navigate = useNavigate();
@@ -228,13 +231,13 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
   // Safe role resolution — never crashes, always falls back to participant
   const safeRole = currentRole && roleNavItems[currentRole] ? currentRole : 'participant';
-  const roleItems = roleNavItems[safeRole] || FALLBACK_NAV;
+  const roleItems = roleNavItems[safeRole] || roleNavItems.participant;
   const navItems = filterReleaseNav(roleItems);
   const primaryNavItems = navItems.filter((item) => !item.group || item.group === "primary");
   const growthNavItems = navItems.filter((item) => item.group === "growth");
   const manageNavItems = navItems.filter((item) => item.group === "manage");
   const utilityNavItems = navItems.filter((item) => item.group === "utility");
-  const roleInfo = safeRoleInfo(safeRole);
+  const roleInfo = safeRoleInfo(safeRole, t);
   const immersiveProductRoutes = ["/momentum", "/content-drops", "/scenes", "/creators", "/for-you", "/discover", "/search", "/saved", "/profile", "/vault", "/moments", "/events", "/checkin", "/create", "/demand", "/shop", "/wallet", "/admin", "/organizer", "/people", "/give", "/earn", "/happened", "/activity", "/progress", "/crews", "/guilds", "/card", "/start", "/stock", "/drop"];
   const isImmersiveProductRoute = immersiveProductRoutes.some((path) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
@@ -246,7 +249,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const isAdminRoute = location.pathname.startsWith("/admin");
   const hidePageHeader = isImmersiveProductRoute || isDashboardHome;
   const showCompactDemoBanner = !isDashboardHome && !isImmersiveProductRoute;
-  const pageMeta = getPageMeta(location.pathname, location.search, safeRole);
+  const pageMeta = getPageMeta(location.pathname, location.search, safeRole, t);
 
   const handleSignOut = async () => {
     await signOut();
@@ -255,13 +258,13 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
   const currentMobileNav = safeRole === "admin"
     ? [
-        { icon: Home, label: "Admin", href: "/admin" },
-        { icon: Users, label: "Users", href: "/admin?tab=users" },
-        { icon: Calendar, label: "Moments", href: "/admin?tab=moments", accent: true },
-        { icon: BarChart3, label: "Stats", href: "/admin?tab=overview" },
-        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+        { icon: Home, label: webT("lens.admin.workspace"), href: "/admin" },
+        { icon: Users, label: webT("web.users"), href: "/admin?tab=users" },
+        { icon: Calendar, label: webT("findOrAsk.moments"), href: "/admin?tab=moments", accent: true },
+        { icon: BarChart3, label: webT("web.stats"), href: "/admin?tab=overview" },
+        { icon: Settings, label: webT("lens.settings"), href: "/dashboard/settings" },
       ]
-    : stakeholderMobileNav(safeRole);
+    : stakeholderMobileNav(safeRole, t);
 
   return (
     <div
@@ -272,7 +275,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-xl focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-primary-foreground focus:shadow-2xl focus:outline-none focus:ring-2 focus:ring-ring"
       >
-        Skip to main content
+        {webT("web.skipContent")}
       </a>
       {/* Ambient Background Washes */}
       <div className="pointer-events-none absolute right-0 top-0 h-[280px] w-[280px] rounded-full bg-primary/12 blur-[90px] opacity-60 sm:h-[500px] sm:w-[500px] sm:-mr-64 sm:-mt-64 sm:blur-[120px]" />
@@ -295,9 +298,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             <button
               type="button"
               onClick={toggleSidebarCollapsed}
-              aria-label={sidebarCollapsed ? "Expand dashboard navigation" : "Collapse dashboard navigation"}
+              aria-label={sidebarCollapsed ? webT("web.expandDashboard") : webT("web.collapseDashboard")}
               aria-expanded={!sidebarCollapsed}
-              title={sidebarCollapsed ? "Expand menu" : "Collapse menu"}
+              title={sidebarCollapsed ? webT("web.expandMenu") : webT("web.collapseMenu")}
               className={cn(
                 "absolute -right-3 top-1/2 hidden h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-md transition hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:grid",
               )}
@@ -326,7 +329,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 >
                   <DropdownMenuLabel>{t("dashboard.switchWorkspace")}</DropdownMenuLabel>
                   {Array.from(new Set<UserRole>(["participant", ...roles])).map((role) => {
-                    const info = safeRoleInfo(role);
+                    const info = safeRoleInfo(role, t);
                     const RoleIcon = info.icon;
                     return (
                       <DropdownMenuItem key={role} onClick={() => { setActiveRole(role as UserRole); setSidebarOpen(false); navigate("/dashboard"); }} className="flex items-center gap-3 py-3">
@@ -340,11 +343,11 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   <DropdownMenuItem asChild><Link to="/help" className="flex items-center gap-2"><Plus className="h-4 w-4" /> {t("dashboard.howRoleAccessWorks")}</Link></DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <p className="px-3 pt-2 text-[10px] leading-4 text-muted-foreground">{getStakeholderLens(safeRole).promise}</p>
+              <p className="px-3 pt-2 text-[10px] leading-4 text-muted-foreground">{localizeLens(getStakeholderLens(safeRole), t).promise}</p>
             </div>
             <div>
               <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF5500] mb-3">
-                What you can do
+                {webT("web.whatCanDo")}
               </p>
               <nav className="space-y-1">
                 {primaryNavItems.map((item) => (
@@ -454,7 +457,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             {safeRole !== "participant" && (
               <div className="pt-2">
                 <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-4">
-                  Organization
+                  {webT("web.organization")}
                 </p>
                 <div className="px-4">
                   <DropdownMenu>
@@ -469,17 +472,17 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate text-foreground pr-4 relative">
-                            {activeOrg?.name || "My Hub"}
+                            {activeOrg?.name || webT("web.myHub")}
                             <ChevronDown className="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 opacity-50" />
                           </p>
                           <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-tight">
-                            {activeOrg?.type || "Personal"}
+                            {activeOrg?.type || webT("web.personal")}
                           </p>
                         </div>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-64">
-                      <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">My Accounts</DropdownMenuLabel>
+                      <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{webT("web.myAccounts")}</DropdownMenuLabel>
                       {organizations.map((org) => (
                         <DropdownMenuItem
                           key={org.id}
@@ -501,7 +504,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                       {agencyClients.length > 0 && (
                         <>
                           <DropdownMenuSeparator />
-                          <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-primary">Agency Clients</DropdownMenuLabel>
+                          <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-widest text-primary">{webT("web.agencyClients")}</DropdownMenuLabel>
                           {agencyClients.map((client) => (
                             <DropdownMenuItem
                               key={client.id}
@@ -519,7 +522,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                               </div>
                               <div className="flex flex-col">
                                 <span className="text-sm font-medium">{client.name}</span>
-                                <span className="text-[10px] opacity-70 uppercase tracking-tighter">Manage as {client.type}</span>
+                                <span className="text-[10px] opacity-70 uppercase tracking-tighter">{webT("web.manageAs")} {client.type}</span>
                               </div>
                             </DropdownMenuItem>
                           ))}
@@ -530,7 +533,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                         <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                           <Plus className="w-4 h-4" />
                         </div>
-                        <span className="font-semibold text-sm">Add Account</span>
+                        <span className="font-semibold text-sm">{webT("web.addAccount")}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -545,17 +548,17 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  aria-label={`Switch workspace. Currently ${roleInfo.label}`}
-                  title={`Working as ${roleInfo.label}`}
+                  aria-label={t("web.switchWorkspaceCurrent", { role: roleInfo.label })}
+                  title={t("web.workingAs", { role: roleInfo.label })}
                   className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-primary/35 bg-primary text-white shadow-[0_12px_30px_rgba(255,106,0,0.22)] transition hover:bg-orange-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <roleInfo.icon className="h-5 w-5" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="start" className="w-64">
-                <DropdownMenuLabel>Switch workspace</DropdownMenuLabel>
+                <DropdownMenuLabel>{webT("dashboard.switchWorkspace")}</DropdownMenuLabel>
                 {roles.map((role) => {
-                  const info = safeRoleInfo(role);
+                  const info = safeRoleInfo(role, t);
                   const RoleIcon = info.icon;
                   return <DropdownMenuItem key={role} onClick={() => { setActiveRole(role as UserRole); navigate("/dashboard"); }} className="flex items-center gap-3 py-3"><span className={cn("grid h-8 w-8 place-items-center rounded-lg", info.color)}><RoleIcon className="h-4 w-4 text-white" /></span><span className="font-semibold">{info.label}</span>{role === safeRole ? <CheckCircle className="ml-auto h-4 w-4 text-primary" /> : null}</DropdownMenuItem>;
                 })}
@@ -563,12 +566,12 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             </DropdownMenu>
 
             <div className="my-1 h-px w-10 shrink-0 bg-border/70" />
-            <nav aria-label="Dashboard navigation" className="flex w-full flex-col items-center gap-1.5">
+            <nav aria-label={webT("web.dashboardNavigation")} className="flex w-full flex-col items-center gap-1.5">
               {[...primaryNavItems, ...growthNavItems, ...manageNavItems, ...utilityNavItems].map((item) => {
                 const active = isNavItemActive(location.pathname, item.href, location.search);
                 return <Link key={`${item.group || "nav"}-${item.href}`} to={item.href} aria-label={item.label} title={item.label} className={cn("grid h-11 w-12 shrink-0 place-items-center rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", active ? "border-primary/40 bg-primary/15 text-primary shadow-[inset_3px_0_0_hsl(var(--primary))]" : "border-transparent text-muted-foreground hover:border-border/60 hover:bg-muted/50 hover:text-foreground")}><item.icon className="h-5 w-5" /></Link>;
               })}
-              <Link to="/how-it-works" aria-label="How Promorang works" title="How Promorang works" className={cn("grid h-11 w-12 shrink-0 place-items-center rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", location.pathname === "/how-it-works" ? "border-primary/40 bg-primary/15 text-primary" : "border-transparent text-muted-foreground hover:border-border/60 hover:bg-muted/50 hover:text-foreground")}><CircleHelp className="h-5 w-5" /></Link>
+              <Link to="/how-it-works" aria-label={webT("whyJoin.how")} title={webT("whyJoin.how")} className={cn("grid h-11 w-12 shrink-0 place-items-center rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", location.pathname === "/how-it-works" ? "border-primary/40 bg-primary/15 text-primary" : "border-transparent text-muted-foreground hover:border-border/60 hover:bg-muted/50 hover:text-foreground")}><CircleHelp className="h-5 w-5" /></Link>
             </nav>
           </div>
 
@@ -606,7 +609,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               <Link
                 to="/how-it-works"
                 className="p-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                title="Help & Guides"
+                title={webT("web.helpGuides")}
               >
                 <CircleHelp className="w-4 h-4" />
               </Link>
@@ -617,16 +620,16 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             <button
               type="button"
               onClick={() => setSidebarCollapsed(false)}
-              aria-label="Expand sidebar"
-              title="Expand sidebar"
+              aria-label={webT("dashboard.expand")}
+              title={webT("dashboard.expand")}
               className="grid h-10 w-10 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
             >
               <PanelLeftOpen className="h-4 w-4" />
             </button>
             <Link
               to="/how-it-works"
-              aria-label="How Promorang works"
-              title="How Promorang works"
+              aria-label={webT("whyJoin.how")}
+              title={webT("whyJoin.how")}
               className="grid h-10 w-10 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <CircleHelp className="h-4 w-4" />
@@ -657,7 +660,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
           <div className="flex items-center justify-between">
             <button
               type="button"
-              aria-label="Open dashboard navigation"
+              aria-label={webT("web.openDashboardNavigation")}
               onClick={() => setSidebarOpen(true)}
               className="h-10 w-10 rounded-xl bg-muted/60 border border-border/70 flex items-center justify-center text-foreground shadow-soft active:scale-95 transition-transform"
             >
@@ -765,8 +768,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80 p-2 rounded-2xl shadow-2xl border-border/60 bg-popover text-popover-foreground">
                 <div className="p-2 pb-2 border-b border-border/40 flex items-center justify-between">
-                  <p className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Notifications</p>
-                  <span className="text-[10px] bg-rose-500/20 text-rose-500 px-1.5 py-0.5 rounded font-mono">Live</span>
+                  <p className="font-bold text-xs uppercase tracking-wider text-muted-foreground">{webT("settings.notifications")}</p>
+                  <span className="text-[10px] bg-rose-500/20 text-rose-500 px-1.5 py-0.5 rounded font-mono">{webT("common.live")}</span>
                 </div>
                 <div className="flex flex-col gap-1 py-1">
                   <div className="flex items-start gap-2.5 p-2 rounded-xl bg-primary/5 hover:bg-primary/10 transition cursor-pointer">
@@ -775,9 +778,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                     </div>
                     <div className="space-y-0.5">
                       <p className="text-xs leading-tight text-foreground">
-                        <span className="font-bold">Sarah Drop</span> hyped your moment 🔥
+                        <span className="font-bold">Sarah Drop</span> {webT("web.hypedMoment")}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">2m ago</p>
+                      <p className="text-[10px] text-muted-foreground">{webT("web.twoMinutes")}</p>
                     </div>
                   </div>
                 </div>
@@ -787,7 +790,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                     onClick={() => navigate("/activity")}
                     className="w-full text-xs text-muted-foreground hover:text-foreground h-7 rounded-lg"
                   >
-                    View All Activity →
+                    {webT("web.viewAllActivity")}
                   </Button>
                 </div>
               </DropdownMenuContent>
@@ -848,9 +851,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                       <Coins className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase font-bold text-muted-foreground leading-none">Wallet Balance</p>
+                      <p className="text-[10px] uppercase font-bold text-muted-foreground leading-none">{webT("web.walletBalance")}</p>
                       <p className="text-xs font-black text-foreground mt-0.5">
-                        {profile?.points ? `${profile.points.toLocaleString()} Points` : "0 Points"}
+                        {t("web.pointsCount", { count: formatNumber(profile?.points || 0) })}
                       </p>
                     </div>
                   </div>
@@ -862,7 +865,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="flex items-center gap-2.5 p-2 rounded-xl cursor-pointer">
                     <Users className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium">Public Profile</span>
+                    <span className="text-xs font-medium">{webT("web.publicProfile")}</span>
                   </Link>
                 </DropdownMenuItem>
 
@@ -915,10 +918,10 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
                   <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{pageMeta.description}</p>
                 </div>
                 <div className="min-w-[240px] rounded-2xl border border-border/60 bg-background/70 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Active hub</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{webT("web.activeHub")}</p>
                   <p className="mt-2 text-sm font-semibold text-foreground truncate">{city.name}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {activeOrg?.name ? `${activeOrg.name} · ${city.countryName}` : "Discover, Pulse, and the map follow this city hub."}
+                    {activeOrg?.name ? `${activeOrg.name} · ${city.countryName}` : webT("web.hubFollowsCity")}
                   </p>
                 </div>
               </div>
@@ -940,7 +943,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
       <DemoCoachmark />
 
-      <nav aria-label="Primary navigation" className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 text-foreground backdrop-blur-xl lg:hidden">
+      <nav aria-label={webT("publicHome.mobileNavigation")} className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 text-foreground backdrop-blur-xl lg:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-5 gap-0.5 px-1.5 pb-1.5 pt-1.5">
           {currentMobileNav.map((item) => {
             const isActive = isNavItemActive(location.pathname, item.href, location.search);

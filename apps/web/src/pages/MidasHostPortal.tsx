@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
@@ -159,6 +160,7 @@ const SAMPLE_DEMO_ATTENDEES: AttendeeRecord[] = [
 ];
 
 export default function MidasHostPortal() {
+  const { t: webT } = useWebI18n();
   const [filterMoment, setFilterMoment] = useState<'all' | 'sophisticated' | 'capleton'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'attendees' | 'polls' | 'squads' | 'gate' | 'broadcast'>('attendees');
@@ -383,7 +385,7 @@ export default function MidasHostPortal() {
                 title="Purge all simulated preview data and lock portal into clean production state"
               >
                 <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                <span className="hidden sm:inline">Purge Demo Data</span>
+                <span className="hidden sm:inline">{webT("web.purgeDemo")}</span>
                 <span className="sm:hidden">Purge</span>
               </button>
             ) : (
@@ -394,7 +396,7 @@ export default function MidasHostPortal() {
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Load Sample Preview</span>
-                <span className="sm:hidden">Preview</span>
+                <span className="sm:hidden">{webT("pulsePage.previewBadge")}</span>
               </button>
             )}
 
@@ -615,7 +617,7 @@ export default function MidasHostPortal() {
                     size="sm"
                     className="border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-xs font-mono uppercase"
                   >
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Purge Demo Data
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> {webT("web.purgeDemo")}
                   </Button>
                 )}
                 <Button
@@ -624,7 +626,7 @@ export default function MidasHostPortal() {
                   size="sm"
                   className="border-[#ffffff20] bg-white/5 hover:bg-white/10 text-xs font-mono uppercase"
                 >
-                  <Download className="w-3.5 h-3.5 mr-1" /> Export CSV
+                  <Download className="w-3.5 h-3.5 mr-1" /> {webT("web.exportCsv")}
                 </Button>
               </div>
             </div>
@@ -668,7 +670,7 @@ export default function MidasHostPortal() {
                       <th className="py-3 px-4">Perk Unlocked</th>
                       <th className="py-3 px-4 text-center">Squad Invites</th>
                       <th className="py-3 px-4">Gate Status</th>
-                      <th className="py-3 px-4 text-right">Points</th>
+                      <th className="py-3 px-4 text-right">{webT("wallet.pointsLabel")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#ffffff0c]">
@@ -721,7 +723,7 @@ export default function MidasHostPortal() {
             )}
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-stone-400 font-mono">
-              <span>Showing {filteredAttendees.length} {isDemoMode ? 'sample simulation' : 'live'} records</span>
+              <span>{webT("web.showing")} {filteredAttendees.length} {isDemoMode ? 'sample simulation' : 'live'} records</span>
               {isDemoMode ? (
                 <button
                   onClick={handlePurgeDemoData}
@@ -780,7 +782,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Beach party & oceanfront vibes</span>
                       <span className="text-[#ff5a1f] font-mono">
-                        {isDemoMode ? '68 votes (48%)' : '0 votes (0%)'}
+                        {isDemoMode ? '68 votes (48%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -793,7 +795,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Live concert & conscious stage show</span>
                       <span className="text-[#a855f7] font-mono">
-                        {isDemoMode ? '42 votes (30%)' : '0 votes (0%)'}
+                        {isDemoMode ? '42 votes (30%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -806,7 +808,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Club night & high-energy indoor party</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '19 votes (13%)' : '0 votes (0%)'}
+                        {isDemoMode ? '19 votes (13%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -818,7 +820,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Chill lounge & food lyme</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '9 votes (6%)' : '0 votes (0%)'}
+                        {isDemoMode ? '9 votes (6%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -830,7 +832,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Haven't decided yet</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '4 votes (3%)' : '0 votes (0%)'}
+                        {isDemoMode ? '4 votes (3%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -866,7 +868,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">1. Reggae & conscious roots vibration</span>
                       <span className="text-[#a855f7] font-mono">
-                        {isDemoMode ? '44 votes (45%)' : '0 votes (0%)'}
+                        {isDemoMode ? '44 votes (45%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -879,7 +881,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">2. Dancehall energy & top selectors</span>
                       <span className="text-[#ff5a1f] font-mono">
-                        {isDemoMode ? '29 votes (30%)' : '0 votes (0%)'}
+                        {isDemoMode ? '29 votes (30%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -892,7 +894,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">3. Afrobeats & crossover rhythm</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '12 votes (12%)' : '0 votes (0%)'}
+                        {isDemoMode ? '12 votes (12%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -904,7 +906,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">4. Hip Hop & sound clashes</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '7 votes (7%)' : '0 votes (0%)'}
+                        {isDemoMode ? '7 votes (7%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -916,7 +918,7 @@ export default function MidasHostPortal() {
                     <div className="flex justify-between font-bold">
                       <span className="text-white">5. Depends strictly on who is performing</span>
                       <span className="text-stone-400 font-mono">
-                        {isDemoMode ? '6 votes (6%)' : '0 votes (0%)'}
+                        {isDemoMode ? '6 votes (6%)' : webT("web.zeroVotes")}
                       </span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-sm overflow-hidden">
@@ -1162,7 +1164,7 @@ export default function MidasHostPortal() {
                     <div className="p-2.5 bg-[#141210] rounded-sm text-xs font-mono text-stone-300 space-y-1">
                       <div className="flex justify-between">
                         <span>Vault Legacy Points:</span>
-                        <strong className="text-[#ffcf38]">{scannedAttendee.pointsEarned} pts</strong>
+                        <strong className="text-[#ffcf38]">{scannedAttendee.pointsEarned} {webT("web.pts")}</strong>
                       </div>
                       <div className="flex justify-between">
                         <span>Squad Crew Size:</span>
@@ -1461,7 +1463,7 @@ export default function MidasHostPortal() {
                 className="font-mono text-xs px-5 py-3 rounded-sm uppercase tracking-wider"
               >
                 <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                <span>Purge Demo Data</span>
+                <span>{webT("web.purgeDemo")}</span>
               </Button>
             ) : (
               <Button

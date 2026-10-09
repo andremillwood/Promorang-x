@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Building2, CheckCircle2, Layers3, Store, TrendingUp } from "lucide-react";
@@ -17,6 +19,7 @@ type ClientCampaign = {
 };
 
 export function AgencyManagedResultPack() {
+  const { t: webT } = useWebI18n();
   const { agencyClients, setActiveOrgId, setActiveRole } = useAuth();
   const brandClients = useMemo(() => agencyClients.filter((client) => client.type === "brand"), [agencyClients]);
   const venueClients = useMemo(() => agencyClients.filter((client) => client.type === "merchant"), [agencyClients]);
@@ -70,7 +73,7 @@ export function AgencyManagedResultPack() {
             ["Recorded brand redemptions", totalRedemptions, TrendingUp],
           ].map(([label, value, Icon]) => {
             const MetricIcon = Icon as typeof Layers3;
-            return <div key={String(label)} className="rounded-2xl border border-border/60 bg-background/60 p-4"><MetricIcon className="h-4 w-4 text-primary" /><p className="mt-3 text-3xl font-semibold">{Number(value).toLocaleString()}</p><p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{String(label)}</p></div>;
+            return <div key={String(label)} className="rounded-2xl border border-border/60 bg-background/60 p-4"><MetricIcon className="h-4 w-4 text-primary" /><p className="mt-3 text-3xl font-semibold">{Number(value).toLocaleString(currentUiLocale())}</p><p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{String(label)}</p></div>;
           })}
         </div>
       </div>
@@ -101,9 +104,9 @@ export function AgencyManagedResultPack() {
                   <div className="mt-5 rounded-2xl border border-dashed border-border/70 bg-muted/20 p-4 text-sm leading-6 text-muted-foreground">This Agency pack does not yet have a canonical venue-result projection, so it does not display zeroes as if the venue produced no result. Open the Merchant workspace to review real validation, commerce, place and receipt evidence.</div>
                 ) : (
                   <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold">{clientCampaigns.filter((c) => c.is_active).length}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Active</p></div>
+                    <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold">{clientCampaigns.filter((c) => c.is_active).length}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{webT("commercial.active")}</p></div>
                     <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold">{clientCampaigns.filter((c) => Number(c.redemptions || 0) > 0).length}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">With recorded action</p></div>
-                    <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold">{clientRedemptions.toLocaleString()}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Redemptions</p></div>
+                    <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold">{clientRedemptions.toLocaleString(currentUiLocale())}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{webT("merchantDash.redemptions")}</p></div>
                   </div>
                 )}
               </article>

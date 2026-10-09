@@ -44,6 +44,7 @@ interface OnboardingSurveyProps {
 }
 
 const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [step, setStep] = useState(0);
   const storedAim = readPromoCardAim();
@@ -251,7 +252,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
         <div className="mb-5 sm:mb-8">
           <Progress value={progress} className="h-2" />
           <p className="text-sm text-muted-foreground mt-2 text-center">
-            Step {step + 1} of {steps.length}
+            {webT("web.step")} {step + 1} {webT("web.of")} {steps.length}
           </p>
         </div>
 

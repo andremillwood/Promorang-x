@@ -1,3 +1,4 @@
+import { withI18n } from "@/test/withI18n";
 import { fireEvent, render, screen, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
@@ -9,22 +10,21 @@ vi.mock('@/hooks/useCommunity', () => ({
   useCommunityAction: () => ({ mutateAsync: mocks.mutate, isPending: false }),
 }));
 vi.mock('@/components/SEO', () => ({ default: () => null }));
-vi.mock('@/i18n/I18nContext', () => ({ useI18n: () => ({ locale: 'en', t: (key: string) => key }) }));
 const show = (tab = 'today', action = vi.fn().mockResolvedValue({})) => {
-  render(<MemoryRouter><CommunityWorkspace data={communityFixture} tab={tab} onAction={action} /></MemoryRouter>); return action;
+  render(withI18n(<MemoryRouter><CommunityWorkspace data={communityFixture} tab={tab} onAction={action} /></MemoryRouter>)); return action;
 };
 beforeEach(() => { vi.clearAllMocks(); mocks.access = { data: { membership: null, paths: ['YouTube Creator'] }, refetch: vi.fn() }; mocks.workspace = { data: communityFixture, refetch: vi.fn() }; });
 afterEach(cleanup);
 describe('private community experience', () => {
   it('keeps the workspace hidden while an application is pending, even with cached workspace data', () => {
     mocks.access.data = { membership: { status: 'pending' }, paths: ['YouTube Creator'] };
-    render(<MemoryRouter><CommunityPortal /></MemoryRouter>);
+    render(withI18n(<MemoryRouter><CommunityPortal /></MemoryRouter>));
     expect(screen.getByText('Your introduction is with the team.')).toBeInTheDocument();
     expect(screen.queryByText('Move board')).not.toBeInTheDocument();
   });
   it('does not render stale private data after an access error', () => {
     mocks.access = { ...mocks.access, data: { membership: { status: 'active' } }, isError: true, error: new Error('Membership unavailable') };
-    render(<MemoryRouter><CommunityPortal /></MemoryRouter>);
+    render(withI18n(<MemoryRouter><CommunityPortal /></MemoryRouter>));
     expect(screen.getByRole('alert')).toHaveTextContent('Membership unavailable');
     expect(screen.queryByText('Move board')).not.toBeInTheDocument();
   });

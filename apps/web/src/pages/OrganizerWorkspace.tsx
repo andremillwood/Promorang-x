@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useLocation } from "react-router-dom";
 import {
   ArrowRight,
@@ -45,6 +47,7 @@ const proofSteps = [
 ];
 
 export default function OrganizerWorkspace() {
+  const { t: webT } = useWebI18n();
   const { pathname } = useLocation();
   const { user } = useAuth();
   const momentFeed = useCanonicalMomentFeed();
@@ -57,10 +60,10 @@ export default function OrganizerWorkspace() {
   const recordedParticipants = ownedMoments.reduce((total, moment) => total + Number(moment.participant_count || 0), 0);
   const qualityIssues = ownedMoments.reduce((total, moment) => total + (moment.data_quality_issues?.length || 0), 0);
   const operationalMetrics = [
-    { label: "Live Moments", value: String(ownedMoments.filter((moment) => moment.lifecycle === "live").length), helper: "recorded live now", icon: Radio },
-    { label: "Starting soon", value: String(ownedMoments.filter((moment) => moment.lifecycle === "starting_soon").length), helper: "recorded schedule", icon: CheckCircle2 },
-    { label: "Participants", value: String(recordedParticipants), helper: "participation records · not attendance", icon: Users },
-    { label: "Needs attention", value: String(qualityIssues), helper: "source-quality issues", icon: CircleAlert },
+    { label: webT("radar.stepLiveMoments"), value: String(ownedMoments.filter((moment) => moment.lifecycle === "live").length), helper: "recorded live now", icon: Radio },
+    { label: webT("web.startingSoon"), value: String(ownedMoments.filter((moment) => moment.lifecycle === "starting_soon").length), helper: "recorded schedule", icon: CheckCircle2 },
+    { label: webT("participantsPage.title"), value: String(recordedParticipants), helper: "participation records · not attendance", icon: Users },
+    { label: webT("web.needsAttention"), value: String(qualityIssues), helper: "source-quality issues", icon: CircleAlert },
   ];
 
   return (
@@ -86,7 +89,7 @@ export default function OrganizerWorkspace() {
 
           <Link to="/card" className="group rounded-2xl border border-[#d7ad55]/45 bg-[radial-gradient(circle_at_80%_10%,rgba(226,180,90,.22),transparent_30%),linear-gradient(135deg,#111,#090909_70%)] p-6 shadow-[0_24px_70px_rgba(0,0,0,.55)] transition hover:-translate-y-1">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full border border-orange-500/35 bg-black text-xl font-black text-orange-500">P</span><div><p className="text-[8px] font-black uppercase tracking-[.25em] text-[#d7ad55]">Promorang</p><p className="font-serif text-2xl font-bold">PromoCard</p></div></div>
+              <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full border border-orange-500/35 bg-black text-xl font-black text-orange-500">P</span><div><p className="text-[8px] font-black uppercase tracking-[.25em] text-[#d7ad55]">Promorang</p><p className="font-serif text-2xl font-bold">{webT("card.eyebrow")}</p></div></div>
               <span className="h-7 w-10 rounded-md bg-gradient-to-br from-[#ffe291] to-[#ad741e]" />
             </div>
             <p className="mt-10 text-[9px] font-black uppercase tracking-[.2em] text-white/55">The pass at the door</p>
@@ -119,13 +122,13 @@ export default function OrganizerWorkspace() {
         </section>
 
         <section aria-labelledby="moments-title">
-          <div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-orange-500">Moment inventory</p><h2 id="moments-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Choose the room.</h2></div><Link to="/create/moment" className="hidden text-sm font-bold text-orange-400 sm:inline-flex">Create Moment <ArrowRight className="ml-2 h-4 w-4" /></Link></div>
+          <div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-orange-500">Moment inventory</p><h2 id="moments-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Choose the room.</h2></div><Link to="/create/moment" className="hidden text-sm font-bold text-orange-400 sm:inline-flex">{webT("findOrAsk.route.createMoment")} <ArrowRight className="ml-2 h-4 w-4" /></Link></div>
           <div className="mt-5">
             {momentFeed.isLoading ? <div className="h-52 animate-pulse rounded-2xl border border-white/10 bg-white/[.025]" /> : momentFeed.isError ? <div className="rounded-2xl border border-white/10 bg-white/[.025] p-6 text-sm text-white/45">We could not load your recorded Moments.</div> : activeMoments.length ? (
               <div className="grid gap-4 md:grid-cols-2">
-                {activeMoments.slice(0, 6).map((moment) => <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="group grid min-h-48 overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] sm:grid-cols-[180px_1fr]">{moment.image_url ? <img src={moment.image_url} alt="" className="h-48 w-full object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-90 sm:h-full" /> : <div className="grid h-48 place-items-center bg-white/[.035] sm:h-full"><CalendarDays className="h-8 w-8 text-white/18" /></div>}<div className="flex flex-col justify-end p-5"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-orange-300"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-2xl font-bold leading-tight">{moment.title}</h3><p className="mt-3 text-xs text-white/40">{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}{moment.venue_name || moment.location ? ` · ${moment.venue_name || moment.location}` : ""}</p><span className="mt-5 inline-flex items-center text-xs font-black text-orange-400">Open Moment <ArrowRight className="ml-2 h-4 w-4" /></span></div></Link>)}
+                {activeMoments.slice(0, 6).map((moment) => <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="group grid min-h-48 overflow-hidden rounded-2xl border border-white/10 bg-white/[.025] sm:grid-cols-[180px_1fr]">{moment.image_url ? <img src={moment.image_url} alt="" className="h-48 w-full object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-90 sm:h-full" /> : <div className="grid h-48 place-items-center bg-white/[.035] sm:h-full"><CalendarDays className="h-8 w-8 text-white/18" /></div>}<div className="flex flex-col justify-end p-5"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-orange-300"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-2xl font-bold leading-tight">{moment.title}</h3><p className="mt-3 text-xs text-white/40">{new Date(moment.starts_at).toLocaleString(currentUiLocale(), { timeZone: "America/Jamaica", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}{moment.venue_name || moment.location ? ` · ${moment.venue_name || moment.location}` : ""}</p><span className="mt-5 inline-flex items-center text-xs font-black text-orange-400">{webT("commandHome.openMoment")} <ArrowRight className="ml-2 h-4 w-4" /></span></div></Link>)}
               </div>
-            ) : <div className="rounded-2xl border border-white/10 bg-white/[.025] p-8"><p className="font-serif text-2xl font-bold">No active Moments recorded for this workspace.</p><p className="mt-2 max-w-xl text-sm leading-6 text-white/40">Production absence is preserved. Create a Moment when there is something real to operate.</p><Link to="/create/moment" className="mt-5 inline-flex min-h-11 items-center text-sm font-black text-orange-400">Create Moment <ArrowRight className="ml-2 h-4 w-4" /></Link></div>}
+            ) : <div className="rounded-2xl border border-white/10 bg-white/[.025] p-8"><p className="font-serif text-2xl font-bold">No active Moments recorded for this workspace.</p><p className="mt-2 max-w-xl text-sm leading-6 text-white/40">Production absence is preserved. Create a Moment when there is something real to operate.</p><Link to="/create/moment" className="mt-5 inline-flex min-h-11 items-center text-sm font-black text-orange-400">{webT("findOrAsk.route.createMoment")} <ArrowRight className="ml-2 h-4 w-4" /></Link></div>}
           </div>
         </section>
 

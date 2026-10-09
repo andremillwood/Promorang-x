@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DollarSign, Calendar, Users, TrendingUp } from 'lucide-react';
@@ -27,6 +29,7 @@ interface HostAnalyticsDashboardProps {
  * Comprehensive analytics dashboard for Hosts
  */
 export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) {
+  const { t: webT } = useWebI18n();
     const { session } = useAuth();
     const { startTour, isTourCompleted } = useTour();
     const presets = getPresetDateRanges();
@@ -105,7 +108,7 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
 
     const earningsByDay = filteredAnalytics.reduce((acc: any[], item: any) => {
         const sourceDate = item.ends_at || item.starts_at || item.created_at;
-        const date = new Date(sourceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const date = new Date(sourceDate).toLocaleDateString(currentUiLocale(), { month: 'short', day: 'numeric' });
         const existing = acc.find(d => d.date === date);
         if (existing) {
             existing.earnings += Number(item.reward_pool_usd || 0) + Number(item.total_sponsorship || 0) + Number(item.product_revenue_generated || 0);
@@ -153,7 +156,7 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
                     />
                     <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={handleExport} disabled={!analytics?.length} data-tour="analytics-export">
                         <Download className="h-4 w-4 mr-2" />
-                        Export CSV
+                        {webT("web.exportCsv")}
                     </Button>
                 </div>
             </div>
@@ -210,7 +213,7 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
                         data={earningsByDay}
                         xKey="date"
                         yKeys={[
-                            { key: 'earnings', label: 'Earnings', color: 'hsl(var(--chart-1))' },
+                            { key: 'earnings', label: webT("promoPushCreatorPage.statEarnings"), color: 'hsl(var(--chart-1))' },
                         ]}
                         formatYAxis="currency"
                         height={300}
@@ -230,7 +233,7 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
                         data={momentPerformance}
                         xKey="name"
                         yKeys={[
-                            { key: 'revenue', label: 'Revenue', color: 'hsl(var(--chart-2))' },
+                            { key: 'revenue', label: webT("web.revenue"), color: 'hsl(var(--chart-2))' },
                         ]}
                         formatYAxis="currency"
                         layout="horizontal"
@@ -249,9 +252,9 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
                     <table className="w-full">
                         <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                             <tr>
-                                <th className="px-6 py-3 text-left">Moment</th>
-                                <th className="px-6 py-3 text-right">Participants</th>
-                                <th className="px-6 py-3 text-right">Revenue</th>
+                                <th className="px-6 py-3 text-left">{webT("promoShare.typeMoment")}</th>
+                                <th className="px-6 py-3 text-right">{webT("participantsPage.title")}</th>
+                                <th className="px-6 py-3 text-right">{webT("web.revenue")}</th>
                                 <th className="px-6 py-3 text-right">Sponsorship</th>
                                 <th className="px-6 py-3 text-right">Revenue/Participant</th>
                             </tr>
@@ -300,12 +303,12 @@ export function HostAnalyticsDashboard({ userId }: HostAnalyticsDashboardProps) 
                                 <div className="flex items-start justify-between gap-3">
                                     <p className="font-medium text-foreground">{moment.name}</p>
                                     <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
-                                        {formatCompactNumber(moment.participants)} joined
+                                        {formatCompactNumber(moment.participants)} {webT("web.joined")}
                                     </span>
                                 </div>
                                 <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                                     <div>
-                                        <p className="text-muted-foreground">Revenue</p>
+                                        <p className="text-muted-foreground">{webT("web.revenue")}</p>
                                         <p className="font-semibold text-foreground">{formatCurrency(moment.revenue)}</p>
                                     </div>
                                     <div>

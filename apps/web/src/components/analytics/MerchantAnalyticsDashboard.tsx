@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DollarSign, Package, TrendingUp, ShoppingCart } from 'lucide-react';
@@ -24,6 +26,7 @@ interface MerchantAnalyticsDashboardProps {
  * Comprehensive analytics dashboard for Merchants
  */
 export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboardProps) {
+  const { t: webT } = useWebI18n();
     const presets = getPresetDateRanges();
     const [dateRange, setDateRange] = useState({
         start: presets.last30Days.start,
@@ -59,7 +62,7 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
 
     // Prepare chart data
     const revenueByDay = analytics?.reduce((acc: any[], item) => {
-        const date = new Date(item.sale_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const date = new Date(item.sale_date).toLocaleDateString(currentUiLocale(), { month: 'short', day: 'numeric' });
         const existing = acc.find(d => d.date === date);
         if (existing) {
             existing.revenue += item.total_revenue || 0;
@@ -114,7 +117,7 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
                     />
                     <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={handleExport} disabled={!analytics?.length}>
                         <Download className="h-4 w-4 mr-2" />
-                        Export CSV
+                        {webT("web.exportCsv")}
                     </Button>
                 </div>
             </div>
@@ -122,7 +125,7 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <MetricCard
-                    title="Total Revenue"
+                    title={webT("web.totalRevenue")}
                     value={formatCurrency(metrics.totalRevenue)}
                     icon={<DollarSign className="h-6 w-6" />}
                     loading={isLoading}
@@ -136,7 +139,7 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
                     tooltip="The total number of product transactions."
                 />
                 <MetricCard
-                    title="Redemptions"
+                    title={webT("merchantDash.redemptions")}
                     value={formatCompactNumber(metrics.totalRedemptions)}
                     icon={<TrendingUp className="h-6 w-6" />}
                     loading={isLoading}
@@ -163,7 +166,7 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
                         data={revenueByDay}
                         xKey="date"
                         yKeys={[
-                            { key: 'revenue', label: 'Revenue', color: 'hsl(var(--chart-1))' },
+                            { key: 'revenue', label: webT("web.revenue"), color: 'hsl(var(--chart-1))' },
                         ]}
                         formatYAxis="currency"
                         height={300}
@@ -184,7 +187,7 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
                             data={productPerformance}
                             xKey="name"
                             yKeys={[
-                                { key: 'revenue', label: 'Revenue', color: 'hsl(var(--chart-2))' },
+                                { key: 'revenue', label: webT("web.revenue"), color: 'hsl(var(--chart-2))' },
                             ]}
                             formatYAxis="currency"
                             layout="horizontal"
@@ -214,10 +217,10 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
                     <table className="w-full">
                         <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                             <tr>
-                                <th className="px-6 py-3 text-left">Product</th>
-                                <th className="px-6 py-3 text-right">Sales</th>
-                                <th className="px-6 py-3 text-right">Revenue</th>
-                                <th className="px-6 py-3 text-right">Redemptions</th>
+                                <th className="px-6 py-3 text-left">{webT("receipt.product")}</th>
+                                <th className="px-6 py-3 text-right">{webT("web.sales")}</th>
+                                <th className="px-6 py-3 text-right">{webT("web.revenue")}</th>
+                                <th className="px-6 py-3 text-right">{webT("merchantDash.redemptions")}</th>
                                 <th className="px-6 py-3 text-right">Avg. Price</th>
                             </tr>
                         </thead>
@@ -265,16 +268,16 @@ export function MerchantAnalyticsDashboard({ userId }: MerchantAnalyticsDashboar
                                 <div className="flex items-start justify-between gap-3">
                                     <p className="font-medium text-foreground">{product.name}</p>
                                     <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
-                                        {formatCompactNumber(product.sales)} sales
+                                        {formatCompactNumber(product.sales)} {webT("web.salesLower")}
                                     </span>
                                 </div>
                                 <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                                     <div>
-                                        <p className="text-muted-foreground">Revenue</p>
+                                        <p className="text-muted-foreground">{webT("web.revenue")}</p>
                                         <p className="font-semibold text-foreground">{formatCurrency(product.revenue)}</p>
                                     </div>
                                     <div>
-                                        <p className="text-muted-foreground">Redemptions</p>
+                                        <p className="text-muted-foreground">{webT("merchantDash.redemptions")}</p>
                                         <p className="font-semibold text-foreground">{formatCompactNumber(product.redemptions || 0)}</p>
                                     </div>
                                     <div className="col-span-2">

@@ -5,12 +5,13 @@ import { API_BASE_URL } from "@/lib/api";
 import { useI18n } from "@/i18n/I18nContext";
 
 export default function VerifiedPioneerBadge({ beneficiaryType, beneficiaryId }: { beneficiaryType: "user" | "venue"; beneficiaryId?: string | null }) {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const query = useQuery({
     queryKey: ["pioneer-public-status", beneficiaryType, beneficiaryId],
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/pioneer-points/public/status/${beneficiaryType}/${beneficiaryId}`);
-      if (!response.ok) throw new Error("Unavailable");
+      if (!response.ok) throw new Error(webT("web.unavailable"));
       return response.json() as Promise<{ verified_points: number }>;
     },
     enabled: Boolean(beneficiaryId),

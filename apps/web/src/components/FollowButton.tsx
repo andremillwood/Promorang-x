@@ -30,6 +30,7 @@ export function FollowButton({
     className,
     onFollowChange,
 }: FollowButtonProps) {
+  const { t: webT } = useI18n();
     const { t, formatNumber } = useI18n();
     const { toast } = useToast();
     const { user } = useAuth();
@@ -208,7 +209,7 @@ export function FollowButton({
                 ) : (
                     <UserPlus className="h-3 w-3 mr-1" />
                 )}
-                {statusError ? "Unavailable" : isFollowing ? t("followButton.following") : t("followButton.follow")}
+                {statusError ? webT("web.unavailable") : isFollowing ? t("followButton.following") : t("followButton.follow")}
             </Button>
         );
     }

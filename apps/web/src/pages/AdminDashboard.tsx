@@ -169,6 +169,7 @@ const ADMIN_NAV_GROUPS: Array<{ label: string; items: AdminNavItem[] }> = [
 ];
 
 const AdminDashboard = () => {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const { user, loading: authLoading } = useAuth();
   const isAdmin = useIsAdmin();
@@ -270,10 +271,10 @@ const AdminDashboard = () => {
 
           <nav aria-label="Admin primary jobs" className="mt-5 grid gap-2 border-t border-white/8 pt-4 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              { value: "command", label: "Today", icon: Activity },
-              { value: "moments", label: "Moments", icon: Calendar },
-              { value: "users", label: "People", icon: Users },
-              { value: "verification-hub", label: "Trust", icon: ShieldCheck },
+              { value: "command", label: webT("lens.today"), icon: Activity },
+              { value: "moments", label: webT("findOrAsk.moments"), icon: Calendar },
+              { value: "users", label: webT("lens.participant.workspace"), icon: Users },
+              { value: "verification-hub", label: webT("web.trust"), icon: ShieldCheck },
               { value: "payouts", label: "Money", icon: DollarSign },
             ].map((item) => {
               const Icon = item.icon;

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,6 +27,7 @@ const formatBenefitValue = (perk: any) => {
 };
 
 const MemoryDetail = () => {
+  const { t: webT } = useWebI18n();
   const { id } = useParams<{ id: string }>();
   const { user, session } = useAuth();
 
@@ -57,7 +60,7 @@ const MemoryDetail = () => {
             Sign in to open your vault items and see the perks attached to them.
           </p>
           <Button asChild variant="hero" className="mt-6">
-            <Link to="/auth">Sign In</Link>
+            <Link to="/auth">{webT("vaultPage.signInButton")}</Link>
           </Button>
         </div>
       </main>
@@ -73,12 +76,12 @@ const MemoryDetail = () => {
         <Button asChild variant="ghost" className="w-fit">
           <Link to="/vault">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Vault
+            {webT("receipt.back")}
           </Link>
         </Button>
         <div className="flex gap-3">
           <Button asChild variant="outline">
-            <Link to="/pulse">Pulse</Link>
+            <Link to="/pulse">{webT("hostDash.pulse")}</Link>
           </Button>
           <Button asChild variant="hero">
             <Link to="/explore/moments">Find More Moments</Link>
@@ -136,13 +139,13 @@ const MemoryDetail = () => {
                 <p className="mt-2 text-3xl font-black text-foreground">{memory.legacy_score || 0}</p>
               </div>
               <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Collection</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{webT("portfolio.collection")}</p>
                 <p className="mt-2 text-lg font-bold text-foreground">{memory.collection_key || "Independent"}</p>
               </div>
               <div className="rounded-2xl border border-accent/20 bg-accent/10 p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-foreground">Issued</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-foreground">{webT("offerStudio.statIssued")}</p>
                 <p className="mt-2 text-lg font-bold text-foreground">
-                  {memory.issued_at ? new Date(memory.issued_at).toLocaleDateString() : "Recent"}
+                  {memory.issued_at ? new Date(memory.issued_at).toLocaleDateString(currentUiLocale()) : webT("happened.recent")}
                 </p>
               </div>
             </div>
@@ -172,23 +175,23 @@ const MemoryDetail = () => {
                     {
                       label: "First Engaged",
                       value: memory.mission_attribution.first_engaged_at
-                        ? new Date(memory.mission_attribution.first_engaged_at).toLocaleString()
+                        ? new Date(memory.mission_attribution.first_engaged_at).toLocaleString(currentUiLocale())
                         : "Not tracked",
                     },
                     {
-                      label: "Joined",
+                      label: webT("pulsePage.statJoined"),
                       value: memory.mission_attribution.joined_at
-                        ? new Date(memory.mission_attribution.joined_at).toLocaleString()
+                        ? new Date(memory.mission_attribution.joined_at).toLocaleString(currentUiLocale())
                         : "Not tracked",
                     },
                     {
-                      label: "Verified",
+                      label: webT("kyc.badgeVerified"),
                       value: memory.mission_attribution.verified_at
-                        ? new Date(memory.mission_attribution.verified_at).toLocaleString()
+                        ? new Date(memory.mission_attribution.verified_at).toLocaleString(currentUiLocale())
                         : "Not tracked",
                     },
                     {
-                      label: "Status",
+                      label: webT("kyc.statusLabel"),
                       value: memory.mission_attribution.status || "memorized",
                     },
                   ].map((item) => (
@@ -232,7 +235,7 @@ const MemoryDetail = () => {
                       </p>
                       {memory.perk.expires_at && (
                         <p className="mt-2 text-xs text-muted-foreground">
-                          Expires {new Date(memory.perk.expires_at).toLocaleDateString()}
+                          {webT("card.expires")} {new Date(memory.perk.expires_at).toLocaleDateString(currentUiLocale())}
                         </p>
                       )}
                     </div>

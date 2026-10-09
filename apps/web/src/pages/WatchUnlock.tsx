@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,6 +26,7 @@ const formatMissionDate = (value: string, locale?: string) =>
   new Intl.DateTimeFormat(locale || undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 
 const WatchUnlock = () => {
+  const { t: webT } = useI18n();
   const { t, locale } = useI18n();
   const { user, session, profile } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -117,8 +119,8 @@ const WatchUnlock = () => {
             </div>
             {user ? <div className="mt-6">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold">{t("watchUnlock.pointsCount", { count: points.toLocaleString() })}</span>
-                <span className="text-white/35">{t("watchUnlock.toNextKey", { count: Math.max(pointsPerKey - points, 0).toLocaleString() })}</span>
+                <span className="font-bold">{t("watchUnlock.pointsCount", { count: points.toLocaleString(currentUiLocale()) })}</span>
+                <span className="text-white/35">{t("watchUnlock.toNextKey", { count: Math.max(pointsPerKey - points, 0).toLocaleString(currentUiLocale()) })}</span>
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-primary" style={{ width: `${keyProgress}%` }} /></div>
             </div> : <Button asChild className="mt-6 w-full"><Link to="/auth">{t("watchUnlock.startOpenMission")} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>}
@@ -242,7 +244,7 @@ const WatchUnlock = () => {
                       {item.moment?.venue_name || item.moment?.location}
                     </span>
                     <span className="font-medium text-white">
-                      {item.moment?.reward || "No reward recorded"}
+                      {item.moment?.reward || webT("web.noRewardRecorded")}
                     </span>
                     {item.moment?.starts_at && <span className="flex items-center gap-1.5"><Clock3 className="h-4 w-4 text-primary" />{formatMissionDate(item.moment.starts_at, locale)}</span>}
                   </div>
@@ -251,13 +253,13 @@ const WatchUnlock = () => {
                     <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("watchUnlock.o2oConversion")}</p>
                       <p className="mt-2 text-2xl font-bold text-foreground">
-                        {item.o2o_conversion_rate == null ? "Not recorded" : `${Number(item.o2o_conversion_rate).toFixed(1)}%`}
+                        {item.o2o_conversion_rate == null ? webT("activationCommerce.notRecorded") : `${Number(item.o2o_conversion_rate).toFixed(1)}%`}
                       </p>
                     </div>
                     <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">{t("watchUnlock.threshold")}</p>
                       <p className="mt-2 text-2xl font-bold text-foreground">
-                        {item.moment?.gathering_threshold ?? "Not recorded"}
+                        {item.moment?.gathering_threshold ?? webT("activationCommerce.notRecorded")}
                       </p>
                     </div>
                   </div>

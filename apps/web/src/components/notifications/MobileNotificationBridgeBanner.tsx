@@ -12,6 +12,7 @@ import { triggerHaptic } from "@/lib/nativeWebApis";
 import { useI18n } from "@/i18n/I18nContext";
 
 export function MobileNotificationBridgeBanner() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { isSubscribed } = usePushNotifications();
   const [showBanner, setShowBanner] = useState(false);
@@ -82,7 +83,7 @@ export function MobileNotificationBridgeBanner() {
           <button
             onClick={handleDismiss}
             className="p-1.5 rounded-lg text-white/40 hover:bg-white/10 hover:text-white transition"
-            aria-label="Dismiss"
+            aria-label={webT("intentResume.dismiss")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -118,7 +119,7 @@ export function MobileNotificationBridgeBanner() {
               </p>
               <p className="flex items-center gap-2">
                 <span className="h-5 w-5 rounded-full bg-primary/20 text-primary font-bold text-[10px] flex items-center justify-center shrink-0">3</span>
-                <span>Tap <strong>"Allow Alerts"</strong> when prompted</span>
+                <span>{webT("web.tap")} <strong>"Allow Alerts"</strong> when prompted</span>
               </p>
             </div>
 
@@ -128,7 +129,7 @@ export function MobileNotificationBridgeBanner() {
               onClick={() => setOpenModal(false)}
               className="w-full rounded-xl border-white/15 hover:bg-white/10 text-white font-bold text-xs"
             >
-              Done
+              {webT("web.done")}
             </Button>
           </div>
         </DialogContent>

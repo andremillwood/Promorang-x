@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Star, MessageSquare, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ interface ReviewDialogProps {
 }
 
 export function ReviewDialog({ momentId, momentTitle, trigger }: ReviewDialogProps) {
+  const { t: webT } = useWebI18n();
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -129,7 +131,7 @@ export function ReviewDialog({ momentId, momentTitle, trigger }: ReviewDialogPro
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            {webT("findOrAsk.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -138,7 +140,7 @@ export function ReviewDialog({ momentId, momentTitle, trigger }: ReviewDialogPro
             {submitReview.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Submitting...
+                {webT("deletion.submitting")}
               </>
             ) : (
               "Submit Review"

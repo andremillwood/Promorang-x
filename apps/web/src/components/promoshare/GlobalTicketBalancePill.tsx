@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from 'react';
 import { usePromoShareRail } from '@/hooks/usePromoShareRail';
 import { Link } from 'react-router-dom';
@@ -6,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 
 export const GlobalTicketBalancePill: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const { t: webT } = useWebI18n();
   const { balances } = usePromoShareRail();
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -25,14 +27,14 @@ export const GlobalTicketBalancePill: React.FC<{ className?: string }> = ({ clas
 
         <span className="hidden sm:flex items-center gap-1 text-zinc-300 font-medium">
           <Gift className="w-3.5 h-3.5 text-emerald-400" />
-          <span>{balances.claimedPerksCount} Perks</span>
+          <span>{balances.claimedPerksCount} {webT("web.perks")}</span>
         </span>
 
         <span className="hidden sm:inline text-zinc-600">·</span>
 
         <span className="flex items-center gap-1 font-mono font-black text-purple-300 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-500/30">
           <Ticket className="w-3 h-3 text-purple-400" />
-          <span>{balances.promoShareSourceRecorded ? balances.promoShareTickets : '—'} Entries</span>
+          <span>{balances.promoShareSourceRecorded ? balances.promoShareTickets : '—'} {webT("web.entries")}</span>
         </span>
 
         <ChevronRight className="w-3 h-3 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
@@ -58,7 +60,7 @@ export const GlobalTicketBalancePill: React.FC<{ className?: string }> = ({ clas
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">PromoPoints</h4>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">{webT("give.kind.points")}</h4>
                   <p className="text-[11px] text-zinc-400">Progress recorded on your profile/card</p>
                 </div>
               </div>
@@ -71,7 +73,7 @@ export const GlobalTicketBalancePill: React.FC<{ className?: string }> = ({ clas
                   <Gift className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">Active Perks</h4>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">{webT("vaultPage.statActivePerks")}</h4>
                   <p className="text-[11px] text-zinc-400">Claimed entitlement · not the same as redemption</p>
                 </div>
               </div>
@@ -84,7 +86,7 @@ export const GlobalTicketBalancePill: React.FC<{ className?: string }> = ({ clas
                   <Ticket className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">PromoShare Entries</h4>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">{webT("stewardDashboard.labelEntries")}</h4>
                   <p className="text-[11px] text-purple-300">
                     {balances.promoShareSourceRecorded
                       ? 'Recorded chances in named PromoShare cycles'
@@ -112,7 +114,7 @@ export const GlobalTicketBalancePill: React.FC<{ className?: string }> = ({ clas
                   <p className="text-[11px] text-zinc-400">Recorded platform value · not a cash settlement</p>
                 </div>
               </div>
-              <span className="text-lg font-mono font-black text-blue-400">{balances.gems} Gems</span>
+              <span className="text-lg font-mono font-black text-blue-400">{balances.gems} {webT("wallet.gemsLabel")}</span>
             </div>
           </div>
 
@@ -132,7 +134,7 @@ export const GlobalTicketBalancePill: React.FC<{ className?: string }> = ({ clas
               className="border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs py-3 rounded-xl"
             >
               <Link to="/promoshare" onClick={() => setModalOpen(false)}>
-                <span>Open PromoShare</span>
+                <span>{webT("how.memberStep2Cta")}</span>
               </Link>
             </Button>
           </div>

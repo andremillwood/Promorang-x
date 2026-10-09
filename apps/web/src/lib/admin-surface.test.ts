@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { translations } from "@/i18n/translations";
 import { AFTRHRS_MOMENT_ID, AFTRHRS_PATHS } from "@promorang/shared";
 import {
   ADMIN_AFTRHRS_TAB_HREF,
@@ -34,7 +35,8 @@ describe("admin surface helpers", () => {
     expect(app).toContain('Navigate to="/admin?tab=aftrhrs"');
     expect(moments).toContain("ADMIN_AFTRHRS_TAB_HREF");
     expect(moments).toContain("RSVPs");
-    expect(layout).toContain("AftrHrs RSVPs");
+    expect(layout).toContain('webT("web.aftrHrsRsvps")');
+    expect(translations.en["web.aftrHrsRsvps"]).toBe("AftrHrs RSVPs");
     expect(dashboard).toContain("AdminMobileToolSwitch");
   });
 });

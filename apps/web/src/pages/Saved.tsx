@@ -26,6 +26,7 @@ const emptyCollections: SavedCollection[] = [
 ];
 
 const Saved = () => {
+  const { t: webT } = useI18n();
     const { t } = useI18n();
     const { toast } = useToast();
     const { user } = useAuth();
@@ -153,7 +154,7 @@ const Saved = () => {
                                 <div>
                                     <h2 className="font-bold text-white">Saved Moments are unavailable.</h2>
                                     <p className="mt-1 text-sm leading-6 text-white/55">PROMORANG could not read your saved-moment ledger, so this page is not treating the failure as an empty collection.</p>
-                                    <button type="button" onClick={() => void savedQuery.refetch()} className="mt-3 text-sm font-bold text-orange-300 hover:text-orange-200">Try again</button>
+                                    <button type="button" onClick={() => void savedQuery.refetch()} className="mt-3 text-sm font-bold text-orange-300 hover:text-orange-200">{webT("release.18")}</button>
                                 </div>
                             </div>
                         </div>

@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import SEO from "@/components/SEO";
@@ -93,6 +94,7 @@ interface PublicMomentDirectoryRow {
 }
 
 export default function VenueProfile() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { slug = "" } = useParams<{ slug: string }>();
 
@@ -364,7 +366,7 @@ export default function VenueProfile() {
                   {discoveries.map((discovery: any) => (
                     <Link key={discovery.id} to={`/discoveries/${discovery.slug}`} className="group overflow-hidden rounded-3xl border border-border bg-card">
                       <div className="aspect-[4/3] overflow-hidden bg-muted">{discovery.cover_image ? <img src={discovery.cover_image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <div className="grid h-full place-items-center"><MapPin className="h-8 w-8 text-muted-foreground/40"/></div>}</div>
-                      <div className="p-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{discovery.category || "Discovery"}</p><h3 className="mt-2 text-xl font-black text-foreground">{discovery.title}</h3><p className="mt-2 text-xs text-muted-foreground">{[discovery.city, discovery.country].filter(Boolean).join(", ")}</p></div>
+                      <div className="p-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{discovery.category || webT("sceneDetail.discovery")}</p><h3 className="mt-2 text-xl font-black text-foreground">{discovery.title}</h3><p className="mt-2 text-xs text-muted-foreground">{[discovery.city, discovery.country].filter(Boolean).join(", ")}</p></div>
                     </Link>
                   ))}
                 </div>
@@ -375,7 +377,7 @@ export default function VenueProfile() {
               <section id="place-merchants">
                 <div className="mb-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available here</p><h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Merchants connected to this place</h2></div>
                 <div className="grid gap-3 md:grid-cols-2">
-                  {merchantsAtVenue.map((merchant) => <Link key={merchant.merchant_user_id} to={`/storefront/${merchant.merchant_user_id}`} className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5"><div><p className="text-sm font-black text-foreground">{merchant.merchant_name || "Local merchant"}</p><p className="mt-1 text-xs text-muted-foreground">See what they have available.</p></div><ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1"/></Link>)}
+                  {merchantsAtVenue.map((merchant) => <Link key={merchant.merchant_user_id} to={`/storefront/${merchant.merchant_user_id}`} className="group flex items-center justify-between rounded-2xl border border-border bg-card p-5"><div><p className="text-sm font-black text-foreground">{merchant.merchant_name || webT("storefront.local")}</p><p className="mt-1 text-xs text-muted-foreground">See what they have available.</p></div><ArrowRight className="h-4 w-4 text-primary transition group-hover:translate-x-1"/></Link>)}
                 </div>
               </section>
             ) : null}
@@ -415,13 +417,13 @@ export default function VenueProfile() {
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {listing.category ? <Badge variant="secondary" className="capitalize">{listing.category}</Badge> : null}
-                          {listing.points_cost ? <Badge variant="secondary">{listing.points_cost} pts</Badge> : null}
+                          {listing.points_cost ? <Badge variant="secondary">{listing.points_cost} {webT("web.pts")}</Badge> : null}
                         </div>
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-lg font-bold text-foreground">
                             {typeof listing.price === "number"
-                              ? new Intl.NumberFormat(undefined, { style: "currency", currency: listing.currency || "USD" }).format(listing.price)
-                              : "Open"}
+                              ? new Intl.NumberFormat(currentUiLocale(), { style: "currency", currency: listing.currency || "USD" }).format(listing.price)
+                              : webT("auth.open")}
                           </p>
                           {listing.booking_url ? (
                             <Button asChild size="sm">
@@ -432,7 +434,7 @@ export default function VenueProfile() {
                             </Button>
                           ) : (
                             <Button asChild size="sm" variant="outline">
-                              <Link to={`/shop/${encodeURIComponent(listing.listing_id || listing.source_id || "")}`}>View</Link>
+                              <Link to={`/shop/${encodeURIComponent(listing.listing_id || listing.source_id || "")}`}>{webT("web.view")}</Link>
                             </Button>
                           )}
                         </div>
@@ -449,7 +451,7 @@ export default function VenueProfile() {
 
             {Array.isArray(venue.images) && venue.images.length > 0 ? (
               <section className="mb-10">
-                <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">Place</h2>
+                <h2 className="mb-5 text-2xl font-black uppercase tracking-[-0.035em] text-foreground">{webT("launch.place")}</h2>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {venue.images.slice(0, 6).map((image, index) => {
                     const url = typeof image === "string" ? image : image.url;

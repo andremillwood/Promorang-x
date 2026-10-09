@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Calendar, Handshake, Radio, ShieldCheck, BarChart3, Vote, Plus } from "lucide-react";
@@ -13,6 +14,7 @@ import HostSponsorshipConsole from "@/components/host/HostSponsorshipConsole";
 import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
 
 export function HostDashboardV2() {
+  const { t: webT } = useWebI18n();
   const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "moments";
@@ -37,15 +39,15 @@ export function HostDashboardV2() {
     { id: "demand", label: "Audience demand", hint: "What people want to do", icon: Vote, count: "Listen" },
     {
       id: "moments",
-      label: "Moments",
+      label: webT("findOrAsk.moments"),
       hint: "Create and manage experiences",
       icon: Calendar,
       count: momentsLoading ? "Checking" : `${momentCount} ${momentCount === 1 ? "Moment" : "Moments"}`,
     },
     { id: "pulse", label: "Live arrivals", hint: "Open the Door Board", icon: Radio, count: "Operate" },
-    { id: "review", label: "Proof review", hint: "Verify participation", icon: ShieldCheck, count: "Review" },
-    { id: "sponsorships", label: "Sponsors", hint: "Brand support for Moments", icon: Handshake, count: "Manage" },
-    { id: "impact", label: "Results", hint: "Attendance and return", icon: BarChart3, count: "Learn" },
+    { id: "review", label: webT("hostDash.proofReview"), hint: "Verify participation", icon: ShieldCheck, count: "Review" },
+    { id: "sponsorships", label: webT("pricing.lineSponsorsPayer"), hint: "Brand support for Moments", icon: Handshake, count: "Manage" },
+    { id: "impact", label: webT("lens.agency.activity"), hint: "Attendance and return", icon: BarChart3, count: "Learn" },
   ];
 
   return (
@@ -62,7 +64,7 @@ export function HostDashboardV2() {
           <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
             <Link to="/create/moment">
               <Plus className="mr-2 h-4 w-4" />
-              Create a Moment
+              {webT("how.creatorStep1Cta")}
             </Link>
           </Button>
         </div>
@@ -100,12 +102,12 @@ export function HostDashboardV2() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="sr-only">
-          <TabsTrigger value="demand">Demand</TabsTrigger>
-          <TabsTrigger value="moments">Moments</TabsTrigger>
+          <TabsTrigger value="demand">{webT("lens.demand")}</TabsTrigger>
+          <TabsTrigger value="moments">{webT("findOrAsk.moments")}</TabsTrigger>
           <TabsTrigger value="pulse">Live arrivals</TabsTrigger>
-          <TabsTrigger value="review">Proof review</TabsTrigger>
-          <TabsTrigger value="sponsorships">Sponsors</TabsTrigger>
-          <TabsTrigger value="impact">Results</TabsTrigger>
+          <TabsTrigger value="review">{webT("hostDash.proofReview")}</TabsTrigger>
+          <TabsTrigger value="sponsorships">{webT("pricing.lineSponsorsPayer")}</TabsTrigger>
+          <TabsTrigger value="impact">{webT("lens.agency.activity")}</TabsTrigger>
         </TabsList>
         <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="host" /></TabsContent>
         <TabsContent value="moments" className="mt-0"><HostMomentsStagingConsole /></TabsContent>

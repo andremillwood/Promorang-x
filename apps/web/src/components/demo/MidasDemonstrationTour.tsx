@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import {
@@ -74,6 +75,7 @@ export const DEMO_STEPS = [
 ];
 
 export function MidasDemonstrationTour() {
+  const { t: webT } = useWebI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const [active, setActive] = useState(false);
@@ -157,7 +159,7 @@ export function MidasDemonstrationTour() {
             </span>
             <span className="text-stone-500 text-xs">/</span>
             <span className="text-xs font-mono text-[#ffcf38] font-bold">
-              Step {currentStep.step} of {DEMO_STEPS.length}
+              {webT("web.step")} {currentStep.step} {webT("web.of")} {DEMO_STEPS.length}
             </span>
           </div>
 
@@ -236,7 +238,7 @@ export function MidasDemonstrationTour() {
             className="px-3.5 py-2 rounded-sm bg-[#ffffff08] hover:bg-[#ffffff15] text-stone-300 hover:text-white text-xs font-mono font-bold uppercase transition-colors flex items-center gap-1.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{currentStepIdx === 0 ? 'Proposal' : 'Back'}</span>
+            <span>{currentStepIdx === 0 ? 'Proposal' : webT("common.back")}</span>
           </button>
 
           <button

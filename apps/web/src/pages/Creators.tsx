@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { 
@@ -20,6 +21,7 @@ import { ThingsWorthSharingFeed } from "@/components/creator/ThingsWorthSharingF
 import { GlobalTicketBalancePill } from "@/components/promoshare/GlobalTicketBalancePill";
 
 export default function Creators() {
+  const { t: webT } = useWebI18n();
   const [searchQuery, setSearchQuery] = useState("");
 
   const creatorsQuery = useQuery({
@@ -75,7 +77,7 @@ export default function Creators() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Badge className="bg-purple-500 text-white font-black text-xs uppercase tracking-widest border-none px-3.5 py-1">
-                  Creators → Distribute
+                  {webT("discover.shareCreators")}
                 </Badge>
                 <GlobalTicketBalancePill />
               </div>
@@ -141,7 +143,7 @@ export default function Creators() {
             <AlertTriangle className="mx-auto h-8 w-8 text-amber-300" />
             <h3 className="mt-4 text-xl font-black">Creator directory unavailable</h3>
             <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/50">We couldn’t load creators right now. Try again in a moment.</p>
-            <button type="button" onClick={() => void creatorsQuery.refetch()} className="mt-4 text-sm font-bold text-purple-300 hover:text-purple-200">Try again</button>
+            <button type="button" onClick={() => void creatorsQuery.refetch()} className="mt-4 text-sm font-bold text-purple-300 hover:text-purple-200">{webT("release.18")}</button>
           </div>
         ) : filteredCreators.length ? (
           <div className="grid gap-6 md:grid-cols-2">
@@ -161,7 +163,7 @@ export default function Creators() {
 
                 <div className="space-y-2 flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">Creator</p>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">{webT("lens.creator.workspace")}</p>
                     {creator.location && (
                       <span className="text-[10px] text-white/40">{creator.location}</span>
                     )}
@@ -194,9 +196,9 @@ export default function Creators() {
       {/* Continue through the public object graph */}
       <section className="border-y border-white/10 bg-white/[.02]">
         <div className="grid gap-px bg-white/10 md:grid-cols-3">
-          <Link to="/discover" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Discover</p><h3 className="mt-3 font-serif text-2xl font-bold">Find something worth moving.</h3><p className="mt-2 text-sm text-white/45">Start with a signal, question, drop or local discovery.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
-          <Link to="/discover?tab=moments" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Moments</p><h3 className="mt-3 font-serif text-2xl font-bold">Move people somewhere real.</h3><p className="mt-2 text-sm text-white/45">Find public activity with a place, time and action.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
-          <Link to="/scenes" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">Scenes</p><h3 className="mt-3 font-serif text-2xl font-bold">Enter the culture around it.</h3><p className="mt-2 text-sm text-white/45">Follow recurring communities, rituals and places.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
+          <Link to="/discover" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">{webT("publicNav.discover")}</p><h3 className="mt-3 font-serif text-2xl font-bold">Find something worth moving.</h3><p className="mt-2 text-sm text-white/45">Start with a signal, question, drop or local discovery.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
+          <Link to="/discover?tab=moments" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">{webT("findOrAsk.moments")}</p><h3 className="mt-3 font-serif text-2xl font-bold">Move people somewhere real.</h3><p className="mt-2 text-sm text-white/45">Find public activity with a place, time and action.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
+          <Link to="/scenes" className="group bg-black p-7"><p className="text-[10px] font-black uppercase tracking-[.2em] text-purple-400">{webT("publicHome.filterScenes")}</p><h3 className="mt-3 font-serif text-2xl font-bold">Enter the culture around it.</h3><p className="mt-2 text-sm text-white/45">Follow recurring communities, rituals and places.</p><ArrowRight className="mt-6 h-4 w-4 transition group-hover:translate-x-1"/></Link>
         </div>
       </section>
 

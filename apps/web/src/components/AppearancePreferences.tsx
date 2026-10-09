@@ -20,6 +20,7 @@ const themeOptions: Array<{ value: Theme; labelKey: "theme.light" | "theme.dark"
 ];
 
 export const AppearancePreferences = ({ className }: { className?: string }) => {
+  const { t: webT } = useI18n();
   const { locale, setLocale, t } = useI18n();
   const { theme, setTheme } = useTheme();
   const { user, roles, activeRole } = useAuth();
@@ -144,12 +145,12 @@ export const AppearancePreferences = ({ className }: { className?: string }) => 
         <div className="border-t border-border pt-6">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-foreground">Start page after sign-in</p>
+              <p className="text-sm font-semibold text-foreground">{webT("web.startPage")}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Choose where Promorang opens. Role-specific workspaces are shown only for roles assigned to your account.
+                {webT("web.chooseStart")}
               </p>
             </div>
-            {savingLandingPage && <Loader2 className="h-4 w-4 animate-spin text-primary" aria-label="Saving start page" />}
+            {savingLandingPage && <Loader2 className="h-4 w-4 animate-spin text-primary" aria-label={webT("web.savingStart")} />}
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             {landingPageOptions.map((option) => {

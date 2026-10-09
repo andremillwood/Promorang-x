@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useLocation } from "react-router-dom";
 import { Bookmark, Archive, Home, MapPin, Search, WalletCards } from "lucide-react";
 import { ContentProvenanceBadge } from "@/components/content/ContentProvenance";
@@ -74,6 +75,7 @@ export function ExperienceCard({ event, compact = false }: { event: CultureEvent
 }
 
 export function SceneCard({ scene }: { scene: Scene }) {
+  const { t: webT } = useWebI18n();
   return (
     <Link to={`/scenes/${scene.slug}`} className="group block">
       <article className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] transition hover:border-primary/50">
@@ -93,11 +95,11 @@ export function SceneCard({ scene }: { scene: Scene }) {
           </div>
           <div>
             <p className="text-lg font-black text-white">{scene.momentsHosted}</p>
-            <p className="text-[10px] text-white/50">Moments</p>
+            <p className="text-[10px] text-white/50">{webT("findOrAsk.moments")}</p>
           </div>
           <div>
             <p className="text-lg font-black text-white">{scene.checkIns}</p>
-            <p className="text-[10px] text-white/50">Check-ins</p>
+            <p className="text-[10px] text-white/50">{webT("momentsAppPage.checkIns")}</p>
           </div>
         </div>
       </article>
@@ -108,6 +110,7 @@ export function SceneCard({ scene }: { scene: Scene }) {
 export const CommunityCard = ({ community }: { community: Scene }) => <SceneCard scene={community} />;
 
 export function CreatorCard({ creator }: { creator: Creator }) {
+  const { t: webT } = useWebI18n();
   return (
     <Link to={`/creators/${creator.handle}`} className="group block">
       <article className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] transition hover:border-primary/50">
@@ -127,15 +130,15 @@ export function CreatorCard({ creator }: { creator: Creator }) {
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <div>
               <p className="font-black text-white">{creator.followers}</p>
-              <p className="text-[10px] text-white/45">Followers</p>
+              <p className="text-[10px] text-white/45">{webT("creatorProfile.followers")}</p>
             </div>
             <div>
               <p className="font-black text-white">{creator.events}</p>
-              <p className="text-[10px] text-white/45">Events</p>
+              <p className="text-[10px] text-white/45">{webT("discover.nounMoments")}</p>
             </div>
             <div>
               <p className="font-black text-white">{creator.checkIns}</p>
-              <p className="text-[10px] text-white/45">Check-ins</p>
+              <p className="text-[10px] text-white/45">{webT("momentsAppPage.checkIns")}</p>
             </div>
           </div>
         </div>
@@ -145,12 +148,13 @@ export function CreatorCard({ creator }: { creator: Creator }) {
 }
 
 export function MobileBottomNav() {
+  const { t: webT } = useWebI18n();
   const location = useLocation();
   const items = [
-    { label: "Today", icon: Home, href: "/today" },
-    { label: "Discover", icon: Search, href: "/discover" },
-    { label: "Card", icon: WalletCards, href: "/card" },
-    { label: "Vault", icon: Archive, href: "/vault" },
+    { label: webT("lens.today"), icon: Home, href: "/today" },
+    { label: webT("publicNav.discover"), icon: Search, href: "/discover" },
+    { label: webT("lens.card"), icon: WalletCards, href: "/card" },
+    { label: webT("how.layer3Link3"), icon: Archive, href: "/vault" },
   ];
 
   return (

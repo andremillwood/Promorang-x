@@ -44,6 +44,7 @@ type ClientCampaign = {
 };
 
 const AgencyDashboard = () => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState("clients");
   const { agencyClients, organizations, activeOrgId, setActiveOrgId, setActiveRole, refreshWorkspaceContext } = useAuth();
@@ -191,7 +192,7 @@ const AgencyDashboard = () => {
               <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Managed Accounts</h3>
             </div>
             <Badge className="border border-primary/20 bg-primary/10 text-primary">
-              {agencyClients.length} active
+              {agencyClients.length} {webT("web.activeLower")}
             </Badge>
           </div>
 
@@ -254,7 +255,7 @@ const AgencyDashboard = () => {
                           } catch (error: unknown) {
                             toast({
                               title: "Disconnect failed",
-                              description: error instanceof Error ? error.message : "Try again.",
+                              description: error instanceof Error ? error.message : webT("web.tryAgainShort"),
                               variant: "destructive",
                             });
                           }

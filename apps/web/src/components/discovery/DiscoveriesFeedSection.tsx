@@ -17,6 +17,7 @@ import { filterDiscoveryPollsForHub, mergeDiscoveryPolls } from "@/lib/discovery
 import { useI18n } from "@/i18n/I18nContext";
 
 export function DiscoveriesFeedSection() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { user } = useAuth();
   const { city } = useMarket();
@@ -102,7 +103,7 @@ export function DiscoveriesFeedSection() {
               {demandSignals.slice(0, 6).map((poll) => (
                 <article key={poll.id} className="rounded-[1.6rem] border border-white/10 bg-white/[0.025] p-5 sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <Badge variant="outline" className="border-purple-300/20 bg-purple-300/5 text-[10px] font-black uppercase tracking-[0.14em] text-purple-200"><Radio className="mr-1 h-3 w-3" />Demand</Badge>
+                    <Badge variant="outline" className="border-purple-300/20 bg-purple-300/5 text-[10px] font-black uppercase tracking-[0.14em] text-purple-200"><Radio className="mr-1 h-3 w-3" />{webT("lens.demand")}</Badge>
                     <span className="text-[10px] font-bold text-white/35">{poll.totalVotes} recorded vote{poll.totalVotes === 1 ? "" : "s"}</span>
                   </div>
                   <h3 className="mt-4 font-serif text-2xl font-bold leading-tight text-white">{poll.question}</h3>
@@ -111,7 +112,7 @@ export function DiscoveriesFeedSection() {
                     {poll.options.slice(0, 5).map((option) => {
                       const key = `${poll.id}:${option.id}`;
                       const recorded = poll.userVotedOptionId === option.id;
-                      return <button key={option.id} type="button" disabled={Boolean(votingKey || poll.userVotedOptionId)} onClick={() => castVote(poll, option.id)} className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-left transition hover:border-primary/40 disabled:opacity-50"><span className="text-xs font-bold text-white/75">{option.text}</span><span className="shrink-0 text-[10px] font-black text-primary">{votingKey === key ? "Recording…" : recorded ? `Your vote · ${option.votes}` : `${option.votes} vote${option.votes === 1 ? "" : "s"}`}</span></button>;
+                      return <button key={option.id} type="button" disabled={Boolean(votingKey || poll.userVotedOptionId)} onClick={() => castVote(poll, option.id)} className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-left transition hover:border-primary/40 disabled:opacity-50"><span className="text-xs font-bold text-white/75">{option.text}</span><span className="shrink-0 text-[10px] font-black text-primary">{votingKey === key ? webT("web.recording") : recorded ? `Your vote · ${option.votes}` : `${option.votes} vote${option.votes === 1 ? "" : "s"}`}</span></button>;
                     })}
                   </div>
                   <div className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-[10px] leading-4 text-white/35"><ShieldCheck className="h-3.5 w-3.5 shrink-0 text-purple-300" />Vote ≠ attendance · threshold ≠ guaranteed supply · demand ≠ offer</div>
@@ -140,7 +141,7 @@ export function DiscoveriesFeedSection() {
                     <h3 className="mt-2 font-serif text-2xl font-bold text-white transition group-hover:text-primary">{item.title}</h3>
                     <p className="mt-2 flex items-start gap-1.5 text-xs text-white/45"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />{discoveryLocation(item)}</p>
                     {item.description ? <p className="mt-3 line-clamp-2 text-xs leading-5 text-white/55">{item.description}</p> : null}
-                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-[10px] text-white/35"><span>{item.checkin_count > 0 ? `${item.checkin_count} recorded check-in${item.checkin_count === 1 ? "" : "s"}` : "Approved listing"}</span><span className="flex items-center gap-1 font-bold text-primary">Open <ArrowRight className="h-3 w-3" /></span></div>
+                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-[10px] text-white/35"><span>{item.checkin_count > 0 ? `${item.checkin_count} recorded check-in${item.checkin_count === 1 ? "" : "s"}` : "Approved listing"}</span><span className="flex items-center gap-1 font-bold text-primary">{webT("auth.open")} <ArrowRight className="h-3 w-3" /></span></div>
                   </div>
                 </Link>
               ))}
@@ -153,7 +154,7 @@ export function DiscoveriesFeedSection() {
 
       <footer className="grid gap-3 border-t border-white/10 bg-white/[0.02] p-5 text-xs text-white/45 sm:grid-cols-[1fr_auto] sm:items-center sm:px-7 lg:px-9">
         <p><strong className="text-white/70">Canonical market chain:</strong> Discovery → Interest → Scene → Moment / Offer / Person → Action.</p>
-        <Link to="/scenes" className="inline-flex items-center gap-2 font-bold text-primary">Explore Scenes <ArrowRight className="h-3.5 w-3.5" /></Link>
+        <Link to="/scenes" className="inline-flex items-center gap-2 font-bold text-primary">{webT("launch.explore")} <ArrowRight className="h-3.5 w-3.5" /></Link>
       </footer>
     </section>
   );

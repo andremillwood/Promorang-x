@@ -38,6 +38,7 @@ const exampleMoments = demoMoments.slice(0, 3).map((moment) => ({
 }));
 
 const SignedInExploreMoments = () => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -110,7 +111,7 @@ const SignedInExploreMoments = () => {
           return [
             href || moment.location,
             {
-              label: [moment.city, moment.country].filter(Boolean).join(", ") || moment.location || "Location",
+              label: [moment.city, moment.country].filter(Boolean).join(", ") || moment.location || webT("promoPushCareersPage.labelLocation"),
               href,
             },
           ];
@@ -129,7 +130,7 @@ const SignedInExploreMoments = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Explore Moments"
+        title={webT("galleryPage.exploreMoments")}
         description="Browse upcoming moments, public activations, and linked content across Promorang."
         url={getSiteUrl("/explore/moments")}
         schema={{
@@ -248,8 +249,8 @@ const SignedInExploreMoments = () => {
             </div>
             <div className="flex flex-wrap items-center gap-2 rounded-full border border-border bg-card p-1 shadow-sm">
               {[
-                { value: "current", label: "Now & next", icon: Sparkles },
-                { value: "recurring", label: "Recurring", icon: Repeat2 },
+                { value: "current", label: webT("web.nowNext"), icon: Sparkles },
+                { value: "recurring", label: webT("exploreMoments.recurring"), icon: Repeat2 },
                 { value: "examples", label: "Examples", icon: BookOpen },
               ].map((mode) => {
                 const Icon = mode.icon;
@@ -312,8 +313,8 @@ const SignedInExploreMoments = () => {
               <div role="alert" className="rounded-3xl border border-amber-500/25 bg-amber-500/5 px-6 py-12 text-center">
                 <Clock className="mx-auto h-8 w-8 text-amber-500" />
                 <h3 className="mt-4 text-2xl font-black">We can’t confirm the live calendar right now</h3>
-                <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">Try again in a moment.</p>
-                <Button className="mt-5" variant="outline" onClick={() => momentsQuery.refetch()}>Try again</Button>
+                <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">{webT("release.58")}</p>
+                <Button className="mt-5" variant="outline" onClick={() => momentsQuery.refetch()}>{webT("release.18")}</Button>
               </div>
             ) : filteredMoments.length > 0 ? (
               <div className="space-y-9">
@@ -340,7 +341,7 @@ const SignedInExploreMoments = () => {
                 <h3 className="mt-5 text-2xl font-black tracking-[-0.035em]">Nothing matches that filter yet</h3>
                 <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">Clear the search or choose another interest to see more of what is forming.</p>
                 <Button className="mt-6" variant="outline" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}>
-                  Clear filters
+                  {webT("directory.clear")}
                 </Button>
               </div>
             ) : (
@@ -354,7 +355,7 @@ const SignedInExploreMoments = () => {
                 </div>
                 <div className="flex flex-wrap justify-center gap-3">
                   <Button variant="outline" onClick={() => setMomentMode("examples")}><BookOpen className="mr-2 h-4 w-4" />View labeled examples</Button>
-                  <Button asChild><Link to="/create/moment">Create a Moment <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+                  <Button asChild><Link to="/create/moment">{webT("how.creatorStep1Cta")} <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
                 </div>
               </section>
             )}
@@ -365,11 +366,11 @@ const SignedInExploreMoments = () => {
               <Button asChild variant="outline">
                 <Link to="/explore/venues">
                   <MapPin className="mr-2 h-4 w-4" />
-                  Browse venues
+                  {webT("explorePage.secPlacesCta")}
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/explore/rewards">Browse rewards</Link>
+                <Link to="/explore/rewards">{webT("explorePage.secRewardsCta")}</Link>
               </Button>
             </div>
           ) : null}
@@ -388,7 +389,7 @@ const SignedInExploreMoments = () => {
                   </Button>
                 ))}
                 <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link to="/explore/content">Content</Link>
+                  <Link to="/explore/content">{webT("explorePage.secContentTitle")}</Link>
                 </Button>
               </div>
               {featuredLocations.length > 0 ? (
@@ -406,7 +407,7 @@ const SignedInExploreMoments = () => {
               <div className="rounded-[1.5rem] border border-border bg-card/80 p-5 shadow-soft">
                 <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Linked content</p>
+                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{webT("locationArchivePage.storiesTitle")}</p>
                     <h2 className="mt-2 text-xl font-black tracking-[-0.03em] text-foreground">Media with a moment path</h2>
                     <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                       Content belongs here when it points people toward a place, activity or next move.

@@ -135,6 +135,7 @@ export type WorldInvitationCopy = {
 
 /** Loud about what to do and why it pays. Quiet about invented scores. */
 export function WorldInvitationCard({ invitation }: { invitation: WorldInvitationCopy }) {
+  const { t: webT } = useI18n();
   const to = useExperiencePath();
   return (
     <section className="pr-world-panel pr-world-panel--signal overflow-hidden p-6 sm:p-8">
@@ -163,7 +164,7 @@ export function WorldInvitationCard({ invitation }: { invitation: WorldInvitatio
           {invitation.nextLabel}
         </Link>
         <Link to={to("/crews")} className="pr-world-chip">
-          Form a Crew
+          {webT("crews.form")}
         </Link>
       </div>
     </section>

@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState } from "react";
 import type { TranslationKey } from "@/i18n/translations";
 import { Archive, ArrowRight, CalendarDays, Dumbbell, MapPin, MoonStar, Music2, Palette, Radio, ShieldCheck, UtensilsCrossed, Users } from "lucide-react";
@@ -39,7 +40,7 @@ import openMic from "@/assets/moments/open-mic.jpg";
 import coffeeCode from "@/assets/moments/coffee-code.jpg";
 import concert from "@/assets/moment-concert.jpg";
 
-const money = (value: number) => value ? `J$${Math.round(value).toLocaleString()}` : "J$0";
+const money = (value: number) => value ? `J$${Math.round(value).toLocaleString(currentUiLocale())}` : "J$0";
 const OPERATOR_GUIDE_OPEN_KEY = "promorang.operator-guide-open";
 const operatorGuideStartsOpen = () => {
   try {
@@ -89,6 +90,7 @@ const stakeholderStages: Record<string, { kicker: string; title: string; cardLin
 const imageForMoment = (moment: { image_url?: string | null; image?: string | null; banner_image_url?: string | null } | null) => moment?.image_url || moment?.image || moment?.banner_image_url || null;
 
 export default function PeopleHome() {
+  const { t: webT } = useI18n();
   const [operatorGuideOpen, setOperatorGuideOpen] = useState(operatorGuideStartsOpen);
   const { t, locale } = useI18n();
   const { user, profile, activeRole, roles } = useAuth();
@@ -162,7 +164,7 @@ export default function PeopleHome() {
     nearbyCount: data?.card?.nearby?.length || 0,
     nextBenefitTitle: data?.card?.nextBenefit?.title,
     latestReturn: world?.latestReturn?.heading,
-    latestReturnAt: world?.latestMemory?.issuedAt ? new Date(world.latestMemory.issuedAt).toLocaleDateString() : undefined,
+    latestReturnAt: world?.latestMemory?.issuedAt ? new Date(world.latestMemory.issuedAt).toLocaleDateString(currentUiLocale()) : undefined,
     sceneMark: world?.promoCard?.sceneMark,
     crewMark: world?.promoCard?.crewMark,
     recordedUse: Boolean(data?.card?.useThis?.redemption?.recorded),
@@ -320,7 +322,7 @@ export default function PeopleHome() {
               <p className="mt-5 max-w-xl text-sm leading-6 text-white/68 sm:text-base"><strong className="font-black text-white">{nextMove.label}</strong><br />{lens.promise}</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link to={to(nextMove.href)} className="inline-flex min-h-12 items-center gap-8 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20]">{nextMove.label} <ArrowRight className="h-4 w-4" /></Link>
-                <Link to={to("/card")} className="inline-flex min-h-12 items-center gap-8 rounded-md border border-[#d8ad54]/60 bg-black/35 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
+                <Link to={to("/card")} className="inline-flex min-h-12 items-center gap-8 rounded-md border border-[#d8ad54]/60 bg-black/35 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10">{webT("web.openPromoCard")} <ArrowRight className="h-4 w-4" /></Link>
               </div>
             </div>
           </div>
@@ -344,7 +346,7 @@ export default function PeopleHome() {
         <div className="flex items-end justify-between gap-4"><div><p className="pr-world-kicker">Working context</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Your work right now.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">What you can put in, what has been recorded, and where your work can create movement.</p></div>
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_.8fr_.8fr]">
           <StakeholderPutInPass role={lensRole} />
-          {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(claimed), strong: true }]} footer={ticker} /> : <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.025] p-6"><ShieldCheck className="h-5 w-5 text-white/35" /><p className="mt-8 pr-world-kicker">Evidence</p><h3 className="mt-2 font-serif text-2xl font-bold">Nothing verified yet.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your receipt appears only after recorded activity. Empty remains empty.</p></div>}
+          {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(claimed), strong: true }]} footer={ticker} /> : <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.025] p-6"><ShieldCheck className="h-5 w-5 text-white/35" /><p className="mt-8 pr-world-kicker">{webT("commercial.evidence.78")}</p><h3 className="mt-2 font-serif text-2xl font-bold">Nothing verified yet.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your receipt appears only after recorded activity. Empty remains empty.</p></div>}
           <Link to={primaryScene ? `/scenes/${primaryScene.slug}` : "/discover"} className="group relative min-h-[245px] overflow-hidden rounded-2xl border border-white/10 bg-black">
             <img src={streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-5"><p className="pr-world-kicker">World context</p><h3 className="mt-2 font-serif text-2xl font-bold">{primaryScene?.title || "Find the Scene this work should move."}</h3><p className="mt-2 text-xs leading-5 text-white/45">{lens.world.meaning}</p></div>
           </Link>
@@ -352,7 +354,7 @@ export default function PeopleHome() {
       </section>
 
       <section aria-labelledby="live-signals"><p className="pr-world-kicker">Results so far</p><h2 id="live-signals" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What your work has moved.</h2><div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">{[["People reached", Number(data?.people || 0)], ["On PromoCards", claimed], ["Verified actions", verified]].map(([label, value]) => <div key={String(label)} className="bg-[#0d0d0e] p-6"><p className="font-['Anton'] text-5xl text-white">{value}</p><p className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff7a35]">{label}</p></div>)}</div></section>
-      <section className="space-y-4"><div className="flex items-center justify-between"><div><p className="pr-world-kicker">Demand</p><h2 className="mt-2 font-serif text-3xl font-bold">{t("people.whatTheyAsked")}</h2></div><Users className="h-5 w-5 text-[#ff5a1f]" /></div><DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" /></section>
+      <section className="space-y-4"><div className="flex items-center justify-between"><div><p className="pr-world-kicker">{webT("lens.demand")}</p><h2 className="mt-2 font-serif text-3xl font-bold">{t("people.whatTheyAsked")}</h2></div><Users className="h-5 w-5 text-[#ff5a1f]" /></div><DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" /></section>
 
       {data?.perks?.length ? <section className="space-y-3"><p className="pr-world-kicker">Live inventory</p><h2 className="font-serif text-3xl font-bold">{t("people.perksYouCanGive")}</h2><div className="grid gap-3 md:grid-cols-2">{data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => <Link key={perk.id} to={to("/give")}><TicketPass kicker={perk.source === "yours" ? t("people.yours") : t("people.available")} title={perk.title} detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")} stub="DROP" stubLabel="Perk" /></Link>)}</div></section> : null}
 

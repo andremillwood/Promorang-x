@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React from 'react';
 import { Users, Calendar, Sparkles, ArrowRight } from 'lucide-react';
 
@@ -30,6 +31,7 @@ export const SceneCard: React.FC<SceneProps> = ({
   onJoinToggle,
   onExplore
 }) => {
+  const { t: webT } = useWebI18n();
   return (
     <div className="group relative rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
       {/* Background Image Container with Overlay */}
@@ -79,7 +81,7 @@ export const SceneCard: React.FC<SceneProps> = ({
               <Calendar className="w-3 h-3 mr-1" />
               {activeMomentsCount}
             </div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Moments</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">{webT("findOrAsk.moments")}</div>
           </div>
 
           <div>
@@ -87,7 +89,7 @@ export const SceneCard: React.FC<SceneProps> = ({
               <Sparkles className="w-3.5 h-3.5 mr-1" />
               {activeDiscoveriesCount}
             </div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Discoveries</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">{webT("findOrAsk.discoveries")}</div>
           </div>
 
           <div>

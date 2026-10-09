@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Link, NavLink, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, LockKeyhole, Users } from 'lucide-react';
@@ -10,8 +11,9 @@ import { ActionButton, dateLabel, GoalTrail, MoveBoard, proofForm, Rhythm, Roles
 import type { CommunityAction, CommunityWorkspaceData } from '@/types/community';
 
 function CommunityShell({ children }: { children: ReactNode }) {
+  const { t: webT } = useWebI18n();
   return <div className="experience-shell min-h-screen bg-[#0D0D0E] text-white selection:bg-orange-400/30">
-    <SEO title="Community" description="A private place for Promorang members to create, contribute, and grow together." noindex />
+    <SEO title={webT("participantsPage.community")} description="A private place for Promorang members to create, contribute, and grow together." noindex />
     <a href="#community-content" className="sr-only z-50 focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:rounded-lg focus:bg-orange-300 focus:p-3 focus:text-black">Skip to community content</a>
     {children}
   </div>;
@@ -21,6 +23,7 @@ function Waiting({ title, children }: { title: string; children: ReactNode }) {
     <LockKeyhole className="mb-6 h-9 w-9 text-orange-300" /><p className="text-xs font-semibold uppercase tracking-[.22em] text-orange-300">Promorang Community</p><h1 className="mt-4 font-serif text-4xl font-bold">{title}</h1><div className="mt-6 space-y-6 text-sm leading-7 text-white/75">{children}</div></main></CommunityShell>;
 }
 export default function CommunityPortal() {
+  const { t: webT } = useWebI18n();
   const { tab = 'today' } = useParams();
   const access = useCommunityAccess();
   const workspace = useCommunityWorkspace(access.data?.membership?.status === 'active' && !access.isError);
@@ -33,7 +36,7 @@ export default function CommunityPortal() {
     catch (e) { setApplicationError(e instanceof Error ? e.message : 'Your request could not be sent.'); }
   }
   if (access.isLoading) return <Waiting title="Finding your place…"><p role="status">Checking your community membership.</p></Waiting>;
-  if (access.isError) return <Waiting title="We couldn’t check your membership."><p role="alert">{access.error.message}</p><button onClick={() => void access.refetch()} className={buttonClass}>Try again</button></Waiting>;
+  if (access.isError) return <Waiting title="We couldn’t check your membership."><p role="alert">{access.error.message}</p><button onClick={() => void access.refetch()} className={buttonClass}>{webT("release.18")}</button></Waiting>;
   const member = access.data?.membership;
   if (!member || member.status !== 'active') return <Waiting title={member?.status === 'pending' ? 'Your introduction is with the team.' : member ? 'Your community access is on hold.' : 'A place to make things happen.'}>
     {member ? <p>{member.status === 'pending' ? 'A lead will review your request. Once approved, you can enter the rooms, take a move, and build your place in the community.' : 'A community lead can review your membership. Your PromoCard and previously earned value stay with your account.'}</p> : <><p>Build your skills, grow an audience, help someone move forward, and take on useful work. Entry is for approved community members, connected to your existing PromoCard.</p>
@@ -47,6 +50,7 @@ export default function CommunityPortal() {
 }
 
 export function CommunityWorkspace({ data, tab = 'today', onAction }: { data: CommunityWorkspaceData; tab?: string; onAction: CommunityAction }) {
+  const { t: webT } = useWebI18n();
   const [form, setForm] = useState<CommunityForm | null>(null);
   const [notice, setNotice] = useState('');
   const member = data.membership;
@@ -70,7 +74,7 @@ export function CommunityWorkspace({ data, tab = 'today', onAction }: { data: Co
   return <CommunityShell>
     <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0D0D0E]/95 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8"><Link to="/community" className="flex min-h-11 items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 text-black"><Users className="h-5 w-5" /></span><span className="text-sm font-bold tracking-wide">PROMORANG <span className="ml-1 font-normal text-white/55">/ community</span></span></Link><Link to="/card" className="inline-flex min-h-11 items-center gap-2 text-sm text-white/80">My PromoCard <ArrowRight className="h-4 w-4" /></Link></div>
-      <nav aria-label="Community" className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-5 sm:px-8">{[['today', 'Today'], ['board', 'Move board'], ['rhythm', 'Rhythm'], ['roles', 'My place'], ['rooms', 'Rooms'], ['wins', 'My wins'], ...(data.lead ? [['lead', 'Lead room']] : [])].map(([id, label]) => <NavLink key={id} to={id === 'today' ? '/community' : `/community/${id}`} end className={`flex min-h-12 shrink-0 items-center border-b-2 text-sm font-medium ${current === id ? 'border-orange-400 text-orange-200' : 'border-transparent text-white/65 hover:text-white'}`}>{label}</NavLink>)}</nav>
+      <nav aria-label={webT("participantsPage.community")} className="mx-auto flex max-w-7xl gap-6 overflow-x-auto px-5 sm:px-8">{[['today', 'Today'], ['board', 'Move board'], ['rhythm', 'Rhythm'], ['roles', 'My place'], ['rooms', 'Rooms'], ['wins', 'My wins'], ...(data.lead ? [['lead', 'Lead room']] : [])].map(([id, label]) => <NavLink key={id} to={id === 'today' ? '/community' : `/community/${id}`} end className={`flex min-h-12 shrink-0 items-center border-b-2 text-sm font-medium ${current === id ? 'border-orange-400 text-orange-200' : 'border-transparent text-white/65 hover:text-white'}`}>{label}</NavLink>)}</nav>
     </header>
     <main id="community-content" className="mx-auto max-w-7xl px-5 pb-20 pt-8 sm:px-8 sm:pt-12">
       {notice && <div role="status" className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-300/25 bg-emerald-400/5 p-4 text-sm text-emerald-100"><span>{notice}</span><button aria-label="Dismiss update" onClick={() => setNotice('')} className="min-h-6 min-w-6">×</button></div>}
@@ -79,11 +83,11 @@ export function CommunityWorkspace({ data, tab = 'today', onAction }: { data: Co
           <div><p className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.18em] text-orange-200"><span className="h-1.5 w-1.5 rounded-full bg-orange-400" /> Members only · Your community</p>
             <h1 className="max-w-xl font-serif text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl">Make your next<br /><span className="text-orange-300">move count.</span></h1>
             <p className="mt-5 max-w-md text-sm leading-7 text-white/70">{member.display_name}, this is where your work helps the community grow, builds your place, and opens what comes next.</p>
-            <div className="mt-7 border-l-2 border-orange-400 pl-4"><p className="text-[11px] uppercase tracking-[.16em] text-white/60">{nextWork ? 'Your next move' : nextMove ? 'A move for you' : 'Start with your people'}</p><p className="mt-2 max-w-md text-lg font-semibold">{nextWork?.move.title || nextMove?.title || 'Bring one useful idea to the room.'}</p></div>
+            <div className="mt-7 border-l-2 border-orange-400 pl-4"><p className="text-[11px] uppercase tracking-[.16em] text-white/60">{nextWork ? webT("release.2") : nextMove ? 'A move for you' : 'Start with your people'}</p><p className="mt-2 max-w-md text-lg font-semibold">{nextWork?.move.title || nextMove?.title || 'Bring one useful idea to the room.'}</p></div>
             <div className="mt-6">{nextWork ? <button className={buttonClass} onClick={() => setForm(proofForm(nextWork))}>Show what you did <ArrowRight className="h-4 w-4" /></button> : <Link className={buttonClass} to={nextMove ? '/community/board' : '/community/rooms'}>{nextMove ? 'Find your next move' : 'Enter the General Room'}<ArrowRight className="h-4 w-4" /></Link>}</div>
           </div>
           <div className="flex min-w-0 flex-col justify-center"><PromoCardFace variant="membership" holder={member.display_name} available={roleName || 'Community member'} limit="Your place. Your people. Your PromoCard." sceneMark="Promorang Community" interactive={false} />
-            <div className="mt-5 flex flex-wrap gap-3"><Link to="/card" className={secondaryClass}>Perks & saved access <ArrowRight className="h-4 w-4" /></Link><Link to="/moments" className={secondaryClass}>Find a Moment <ArrowRight className="h-4 w-4" /></Link></div>
+            <div className="mt-5 flex flex-wrap gap-3"><Link to="/card" className={secondaryClass}>Perks & saved access <ArrowRight className="h-4 w-4" /></Link><Link to="/moments" className={secondaryClass}>{webT("venueProfile.findMoment")} <ArrowRight className="h-4 w-4" /></Link></div>
             <p className="mt-4 text-xs leading-6 text-white/60">Your existing PromoCard represents you here. Your perks, Moment access, and earned value stay connected to the same account.</p>
           </div>
         </section>

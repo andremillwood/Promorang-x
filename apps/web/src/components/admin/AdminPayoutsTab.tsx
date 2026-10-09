@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -57,6 +59,7 @@ interface MomentManualPayout {
 }
 
 export const AdminPayoutsTab = () => {
+  const { t: webT } = useWebI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
@@ -82,7 +85,7 @@ export const AdminPayoutsTab = () => {
             }
         } catch (error) {
             console.error("Error fetching admin requests:", error);
-            toast({ title: "Error", description: "Failed to load withdrawal requests.", variant: "destructive" });
+            toast({ title: webT("kyc.error"), description: "Failed to load withdrawal requests.", variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -124,7 +127,7 @@ export const AdminPayoutsTab = () => {
                 fetchRequests();
             } else {
                 const err = await res.json();
-                throw new Error(err.error || "Update failed");
+                throw new Error(err.error || webT("editMoment.toastUpdateFailed"));
             }
         } catch (error: any) {
             toast({ title: "Update Error", description: error.message, variant: "destructive" });
@@ -191,10 +194,10 @@ export const AdminPayoutsTab = () => {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'completed': return <Badge className="bg-emerald-500/10 text-emerald-500 border-none gap-1"><CheckCircle2 className="w-3 h-3" /> Completed</Badge>;
-            case 'pending': return <Badge variant="secondary" className="gap-1 animate-pulse"><Clock className="w-3 h-3" /> Pending</Badge>;
+            case 'completed': return <Badge className="bg-emerald-500/10 text-emerald-500 border-none gap-1"><CheckCircle2 className="w-3 h-3" /> {webT("web.completed")}</Badge>;
+            case 'pending': return <Badge variant="secondary" className="gap-1 animate-pulse"><Clock className="w-3 h-3" /> {webT("promoPushCreatorPage.thPending")}</Badge>;
             case 'processing': return <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-none gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Processing</Badge>;
-            case 'rejected': return <Badge variant="destructive" className="gap-1"><AlertCircle className="w-3 h-3" /> Rejected</Badge>;
+            case 'rejected': return <Badge variant="destructive" className="gap-1"><AlertCircle className="w-3 h-3" /> {webT("kyc.badgeRejected")}</Badge>;
             default: return <Badge variant="outline">{status}</Badge>;
         }
     };
@@ -215,7 +218,7 @@ export const AdminPayoutsTab = () => {
                                 <div>
                                     <p className="font-semibold">{payout.moment?.title || "Moment payout"}</p>
                                     <p className="text-sm text-muted-foreground">
-                                        JMD {Number(payout.amount_jmd || 0).toLocaleString()} due {new Date(payout.due_at).toLocaleString()}
+                                        JMD {Number(payout.amount_jmd || 0).toLocaleString(currentUiLocale())} due {new Date(payout.due_at).toLocaleString(currentUiLocale())}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -299,7 +302,7 @@ export const AdminPayoutsTab = () => {
                                     <div className="space-y-4">
                                         <div>
                                             <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Requested Amount</p>
-                                            <p className="text-3xl font-black text-foreground">${req.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                                            <p className="text-3xl font-black text-foreground">${req.amount.toLocaleString(currentUiLocale(), { minimumFractionDigits: 2 })}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {getStatusBadge(req.status)}
@@ -376,15 +379,15 @@ export const AdminPayoutsTab = () => {
                                                                 if (reason) handleUpdateStatus(req.id, 'rejected', reason);
                                                             }}
                                                         >
-                                                            <AlertCircle className="w-4 h-4 mr-2" /> Reject
+                                                            <AlertCircle className="w-4 h-4 mr-2" /> {webT("web.reject")}
                                                         </Button>
                                                     </>
                                                 )}
                                                 
                                                 {req.status === 'completed' && (
                                                     <div className="text-center">
-                                                        <p className="text-[10px] text-emerald-500 font-black uppercase mb-1">Fulfilled</p>
-                                                        <p className="text-[9px] text-muted-foreground">{new Date(req.created_at).toLocaleDateString()}</p>
+                                                        <p className="text-[10px] text-emerald-500 font-black uppercase mb-1">{webT("activationCommerce.fulfilled")}</p>
+                                                        <p className="text-[9px] text-muted-foreground">{new Date(req.created_at).toLocaleDateString(currentUiLocale())}</p>
                                                     </div>
                                                 )}
                                             </>

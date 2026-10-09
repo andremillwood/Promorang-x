@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -6,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number, currency = "USD"): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(currentUiLocale(), {
     style: "currency",
     currency,
     minimumFractionDigits: 2,
@@ -15,13 +16,10 @@ export function formatCurrency(amount: number, currency = "USD"): string {
 }
 
 export function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + "M";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "K";
-  }
-  return num.toString();
+  return new Intl.NumberFormat(currentUiLocale(), num >= 1000
+    ? { notation: "compact", maximumFractionDigits: 1 }
+    : { maximumFractionDigits: 20 }
+  ).format(num);
 }
 
 const PLACEHOLDER_MEDIA_MAP: Record<string, string> = {

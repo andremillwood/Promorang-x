@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { TiltCard3D } from "@/components/ui/TiltCard3D";
 import { Sparkles, Gem, KeyRound, Coins } from "lucide-react";
 
@@ -22,6 +24,7 @@ export function DigitalWalletPass3D({
   userTier = "Starter",
   onConvertPoints,
 }: DigitalWalletPass3DProps) {
+  const { t: webT } = useWebI18n();
   const passIdRaw = userId?.replace(/[^a-zA-Z0-9]/g, "").padEnd(12, "0").toUpperCase() || "";
   const passFormatted = passIdRaw
     ? `PROMO • ${passIdRaw.slice(0, 4)} • ${passIdRaw.slice(4, 8)} • ${passIdRaw.slice(8, 12)}`
@@ -75,21 +78,21 @@ export function DigitalWalletPass3D({
                   <Coins className="h-2.5 w-2.5" />
                   Pts
                 </div>
-                <p className="mt-0.5 text-sm font-black text-white">{points.toLocaleString()}</p>
+                <p className="mt-0.5 text-sm font-black text-white">{points.toLocaleString(currentUiLocale())}</p>
               </div>
               <div className="text-left border-l border-white/10 pl-2.5">
                 <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-primary">
                   <KeyRound className="h-2.5 w-2.5" />
-                  Keys
+                  {webT("whyJoin.keysTitle")}
                 </div>
-                <p className="mt-0.5 text-sm font-black text-white">{promoKeys.toLocaleString()}</p>
+                <p className="mt-0.5 text-sm font-black text-white">{promoKeys.toLocaleString(currentUiLocale())}</p>
               </div>
               <div className="text-left border-l border-white/10 pl-2.5">
                 <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-violet-400">
                   <Gem className="h-2.5 w-2.5" />
-                  Gems
+                  {webT("wallet.gemsLabel")}
                 </div>
-                <p className="mt-0.5 text-sm font-black text-white">{gems.toLocaleString()}</p>
+                <p className="mt-0.5 text-sm font-black text-white">{gems.toLocaleString(currentUiLocale())}</p>
               </div>
             </div>
           </div>

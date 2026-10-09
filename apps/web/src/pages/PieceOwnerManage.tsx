@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
@@ -84,6 +85,7 @@ const SAMPLE_SHAREHOLDERS: Shareholder[] = [
 ];
 
 export function PieceOwnerManage() {
+  const { t: webT } = useWebI18n();
   const { pieceType = 'moment', assetId = 'syndicate_asset' } = useParams<{ pieceType: string; assetId: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -96,7 +98,7 @@ export function PieceOwnerManage() {
   
   // Perks state
   const [perks, setPerks] = useState([
-    { id: '1', minShares: 5, title: 'Priority Access', description: 'Early-bird RSVP and 15% discount on all syndication event admissions.' },
+    { id: '1', minShares: 5, title: webT("give.kind.priority"), description: 'Early-bird RSVP and 15% discount on all syndication event admissions.' },
     { id: '2', minShares: 15, title: 'VIP Hospitality Pass', description: 'Complimentary entry + backstage access + 2 drink tokens per event.' },
     { id: '3', minShares: 25, title: 'Co-Producer Executive Vote', description: 'Direct governance voting on artist lineups and headline sponsors.' },
   ]);
@@ -208,7 +210,7 @@ export function PieceOwnerManage() {
                   <Crown className="w-3.5 h-3.5" /> Creator & Syndicate Studio
                 </Badge>
                 <Badge variant="outline" className="capitalize text-xs">
-                  {pieceType} Piece
+                  {pieceType} {webT("promoShare.typePiece")}
                 </Badge>
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
@@ -263,7 +265,7 @@ export function PieceOwnerManage() {
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">AMM Pool Status</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className={`h-2.5 w-2.5 rounded-full ${poolActive ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-                <p className="text-2xl font-black text-foreground">{poolActive ? "Live (0.3%)" : "Paused"}</p>
+                <p className="text-2xl font-black text-foreground">{poolActive ? "Live (0.3%)" : webT("web.paused")}</p>
               </div>
               <p className="text-[11px] text-muted-foreground mt-1">Gems ↔ Piece Swapping active</p>
             </CardContent>
@@ -343,7 +345,7 @@ export function PieceOwnerManage() {
                   <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/25 p-4 space-y-2.5 text-sm">
                     <div className="flex justify-between items-center text-xs text-muted-foreground">
                       <span>Eligible Co-Producer Shares:</span>
-                      <span className="font-semibold text-foreground">{activeHoldersShares} Pieces</span>
+                      <span className="font-semibold text-foreground">{activeHoldersShares} {webT("growthHub.tilePiecesTitle")}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs text-muted-foreground">
                       <span>Estimated Payout per Piece:</span>
@@ -446,7 +448,7 @@ export function PieceOwnerManage() {
                             </div>
                           </TableCell>
                           <TableCell className="font-bold text-sm text-foreground">
-                            {s.shares} Pieces
+                            {s.shares} {webT("growthHub.tilePiecesTitle")}
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="text-xs border-cyan-500/20 text-cyan-300">
@@ -571,7 +573,7 @@ export function PieceOwnerManage() {
                       toast({ title: `Trading ${!poolActive ? "Enabled" : "Paused"}` });
                     }}
                   >
-                    {poolActive ? "Active" : "Paused"}
+                    {poolActive ? webT("commercial.active") : webT("web.paused")}
                   </Button>
                 </div>
 

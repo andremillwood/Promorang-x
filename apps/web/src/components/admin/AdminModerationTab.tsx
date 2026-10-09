@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
@@ -135,6 +137,7 @@ function statusTone(status?: string | null) {
 }
 
 export function AdminModerationTab() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const { data: moderationOverview, isLoading: isModerationLoading, refetch: refetchModerationOverview } = useModerationOverview();
@@ -250,7 +253,7 @@ export function AdminModerationTab() {
         title: action === "approve" ? "Momentum proof approved" : "Momentum proof rejected",
         description: action === "approve"
           ? payload?.payout?.queued
-            ? `Payout queued: JMD ${Number(payload.payout.queue_item.amount_jmd || 0).toLocaleString()}`
+            ? `Payout queued: JMD ${Number(payload.payout.queue_item.amount_jmd || 0).toLocaleString(currentUiLocale())}`
             : payload?.reward?.reward_value
               ? `Reward issued: ${payload.reward.reward_value}`
               : payload?.memory
@@ -263,7 +266,7 @@ export function AdminModerationTab() {
     } catch (error: any) {
       console.error(error);
       toast({
-        title: "Review failed",
+        title: webT("web.reviewFailed"),
         description: error.message || "Could not review proof submission",
         variant: "destructive",
       });
@@ -309,7 +312,7 @@ export function AdminModerationTab() {
 
   const summaryCards = [
     {
-      label: "Active Moments",
+      label: webT("hostDash.active"),
       value: moderationOverview?.summary.active_moments || 0,
       helper: `${moderationOverview?.summary.total_moments || 0} tracked`,
       icon: Calendar,
@@ -333,7 +336,7 @@ export function AdminModerationTab() {
       bg: "bg-emerald-500/10",
     },
     {
-      label: "KYC Queue",
+      label: webT("web.kycQueue"),
       value: kycRequests.length,
       helper: `${proofs.length} mission proofs`,
       icon: Landmark,
@@ -380,15 +383,15 @@ export function AdminModerationTab() {
           <TabsList className="min-w-max bg-muted/60 p-1 rounded-xl">
             <TabsTrigger value="moments" className="gap-2 rounded-lg font-semibold">
               <Calendar className="h-4 w-4" />
-              Moments
+              {webT("findOrAsk.moments")}
             </TabsTrigger>
             <TabsTrigger value="content" className="gap-2 rounded-lg font-semibold">
               <MessageSquare className="h-4 w-4" />
-              Content
+              {webT("explorePage.secContentTitle")}
             </TabsTrigger>
             <TabsTrigger value="kyc" className="gap-2 rounded-lg font-semibold">
               <Landmark className="h-4 w-4" />
-              KYC Queue
+              {webT("web.kycQueue")}
               {kycRequests.length > 0 && <Badge variant="destructive" className="ml-1">{kycRequests.length}</Badge>}
             </TabsTrigger>
             <TabsTrigger value="proofs" className="gap-2 rounded-lg font-semibold">
@@ -442,17 +445,17 @@ export function AdminModerationTab() {
                         <AvatarImage src={moment.host.avatar_url || undefined} />
                         <AvatarFallback>{moment.host.name.charAt(0)}</AvatarFallback>
                       </Avatar>
-                      <span className="text-sm text-muted-foreground">Hosted by {moment.host.name}</span>
+                      <span className="text-sm text-muted-foreground">{webT("event.hostedBy")} {moment.host.name}</span>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div className="rounded-lg border border-border p-3">
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">Participants</p>
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("participantsPage.title")}</p>
                         <p className="mt-1 text-lg font-semibold">{moment.metrics.participants}</p>
                       </div>
                       <div className="rounded-lg border border-border p-3">
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">Check-ins</p>
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("momentsAppPage.checkIns")}</p>
                         <p className="mt-1 text-lg font-semibold">{moment.metrics.check_ins}</p>
                       </div>
                       <div className="rounded-lg border border-border p-3">
@@ -537,7 +540,7 @@ export function AdminModerationTab() {
                           <Button asChild variant="outline" size="sm">
                             <a href={item.media_url} target="_blank" rel="noreferrer">
                               <Eye className="mr-2 h-4 w-4" />
-                              View
+                              {webT("web.view")}
                             </a>
                           </Button>
                         )}
@@ -548,7 +551,7 @@ export function AdminModerationTab() {
                             disabled={isActioning === `${item.type}-${item.id}`}
                           >
                             <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Approve
+                            {webT("web.approve")}
                           </Button>
                         )}
                         {item.moderation_status !== "rejected" && (
@@ -559,7 +562,7 @@ export function AdminModerationTab() {
                             disabled={isActioning === `${item.type}-${item.id}`}
                           >
                             <XCircle className="mr-2 h-4 w-4" />
-                            Reject
+                            {webT("web.reject")}
                           </Button>
                         )}
                         {item.moderation_status !== "pending" && (
@@ -612,7 +615,7 @@ export function AdminModerationTab() {
                         disabled={isActioning === request.id}
                       >
                         {isActioning === request.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-                        Approve
+                        {webT("web.approve")}
                       </Button>
                       <Button
                         variant="outline"
@@ -621,7 +624,7 @@ export function AdminModerationTab() {
                         disabled={isActioning === request.id}
                       >
                         <XCircle className="mr-2 h-4 w-4" />
-                        Reject
+                        {webT("web.reject")}
                       </Button>
                     </div>
                   </CardContent>
@@ -652,7 +655,7 @@ export function AdminModerationTab() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="overflow-hidden rounded-xl bg-muted">
-                      <img src={proof.proof_url} alt="Proof" className="h-64 w-full object-cover" />
+                      <img src={proof.proof_url} alt={webT("promoPushLandingPage.step3Title")} className="h-64 w-full object-cover" />
                     </div>
                     <p className="text-sm text-muted-foreground">{proof.submission_text || "No submission text"}</p>
                     <div className="flex gap-2">
@@ -662,7 +665,7 @@ export function AdminModerationTab() {
                         disabled={isActioning === proof.id}
                       >
                         <Gift className="mr-2 h-4 w-4" />
-                        Approve
+                        {webT("web.approve")}
                       </Button>
                       <Button
                         variant="outline"
@@ -671,7 +674,7 @@ export function AdminModerationTab() {
                         disabled={isActioning === proof.id}
                       >
                         <UserX className="mr-2 h-4 w-4" />
-                        Reject
+                        {webT("web.reject")}
                       </Button>
                     </div>
                   </CardContent>
@@ -699,7 +702,7 @@ export function AdminModerationTab() {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <CardTitle className="text-lg">{submission.moment?.title || "Untitled moment"}</CardTitle>
+                        <CardTitle className="text-lg">{submission.moment?.title || webT("web.untitledMomentLower")}</CardTitle>
                         <CardDescription>{submission.moment?.venue_name || submission.moment?.category || "Moment proof"}</CardDescription>
                       </div>
                       <Badge variant="outline" className={statusTone(submission.submission_state)}>
@@ -710,12 +713,12 @@ export function AdminModerationTab() {
                   <CardContent className="space-y-4">
                     <div className="grid gap-3 md:grid-cols-2">
                       <div className="rounded-lg border border-border p-3 text-sm">
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">Code</p>
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("web.code")}</p>
                         <p className="mt-1">{submission.proof_bundle?.code || "—"}</p>
                       </div>
                       <div className="rounded-lg border border-border p-3 text-sm">
                         <p className="text-xs uppercase tracking-wider text-muted-foreground">Location Verified</p>
-                        <p className="mt-1">{submission.proof_bundle?.location_verified ? "Yes" : "No"}</p>
+                        <p className="mt-1">{submission.proof_bundle?.location_verified ? "Yes" : webT("web.no")}</p>
                       </div>
                     </div>
                     <div className="rounded-lg border border-border bg-muted/20 p-3 text-sm text-muted-foreground">
@@ -729,7 +732,7 @@ export function AdminModerationTab() {
                         disabled={isActioning === submission.id}
                       >
                         <CheckCircle2 className="mr-2 h-4 w-4" />
-                        Approve
+                        {webT("web.approve")}
                       </Button>
                       <Button
                         variant="outline"
@@ -738,7 +741,7 @@ export function AdminModerationTab() {
                         disabled={isActioning === submission.id}
                       >
                         <XCircle className="mr-2 h-4 w-4" />
-                        Reject
+                        {webT("web.reject")}
                       </Button>
                     </div>
                   </CardContent>
@@ -762,7 +765,7 @@ export function AdminModerationTab() {
               <Card key={submission.id}>
                 <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <p className="font-medium">{submission.moment?.title || "Untitled moment"}</p>
+                    <p className="font-medium">{submission.moment?.title || webT("web.untitledMomentLower")}</p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Reviewed {submission.reviewed_at ? format(new Date(submission.reviewed_at), "MMM d, h:mm a") : format(new Date(submission.created_at), "MMM d, h:mm a")}
                     </p>
@@ -774,7 +777,7 @@ export function AdminModerationTab() {
                     <ProofSubmissionAuditDialog submissionId={submission.id} />
                     {submission.reward?.reward_value && (
                       <Badge variant="outline">
-                        Reward: {submission.reward.reward_value}
+                        {webT("contentMission.rewardLabel")} {submission.reward.reward_value}
                       </Badge>
                     )}
                     {submission.memory?.title && (
@@ -784,7 +787,7 @@ export function AdminModerationTab() {
                       </Badge>
                     )}
                     {submission.payout?.queued && (
-                      <Badge variant="outline">Payout queued</Badge>
+                      <Badge variant="outline">{webT("web.payoutQueued")}</Badge>
                     )}
                     <Badge variant="outline" className={statusTone(submission.submission_state)}>
                       {submission.submission_state}

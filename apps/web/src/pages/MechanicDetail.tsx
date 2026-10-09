@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ActivationMechanic } from '../types/ami';
@@ -9,6 +10,7 @@ import { ArrowLeft, MapPin, Smartphone, Share2, Activity, ShieldCheck, CheckCirc
 import SEO from '../components/SEO';
 
 export default function MechanicDetail() {
+  const { t: webT } = useWebI18n();
     const { id } = useParams<{ id: string }>();
     const [mechanic, setMechanic] = useState<ActivationMechanic | null>(null);
     const [loading, setLoading] = useState(true);
@@ -93,7 +95,7 @@ export default function MechanicDetail() {
                                     {mechanic.category}
                                 </Badge>
                                 <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-semibold bg-muted/50">
-                                    {mechanic.proof_type} Proof
+                                    {mechanic.proof_type} {webT("promoPushLandingPage.step3Title")}
                                 </Badge>
                             </div>
 
@@ -205,7 +207,7 @@ export default function MechanicDetail() {
                             <div className="space-y-1">
                                 <div className="text-sm text-muted-foreground">Avg. Cost Per Action</div>
                                 <div className="text-2xl font-mono font-bold">
-                                    {mechanic.avg_cost_per_action ? `$${mechanic.avg_cost_per_action.toFixed(2)}` : 'N/A'}
+                                    {mechanic.avg_cost_per_action ? `$${mechanic.avg_cost_per_action.toFixed(2)}` : webT("kyc.na")}
                                 </div>
                                 <div className="text-xs text-muted-foreground">for {mechanic.expected_action_unit || 'action'}</div>
                             </div>

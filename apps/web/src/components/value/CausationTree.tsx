@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from "react";
 import {
   GitFork,
@@ -36,6 +37,7 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
   targetEntity,
   className = "",
 }) => {
+  const { t: webT } = useWebI18n();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   return (
@@ -120,7 +122,7 @@ export const CausationTree: React.FC<CausationTreeProps> = ({
                         </span>
                       )}
                       <div className="mt-1 flex items-center justify-end gap-1 text-[10px] font-mono text-emerald-400/80">
-                        <CheckCircle2 className="h-3 w-3" /> Verified
+                        <CheckCircle2 className="h-3 w-3" /> {webT("kyc.badgeVerified")}
                       </div>
                     </div>
                   </div>

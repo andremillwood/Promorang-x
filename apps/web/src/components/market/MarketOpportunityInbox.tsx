@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, Inbox, Radio, Search, Users } from "lucide-react";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
@@ -30,6 +31,7 @@ function responseHref(baseHref: string, demandId: string, want: string, city: st
 }
 
 export function MarketOpportunityInbox({ role, sceneId }: { role: DemandRole; sceneId?: string }) {
+  const { t: webT } = useWebI18n();
   const { city, country } = useMarket();
   const { inbox, isLoading } = useDiscoveryDemand(city.name, country.slug || "jamaica", city.id === "all-jamaica" ? undefined : city.id, sceneId);
   const response = responseFor(role);
@@ -82,11 +84,11 @@ export function MarketOpportunityInbox({ role, sceneId }: { role: DemandRole; sc
               <div>
                 <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/35">
                   <Radio className="h-3.5 w-3.5 text-primary" />
-                  Want · {question.poll.totalVotes || 0} voices
+                  Want · {question.poll.totalVotes || 0} {webT("web.voices")}
                   {thresholdMet ? " · target met" : question.poll.thresholdForMoment ? ` · ${question.votesRemaining} more voices to target` : ""}
                 </div>
                 <h4 className="mt-3 font-serif text-2xl font-bold">{question.poll.question}</h4>
-                {question.leading ? <p className="mt-2 text-sm text-white/50">Most people are leaning toward: <strong className="text-white/75">{question.leading.text}</strong> · {question.leading.votes} voices</p> : null}
+                {question.leading ? <p className="mt-2 text-sm text-white/50">Most people are leaning toward: <strong className="text-white/75">{question.leading.text}</strong> · {question.leading.votes} {webT("web.voices")}</p> : null}
                 {question.matchedAsks.length ? <p className="mt-2 text-xs text-white/38">Related want: “{question.matchedAsks[0]}”</p> : null}
                 <p className="mt-3 text-[11px] leading-5 text-white/35">{response.note}</p>
               </div>

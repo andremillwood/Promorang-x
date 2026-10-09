@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { buildPromoShareUrl, captureReferralFromUrl, ShareableObjectType } from '@/lib/promoShareRail';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,7 +31,7 @@ function formatNextDraw(draws: PromoShareDashboard['draws']) {
     .sort((a, b) => a.getTime() - b.getTime())[0];
 
   return next
-    ? next.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    ? next.toLocaleDateString(currentUiLocale(), { weekday: 'short', month: 'short', day: 'numeric' })
     : '';
 }
 

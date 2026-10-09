@@ -1,3 +1,5 @@
+import { localizePromoCardFace } from "@/i18n/promocard-copy";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { encodeOfferRedeemPayload, resolvePromoCardFace, type PromoCardFaceModel } from "@promorang/shared";
@@ -30,20 +32,21 @@ function stamps(model: PromoCardFaceModel) {
 }
 
 function PromoCardScanPlate({ credential, compact }: { credential?: string | null; compact?: boolean }) {
+  const { t: webT } = useWebI18n();
   if (credential) {
     return (
-      <span className={cn("pr-card-chip pr-card-chip--live overflow-hidden rounded-[.75rem] border border-[#f4c66c]/40 bg-white p-1", compact && "h-9 w-9 sm:h-10 sm:w-10")} aria-label="PromoCard scan mark">
+      <span className={cn("pr-card-chip pr-card-chip--live overflow-hidden rounded-[.75rem] border border-[#f4c66c]/40 bg-white p-1", compact && "h-9 w-9 sm:h-10 sm:w-10")} aria-label={webT("web.scanMark")}>
         <QRCodeSVG value={encodeOfferRedeemPayload(credential)} size={compact ? 30 : 44} level="M" className="h-full w-full" />
       </span>
     );
   }
-  return <span className={cn("pr-card-chip rounded-[.8rem] border border-white/10 bg-white/5", compact ? "h-9 w-9 sm:h-10 sm:w-10" : "h-10 w-10 sm:h-12 sm:w-12")} aria-label="No code to scan yet" />;
+  return <span className={cn("pr-card-chip rounded-[.8rem] border border-white/10 bg-white/5", compact ? "h-9 w-9 sm:h-10 sm:w-10" : "h-10 w-10 sm:h-12 sm:w-12")} aria-label={webT("web.noScanCode")} />;
 }
 
 export function PromoCardFace({
   available,
   limit,
-  holder = "Your card",
+  holder,
   places,
   action,
   sceneMark,
@@ -60,25 +63,27 @@ export function PromoCardFace({
   lastLoaded,
   compact = false,
 }: PromoCardFaceProps) {
+  const { t: webT } = useWebI18n();
   const [localFlip, setLocalFlip] = useState(false);
   const looksLikeMoney = /\$|pts|J\$/i.test(`${available || ""} ${limit || ""}`);
+  const cardHolder = holder || webT("web.yourCard");
   const resolved = model || resolvePromoCardFace({
-    holder,
+    holder: cardHolder,
     useThis: variant === "spending" && available && !looksLikeMoney ? { title: limit, issuer: { name: places } } : null,
     nearbyCount: /nearby/i.test(`${available || ""} ${action || ""} ${places || ""}`) ? 1 : 0,
     sceneMark,
     crewMark,
   });
-  const face = model ? resolved : available && !looksLikeMoney ? {
+  const face = localizePromoCardFace(model ? resolved : available && !looksLikeMoney ? {
     ...resolved,
     headline: available,
     detail: limit || resolved.detail,
     places: places || resolved.places,
     action: action || resolved.action,
-    holder,
+    holder: cardHolder,
     sceneMark: sceneMark || resolved.sceneMark,
     crewMark: crewMark || resolved.crewMark,
-  } : resolved;
+  } : resolved, webT);
   const isFlipped = flipped ?? localFlip;
   const canFlip = Boolean(interactive && face.canFlip && face.credential);
   const toggle = () => {
@@ -98,7 +103,7 @@ export function PromoCardFace({
               : "min-h-[250px] p-4 sm:min-h-[360px] sm:p-7",
             `pr-plastic-card--${face.state}`,
           )}
-          aria-label="PromoCard"
+          aria-label={webT("card.eyebrow")}
         >
           <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: "linear-gradient(120deg, transparent 0 42%, rgba(244,198,108,.08) 42.2% 42.8%, transparent 43% 100%)" }} />
           <div className="relative z-10 flex h-full flex-col justify-between">
@@ -109,13 +114,13 @@ export function PromoCardFace({
                 </span>
                 <div>
                   <p className="text-[8px] font-black tracking-[0.28em] text-[#f4c66c] sm:text-[9px]">PROMORANG</p>
-                  <h3 className={cn("mt-1 font-serif font-bold leading-none tracking-[-.04em] text-white", compact ? "text-[1.3rem] sm:text-[1.55rem]" : "text-[1.55rem] sm:text-[1.9rem]")}>PromoCard</h3>
-                  {tier ? <p className="mt-2 text-[9px] font-black uppercase tracking-[0.18em] text-white/45">{tier} tier</p> : null}
+                  <h3 className={cn("mt-1 font-serif font-bold leading-none tracking-[-.04em] text-white", compact ? "text-[1.3rem] sm:text-[1.55rem]" : "text-[1.55rem] sm:text-[1.9rem]")}>{webT("card.eyebrow")}</h3>
+                  {tier ? <p className="mt-2 text-[9px] font-black uppercase tracking-[0.18em] text-white/45">{tier} {webT("web.tierLower")}</p> : null}
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <PromoCardScanPlate credential={face.credential} compact={compact} />
-                {face.issuerInitial ? <span className="grid h-8 w-8 place-items-center rounded-full border border-[#f4c66c]/35 bg-[#f4c66c]/10 font-serif text-xs font-black text-[#f4c66c]" aria-label={`${face.issuer} mark`}>{face.issuerInitial}</span> : null}
+                {face.issuerInitial ? <span className="grid h-8 w-8 place-items-center rounded-full border border-[#f4c66c]/35 bg-[#f4c66c]/10 font-serif text-xs font-black text-[#f4c66c]" aria-label={webT("web.issuerMark", { issuer: face.issuer || "Promorang" })}>{face.issuerInitial}</span> : null}
               </div>
             </div>
 
@@ -144,19 +149,19 @@ export function PromoCardFace({
             <div className="relative z-10 flex h-full flex-col items-center justify-between text-center">
               <div>
                 <span className="mx-auto grid h-10 w-10 place-items-center rounded-xl border border-[#f4c66c]/35 bg-black"><PromorangMark size={32} className="h-8 w-8" /></span>
-                <p className="mt-3 text-[9px] font-black tracking-[0.24em] text-[#f4c66c]">PROMORANG · PRESENT THIS</p>
-                <p className="mt-1 font-serif text-xl font-bold text-white">{face.issuer || "PromoCard"}</p>
+                <p className="mt-3 text-[9px] font-black tracking-[0.24em] text-[#f4c66c]">{webT("web.presentCard")}</p>
+                <p className="mt-1 font-serif text-xl font-bold text-white">{face.issuer || webT("card.eyebrow")}</p>
               </div>
               <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/38">Merchant validation</p>
-                <div className="mx-auto mt-3 w-fit rounded-2xl bg-white p-3 shadow-[0_12px_30px_rgba(0,0,0,.25)]" aria-label="PromoCard scan mark">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/38">{webT("web.merchantValidation")}</p>
+                <div className="mx-auto mt-3 w-fit rounded-2xl bg-white p-3 shadow-[0_12px_30px_rgba(0,0,0,.25)]" aria-label={webT("web.scanMark")}>
                   <QRCodeSVG value={encodeOfferRedeemPayload(face.credential || "")} size={132} level="M" />
                 </div>
                 <code className="mt-3 block select-all font-mono text-2xl font-black tracking-[0.16em] text-[#f4c66c]">{face.credential}</code>
-                {lastLoaded ? <p className="mt-2 text-[11px] text-[#f4c66c]">Last loaded. The merchant still has to validate it.</p> : null}
+                {lastLoaded ? <p className="mt-2 text-[11px] text-[#f4c66c]">{webT("web.lastLoadedCard")}</p> : null}
               </div>
               <div className="w-full">
-                {onCopy ? <button type="button" onClick={onCopy} className="min-h-11 rounded-full border border-white/15 bg-white/[.04] px-4 text-sm font-semibold text-white/72">{copyState === "copied" ? "Copied" : copyState === "failed" ? "Couldn’t copy" : "Copy code"}</button> : null}
+                {onCopy ? <button type="button" onClick={onCopy} className="min-h-11 rounded-full border border-white/15 bg-white/[.04] px-4 text-sm font-semibold text-white/72">{copyState === "copied" ? webT("card.copied") : copyState === "failed" ? webT("card.copyFailed") : webT("card.copyCode")}</button> : null}
                 <p className="mt-3 text-[11px] leading-5 text-white/40">{face.footerCue}</p>
               </div>
             </div>
@@ -164,22 +169,23 @@ export function PromoCardFace({
         ) : null}
       </div>
 
-      {canFlip ? <button type="button" onClick={toggle} className="pr-world-primary mt-4 w-full" aria-label={isFlipped ? "Hide PromoCard code" : "Flip PromoCard to show the merchant"}>{isFlipped ? "Turn it back over" : face.action}</button> : null}
+      {canFlip ? <button type="button" onClick={toggle} className="pr-world-primary mt-4 w-full" aria-label={isFlipped ? webT("web.hideCode") : webT("web.flipCard")}>{isFlipped ? webT("web.turnBack") : face.action}</button> : null}
     </div>
   );
 }
 
 export function PromorangValidReceipt({ title, reference, nextBenefit }: { title: string; reference?: string; nextBenefit?: string }) {
+  const { t: webT } = useWebI18n();
   return (
     <aside className="pr-world-panel pr-world-panel--signal overflow-hidden p-6 text-white" aria-live="polite">
       <div className="flex items-center gap-3">
         <PromorangMark size={36} className="h-9 w-9" />
-        <div><p className="pr-world-kicker">PROMORANG</p><p className="mt-1 font-serif text-3xl font-black leading-none text-[#f4c66c]">VALID</p></div>
+        <div><p className="pr-world-kicker">PROMORANG</p><p className="mt-1 font-serif text-3xl font-black leading-none text-[#f4c66c]">{webT("web.valid")}</p></div>
       </div>
       <p className="mt-5 font-serif text-2xl font-bold">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-white/55">This PromoCard entitlement has been validated. Validation still does not imply a separate purchase or fulfillment unless those records exist.</p>
-      {reference ? <p className="mt-3 font-mono text-xs text-white/35">Ref {reference}</p> : null}
-      {nextBenefit ? <p className="mt-3 text-xs text-orange-100">Next opening: {nextBenefit}</p> : null}
+      <p className="mt-2 text-sm leading-6 text-white/55">{webT("web.validatedEntitlement")}</p>
+      {reference ? <p className="mt-3 font-mono text-xs text-white/35">{webT("web.reference")} {reference}</p> : null}
+      {nextBenefit ? <p className="mt-3 text-xs text-orange-100">{webT("web.nextOpening")} {nextBenefit}</p> : null}
     </aside>
   );
 }

@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -40,9 +42,10 @@ type WorkItem = {
   icon: LucideIcon;
 };
 
-const formatNumber = (value: number | null | undefined) => Number(value || 0).toLocaleString();
+const formatNumber = (value: number | null | undefined) => Number(value || 0).toLocaleString(currentUiLocale());
 
 export function AdminCommandCenter() {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const { toast } = useToast();
   const stats = usePlatformStats();
@@ -134,14 +137,14 @@ export function AdminCommandCenter() {
       copy: "Support, disputes, blocked journeys and operator-owned follow-up.",
     },
     {
-      label: "Review",
+      label: webT("createProposal.step7Short"),
       icon: ShieldCheck,
       href: "/admin?tab=verification-hub",
       title: "Decide what counts",
       copy: "Proof, identity, host applications, content and evidence end in an auditable decision.",
     },
     {
-      label: "Economy",
+      label: webT("nav.economy"),
       icon: CircleDollarSign,
       href: "/admin?tab=payouts",
       title: "Protect value movement",
@@ -157,8 +160,8 @@ export function AdminCommandCenter() {
   ];
 
   const metrics = [
-    { label: "Users", value: stats.data?.totalUsers, helper: `${formatNumber(stats.data?.activeUsersThisWeek)} participations this week`, icon: Users },
-    { label: "Moments", value: stats.data?.totalMoments, helper: `${formatNumber(stats.data?.momentsThisWeek)} created this week`, icon: CalendarClock },
+    { label: webT("web.users"), value: stats.data?.totalUsers, helper: `${formatNumber(stats.data?.activeUsersThisWeek)} participations this week`, icon: Users },
+    { label: webT("findOrAsk.moments"), value: stats.data?.totalMoments, helper: `${formatNumber(stats.data?.momentsThisWeek)} created this week`, icon: CalendarClock },
     { label: "Verified check-ins", value: stats.data?.totalCheckIns, helper: `${formatNumber(stats.data?.totalParticipations)} total participation records`, icon: ShieldCheck },
     { label: "Open exceptions", value: openExceptions, helper: "Items currently requiring an admin decision", icon: Scale },
   ];
@@ -181,7 +184,7 @@ export function AdminCommandCenter() {
                 <p className="mt-3 text-sm font-semibold text-white/48">Source truth before intervention.</p>
               </div>
               <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing} className="rounded-full border-white/12 bg-black/30 px-4 text-white hover:bg-white/10">
-                <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />Refresh
+                <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />{webT("common.refresh")}
               </Button>
             </div>
 

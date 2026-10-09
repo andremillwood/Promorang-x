@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 /**
  * Gems Balance Component
  * Shows user's Gems balance and quick actions
@@ -21,6 +23,7 @@ interface GemsBalanceData {
 }
 
 export function GemsBalance() {
+  const { t: webT } = useWebI18n();
   const { user, session } = useAuth();
   const [balance, setBalance] = useState<GemsBalanceData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,9 +103,9 @@ export function GemsBalance() {
       <CardContent className="space-y-4">
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-bold text-violet-600">
-            {balance.balance.toLocaleString()}
+            {balance.balance.toLocaleString(currentUiLocale())}
           </span>
-          <span className="text-lg text-muted-foreground">Gems</span>
+          <span className="text-lg text-muted-foreground">{webT("wallet.gemsLabel")}</span>
         </div>
         
         <div className="text-sm text-muted-foreground">
@@ -112,9 +115,9 @@ export function GemsBalance() {
         </div>
 
         <div className="space-y-1 text-xs text-muted-foreground">
-          <div>Withdrawable now: {(balance.withdrawable_balance || 0).toFixed(2)} Gems</div>
-          <div>30-day purchase hold: {(balance.pending_purchase_redemption_balance || 0).toFixed(2)} Gems</div>
-          <div>Objective-locked bonus: {(balance.locked_bonus_balance || 0).toFixed(2)} Gems</div>
+          <div>Withdrawable now: {(balance.withdrawable_balance || 0).toFixed(2)} {webT("wallet.gemsLabel")}</div>
+          <div>30-day purchase hold: {(balance.pending_purchase_redemption_balance || 0).toFixed(2)} {webT("wallet.gemsLabel")}</div>
+          <div>Objective-locked bonus: {(balance.locked_bonus_balance || 0).toFixed(2)} {webT("wallet.gemsLabel")}</div>
         </div>
 
         <div className="flex gap-2">
@@ -126,7 +129,7 @@ export function GemsBalance() {
           >
             <Link to="/wallet">
             <Plus className="h-4 w-4 mr-1" />
-            Buy
+            {webT("web.buy")}
             </Link>
           </Button>
           <Button
@@ -137,7 +140,7 @@ export function GemsBalance() {
           >
             <Link to="/vault">
             <Wallet className="h-4 w-4 mr-1" />
-            Vault
+            {webT("how.layer3Link3")}
             </Link>
           </Button>
           <Button

@@ -27,6 +27,7 @@ function cleanCode(value: string) {
 }
 
 export default function PromorangPresents() {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const [params] = useSearchParams();
   const [code, setCode] = useState(() => cleanCode(params.get("code") || params.get("invite") || ""));
@@ -114,7 +115,7 @@ export default function PromorangPresents() {
       <section className="presents-hero" aria-labelledby="presents-title">
         <div className="presents-noise" />
         <nav className="presents-nav" aria-label="Promorang Presents">
-          <Link to="/" className="presents-mark" aria-label="Promorang home">
+          <Link to="/" className="presents-mark" aria-label={webT("web.homeAlt")}>
             <span className="presents-mark-dot" />
             {t("promorangPresentsPage.presentsMark")}
           </Link>
@@ -157,9 +158,9 @@ export default function PromorangPresents() {
         <p>{t("promorangPresentsPage.manifestoKicker")}</p>
         <h2>{t("promorangPresentsPage.manifestoTitle")}</h2>
         <div className="presents-principles">
-          <article><span>01</span><h3>{t("promorangPresentsPage.prin1Title")}</h3><p>{t("promorangPresentsPage.prin1Desc")}</p></article>
-          <article><span>02</span><h3>{t("promorangPresentsPage.prin2Title")}</h3><p>{t("promorangPresentsPage.prin2Desc")}</p></article>
-          <article><span>03</span><h3>{t("promorangPresentsPage.prin3Title")}</h3><p>{t("promorangPresentsPage.prin3Desc")}</p></article>
+          <article><span>{webT("home.journey1Label")}</span><h3>{t("promorangPresentsPage.prin1Title")}</h3><p>{t("promorangPresentsPage.prin1Desc")}</p></article>
+          <article><span>{webT("home.journey2Label")}</span><h3>{t("promorangPresentsPage.prin2Title")}</h3><p>{t("promorangPresentsPage.prin2Desc")}</p></article>
+          <article><span>{webT("home.journey3Label")}</span><h3>{t("promorangPresentsPage.prin3Title")}</h3><p>{t("promorangPresentsPage.prin3Desc")}</p></article>
         </div>
       </section>
 
@@ -168,7 +169,7 @@ export default function PromorangPresents() {
         <div className="presents-edition-grid">
           {editions.map((edition) => (
             <article className={`presents-edition presents-edition-${edition.tone}`} key={edition.id}>
-              <div className="presents-edition-number">{edition.id === "encore" ? "01" : "02"}</div>
+              <div className="presents-edition-number">{edition.id === "encore" ? webT("home.journey1Label") : webT("home.journey2Label")}</div>
               <p className="presents-edition-eyebrow">{edition.eyebrow}</p>
               <h3>{edition.title}</h3>
               <p className="presents-edition-description">{edition.description}</p>

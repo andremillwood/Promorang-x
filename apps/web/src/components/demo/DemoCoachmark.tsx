@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, PlayCircle, X } from "lucide-react";
@@ -8,6 +9,7 @@ import { useTour } from "@/contexts/TourContext";
 import { ProductTour } from "@/components/tours/ProductTour";
 
 export function DemoCoachmark() {
+  const { t: webT } = useWebI18n();
   const location = useLocation();
   const { activeTour, startTour } = useTour();
   const { isActive, guide, currentStep, nextStep } = useDemoExperience();
@@ -51,7 +53,7 @@ export function DemoCoachmark() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary/80">
-              Step {stepIndex + 1} of {guide.steps.length}
+              {webT("web.step")} {stepIndex + 1} {webT("web.of")} {guide.steps.length}
             </p>
             <h3 className="mt-2 font-serif text-xl font-bold text-foreground">
               {currentStep.title}
@@ -92,7 +94,7 @@ export function DemoCoachmark() {
           ) : (
             <Button variant={hasPageTour ? "outline" : "hero"} asChild>
               <Link to="/dashboard">
-                Return to dashboard
+                {webT("claimPages.backDash")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

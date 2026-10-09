@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +43,7 @@ interface FlashCampaignCompilerProps {
 }
 
 export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInput }: FlashCampaignCompilerProps) => {
+  const { t: webT } = useWebI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [isLaunching, setIsLaunching] = useState(false);
@@ -159,7 +161,7 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">Goal</Label>
+                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">{webT("how.brandStep1Badge")}</Label>
                             <Select value={input.goal} onValueChange={(v: CampaignType) => setInput({ ...input, goal: v })}>
                                 <SelectTrigger className="h-10 text-sm"><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -178,7 +180,7 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">Context</Label>
+                            <Label className="text-[10px] uppercase tracking-widest font-bold opacity-70">{webT("commercial.context.192")}</Label>
                             <div className="relative">
                                 <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input className="pl-9 h-10 text-sm" placeholder="e.g. First bite reaction" value={input.context || ''} onChange={e => setInput({ ...input, context: e.target.value })} />
@@ -215,12 +217,12 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="p-2 bg-secondary/10 rounded-lg border border-border/50">
-                                        <h5 className="text-[8px] uppercase font-bold text-muted-foreground mb-0.5">Proof</h5>
+                                        <h5 className="text-[8px] uppercase font-bold text-muted-foreground mb-0.5">{webT("promoPushLandingPage.step3Title")}</h5>
                                         <Badge variant="outline" className="text-[9px] py-0">{preview.proof}</Badge>
                                     </div>
                                     <div className="p-2 bg-primary/10 rounded-lg border border-primary/30">
-                                        <h5 className="text-[8px] uppercase font-bold text-primary mb-0.5">Reward</h5>
-                                        <p className="text-sm font-bold">{preview.reward} Gems</p>
+                                        <h5 className="text-[8px] uppercase font-bold text-primary mb-0.5">{webT("promoPushLandingPage.step4Title")}</h5>
+                                        <p className="text-sm font-bold">{preview.reward} {webT("wallet.gemsLabel")}</p>
                                     </div>
                                 </div>
                                 <div className="p-2 bg-muted/30 rounded-xl border border-border/50 space-y-1.5">
@@ -229,7 +231,7 @@ export const FlashCampaignCompiler = ({ adminMode = false, onSuccess, initialInp
                                     </h4>
                                     <div className="grid grid-cols-3 gap-1 text-[9px] font-bold text-center">
                                         <div><p>{preview.outcome.volume}</p><p className="opacity-50 text-[7px] font-normal uppercase">Vol</p></div>
-                                        <div><p>{preview.outcome.reach}</p><p className="opacity-50 text-[7px] font-normal uppercase">Reach</p></div>
+                                        <div><p>{preview.outcome.reach}</p><p className="opacity-50 text-[7px] font-normal uppercase">{webT("web.reach")}</p></div>
                                         <div><p>{preview.outcome.conversionIntent}</p><p className="opacity-50 text-[7px] font-normal uppercase">Intent</p></div>
                                     </div>
                                 </div>

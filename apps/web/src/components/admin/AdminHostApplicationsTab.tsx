@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from 'react';
 import { Clock, CheckCircle, XCircle, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 
 export function AdminHostApplicationsTab() {
+  const { t: webT } = useWebI18n();
     const { data: applications, isLoading } = usePendingHostApplications();
     const approveApplication = useApproveHostApplication();
     const rejectApplication = useRejectHostApplication();
@@ -96,11 +99,11 @@ export function AdminHostApplicationsTab() {
                                             {(app as any).profiles?.full_name || 'Unknown User'}
                                         </h3>
                                         <span className="px-2 py-1 bg-amber-500/10 text-amber-500 text-xs font-medium rounded">
-                                            Pending
+                                            {webT("promoPushCreatorPage.thPending")}
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        Applied {new Date(app.created_at).toLocaleDateString()}
+                                        Applied {new Date(app.created_at).toLocaleDateString(currentUiLocale())}
                                         {(app as any).profiles?.maturity_state !== undefined && (
                                             <span className="ml-2">
                                                 • Access Rank {(app as any).profiles.maturity_state}
@@ -134,7 +137,7 @@ export function AdminHostApplicationsTab() {
                                         size="sm"
                                     >
                                         <CheckCircle className="w-4 h-4" />
-                                        {approveApplication.isPending ? 'Approving...' : 'Approve'}
+                                        {approveApplication.isPending ? 'Approving...' : webT("web.approve")}
                                     </Button>
                                     <Button
                                         onClick={() => handleRejectClick(app)}
@@ -144,7 +147,7 @@ export function AdminHostApplicationsTab() {
                                         size="sm"
                                     >
                                         <XCircle className="w-4 h-4" />
-                                        Reject
+                                        {webT("web.reject")}
                                     </Button>
                                 </div>
                             </div>
@@ -187,7 +190,7 @@ export function AdminHostApplicationsTab() {
                             }}
                             className="flex-1"
                         >
-                            Cancel
+                            {webT("findOrAsk.cancel")}
                         </Button>
                         <Button
                             onClick={handleRejectConfirm}

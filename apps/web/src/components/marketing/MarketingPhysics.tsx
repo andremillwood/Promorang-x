@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDownRight, CheckCircle2, Eye, RotateCcw, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -80,6 +81,7 @@ const steps = [
 ];
 
 export function ReturnLoopStory() {
+  const { t: webT } = useWebI18n();
   const reducedMotion = useReducedMotion();
 
   return (
@@ -127,7 +129,7 @@ export function ReturnLoopStory() {
             <PaperReceipt
               heading="IT COUNTED"
               lines={[
-                { label: "What happened", value: "You did something", strong: true },
+                { label: webT("people.whatHappened"), value: "You did something", strong: true },
                 { label: "What changed", value: "Something came back", strong: true },
                 { label: "What came back", value: "Access / value / memory" },
                 { label: "What opened next", value: "A reason to return" },

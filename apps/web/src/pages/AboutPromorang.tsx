@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, Building2, CheckCircle2, Compass, Handshake, MapPin, Network, Sparkles, Store, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -131,6 +132,7 @@ const schema = {
 };
 
 export default function AboutPromorang() {
+  const { t: webT } = useWebI18n();
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
@@ -302,7 +304,7 @@ export default function AboutPromorang() {
             <Building2 className="h-6 w-6 text-orange-300" />
             <h2 className="mt-4 max-w-3xl font-serif text-3xl font-bold tracking-[-0.035em]">Want to understand the product, use the network, or scope a programme?</h2>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/what-is-promorang" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">What is PROMORANG? <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/what-is-promorang" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">{webT("web.whatIs")} <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">Start a business brief</Link>
               <Link to="/contact" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">Contact PROMORANG</Link>
             </div>

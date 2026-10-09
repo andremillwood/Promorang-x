@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -58,6 +59,7 @@ function descriptionValue(campaign: Campaign | undefined, prefix: string) {
 }
 
 const CampaignDetail = () => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { id = "" } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -87,7 +89,7 @@ const CampaignDetail = () => {
 
   if (loading) return <Skeleton className="m-8 h-48" />;
   if (!user) return <Navigate to={`/auth?next=${encodeURIComponent(`/dashboard/campaigns/${id}`)}`} replace />;
-  if (campaignsQuery.error) return <main className="p-8"><p>Campaign access could not be verified.</p><Button onClick={() => campaignsQuery.refetch()}>Retry</Button></main>;
+  if (campaignsQuery.error) return <main className="p-8"><p>Campaign access could not be verified.</p><Button onClick={() => campaignsQuery.refetch()}>{webT("web.retry")}</Button></main>;
 
   if (campaignsQuery.isLoading) {
     return <main className="min-h-screen bg-[#f2eee5] px-5 py-10"><div className="mx-auto max-w-7xl"><Skeleton className="h-12 w-72" /><Skeleton className="mt-8 h-[520px] w-full" /></div></main>;
@@ -179,8 +181,8 @@ const CampaignDetail = () => {
           <>
             <section className="grid gap-8 border-b border-black/15 py-10 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "People reached", value: campaign.impressions.toLocaleString(), icon: Eye },
-                { label: "Accepted actions", value: campaign.redemptions.toLocaleString(), icon: ShieldCheck },
+                { label: "People reached", value: campaign.impressions.toLocaleString(currentUiLocale()), icon: Eye },
+                { label: "Accepted actions", value: campaign.redemptions.toLocaleString(currentUiLocale()), icon: ShieldCheck },
                 { label: "Participant return", value: campaign.reward_value || "Not recorded", icon: Gift },
                 { label: "Open window", value: `${readableDate(campaign.start_date)} — ${readableDate(campaign.end_date)}`, icon: CalendarDays },
               ].map((item) => <div key={item.label}><item.icon className="h-5 w-5 text-[#d85b24]" /><p className="mt-4 text-2xl font-black">{item.value}</p><p className="mt-1 text-xs text-black/45">{item.label}</p></div>)}

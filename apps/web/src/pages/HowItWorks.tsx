@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, Search, ShieldCheck, Sparkles, Store, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -6,6 +7,7 @@ import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
 
 export default function HowItWorks() {
+  const { t: webT } = useWebI18n();
   return (
     <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
@@ -26,7 +28,7 @@ export default function HowItWorks() {
             </h1>
             <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">Tell PROMORANG what you want and what would actually move you. Then see Offers, Moments, Challenges, Gigs and Content Drops as they become real—and carry the useful parts of participation on PromoCard.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black">Get my PromoCard <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black">{webT("clarity.getMyCard")} <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/#ask" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-black text-white"><Search className="h-4 w-4" /> Tell PROMORANG what I want</Link>
             </div>
           </div>
@@ -37,9 +39,9 @@ export default function HowItWorks() {
       <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <NightTrail eyebrow="Your PromoCard journey" title="Want → watch → open → act → keep → return" steps={[
-            { label: "Want", title: "Tell PROMORANG what matters to you.", text: "Add your voice to something people want, ask for something missing, or discover something you decide is worth keeping close." },
-            { label: "Watch", title: "Give PROMORANG permission to bring you back.", text: "Watching keeps the relationship personal without pretending interest is already access." },
-            { label: "Open", title: "See when something real becomes available.", text: "An Offer, access window, Moment or other response appears separately when a real operator makes it possible." },
+            { label: webT("commercial.want.114"), title: "Tell PROMORANG what matters to you.", text: "Add your voice to something people want, ask for something missing, or discover something you decide is worth keeping close." },
+            { label: webT("web.watch"), title: "Give PROMORANG permission to bring you back.", text: "Watching keeps the relationship personal without pretending interest is already access." },
+            { label: webT("auth.open"), title: "See when something real becomes available.", text: "An Offer, access window, Moment or other response appears separately when a real operator makes it possible." },
             { label: "Act", title: "Pick it up and follow through when it makes sense.", text: "Claim, reserve, visit, attend, buy, share or complete the move—with each state staying honest." },
           ]} />
           <div className="mt-9 grid gap-4 md:grid-cols-2">
@@ -63,10 +65,10 @@ export default function HowItWorks() {
             </div>
           </div>
           <PaperReceipt heading="The truth underneath the card" lines={[
-            { label: "Wanted", value: "Interest", strong: true },
-            { label: "Open", value: "Real availability", strong: true },
-            { label: "Active", value: "Picked up / committed", strong: true },
-            { label: "Kept", value: "Used / completed / retained", strong: true },
+            { label: webT("publicHome.wanted"), value: "Interest", strong: true },
+            { label: webT("auth.open"), value: "Real availability", strong: true },
+            { label: webT("commercial.active"), value: "Picked up / committed", strong: true },
+            { label: webT("web.kept"), value: "Used / completed / retained", strong: true },
           ]} footer="Human language on top; strict market state underneath." />
         </div>
       </section>
@@ -90,9 +92,9 @@ export default function HowItWorks() {
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_360px] lg:items-start">
           <NightTrail eyebrow="For the people who can respond" title="Listen → qualify → open → learn" steps={[
             { label: "Listen", title: "See what people are showing you.", text: "Discoveries and Wants reveal where attention is forming without being treated as guaranteed sales." },
-            { label: "Qualify", title: "Decide whether it fits your goals and capacity.", text: "Volume, location, timing, audience and stronger commitment help you decide whether the Want deserves a response." },
-            { label: "Open", title: "Put something genuinely useful into the market.", text: "An Offer, Moment, access window, trial, experience or activation should have clear terms and real availability." },
-            { label: "Learn", title: "See who followed through.", text: "Picked-up access and completed actions stay separate so you can understand what people actually did." },
+            { label: webT("commercial.qualify.119"), title: "Decide whether it fits your goals and capacity.", text: "Volume, location, timing, audience and stronger commitment help you decide whether the Want deserves a response." },
+            { label: webT("auth.open"), title: "Put something genuinely useful into the market.", text: "An Offer, Moment, access window, trial, experience or activation should have clear terms and real availability." },
+            { label: webT("activationDetail.focusReview"), title: "See who followed through.", text: "Picked-up access and completed actions stay separate so you can understand what people actually did." },
           ]} />
           <PromoCardFace holder="Participant PromoCard" available="Where your response becomes personal" limit="Want · Open · Active · Kept" places="The participant sees one simple product while your operating tools keep the underlying states, terms and outcomes clear." action="See what changed" variant="membership" interactive={false} />
         </div>
@@ -103,7 +105,7 @@ export default function HowItWorks() {
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Choose your next move</p>
           <h2 className="mx-auto mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Get the card—or choose the side of the network you operate.</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black"><Users className="h-4 w-4" /> Get my PromoCard</Link>
+            <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black"><Users className="h-4 w-4" /> {webT("clarity.getMyCard")}</Link>
             <Link to="/for-merchants" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80"><Store className="h-4 w-4" /> I run a business</Link>
             <Link to="/join" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black text-white/80">See every path <ArrowRight className="h-4 w-4" /></Link>
           </div>

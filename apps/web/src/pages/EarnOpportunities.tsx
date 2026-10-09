@@ -31,6 +31,7 @@ const kindMeta: Record<ParticipationKind, { label: string; icon: typeof Target; 
 };
 
 export default function EarnOpportunities() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [params] = useSearchParams();
   const { activeRole } = useAuth();
@@ -97,7 +98,7 @@ export default function EarnOpportunities() {
           );
         })}
         <Link to={to("/content-drops")} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-black text-white/60 hover:border-white/30 hover:text-white">
-          <Megaphone className="h-3.5 w-3.5" /> Content Drops
+          <Megaphone className="h-3.5 w-3.5" /> {webT("commercial.content.drops.244")}
         </Link>
       </div>
 
@@ -140,7 +141,7 @@ export default function EarnOpportunities() {
                     <p className="mt-1 text-sm text-white/75">{item.peopleGet}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/30">{kind === "gig" ? "Compensation" : "Value"}</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.16em] text-white/30">{kind === "gig" ? "Compensation" : webT("createProposal.step6Short")}</p>
                     <p className="mt-1 text-sm font-bold text-white">{item.compensation || item.youEarn}</p>
                   </div>
                 </div>

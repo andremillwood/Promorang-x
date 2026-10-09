@@ -15,6 +15,7 @@ interface BeforeInstallPromptEvent extends Event {
 const PWA_DISMISSAL_KEY = "promorang:pwa_prompt_dismissed:mobile-home-v2";
 
 export function PWAInstallPrompt() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const location = useLocation();
   const { activeRole } = useAuth();
@@ -143,10 +144,10 @@ export function PWAInstallPrompt() {
       <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
         {showIOSPrompt ? (
           <p className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-white/90">
-            <span>Tap</span>
+            <span>{webT("web.tap")}</span>
             <Share className="h-3.5 w-3.5 text-primary inline" />
-            <span>then</span>
-            <strong className="text-white font-bold">Add to Home Screen</strong>
+            <span>{webT("web.then")}</span>
+            <strong className="text-white font-bold">{webT("web.addHome")}</strong>
             <PlusSquare className="h-3.5 w-3.5 text-primary inline" />
           </p>
         ) : (

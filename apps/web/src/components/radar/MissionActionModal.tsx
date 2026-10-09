@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from 'react';
 import { 
   X, 
@@ -29,6 +30,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
   status,
   onStatusChange
 }) => {
+  const { t: webT } = useWebI18n();
   const [proofUrl, setProofUrl] = useState('');
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -164,7 +166,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
               </div>
             </div>
             <span className="text-lg font-black text-purple-700 bg-purple-100 px-3 py-1 rounded-xl">
-              +{mission.points} pts
+              +{mission.points} {webT("web.pts")}
             </span>
           </div>
 
@@ -192,7 +194,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                 onClick={onClose}
                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
               >
-                Done
+                {webT("web.done")}
               </button>
             </div>
           ) : (
@@ -230,7 +232,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black text-gray-900">Are you at {moment.venueName}?</h4>
+                      <h4 className="text-xs font-black text-gray-900">Are you at {moment.venueName}{webT("notFound.titlePart3")}</h4>
                       <p className="text-[11px] text-gray-500 mt-0.5">
                         Verify your presence to instantly claim +{mission.points} points.
                       </p>
@@ -283,7 +285,7 @@ export const MissionActionModal: React.FC<MissionActionModalProps> = ({
                     className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm rounded-xl shadow-lg shadow-purple-600/20 flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    <span>Submit Proof for +{mission.points} pts</span>
+                    <span>Submit Proof for +{mission.points} {webT("web.pts")}</span>
                   </button>
                 </form>
               )}

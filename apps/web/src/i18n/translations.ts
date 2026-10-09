@@ -1,3 +1,4 @@
+import { webEn, webEs, webPtBR } from "./web-copy";
 import { releaseEn, releaseEs, releasePtBR } from "./release-copy";
 import { commercialEn, commercialEs, commercialPtBR } from "./commercial-copy";
 import { funnelEn, funnelEs, funnelPtBR } from "./funnel-copy";
@@ -15988,10 +15989,10 @@ const ptBR: Record<CoreTranslationKey, string> = {
   "dashboard.accountSettings": "Configurações da conta",
 };
 
-export type TranslationKey = CoreTranslationKey | keyof typeof moreEn | keyof typeof commercialEn | keyof typeof funnelEn | keyof typeof releaseEn;
+export type TranslationKey = keyof typeof webEn | CoreTranslationKey | keyof typeof moreEn | keyof typeof commercialEn | keyof typeof funnelEn | keyof typeof releaseEn;
 
 export const translations: Record<Locale, Record<TranslationKey, string>> = {
-  en: { ...en, ...moreEn, ...commercialEn, ...funnelEn, ...releaseEn },
-  "es-419": { ...es, ...moreEs, ...commercialEs, ...funnelEs, ...releaseEs },
-  "pt-BR": { ...ptBR, ...morePtBR, ...commercialPtBR, ...funnelPtBR, ...releasePtBR },
+  en: { ...en, ...moreEn, ...commercialEn, ...funnelEn, ...releaseEn, ...webEn },
+  "es-419": { ...es, ...moreEs, ...commercialEs, ...funnelEs, ...releaseEs, ...webEs },
+  "pt-BR": { ...ptBR, ...morePtBR, ...commercialPtBR, ...funnelPtBR, ...releasePtBR, ...webPtBR },
 };

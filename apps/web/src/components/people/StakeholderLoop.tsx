@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -12,13 +13,14 @@ import { TicketPass } from "@/components/promorang/SignatureObjects";
 const SETUP_SEEN_KEY = "promorang.setup-seen";
 
 export function StakeholderLoopTrail({ role }: { role?: string | null }) {
+  const { t: webT } = useWebI18n();
   const lens = getStakeholderLens(role);
   const to = useExperiencePath();
   const steps = lens.destinations.filter((item) => item.id !== "today");
 
   return (
     <section aria-labelledby="stakeholder-loop-heading">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">What you can do</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{webT("web.whatCanDo")}</p>
       <h2 id="stakeholder-loop-heading" className="mt-2 font-serif text-2xl font-bold">
         {lens.workspaceLabel}
       </h2>
@@ -65,6 +67,7 @@ export function StakeholderSurfaceLead({
   role?: string | null;
   surface: "world" | "promoCard" | "activity";
 }) {
+  const { t: webT } = useWebI18n();
   const lens = getStakeholderLens(role);
   const to = useExperiencePath();
   const object =
@@ -72,7 +75,7 @@ export function StakeholderSurfaceLead({
       ? lens.world
       : surface === "activity"
         ? lens.activity
-        : { label: "Card", meaning: lens.promoCard.meaning, href: "/card" };
+        : { label: webT("lens.card"), meaning: lens.promoCard.meaning, href: "/card" };
 
   return (
     <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-4">

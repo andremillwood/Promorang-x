@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Bell, BellRing, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +10,7 @@ type WatchMarketObjectButtonProps = SaveMarketObjectInput & {
 };
 
 export function WatchMarketObjectButton({ compact = false, className, ...object }: WatchMarketObjectButtonProps) {
+  const { t: webT } = useWebI18n();
   const { toast } = useToast();
   const saved = useSavedMarketObjects();
   const watching = saved.isSaved(object.type, object.id);
@@ -26,7 +28,7 @@ export function WatchMarketObjectButton({ compact = false, className, ...object 
     } catch (error) {
       toast({
         title: "Could not update your watch",
-        description: error instanceof Error ? error.message : "Try again.",
+        description: error instanceof Error ? error.message : webT("web.tryAgainShort"),
         variant: "destructive",
       });
     }
@@ -51,7 +53,7 @@ export function WatchMarketObjectButton({ compact = false, className, ...object 
       aria-label={`${watching ? "Stop watching" : "Watch"} ${object.title}`}
     >
       {saved.toggling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : watching ? <BellRing className="h-3.5 w-3.5" /> : <Bell className="h-3.5 w-3.5" />}
-      {watching ? "Watching" : compact ? "Watch" : "Watch on PromoCard"}
+      {watching ? webT("web.watching") : compact ? webT("web.watch") : "Watch on PromoCard"}
     </button>
   );
 }

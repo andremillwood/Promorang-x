@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import {
@@ -100,6 +101,7 @@ function getStateBadge(user: UserWithProfile) {
 }
 
 export function AdminUsersTab() {
+  const { t: webT } = useWebI18n();
   const { data: users, isLoading } = useAllUsers();
   const addRole = useAddUserRole();
   const removeRole = useRemoveUserRole();
@@ -243,23 +245,23 @@ export function AdminUsersTab() {
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Users</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{webT("web.users")}</p>
           <p className="mt-2 text-2xl font-semibold">{summary.total}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Suspended</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{webT("web.suspended")}</p>
           <p className="mt-2 text-2xl font-semibold text-destructive">{summary.suspended}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Limited</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{webT("web.limited")}</p>
           <p className="mt-2 text-2xl font-semibold text-amber-600">{summary.limited}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Flagged</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{webT("web.flagged")}</p>
           <p className="mt-2 text-2xl font-semibold text-orange-600">{summary.flagged}</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Open Support</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{webT("web.openSupport")}</p>
           <p className="mt-2 text-2xl font-semibold">{summary.openSupport}</p>
         </div>
         </div>
@@ -325,7 +327,7 @@ export function AdminUsersTab() {
             <p className="text-[9px] font-black uppercase tracking-[.18em] text-white/35">Accounts</p>
             <h3 className="mt-1 text-xl font-black text-white">Review people and permissions.</h3>
           </div>
-          <p className="text-xs text-white/30">Showing {filteredUsers.length} of {users?.length || 0}</p>
+          <p className="text-xs text-white/30">{webT("web.showing")} {filteredUsers.length} {webT("web.of")} {users?.length || 0}</p>
         </div>
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[.02] shadow-sm">
         <div
@@ -337,14 +339,14 @@ export function AdminUsersTab() {
             <thead>
               <tr className="border-b border-border bg-muted/30">
                 <th className="sticky left-0 z-20 bg-card/95 backdrop-blur-sm p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[240px] border-r border-border/60 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.5)]">
-                  User
+                  {webT("profile.user")}
                 </th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[120px]">State</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[120px]">{webT("onboarding.state")}</th>
                 <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Roles</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">Activity</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[160px]">Trust</th>
-                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[130px]">Joined</th>
-                <th className="p-4 text-right text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[170px]">Actions</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[140px]">{webT("lens.admin.activity")}</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[160px]">{webT("web.trust")}</th>
+                <th className="p-4 text-left text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[130px]">{webT("pulsePage.statJoined")}</th>
+                <th className="p-4 text-right text-sm font-medium text-muted-foreground whitespace-nowrap min-w-[170px]">{webT("sceneDetailPage.actionsLabel")}</th>
               </tr>
             </thead>
             <tbody>
@@ -352,7 +354,7 @@ export function AdminUsersTab() {
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-muted-foreground">
                     <Users className="mx-auto mb-4 h-12 w-12 opacity-50" />
-                    <p>No users found</p>
+                    <p>{webT("web.noUsers")}</p>
                   </td>
                 </tr>
               ) : (
@@ -403,13 +405,13 @@ export function AdminUsersTab() {
                     </td>
                     <td className="p-4 align-top text-sm text-muted-foreground whitespace-nowrap min-w-[140px]">
                       <div>{user.activity.hosted_count} hosted</div>
-                      <div>{user.activity.joined_count} joined</div>
+                      <div>{user.activity.joined_count} {webT("web.joined")}</div>
                       <div>{user.activity.total_content} content items</div>
                     </td>
                     <td className="p-4 align-top text-sm text-muted-foreground min-w-[160px]">
                       <div>{user.kyc_status ? `KYC: ${user.kyc_status}` : "KYC: —"}</div>
                       <div>
-                        Money: {user.qualification?.is_qualified_for_money ? "Qualified" : "Limited"}
+                        Money: {user.qualification?.is_qualified_for_money ? "Qualified" : webT("web.limited")}
                       </div>
                       {user.qualification?.disqualification_reason && (
                         <p className="mt-1 max-w-[220px] text-xs text-amber-700">
@@ -444,16 +446,16 @@ export function AdminUsersTab() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Moderate User</DropdownMenuLabel>
+                            <DropdownMenuLabel>{webT("web.moderateUser")}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "add" })}>
                               <UserPlus className="mr-2 h-4 w-4" />
-                              Add Role
+                              {webT("web.addRole")}
                             </DropdownMenuItem>
                             {user.roles.length > 0 && (
                               <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "remove" })}>
                                 <UserMinus className="mr-2 h-4 w-4" />
-                                Remove Role
+                                {webT("web.removeRole")}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
@@ -461,7 +463,7 @@ export function AdminUsersTab() {
                               {user.profile?.suspended ? (
                                 <>
                                   <UserCheck className="mr-2 h-4 w-4" />
-                                  Restore Account
+                                  {webT("web.restoreAccount")}
                                 </>
                               ) : (
                                 <>
@@ -490,7 +492,7 @@ export function AdminUsersTab() {
               className="h-7 px-2.5 text-xs font-semibold"
               onClick={() => scrollTable("left")}
               disabled={!canScrollLeft}
-              title="Scroll left"
+              title={webT("publicHome.scrollPrevious")}
             >
               <ChevronLeft className="mr-1 h-3.5 w-3.5" />
               Left
@@ -501,7 +503,7 @@ export function AdminUsersTab() {
               className="h-7 px-2.5 text-xs font-semibold"
               onClick={() => scrollTable("right")}
               disabled={!canScrollRight}
-              title="Scroll right"
+              title={webT("publicHome.scrollNext")}
             >
               Right
               <ChevronRight className="ml-1 h-3.5 w-3.5" />
@@ -540,7 +542,7 @@ export function AdminUsersTab() {
           {filteredUsers.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-muted-foreground">
               <Users className="mx-auto mb-4 h-12 w-12 opacity-50" />
-              <p>No users found</p>
+              <p>{webT("web.noUsers")}</p>
             </div>
           ) : (
             filteredUsers.map((user) => (
@@ -563,16 +565,16 @@ export function AdminUsersTab() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Moderate User</DropdownMenuLabel>
+                      <DropdownMenuLabel>{webT("web.moderateUser")}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "add" })}>
                         <UserPlus className="mr-2 h-4 w-4" />
-                        Add Role
+                        {webT("web.addRole")}
                       </DropdownMenuItem>
                       {user.roles.length > 0 && (
                         <DropdownMenuItem onClick={() => setRoleDialog({ userId: user.id, action: "remove" })}>
                           <UserMinus className="mr-2 h-4 w-4" />
-                          Remove Role
+                          {webT("web.removeRole")}
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
@@ -580,7 +582,7 @@ export function AdminUsersTab() {
                         {user.profile?.suspended ? (
                           <>
                             <UserCheck className="mr-2 h-4 w-4" />
-                            Restore Account
+                            {webT("web.restoreAccount")}
                           </>
                         ) : (
                           <>
@@ -606,7 +608,7 @@ export function AdminUsersTab() {
 
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Joined</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("pulsePage.statJoined")}</p>
                     <p className="mt-1">{formatDate(user.created_at)}</p>
                   </div>
                   <div>
@@ -614,11 +616,11 @@ export function AdminUsersTab() {
                     <p className="mt-1">{user.kyc_status || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Hosted</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("venues.hosted")}</p>
                     <p className="mt-1">{user.activity.hosted_count}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Joined</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{webT("pulsePage.statJoined")}</p>
                     <p className="mt-1">{user.activity.joined_count}</p>
                   </div>
                 </div>
@@ -639,7 +641,7 @@ export function AdminUsersTab() {
       <Dialog open={!!roleDialog} onOpenChange={() => setRoleDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{roleDialog?.action === "add" ? "Add Role" : "Remove Role"}</DialogTitle>
+            <DialogTitle>{roleDialog?.action === "add" ? webT("web.addRole") : webT("web.removeRole")}</DialogTitle>
             <DialogDescription>
               {roleDialog?.action === "add"
                 ? "Select a role to grant to this user."
@@ -671,7 +673,7 @@ export function AdminUsersTab() {
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setRoleDialog(null)}>
-              Cancel
+              {webT("findOrAsk.cancel")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -691,7 +693,7 @@ export function AdminUsersTab() {
           <div className="space-y-4 py-2">
             {suspensionDialog?.user && (
               <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
-                <p className="font-medium">{suspensionDialog.user.profile?.full_name || suspensionDialog.user.email || "User"}</p>
+                <p className="font-medium">{suspensionDialog.user.profile?.full_name || suspensionDialog.user.email || webT("profile.user")}</p>
                 <p className="mt-1 text-muted-foreground">{suspensionDialog.user.email || suspensionDialog.user.id}</p>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-muted-foreground">
                   <div>{suspensionDialog.user.activity.pending_content} pending content</div>
@@ -725,7 +727,7 @@ export function AdminUsersTab() {
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setSuspensionDialog(null)}>
-              Cancel
+              {webT("findOrAsk.cancel")}
             </Button>
             <Button
               variant={suspensionDialog?.nextSuspended ? "destructive" : "default"}

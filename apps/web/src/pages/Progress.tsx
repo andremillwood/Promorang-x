@@ -19,6 +19,7 @@ import { useI18n } from "@/i18n/I18nContext";
 const DIMENSIONS: WorldPathDimension[] = ["discover", "connect", "create", "host", "keep", "support"];
 
 export default function Progress() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const query = useWorldProgress();
   const to = useExperiencePath();
@@ -78,7 +79,7 @@ export default function Progress() {
 
       {world?.identity?.line || world?.worldSystem?.resonance?.cue || invitation?.formingLine ? (
         <section>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">How you move</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{webT("progress.howYouMove")}</p>
           <h2 className="mt-2 font-serif text-3xl font-bold">
             {world?.identity?.line || world?.worldSystem?.resonance?.cue || "A path is not named yet"}
           </h2>
@@ -121,7 +122,7 @@ export default function Progress() {
       <section>
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Becoming good at</p>
         <h2 className="mt-2 font-serif text-3xl font-bold">
-          {world?.path?.forming ? world.path.cue : "A path has not formed yet"}
+          {world?.path?.forming ? world.path.cue : webT("crews.pathNotFormed")}
         </h2>
         <p className="mt-2 text-sm text-white/50">Three matching verified actions before a title appears.</p>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -169,7 +170,7 @@ export default function Progress() {
                   <article key={row.key} className="rounded-[1.4rem] border border-white/10 px-4 py-4">
                     <p className="text-[10px] uppercase tracking-widest text-white/40">#{row.rank} · {row.verb}</p>
                     <p className="mt-1 font-serif text-2xl font-bold">{row.title}</p>
-                    <p className="mt-1 text-sm text-white/50">{row.current} verified {row.current === 1 ? "move" : "moves"}</p>
+                    <p className="mt-1 text-sm text-white/50">{row.current} {webT("web.verifiedLower")} {row.current === 1 ? "move" : webT("web.moves")}</p>
                   </article>
                 ))}
               </div>
@@ -199,8 +200,8 @@ export default function Progress() {
       ) : null}
 
       <section className="rounded-[1.6rem] border border-white/10 px-5 py-5">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Who you move with</p>
-        <h2 className="mt-2 font-serif text-2xl font-bold">{world?.crew?.name || "No Crew yet"}</h2>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{webT("crews.moveWith")}</p>
+        <h2 className="mt-2 font-serif text-2xl font-bold">{world?.crew?.name || webT("guilds.emptyCrewTitle")}</h2>
         <p className="mt-1 text-sm text-white/50">
           {world?.crew
             ? `${presentWorldRunTitle(world.crew.runTitle)} · ${world.crew.runCompleted || 0}/${world.crew.runTotal || 4}`

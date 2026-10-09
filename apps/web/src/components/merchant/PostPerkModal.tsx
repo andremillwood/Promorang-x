@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Store, Gift, Sparkles, Tag, CheckCircle2 } from "lucide-react";
@@ -22,6 +23,7 @@ export const PostPerkModal: React.FC<PostPerkModalProps> = ({
   onOpenChange,
   onCreated,
 }) => {
+  const { t: webT } = useWebI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { provideInventory } = useExperienceActions();
@@ -90,8 +92,8 @@ export const PostPerkModal: React.FC<PostPerkModalProps> = ({
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { type: "discount" as PerkKind, label: "Discount", icon: Tag },
-                { type: "complimentary" as PerkKind, label: "Free item", icon: Gift },
+                { type: "discount" as PerkKind, label: webT("give.kind.discount"), icon: Tag },
+                { type: "complimentary" as PerkKind, label: webT("rewards.freeItem"), icon: Gift },
                 { type: "merchant" as PerkKind, label: "Visit perk", icon: Sparkles },
               ].map((item) => (
                 <button
@@ -161,7 +163,7 @@ export const PostPerkModal: React.FC<PostPerkModalProps> = ({
               disabled={provideInventory.isPending}
               className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black py-3 rounded-xl shadow-lg shadow-emerald-500/20"
             >
-              {provideInventory.isPending ? "Putting it up…" : "Put this perk up"}
+              {provideInventory.isPending ? webT("stock.putting") : "Put this perk up"}
             </Button>
             <Button
               type="button"
@@ -169,7 +171,7 @@ export const PostPerkModal: React.FC<PostPerkModalProps> = ({
               onClick={() => onOpenChange(false)}
               className="border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white rounded-xl"
             >
-              Cancel
+              {webT("findOrAsk.cancel")}
             </Button>
           </div>
         </form>

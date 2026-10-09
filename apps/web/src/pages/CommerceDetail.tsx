@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { StoreBenefits } from "@/components/commerce/StoreBenefits";
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,6 +18,7 @@ import { addCartItem, rememberCommerceReferral } from '@/lib/commerce-cart';
 import { CommerceShareLink } from '@/components/commerce/CommerceShareLink';
 
 export default function CommerceDetail() {
+  const { t: webT } = useI18n();
   const { t, locale, formatNumber } = useI18n();
   const { listingId } = useParams();
   const location = useLocation();
@@ -98,7 +100,7 @@ export default function CommerceDetail() {
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'Could not reserve this item');
-      setReservationMessage(`Reserved until ${new Date(payload.order.reservation_expires_at).toLocaleTimeString()}. Follow the merchant’s instructions below.`);
+      setReservationMessage(`Reserved until ${new Date(payload.order.reservation_expires_at).toLocaleTimeString(currentUiLocale())}. Follow the merchant’s instructions below.`);
       void queryClient.invalidateQueries({ queryKey: ['commerce-detail', listingId] });
     } catch (error) {
       setReservationMessage(error instanceof Error ? error.message : 'Could not create reservation');
@@ -165,7 +167,7 @@ export default function CommerceDetail() {
           {x.image_url ? <img src={x.image_url} alt={x.name || ''} className="absolute inset-0 h-full w-full object-cover" /> : <ShoppingBag className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-white/20" />}
           <button
             aria-label={t("commerce.save")}
-            onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: sourceId, title: x.name || 'Product', subtitle: x.merchant_name || undefined, image: x.image_url || undefined })}
+            onClick={() => actions.toggleSave({ type: x.discount_value ? 'offer' : 'product', id: sourceId, title: x.name || webT("receipt.product"), subtitle: x.merchant_name || undefined, image: x.image_url || undefined })}
             className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-black/65"
           >
             <Bookmark className="h-5 w-5" />
@@ -202,7 +204,7 @@ export default function CommerceDetail() {
               >
                 <Link to="/card">
                   <CreditCard className="h-5 w-5 fill-black" />
-                  <span>Use this on PromoCard</span>
+                  <span>{webT("cardDrop.useCard")}</span>
                 </Link>
               </Button>
               <Button size="lg" disabled={isSample || !!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
@@ -258,7 +260,7 @@ export default function CommerceDetail() {
             ))}
             {reservationMessage ? <p className="rounded-xl bg-muted p-3 text-sm">{reservationMessage}</p> : null}
             <Button className="w-full" disabled={!selectedMerchantMethod || checkoutBusy} onClick={reserveForMerchantPayment}>
-              {checkoutBusy ? 'Reserving…' : 'Reserve for 30 minutes'}
+              {checkoutBusy ? webT("rsvp.reserving") : 'Reserve for 30 minutes'}
             </Button>
           </div>
         </DialogContent>

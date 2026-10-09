@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { loadStripe, Stripe, StripeElements } from "@stripe/stripe-js";
 import {
@@ -52,6 +54,7 @@ interface CheckoutFormProps {
  * Checkout form component (used inside Elements provider)
  */
 const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: CheckoutFormProps) => {
+  const { t: webT } = useWebI18n();
     const stripe = useStripe();
     const elements = useElements();
     const { toast } = useToast();
@@ -86,7 +89,7 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
                 setPaymentSucceeded(true);
                 toast({
                     title: "Payment Successful",
-                    description: `Your payment of ${currency.toUpperCase()} ${amount.toLocaleString()} has been processed.`,
+                    description: `Your payment of ${currency.toUpperCase()} ${amount.toLocaleString(currentUiLocale())} has been processed.`,
                 });
                 setTimeout(() => {
                     onSuccess(paymentIntent);
@@ -129,7 +132,7 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
                     disabled={isProcessing}
                     className="flex-1"
                 >
-                    Cancel
+                    {webT("findOrAsk.cancel")}
                 </Button>
                 <Button
                     type="submit"
@@ -139,12 +142,12 @@ const CheckoutForm = ({ clientSecret, amount, currency, onSuccess, onCancel }: C
                     {isProcessing ? (
                         <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Processing...
+                            {webT("web.processing")}
                         </>
                     ) : (
                         <>
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Pay {currency.toUpperCase()} {amount.toLocaleString()}
+                            Pay {currency.toUpperCase()} {amount.toLocaleString(currentUiLocale())}
                         </>
                     )}
                 </Button>
@@ -176,6 +179,7 @@ const StripeCheckout = ({
     onSuccess,
     onCancel,
 }: StripeCheckoutProps) => {
+  const { t: webT } = useWebI18n();
     const { toast } = useToast();
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -268,7 +272,7 @@ const StripeCheckout = ({
                         Unable to initialize payment. Please try again.
                     </p>
                     <Button onClick={onCancel} className="mt-4 mx-auto block">
-                        Go Back
+                        {webT("notFound.goBack")}
                     </Button>
                 </CardContent>
             </Card>
@@ -293,7 +297,7 @@ const StripeCheckout = ({
                     Complete Payment
                 </CardTitle>
                 <CardDescription>
-                    Total: {currency.toUpperCase()} {amount.toLocaleString()}
+                    Total: {currency.toUpperCase()} {amount.toLocaleString(currentUiLocale())}
                 </CardDescription>
             </CardHeader>
             <CardContent>

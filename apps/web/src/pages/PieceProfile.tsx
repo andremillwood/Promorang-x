@@ -74,6 +74,7 @@ interface PieceProfileData {
 }
 
 export function PieceProfile() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { pieceType = 'moment', assetId = 'asset_1' } = useParams<{ pieceType: PieceType; assetId: string }>();
   const { session } = useAuth();
@@ -174,7 +175,7 @@ export function PieceProfile() {
   if (loadError) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />Marketplace</Link></Button>
+        <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />{webT("how.layer1Link3")}</Link></Button>
         <h1 className="mt-6 text-2xl font-bold">Piece source unavailable</h1>
         <p className="mt-3 text-sm text-muted-foreground">{loadError}</p>
         <Button type="button" variant="outline" className="mt-6" onClick={fetchProfile}>
@@ -187,7 +188,7 @@ export function PieceProfile() {
   if (notFound || !profile) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />Marketplace</Link></Button>
+        <Button asChild variant="ghost"><Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" />{webT("how.layer1Link3")}</Link></Button>
         <h1 className="mt-6 text-2xl font-bold">Piece not found</h1>
       </div>
     );
@@ -209,7 +210,7 @@ export function PieceProfile() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between gap-4 mb-4">
             <Button asChild variant="ghost" size="sm" className="px-0 text-muted-foreground hover:text-foreground">
-              <Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" /> Marketplace</Link>
+              <Link to="/marketplace"><ArrowLeft className="mr-2 h-4 w-4" /> {webT("how.layer1Link3")}</Link>
             </Button>
 
             {/* Creator / Owner Management Shortcut */}
@@ -224,7 +225,7 @@ export function PieceProfile() {
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <Badge className="capitalize font-black text-[11px] bg-primary/20 text-primary border-primary/30">
-                  {profile.piece_type} Piece
+                  {profile.piece_type} {webT("promoShare.typePiece")}
                 </Badge>
                 {profile.pool && (
                   <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 bg-emerald-500/10 flex items-center gap-1">
@@ -254,7 +255,7 @@ export function PieceProfile() {
                     <span className="text-2xl font-black text-cyan-400">{recordedPrice == null ? "—" : `${Number(recordedPrice).toFixed(2)} Gems`}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">24h Volume</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{webT("tradingMarketplace.volume24h")}</span>
                     <span className="font-semibold text-white/90">{profile.pool?.volume_24h == null && profile.stats?.volume_24h == null ? "—" : `${Number(profile.pool?.volume_24h ?? profile.stats?.volume_24h).toFixed(0)} Gems`}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
@@ -262,7 +263,7 @@ export function PieceProfile() {
                     <span className="font-semibold text-emerald-400">{profile.stats?.holder_count == null ? "—" : `${Number(profile.stats.holder_count)} Backers`}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-white/10 pt-2">
-                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Market Cap</span>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{webT("pieceProfile.marketCap")}</span>
                     <span className="font-semibold text-white/90">{profile.stats?.market_cap == null ? "—" : `${Number(profile.stats.market_cap).toFixed(2)} Gems`}</span>
                   </div>
                 </CardContent>
@@ -383,11 +384,11 @@ export function PieceProfile() {
                 <div className="rounded-xl border border-cyan-500/20 bg-cyan-950/20 p-3 space-y-1.5 text-xs">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Estimated Total:</span>
-                    <span className="font-bold text-foreground">{estimatedSwapCost == null ? "Unavailable" : `${estimatedSwapCost.toFixed(2)} Gems`}</span>
+                    <span className="font-bold text-foreground">{estimatedSwapCost == null ? webT("web.unavailable") : `${estimatedSwapCost.toFixed(2)} Gems`}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Pool Swap Fee:</span>
-                    <span>{estimatedSwapCost == null ? "Unavailable" : `0.3% (~${(estimatedSwapCost * 0.003).toFixed(2)} Gems)`}</span>
+                    <span>{estimatedSwapCost == null ? webT("web.unavailable") : `0.3% (~${(estimatedSwapCost * 0.003).toFixed(2)} Gems)`}</span>
                   </div>
                 </div>
 
@@ -424,9 +425,9 @@ export function PieceProfile() {
               </CardHeader>
               <CardContent className="pt-4 grid grid-cols-2 gap-2">
                 <Button asChild variant="outline" size="sm"><Link to="/portfolio">Portfolio</Link></Button>
-                <Button asChild variant="outline" size="sm"><Link to="/marketplace">Marketplace</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to="/marketplace">{webT("how.layer1Link3")}</Link></Button>
                 <Button asChild variant="outline" size="sm"><Link to={`/pieces/${profile.piece_type}/${profile.asset_id}/manage`}>Creator Studio</Link></Button>
-                <Button asChild variant="outline" size="sm"><Link to="/wallet">Wallet</Link></Button>
+                <Button asChild variant="outline" size="sm"><Link to="/wallet">{webT("lens.wallet")}</Link></Button>
               </CardContent>
             </Card>
           </aside>

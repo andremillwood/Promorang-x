@@ -29,6 +29,7 @@ const categories = [
 ];
 
 const CreateBounty = () => {
+  const { t: webT } = useI18n();
     const { t } = useI18n();
     const { user, roles } = useAuth();
     const navigate = useNavigate();
@@ -143,7 +144,7 @@ const CreateBounty = () => {
                                 onValueChange={(value) => setFormData({ ...formData, category: value })}
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select category" />
+                                    <SelectValue placeholder={webT("web.selectCategory")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categories.map((cat) => (
@@ -248,7 +249,7 @@ const CreateBounty = () => {
                         className="h-12 border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white"
                         onClick={() => navigate("/dashboard")}
                     >
-                        Cancel
+                        {webT("findOrAsk.cancel")}
                     </Button>
                     <Button
                         type="submit"

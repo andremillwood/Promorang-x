@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, Braces, Code2, KeyRound, Network, ShieldCheck, Terminal } from "lucide-react";
 import SEO from "@/components/SEO";
@@ -28,6 +29,7 @@ const surfaces = [
 ];
 
 export default function ForDevelopers() {
+  const { t: webT } = useWebI18n();
   return (
     <main className="min-h-screen bg-[#070707] text-white">
       <SEO title="PROMORANG for Developers" description="Build against PROMORANG objects without collapsing Discovery, Demand, response, proof, and retained history into synthetic API success." />
@@ -47,8 +49,8 @@ export default function ForDevelopers() {
             { label: "Read", value: "source-backed" },
             { label: "Mutation", value: "authoritative write", strong: true },
             { label: "Failed write", value: "≠ success" },
-            { label: "Demand", value: "≠ supply" },
-            { label: "Claim", value: "≠ verification" },
+            { label: webT("lens.demand"), value: "≠ supply" },
+            { label: webT("web.receiptType.claim"), value: "≠ verification" },
           ]} footer="An API should not be less truthful than the UI." />
         </div>
       </section>
@@ -103,7 +105,7 @@ export default function ForDevelopers() {
             <ShieldCheck className="h-6 w-6 text-primary" />
             <p className="mt-4 font-serif text-2xl font-bold">No fake API responses.</p>
             <p className="mt-3 text-sm leading-6 text-white/45">The previous marketing playground used timers and hard-coded JSON to imitate feed, claim and operator responses. That presentation has been removed. Test real endpoints from an authenticated environment instead.</p>
-            <Link to="/developers/keys" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary"><Code2 className="h-4 w-4" />Open console <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/developers/keys" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary"><Code2 className="h-4 w-4" />{webT("merchantDash.openConsole")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
         </div>
       </section>

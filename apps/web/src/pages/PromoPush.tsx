@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useAuth } from "@/contexts/AuthContext";
 import { PromoPushActivation } from "@/components/campaigns/PromoPushActivation";
 import { useMemo, useRef, useState } from "react";
@@ -85,6 +86,7 @@ const metricCards = [
 ] as const;
 
 export default function PromoPush() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [params, setParams] = useSearchParams();
   const campaignsQuery = usePromoPushCampaigns();
@@ -184,7 +186,7 @@ export default function PromoPush() {
             <Card key={metric.key} className="border-white/10 bg-white/[0.04] text-white">
               <CardContent className="p-4">
                 <metric.icon className="mb-3 h-5 w-5 text-[#FF6A00]" />
-                <p className="text-2xl font-black">{campaignMetricsReady ? totals[metric.key].toLocaleString() : "—"}</p>
+                <p className="text-2xl font-black">{campaignMetricsReady ? totals[metric.key].toLocaleString(currentUiLocale()) : "—"}</p>
                 <p className="text-xs font-medium text-white/55">{t(metric.labelKey)}</p>
               </CardContent>
             </Card>
@@ -192,7 +194,7 @@ export default function PromoPush() {
           <Card className="border-[#FFC300]/30 bg-[#FFC300]/10 text-white">
             <CardContent className="p-4">
               <BadgeDollarSign className="mb-3 h-5 w-5 text-[#FFC300]" />
-              <p className="text-2xl font-black">{campaignMetricsReady ? totals.rewards_issued.toLocaleString() : "—"}</p>
+              <p className="text-2xl font-black">{campaignMetricsReady ? totals.rewards_issued.toLocaleString(currentUiLocale()) : "—"}</p>
               <p className="text-xs font-medium text-[#FFC300]/80">{t("promoPush.metricRewardsIssued")}</p>
             </CardContent>
           </Card>
@@ -215,28 +217,28 @@ export default function PromoPush() {
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2 rounded-lg border border-[#FF6A00]/25 bg-[#FF6A00]/10 p-4">
-                    <p className="text-sm font-black">What do you want to make happen?</p>
+                    <p className="text-sm font-black">{webT("offerStudio.quickLaunchHeading")}</p>
                     <p className="mt-1 text-xs text-white/60">Start with the outcome. PROMORANG will keep the operational detail behind it.</p>
                   </div>
                   <div>
-                    <Label>Outcome</Label>
+                    <Label>{webT("createProposal.step1Short")}</Label>
                     <Select required value={form.objective_type} onValueChange={(value) => updateForm("objective_type", value)}>
-                      <SelectTrigger className="mt-2 bg-black/40"><SelectValue placeholder="Choose an outcome" /></SelectTrigger>
+                      <SelectTrigger className="mt-2 bg-black/40"><SelectValue placeholder={webT("commercial.choose.an.outcome.150")} /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="awareness">Awareness</SelectItem>
                         <SelectItem value="signups">Sign-ups</SelectItem>
                         <SelectItem value="foot_traffic">Foot traffic</SelectItem>
                         <SelectItem value="ticket_sales">Ticket sales</SelectItem>
-                        <SelectItem value="redemptions">Redemptions</SelectItem>
-                        <SelectItem value="product_trial">Product trial</SelectItem>
+                        <SelectItem value="redemptions">{webT("merchantDash.redemptions")}</SelectItem>
+                        <SelectItem value="product_trial">{webT("commercial.product.trial.276")}</SelectItem>
                         <SelectItem value="leads">Leads</SelectItem>
                         <SelectItem value="content_creation">Content creation</SelectItem>
-                        <SelectItem value="sales">Sales</SelectItem>
+                        <SelectItem value="sales">{webT("web.sales")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label>Distribution</Label>
+                    <Label>{webT("how.brandStep3Badge")}</Label>
                     <Select required value={form.push_mode} onValueChange={(value) => updateForm("push_mode", value)}>
                       <SelectTrigger className="mt-2 bg-black/40"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -259,12 +261,12 @@ export default function PromoPush() {
                       <SelectTrigger className="mt-2 bg-black/40"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">No reward</SelectItem>
-                        <SelectItem value="discount">Discount</SelectItem>
-                        <SelectItem value="free_item">Free item</SelectItem>
+                        <SelectItem value="discount">{webT("give.kind.discount")}</SelectItem>
+                        <SelectItem value="free_item">{webT("rewards.freeItem")}</SelectItem>
                         <SelectItem value="ticket">Ticket or pass</SelectItem>
-                        <SelectItem value="sample">Sample</SelectItem>
+                        <SelectItem value="sample">{webT("market.sample")}</SelectItem>
                         <SelectItem value="upgrade">Upgrade</SelectItem>
-                        <SelectItem value="gems">Gems</SelectItem>
+                        <SelectItem value="gems">{webT("wallet.gemsLabel")}</SelectItem>
                         <SelectItem value="exclusive_access">Exclusive access</SelectItem>
                       </SelectContent>
                     </Select>
@@ -297,7 +299,7 @@ export default function PromoPush() {
                       <div className="mt-2 flex items-center justify-between gap-3 rounded-md border border-red-500/20 bg-red-500/5 p-3 text-xs text-red-100/80">
                         <span>Moments couldn’t load. Campaign creation is disabled until they’re available again.</span>
                         <Button type="button" size="sm" variant="outline" className="border-white/15 bg-black/20 text-white" onClick={() => momentsQuery.refetch()}>
-                          <RefreshCcw className="mr-2 h-3.5 w-3.5" />Retry
+                          <RefreshCcw className="mr-2 h-3.5 w-3.5" />{webT("web.retry")}
                         </Button>
                       </div>
                     ) : null}
@@ -327,7 +329,7 @@ export default function PromoPush() {
                     <Input id="end" type="datetime-local" required value={form.end_time} onChange={(e) => updateForm("end_time", e.target.value)} className="mt-2 bg-black/40" />
                   </div>
                   <div>
-                    <Label htmlFor="budget">Planned budget</Label>
+                    <Label htmlFor="budget">{webT("brandDash.budget")}</Label>
                     <Input id="budget" type="number" min="0" value={form.budget} onChange={(e) => updateForm("budget", e.target.value)} className="mt-2 bg-black/40" placeholder="Planning only — not secured" />
                   </div>
                   <div>
@@ -343,7 +345,7 @@ export default function PromoPush() {
                     <Label htmlFor="creative" className="text-sm text-white/80">{t("promoPush.creativeSupportLabel")}</Label>
                   </div>
                   <Button disabled={createCampaign.isPending || momentsQuery.isLoading || !!momentsQuery.error} className="sm:col-span-2 bg-[#FF6A00] text-white hover:bg-[#e65f00]">
-                    {createCampaign.isPending ? "Saving…" : form.push_mode === "organic" ? "Save and launch" : "Save funding-ready draft"}
+                    {createCampaign.isPending ? webT("funnel.saving") : form.push_mode === "organic" ? "Save and launch" : "Save funding-ready draft"}
                   </Button>
                 </CardContent>
               </Card>
@@ -386,7 +388,7 @@ export default function PromoPush() {
                   <p className="font-black">Campaign records are unavailable.</p>
                   <p className="mt-2 text-sm text-white/55">PROMORANG will not describe a failed campaign source as zero activity or an empty campaign list.</p>
                   <Button type="button" variant="outline" className="mt-4 border-white/15 bg-black/20 text-white" onClick={() => campaignsQuery.refetch()}>
-                    <RefreshCcw className="mr-2 h-4 w-4" />Retry campaign source
+                    <RefreshCcw className="mr-2 h-4 w-4" />{webT("web.retryCampaign")}
                   </Button>
                 </CardContent>
               </Card>

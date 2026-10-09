@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +50,7 @@ interface Transaction {
 }
 
 export function AdminEconomyTab() {
+  const { t: webT } = useWebI18n();
     const { session } = useAuth();
     const { toast } = useToast();
     const [stats, setStats] = useState<EconomyStats | null>(null);
@@ -158,9 +161,9 @@ export function AdminEconomyTab() {
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <Gem className="w-4 h-4 text-cyan-400" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-cyan-400">Total Gems</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-cyan-400">{webT("web.totalGems")}</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.total_gems?.toLocaleString()}</p>
+                                <p className="text-3xl font-black">{stats?.total_gems?.toLocaleString(currentUiLocale())}</p>
                                 <p className="text-[10px] text-muted-foreground mt-1">Rate: ${stats?.gem_usd_rate}/gem</p>
                             </CardContent>
                         </Card>
@@ -168,18 +171,18 @@ export function AdminEconomyTab() {
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <Coins className="w-4 h-4 text-amber-400" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-amber-400">Total Points</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-amber-400">{webT("rewardsPage.totalPoints")}</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.total_points?.toLocaleString()}</p>
+                                <p className="text-3xl font-black">{stats?.total_points?.toLocaleString(currentUiLocale())}</p>
                             </CardContent>
                         </Card>
                         <Card className="border-purple-500/20">
                             <CardContent className="p-5">
                                 <div className="flex items-center gap-2 mb-3">
                                     <KeyRound className="w-4 h-4 text-purple-400" />
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-purple-400">PromoKeys</span>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-purple-400">{webT("wallet.keysLabel")}</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.total_promokeys?.toLocaleString()}</p>
+                                <p className="text-3xl font-black">{stats?.total_promokeys?.toLocaleString(currentUiLocale())}</p>
                             </CardContent>
                         </Card>
                         <Card className="border-primary/20">
@@ -188,7 +191,7 @@ export function AdminEconomyTab() {
                                     <Activity className="w-4 h-4 text-primary" />
                                     <span className="text-[10px] uppercase tracking-widest font-bold text-primary">24h Velocity</span>
                                 </div>
-                                <p className="text-3xl font-black">{stats?.transactions_24h?.toLocaleString()}</p>
+                                <p className="text-3xl font-black">{stats?.transactions_24h?.toLocaleString(currentUiLocale())}</p>
                                 <p className="text-[10px] text-muted-foreground mt-1">{stats?.total_users_with_balance} wallets</p>
                             </CardContent>
                         </Card>
@@ -275,7 +278,7 @@ export function AdminEconomyTab() {
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-2">
-                                    <Label className="text-xs">Currency</Label>
+                                    <Label className="text-xs">{webT("web.currency")}</Label>
                                     <Select value={adjustCurrency} onValueChange={setAdjustCurrency}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
@@ -287,7 +290,7 @@ export function AdminEconomyTab() {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs">Amount</Label>
+                                    <Label className="text-xs">{webT("wallet.amount")}</Label>
                                     <Input
                                         type="number"
                                         placeholder="+500 or -100"

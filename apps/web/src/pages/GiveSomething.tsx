@@ -16,6 +16,7 @@ const KINDS = Object.entries(PERK_KIND_LABELS) as Array<[PerkKind, string]>;
 const AUDIENCES = Object.entries(AUDIENCE_LABELS) as Array<[DropAudience, string]>;
 
 export default function GiveSomething() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [params] = useSearchParams();
   const { user, profile, activeRole } = useAuth();
@@ -249,7 +250,7 @@ export default function GiveSomething() {
               rel="noreferrer"
               className="grid min-h-12 place-items-center rounded-full border border-white/20 text-sm font-black"
             >
-              WhatsApp
+              {webT("guestPassPage.channelWhatsapp")}
             </a>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Archive, Building2, CircleX, ExternalLink, Megaphone, Package, PauseCircle, Pencil, PlayCircle, Plus, Search, Store, Tag } from "lucide-react";
@@ -198,6 +199,7 @@ function parseCatalogValue(field: string, value: string) {
 }
 
 export function AdminCatalogTab() {
+  const { t: webT } = useWebI18n();
   const { session, roles } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -386,7 +388,7 @@ export function AdminCatalogTab() {
           {canManage && (
             <Button onClick={openCreate}>
               <Plus className="mr-2 h-4 w-4" />
-              Create
+              {webT("start.createCta")}
             </Button>
           )}
         </div>
@@ -416,7 +418,7 @@ export function AdminCatalogTab() {
               </Card>
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Active</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{webT("commercial.active")}</p>
                   <p className="mt-2 text-2xl font-black text-emerald-600">{activeCount}</p>
                 </CardContent>
               </Card>
@@ -434,7 +436,7 @@ export function AdminCatalogTab() {
               </div>
             ) : rows.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-                No {catalogMeta[key].title.toLowerCase()} matched.
+                {webT("web.no")} {catalogMeta[key].title.toLowerCase()} matched.
               </div>
             ) : (
               <div className="grid gap-4 lg:grid-cols-2">
@@ -460,49 +462,49 @@ export function AdminCatalogTab() {
                       <CardContent className="space-y-4">
                         <div className="grid grid-cols-2 gap-3 text-sm text-muted-foreground">
                           <div className="rounded-lg border border-border p-3">
-                            <p className="text-xs uppercase tracking-wider">Type</p>
+                            <p className="text-xs uppercase tracking-wider">{webT("wallet.type")}</p>
                             <p className="mt-1 font-medium text-foreground">{item.category || item.reward_type || key}</p>
                           </div>
                           <div className="rounded-lg border border-border p-3">
-                            <p className="text-xs uppercase tracking-wider">Owner</p>
-                            <p className="mt-1 truncate font-mono text-xs text-foreground">{item.owner_id || item.merchant_id || item.owner_user_id || item.brand_id || "none"}</p>
+                            <p className="text-xs uppercase tracking-wider">{webT("web.owner")}</p>
+                            <p className="mt-1 truncate font-mono text-xs text-foreground">{item.owner_id || item.merchant_id || item.owner_user_id || item.brand_id || webT("web.none")}</p>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <Button asChild variant="outline" size="sm">
                             <a href={itemHref(key, item)} target="_blank" rel="noreferrer">
                               <ExternalLink className="mr-2 h-4 w-4" />
-                              Open
+                              {webT("auth.open")}
                             </a>
                           </Button>
                           {canManage && (
                             <Button variant="outline" size="sm" onClick={() => openEdit(key, item)}>
                               <Pencil className="mr-2 h-4 w-4" />
-                              Edit
+                              {webT("serviceCatalogPage.edit")}
                             </Button>
                           )}
                           {state !== "active" && (canManage || key === "brands" || key === "campaigns") && (
                             <Button size="sm" onClick={() => activate(item)} disabled={updateItem.isPending}>
                               <PlayCircle className="mr-2 h-4 w-4" />
-                              {key === "brands" ? "Approve / restore" : "Activate"}
+                              {key === "brands" ? "Approve / restore" : webT("lens.agency.putIn")}
                             </Button>
                           )}
                           {state === "active" && (canManage || key === "brands" || key === "campaigns") && (
                             <Button variant="outline" size="sm" onClick={() => pause(item)} disabled={updateItem.isPending}>
                               <PauseCircle className="mr-2 h-4 w-4" />
-                              Pause
+                              {webT("offerStudio.pause")}
                             </Button>
                           )}
                           {(key === "brands" || key === "campaigns") && state !== "archived" && (
                             <Button variant="outline" size="sm" onClick={() => rejectItem(key, item)} disabled={moderateItem.isPending}>
                               <CircleX className="mr-2 h-4 w-4" />
-                              Reject
+                              {webT("web.reject")}
                             </Button>
                           )}
                           {canManage && state !== "archived" && (
                             <Button variant="ghost" size="sm" onClick={() => requestArchive(item)} disabled={archiveItem.isPending}>
                               <Archive className="mr-2 h-4 w-4" />
-                              Archive
+                              {webT("web.archive")}
                             </Button>
                           )}
                         </div>
@@ -582,10 +584,10 @@ export function AdminCatalogTab() {
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditState(null)}>
-              Cancel
+              {webT("findOrAsk.cancel")}
             </Button>
             <Button onClick={submitEdit} disabled={updateItem.isPending || createItem.isPending}>
-              {editState?.mode === "create" ? "Create Item" : "Save Changes"}
+              {editState?.mode === "create" ? "Create Item" : webT("editMoment.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,3 +1,4 @@
+import { withI18n } from "@/test/withI18n";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { act } from "react";
@@ -28,9 +29,9 @@ let container: HTMLDivElement;
 const renderAdmin = async () => {
   await act(async () => {
     root.render(
-      <MemoryRouter>
+      withI18n(<MemoryRouter>
         <AftrHrsAdmin />
-      </MemoryRouter>,
+      </MemoryRouter>),
     );
   });
 };
@@ -98,7 +99,7 @@ describe("AftrHrs admin page language", () => {
     expect(container).toHaveTextContent("Ready for the door");
     expect(container).toHaveTextContent("None of 15 invitations given out yet.");
     expect(container).toHaveTextContent("Download guest list");
-    expect(container).toHaveTextContent("Friday, 18 September 2026");
+    expect(container).toHaveTextContent("Friday, September 18, 2026");
     expect(container).toHaveTextContent("Friday Guest");
     expect(container).toHaveTextContent("Guest list RSVPs");
     expect(container).toHaveTextContent("Digital passes");

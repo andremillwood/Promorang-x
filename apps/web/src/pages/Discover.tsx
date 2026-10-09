@@ -155,6 +155,7 @@ const HubEmptyState = ({
 type DiscoverTab = "discoveries" | "perks" | "moments" | "distribute" | "places";
 
 const SignedInDiscover = () => {
+  const { t: webT } = useI18n();
   const { t, locale, formatNumber } = useI18n();
   const { user, activeRole } = useAuth();
   const { city, country, setCity } = useMarket();
@@ -375,7 +376,7 @@ const SignedInDiscover = () => {
           id: v.id,
           lat,
           lng,
-          title: v.name || "Place",
+          title: v.name || webT("launch.place"),
           subtitle: [v.city, v.venue_type].filter(Boolean).join(" · ") || undefined,
           category: v.verification_status === "verified" ? t("discover.verifiedVenue") : "Place",
           imageUrl: v.image_url || undefined,
@@ -386,7 +387,7 @@ const SignedInDiscover = () => {
     });
 
     return markers;
-  }, [filteredMoments, filteredVenues, t]);
+  }, [filteredMoments, filteredVenues, t, webT]);
 
   const mapCenter = useMemo(() => {
     if (mapMarkers.length > 0) {
@@ -568,7 +569,7 @@ const SignedInDiscover = () => {
             <Share2 className="h-4 w-4 text-purple-300" />
             <span>{t("discover.tabShare")}</span>
             <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
-              Share
+              {webT("promoShare.shareAria")}
             </span>
           </button>
 
@@ -598,10 +599,10 @@ const SignedInDiscover = () => {
                   placeholder="Search food, Chinese cuisine, egg fried rice…"
                   className="h-12 w-full rounded-2xl border border-white/10 bg-black/40 pl-11 pr-11 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-primary/70 focus:ring-4 focus:ring-primary/10"
                 />
-                {searchQuery ? <button type="button" onClick={() => setSearchQuery("")} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-white/40 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
+                {searchQuery ? <button type="button" onClick={() => setSearchQuery("")} aria-label={webT("publicDiscover.clearSearch")} className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-white/40 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
               </label>
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-none" aria-label="Filter by category">
-                <span className="flex shrink-0 items-center gap-1.5 px-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/35"><Filter className="h-3.5 w-3.5" /> Filter</span>
+                <span className="flex shrink-0 items-center gap-1.5 px-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/35"><Filter className="h-3.5 w-3.5" /> {webT("serviceCatalogPage.filter")}</span>
                 {categoryFilters.map((cat) => {
                   const Icon = cat.icon;
                   return <button key={cat.id} type="button" onClick={() => setActiveCategory(cat.id)} aria-pressed={activeCategory === cat.id} className={`inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 text-xs font-bold transition ${activeCategory === cat.id ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.04] text-white/55 hover:border-white/25 hover:text-white"}`}><Icon className="h-3.5 w-3.5" />{t(cat.key)}</button>;
@@ -613,13 +614,13 @@ const SignedInDiscover = () => {
                 <div className="flex flex-wrap items-center gap-2">
                   <span>Matches in {city.name}:</span>
                   <button type="button" onClick={() => handleTabChange("moments")} className={`rounded-full border px-2.5 py-1 font-bold transition ${activeTab === "moments" ? "border-primary bg-primary/15 text-primary" : "border-white/10 text-white/65 hover:border-primary/50 hover:text-white"}`}>
-                    {filteredMoments.length} Moments
+                    {filteredMoments.length} {webT("findOrAsk.moments")}
                   </button>
                   <button type="button" onClick={() => handleTabChange("places")} className={`rounded-full border px-2.5 py-1 font-bold transition ${activeTab === "places" ? "border-primary bg-primary/15 text-primary" : "border-white/10 text-white/65 hover:border-primary/50 hover:text-white"}`}>
-                    {filteredVenues.length} Places
+                    {filteredVenues.length} {webT("findOrAsk.resultPlaces")}
                   </button>
                   <button type="button" onClick={() => handleTabChange("perks")} className={`rounded-full border px-2.5 py-1 font-bold transition ${activeTab === "perks" ? "border-emerald-400 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-white/65 hover:border-emerald-400/50 hover:text-white"}`}>
-                    {hubPerks.length} Perks
+                    {hubPerks.length} {webT("web.perks")}
                   </button>
                 </div>
                 <button type="button" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }} className="self-start font-bold text-primary hover:text-white sm:self-auto">Reset filters</button>
@@ -688,7 +689,7 @@ const SignedInDiscover = () => {
                     ))}
                   </div>
                 ) : nearby.isError ? (
-                  <div role="alert" className="border-y border-white/10 py-8"><p>Offers couldn’t load.</p><button type="button" onClick={() => void nearby.refetch()} className="min-h-11 text-primary">Try again</button></div>
+                  <div role="alert" className="border-y border-white/10 py-8"><p>Offers couldn’t load.</p><button type="button" onClick={() => void nearby.refetch()} className="min-h-11 text-primary">{webT("release.18")}</button></div>
                 ) : (
                   <div className="space-y-8">
                     {localPerks.length > 0 && (
@@ -759,7 +760,7 @@ const SignedInDiscover = () => {
                   })}
                 </div>
 
-                {discoveryQuery.isError ? <div role="alert" className="border-y border-white/10 py-6"><p>Moments couldn’t load.</p><button type="button" onClick={() => void discoveryQuery.refetch()} className="min-h-11 text-primary">Try again</button></div> : discoveryQuery.isLoading ? <p role="status" className="py-6 text-white/60">Loading Moments…</p> : null}
+                {discoveryQuery.isError ? <div role="alert" className="border-y border-white/10 py-6"><p>Moments couldn’t load.</p><button type="button" onClick={() => void discoveryQuery.refetch()} className="min-h-11 text-primary">{webT("release.18")}</button></div> : discoveryQuery.isLoading ? <p role="status" className="py-6 text-white/60">Loading Moments…</p> : null}
                 {nextMoment && !searchQuery && activeCategory === "all" && viewMode === "grid" && (
                   <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-black min-h-[340px] sm:min-h-[380px] flex items-end p-5 sm:p-8">
                     <img
@@ -876,7 +877,7 @@ const SignedInDiscover = () => {
                     <h3 className="text-xl font-bold text-white">{t("discover.placesTitle")}</h3>
                     <p className="text-xs text-white/50">{t("discover.placesCopy", { city: city.name })}</p>
                   </div>
-                  <span className="text-xs font-semibold text-white/50">{formatNumber(filteredVenues.length)} places</span>
+                  <span className="text-xs font-semibold text-white/50">{formatNumber(filteredVenues.length)} {webT("rsvp.places")}</span>
                 </div>
 
                 {venuesQuery.isLoading ? (
@@ -887,7 +888,7 @@ const SignedInDiscover = () => {
                   <div role="alert" className="rounded-3xl border border-red-400/20 bg-red-400/5 p-6">
                     <p className="text-sm font-bold text-white">Places couldn’t load.</p>
                     <p className="mt-1 text-xs text-white/45">Static venue fixtures are not being substituted.</p>
-                    <button type="button" onClick={() => void venuesQuery.refetch()} className="mt-3 min-h-11 text-primary">Try again</button>
+                    <button type="button" onClick={() => void venuesQuery.refetch()} className="mt-3 min-h-11 text-primary">{webT("release.18")}</button>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -905,7 +906,7 @@ const SignedInDiscover = () => {
                               {venue.city ? <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">{venue.city}</Badge> : null}
                               {venue.venue_type ? <Badge variant="outline" className="border-white/15 text-white/60 text-[10px] capitalize">{venue.venue_type.replaceAll("_", " ")}</Badge> : null}
                             </div>
-                            <h4 className="text-base font-bold text-white truncate">{venue.name || "Place"}</h4>
+                            <h4 className="text-base font-bold text-white truncate">{venue.name || webT("launch.place")}</h4>
                             <p className="text-xs text-white/60 flex items-center gap-1">
                               <MapPin className="h-3 w-3 text-primary shrink-0" />
                               <span className="truncate">{venue.location || venue.address || "Location coming soon"}</span>

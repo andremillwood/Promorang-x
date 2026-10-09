@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { fillCardHref, fillCardMoves, type PromoCardAim } from "@promorang/shared";
@@ -16,6 +17,7 @@ function experienceAwarePath(path: string, to: (value: string) => string): strin
 }
 
 export function FillCardMoves({ aim, authenticated }: FillCardMovesProps) {
+  const { t: webT } = useWebI18n();
   const to = useExperiencePath();
   const moves = fillCardMoves(aim);
   return (
@@ -31,7 +33,7 @@ export function FillCardMoves({ aim, authenticated }: FillCardMovesProps) {
             <p className="text-sm font-black text-white">{move.label}</p>
             <p className="mt-1 text-xs leading-5 text-white/50">{move.detail}</p>
             <span className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary">
-              Continue
+              {webT("funnel.continue")}
               <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
             </span>
           </Link>

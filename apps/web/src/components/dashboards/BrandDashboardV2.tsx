@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -32,6 +33,7 @@ import BrandIntelligenceConsole from "@/components/brand/BrandIntelligenceConsol
 import { BusinessOutcomeEntry } from "@/components/business/BusinessOutcomeEntry";
 
 export function BrandDashboardV2() {
+  const { t: webT } = useWebI18n();
   const { user, organizations, activeOrgId, profile, agencyClients } = useAuth();
   const { data: campaigns, isLoading: campaignsLoading } = useBrandCampaigns();
   useBrandStats();
@@ -116,7 +118,7 @@ export function BrandDashboardV2() {
               {[
                 {
                   step: "01",
-                  title: "Choose an action",
+                  title: webT("home.act01Title"),
                   copy: "Decide the single customer behavior this test should create.",
                 },
                 {
@@ -126,7 +128,7 @@ export function BrandDashboardV2() {
                 },
                 {
                   step: "03",
-                  title: "Capture proof",
+                  title: webT("commercial.capture.proof.347"),
                   copy: "Track attributable claims, visits, redemptions, purchases, reviews, or referrals so the client can see what happened.",
                 },
               ].map((item) => (
@@ -183,10 +185,10 @@ export function BrandDashboardV2() {
 
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
-              { icon: Sparkles, title: "Launch", copy: "Put one clear customer action into market." },
+              { icon: Sparkles, title: webT("drops.launch"), copy: "Put one clear customer action into market." },
               { icon: Users, title: "Move people", copy: "Get the first 50 attributable participants." },
-              { icon: PackageCheck, title: "Prove", copy: "Show what people actually did, not only what they saw." },
-              { icon: TrendingUp, title: "Decide", copy: "Use the result to stop, adjust, or scale the next activation." },
+              { icon: PackageCheck, title: webT("activity.prove"), copy: "Show what people actually did, not only what they saw." },
+              { icon: TrendingUp, title: webT("how.memberStep1Badge"), copy: "Use the result to stop, adjust, or scale the next activation." },
             ].map(({ icon: Icon, title, copy }) => (
               <div key={title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <Icon className="h-5 w-5 text-primary" />
@@ -213,7 +215,7 @@ export function BrandDashboardV2() {
               <h1 className="text-xl sm:text-2xl font-black text-white">{activeBrandName} Demand Workspace</h1>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-primary/40 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                <span>{activeCampaigns.length} active</span>
+                <span>{activeCampaigns.length} {webT("web.activeLower")}</span>
               </span>
               {isManagedClient && (
                 <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold text-white/60">
@@ -274,10 +276,10 @@ export function BrandDashboardV2() {
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {[
           { id: "demand", label: "Demand signals", icon: Vote, hint: "What people are asking for", count: "Live" },
-          { id: "campaigns", label: "Activations", icon: Megaphone, hint: "Campaigns and budget", count: `${activeCampaigns.length} live` },
-          { id: "opportunities", label: "Opportunities", icon: Target, hint: "Places and moments to activate", count: momentFeed.isLoading ? "Checking" : `${(momentFeed.data?.moments || []).filter((moment) => moment.sponsorship_ready).length} ready` },
-          { id: "creators", label: "Distribution", icon: Users, hint: "Creator and partner work", count: "Review" },
-          { id: "correlation", label: "Proof", icon: Link2, hint: "Attributed customer action", count: "Measured" },
+          { id: "campaigns", label: webT("adminDash.activations"), icon: Megaphone, hint: "Campaigns and budget", count: `${activeCampaigns.length} live` },
+          { id: "opportunities", label: webT("people.opportunities"), icon: Target, hint: "Places and moments to activate", count: momentFeed.isLoading ? "Checking" : `${(momentFeed.data?.moments || []).filter((moment) => moment.sponsorship_ready).length} ready` },
+          { id: "creators", label: webT("how.brandStep3Badge"), icon: Users, hint: "Creator and partner work", count: "Review" },
+          { id: "correlation", label: webT("promoPushLandingPage.step3Title"), icon: Link2, hint: "Attributed customer action", count: "Measured" },
           { id: "insights", label: "Economics", icon: Coins, hint: "Budget and outcomes", count: `${totalRedemptions} redeemed` },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -298,11 +300,11 @@ export function BrandDashboardV2() {
         <div className="min-w-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <TabsList className="sr-only">
-              <TabsTrigger value="demand">Demand</TabsTrigger>
-              <TabsTrigger value="campaigns">Activations</TabsTrigger>
-              <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
-              <TabsTrigger value="creators">Distribution</TabsTrigger>
-              <TabsTrigger value="correlation">Proof</TabsTrigger>
+              <TabsTrigger value="demand">{webT("lens.demand")}</TabsTrigger>
+              <TabsTrigger value="campaigns">{webT("adminDash.activations")}</TabsTrigger>
+              <TabsTrigger value="opportunities">{webT("people.opportunities")}</TabsTrigger>
+              <TabsTrigger value="creators">{webT("how.brandStep3Badge")}</TabsTrigger>
+              <TabsTrigger value="correlation">{webT("promoPushLandingPage.step3Title")}</TabsTrigger>
               <TabsTrigger value="insights">Economics</TabsTrigger>
             </TabsList>
             <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="brand" sceneId={searchParams.get("scene_id") || undefined} /></TabsContent>

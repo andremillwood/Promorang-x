@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMomentsForApproval, useUpdateMomentStatus } from "@/hooks/useAdmin";
@@ -43,6 +44,7 @@ const PRIMARY_FILTERS = [
 const SECONDARY_FILTERS = ["scheduled", "joinable", "closed", "archived"];
 
 export function AdminMomentsTab() {
+  const { t: webT } = useWebI18n();
   const { data: moments, isLoading } = useMomentsForApproval();
   const updateStatus = useUpdateMomentStatus();
   const publicFeed = useCanonicalMomentFeed();
@@ -69,7 +71,7 @@ export function AdminMomentsTab() {
 
   const getVisibilityBadge = (visibility: string) => {
     switch (visibility) {
-      case "open": return <Badge variant="secondary">Open</Badge>;
+      case "open": return <Badge variant="secondary">{webT("auth.open")}</Badge>;
       case "invite": return <Badge variant="outline">Invite Only</Badge>;
       case "private": return <Badge variant="outline">Private</Badge>;
       default: return null;
@@ -93,15 +95,15 @@ export function AdminMomentsTab() {
           <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Find the room that needs a decision.</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">Search first. Use the common operating states below. Less common lifecycle controls stay available without occupying the main workspace.</p>
         </div>
-        <p className="text-xs text-white/35">{filteredMoments?.length || 0} of {moments?.length || 0} records shown</p>
+        <p className="text-xs text-white/35">{filteredMoments?.length || 0} {webT("web.of")} {moments?.length || 0} records shown</p>
       </section>
 
       {publicFeed.data ? (
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Moment inventory health">
           <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">Surfaced now</p><p className="mt-3 text-3xl font-black text-white">{publicFeed.data.health.surfaced}</p><p className="mt-1 text-xs text-white/30">public feed records</p></div>
-          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">Live now</p><p className="mt-3 flex items-center gap-2 text-3xl font-black text-white"><Radio className="h-5 w-5 text-emerald-400" />{publicFeed.data.counts.live}</p><p className="mt-1 text-xs text-white/30">active Moments</p></div>
-          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">Coming up</p><p className="mt-3 text-3xl font-black text-white">{publicFeed.data.counts.starting_soon + publicFeed.data.counts.upcoming}</p><p className="mt-1 text-xs text-white/30">starting soon or upcoming</p></div>
-          <div className={`rounded-2xl border p-5 ${publicFeed.data.health.needs_attention ? "border-amber-500/25 bg-amber-500/[.05]" : "border-emerald-500/20 bg-emerald-500/[.04]"}`}><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">Needs attention</p><p className={`mt-3 flex items-center gap-2 text-3xl font-black ${publicFeed.data.health.needs_attention ? "text-amber-300" : "text-emerald-300"}`}><AlertTriangle className="h-5 w-5" />{publicFeed.data.health.needs_attention}</p><p className="mt-1 text-xs text-white/30">data-quality issues</p></div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">{webT("publicHome.lifecycleLive")}</p><p className="mt-3 flex items-center gap-2 text-3xl font-black text-white"><Radio className="h-5 w-5 text-emerald-400" />{publicFeed.data.counts.live}</p><p className="mt-1 text-xs text-white/30">active Moments</p></div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">{webT("publicHome.lifecycleSoon")}</p><p className="mt-3 text-3xl font-black text-white">{publicFeed.data.counts.starting_soon + publicFeed.data.counts.upcoming}</p><p className="mt-1 text-xs text-white/30">starting soon or upcoming</p></div>
+          <div className={`rounded-2xl border p-5 ${publicFeed.data.health.needs_attention ? "border-amber-500/25 bg-amber-500/[.05]" : "border-emerald-500/20 bg-emerald-500/[.04]"}`}><p className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">{webT("web.needsAttention")}</p><p className={`mt-3 flex items-center gap-2 text-3xl font-black ${publicFeed.data.health.needs_attention ? "text-amber-300" : "text-emerald-300"}`}><AlertTriangle className="h-5 w-5" />{publicFeed.data.health.needs_attention}</p><p className="mt-1 text-xs text-white/30">data-quality issues</p></div>
         </section>
       ) : null}
 
@@ -192,7 +194,7 @@ export function AdminMomentsTab() {
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm leading-6 tracking-normal text-muted-foreground">
-                        Hosted by {moment.host_profile.full_name || "Anonymous"}
+                        {webT("event.hostedBy")} {moment.host_profile.full_name || "Anonymous"}
                       </span>
                     </div>
                   )}
@@ -209,13 +211,13 @@ export function AdminMomentsTab() {
                   <Button variant="outline" size="sm" className="shrink-0" asChild>
                     <Link to={isAftrHrsMoment(moment) ? "/moments/aftrhrs" : `/moments/${moment.id}`}>
                       <Eye className="w-4 h-4 mr-1" />
-                      View
+                      {webT("web.view")}
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" className="shrink-0" asChild>
                     <Link to={`/moments/${moment.id}/edit`}>
                       <Pencil className="w-4 h-4 mr-1" />
-                      Edit
+                      {webT("serviceCatalogPage.edit")}
                     </Link>
                   </Button>
                   
@@ -247,14 +249,14 @@ export function AdminMomentsTab() {
                         disabled={moment.status === "closed"}
                       >
                         <XCircle className="w-4 h-4 mr-2 text-muted-foreground" />
-                        Close
+                        {webT("guestPassPage.close")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleStatusUpdate(moment.id, "archived")}
                         disabled={moment.status === "archived"}
                       >
                         <Archive className="w-4 h-4 mr-2" />
-                        Archive
+                        {webT("web.archive")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

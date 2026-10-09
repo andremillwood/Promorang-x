@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, Check, Copy, RefreshCw } from "lucide-react";
@@ -77,6 +78,7 @@ function issuanceForPerk(perk: CardPerk) {
 }
 
 export default function MyPromoCard() {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const { user, profile, activeRole } = useAuth();
   const [searchParams] = useSearchParams();
@@ -120,7 +122,7 @@ export default function MyPromoCard() {
     nearbyCount: nearby.length,
     nextBenefitTitle: nextBenefit?.title,
     latestReturn: world?.latestReturn?.heading,
-    latestReturnAt: world?.latestMemory?.issuedAt ? new Date(world.latestMemory.issuedAt).toLocaleDateString() : undefined,
+    latestReturnAt: world?.latestMemory?.issuedAt ? new Date(world.latestMemory.issuedAt).toLocaleDateString(currentUiLocale()) : undefined,
     sceneMark: world?.promoCard?.sceneMark,
     crewMark: world?.promoCard?.crewMark,
     recordedUse: Boolean(useThis?.redemption?.recorded),
@@ -158,12 +160,12 @@ export default function MyPromoCard() {
       backTo="/dashboard"
       actions={data ? (
         <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
-          <RefreshCw className={`h-3.5 w-3.5 ${card.isFetching ? "motion-safe:animate-spin" : ""}`} /> Refresh
+          <RefreshCw className={`h-3.5 w-3.5 ${card.isFetching ? "motion-safe:animate-spin" : ""}`} /> {webT("common.refresh")}
         </button>
       ) : undefined}
     >
       {card.isLoading ? <ExperienceLoading label={t("card.loading")} /> : !data && card.isError ? (
-        <QuietEmpty title={t("card.errorTitle")} copy={t("card.errorCopy")} action={<button type="button" className={actionClass} disabled={card.isFetching} onClick={() => void card.refetch()}>Try again</button>} />
+        <QuietEmpty title={t("card.errorTitle")} copy={t("card.errorCopy")} action={<button type="button" className={actionClass} disabled={card.isFetching} onClick={() => void card.refetch()}>{webT("release.18")}</button>} />
       ) : (
         <>
           {card.isError ? <p role="status" className="border-y border-amber-200/20 py-3 text-sm text-amber-100">We couldn’t refresh your card. These are your last loaded details.</p> : null}
@@ -188,7 +190,7 @@ export default function MyPromoCard() {
                 <>
                   <h2 className="mt-3 break-words font-serif text-3xl font-bold leading-[0.94] tracking-[-0.045em] text-white sm:text-4xl">{useThis.title}</h2>
                   <p className="mt-4 text-sm leading-6 text-white/50">{useThis.detail || "This access is already on your card. The merchant may still need to validate it when you use it."}</p>
-                  {primaryIssuance && isPresentablePass(primaryIssuance.offers.fulfillment_type, primaryIssuance.status) && primaryIssuance.offers.fulfillment_type === "qr" ? <OfferIssuancePass issuance={primaryIssuance as OfferIssuance} /> : canShowCode(useThis) ? <button type="button" aria-label={`Show code for ${useThis.title}`} onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>Show this <ArrowRight className="h-4 w-4" /></button> : null}
+                  {primaryIssuance && isPresentablePass(primaryIssuance.offers.fulfillment_type, primaryIssuance.status) && primaryIssuance.offers.fulfillment_type === "qr" ? <OfferIssuancePass issuance={primaryIssuance as OfferIssuance} /> : canShowCode(useThis) ? <button type="button" aria-label={`Show code for ${useThis.title}`} onClick={(event) => openPerk(useThis, event.currentTarget)} className={`${actionClass} mt-6`}>{webT("discover.pathReceiptCode")} <ArrowRight className="h-4 w-4" /></button> : null}
                 </>
               ) : qrPass ? (
                 <OfferIssuancePass issuance={qrPass as OfferIssuance} />
@@ -214,8 +216,8 @@ export default function MyPromoCard() {
           <section className="border-t border-white/10 pt-9">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Open</p>
-                <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">Value waiting to unlock.</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{webT("auth.open")}</p>
+                <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">{webT("publicHome.cardTitle")}</h2>
               </div>
               <Link to={discoverHrefForAim(aim)} className="text-sm font-bold text-primary">Discover more →</Link>
             </div>
@@ -255,7 +257,7 @@ export default function MyPromoCard() {
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f6d48a]">Return reason</p>
               {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Something new is open for you. Check the details before you use it.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing new yet.</h2><p className="mt-3 text-sm text-white/45">The things you’re watching are still here. Come back when something new opens up.</p></>}
             </div>
-            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">Kept</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Your saved history, access and things you earned live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
+            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{webT("web.kept")}</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Your saved history, access and things you earned live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
           </section>
 
           <details className="border-t border-white/10 pt-6 text-white/55">
@@ -264,7 +266,7 @@ export default function MyPromoCard() {
               <div>
                 {livePerks.filter((perk) => perk.id !== useThis?.id).length ? <div className="mb-6 space-y-3"><h2 className="font-serif text-2xl text-white">Also open on your card</h2>{livePerks.filter((perk) => perk.id !== useThis?.id).map((perk) => {
                   const issuance = issuanceForPerk(perk);
-                  return <article key={perk.id} className="border-b border-white/10 py-3"><h3 className="font-bold text-white">{perk.title}</h3>{issuance ? <OfferIssuancePass issuance={issuance as OfferIssuance} /> : canShowCode(perk) ? <button type="button" aria-label={`Show code for ${perk.title}`} onClick={(event) => openPerk(perk, event.currentTarget)} className="min-h-11 text-primary">Show code →</button> : <p className="mt-2 text-xs">{perk.redemption?.recorded ? "Already used" : "No presentable code"}</p>}</article>;
+                  return <article key={perk.id} className="border-b border-white/10 py-3"><h3 className="font-bold text-white">{perk.title}</h3>{issuance ? <OfferIssuancePass issuance={issuance as OfferIssuance} /> : canShowCode(perk) ? <button type="button" aria-label={`Show code for ${perk.title}`} onClick={(event) => openPerk(perk, event.currentTarget)} className="min-h-11 text-primary">Show code →</button> : <p className="mt-2 text-xs">{perk.redemption?.recorded ? webT("perk.alreadyUsed") : "No presentable code"}</p>}</article>;
                 })}</div> : null}
                 <p className="text-sm font-bold text-white">Aim Discover</p>
                 <p className="mt-1 text-xs leading-5 text-white/40">Optional. Choose what you would like to see more of in Discover.</p>
@@ -272,8 +274,8 @@ export default function MyPromoCard() {
                 {!useThis ? <div className="mt-5"><FillCardMoves aim={aim} authenticated={Boolean(user)} /></div> : null}
               </div>
               <div className="space-y-4 text-sm">
-                <p><span className="text-white/35">PromoPoints</span><br/><strong className="font-serif text-2xl text-white">{Number(data?.points || 0).toLocaleString()}</strong></p>
-                <p><span className="text-white/35">PromoKeys</span><br/><strong className="text-white">{Number(data?.keys || 0).toLocaleString()}</strong></p>
+                <p><span className="text-white/35">{webT("give.kind.points")}</span><br/><strong className="font-serif text-2xl text-white">{Number(data?.points || 0).toLocaleString(currentUiLocale())}</strong></p>
+                <p><span className="text-white/35">{webT("wallet.keysLabel")}</span><br/><strong className="text-white">{Number(data?.keys || 0).toLocaleString(currentUiLocale())}</strong></p>
                 <p><span className="text-white/35">Memberships</span><br/><strong className="text-white">{data?.memberships?.length || 0}</strong></p>
                 {expiredPerks.length ? <p className="text-white/35">{expiredPerks.length} expired perk{expiredPerks.length === 1 ? "" : "s"} retained in history.</p> : null}
               </div>
@@ -291,7 +293,7 @@ export default function MyPromoCard() {
             <div className="mt-2 rounded-2xl border border-primary/30 bg-primary/10 p-5 text-center">
               <p className="text-sm text-white/80">Show this code to redeem</p>
               <code className="my-5 block select-all break-all font-mono text-3xl font-bold tracking-wider">{selectedCode}</code>
-              <button type="button" onClick={() => void copyCode()} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 px-4 text-sm font-semibold">{copyState === "copied" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}{copyState === "copied" ? "Copied" : "Copy code"}</button>
+              <button type="button" onClick={() => void copyCode()} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 px-4 text-sm font-semibold">{copyState === "copied" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}{copyState === "copied" ? webT("card.copied") : webT("card.copyCode")}</button>
               <p role="status" className="mt-2 text-xs text-white/65">{copyState === "failed" ? "Couldn’t copy. You can select the code or show this screen." : copyState === "copied" ? "Code copied to clipboard." : "Only share this code when redeeming your perk."}</p>
             </div>
           ) : <p className="rounded-2xl bg-white/5 p-4 text-sm leading-6 text-white/70">{selectedExpired ? "This perk has expired. Explore Discover for something new." : "This perk has no usable code yet. A claimed, unexpired benefit is the only thing a merchant can validate."}</p>}

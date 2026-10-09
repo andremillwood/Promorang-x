@@ -1,3 +1,4 @@
+import { withI18n } from "@/test/withI18n";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -29,7 +30,7 @@ describe("PromoCardFace brand lockup", () => {
   it("prints the PROMORANG mark and orange wordmark on the plastic face", async () => {
     await act(async () => {
       root.render(
-        <PromoCardFace holder="Maya" available="Use this" limit="Coffee on us" places="Sea Deck" />,
+        withI18n(<PromoCardFace holder="Maya" available="Use this" limit="Coffee on us" places="Sea Deck" />),
       );
     });
 
@@ -51,7 +52,7 @@ describe("PromoCardFace brand lockup", () => {
 
   it("keeps an empty city honest and flips a ready credential", async () => {
     await act(async () => {
-      root.render(<PromoCardFace holder="Maya" />);
+      root.render(withI18n(<PromoCardFace holder="Maya" />));
     });
     expect(container).toHaveTextContent("Nothing on this card yet");
     expect(container.querySelector('button[aria-label="Flip PromoCard to show the merchant"]')).toBeNull();
@@ -60,7 +61,7 @@ describe("PromoCardFace brand lockup", () => {
 
     await act(async () => {
       root.render(
-        <PromoCardFace
+        withI18n(<PromoCardFace
           model={{
             state: "ready",
             holder: "Maya",
@@ -74,7 +75,7 @@ describe("PromoCardFace brand lockup", () => {
             credential: "COFFEE-TEST",
             canFlip: true,
           }}
-        />,
+        />),
       );
     });
     expect(container.querySelector('[aria-label="Sea Deck mark"]')?.textContent).toBe("S");

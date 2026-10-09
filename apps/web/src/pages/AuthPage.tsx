@@ -62,6 +62,7 @@ const roleInfo: Record<UserRole, { icon: typeof Users; title: string; descriptio
 };
 
 const AuthPage = () => {
+  const { t: webT } = useI18n();
   const { t } = useI18n();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [selectedRole, setSelectedRole] = useState<UserRole>("participant");
@@ -561,7 +562,7 @@ const AuthPage = () => {
               >
                 <Users className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.participant")}</span>
-                <span className="text-xs text-muted-foreground">Join moments</span>
+                <span className="text-xs text-muted-foreground">{webT("web.joinMoments")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -572,7 +573,7 @@ const AuthPage = () => {
               >
                 <PlayCircle className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.creator")}</span>
-                <span className="text-xs text-muted-foreground">Publish missions</span>
+                <span className="text-xs text-muted-foreground">{webT("web.publishMissions")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -583,7 +584,7 @@ const AuthPage = () => {
               >
                 <Sparkles className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.host")}</span>
-                <span className="text-xs text-muted-foreground">Create moments</span>
+                <span className="text-xs text-muted-foreground">{webT("web.createMoments")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -594,7 +595,7 @@ const AuthPage = () => {
               >
                 <Building2 className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.brand")}</span>
-                <span className="text-xs text-muted-foreground">Run campaigns</span>
+                <span className="text-xs text-muted-foreground">{webT("web.runCampaigns")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -605,7 +606,7 @@ const AuthPage = () => {
               >
                 <Briefcase className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.agency")}</span>
-                <span className="text-xs text-muted-foreground">Manage clients</span>
+                <span className="text-xs text-muted-foreground">{webT("web.manageClients")}</span>
               </Button>
               <Button
                 variant="outline"
@@ -616,11 +617,11 @@ const AuthPage = () => {
               >
                 <Store className="w-5 h-5 text-primary" />
                 <span className="font-medium">{t("auth.merchant")}</span>
-                <span className="text-xs text-muted-foreground">Manage venues</span>
+                <span className="text-xs text-muted-foreground">{webT("merchantDash.manageVenues")}</span>
               </Button>
             </div>
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              Each demo opens a curated workspace with stable sample data so prospects see the product in a clean, repeatable state.
+              {webT("web.demoExplanation")}
             </p>
             </div>}
           </div>}

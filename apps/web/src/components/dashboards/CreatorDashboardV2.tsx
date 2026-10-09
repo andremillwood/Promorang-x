@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ArrowRight, Award, Coins, FileCheck2, Film, Link2, Target, Vote } from "lucide-react";
@@ -12,6 +13,7 @@ import CreatorProofDossier from "@/components/creator/CreatorProofDossier";
 import openMic from "@/assets/moments/open-mic.jpg";
 
 export function CreatorDashboardV2() {
+  const { t: webT } = useWebI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "missions";
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -32,12 +34,12 @@ export function CreatorDashboardV2() {
 
   const tabs = [
     { id: "demand", label: "Audience demand", hint: "What people are asking for", icon: Vote, action: "Listen" },
-    { id: "missions", label: "Opportunities", hint: "Real release work", icon: Target, action: "Choose" },
+    { id: "missions", label: webT("people.opportunities"), hint: "Real release work", icon: Target, action: "Choose" },
     { id: "studio", label: "Create & submit", hint: "Publish through the release workspace", icon: Film, action: "Create" },
     { id: "proof", label: "Proof dossier", hint: "Release → attribution → value", icon: FileCheck2, action: "Defend" },
     { id: "attribution", label: "Attributed actions", hint: "What your work caused", icon: Link2, action: "Prove" },
-    { id: "earnings", label: "Earnings", hint: "Approved and settled value", icon: Coins, action: "Review" },
-    { id: "reputation", label: "Reputation", hint: "What your proven work unlocks", icon: Award, action: "Build" },
+    { id: "earnings", label: webT("promoPushCreatorPage.statEarnings"), hint: "Approved and settled value", icon: Coins, action: "Review" },
+    { id: "reputation", label: webT("hosts.reputation"), hint: "What your proven work unlocks", icon: Award, action: "Build" },
   ];
   const active = tabs.find((tab) => tab.id === activeTab) || tabs[1];
 
@@ -84,7 +86,7 @@ export function CreatorDashboardV2() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="sr-only">
-          <TabsTrigger value="demand">Demand</TabsTrigger><TabsTrigger value="missions">Opportunities</TabsTrigger><TabsTrigger value="studio">Create</TabsTrigger><TabsTrigger value="proof">Proof dossier</TabsTrigger><TabsTrigger value="attribution">Attribution</TabsTrigger><TabsTrigger value="earnings">Earnings</TabsTrigger><TabsTrigger value="reputation">Reputation</TabsTrigger>
+          <TabsTrigger value="demand">{webT("lens.demand")}</TabsTrigger><TabsTrigger value="missions">{webT("people.opportunities")}</TabsTrigger><TabsTrigger value="studio">{webT("start.createCta")}</TabsTrigger><TabsTrigger value="proof">Proof dossier</TabsTrigger><TabsTrigger value="attribution">{webT("how.promoterStep3Badge")}</TabsTrigger><TabsTrigger value="earnings">{webT("promoPushCreatorPage.statEarnings")}</TabsTrigger><TabsTrigger value="reputation">{webT("hosts.reputation")}</TabsTrigger>
         </TabsList>
         <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="creator" /></TabsContent>
         <TabsContent value="missions" className="mt-0"><CreatorReleaseWorkspaceBridge mode="work" /></TabsContent>

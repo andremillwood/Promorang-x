@@ -1,3 +1,5 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
+import { currentUiLocale } from "@/i18n/geo-locale";
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -53,6 +55,7 @@ const OBJECTIVES: Record<ObjectiveType, ObjectiveConfig> = {
 };
 
 export const BrandCampaignSimulator: React.FC = () => {
+  const { t: webT } = useWebI18n();
   const [budget, setBudget] = useState<number>(10000);
   const [objective, setObjective] = useState<ObjectiveType>("cultural_takeover");
 
@@ -140,7 +143,7 @@ export const BrandCampaignSimulator: React.FC = () => {
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold text-white/90">Total Campaign Escrow Budget</span>
                 <span className="font-mono text-blue-400 font-bold text-sm">
-                  ${budget.toLocaleString()} USD
+                  ${budget.toLocaleString(currentUiLocale())} USD
                 </span>
               </div>
               <Slider
@@ -162,9 +165,9 @@ export const BrandCampaignSimulator: React.FC = () => {
           {/* Yield Forecast Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-white/50">Verified Arrivals</div>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-white/50">{webT("web.verifiedArrivals")}</div>
               <div className="text-lg md:text-xl font-black text-white mt-1">
-                {results.verifiedArrivals.toLocaleString()}
+                {results.verifiedArrivals.toLocaleString(currentUiLocale())}
               </div>
               <div className="text-[10px] text-blue-300/80 mt-0.5">In-person proof</div>
             </div>
@@ -180,7 +183,7 @@ export const BrandCampaignSimulator: React.FC = () => {
             <div className="col-span-2 sm:col-span-1 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
               <div className="text-[10px] uppercase font-mono tracking-wider text-emerald-300">Ad Fraud Avoided</div>
               <div className="text-lg md:text-xl font-black text-emerald-400 mt-1">
-                ${Math.round(results.adFraudWasteAvoided).toLocaleString()}
+                ${Math.round(results.adFraudWasteAvoided).toLocaleString(currentUiLocale())}
               </div>
               <div className="text-[10px] text-emerald-300/80 mt-0.5">Zero bot clicks</div>
             </div>
@@ -201,7 +204,7 @@ export const BrandCampaignSimulator: React.FC = () => {
 
             <div>
               <div className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                {results.estimatedOrganicReach.toLocaleString()}
+                {results.estimatedOrganicReach.toLocaleString(currentUiLocale())}
                 <span className="text-sm font-semibold text-white/50 ml-2">Estimated Impressions</span>
               </div>
               <div className="text-xs text-blue-300 font-mono mt-1">
@@ -228,7 +231,7 @@ export const BrandCampaignSimulator: React.FC = () => {
               Launch Your Escrow Campaign
             </div>
             <p className="text-xs text-white/70">
-              Deploy your <strong>${budget.toLocaleString()}</strong> campaign brief with zero bot waste and full receipt transparency.
+              Deploy your <strong>${budget.toLocaleString(currentUiLocale())}</strong> campaign brief with zero bot waste and full receipt transparency.
             </p>
             <Button
               asChild

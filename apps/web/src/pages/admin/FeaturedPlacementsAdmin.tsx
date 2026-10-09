@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 /**
  * FEATURED PLACEMENTS ADMIN
  * 
@@ -100,6 +102,7 @@ const STATUS_CONFIG: Record<string, { color: string; icon: React.ReactNode; labe
 };
 
 export default function FeaturedPlacementsAdmin() {
+  const { t: webT } = useWebI18n();
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -192,7 +195,7 @@ export default function FeaturedPlacementsAdmin() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(currentUiLocale(), {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -200,7 +203,7 @@ export default function FeaturedPlacementsAdmin() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(currentUiLocale(), {
       style: 'currency',
       currency: 'USD'
     }).format(amount);
@@ -238,7 +241,7 @@ export default function FeaturedPlacementsAdmin() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium">{webT("web.totalRevenue")}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -323,10 +326,10 @@ export default function FeaturedPlacementsAdmin() {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-4 grid min-w-[520px] grid-cols-4">
-                <TabsTrigger value="pending_payment">Pending</TabsTrigger>
-                <TabsTrigger value="active">Active</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-                <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+                <TabsTrigger value="pending_payment">{webT("promoPushCreatorPage.thPending")}</TabsTrigger>
+                <TabsTrigger value="active">{webT("commercial.active")}</TabsTrigger>
+                <TabsTrigger value="completed">{webT("web.completed")}</TabsTrigger>
+                <TabsTrigger value="cancelled">{webT("web.cancelled")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value={activeTab}>
@@ -334,13 +337,13 @@ export default function FeaturedPlacementsAdmin() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Booking ID</TableHead>
-                      <TableHead>Type</TableHead>
+                      <TableHead>{webT("wallet.type")}</TableHead>
                       <TableHead>Entity</TableHead>
                       <TableHead>Duration</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      {activeTab === 'pending_payment' && <TableHead>Actions</TableHead>}
+                      <TableHead>{webT("wallet.amount")}</TableHead>
+                      <TableHead>{webT("kyc.statusLabel")}</TableHead>
+                      <TableHead>{webT("web.created")}</TableHead>
+                      {activeTab === 'pending_payment' && <TableHead>{webT("sceneDetailPage.actionsLabel")}</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -393,7 +396,7 @@ export default function FeaturedPlacementsAdmin() {
                                 onClick={() => handleActivate(booking.id)}
                                 disabled={isLoading}
                               >
-                                {isLoading ? 'Activating...' : 'Activate'}
+                                {isLoading ? 'Activating...' : webT("lens.agency.putIn")}
                               </Button>
                             </TableCell>
                           )}

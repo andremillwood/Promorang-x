@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, RotateCcw, X } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -54,6 +55,7 @@ const MOTIVATION_IMAGES: Record<string, string> = {
 };
 
 export function TasteCalibration({ marketLabel = "your market", compact = false, variant = "default" }: TasteCalibrationProps) {
+  const { t: webT } = useWebI18n();
   const { user } = useAuth();
   const { data: preferences } = useUserPreferences();
   const createPreferences = useCreateUserPreferences();
@@ -228,7 +230,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                 </div>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">
-                    {stage === "motivation" ? "What would move you?" : "What are you into?"}
+                    {stage === "motivation" ? webT("commercial.what.would.move.you.229") : webT("compression.interests")}
                   </p>
                   <h2 className="mt-3 max-w-[12ch] text-4xl font-black leading-[.9] tracking-[-.04em] text-white">
                     {stage === "motivation" ? currentMotivation?.label : currentTaste?.label}
@@ -281,7 +283,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                 <div className="flex flex-wrap gap-2">
                   {(stage === "motivation" || tasteIndex > 0) ? (
                     <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50">
-                      <ArrowLeft className="h-3.5 w-3.5" /> Back
+                      <ArrowLeft className="h-3.5 w-3.5" /> {webT("common.back")}
                     </button>
                   ) : null}
                   <button
@@ -289,7 +291,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                     onClick={() => stage === "motivation" ? chooseMotivation(false) : chooseTaste(false)}
                     className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/15 px-4 text-xs font-black text-white/72"
                   >
-                    <X className="h-4 w-4" /> {stage === "motivation" ? "Not really" : "Not for me"}
+                    <X className="h-4 w-4" /> {stage === "motivation" ? "Not really" : webT("discover.pathSkip")}
                   </button>
                   <button
                     type="button"
@@ -297,7 +299,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                     className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-orange-500 px-4 text-xs font-black text-black"
                   >
                     {stage === "motivation" ? <Check className="h-4 w-4" /> : <span>♥</span>}
-                    {stage === "motivation" ? "Yes, that moves me" : "More like this"}
+                    {stage === "motivation" ? "Yes, that moves me" : webT("web.moreLikeThis")}
                   </button>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-4 text-[9px] font-black uppercase tracking-[0.14em] text-white/30">
@@ -322,7 +324,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
       <div className={innerClass}>
         <div className={isHero ? "grid gap-6 xl:grid-cols-[.64fr_1.36fr] xl:items-end" : "grid gap-8 lg:grid-cols-[.68fr_1.32fr] lg:items-center"}>
           <div>
-            <p className="marketing-kicker">{stage === "motivation" ? "What would move you?" : "Make it personal"}</p>
+            <p className="marketing-kicker">{stage === "motivation" ? webT("commercial.what.would.move.you.229") : "Make it personal"}</p>
             <h2 className={isHero ? "mt-3 max-w-3xl text-3xl font-black sm:text-4xl" : "mt-3 max-w-3xl text-4xl font-black sm:text-5xl"}>
               {stage === "taste" ? "What are you in the mood for?" : stage === "motivation" ? "What actually makes you move?" : "PROMORANG has a better starting point."}
             </h2>
@@ -356,7 +358,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/10" />
                         <div className="relative flex min-h-[138px] flex-col justify-end p-4">
                           <p className="text-sm font-black text-white">{category.label}</p>
-                          <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-white/55">{chosen ? "More like this" : "Tap to answer"}</p>
+                          <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-white/55">{chosen ? webT("web.moreLikeThis") : "Tap to answer"}</p>
                         </div>
                       </button>
                     );
@@ -368,9 +370,9 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                     <p className="mt-2 font-serif text-2xl font-bold sm:text-3xl">{currentTaste.prompt}</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {tasteIndex > 0 ? <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50"><ArrowLeft className="h-3.5 w-3.5" /> Back</button> : null}
-                    <button type="button" onClick={() => chooseTaste(false)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-black text-white/70"><X className="h-4 w-4" /> Not for me</button>
-                    <button type="button" onClick={() => chooseTaste(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black"><span>♥</span> More like this</button>
+                    {tasteIndex > 0 ? <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50"><ArrowLeft className="h-3.5 w-3.5" /> {webT("common.back")}</button> : null}
+                    <button type="button" onClick={() => chooseTaste(false)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-black text-white/70"><X className="h-4 w-4" /> {webT("discover.pathSkip")}</button>
+                    <button type="button" onClick={() => chooseTaste(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black"><span>♥</span> {webT("web.moreLikeThis")}</button>
                   </div>
                 </div>
               </>
@@ -403,7 +405,7 @@ export function TasteCalibration({ marketLabel = "your market", compact = false,
                     <p className="mt-2 font-serif text-2xl font-bold sm:text-3xl">Would {currentMotivation.label.toLowerCase()} make you more likely to act?</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50"><ArrowLeft className="h-3.5 w-3.5" /> Back</button>
+                    <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-4 text-xs font-bold text-white/50"><ArrowLeft className="h-3.5 w-3.5" /> {webT("common.back")}</button>
                     <button type="button" onClick={() => chooseMotivation(false)} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-black text-white/70"><X className="h-4 w-4" /> Not really</button>
                     <button type="button" onClick={() => chooseMotivation(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black"><Check className="h-4 w-4" /> Yes, that moves me</button>
                   </div>

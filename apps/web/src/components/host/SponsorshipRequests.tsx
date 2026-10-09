@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { DollarSign, Check, X, Clock, MessageSquare, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ const statusColors: Record<string, string> = {
 };
 
 export function HostSponsorshipRequests() {
+  const { t: webT } = useWebI18n();
   const { data: requests, isLoading } = useHostSponsorshipRequests();
   const respond = useRespondToSponsorship();
   const [responseMessage, setResponseMessage] = useState("");
@@ -86,7 +88,7 @@ export function HostSponsorshipRequests() {
                         <div>
                            <Badge className="bg-emerald-500 text-white mb-2 shadow-glow-emerald">Funded request</Badge>
                            <h4 className="text-2xl font-black italic font-serif">
-                              {request.moment?.title || "Community Moment"}
+                              {request.moment?.title || webT("rewardsPage.communityMoment")}
                            </h4>
                            <p className="text-sm text-foreground/60 font-medium">Sponsored by Brand Partner</p>
                         </div>
@@ -127,7 +129,7 @@ export function HostSponsorshipRequests() {
                 <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="font-medium text-foreground">
-                      Brand: {request.brand_id.slice(0, 8)}...
+                      {webT("rewards.brand")} {request.brand_id.slice(0, 8)}...
                     </p>
                     <p className="text-sm text-muted-foreground">
                       For moment: {request.moment_id.slice(0, 8)}...
@@ -163,7 +165,7 @@ export function HostSponsorshipRequests() {
                   {request.expires_at && (
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      Expires {format(new Date(request.expires_at), "MMM d")}
+                      {webT("card.expires")} {format(new Date(request.expires_at), "MMM d")}
                     </span>
                   )}
                 </div>
@@ -212,7 +214,7 @@ export function HostSponsorshipRequests() {
                             setResponseMessage("");
                           }}
                         >
-                          Cancel
+                          {webT("findOrAsk.cancel")}
                         </Button>
                         <Button
                           onClick={() => handleRespond(request.id, "accepted", responseMessage)}
@@ -251,7 +253,7 @@ export function HostSponsorshipRequests() {
             >
               <div>
                 <p className="font-medium text-foreground">
-                  ${request.bid_amount} offer
+                  ${request.bid_amount} {webT("web.offerLower")}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {format(new Date(request.created_at), "MMM d, yyyy")}

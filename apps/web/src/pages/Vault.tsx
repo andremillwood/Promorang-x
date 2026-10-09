@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -34,10 +36,11 @@ type VaultMemory = {
 function readableDate(value?: string | null) {
   if (!value) return "Date retained in source record";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(currentUiLocale(), { year: "numeric", month: "short", day: "numeric" });
 }
 
 const Vault = () => {
+  const { t: webT } = useWebI18n();
   const { user, session } = useAuth();
   const [activeTab, setActiveTab] = useState<VaultTab>("perks");
   const card = useMyPromoCard();
@@ -62,9 +65,9 @@ const Vault = () => {
   const latestMemory = memories[0] || null;
 
   const tabs: Array<{ id: VaultTab; label: string; note: string; icon: typeof Gift; count?: number }> = [
-    { id: "perks", label: "Use", note: "Perks on your card", icon: Gift, count: card.data ? claimedPerks.length : undefined },
-    { id: "tickets", label: "Chance", note: "PromoShare entries", icon: Ticket, count: balances.promoShareSourceRecorded ? balances.promoShareTickets : undefined },
-    { id: "memories", label: "Keep", note: "Pieces & memories", icon: Trophy, count: vaultQuery.data ? memories.length : undefined },
+    { id: "perks", label: webT("web.use"), note: "Perks on your card", icon: Gift, count: card.data ? claimedPerks.length : undefined },
+    { id: "tickets", label: webT("web.chance"), note: "PromoShare entries", icon: Ticket, count: balances.promoShareSourceRecorded ? balances.promoShareTickets : undefined },
+    { id: "memories", label: webT("home.trail04Label"), note: "Pieces & memories", icon: Trophy, count: vaultQuery.data ? memories.length : undefined },
     { id: "liquidity", label: "Backing", note: "Inspect reserves", icon: Sparkles },
   ];
 
@@ -130,17 +133,17 @@ const Vault = () => {
           <section className="space-y-8 animate-in fade-in duration-300">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div>
-                <p className="pr-world-kicker text-emerald-300">Use</p>
+                <p className="pr-world-kicker text-emerald-300">{webT("web.use")}</p>
                 <h2 className="mt-3 max-w-3xl font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Access you kept.</h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Check each offer’s status and instructions before using it. Claiming access is separate from redemption or fulfillment.</p>
               </div>
-              <Link to="/card" className="pr-world-primary">Open PromoCard <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/card" className="pr-world-primary">{webT("web.openPromoCard")} <ArrowRight className="h-4 w-4" /></Link>
             </div>
 
             {card.isLoading ? (
               <div className="pr-world-object-grid">{[1,2,3].map((n) => <Skeleton key={n} className="h-56 rounded-[1.6rem] bg-white/5" />)}</div>
             ) : card.isError && !card.data ? (
-              <div role="alert" className="pr-world-empty p-6"><p>Your access couldn’t load.</p><button type="button" onClick={() => void card.refetch()} className="pr-world-link min-h-11">Try again</button></div>
+              <div role="alert" className="pr-world-empty p-6"><p>Your access couldn’t load.</p><button type="button" onClick={() => void card.refetch()} className="pr-world-link min-h-11">{webT("release.18")}</button></div>
             ) : claimedPerks.length ? (
               <div className="pr-world-object-grid">{claimedPerks.map((perk: any, index: number) => <div key={perk.id} className={index === 0 ? "pr-world-object--wide" : ""}><LivePerkCard perk={perk} /></div>)}</div>
             ) : (
@@ -151,7 +154,7 @@ const Vault = () => {
 
             {usedPerks.length ? (
               <div className="space-y-4 border-t border-white/10 pt-7">
-                <p className="pr-world-kicker text-white/35">Already used</p>
+                <p className="pr-world-kicker text-white/35">{webT("perk.alreadyUsed")}</p>
                 <div className="pr-world-object-grid">{usedPerks.map((perk: any) => <LivePerkCard key={perk.id} perk={perk} />)}</div>
               </div>
             ) : null}
@@ -161,13 +164,13 @@ const Vault = () => {
         {activeTab === "tickets" ? (
           <section className="animate-in fade-in duration-300">
             <div className="pr-world-panel overflow-hidden p-6 sm:p-9" style={{ background: "radial-gradient(circle at 90% 10%, rgba(125,100,255,.28), transparent 36%), rgba(18,18,20,.82)" }}>
-              <p className="pr-world-kicker text-purple-300">Chance</p>
+              <p className="pr-world-kicker text-purple-300">{webT("web.chance")}</p>
               <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
                 <div><h2 className="font-serif text-5xl font-bold tracking-tight sm:text-6xl">{balances.promoShareSourceRecorded ? `${balances.promoShareTickets} entries.` : "Entries unavailable."}</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">They represent recorded participation in a draw. An entry is not a win, and a win is not settlement until the system records it.</p></div>
                 <div className="border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[.18em] text-white/35">Next known draw</p><p className="mt-2 font-serif text-2xl font-bold">{balances.nextDrawDate || "No active draw supplied"}</p></div>
               </div>
               {!balances.promoShareSourceRecorded ? <button type="button" onClick={() => void refreshBalances()} className="pr-world-link mt-5 min-h-11">Refresh entries</button> : null}
-              <Link to="/promoshare" className="pr-world-primary mt-7">Open PromoShare <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/promoshare" className="pr-world-primary mt-7">{webT("how.memberStep2Cta")} <ArrowRight className="h-4 w-4" /></Link>
             </div>
           </section>
         ) : null}
@@ -175,7 +178,7 @@ const Vault = () => {
         {activeTab === "memories" ? (
           <section className="space-y-8 animate-in fade-in duration-300">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
-              <div><p className="pr-world-kicker text-amber-300">Keep</p><h2 className="mt-3 font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Receipts from the life you actually lived.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Revisit your Pieces and memories, with the source details that connect each one to your history.</p></div>
+              <div><p className="pr-world-kicker text-amber-300">{webT("home.trail04Label")}</p><h2 className="mt-3 font-serif text-4xl font-bold leading-[.95] tracking-tight sm:text-5xl">Receipts from the life you actually lived.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Revisit your Pieces and memories, with the source details that connect each one to your history.</p></div>
               <div className="flex items-start gap-3 border-t border-white/10 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0"><ReceiptText className="mt-1 h-5 w-5 text-amber-300" /><p className="text-xs leading-6 text-white/45">You showed up → it counted → you kept a Piece.</p></div>
             </div>
 
@@ -191,7 +194,7 @@ const Vault = () => {
                 const proofRef = meta.proof_submission_id ? String(meta.proof_submission_id) : null;
                 return (
                   <Link key={memory.id} to={`/memories/${memory.id}`} className={`block transition hover:-translate-y-1 ${index % 3 === 1 ? "sm:translate-y-8" : ""}`}>
-                    <PaperReceipt heading={memory.title || moment} lines={[{ label: "Moment", value: moment, strong: true }, ...(place ? [{ label: "Place", value: place }] : []), { label: "Kept", value: readableDate(memory.issued_at) }, { label: "Rarity", value: memory.rarity || "Memory" }, ...(proofRef ? [{ label: "Proof ref", value: proofRef.slice(0, 18) }] : [{ label: "Memory ref", value: memory.id.slice(0, 18) }])]} footer={proofRef ? "You were part of this. Open to see what stayed with you." : "A Piece of your story. Open to look back."} />
+                    <PaperReceipt heading={memory.title || moment} lines={[{ label: webT("promoShare.typeMoment"), value: moment, strong: true }, ...(place ? [{ label: webT("launch.place"), value: place }] : []), { label: webT("web.kept"), value: readableDate(memory.issued_at) }, { label: "Rarity", value: memory.rarity || "Memory" }, ...(proofRef ? [{ label: "Proof ref", value: proofRef.slice(0, 18) }] : [{ label: "Memory ref", value: memory.id.slice(0, 18) }])]} footer={proofRef ? "You were part of this. Open to see what stayed with you." : "A Piece of your story. Open to look back."} />
                   </Link>
                 );
               })}</div>
@@ -204,7 +207,7 @@ const Vault = () => {
         {activeTab === "liquidity" ? (
           <section className="space-y-5 animate-in fade-in duration-300">
             <div><p className="pr-world-kicker">Backing</p><h2 className="mt-3 font-serif text-4xl font-bold tracking-tight">Inspect what sits behind the value layer.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">This is intentionally separate from your memories, perks and draw entries. Retained cultural history is not presented as a financial asset.</p></div>
-            <details className="border-y border-white/10 py-4"><summary className="cursor-pointer min-h-11 text-sm">Platform balances</summary><dl className="flex flex-wrap gap-8 py-4 text-sm"><div><dt>PromoPoints</dt><dd>{balances.promoPoints} · not cash</dd></div><div><dt>Gems</dt><dd>{balances.gems}</dd></div></dl></details>
+            <details className="border-y border-white/10 py-4"><summary className="cursor-pointer min-h-11 text-sm">Platform balances</summary><dl className="flex flex-wrap gap-8 py-4 text-sm"><div><dt>{webT("give.kind.points")}</dt><dd>{balances.promoPoints} · not cash</dd></div><div><dt>{webT("wallet.gemsLabel")}</dt><dd>{balances.gems}</dd></div></dl></details>
             <div className="pr-world-panel overflow-hidden p-1"><LiquidityVaultDashboard /></div>
           </section>
         ) : null}

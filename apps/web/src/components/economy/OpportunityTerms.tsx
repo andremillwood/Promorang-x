@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { BadgeCheck, Clock3, KeyRound, Landmark, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,12 +23,13 @@ export function OpportunityTerms({
   compact = false,
   className,
 }: OpportunityTermsProps) {
+  const { t: webT } = useWebI18n();
   const terms = [
     { label: "Entry", value: cost, icon: KeyRound },
     { label: "Potential reward", value: reward, icon: Trophy },
     { label: "Funded by", value: funding, icon: Landmark },
-    { label: "Proof", value: proof, icon: BadgeCheck },
-    { label: "Settlement", value: settlement, icon: Clock3 },
+    { label: webT("promoPushLandingPage.step3Title"), value: proof, icon: BadgeCheck },
+    { label: webT("web.settlement"), value: settlement, icon: Clock3 },
   ];
 
   return (

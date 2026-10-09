@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useSearchParams } from "react-router-dom";
 import { getStakeholderLens, humanActionLabel } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,7 +26,7 @@ export default function WhatHappened() {
       <StatPile
         label={t("happened.participated")}
         value={data?.participated || 0}
-        hint={data?.earned ? t("happened.generated", { amount: Math.round(data.earned).toLocaleString() }) : t("happened.verifiedOnly")}
+        hint={data?.earned ? t("happened.generated", { amount: Math.round(data.earned).toLocaleString(currentUiLocale()) }) : t("happened.verifiedOnly")}
       />
 
       <section className="grid grid-cols-2 gap-3">

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { Bell, Compass, Radio, Sparkles } from "lucide-react";
 import { useSavedMarketObjects } from "@/hooks/useSavedMarketObjects";
@@ -26,6 +27,7 @@ function labelFor(type: string) {
 }
 
 export function PromoCardWatchShelf() {
+  const { t: webT } = useWebI18n();
   const watched = useSavedMarketObjects();
   const relationships = watched.items.filter((item) => ["discovery", "demand", "moment", "offer", "product"].includes(item.object_type));
 
@@ -33,7 +35,7 @@ export function PromoCardWatchShelf() {
     <section className="border-t border-white/10 pt-9">
       <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Watching</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">{webT("web.watching")}</p>
           <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">Things you want to come back to.</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/45">Keep what matters close. If a want grows, something opens, or a Moment changes, this is where you return.</p>
         </div>
@@ -52,7 +54,7 @@ export function PromoCardWatchShelf() {
                   <p className="mt-1 truncate font-serif text-2xl font-bold text-white transition group-hover:text-primary">{item.title}</p>
                   {item.subtitle ? <p className="mt-1 truncate text-xs text-white/38">{item.subtitle}</p> : null}
                 </div>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-white/35"><Bell className="h-3.5 w-3.5" />Watching</span>
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-white/35"><Bell className="h-3.5 w-3.5" />{webT("web.watching")}</span>
               </Link>
             );
           })}

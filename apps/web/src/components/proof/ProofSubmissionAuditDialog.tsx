@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -72,6 +73,7 @@ export function ProofSubmissionAuditDialog({
   submissionId: string;
   triggerLabel?: string;
 }) {
+  const { t: webT } = useWebI18n();
   const { session } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -127,13 +129,13 @@ export function ProofSubmissionAuditDialog({
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Submission</p>
-                <p className="mt-2 text-sm font-semibold text-foreground">{audit.submission.moment?.title || "Untitled moment"}</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">{audit.submission.moment?.title || webT("web.untitledMomentLower")}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {audit.submission.proof_bundle?.proof_type || "Unknown proof"} • {format(new Date(audit.submission.created_at), "MMM d, h:mm a")}
                 </p>
               </div>
               <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Status</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{webT("kyc.statusLabel")}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <Badge variant="outline" className={audit.submission.submission_state === "verified" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700" : audit.submission.submission_state === "rejected" ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-amber-500/20 bg-amber-500/10 text-amber-700"}>
                     {audit.submission.submission_state}
@@ -144,7 +146,7 @@ export function ProofSubmissionAuditDialog({
                 ) : null}
               </div>
               <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Outcomes</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{webT("activatePage.navOutcomes")}</p>
                 <div className="mt-2 space-y-1 text-sm text-foreground">
                   <p>{audit.reward_count} reward record(s)</p>
                   <p>{audit.memory_count} memory record(s)</p>

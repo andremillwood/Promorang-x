@@ -1,3 +1,4 @@
+import { withI18n } from "@/test/withI18n";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
@@ -12,9 +13,9 @@ async function renderLead(authenticated = false) {
   const aim = resolvePromoCardAim("food")!;
   await act(async () => {
     root.render(
-      <MemoryRouter>
+      withI18n(<MemoryRouter>
         <AimedDiscoverLead aim={aim} authenticated={authenticated} />
-      </MemoryRouter>,
+      </MemoryRouter>),
     );
   });
 }

@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Activity, ArrowRight, FlaskConical, Target, TrendingUp, Users } from "lucide-react";
@@ -24,6 +25,7 @@ async function growthRequest(path: string, options: RequestInit = {}) {
 }
 
 export function AdminGrowthTab() {
+  const { t: webT } = useWebI18n();
   const queryClient = useQueryClient();
   const [journey, setJourney] = useState("all");
   const [experiment, setExperiment] = useState({ key: "", name: "", hypothesis: "" });
@@ -60,7 +62,7 @@ export function AdminGrowthTab() {
   const data = scorecard.data;
   const cards = [
     { label: "Verified outcomes", value: data?.northStar?.verifiedOutcomes || 0, icon: Target },
-    { label: "Active Moments", value: data?.northStar?.activeMoments || 0, icon: Activity },
+    { label: webT("hostDash.active"), value: data?.northStar?.activeMoments || 0, icon: Activity },
     { label: "Outcomes / Moment", value: data?.northStar?.outcomesPerActiveMoment || 0, icon: TrendingUp },
     { label: "Signup → activation", value: `${data?.funnel?.signupToActivationRate || 0}%`, icon: Users },
   ];
@@ -134,7 +136,7 @@ export function AdminGrowthTab() {
             ["Open fraud flags", data?.pioneer?.fraudFlags || 0],
           ].map(([label, value]) => <div key={String(label)} className="rounded-xl border bg-background p-4"><p className="text-2xl font-black">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div>)}
         </div>
-        {!!data?.pioneer?.byRole?.length && <div className="mt-4 grid gap-2 md:grid-cols-3 xl:grid-cols-6">{data.pioneer.byRole.map((role: any) => <div key={role.contributorType} className="rounded-xl bg-background/70 p-3"><p className="text-xs font-black uppercase tracking-wider text-primary">{role.contributorType.replaceAll("_", " ")}</p><p className="mt-2 text-lg font-bold">{role.verifiedPoints} pts</p><p className="text-[11px] text-muted-foreground">{role.contributors} contributors · {role.verifiedContributions} receipts</p></div>)}</div>}
+        {!!data?.pioneer?.byRole?.length && <div className="mt-4 grid gap-2 md:grid-cols-3 xl:grid-cols-6">{data.pioneer.byRole.map((role: any) => <div key={role.contributorType} className="rounded-xl bg-background/70 p-3"><p className="text-xs font-black uppercase tracking-wider text-primary">{role.contributorType.replaceAll("_", " ")}</p><p className="mt-2 text-lg font-bold">{role.verifiedPoints} {webT("web.pts")}</p><p className="text-[11px] text-muted-foreground">{role.contributors} contributors · {role.verifiedContributions} {webT("web.receiptsLower")}</p></div>)}</div>}
         {data?.pioneer?.unavailable && <p className="mt-4 text-sm text-amber-600">Pioneer tables are not available in this environment. Apply the Pioneer migrations before relying on this overlay.</p>}
       </section>
 
@@ -158,7 +160,7 @@ export function AdminGrowthTab() {
         </div>
         {createExperiment.error && <p className="mt-2 text-sm text-destructive">{(createExperiment.error as Error).message}</p>}
         <div className="mt-5 grid gap-3 md:grid-cols-2">
-          {(experiments.data || []).map((item: any) => <article key={item.experiment_key} className="rounded-xl border p-4"><div className="flex items-center justify-between gap-3"><p className="font-bold">{item.name}</p><span className="rounded-full bg-muted px-2 py-1 text-[10px] font-bold uppercase">{item.status}</span></div><p className="mt-2 text-sm text-muted-foreground">{item.hypothesis}</p><p className="mt-3 text-xs">Primary: <strong>{item.primary_event}</strong> · {item.allocation_percent}% allocation</p><div className="mt-4 flex gap-2">{item.status !== "running" && item.status !== "completed" && <Button size="sm" variant="outline" onClick={() => updateExperiment.mutate({ key: item.experiment_key, status: "running" })}>Start</Button>}{item.status === "running" && <Button size="sm" variant="outline" onClick={() => updateExperiment.mutate({ key: item.experiment_key, status: "paused" })}>Pause</Button>}{item.status !== "completed" && <Button size="sm" variant="ghost" onClick={() => updateExperiment.mutate({ key: item.experiment_key, status: "completed" })}>Complete</Button>}</div></article>)}
+          {(experiments.data || []).map((item: any) => <article key={item.experiment_key} className="rounded-xl border p-4"><div className="flex items-center justify-between gap-3"><p className="font-bold">{item.name}</p><span className="rounded-full bg-muted px-2 py-1 text-[10px] font-bold uppercase">{item.status}</span></div><p className="mt-2 text-sm text-muted-foreground">{item.hypothesis}</p><p className="mt-3 text-xs">Primary: <strong>{item.primary_event}</strong> · {item.allocation_percent}% allocation</p><div className="mt-4 flex gap-2">{item.status !== "running" && item.status !== "completed" && <Button size="sm" variant="outline" onClick={() => updateExperiment.mutate({ key: item.experiment_key, status: "running" })}>{webT("start.eyebrow")}</Button>}{item.status === "running" && <Button size="sm" variant="outline" onClick={() => updateExperiment.mutate({ key: item.experiment_key, status: "paused" })}>{webT("offerStudio.pause")}</Button>}{item.status !== "completed" && <Button size="sm" variant="ghost" onClick={() => updateExperiment.mutate({ key: item.experiment_key, status: "completed" })}>{webT("funnel.complete")}</Button>}</div></article>)}
         </div>
       </section>
     </div>

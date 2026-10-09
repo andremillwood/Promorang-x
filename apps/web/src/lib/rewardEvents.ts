@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 /**
  * Unified Activity and Reward Event Model for Promorang
  *
@@ -175,7 +176,7 @@ export function getUnifiedBalances(): UnifiedBalances {
   // Next Friday default
   const nextFriday = new Date();
   nextFriday.setDate(nextFriday.getDate() + ((7 - nextFriday.getDay() + 5) % 7 || 7));
-  const nextDrawDate = nextFriday.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const nextDrawDate = nextFriday.toLocaleDateString(currentUiLocale(), { weekday: 'short', month: 'short', day: 'numeric' });
 
   return {
     promoPoints: 0,

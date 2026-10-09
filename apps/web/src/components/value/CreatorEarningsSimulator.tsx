@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -58,6 +60,7 @@ const NICHES: NicheOption[] = [
 ];
 
 export const CreatorEarningsSimulator: React.FC = () => {
+  const { t: webT } = useWebI18n();
   const [selectedNiche, setSelectedNiche] = useState<NicheOption>(NICHES[0]);
   const [dropsPerMonth, setDropsPerMonth] = useState<number>(3);
   const [arrivalsPerDrop, setArrivalsPerDrop] = useState<number>(25);
@@ -218,7 +221,7 @@ export const CreatorEarningsSimulator: React.FC = () => {
             {/* Big Cash Display */}
             <div>
               <div className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                ${earnings.totalMonthlyCash.toLocaleString()}
+                ${earnings.totalMonthlyCash.toLocaleString(currentUiLocale())}
                 <span className="text-sm font-semibold text-white/50 ml-1.5">/ month</span>
               </div>
             </div>
@@ -227,15 +230,15 @@ export const CreatorEarningsSimulator: React.FC = () => {
             <div className="space-y-2.5 pt-4 border-t border-white/10 text-xs">
               <div className="flex justify-between text-white/70">
                 <span>Example arrival-rate amount:</span>
-                <span className="font-mono font-bold text-white">${earnings.arrivalPayout.toLocaleString()}</span>
+                <span className="font-mono font-bold text-white">${earnings.arrivalPayout.toLocaleString(currentUiLocale())}</span>
               </div>
               <div className="flex justify-between text-white/70">
                 <span>Example content-fee amount:</span>
-                <span className="font-mono font-bold text-white">${earnings.contentBounties.toLocaleString()}</span>
+                <span className="font-mono font-bold text-white">${earnings.contentBounties.toLocaleString(currentUiLocale())}</span>
               </div>
               <div className="flex justify-between text-white/70">
                 <span>Assumed verified arrivals:</span>
-                <span className="font-mono font-bold text-purple-400">{earnings.totalArrivals} guests</span>
+                <span className="font-mono font-bold text-purple-400">{earnings.totalArrivals} {webT("guestPassPage.guestsPlural")}</span>
               </div>
             </div>
           </div>
@@ -254,7 +257,7 @@ export const CreatorEarningsSimulator: React.FC = () => {
               className="w-full h-11 bg-purple-500 hover:bg-purple-600 text-white font-black text-sm shadow-xl shadow-purple-500/20"
             >
               <Link to={`/for-creators?projEarn=${earnings.totalMonthlyCash}&niche=${selectedNiche.id}`}>
-                Explore creator opportunities
+                {webT("homeIntro.creatorsCta")}
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Link>
             </Button>

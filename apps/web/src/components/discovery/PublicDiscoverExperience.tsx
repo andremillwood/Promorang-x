@@ -24,9 +24,9 @@ import { momentLifecycleLabel } from "@/services/moment-feed";
 import heroMoments from "@/assets/hero-moments.jpg";
 import { getSiteUrl } from "@/lib/discovery";
 
-function offerAvailability(quantityTotal?: number | null, quantityReserved = 0, quantityRedeemed = 0) {
-  if (typeof quantityTotal !== "number") return "Availability set by operator";
-  return `${Math.max(0, quantityTotal - quantityReserved - quantityRedeemed)} available`;
+function offerAvailability(t: ReturnType<typeof useI18n>["t"], formatNumber: ReturnType<typeof useI18n>["formatNumber"], quantityTotal?: number | null, quantityReserved = 0, quantityRedeemed = 0) {
+  if (typeof quantityTotal !== "number") return t("web.operatorAvailability");
+  return t("web.availableCount", { count: formatNumber(Math.max(0, quantityTotal - quantityReserved - quantityRedeemed)) });
 }
 
 function signalState(votesRemaining: number, closeness: "unlocking" | "warming" | "early") {
@@ -71,9 +71,10 @@ function matchesDiscoverySearch(values: unknown[], query: string, interest: Inte
 }
 
 export function PublicDiscoverExperience() {
+  const { t: webT } = useI18n();
   const { user } = useAuth();
   const { city, country } = useMarket();
-  const { t } = useI18n();
+  const { t, formatNumber } = useI18n();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(() => searchParams.get("q") || "");
   const tab = searchParams.get("tab");
@@ -160,7 +161,7 @@ export function PublicDiscoverExperience() {
   return (
     <main className="marketing-cinematic public-discover-world min-h-screen bg-[#050505] text-white">
       <SEO
-        title="Discover PROMORANG | Find what moves you"
+        title={webT("web.discoverSeoTitle")}
         description={t("compression.interestsCopy")}
         url={getSiteUrl("/discover")}
       />
@@ -181,7 +182,7 @@ export function PublicDiscoverExperience() {
             </p>
 
             <div className="mt-8 max-w-3xl rounded-2xl border border-white/15 bg-black/65 p-2 shadow-2xl shadow-black/30 backdrop-blur-xl">
-              <label htmlFor="public-discover-search" className="sr-only">Search PROMORANG</label>
+              <label htmlFor="public-discover-search" className="sr-only">{webT("web.searchPromorang")}</label>
               <div className="flex min-h-14 items-center gap-3 px-3">
                 <Search className="h-4 w-4 text-orange-400" />
                 <input
@@ -220,9 +221,9 @@ export function PublicDiscoverExperience() {
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">Worth knowing now</p>
+              <p className="marketing-kicker">{webT("web.worthKnowing")}</p>
               <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.forYou")}</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Places, people, ideas and possibilities worth knowing about right now.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{webT("web.worthKnowingCopy")}</p>
             </div>
           </div>
 
@@ -256,9 +257,9 @@ export function PublicDiscoverExperience() {
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">Happening now & next</p>
+              <p className="marketing-kicker">{webT("web.happeningNowNext")}</p>
               <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.happening")}</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Plans, rooms and experiences happening now or coming up.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{webT("web.plansNowNext")}</p>
             </div>
             <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{t("publicHome.browseMoments")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -275,9 +276,9 @@ export function PublicDiscoverExperience() {
                     <span className="marketing-live-card__state">{momentLifecycleLabel(moment.lifecycle)}</span>
                   </div>
                   <div className="marketing-live-card__body">
-                    <p className="text-[9px] font-black uppercase tracking-[0.14em] text-orange-300">{moment.category || "Moment"}</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.14em] text-orange-300">{moment.category || webT("promoShare.typeMoment")}</p>
                     <h3>{moment.title}</h3>
-                    <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/45"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-400" />{moment.venue_name || moment.location || "Location on Moment"}</p>
+                    <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/45"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-400" />{moment.venue_name || moment.location || webT("web.locationOnMoment")}</p>
                     {moment.reward ? <p className="marketing-live-card__perk"><Gift className="h-3.5 w-3.5" />{moment.reward}</p> : null}
                   </div>
                 </Link>
@@ -286,7 +287,7 @@ export function PublicDiscoverExperience() {
           ) : (
             <div className="marketing-compact-empty">
               <CalendarDays className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No Moments match this view right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Try another filter or see everything that’s coming up.</p></div>
+              <div><p className="text-sm font-black">{webT("web.noMomentsInView")}</p><p className="mt-1 text-xs leading-5 text-white/45">{webT("web.tryMomentFilter")}</p></div>
             </div>
           )}
         </div>
@@ -296,17 +297,17 @@ export function PublicDiscoverExperience() {
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
-              <p className="marketing-kicker">Perks & access</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Things you can claim or use.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Open an offer to see what’s available, the terms and what to do next.</p>
+              <p className="marketing-kicker">{webT("web.perksAccess")}</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{webT("web.thingsToClaim")}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{webT("web.openOfferTerms")}</p>
             </div>
-            <Link to="/discover/rewards#offers" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">Explore perks <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/discover/rewards#offers" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{webT("web.explorePerks")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
 
           {offersQuery.isLoading ? (
             <div className="marketing-offer-rail">{[0,1,2,3].map((item) => <div key={item} className="marketing-offer-card animate-pulse bg-white/[0.04]" />)}</div>
           ) : offersQuery.isError ? (
-            <div className="marketing-compact-empty"><Gift className="h-5 w-5 text-orange-400" /><div><p className="text-sm font-black">We couldn’t load perks right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Try again in a moment.</p></div></div>
+            <div className="marketing-compact-empty"><Gift className="h-5 w-5 text-orange-400" /><div><p className="text-sm font-black">{webT("web.loadPerksError")}</p><p className="mt-1 text-xs leading-5 text-white/45">{webT("release.58")}</p></div></div>
           ) : filteredOffers.length ? (
             <div className="marketing-offer-rail">
               {filteredOffers.slice(0,4).map((offer) => (
@@ -315,14 +316,14 @@ export function PublicDiscoverExperience() {
                   <p className="mt-4 text-[9px] font-black uppercase tracking-[0.14em] text-orange-300">{offer.reward_type.replace(/_/g, " ")}</p>
                   <h3>{offer.title}</h3>
                   {offer.description ? <p className="marketing-offer-card__copy">{offer.description}</p> : null}
-                  <div className="marketing-offer-card__facts"><span>{offerAvailability(offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed)}</span><span>{offer.fulfillment_type.replace(/_/g, " ")}</span></div>
+                  <div className="marketing-offer-card__facts"><span>{offerAvailability(t, formatNumber, offer.quantity_total, offer.quantity_reserved, offer.quantity_redeemed)}</span><span>{offer.fulfillment_type.replace(/_/g, " ")}</span></div>
                 </article>
               ))}
             </div>
           ) : (
             <div className="marketing-compact-empty">
               <Gift className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No direct offers right now.</p><p className="mt-1 text-xs leading-5 text-white/45">{t("compression.interestsCopy")}</p></div>
+              <div><p className="text-sm font-black">{webT("web.noDirectOffers")}</p><p className="mt-1 text-xs leading-5 text-white/45">{t("compression.interestsCopy")}</p></div>
             </div>
           )}
         </div>
@@ -398,7 +399,7 @@ export function PublicDiscoverExperience() {
       <section className="public-discover-promocard px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
           <div>
-            <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> Keep your place</p>
+            <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> {webT("web.keepYourPlace")}</p>
             <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.cardTitle")}</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">{t("publicHome.cardCopy")}</p>
             <Link to="/auth?mode=signup&role=participant&next=/card" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">{t("clarity.getMyCard")} <ArrowRight className="h-4 w-4" /></Link>

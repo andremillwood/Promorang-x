@@ -1,3 +1,4 @@
+import { withI18n } from "@/test/withI18n";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
@@ -24,9 +25,9 @@ describe("stakeholder surface lead", () => {
   it("sends a host into gathering, not a generic claim", async () => {
     await act(async () => {
       root.render(
-        <MemoryRouter>
+        withI18n(<MemoryRouter>
           <StakeholderPutInPass role="host" />
-        </MemoryRouter>,
+        </MemoryRouter>),
       );
     });
     const link = container.querySelector("a");
@@ -37,9 +38,9 @@ describe("stakeholder surface lead", () => {
   it("names the world from the merchant lens", async () => {
     await act(async () => {
       root.render(
-        <MemoryRouter>
+        withI18n(<MemoryRouter>
           <StakeholderSurfaceLead role="merchant" surface="world" />
-        </MemoryRouter>,
+        </MemoryRouter>),
       );
     });
     expect(container).toHaveTextContent("Where your perk can be used tonight.");
@@ -51,9 +52,9 @@ describe("stakeholder setup playbook", () => {
   it("names the merchant venue-to-scanner path", async () => {
     await act(async () => {
       root.render(
-        <MemoryRouter>
+        withI18n(<MemoryRouter>
           <StakeholderSetupPlaybook role="merchant" />
-        </MemoryRouter>,
+        </MemoryRouter>),
       );
     });
     expect(container).toHaveTextContent("Add the venue");
@@ -66,9 +67,9 @@ describe("stakeholder setup playbook", () => {
   it("names the brand fund-then-fly path", async () => {
     await act(async () => {
       root.render(
-        <MemoryRouter>
+        withI18n(<MemoryRouter>
           <StakeholderSetupPlaybook role="brand" />
-        </MemoryRouter>,
+        </MemoryRouter>),
       );
     });
     expect(container).toHaveTextContent("Fund a real benefit");
@@ -79,9 +80,9 @@ describe("stakeholder setup playbook", () => {
   it("names the creator Release-then-attach path", async () => {
     await act(async () => {
       root.render(
-        <MemoryRouter>
+        withI18n(<MemoryRouter>
           <StakeholderSetupPlaybook role="creator" />
-        </MemoryRouter>,
+        </MemoryRouter>),
       );
     });
     expect(container).toHaveTextContent("Publish a Release");

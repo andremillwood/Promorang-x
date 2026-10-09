@@ -1,3 +1,5 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { Building, ExternalLink, MapPin, Plus, Sparkles, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +10,7 @@ export function MerchantVenueStudio({
 }: {
   onOpenMoments?: () => void;
 }) {
+  const { t: webT } = useWebI18n();
   const { data: venues = [], isLoading, error } = useMerchantVenues();
 
   return (
@@ -81,7 +84,7 @@ export function MerchantVenueStudio({
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[.14em] ${venue.is_active ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300" : "border-white/10 bg-white/[.03] text-white/40"}`}>
-                          {venue.is_active ? "Active" : "Inactive"}
+                          {venue.is_active ? webT("commercial.active") : "Inactive"}
                         </span>
                       </div>
                       <h3 className="mt-3 text-xl font-black text-white">{venue.name || "Unnamed place"}</h3>
@@ -94,12 +97,12 @@ export function MerchantVenueStudio({
 
                   <dl className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
-                      <dt className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">Capacity</dt>
-                      <dd className="mt-2 text-lg font-black text-white">{hasCapacity ? capacity.toLocaleString() : "Not recorded"}</dd>
+                      <dt className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">{webT("momentDetail.capacity")}</dt>
+                      <dd className="mt-2 text-lg font-black text-white">{hasCapacity ? capacity.toLocaleString(currentUiLocale()) : webT("activationCommerce.notRecorded")}</dd>
                     </div>
                     <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
                       <dt className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">Rating</dt>
-                      <dd className="mt-2 text-lg font-black text-white">{hasRating ? rating.toFixed(1) : "Not recorded"}</dd>
+                      <dd className="mt-2 text-lg font-black text-white">{hasRating ? rating.toFixed(1) : webT("activationCommerce.notRecorded")}</dd>
                     </div>
                   </dl>
 

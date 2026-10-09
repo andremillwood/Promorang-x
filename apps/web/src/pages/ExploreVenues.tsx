@@ -34,6 +34,7 @@ const venueTypes = [
 ];
 
 const ExploreVenues = () => {
+  const { t: webT } = useI18n();
   const { t, formatNumber } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeVenueType, setActiveVenueType] = useState("all");
@@ -82,7 +83,7 @@ const ExploreVenues = () => {
       <section className="px-4 pb-10 pt-24 sm:pt-28">
         <div className="mx-auto max-w-7xl">
           <header className="border-b border-white/10 pb-9">
-            <p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">Places</p>
+            <p className="text-[10px] font-black uppercase tracking-[.28em] text-primary">{webT("findOrAsk.resultPlaces")}</p>
             <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
               <div><h1 className="font-serif text-6xl font-bold leading-[.88] tracking-[-.055em] sm:text-8xl">Where things<br/><em className="font-normal text-primary">happen.</em></h1><p className="mt-6 max-w-2xl text-base leading-7 text-white/55">Follow PROMORANG through the rooms, venues and physical places connected to Moments, offers and culture.</p></div>
               <div className="border-y border-white/15 py-5 text-sm text-white/50"><p>Follow a place to see what happens there, what’s nearby and what might bring you back.</p><Link to="/discover?tab=moments" className="mt-4 inline-flex items-center gap-2 font-bold text-primary">See what is happening <ArrowRight className="h-4 w-4"/></Link></div>
@@ -232,12 +233,12 @@ const ExploreVenues = () => {
               </p>
             </div>
           )}
-          <section className="mt-12 grid gap-px border-y border-white/10 bg-white/10 md:grid-cols-3"><Link to="/scenes" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Scenes</p><p className="mt-2 font-serif text-2xl font-bold">Find the culture around a place.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/discover?tab=moments" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Moments</p><p className="mt-2 font-serif text-2xl font-bold">See what is happening next.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/explore/rewards" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">Available</p><p className="mt-2 font-serif text-2xl font-bold">Find something you can unlock.</p><ArrowRight className="mt-5 h-4 w-4"/></Link></section>
+          <section className="mt-12 grid gap-px border-y border-white/10 bg-white/10 md:grid-cols-3"><Link to="/scenes" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("publicHome.filterScenes")}</p><p className="mt-2 font-serif text-2xl font-bold">Find the culture around a place.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/discover?tab=moments" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("findOrAsk.moments")}</p><p className="mt-2 font-serif text-2xl font-bold">See what is happening next.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/explore/rewards" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("people.available")}</p><p className="mt-2 font-serif text-2xl font-bold">Find something you can unlock.</p><ArrowRight className="mt-5 h-4 w-4"/></Link></section>
           {totalPages > 1 ? (
             <nav aria-label="Venue pages" className="mt-8 flex items-center justify-center gap-3">
               <Button variant="outline" disabled={page === 0 || venuesQuery.isFetching} onClick={() => setPage((value) => Math.max(0, value - 1))}><ChevronLeft className="mr-1 h-4 w-4" />Previous</Button>
-              <span className="text-sm font-semibold">Page {page + 1} of {totalPages}</span>
-              <Button variant="outline" disabled={page + 1 >= totalPages || venuesQuery.isFetching} onClick={() => setPage((value) => value + 1)}>Next<ChevronRight className="ml-1 h-4 w-4" /></Button>
+              <span className="text-sm font-semibold">Page {page + 1} {webT("web.of")} {totalPages}</span>
+              <Button variant="outline" disabled={page + 1 >= totalPages || venuesQuery.isFetching} onClick={() => setPage((value) => value + 1)}>{webT("funnel.pending")}<ChevronRight className="ml-1 h-4 w-4" /></Button>
             </nav>
           ) : null}
         </div>

@@ -1,3 +1,4 @@
+import { withI18n } from "@/test/withI18n";
 import { fireEvent, render, screen, waitFor, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
@@ -8,7 +9,7 @@ vi.mock("@/integrations/supabase/client",()=>({supabase:{rpc}}));
 import { PromoPushActivation } from "./PromoPushActivation";
 import type { PromoPushCampaign } from "@/hooks/usePromoPush";
 const campaign={id:"draft",push_mode:"geo",status:"draft",funding_status:"unfunded",pricing:{quote_id:"quote",total_gems:50,expires_at:"2099-01-01"}} as PromoPushCampaign;
-const mount=(c=campaign)=>render(<MemoryRouter><QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false}}})}><PromoPushActivation campaign={c}/></QueryClientProvider></MemoryRouter>);
+const mount=(c=campaign)=>render(withI18n(<MemoryRouter><QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false}}})}><PromoPushActivation campaign={c}/></QueryClientProvider></MemoryRouter>));
 afterEach(()=>{cleanup();vi.restoreAllMocks();});beforeEach(()=>rpc.mockReset());
 it("requires approval and passes only campaign and quote IDs to funding",async()=>{
  rpc.mockResolvedValue({data:{},error:null});mount();

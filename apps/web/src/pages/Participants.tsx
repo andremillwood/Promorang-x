@@ -1,3 +1,4 @@
+import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState, useEffect } from "react";
 import { Search, ShieldCheck, Users, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ interface ParticipantProfile {
 }
 
 const Participants = () => {
+  const { t: webT } = useI18n();
     const { t } = useI18n();
     const [participants, setParticipants] = useState<ParticipantProfile[]>([]);
     const [loading, setLoading] = useState(true);
@@ -101,7 +103,7 @@ const Participants = () => {
                                 <TableHeader className="bg-muted/30">
                                     <TableRow>
                                         <TableHead>{t("participantsPage.thParticipant")}</TableHead>
-                                        <TableHead>Location</TableHead>
+                                        <TableHead>{webT("promoPushCareersPage.labelLocation")}</TableHead>
                                         <TableHead>{t("participantsPage.thStatus")}</TableHead>
                                         <TableHead>{t("participantsPage.thJoinedDate")}</TableHead>
                                     </TableRow>
@@ -114,7 +116,7 @@ const Participants = () => {
                                                     {participant.avatar_url ? (
                                                         <img 
                                                             src={participant.avatar_url} 
-                                                            alt={participant.full_name || "User"} 
+                                                            alt={participant.full_name || webT("profile.user")}
                                                             className="w-8 h-8 rounded-full object-cover border border-border"
                                                         />
                                                     ) : (
@@ -132,11 +134,11 @@ const Participants = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant="default" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
-                                                    Active
+                                                    {webT("commercial.active")}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground text-xs">
-                                                {new Date(participant.created_at).toLocaleDateString()}
+                                                {new Date(participant.created_at).toLocaleDateString(currentUiLocale())}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -152,7 +154,7 @@ const Participants = () => {
                                             {participant.avatar_url ? (
                                                 <img 
                                                     src={participant.avatar_url} 
-                                                    alt={participant.full_name || "User"} 
+                                                    alt={participant.full_name || webT("profile.user")}
                                                     className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
                                                 />
                                             ) : (
@@ -170,11 +172,11 @@ const Participants = () => {
                                             </div>
                                         </div>
                                         <Badge variant="default" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[10px]">
-                                            Active
+                                            {webT("commercial.active")}
                                         </Badge>
                                     </div>
                                     <div className="mt-3 text-xs text-muted-foreground">
-                                        <span>Joined: {new Date(participant.created_at).toLocaleDateString()}</span>
+                                        <span>Joined: {new Date(participant.created_at).toLocaleDateString(currentUiLocale())}</span>
                                     </div>
                                 </div>
                             ))}

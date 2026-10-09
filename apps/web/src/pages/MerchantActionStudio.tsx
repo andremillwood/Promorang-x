@@ -1,3 +1,4 @@
+import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import React, { useState } from "react";
 import { 
   Store, 
@@ -20,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function MerchantActionStudio() {
+  const { t: webT } = useWebI18n();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [activeQRAction, setActiveQRAction] = useState<any>(null);
@@ -161,9 +163,9 @@ export default function MerchantActionStudio() {
                       </Badge>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400">
-                      <span className="text-emerald-400 font-bold">${act.gems.toFixed(2)} Gems</span>
-                      <span className="text-amber-400">+{act.points} Points</span>
-                      <span className="text-purple-400">{act.tickets} PromoShare</span>
+                      <span className="text-emerald-400 font-bold">${act.gems.toFixed(2)} {webT("wallet.gemsLabel")}</span>
+                      <span className="text-amber-400">+{act.points} {webT("wallet.pointsLabel")}</span>
+                      <span className="text-purple-400">{act.tickets} {webT("economy.navPromoShare")}</span>
                       <span className="text-slate-500">Verification: {act.verification}</span>
                     </div>
                   </div>
@@ -171,7 +173,7 @@ export default function MerchantActionStudio() {
                   <div className="flex items-center gap-3">
                     <div className="text-right mr-2">
                       <div className="text-sm font-black text-white">{act.completions}</div>
-                      <div className="text-[10px] text-slate-500 font-mono font-normal">Scans</div>
+                      <div className="text-[10px] text-slate-500 font-mono font-normal">{webT("web.scans")}</div>
                     </div>
                     <Button 
                       onClick={() => openQRModal(act)}
@@ -201,7 +203,7 @@ export default function MerchantActionStudio() {
 
           <form onSubmit={handleCreateAction} className="space-y-4 my-2">
             <div>
-              <label className="text-xs font-mono text-slate-400 block mb-1">Action Title</label>
+              <label className="text-xs font-mono text-slate-400 block mb-1">{webT("stewardDashboard.labelActionTitle")}</label>
               <input 
                 type="text" 
                 value={title}
@@ -214,7 +216,7 @@ export default function MerchantActionStudio() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">Action Type</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">{webT("stewardDashboard.labelActionType")}</label>
                 <select 
                   value={type}
                   onChange={(e) => setType(e.target.value)}
@@ -227,7 +229,7 @@ export default function MerchantActionStudio() {
               </div>
 
               <div>
-                <label className="text-xs font-mono text-slate-400 block mb-1">Gem Reward ($ USD)</label>
+                <label className="text-xs font-mono text-slate-400 block mb-1">{webT("stewardDashboard.labelGemReward")}</label>
                 <input 
                   type="number" 
                   step="0.50"
@@ -264,7 +266,7 @@ export default function MerchantActionStudio() {
                 </div>
               </div>
               <p className="text-xs font-mono text-emerald-400">
-                Reward: ${activeQRAction.gems.toFixed(2)} Gems + {activeQRAction.points} Points
+                Reward: ${activeQRAction.gems.toFixed(2)} Gems + {activeQRAction.points} {webT("wallet.pointsLabel")}
               </p>
             </div>
           )}
