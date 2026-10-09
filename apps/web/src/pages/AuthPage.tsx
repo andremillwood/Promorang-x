@@ -92,6 +92,10 @@ const AuthPage = () => {
     role: searchParams.get("role"),
     next: nextPath,
   });
+  const hasBusinessIntent = hostReturn
+    || ["brand", "merchant", "agency", "host"].includes(intendedRole || "")
+    || ["commercial", "business", "pricing", "activation"].includes(commercialIntent || "")
+    || (mode === "signup" && ["brand", "merchant", "agency", "host"].includes(selectedRole));
   const intendedLens = intendedRole ? localizeLens(getStakeholderLens(intendedRole), t) : null;
   const authSchema = z.object({
     email: z.string().email(t("auth.errorEmail")),
@@ -109,6 +113,7 @@ const AuthPage = () => {
     host: { title: t("auth.host"), description: t("persona.mayorDesc") },
     brand: { title: t("auth.brand"), description: t("persona.brandDesc") },
     merchant: { title: t("auth.merchant"), description: t("persona.merchantDesc") },
+    agency: { title: t("auth.agency"), description: t("persona.agencyDesc") },
   };
 
   useEffect(() => {
@@ -131,11 +136,13 @@ const AuthPage = () => {
     }
     const aimed = promoCardAimFromNext(nextPath);
     if (aimed) writePromoCardAim(aimed);
-    if (searchParams.get("mode") === "signup") setMode("signup");
-    if (searchParams.get("mode") === "login") setMode("login");
+    setMode(searchParams.get("mode") === "signup" ? "signup" : "login");
+    setShowDemoAccess(false);
+    setSelectedRole("participant");
+    setShowRolePicker(false);
     const requestedRole = intendedRole || roleFromNext(nextPath);
     if (!requestedRole || requestedRole === "admin") return;
-    if (["participant", "creator", "host", "brand", "merchant"].includes(requestedRole)) {
+    if (Object.prototype.hasOwnProperty.call(roleInfo, requestedRole)) {
       persistPreferredRole(requestedRole as UserRole);
       setSelectedRole(requestedRole as UserRole);
       setShowRolePicker(requestedRole !== "participant");
@@ -334,7 +341,7 @@ const AuthPage = () => {
             {aftrHrsAuth
               ? AFTRHRS_COPY.authBody
               : mode === "login"
-              ? selectedRole === "brand"
+              ? hasBusinessIntent && selectedRole === "brand"
                 ? t("auth.brandContinueCopy")
                 : hostReturn ? t("auth.hostReturnLogin") : t("auth.loginCopy")
               : unlockAim
@@ -375,7 +382,7 @@ const AuthPage = () => {
               </p>
             </div>
           )}
-          {!aftrHrsAuth && (commercialIntent || hostReturn || selectedRole === "brand") && !(intendedLens && intendedRole && intendedRole !== "participant") && (
+          {!aftrHrsAuth && hasBusinessIntent && !(intendedLens && intendedRole && intendedRole !== "participant") && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
                 {selectedRole === "brand"
@@ -532,7 +539,7 @@ const AuthPage = () => {
           </p>
 
           {/* Demo Accounts */}
-          <div className="mt-8 pt-6 border-t border-[#171512]/10">
+          {hasBusinessIntent && <div className="mt-8 pt-6 border-t border-[#171512]/10">
             <button type="button" onClick={() => setShowDemoAccess(value => !value)} className="flex min-h-11 w-full items-center justify-between text-left text-sm font-black">
               <span>{t("auth.previewWorkspace")}</span><span className="text-primary">{showDemoAccess ? t("auth.hide") : t("auth.open")}</span>
             </button>
@@ -632,7 +639,7 @@ const AuthPage = () => {
               Each demo opens a curated workspace with stable sample data so prospects see the product in a clean, repeatable state.
             </p>
             </div>}
-          </div>
+          </div>}
         </div>
       </div>
 

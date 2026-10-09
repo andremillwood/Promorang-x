@@ -1,6 +1,6 @@
 import { authEntryHref, rememberIntendedStakeholder } from "@promorang/shared";
 
-export type CommercialRole = "participant" | "creator" | "host" | "brand" | "merchant";
+export type CommercialRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency";
 
 export const BRAND_LANDING_PATH = "/for-brands?from=sponsor";
 export const BRAND_CAMPAIGN_PATH = "/create/campaign?from=sponsor";
@@ -19,7 +19,7 @@ export type SponsorBrief = {
   capturedAt: string;
 };
 
-const COMMERCIAL_ROLES: CommercialRole[] = ["participant", "creator", "host", "brand", "merchant"];
+const COMMERCIAL_ROLES: CommercialRole[] = ["participant", "creator", "host", "brand", "merchant", "agency"];
 
 function isCommercialRole(value: string | null | undefined): value is CommercialRole {
   return Boolean(value && COMMERCIAL_ROLES.includes(value as CommercialRole));
