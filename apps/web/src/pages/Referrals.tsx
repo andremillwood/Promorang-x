@@ -1,9 +1,22 @@
+import { commerceStatus } from "@/i18n/commerce-status";
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { API_BASE_URL } from '@/lib/api';
 import { Link2, ShieldCheck, Sparkles } from "lucide-react";
 import { ReferralsSection } from "@/components/participant/ReferralsSection";
 import { useI18n } from "@/i18n/I18nContext";
 
 export default function Referrals() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const { user } = useAuth();
+  const purchases = useQuery({ queryKey: ['referral-purchases', user?.id], enabled: Boolean(user), queryFn: async () => {
+    const { data } = await supabase.auth.getSession();
+    const response = await fetch(`${API_BASE_URL}/commerce/referral-purchases`, { headers: { Authorization: `Bearer ${data.session?.access_token}` } });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Could not load referred purchases');
+    return result.purchases as { id: string; payment_status: string; fulfillment_status: string; total_amount: number; currency: string }[];
+  } });
   return (
     <main className="min-h-screen bg-[#080808] text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -33,6 +46,11 @@ export default function Referrals() {
             <h2 id="referral-dashboard-title" className="mt-1 text-2xl font-black">{t("referrals.results")}</h2>
           </div>
           <ReferralsSection />
+          <section className="mt-8 border-t border-white/10 pt-8">
+            <h2 className="text-2xl font-bold">{t("release.88")}</h2>
+            <p className="mt-3 text-sm text-white/60">{t("release.89")}</p>
+            {purchases.isLoading ? <p role="status" className="mt-4">{t("release.90")}</p> : purchases.isError ? <p role="alert" className="mt-4">{t("release.91")} <button className="underline" onClick={() => void purchases.refetch()}>{t("release.18")}</button></p> : purchases.data?.length ? <ul className="mt-5 divide-y divide-white/10">{purchases.data.map(purchase => <li key={purchase.id} className="flex flex-wrap justify-between gap-3 py-4"><span>{t("cart.orderId", { id: purchase.id.slice(0,8) })}</span><span>{commerceStatus(t, purchase.payment_status)} · {commerceStatus(t, purchase.fulfillment_status)}</span><strong>{new Intl.NumberFormat(locale, { style: 'currency', currency: purchase.currency }).format(Number(purchase.total_amount))}</strong></li>)}</ul> : <p className="mt-4 text-sm text-white/50">{t("release.92")}</p>}
+          </section>
         </section>
       </div>
     </main>

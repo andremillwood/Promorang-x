@@ -58,3 +58,21 @@ Use an existing event relationship and a small set of explicitly participating s
 Before promising compensation, define contributor eligibility, the qualifying event, commission, who pays, reversals and payout timing. The activity view is not a payable ledger.
 
 Measure first redemption, second use, referred members who redeem, actual merchant outcomes and separately recorded contributor rewards. These measures require live pilot records; this change neither fabricates a dashboard nor claims market validation.
+
+
+## Product framing clarification — October 8, 2026
+
+The removal of simulated money does not prohibit value-led acquisition. PromoCard should lead with value available to unlock from partners, and show issued benefits as owned only after issuance. The current product framing and supply-side invitation are defined in `DESIGN.md`, “PromoCard value proposition.” Preloaded credit remains a valid future presentation when participant allocation and backing are implemented and verified.
+
+
+## Merchant cart implementation — October 8, 2026
+
+The web journey now connects storefront categories and product pages to `/shop/cart`. A cart contains products from one merchant in USD, with editable quantities. Store and product pages expose active directly claimable checkout benefits. Offer Studio configures fixed or percentage discounts with an optional product, category and minimum cart spend. The participant claims through the existing offer flow, selects the claimed issuance in the bag, then reviews the final amount in merchant-connected Stripe Checkout.
+
+`reserve_promocard_cart` validates prices, stock, currency, merchant and issuance ownership in the database, retains a valid referral code, and holds one benefit exclusively. The paid-order transition redeems it and writes its redemption event once. Terminal checkout expiry/failure releases the hold; a failed payment attempt alone does not. Processing orders retain their stock during asynchronous payment. Stripe capture validates merchant account, session, currency, discount and paid total. Receipts show all order items and the used benefit. The success page polls the owned order and clears purchased cart quantities only after a receipt exists.
+
+Product and storefront referral links use actual referral codes. Confirmed and refunded orders appear in the referral dashboard. The old activated-referrals URL now renders that live dashboard. Purchase attribution is available; this change does not create a new affiliate commission rate or automatic cash payout. Existing earned-reward and funded commercial-allocation policies remain separate from attributed gross purchase value.
+
+Release requirements: apply `supabase/migrations/20261008154811_promocard_commerce_journey.sql` before the new checkout backend; deploy backend and web together; confirm the connected-account webhook receives checkout completed, asynchronous success/failure and expired events. Run a merchant sandbox purchase, cancellation and refund with actual seller configuration before live release. An uncertain Stripe session-creation response retains its inventory and benefit hold for reconciliation rather than releasing potentially payable inventory. Free orders and multi-merchant checkout are outside this slice.
+
+Verification: local PostgreSQL tests in `backend/tests/sql/promocard-commerce.sql` cover scope, currency, expiry, ownership, stock rollback, benefit exclusivity, fixed/percentage calculations, confirmed capture retries, cancellation reuse and delayed-payment holds. Node tests cover checkout request validation, return-URL restrictions, capture verification and the Stripe discount request. Web tests cover cart persistence, merchant/currency separation, referral retention, failed checkout preservation and confirmed-order clearing. Browser automation was unavailable in this environment; live Stripe and deployed migration verification are still required.

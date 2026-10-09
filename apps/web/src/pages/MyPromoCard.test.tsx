@@ -80,6 +80,19 @@ afterEach(async () => {
 });
 
 describe("PromoCard journey", () => {
+  it("takes an unclaimed next benefit to its real unlock page without exposing a credential", async () => {
+    query.data = {
+      points: 0, keys: 0, perks: [], nearby: [],
+      nextBenefit: { id: "next-offer", title: "Partner store credit", dropSlug: "partner-credit", href: "/offers/next-offer" },
+    };
+    await renderCard();
+    expect(container).toHaveTextContent("Your next unlock.");
+    expect(container).toHaveTextContent("Partner store credit is available to explore");
+    const unlock = Array.from(container.querySelectorAll("a")).find((link) => link.textContent?.includes("See how to unlock"));
+    expect(unlock).toHaveAttribute("href", "/drop/partner-credit");
+    expect(container.querySelector('button[aria-label="Show code for Partner store credit"]')).toBeNull();
+  });
+
   it("does not present loading as an empty card or zero balance", async () => {
     query.isLoading = true;
     await renderCard();

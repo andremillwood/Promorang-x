@@ -22,6 +22,15 @@ async function assertOwner(offerId, userId) {
 }
 
 async function createOffer(userId, payload) {
+  const discount = payload.metadata?.checkout_discount;
+  if (discount) {
+    if (!['fixed','percentage'].includes(discount.kind) || !['coupon','voucher'].includes(payload.reward_type) || !Number.isFinite(Number(payload.value_amount)) || Number(payload.value_amount) <= 0 || (discount.kind === 'percentage' && Number(payload.value_amount) > 100) || !Number.isFinite(Number(discount.minimum_spend || 0)) || Number(discount.minimum_spend || 0) < 0) throw new Error('Enter a valid checkout discount and minimum spend');
+    if (discount.kind === 'fixed' && String(payload.value_currency).toUpperCase() !== 'USD') throw new Error('Store checkout discounts currently use USD');
+    if (payload.merchant_product_id) {
+      const { data: product, error } = await supabase.from('merchant_products').select('id').eq('id', payload.merchant_product_id).eq('merchant_id', userId).maybeSingle();
+      if (error || !product) throw new Error('Choose a product from your own catalog');
+    }
+  }
   const distributions = payload.distributions || [];
   const { data: offer, error } = await supabase.from('offers').insert({
     owner_user_id: userId,

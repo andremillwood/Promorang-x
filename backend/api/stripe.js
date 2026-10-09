@@ -74,7 +74,7 @@ router.post('/commerce/payment-intent', requireAuth, async (req, res) => {
 
 router.post('/commerce/checkout', requireAuth, async (req, res) => {
     try {
-        const { product_id, quantity = 1, items, success_url, cancel_url } = req.body || {};
+        const { product_id, quantity = 1, items, success_url, cancel_url, issuance_id, referral_code } = req.body || {};
         if (!product_id && (!Array.isArray(items) || !items.length)) {
             return res.status(422).json({ error: 'product_id or items is required' });
         }
@@ -84,6 +84,8 @@ router.post('/commerce/checkout', requireAuth, async (req, res) => {
             productId: product_id,
             quantity,
             items,
+            issuanceId: issuance_id || null,
+            referralCode: referral_code || null,
             successUrl: success_url,
             cancelUrl: cancel_url,
         });

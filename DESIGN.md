@@ -2356,3 +2356,20 @@ Marketing surfaces may explain the system. Product object pages should let peopl
 ### Public object density
 
 Object destinations should be information-rich and media-forward. Prefer real imagery, object metadata, host/place context, related objects, and onward discovery over large empty explanatory sections.
+
+
+## PromoCard value proposition — October 8, 2026
+
+PromoCard is the participant's route to value worth unlocking. Lead with **Discover it. Unlock it. Use it.** Partners supply offers, restricted store credit, sponsored rewards, products and access; people discover the value, meet its conditions, claim it, and use it from the card. Watching and history support this loop.
+
+The supply-side invitation is **Put value on their PromoCard.** Ask what the partner commits, who can unlock it, which action qualifies, quantity, amount/unit where relevant, expiry, where it works, and how fulfillment is confirmed. Use `/stock` for straightforward inventory and `/offers` for amounts, conditions, funding and expiry. Cash, store credit, discounts and attributed retail value retain their own units and terms.
+
+Presentation states:
+- **Available to unlock:** live partner inventory, not yet owned. Show the offer and link to its conditions.
+- **On your card:** an actual issuance belongs to the participant; pending conditions or fulfillment stay visible.
+- **Ready to use:** the issuance meets the existing readiness rules and can expose its valid credential.
+- **Used:** confirmed fulfillment, followed by the next relevant offer.
+
+“Preloaded” or “reserved for you” requires an actual allocation to that participant. An empty market invites discovery or a request; it never claims a funded amount. A loading or failed request does not prove there is no value. Removing simulated balances must not erase the economic proposition.
+
+First commercial activation: choose a focused audience and participating partners; secure a capped opening set of benefits with explicit terms; distribute the card invitation against that real supply; verify first claim and use with the partner; measure second use and partner replenishment. The acceptance test is a person receiving and using the promised benefit. Funding, allocations and real partner commitments remain operational prerequisites; marketing copy does not create them.

@@ -109,11 +109,11 @@ export function PromoCardGateway() {
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">PromoCard</p>
             <h1 className="mt-3 max-w-2xl font-serif text-[clamp(2.5rem,12vw,6.2rem)] font-black uppercase leading-[0.84] tracking-[-0.065em] sm:mt-4 sm:font-sans sm:leading-[0.86] sm:tracking-[-0.07em]">
-              There’s something<br />
-              <span className="text-primary">for you.</span>
+              Value waiting<br />
+              <span className="text-primary">to unlock.</span>
             </h1>
             <p className="mt-4 max-w-xl text-[15px] leading-6 text-white/68 sm:mt-5 sm:text-lg sm:leading-8">
-              Your PromoCard unlocks offers around you — plus shop drops, digital events, and new music that work anywhere.
+              Discover offers, rewards and access from participating businesses, sponsors and creators. Unlock a benefit and keep it on your PromoCard, ready to use.
             </p>
 
             <div className="mt-5">
@@ -197,7 +197,7 @@ export function PromoCardGateway() {
             </div>
             <p className="relative mt-4 flex items-start gap-2 text-[10px] leading-4 text-white/45">
               <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
-              Payment, gift activation and recharge are not customer completions. The merchant’s recorded redemption is.
+              Each benefit shows who provides it and how to use it. Check its conditions before you unlock.
             </p>
           </div>
         </div>
@@ -209,13 +209,13 @@ export function PromoCardGateway() {
             <span className="ml-2 hidden text-xs font-medium text-white/40 group-open:inline">Hide</span>
           </summary>
           <ol className="mt-3 space-y-2 text-sm leading-6 text-white/60">
-            <li>1. Claim a benefit.</li>
-            <li>2. Use it at the participating business.</li>
-            <li>3. The business confirms the redemption.</li>
-            <li>4. New opportunities continue to appear.</li>
+            <li>1. Discover value from participating partners.</li>
+            <li>2. Meet the conditions and claim your benefit.</li>
+            <li>3. Use the benefit from your PromoCard.</li>
+            <li>4. Come back to discover your next unlock.</li>
           </ol>
           <p className="mt-3 text-[11px] leading-5 text-white/40">
-            A completed merchant redemption is what qualifies — not payment, gift activation, or a recharge.
+            Availability, expiry and where you can use a benefit are shown with each offer.
           </p>
         </details>
       </div>

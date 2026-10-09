@@ -51,6 +51,7 @@ export type BusinessOutcomeBrief = {
   audience: string;
   availableValue: string;
   programmeId: ProgrammeId;
+  leadId?: string;
 };
 
 export const BUSINESS_OUTCOME_BRIEF_KEY = "promorang_business_outcome_brief_v1";
@@ -138,15 +139,22 @@ export function recommendProgramme(outcomeId: BusinessOutcomeId, businessType: B
   return "tell-somebody";
 }
 
-export function roleForBusinessType(type: BusinessTypeId): "brand" | "merchant" {
+export function roleForBusinessType(type: BusinessTypeId): "brand" | "merchant" | "host" {
+  if (type === "event") return "host";
   return type === "place" || type === "service" ? "merchant" : "brand";
+}
+
+export function businessContinuation(brief: BusinessOutcomeBrief): string {
+  const role = roleForBusinessType(brief.businessType);
+  const path = role === "host" ? "/create/moment" : role === "merchant" ? "/offers" : "/create/campaign";
+  return `${path}?from=business-outcome`;
 }
 
 export function createBusinessOutcomeBrief(input: Omit<BusinessOutcomeBrief, "version" | "id" | "createdAt" | "programmeId">): BusinessOutcomeBrief {
   return {
     ...input,
     version: 1,
-    id: `business-${Date.now()}`,
+    id: `business-${crypto.randomUUID()}`,
     createdAt: new Date().toISOString(),
     programmeId: recommendProgramme(input.outcomeId, input.businessType),
   };

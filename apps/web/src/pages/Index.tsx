@@ -1,9 +1,11 @@
+import { useI18n } from "@/i18n/I18nContext";
 import SEO from "@/components/SEO";
 import PublicMarketHome from "@/components/marketing/PublicMarketHome";
 import ConsumerMomentPreview from "@/pages/ConsumerMomentPreview";
 import { useLayoutEffect } from "react";
 
 const Index = () => {
+  const { t } = useI18n();
   const searchParams = new URLSearchParams(window.location.search);
   const consumerMomentId = searchParams.get("moment");
 
@@ -20,8 +22,8 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="PROMORANG — Discover what moves you. Help shape what happens next."
-        description="Discover things worth knowing, show what you want, join what other people are asking for, and keep your place in what happens next with PromoCard."
+        title={`PROMORANG — ${t("publicHome.title")}`}
+        description={t("compression.interestsCopy")}
       />
       <PublicMarketHome />
     </div>

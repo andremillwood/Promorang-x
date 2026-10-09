@@ -25,6 +25,14 @@ describe("localization", () => {
     });
   });
 
+  it("preserves interpolation variables in every translation", () => {
+    const variables = (value: string) => [...value.matchAll(/\{\{(\w+)\}\}/g)].map(match => match[1]).sort();
+    for (const [key, value] of Object.entries(translations.en)) {
+      if (!key.startsWith("release.") && !key.startsWith("cart.") && !key.startsWith("offer.") && !key.startsWith("homeDemand.")) continue;
+      for (const locale of supportedLocales) expect(variables(translations[locale][key as keyof typeof translations.en]), key).toEqual(variables(value));
+    }
+  });
+
   it("recognizes and rewrites localized public paths", () => {
     expect(localeFromPath("/es/discover/moments")).toBe("es-419");
     expect(localeFromPath("/pt-br/scenes")).toBe("pt-BR");

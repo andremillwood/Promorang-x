@@ -1,29 +1,31 @@
+import { useI18n } from "@/i18n/I18nContext";
 import MarketRoleLanding from "@/components/marketing/MarketRoleLanding";
 
 export default function ForAgencies() {
+  const { t } = useI18n();
   return (
     <MarketRoleLanding
-      seoTitle="PROMORANG for agencies — Turn market signals into clearer client action"
-      seoDescription="See what people want, coordinate the right client response, and report what happened next with more clarity."
-      eyebrow="For agencies & client operators"
-      title="Give clients a clearer line from market signal to action."
-      intro="Agencies can see what people are discovering and asking for, help clients decide where to respond, and show what happened afterward without turning reach, interest and conversion into one vague number."
-      primaryCta={{ label: "Open agency path", href: "/auth?mode=signup&role=brand&next=/dashboard" }}
-      secondaryCta={{ label: "See the brand lens", href: "/for-brands" }}
-      roleJob="Read the market, shape the response, coordinate the moving parts, and give the client a result story they can understand."
+      seoTitle={t("commercial.promorang.for.agencies.turn.market.signals.into.clearer.25")}
+      seoDescription={t("commercial.see.what.people.want.coordinate.the.right.client.26")}
+      eyebrow={t("commercial.for.agencies.client.operators.27")}
+      title={t("compression.role.ForAgencies")}
+      intro={t("compression.agencyIntro")}
+      primaryCta={{ label: t("compression.agencyCta"), href: "/auth?mode=signup&role=brand&next=/dashboard" }}
+      secondaryCta={{ label: t("commercial.see.the.brand.lens.28"), href: "/for-brands" }}
+      roleJob={t("commercial.read.the.market.shape.the.response.coordinate.the.29")}
       discoveryUse="Discoveries give planners and creatives context about places, people, patterns and opportunities already in the market."
       demandUse="Demand gives clients a clearer view of what people are asking for before they spend, helping shape targeting, offers and activation design."
-      responseTitle="Translate demand into a client response with a clear owner"
-      responseDetail="Turn the signal into a campaign, offer, Moment, creator brief or merchant action with a clear owner, terms and next step."
+      responseTitle={t("commercial.translate.demand.into.a.client.response.with.a.30")}
+      responseDetail={t("commercial.turn.the.signal.into.a.campaign.offer.moment.31")}
       responseStub="ORCH"
-      proofTitle="Show the client what happened next"
-      proofDetail="Separate reach, attributed actions and confirmed outcomes so the client can see what changed without overstating ROI."
+      proofTitle={t("commercial.show.the.client.what.happened.next.32")}
+      proofDetail={t("commercial.separate.reach.attributed.actions.and.confirmed.outcomes.so.33")}
       promoCardDetail="PromoCard gives the participant something to carry forward after the activation, so the relationship can continue beyond the agency report."
       truthGates={[
-        "Reach is not conversion",
-        "Results need context before they become ROI",
-        "Interest is not availability",
-        "Approval and settlement are different steps",
+        t("commercial.reach.is.not.conversion.34"),
+        t("commercial.results.need.context.before.they.become.roi.35"),
+        t("commercial.interest.is.not.availability.36"),
+        t("commercial.approval.and.settlement.are.different.steps.37"),
       ]}
     />
   );

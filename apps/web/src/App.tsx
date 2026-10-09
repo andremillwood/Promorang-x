@@ -160,6 +160,7 @@ const PromoShare = lazy(() => import("./pages/PromoShare"));
 const CardDropClaim = lazy(() => import("./pages/CardDropClaim"));
 const ContentDrops = lazy(() => import("./pages/ContentDrops"));
 const ContentDropDetail = lazy(() => import("./pages/ContentDropDetail"));
+const ShoppingCart = lazy(() => import("./pages/ShoppingCart"));
 const OfferStudio = lazy(() => import("./pages/OfferStudio"));
 const PromoPush = lazy(() => import("./pages/PromoPush"));
 const PromoPushCreator = lazy(() => import("./pages/PromoPushCreator"));
@@ -189,6 +190,7 @@ const MerchantCouponHub = lazy(() => import("./pages/MerchantCouponHub"));
 const GemRushPage = lazy(() => import("./pages/GemRushPage"));
 const ActionDetail = lazy(() => import("./pages/ActionDetail"));
 const LeadMagnetFunnels = lazy(() => import("./pages/LeadMagnetFunnels"));
+const FunnelJourney = lazy(() => import("./pages/FunnelJourney"));
 const CampaignLanding = lazy(() => import("./pages/CampaignLanding"));
 const ArlaCampaignHub = lazy(() => import("./pages/ArlaCampaignHub"));
 const ArlaCommercialProposal = lazy(() => import("./pages/ArlaCommercialProposal"));
@@ -277,6 +279,7 @@ const App = () => (
                     <Route path="/for-brands" element={<ForBrands />} />
                     <Route path="/solutions" element={<SolutionsHub />} />
                     <Route path="/business/start" element={<BusinessStart />} />
+                    <Route path="/journey" element={<ProtectedRoute><FunnelJourney /></ProtectedRoute>} />
                     <Route path="/solutions/:vertical" element={<SolutionsHub />} />
                     <Route path="/for-creators" element={<ForCreators />} />
                     <Route path="/for-merchants" element={<ForMerchants />} />
@@ -400,6 +403,7 @@ const App = () => (
                     <Route path="/merchants" element={<Merchants />} />
                     <Route path="/hosts" element={<Hosts />} />
                     <Route path="/shop" element={<Marketplace />} />
+                    <Route path="/shop/cart" element={<ShoppingCart />} />
                     <Route path="/shop/category/:category" element={<Marketplace />} />
                     <Route path="/shop/:listingId" element={<CommerceDetail />} />
                     <Route path="/r/:id" element={<PublicValueReceipt />} />

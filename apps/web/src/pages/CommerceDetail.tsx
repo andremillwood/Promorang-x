@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { StoreBenefits } from "@/components/commerce/StoreBenefits";
+import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { ArrowLeft, Bookmark, CalendarClock, MapPin, ShieldCheck, ShoppingBag, Store, CreditCard, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -12,9 +13,14 @@ import { commerceCategorySlug, isSampleCommerceListing } from '@/lib/commerce-pr
 import { KINGSTON_EXPERIENCE_LISTINGS } from '@/pages/Marketplace';
 import { useI18n } from '@/i18n/I18nContext';
 
+import { addCartItem, rememberCommerceReferral } from '@/lib/commerce-cart';
+import { CommerceShareLink } from '@/components/commerce/CommerceShareLink';
+
 export default function CommerceDetail() {
   const { t, locale, formatNumber } = useI18n();
   const { listingId } = useParams();
+  const location = useLocation();
+  useEffect(() => rememberCommerceReferral(location.search), [location.search]);
   const actions = useCommerceActions();
   const queryClient = useQueryClient();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -202,6 +208,11 @@ export default function CommerceDetail() {
               <Button size="lg" disabled={isSample || !!actions.busy} onClick={() => actions.purchase(sourceId, amount, 'reservation')}>
                 {isSample ? t("commerce.sampleOnly") : actions.busy ? t("commerce.working") : x.discount_value ? t("commerce.reserveOffer") : t("commerce.reserve")}
               </Button>
+              <Button size="lg" disabled={!canCheckout || isSample || !x.merchant_user_id} onClick={() => {
+                try { addCartItem({ product_id: sourceId, listing_id: String(x.listing_id), merchant_id: String(x.merchant_user_id), name: x.name || 'Product', price: amount, currency: currency.toUpperCase(), quantity: 1 }); setReservationMessage(t("release.45")); }
+                catch (error) { setReservationMessage(error instanceof Error && error.message === "Finish or clear your current cart before shopping with another merchant." ? t("cart.error.merchant") : error instanceof Error && error.message === "The maximum quantity is 99." ? t("cart.error.quantity") : error instanceof Error && error.message === "Your cart is full." ? t("cart.error.full") : t("release.46")); }
+              }}>{t("release.44")}</Button>
+              <Button asChild variant="outline"><Link to="/shop/cart">{t("release.47")}</Link></Button>
               <Button size="lg" variant="outline" disabled={!canCheckout || isSample || checkoutBusy} onClick={beginMerchantCheckout} className="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 {checkoutBusy ? t("commerce.cardOpening") : t("commerce.card")}
               </Button>
@@ -219,6 +230,8 @@ export default function CommerceDetail() {
         </div>
       </div>
 
+      <div className="mx-auto max-w-6xl px-5 pb-8"><CommerceShareLink path={`/shop/${encodeURIComponent(String(x.listing_id))}`} /></div>
+      {x.merchant_user_id && !isSample ? <StoreBenefits merchantId={String(x.merchant_user_id)} /> : null}
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
         <DialogContent>
           <DialogHeader>

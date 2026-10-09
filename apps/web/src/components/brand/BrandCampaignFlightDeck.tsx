@@ -1,252 +1,27 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Megaphone,
-  Plus,
-  Target,
-  Users,
-  Eye,
-  Gift,
-  TrendingUp,
-  Clock,
-  Sparkles,
-  ArrowRight,
-  DollarSign,
-  Flame,
-  CheckCircle2,
-  Calendar,
-  Layers,
-  ChevronRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Plus } from "lucide-react";
 import { useBrandCampaigns } from "@/hooks/useCampaigns";
-import { useToast } from "@/hooks/use-toast";
+import { FunnelProgressCard } from "@/components/funnels/FunnelProgressCard";
 
-export function BrandCampaignFlightDeck({
-  onLaunchNew,
-}: {
-  onLaunchNew?: () => void;
-}) {
-  const { toast } = useToast();
-  const { data: rawCampaigns = [], isLoading } = useBrandCampaigns();
-  const [filterState, setFilterState] = useState<"all" | "live" | "scheduled" | "completed">("all");
-
-  const campaigns = rawCampaigns.length > 0 ? rawCampaigns : [
-    {
-      id: "camp-midas-1",
-      title: "Midas Summer Kingston Soundclash Takeover",
-      description: "Omni-channel sponsorship across 4 live Kingston stages with door perks & creator bounties.",
-      budget: 5000,
-      spent: 3200,
-      impressions: 48200,
-      redemptions: 1420,
-      is_active: true,
-      status: "live",
-      flightDates: "Aug 15 - Sep 10, 2026",
-      creatorsCount: 12,
-      roi: "4.8x",
-    },
-    {
-      id: "camp-midas-2",
-      title: "Blue Mountain Coffee Rituals & Artisan Drops",
-      description: "Rewarding attendees who check-in at partnered Kingston coffee lounges with PromoKeys.",
-      budget: 2500,
-      spent: 1850,
-      impressions: 29400,
-      redemptions: 890,
-      is_active: true,
-      status: "live",
-      flightDates: "Aug 20 - Sep 05, 2026",
-      creatorsCount: 8,
-      roi: "5.2x",
-    },
-    {
-      id: "camp-midas-3",
-      title: "Kingston Culture Week Sunset Stage",
-      description: "Exclusive VIP lounge sponsorship & branded content drop window.",
-      budget: 4000,
-      spent: 0,
-      impressions: 0,
-      redemptions: 0,
-      is_active: false,
-      status: "scheduled",
-      flightDates: "Sep 15 - Sep 22, 2026",
-      creatorsCount: 15,
-      roi: "Pending Launch",
-    },
-  ];
-
-  const handleBoostBudget = (campaignTitle: string) => {
-    toast({
-      title: "Flight Pacing Boosted! 🚀",
-      description: `Allocated +$500 to '${campaignTitle}' for peak weekend foot traffic.`,
-    });
-  };
-
-  const filteredCampaigns = campaigns.filter((c: any) => {
-    if (filterState === "all") return true;
-    if (filterState === "live") return c.is_active;
-    if (filterState === "scheduled") return !c.is_active;
-    return true;
-  });
-
-  return (
-    <div className="space-y-6">
-      {/* 1. Header & Live Promotion HUD */}
-      <div className="p-6 rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-black to-black backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black font-black shadow-lg shadow-primary/20 shrink-0">
-            <Megaphone className="h-7 w-7 text-black" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Your Sponsored Promotions</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-extrabold uppercase">
-                {campaigns.filter((c: any) => c.is_active).length} Active Campaigns
-              </span>
-            </div>
-            <p className="text-xs text-white/60 mt-1">
-              Track how your budget turns into social media buzz, real store visits, and sales.
-            </p>
-          </div>
-        </div>
-
-        <Button
-          asChild
-          className="h-11 px-5 rounded-2xl bg-primary hover:bg-primary/90 text-black font-extrabold text-xs shadow-[0_0_20px_rgba(255,106,0,0.35)]"
-        >
-          <Link to="/create/campaign">
-            <Plus className="h-4 w-4 mr-1.5" />
-            Start New Promotion
-          </Link>
-        </Button>
-      </div>
-
-      {/* 2. Simple Filter Tabs */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          {[
-            { id: "all", label: "All Campaigns" },
-            { id: "live", label: "Currently Active" },
-            { id: "scheduled", label: "Upcoming / Scheduled" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setFilterState(tab.id as any)}
-              className={`px-4 py-2 rounded-2xl text-xs font-bold transition shrink-0 ${
-                filterState === tab.id
-                  ? "bg-primary text-black shadow-md shadow-primary/20"
-                  : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2 text-xs text-white/60">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Real-Time Proof Loop Active</span>
-        </div>
-      </div>
-
-      {/* 3. Campaign Flight Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredCampaigns.map((campaign: any) => {
-          const budget = Number(campaign.budget || 0);
-          const spent = Number(campaign.spent || (budget * 0.64));
-          const pacePercent = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
-
-          return (
-            <div
-              key={campaign.id}
-              className="rounded-3xl border border-white/10 bg-[#0e1015] p-6 flex flex-col justify-between space-y-5 hover:border-primary/40 transition-all duration-300 shadow-xl group"
-            >
-              {/* Top Meta & Flight Badges */}
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                    campaign.is_active
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-white/10 text-white/60 border border-white/10"
-                  }`}>
-                    {campaign.is_active ? "Live Flight" : "Scheduled"}
-                  </span>
-                  <span className="text-xs text-primary font-bold font-mono">
-                    ROI: {campaign.roi || "4.5x"}
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-black text-white group-hover:text-primary transition leading-tight">
-                  {campaign.title}
-                </h3>
-                <p className="text-xs text-white/60 mt-1 line-clamp-2">
-                  {campaign.description}
-                </p>
-              </div>
-
-              {/* Spend Meter */}
-              <div className="space-y-1.5 p-3.5 rounded-2xl bg-black/40 border border-white/5">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-white/60">Budget Used So Far</span>
-                  <span className="text-white font-mono font-bold">
-                    ${spent.toLocaleString()} of ${budget.toLocaleString()} spent ({pacePercent}%)
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-amber-400 transition-all duration-500"
-                    style={{ width: `${pacePercent}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Real World Performance Dials */}
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">People Reached</p>
-                  <p className="text-base font-black text-white">{(campaign.impressions || 0).toLocaleString()}</p>
-                </div>
-                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">In-Person Visits</p>
-                  <p className="text-base font-black text-emerald-400">{(campaign.redemptions || 0).toLocaleString()}</p>
-                </div>
-                <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <p className="text-[10px] font-bold uppercase text-white/50">Creators Posting</p>
-                  <p className="text-base font-black text-amber-400">{campaign.creatorsCount || 6}</p>
-                </div>
-              </div>
-
-              {/* Flight Actions Footer */}
-              <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/5">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBoostBudget(campaign.title)}
-                  className="h-9 px-3 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex-1"
-                >
-                  <Flame className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                  Add +$500 to Reach More People
-                </Button>
-
-                <Button
-                  asChild
-                  size="sm"
-                  className="h-9 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
-                >
-                  <Link to={`/dashboard/campaigns/${campaign.id}`}>
-                    <span>Manage Hub</span>
-                    <ArrowRight className="h-3.5 w-3.5 ml-1" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+export function BrandCampaignFlightDeck({ onLaunchNew }: { onLaunchNew?: () => void }) {
+  const query = useBrandCampaigns();
+  const campaigns = query.data || [];
+  const [filter, setFilter] = useState<"all" | "live" | "draft">("all");
+  const filtered = campaigns.filter(campaign => filter === "all" || (filter === "live" ? campaign.is_active : !campaign.is_active));
+  return <div className="space-y-6 text-white">
+    <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 pb-6">
+      <div><h2 className="font-serif text-3xl font-bold">Your activations</h2><p className="mt-2 text-sm text-white/60">Saved plans, live campaigns, and the evidence they create.</p></div>
+      {onLaunchNew ? <button type="button" onClick={onLaunchNew} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-black"><Plus className="h-4 w-4" />Start a pilot</button> : <Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-black"><Plus className="h-4 w-4" />Start a pilot</Link>}
+    </header>
+    <FunnelProgressCard funnel="brand" />
+    <div className="flex gap-2" aria-label="Filter activations">{([['all','All'],['live','Live'],['draft','Not live']] as const).map(([value,label]) => <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)} className={`min-h-11 rounded-full border px-5 text-sm ${filter === value ? 'border-primary text-primary' : 'border-white/20 text-white/65'}`}>{label}</button>)}</div>
+    {query.isLoading ? <p role="status">Loading your activations…</p> : query.isError ? <div role="alert"><p>Your activations could not be loaded.</p><button type="button" onClick={() => void query.refetch()} className="min-h-11 underline">Try again</button></div> : filtered.length ? <div className="grid gap-5 lg:grid-cols-2">{filtered.map(campaign => <article key={campaign.id} className="rounded-2xl border border-white/15 p-6">
+      <p className="text-xs font-bold uppercase tracking-wider text-orange-300">{campaign.is_active ? 'Live' : campaign.compiler_metadata?.activation_status || 'Draft'}</p>
+      <h3 className="mt-3 font-serif text-2xl font-bold">{campaign.title}</h3><p className="mt-3 line-clamp-3 text-sm leading-6 text-white/60">{campaign.description}</p>
+      <dl className="mt-6 grid grid-cols-2 gap-4"><div><dt className="text-xs text-white/60">Recorded impressions</dt><dd className="mt-1 text-2xl font-bold">{Number(campaign.impressions || 0).toLocaleString()}</dd></div><div><dt className="text-xs text-white/60">Recorded accepted actions</dt><dd className="mt-1 text-2xl font-bold">{Number(campaign.redemptions || 0).toLocaleString()}</dd></div></dl>
+      <Link to={`/dashboard/campaigns/${campaign.id}`} className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-orange-300">{campaign.is_active ? 'Review outcomes' : 'Continue shaping'}<ArrowRight className="h-4 w-4" /></Link>
+    </article>)}</div> : <div className="border-y border-white/15 py-8"><h3 className="font-serif text-2xl font-bold">{campaigns.length ? 'No activations in this view' : 'Your first pilot starts with an outcome'}</h3><p className="mt-3 text-sm text-white/60">{campaigns.length ? 'Choose another filter to see your saved work.' : 'Define the customer action you want to create, save a brief, and scope a measurable pilot.'}</p><Link to="/business/start" className="mt-4 inline-flex min-h-11 items-center gap-2 text-orange-300">Build your brief<ArrowRight className="h-4 w-4" /></Link></div>}
+  </div>;
 }
-
 export default BrandCampaignFlightDeck;

@@ -4,8 +4,9 @@ import { ArrowRight, CheckCircle2, Minus, Plus, Share2, TicketCheck } from "luci
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n/I18nContext";
+import { API_BASE_URL } from "@/lib/api";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = API_BASE_URL;
 
 export default function GuestRsvp() {
   const { momentId } = useParams();
@@ -32,7 +33,7 @@ export default function GuestRsvp() {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch(`${API}/api/guest-rsvp`, {
+      const response = await fetch(`${API}/guest-rsvp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, moment_id: momentId }),

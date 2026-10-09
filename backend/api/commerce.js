@@ -8,6 +8,50 @@ function isAdmin(user = {}) {
   return ADMIN_ROLES.has(user.role) || ADMIN_ROLES.has(user.user_type) || ADMIN_ROLES.has(user.token_payload?.role);
 }
 
+router.get('/store-benefits/:merchantId', async (req, res) => {
+  try {
+    const db = req.supabase || global.supabase;
+    const { data, error } = await db.from('offers').select('id,title,terms,value_amount,value_currency,quantity_total,quantity_reserved,quantity_redeemed,ends_at,metadata,offer_distributions!inner(channel,is_active)')
+      .eq('owner_user_id', req.params.merchantId).eq('status','active').eq('offer_distributions.channel','direct').eq('offer_distributions.is_active',true).lte('starts_at',new Date().toISOString()).limit(50);
+    if (error) throw error;
+    res.json({ benefits: (data || []).filter(o => (!o.ends_at || Date.parse(o.ends_at)>Date.now()) && (o.quantity_total == null || o.quantity_total>o.quantity_reserved+o.quantity_redeemed) && ['fixed','percentage'].includes(o.metadata?.checkout_discount?.kind)).map(({ id,title,terms,value_amount,value_currency,metadata }) => ({ id,title,terms,value_amount,value_currency,checkout_discount: metadata.checkout_discount })) });
+  } catch (error) { res.status(400).json({ error: error.message }); }
+});
+
+// Authenticated cart reads use the same ownership boundary as checkout.
+router.get('/cart-benefits/:merchantId', requireAuth, async (req, res) => {
+  try {
+    const db = req.supabase || global.supabase;
+    const { data, error } = await db.from('offer_issuances').select('id,expires_at,offers!inner(id,title,terms,value_amount,value_currency,reward_type,owner_user_id,merchant_product_id,starts_at,ends_at,status,metadata)')
+      .eq('user_id', req.user.id).eq('status', 'claimed').eq('offers.owner_user_id', req.params.merchantId).eq('offers.status', 'active');
+    if (error) throw error;
+    const now = Date.now();
+    res.json({ benefits: (data || []).filter(i => (!i.expires_at || Date.parse(i.expires_at) > now) && Date.parse(i.offers.starts_at) <= now && (!i.offers.ends_at || Date.parse(i.offers.ends_at) > now) && ['coupon','voucher'].includes(i.offers.reward_type) && ['fixed','percentage'].includes(i.offers.metadata?.checkout_discount?.kind)) });
+  } catch (error) { res.status(400).json({ error: error.message }); }
+});
+
+router.get('/cart-orders/:orderId', requireAuth, async (req, res) => {
+  try {
+    const db = req.supabase || global.supabase;
+    const { data: order, error } = await db.from('commerce_orders').select('id,payment_status,fulfillment_status,total_amount,currency,metadata,commerce_order_items(product_id,product_name,quantity,line_total)').eq('id', req.params.orderId).eq('buyer_id', req.user.id).maybeSingle();
+    if (error) throw error;
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    const { data: receipt, error: receiptError } = await db.from('commerce_receipts').select('id').eq('sale_id', order.id).eq('user_id', req.user.id).maybeSingle();
+    if (receiptError) throw receiptError;
+    return res.json({ order, receipt_id: receipt?.id || null });
+  } catch (error) { res.status(400).json({ error: error.message }); }
+});
+
+router.get('/referral-purchases', requireAuth, async (req, res) => {
+  try {
+    const db = req.supabase || global.supabase;
+    const { data, error } = await db.from('commerce_orders').select('id,payment_status,fulfillment_status,total_amount,currency,created_at')
+      .contains('metadata', { referrer_id: req.user.id }).in('payment_status', ['paid','partially_refunded','refunded','disputed']).order('created_at', { ascending: false }).limit(100);
+    if (error) throw error;
+    res.json({ purchases: data || [] });
+  } catch (error) { res.status(400).json({ error: error.message }); }
+});
+
 router.get('/merchant-payment-options/:productId', requireAuth, async (req, res) => {
   try {
     const db = req.supabase || global.supabase;
@@ -46,7 +90,7 @@ router.post('/merchant-payment-orders/:orderId/cancel', requireAuth, async (req,
   try {
     const db = req.supabase || global.supabase;
     const { data: order } = await db.from('commerce_orders').select('id,buyer_id,payment_status')
-      .eq('id', req.params.orderId).eq('buyer_id', req.user.id).single();
+      .eq('id', req.params.orderId).eq('buyer_id', req.user.id).eq('payment_collection', 'merchant').single();
     if (!order) return res.status(404).json({ error: 'Reservation not found' });
     if (order.payment_status === 'paid') return res.status(409).json({ error: 'A paid order cannot be cancelled here' });
     const marketplaceService = require('../services/marketplaceService');
@@ -307,9 +351,16 @@ router.get('/receipts/:id', requireAuth, async (req, res) => {
       });
     }
 
+    let orderItems = [];
+    if (receipt.attribution?.commerce_order_id) {
+      const { data: items, error: itemsError } = await db.from('commerce_order_items').select('product_id,product_name,quantity,unit_price,line_total').eq('order_id', receipt.attribution.commerce_order_id);
+      if (itemsError) throw itemsError;
+      orderItems = items || [];
+    }
     res.json({
       success: true,
       receipt,
+      order_items: orderItems,
       timeline,
       permissions: {
         is_customer: receipt.user_id === req.user.id,

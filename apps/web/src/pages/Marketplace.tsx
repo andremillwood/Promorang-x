@@ -200,15 +200,17 @@ const Marketplace = () => {
     };
 
     return (
-        <main className="mx-auto max-w-[1440px] space-y-6 px-4 pb-16 pt-4 animate-in fade-in duration-700 sm:space-y-8 sm:px-6 lg:px-8">
+        <main className="dark min-h-screen bg-[#080808] text-white">
+          <div className="mx-auto max-w-[1440px] space-y-6 px-4 pb-16 pt-6 sm:space-y-8 sm:px-6 lg:px-8">
             {/* Search & Filter Header */}
             <div className="overflow-x-clip rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-4 shadow-2xl sm:rounded-[2rem] sm:p-5 md:p-8">
                 <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-5">
                     <div className="min-w-0">
-                        <p className="mb-3 max-w-full text-[10px] font-black uppercase leading-5 tracking-wide text-orange-400">
+                        <p className="mb-3 max-w-full text-xs font-bold uppercase leading-5 tracking-wide text-orange-300">
                             <Store className="mb-0.5 mr-1 inline-block h-3.5 w-3.5 align-text-bottom" />
                             {t("market.eyebrow")}
                         </p>
+                        <Link to="/shop/cart" className="mb-4 inline-flex min-h-11 items-center text-sm font-bold text-orange-300">{t("shopEntry.bag")} →</Link>
                         <h1 className="max-w-3xl font-sans text-[1.85rem] font-black uppercase leading-[1.12] tracking-[-0.02em] text-white sm:text-4xl sm:leading-[0.95] sm:tracking-[-0.04em] md:text-6xl md:leading-[0.9] md:tracking-[-0.055em]">
                             {t("market.title")}
                         </h1>
@@ -220,7 +222,7 @@ const Marketplace = () => {
                     <div className="flex min-w-0 flex-wrap gap-2 text-white/70 md:w-[34rem]">
                         {[[t("market.buy"), t("market.buyCopy")], [t("market.earn"), t("market.earnCopy")], [t("market.unlock"), t("market.unlockCopy")]].map(([label, copy]) => (
                             <div key={label} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 sm:min-w-[9rem] sm:flex-1 sm:rounded-2xl sm:p-3">
-                                <div className="text-[10px] font-black uppercase leading-tight tracking-wide text-primary sm:text-xs">{label}</div>
+                                <div className="text-xs font-bold uppercase leading-tight tracking-wide text-orange-300">{label}</div>
                                 <p className="mt-1 hidden text-xs leading-5 sm:block">{copy}</p>
                             </div>
                         ))}
@@ -229,19 +231,22 @@ const Marketplace = () => {
 
                 <div className="mt-5 flex w-full min-w-0 gap-3 sm:mt-6 md:max-w-xl">
                     <div className="relative min-w-0 flex-1 md:w-80">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                         <Input
                             placeholder={t("market.search")}
-                            className="pl-10 bg-card rounded-xl border-border/40 focus:ring-primary/20"
+                            aria-label={t("market.search")}
+                            className="min-h-12 rounded-xl border-white/25 bg-[#181818] pl-10 text-base text-white placeholder:text-slate-400 focus-visible:ring-orange-300"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button variant="outline" size="icon" className="shrink-0 rounded-xl border-border/40">
+                    <Button variant="outline" size="icon" aria-label={t("release.57")} className="h-12 w-12 shrink-0 rounded-xl border-white/25 bg-[#181818] text-white hover:bg-white/10 hover:text-white">
                         <Filter className="w-4 h-4" />
                     </Button>
                 </div>
             </div>
+
+            <p className="max-w-3xl text-sm leading-7 text-slate-300">{t("shopEntry.account")}</p>
 
             {/* Categories / Tags */}
             <nav aria-label="Shop categories" className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -249,7 +254,7 @@ const Marketplace = () => {
                     <Link
                         key={cat}
                         to={cat === "All" ? "/shop" : `/shop/category/${commerceCategorySlug(cat)}`}
-                        className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-black transition ${activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "border-primary bg-primary text-white" : "border-white/10 bg-white/[0.05] text-white/65 hover:border-primary/50 hover:text-white"}`}
+                        className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold transition ${activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "border-orange-300 bg-orange-300 text-black" : "border-white/25 bg-[#181818] text-slate-200 hover:border-orange-300 hover:text-white"}`}
                     >
                         {cat === "All" ? t("market.all") : cat === "Products" ? t("market.products") : cat === "Services" ? t("market.services") : cat}
                     </Link>
@@ -260,16 +265,16 @@ const Marketplace = () => {
                 <section className="rounded-3xl border border-red-500/20 bg-red-500/[0.06] px-6 py-10 text-center">
                     <ShoppingBag className="mx-auto h-10 w-10 text-red-200" />
                     <h2 className="mt-4 text-2xl font-black text-white">We couldn’t load the marketplace right now.</h2>
-                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/55">Try again in a moment.</p>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-300">{t("release.58")}</p>
                     <Button type="button" variant="outline" className="mt-6 rounded-full border-white/15 bg-black/20 text-white" onClick={() => commerceQuery.refetch()}>
-                        <RefreshCw className="mr-2 h-4 w-4" />Try again
+                        <RefreshCw className="mr-2 h-4 w-4" />{t("release.18")}
                     </Button>
                 </section>
             ) : realListings.length === 0 && !commerceQuery.isLoading ? (
                 <section className="rounded-3xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-10 text-center">
                     <ShoppingBag className="mx-auto h-10 w-10 text-primary" />
                     <h2 className="mt-4 text-2xl font-black text-white">Nothing here right now.</h2>
-                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/50">Try another search or come back as new products and offers appear.</p>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-300">{t("release.59")}</p>
                     <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                         <Link to="/for-merchants">
                             <Button variant="hero" className="rounded-full">Claim a Merchant Profile <ArrowRight className="ml-2 h-4 w-4" /></Button>
@@ -289,13 +294,13 @@ const Marketplace = () => {
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {commerceQuery.isLoading ? (
                     Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="bg-card rounded-2xl p-4 border border-border/40 animate-pulse h-80" />
+                        <div key={i} className="bg-[#181818] rounded-2xl p-4 border border-white/15 animate-pulse h-80" />
                     ))
                 ) : commerceQuery.error ? null : listings.length === 0 ? (
                     <div className="col-span-full py-20 text-center">
-                        <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                         <h3 className="text-lg font-semibold">{t("market.noResults")}</h3>
-                        <p className="text-muted-foreground">{t("market.noResultsCopy")}</p>
+                        <p className="text-slate-300">{t("market.noResultsCopy")}</p>
                     </div>
                 ) : (
                     listings.map((listing) => (
@@ -305,7 +310,7 @@ const Marketplace = () => {
                                 {listing.image_url ? (
                                     <img src={listing.image_url} alt={listing.name || "Marketplace listing"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                    <div className="w-full h-full flex items-center justify-center text-slate-300">
                                         <ShoppingBag className="w-12 h-12 opacity-20" />
                                     </div>
                                 )}
@@ -323,23 +328,24 @@ const Marketplace = () => {
                             {/* Product Info */}
                             <div className="p-5 flex-1 flex flex-col">
                                 <div className="mb-2">
-                                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+                                    <div className="flex items-center gap-1 text-xs text-slate-300 tracking-wide mb-2">
                                         <MapPin className="w-3 h-3" /> {listing.venue_name || listing.merchant_name || t("market.localMerchant")}
                                     </div>
                                     <Link to={`/shop/${encodeURIComponent(listing.listing_id || "")}`}><h3 className="font-serif text-2xl font-bold leading-tight text-white transition-colors group-hover:text-primary">{listing.name}</h3></Link>
                                 </div>
 
-                                <p className="text-xs text-muted-foreground line-clamp-2 mb-4 flex-1">
+                                <p className="text-sm leading-6 text-slate-300 line-clamp-3 mb-4 flex-1">
                                     {listing.description || t("market.fallback")}
                                 </p>
 
-                                <ValueOutcomeChips outcomes={getListingOutcomes(listing)} className="mb-3" />
+                                <ValueOutcomeChips outcomes={getListingOutcomes(listing)} className="mb-3 [&>span]:text-xs [&_span]:opacity-100" />
 
                                 <div className="mb-3 flex flex-wrap gap-2">
-                                    {listing.category ? <Badge variant="outline" className="capitalize">{listing.category}</Badge> : null}
-                                    {listing.fulfillment_mode ? <Badge variant="secondary" className="capitalize">{String(listing.fulfillment_mode).replace(/_/g, " ")}</Badge> : null}
+                                    {listing.category ? <Link to={`/shop/category/${commerceCategorySlug(listing.category)}`} className="rounded-full border border-white/25 px-3 py-1 text-xs text-slate-200 hover:border-orange-300">{listing.category}</Link> : null}
+                                    {listing.fulfillment_mode ? <Badge variant="secondary" className="bg-white/10 text-xs text-slate-200 capitalize">{String(listing.fulfillment_mode).replace(/_/g, " ")}</Badge> : null}
                                 </div>
 
+                                {listing.merchant_user_id ? <Link to={`/storefront/${encodeURIComponent(listing.merchant_user_id)}`} className="mb-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-orange-300"><Store className="h-4 w-4" />{t("shopEntry.store")} · {listing.merchant_name || t("market.localMerchant")}</Link> : null}
                                 <Button className="w-full justify-between rounded-xl" variant="hero" asChild><Link to={`/shop/${encodeURIComponent(listing.listing_id || "")}`}><span className="flex items-center gap-2"><Eye className="h-4 w-4" />{t("market.details")}</span><span className="font-bold">{formatPrice(listing)}</span></Link></Button>
                             </div>
                         </article>
@@ -351,8 +357,8 @@ const Marketplace = () => {
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-primary/10 to-accent/10 p-5 sm:p-8">
                 <div className="relative z-10 max-w-2xl min-w-0">
                     <h2 className="mb-2 text-balance font-sans text-2xl font-black uppercase leading-tight tracking-[-0.03em] sm:text-3xl sm:leading-none sm:tracking-[-0.04em]">{t("market.valueTitle")}</h2>
-                    <p className="text-pretty text-sm text-muted-foreground">{t("market.valueCopy")}</p>
-                    <Button variant="link" className="p-0 text-primary mt-4 h-auto">
+                    <p className="text-pretty text-sm text-slate-300">{t("market.valueCopy")}</p>
+                    <Button variant="link" className="mt-4 min-h-11 p-0 text-orange-300">
                         {t("market.learnRanks")} <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                 </div>
@@ -360,6 +366,7 @@ const Marketplace = () => {
                     <Sparkles className="w-32 h-32" />
                 </div>
             </div>
+          </div>
         </main>
     );
 };

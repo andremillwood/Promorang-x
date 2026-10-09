@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/I18nContext";
 import { ArrowRight, BadgeDollarSign, CheckCircle2, Gift, KeyRound, Megaphone, Share2, Sparkles, Target, Ticket, Trophy, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MASTER_KEY_RULES, masterKeyQualificationPercent, momentumNeeded, type MasterKeyProgress } from "@/lib/master-key";
@@ -15,31 +16,32 @@ type ParticipationEconomyProps = {
   className?: string;
 };
 
+export function ParticipationEconomy({ variant = "public", points = null, promoKeys = null, masterKey = null, className = "" }: ParticipationEconomyProps) {
+  const { t, formatNumber } = useI18n();
 const stages = [
-  { label: "DESIRE", title: "What do you want?", copy: "Taste, Wants and the things you keep close tell PROMORANG what matters.", icon: Sparkles },
-  { label: "MOTIVATION", title: "What would move you?", copy: "Access, a complimentary extra, savings, Points, a Key, a paid Gig or a special experience can change the decision.", icon: Gift },
-  { label: "OPPORTUNITY", title: "What can you do?", copy: "Offers, Moments, Challenges, Gigs and Content Drops turn interest into a real next move.", icon: Target },
-  { label: "ACTION", title: "What did you actually do?", copy: "Claim, reserve, visit, attend, create, distribute, buy or complete—with proof where the opportunity requires it.", icon: CheckCircle2 },
-  { label: "DISTRIBUTION", title: "What can you help move?", copy: "Share, refer, remix or distribute things worth spreading. PROMORANG can attribute the movement when the path is real.", icon: Share2 },
+  { label: t("commercial.desire.225"), title: t("commercial.what.do.you.want.226"), copy: t("commercial.taste.wants.and.the.things.you.keep.close.227"), icon: Sparkles },
+  { label: t("commercial.motivation.228"), title: t("commercial.what.would.move.you.229"), copy: t("commercial.access.a.complimentary.extra.savings.points.a.key.230"), icon: Gift },
+  { label: t("commercial.opportunity.231"), title: t("commercial.what.can.you.do.232"), copy: t("commercial.offers.moments.challenges.gigs.and.content.drops.turn.233"), icon: Target },
+  { label: t("commercial.action.234"), title: t("commercial.what.did.you.actually.do.235"), copy: t("commercial.claim.reserve.visit.attend.create.distribute.buy.or.236"), icon: CheckCircle2 },
+  { label: t("commercial.distribution.237"), title: t("commercial.what.can.you.help.move.238"), copy: t("commercial.share.refer.remix.or.distribute.things.worth.spreading.239"), icon: Share2 },
 ];
 
 const opportunityTypes = [
-  { label: "Challenges", copy: "Structured objectives with progress, proof and a clear completion state.", href: "/earn?kind=challenge", image: boardGames, icon: Trophy },
-  { label: "Gigs", copy: "Limited compensated work with a deliverable, deadline and proof.", href: "/earn?kind=gig", image: openMic, icon: BadgeDollarSign },
-  { label: "Content Drops", copy: "Content released for people to watch, share, remix, distribute or act on.", href: "/content-drops", image: concert, icon: Megaphone },
-  { label: "Offers", copy: "Real value that can be claimed or used under clear terms.", href: "/discover?tab=perks", image: cookingClass, icon: Gift },
-  { label: "Moments", copy: "Things happening at a real time and place that people can choose to join.", href: "/discover?tab=moments", image: streetArt, icon: Ticket },
+  { label: t("commercial.challenges.240"), copy: t("commercial.structured.objectives.with.progress.proof.and.a.clear.241"), href: "/earn?kind=challenge", image: boardGames, icon: Trophy },
+  { label: t("commercial.gigs.242"), copy: t("commercial.limited.compensated.work.with.a.deliverable.deadline.and.243"), href: "/earn?kind=gig", image: openMic, icon: BadgeDollarSign },
+  { label: t("commercial.content.drops.244"), copy: t("commercial.content.released.for.people.to.watch.share.remix.245"), href: "/content-drops", image: concert, icon: Megaphone },
+  { label: t("forMerchants.statOffers"), copy: t("commercial.real.value.that.can.be.claimed.or.used.247"), href: "/discover?tab=perks", image: cookingClass, icon: Gift },
+  { label: t("economy.navMoments"), copy: t("commercial.things.happening.at.a.real.time.and.place.249"), href: "/discover?tab=moments", image: streetArt, icon: Ticket },
 ];
 
 const createTypes = [
-  { label: "Create Challenge", copy: "Set the objective, proof, participant value and completion rules.", href: "/create/campaign?participation=challenge", icon: Trophy },
-  { label: "Create Gig", copy: "Define paid work, deliverables, eligibility, slots and proof.", href: "/create/campaign?participation=gig", icon: BadgeDollarSign },
-  { label: "Publish Content Drop", copy: "Release content with a distribution objective, attribution and rewards.", href: "/content-drops?tab=create", icon: Megaphone },
-  { label: "Open an Offer", copy: "Make real inventory or access available under clear terms.", href: "/give", icon: Gift },
-  { label: "Create a Moment", copy: "Give people a real time, place and reason to show up.", href: "/create/moment", icon: Users },
+  { label: t("commercial.create.challenge.250"), copy: t("commercial.set.the.objective.proof.participant.value.and.completion.251"), href: "/create/campaign?participation=challenge", icon: Trophy },
+  { label: t("commercial.create.gig.252"), copy: t("commercial.define.paid.work.deliverables.eligibility.slots.and.proof.253"), href: "/create/campaign?participation=gig", icon: BadgeDollarSign },
+  { label: t("commercial.publish.content.drop.254"), copy: t("commercial.release.content.with.a.distribution.objective.attribution.and.255"), href: "/content-drops?tab=create", icon: Megaphone },
+  { label: t("commercial.open.an.offer.256"), copy: t("commercial.make.real.inventory.or.access.available.under.clear.257"), href: "/give", icon: Gift },
+  { label: t("how.creatorStep1Cta"), copy: t("commercial.give.people.a.real.time.place.and.reason.259"), href: "/create/moment", icon: Users },
 ];
 
-export function ParticipationEconomy({ variant = "public", points = null, promoKeys = null, masterKey = null, className = "" }: ParticipationEconomyProps) {
   const operator = variant === "operator";
   const compact = variant === "card";
   const masterProgress = masterKey ? masterKeyQualificationPercent(masterKey) : null;
@@ -50,13 +52,11 @@ export function ParticipationEconomy({ variant = "public", points = null, promoK
       <div className={compact ? "" : "mx-auto max-w-[1440px]"}>
         <div className={compact ? "" : "grid gap-8 xl:grid-cols-[.7fr_1.3fr] xl:items-end"}>
           <div>
-            <p className="marketing-kicker">Participation economy</p>
+            <p className="marketing-kicker">{t("commercial.participation.economy.260")}</p>
             <h2 className={compact ? "font-serif text-3xl font-bold tracking-[-0.04em] text-white" : "mt-3 max-w-4xl text-4xl font-black sm:text-5xl"}>
-              Desire + Motivation + Opportunity + Action + Distribution.
-            </h2>
+              {t("commercial.desire.motivation.opportunity.action.distribution.261")}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">
-              PROMORANG is not just a place to claim Offers. It learns what people want, what makes action worthwhile, what they can participate in, what they actually did, and how they helped something move.
-            </p>
+              {t("commercial.promorang.is.not.just.a.place.to.claim.262")}</p>
           </div>
 
           {!compact ? (
@@ -95,25 +95,25 @@ export function ParticipationEconomy({ variant = "public", points = null, promoK
         <div className={compact ? "mt-6 grid gap-3 sm:grid-cols-2" : "mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-4"}>
           <Link to="/wallet" className="rounded-[1.4rem] border border-amber-300/20 bg-amber-300/[0.06] p-5">
             <div className="flex items-center justify-between gap-3">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">PromoPoints</p><p className="mt-2 font-serif text-3xl font-bold text-white">{points == null ? "Earned by participation" : points.toLocaleString()}</p></div>
+              <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">{t("promorangCrewPage.ladderPromoPoints")}</p><p className="mt-2 font-serif text-3xl font-bold text-white">{points == null ? t("commercial.participationEarned") : formatNumber(points)}</p></div>
               <Sparkles className="h-6 w-6 text-amber-300" />
             </div>
-            <p className="mt-3 text-xs leading-5 text-white/45">Points mark useful participation and progression. They are not cash. Verified actions should matter more than empty clicks.</p>
+            <p className="mt-3 text-xs leading-5 text-white/45">{t("commercial.points.mark.useful.participation.and.progression.they.are.264")}</p>
           </Link>
 
           <Link to="/wallet" className="rounded-[1.4rem] border border-orange-300/20 bg-orange-300/[0.06] p-5">
             <div className="flex items-center justify-between gap-3">
-              <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-200">PromoKeys</p><p className="mt-2 font-serif text-3xl font-bold text-white">{promoKeys == null ? "Access that opens something" : promoKeys.toLocaleString()}</p></div>
+              <div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-200">{t("economy.navKeys")}</p><p className="mt-2 font-serif text-3xl font-bold text-white">{promoKeys == null ? t("commercial.keyAccess") : formatNumber(promoKeys)}</p></div>
               <KeyRound className="h-6 w-6 text-orange-300" />
             </div>
-            <p className="mt-3 text-xs leading-5 text-white/45">A Key should mean something concrete: this person has the right to unlock or pursue a gated opportunity.</p>
+            <p className="mt-3 text-xs leading-5 text-white/45">{t("commercial.a.key.should.mean.something.concrete.this.person.266")}</p>
           </Link>
 
           <Link to="/earn" className="rounded-[1.4rem] border border-emerald-300/20 bg-emerald-300/[0.05] p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">Master Key</p>
-                <p className="mt-2 font-serif text-3xl font-bold text-white">{masterStatus === "active" ? "Active" : masterStatus === "cooling" ? "Cooling" : masterStatus === "dormant" ? "Dormant" : masterProgress != null ? `${masterProgress}% qualified` : "Unlock earning access"}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">{t("economy.navMasterKey")}</p>
+                <p className="mt-2 font-serif text-3xl font-bold text-white">{masterStatus === "active" ? t("commercial.active") : masterStatus === "cooling" ? t("commercial.cooling") : masterStatus === "dormant" ? t("commercial.dormant") : masterProgress != null ? t("commercial.qualified", { percent: masterProgress }) : t("commercial.unlockEarning")}</p>
               </div>
               <BadgeDollarSign className="h-6 w-6 text-emerald-300" />
             </div>
@@ -122,21 +122,21 @@ export function ParticipationEconomy({ variant = "public", points = null, promoK
                 <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-emerald-300" style={{ width: `${masterKey.earned ? Math.min(100, (masterKey.momentum / MASTER_KEY_RULES.activeMomentum) * 100) : masterProgress || 0}%` }} /></div>
                 <p className="mt-3 text-xs leading-5 text-white/45">
                   {!masterKey.earned
-                    ? `${masterKey.qualificationCredits}/100 qualification · ${masterKey.behaviourCategories}/4 behaviour types · ${masterKey.verifiedMoves}/3 verified Moves · ${masterKey.downstreamActions}/1 downstream action.`
+                    ? t("commercial.qualification", { credits: masterKey.qualificationCredits, categories: masterKey.behaviourCategories, moves: masterKey.verifiedMoves, actions: masterKey.downstreamActions })
                     : masterStatus === "active"
-                      ? `Momentum ${masterKey.momentum}. Keep at least ${MASTER_KEY_RULES.activeMomentum} useful activity credits in a rolling ${MASTER_KEY_RULES.windowDays}-day window to keep full earning access active.`
+                      ? t("commercial.momentumActive", { momentum: masterKey.momentum, minimum: MASTER_KEY_RULES.activeMomentum, days: MASTER_KEY_RULES.windowDays })
                       : masterStatus === "cooling"
-                        ? `Momentum ${masterKey.momentum}. Add ${momentumNeeded(masterKey)} useful activity credits to return to Active. Access remains open while your Key is cooling.`
-                        : `Master Key earned, but earning access is dormant. Complete meaningful verified Moves to rebuild Momentum and reactivate it.`}
+                        ? t("commercial.momentumCooling", { momentum: masterKey.momentum, needed: momentumNeeded(masterKey) })
+                        : t("commercial.momentumDormant")}
                 </p>
               </>
-            ) : <p className="mt-3 text-xs leading-5 text-white/45">Earn the Master Key through varied, verified participation. Once earned, keep it active through useful recent participation—not empty daily logins.</p>}
+            ) : <p className="mt-3 text-xs leading-5 text-white/45">{t("commercial.earn.the.master.key.through.varied.verified.participation.268")}</p>}
           </Link>
 
           <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">How value circulates</p>
-            <p className="mt-2 font-serif text-2xl font-bold text-white">Move → prove → earn → unlock → spread → return.</p>
-            <p className="mt-3 text-xs leading-5 text-white/45">A Move can award Points. Points build participation proof and can progress toward Keys. Keys open gated access. The Master Key gates funded earning opportunities. Content Drops spread what is worth moving, and PromoCard keeps the relationship connected.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{t("commercial.how.value.circulates.269")}</p>
+            <p className="mt-2 font-serif text-2xl font-bold text-white">{t("commercial.move.prove.earn.unlock.spread.return.270")}</p>
+            <p className="mt-3 text-xs leading-5 text-white/45">{t("commercial.a.move.can.award.points.points.build.participation.271")}</p>
           </div>
         </div>
       </div>

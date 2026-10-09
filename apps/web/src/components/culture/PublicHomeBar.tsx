@@ -20,15 +20,13 @@ export function PublicHomeBar() {
             <img src={logo} alt="Promorang" className="hidden h-7 w-auto md:block" />
           </Link>
 
-          <nav aria-label="Primary navigation" className="hidden h-full items-center lg:flex">
+          <nav aria-label={t("publicHome.mobileNavigation")} className="hidden h-full items-center lg:flex">
             {[
-              [t("findOrAsk.entry"), "/search"],
               [t("publicNav.discover"), "/discover"],
-              [t("publicNav.wanted"), "/#wanted"],
-              [t("publicNav.moments"), "/discover/moments"],
-              [t("publicNav.perks"), "/discover/rewards"],
-              [t("publicNav.business"), "/for-brands"],
-              [t("publicNav.build"), "/join"],
+              [t("publicNav.shop"), "/shop"],
+              [t("publicNav.moments"), "/discover?tab=moments"],
+              [t("publicNav.perks"), "/discover?tab=perks"],
+              [t("publicNav.business"), "/solutions"],
             ].map(([label, href]) => (
               <Link
                 key={href}
@@ -42,30 +40,29 @@ export function PublicHomeBar() {
 
           <div className="flex items-center gap-2">
             <div className="flex min-w-0 items-center gap-1.5 md:hidden">
-              <CityQuickSwitcher className="h-9 min-w-0 max-w-[9.5rem] justify-between px-2" />
+              <CityQuickSwitcher className="h-9 min-w-0 max-w-[7rem] justify-between px-2" />
               <LanguageSelector tone="marketing" className="h-9 shrink-0 px-2" />
             </div>
             <div className="hidden items-center gap-2 md:flex">
               <CityQuickSwitcher className="h-9 max-w-[190px]" />
               <LanguageSelector tone="marketing" className="h-9" />
             </div>
-            {!user ? (
-              <Link to="/auth?mode=login" className="hidden min-h-10 items-center px-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/58 transition hover:text-white xl:inline-flex">
-                {t("publicNav.signIn")}
-              </Link>
-            ) : null}
             <Link
-              to={user ? "/wallet" : "/auth?mode=signup&next=/wallet"}
-              className="inline-flex min-h-10 items-center gap-2 rounded-md bg-orange-500 px-3.5 text-[10px] font-black uppercase tracking-[0.11em] text-black shadow-[0_10px_24px_rgba(255,85,0,.2)] transition hover:bg-orange-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
+              to={user ? "/card" : "/auth?mode=login&role=participant"}
+              className="inline-flex min-h-11 items-center gap-2 rounded-md bg-orange-500 px-3.5 text-[10px] font-black uppercase tracking-[0.11em] text-black shadow-[0_10px_24px_rgba(255,85,0,.2)] transition hover:bg-orange-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
             >
-              <WalletCards className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{user ? t("publicNav.myCard") : t("publicNav.promoCard")}</span>
-              <span className="sm:hidden">{user ? t("publicNav.card") : t("publicNav.promoCard")}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <WalletCards className="hidden h-3.5 w-3.5 sm:block" />
+              <span className="hidden sm:inline">{user ? t("publicNav.myCard") : t("publicNav.signIn")}</span>
+              <span className="sm:hidden">{user ? t("publicNav.card") : t("publicNav.signIn")}</span>
+              <ArrowRight className="hidden h-3.5 w-3.5 sm:block" />
             </Link>
           </div>
         </div>
-
+        <nav aria-label={t("publicHome.mobileNavigation")} className="flex gap-5 overflow-x-auto border-t border-white/10 lg:hidden">
+          {[[t("publicNav.discover"), "/discover"], [t("publicNav.shop"), "/shop"], [t("publicNav.perks"), "/discover?tab=perks"], [t("publicNav.business"), "/solutions"]].map(([label, href]) => (
+            <Link key={href} to={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-white/85 hover:text-orange-300 focus-visible:outline-orange-300">{label}</Link>
+          ))}
+        </nav>
       </div>
       <span className="marketing-current-nav-line" aria-hidden="true" />
     </header>

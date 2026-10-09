@@ -96,6 +96,9 @@ const Footer = ({ showCta = true }: { showCta?: boolean }) => {
             <div>
               <h4 className="font-semibold text-foreground mb-4">{t("footer.explore")}</h4>
               <ul className="space-y-3">
+                <li><Link to="/shop" className="text-sm text-muted-foreground hover:text-foreground">{t("publicNav.shop")}</Link></li>
+                <li><Link to="/shop/category/products" className="text-sm text-muted-foreground hover:text-foreground">{t("shopEntry.products")}</Link></li>
+                <li><Link to="/shop/category/services" className="text-sm text-muted-foreground hover:text-foreground">{t("shopEntry.services")}</Link></li>
                 {footerLinks.discover.map((link) => (
                   <li key={link.label}>
                     <Link

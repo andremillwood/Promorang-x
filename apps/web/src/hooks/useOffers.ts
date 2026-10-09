@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMarket } from "@/contexts/MarketContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+import { API_BASE_URL } from "@/lib/api";
 
 export type OfferDistribution = {
   channel: "direct" | "moment" | "content" | "promoshare" | "campaign" | "referral" | "manual";
@@ -11,6 +11,7 @@ export type OfferDistribution = {
   source_label?: string | null;
   qualification_rules?: Record<string, unknown>;
   allocation_limit?: number | null;
+  allocation_count?: number;
   is_active?: boolean;
 };
 
@@ -67,7 +68,7 @@ export type OfferIssuance = {
 };
 
 async function request<T>(path: string, token?: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_URL}/api/offers${path}`, {
+  const response = await fetch(`${API_BASE_URL}/offers${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -99,7 +100,14 @@ export function usePublicOffers() {
   });
   return useQuery({
     queryKey: ["offers", "public", city.id, country.code],
-    queryFn: () => request<Offer[]>(`/public?${params.toString()}`),
+    retry: 1,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 12000);
+      try { return await request<Offer[]>(`/public?${params.toString()}`, undefined, { signal: controller.signal }); }
+      finally { window.clearTimeout(timeout); }
+    },
   });
 }
 

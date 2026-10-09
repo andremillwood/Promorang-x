@@ -8,11 +8,14 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { QRCodeSVG } from "qrcode.react";
 import { useI18n } from "@/i18n/I18nContext";
+import { API_BASE_URL } from "@/lib/api";
+import { NextInvitation } from "@/components/funnels/NextInvitation";
+import { authPathForReturn } from "@/lib/post-auth-next";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = API_BASE_URL;
 
 async function request(path: string, options?: RequestInit, fallbackError?: string) {
-  const response = await fetch(`${API}${path}`, options);
+  const response = await fetch(`${API}${path.replace(/^\/api\//, "/")}`, options);
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || fallbackError || "This action could not be completed");
   return data;
@@ -49,7 +52,7 @@ export default function GuestPass() {
         await query.refetch();
       } else {
         const { data: auth } = await supabase.auth.getSession();
-        if (!auth.session) { navigate(`/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`); return; }
+        if (!auth.session) { navigate(authPathForReturn(location.pathname + location.search, { mode: "signup", role: "participant" })); return; }
         const data = await request(`/api/guest-rsvp/${token}/claim`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.session.access_token}` }, body: JSON.stringify({ manage_token: manage }) }, t("guestPassPage.actionFailed"));
         navigate(data.destination);
       }
@@ -77,8 +80,8 @@ export default function GuestPass() {
     {!canManage && journey.canInvite ? <div className="mt-7 grid gap-3"><Button onClick={() => setJoining(!joining)} className="h-12 bg-primary font-black text-black">{joining ? t("guestPassPage.close") : t("guestPassPage.joinThisGroup")}</Button>{joining ? <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-4"><Input className="bg-white text-black" placeholder={t("guestPassPage.namePlaceholder")} value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })}/><Input className="bg-white text-black" placeholder={t("guestPassPage.mobilePlaceholder")} value={form.mobile} onChange={e => setForm({ ...form, mobile: e.target.value })}/><Input className="bg-white text-black" placeholder={t("guestPassPage.emailPlaceholder")} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}/><label className="flex items-center gap-3 text-xs text-white/65"><input type="checkbox" checked={form.consent_whatsapp} onChange={e=>setForm({...form,consent_whatsapp:e.target.checked})}/>{t("guestPassPage.consentWhatsapp")}</label><label className="flex items-center gap-3 text-xs text-white/65"><input type="checkbox" checked={form.consent_email} disabled={!form.email} onChange={e=>setForm({...form,consent_email:e.target.checked})}/>{t("guestPassPage.consentEmail")}</label><Button disabled={busy || !form.full_name || form.mobile.length < 7} onClick={() => act("join")} className="bg-primary font-black text-black">{t("guestPassPage.getMyPass")}</Button></div> : null}</div> : null}
     {canManage && journey.passActive ? <div className="mt-7 grid gap-3">{!r.user_id?<Button disabled={busy} onClick={() => act("claim")} className="h-12 bg-primary font-black text-black">{t("guestPassPage.keepInAccount")}</Button>:<p className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-center text-xs font-bold text-emerald-200">{t("guestPassPage.savedInAccount")}</p>}{journey.canCancel?<Button disabled={busy} variant="outline" onClick={() => act("cancel")} className="border-red-400/30 bg-transparent text-red-300">{t("guestPassPage.cancelReservation")}</Button>:null}</div> : null}
     {canManage ? <section className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-[10px] font-black uppercase tracking-[.2em] text-primary">{t("guestPassPage.updatesKicker")}</p><h2 className="mt-2 font-serif text-2xl font-semibold">{t("guestPassPage.updatesHeading")}</h2><p className="mt-2 text-xs leading-5 text-white/45">{t("guestPassPage.updatesDesc")}</p><div className="mt-4 grid gap-3">{[["consent_whatsapp",t("guestPassPage.channelWhatsapp"),r.consent_whatsapp],["consent_sms",t("guestPassPage.channelSms"),r.consent_sms],["consent_email",t("guestPassPage.channelEmail"),r.consent_email]].map(([field,label,checked]:any)=><label key={field} className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3 text-sm"><span>{label}</span><input disabled={busy || (field==="consent_email"&&!r.has_email)} type="checkbox" checked={Boolean(checked)} onChange={e=>updatePreference(field,e.target.checked)}/></label>)}</div></section> : null}
+    {canManage && query.data.attendance_receipt && <NextInvitation momentId={r.moment_id} />}
     {error ? <p className="mt-4 text-center text-sm font-semibold text-red-400">{error}</p> : null}
     <p className="mt-7 text-center text-sm text-white/45"><TicketCheck className="mr-2 inline h-4 w-4 text-primary"/>{canManage ? t("guestPassPage.footerHostScan") : t("guestPassPage.footerIndividualPass")}</p>
   </div></main>;
 }
-

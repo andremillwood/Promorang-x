@@ -237,26 +237,22 @@ async function createStripeCommerceIntent({ userId, productId, quantity = 1, ite
     }
 }
 
-async function createStripeCommerceCheckout({ userId, productId, quantity = 1, items = null, successUrl, cancelUrl }) {
+async function createStripeCommerceCheckout({ userId, productId, quantity = 1, items = null, successUrl, cancelUrl, issuanceId = null, referralCode = null }) {
     if (!supabase) throw new Error('Database not available');
     const stripeService = require('./stripeService');
     if (!stripeService.isStripeConfigured()) throw new Error('Stripe is not configured');
 
-    const requestedItems = Array.isArray(items) && items.length
-        ? items.map((item) => ({ product_id: item.product_id, quantity: Math.max(1, Number(item.quantity || 1)) }))
-        : [{ product_id: productId, quantity: Math.max(1, Number(quantity || 1)) }];
-    if (!requestedItems[0]?.product_id) throw new Error('At least one product is required');
-
-    const { data: order, error: reserveError } = await supabase.rpc('reserve_commerce_order', {
-        p_buyer_id: userId,
-        p_items: requestedItems,
-        p_currency: 'USD',
-        p_hold_minutes: 30,
+    const { normalizeCartItems } = require('./commerceCart');
+    const requestedItems = normalizeCartItems(items || [{ product_id: productId, quantity }]);
+    const { data: order, error: reserveError } = await supabase.rpc('reserve_promocard_cart', {
+        p_buyer_id: userId, p_items: requestedItems,
+        p_issuance_id: issuanceId, p_referral_code: referralCode,
     });
     if (reserveError || !order) throw reserveError || new Error('Could not reserve inventory');
 
+    let checkoutAttempted = false;
     try {
-        const [{ data: payoutMethod }, { data: orderItems }, { data: products }, { data: profile }, { data: shippingRates }] = await Promise.all([
+        const reads = await Promise.all([
             supabase.from('user_payout_methods')
                 .select('stripe_account_id,stripe_account_status,stripe_charges_enabled')
                 .eq('user_id', order.merchant_id)
@@ -275,6 +271,8 @@ async function createStripeCommerceCheckout({ userId, productId, quantity = 1, i
                 .eq('merchant_id', order.merchant_id).eq('active', true)
                 .order('sort_order', { ascending: true }),
         ]);
+        for (const result of reads) if (result.error) throw result.error;
+        const [{ data: payoutMethod }, { data: orderItems }, { data: products }, { data: profile }, { data: shippingRates }] = reads;
         if (!payoutMethod?.stripe_account_id) {
             throw new Error('This merchant must finish Stripe seller onboarding before accepting card payments');
         }
@@ -291,8 +289,14 @@ async function createStripeCommerceCheckout({ userId, productId, quantity = 1, i
         }
 
         const frontendUrl = process.env.FRONTEND_URL || 'https://www.promorang.co';
-        const safeSuccessUrl = successUrl?.startsWith(frontendUrl) ? successUrl : `${frontendUrl}/shop/order/success?session_id={CHECKOUT_SESSION_ID}`;
-        const safeCancelUrl = cancelUrl?.startsWith(frontendUrl) ? cancelUrl : `${frontendUrl}/shop/${productId || requestedItems[0].product_id}?checkout=cancelled`;
+        const { safeCheckoutReturnUrl } = require('./commerceCart');
+        const safeSuccessUrl = safeCheckoutReturnUrl(successUrl, frontendUrl, `/shop/cart?order=${order.id}`);
+        const safeCancelUrl = safeCheckoutReturnUrl(cancelUrl, frontendUrl, '/shop/cart?checkout=cancelled');
+        const { error: bindError } = await supabase.from('commerce_orders').update({
+            stripe_connected_account_id: payoutMethod.stripe_account_id, payment_status: 'processing',
+        }).eq('id', order.id);
+        if (bindError) throw bindError;
+        checkoutAttempted = true;
         const session = await stripeService.createConnectedCheckoutSession({
             connectedAccountId: payoutMethod.stripe_account_id,
             order,
@@ -307,10 +311,11 @@ async function createStripeCommerceCheckout({ userId, productId, quantity = 1, i
             stripe_connected_account_id: payoutMethod.stripe_account_id,
             payment_status: 'processing',
             updated_at: new Date().toISOString(),
-        }).eq('id', order.id);
+        }).eq('id', order.id).eq('payment_status', 'processing');
         return { checkoutUrl: session.url, sessionId: session.id, orderId: order.id };
     } catch (error) {
-        await supabase.rpc('release_commerce_order', {
+        // An uncertain Stripe response can still create a payable session. Keep its hold.
+        if (!checkoutAttempted || ['StripeInvalidRequestError','StripeAuthenticationError','StripePermissionError'].includes(error.type)) await supabase.rpc('release_commerce_order', {
             p_order_id: order.id,
             p_reason: 'connected_checkout_creation_failed',
         }).catch(() => undefined);
@@ -405,10 +410,11 @@ async function finalizeStripePurchase(paymentIntent) {
 
         const { data: existingReceipt } = await supabase
             .from('commerce_receipts')
-            .select('id,redemption_code')
+            .select('*')
             .eq('sale_id', order.id)
             .maybeSingle();
         if (existingReceipt) {
+            await require('./commerceOutcomeService').processReceipt(existingReceipt);
             return { handled: true, order_id: order.id, receipt_id: existingReceipt.id, idempotent: true };
         }
 
@@ -432,6 +438,7 @@ async function finalizeStripePurchase(paymentIntent) {
                 currency: order.currency,
                 redemption_code: redemptionCode,
                 attribution: {
+                    ...order.metadata,
                     source: 'stripe_commerce_order',
                     commerce_order_id: order.id,
                     stripe_payment_intent_id: paymentIntent.id,
@@ -583,6 +590,9 @@ async function finalizeConnectedCheckout(session, connectedAccountId) {
     }
     if (session.payment_status !== 'paid') return { handled: false, reason: 'not_paid' };
 
+    const { data: expected, error: expectedError } = await supabase.from('commerce_orders').select('*').eq('id', metadata.commerce_order_id).single();
+    if (expectedError || !expected) throw new Error('Checkout order not found');
+    require('./commerceCart').assertCheckoutMatchesOrder(session, connectedAccountId, expected);
     const shipping = Number(((session.total_details?.amount_shipping || 0) / 100).toFixed(2));
     const tax = Number(((session.total_details?.amount_tax || 0) / 100).toFixed(2));
     const shippingAddress = session.shipping_details?.address || session.customer_details?.address || null;

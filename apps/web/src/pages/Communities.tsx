@@ -27,7 +27,7 @@ export default function Communities() {
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">{t("scenes.eyebrow")}</p>
               <h1 className="mt-5 max-w-6xl font-serif text-[clamp(2.5rem,12vw,3.75rem)] break-words font-bold leading-[.94] tracking-[-.06em] sm:text-8xl lg:text-[7.5rem] xl:text-[9rem]">{t("scenes.hero1")}<br /><em className="font-normal text-primary">{t("scenes.hero2")}</em></h1>
-              <p className="mt-7 max-w-2xl text-base leading-7 text-white/62 sm:text-lg">{t("launch.copy")}</p>
+              <p className="mt-7 max-w-2xl text-base leading-7 text-white/62 sm:text-lg">{t("scenes.heroCopy")}</p>
             </div>
             <div className="border-y border-white/15 py-5">
               <Link to="/search" className="flex min-h-12 items-center gap-3 text-sm text-white/55 transition hover:text-white"><Search className="h-4 w-4 text-primary" />{t("scenes.search")}</Link>

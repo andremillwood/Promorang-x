@@ -334,6 +334,7 @@ app.patch('/api/error-logs/:id', errorHandlers.handleResolveLog);
 app.use('/api/telemetry', require('./telemetry'));
 app.use('/api/revenue-funnels', require('./revenue-funnels'));
 app.use('/api/leads', require('./leads'));
+app.use('/api/funnels', require('./funnels'));
 app.use('/api/presents', require('./presents'));
 app.use('/api/referrals', require('./referrals'));
 app.use('/api/feed', require('./feed'));

@@ -131,10 +131,17 @@ export default function PutInventoryUp() {
 
       <section className="rounded-[1.6rem] border border-primary/20 bg-primary/5 p-5">
         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">The job</p>
-        <h2 className="mt-2 font-serif text-2xl font-bold">Give someone a real reason to act.</h2>
+        <h2 className="mt-2 font-serif text-2xl font-bold">{t("release.83")}</h2>
         <p className="mt-2 text-sm leading-6 text-white/60">
-          Publish only inventory, access, discounts, invitations, or perks that actually exist. PROMORANG will record the claim and the fulfillment path so you can later review what happened.
+          Give people something worth unlocking: a merchant offer, a sponsored reward, creator access, or a place at your next event. Set the available quantity and how they receive it, then follow claims and use.
         </p>
+      </section>
+
+      <section className="border-y border-white/10 py-5">
+        <h2 className="font-serif text-2xl font-bold">{t("release.84")}</h2>
+        <p className="mt-2 text-sm leading-6 text-white/60">{t("release.85")}</p>
+        <Link to={to("/offers")} className="mt-4 inline-flex min-h-11 items-center font-bold text-primary">{t("release.86")}</Link>
+        <p className="mt-2 text-xs leading-5 text-white/45">{t("release.87")}</p>
       </section>
 
       <section>

@@ -31,6 +31,7 @@ import { MomentLineupBuilder, type Collaborator } from "@/components/moments/Mom
 import { SmartVenuePicker } from "@/components/venues/SmartVenuePicker";
 import { useI18n } from "@/i18n/I18nContext";
 import { peopleExperienceApi } from "@/services/peopleExperience";
+import { buildBusinessOutcomePrompt, getProgramme, readBusinessOutcomeBrief } from "@/lib/business-outcomes";
 
 const categories = [
   "Music & Parties",
@@ -58,15 +59,16 @@ export function CreateMoment() {
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
   const originOutcome = useFindOrAskOriginOutcome();
+  const [businessBrief] = useState(() => params.get("from") === "business-outcome" ? readBusinessOutcomeBrief() : null);
 
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
   // Job-first intent. These fields answer who, what, and why before configuration.
-  const [audience, setAudience] = useState("");
-  const [title, setTitle] = useState("");
+  const [audience, setAudience] = useState(businessBrief?.audience || "");
+  const [title, setTitle] = useState(businessBrief ? getProgramme(businessBrief.programmeId)?.title || "" : "");
   const [category, setCategory] = useState("Community Gathering");
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(businessBrief ? buildBusinessOutcomePrompt(businessBrief) : "");
 
   // Optional visual treatment. Nothing is selected by default.
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -76,7 +78,7 @@ export function CreateMoment() {
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [venueName, setVenueName] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(businessBrief?.geography || "");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
 

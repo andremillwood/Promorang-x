@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { FindOrAskEntry } from "@/components/discovery/FindOrAskEntry";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, CalendarDays, Compass, Filter, Gift, MapPin, Search, Sparkles, Users, WalletCards, X } from "lucide-react";
 import SEO from "@/components/SEO";
@@ -34,13 +36,17 @@ function signalState(votesRemaining: number, closeness: "unlocking" | "warming" 
 }
 
 type ResultType = "all" | "discoveries" | "moments" | "offers" | "questions" | "wants";
-type InterestFilter = "all" | "food" | "music" | "culture" | "outdoors";
+type InterestFilter = "all" | "food" | "music" | "culture" | "outdoors" | "nightlife" | "wellness" | "cars" | "social";
 
 const interestFilters: Array<{ id: InterestFilter; labelKey: string; terms: string[] }> = [
   { id: "all", labelKey: "publicDiscover.interest.everything", terms: [] },
   { id: "food", labelKey: "publicDiscover.interest.food", terms: ["food", "drink", "restaurant", "dining", "cuisine", "dish", "menu", "cafe", "coffee", "brunch", "lunch", "dinner", "chinese", "rice"] },
   { id: "music", labelKey: "publicDiscover.interest.music", terms: ["music", "concert", "party", "dance", "dj", "live", "nightlife", "club"] },
   { id: "culture", labelKey: "publicDiscover.interest.culture", terms: ["art", "culture", "gallery", "theatre", "theater", "film", "craft", "heritage", "museum"] },
+  { id: "nightlife", labelKey: "publicHome.category.nightlife", terms: ["nightlife", "club", "party", "dj", "dance"] },
+  { id: "wellness", labelKey: "publicHome.category.wellness", terms: ["wellness", "fitness", "yoga", "health", "spa"] },
+  { id: "cars", labelKey: "publicHome.category.cars", terms: ["car", "auto", "motor", "vehicle"] },
+  { id: "social", labelKey: "publicHome.category.social", terms: ["social", "meetup", "community", "gathering", "games"] },
   { id: "outdoors", labelKey: "publicDiscover.interest.outdoors", terms: ["outdoor", "hike", "beach", "nature", "garden", "trail", "adventure", "wellness"] },
 ];
 
@@ -65,12 +71,19 @@ function matchesDiscoverySearch(values: unknown[], query: string, interest: Inte
 }
 
 export function PublicDiscoverExperience() {
+  const { user } = useAuth();
   const { city, country } = useMarket();
   const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(() => searchParams.get("q") || "");
-  const [resultType, setResultType] = useState<ResultType>("all");
-  const [interest, setInterest] = useState<InterestFilter>("all");
+  const tab = searchParams.get("tab");
+  const requestedType: ResultType = tab === "perks" ? "offers" : ["discoveries", "moments", "offers", "questions", "wants"].includes(tab || "") ? tab as ResultType : "all";
+  const [resultType, setResultType] = useState<ResultType>(requestedType);
+  useEffect(() => setResultType(requestedType), [requestedType]);
+  const category = searchParams.get("category");
+  const requestedInterest = category === "outdoor" ? "outdoors" : interestFilters.find((item) => item.id === category)?.id || "all";
+  const [interest, setInterest] = useState<InterestFilter>(requestedInterest);
+  useEffect(() => setInterest(requestedInterest), [requestedInterest]);
   const cityFilter = city.id === "all-jamaica" ? undefined : city.name;
 
   const discoveriesQuery = useDiscoveries({ city: cityFilter, limit: 24 });
@@ -115,7 +128,7 @@ export function PublicDiscoverExperience() {
   const filteredSignals = useMemo(
     () =>
       demand.inbox.questions.filter((signal) => matchesDiscoverySearch(
-        [signal.poll.question, signal.poll.contextNotes, ...signal.poll.options.map((option) => option.text)], normalizedQuery, interest,
+        [signal.poll.question, signal.poll.description, ...signal.poll.options.map((option) => option.text)], normalizedQuery, interest,
       )),
     [demand.inbox.questions, normalizedQuery, interest],
   );
@@ -148,7 +161,7 @@ export function PublicDiscoverExperience() {
     <main className="marketing-cinematic public-discover-world min-h-screen bg-[#050505] text-white">
       <SEO
         title="Discover PROMORANG | Find what moves you"
-        description="Explore Discoveries, current Moments, offers and what people are looking for on PROMORANG."
+        description={t("compression.interestsCopy")}
         url={getSiteUrl("/discover")}
       />
 
@@ -157,16 +170,14 @@ export function PublicDiscoverExperience() {
         style={{ backgroundImage: `url("${heroImage}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto flex min-h-[34rem] max-w-[1440px] items-end">
+        <div className="relative mx-auto flex min-h-[18rem] max-w-[1440px] items-end">
           <div className="max-w-4xl pb-4 md:pb-8">
-            <p className="marketing-kicker"><Compass className="h-3.5 w-3.5" /> Discover · {city.name}</p>
+            <p className="marketing-kicker"><Compass className="h-3.5 w-3.5" /> {t("publicNav.discover")} · {city.name}</p>
             <h1 className="mt-6 max-w-[9ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
-              See what’s
-              <br />
-              <span className="text-orange-400">moving.</span>
+              {t("publicHome.title")}
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
-              Find things worth knowing about, Moments you can actually join, access someone has really made available, and signals other people are already behind.
+              {t("publicHome.copy", { market: city.name })}
             </p>
 
             <div className="mt-8 max-w-3xl rounded-2xl border border-white/15 bg-black/65 p-2 shadow-2xl shadow-black/30 backdrop-blur-xl">
@@ -183,7 +194,7 @@ export function PublicDiscoverExperience() {
                 {query ? <button type="button" onClick={() => setQuery("")} aria-label={t("publicDiscover.clearSearch")} className="grid h-9 w-9 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
               </div>
               <div className="flex gap-2 overflow-x-auto border-t border-white/10 px-2 pb-1 pt-2 scrollbar-none" aria-label={t("publicDiscover.interestFilterLabel")}>
-                {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{t(item.labelKey as any)}</button>)}
+                {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full min-h-11 px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{t(item.labelKey as any)}</button>)}
               </div>
             </div>
 
@@ -191,97 +202,26 @@ export function PublicDiscoverExperience() {
               <p className="mt-5 text-[9px] font-black uppercase tracking-[0.14em] text-white/38">{t("publicDiscover.editorialHint")}</p>
             ) : null}
 
-            <div className="marketing-hero-promocard-outcomes">
-              <span className="marketing-hero-promocard-label">PromoCard</span>
-              <span><strong>WATCH</strong> what matters</span>
-              <span><strong>OPEN</strong> Moments & access</span>
-              <span><strong>KEEP</strong> what counted</span>
-            </div>
           </div>
         </div>
       </section>
 
-      <section className="sticky top-0 z-30 border-b border-white/10 bg-[#080808]/95 px-5 py-3 backdrop-blur-xl sm:px-6" aria-label={t("publicDiscover.filtersLabel")}>
+      <section className="sticky top-14 md:top-[4.25rem] z-30 border-b border-white/10 bg-[#080808]/95 px-5 py-3 backdrop-blur-xl sm:px-6" aria-label={t("publicDiscover.filtersLabel")}>
         <div className="mx-auto flex max-w-[1440px] items-center gap-3 overflow-x-auto scrollbar-none">
           <span className="flex shrink-0 items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/40"><Filter className="h-3.5 w-3.5" /> {t("publicDiscover.show")}</span>
           {([
             ["all", t("publicDiscover.allResults"), totalResults], ["discoveries", t("findOrAsk.resultDiscoveries"), resultCounts.discoveries], ["moments", t("search.moments"), resultCounts.moments], ["offers", t("findOrAsk.resultOffers"), resultCounts.offers], ["questions", t("common.questions"), resultCounts.questions], ["wants", t("publicNav.wanted"), resultCounts.wants],
-          ] as Array<[ResultType, string, number]>).map(([id, label, count]) => <button key={id} type="button" onClick={() => setResultType(id)} aria-pressed={resultType === id} className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold transition ${resultType === id ? "border-orange-400 bg-orange-400/15 text-orange-200" : "border-white/10 text-white/55 hover:border-white/25 hover:text-white"}`}>{label} <span className="ml-1 text-[10px] opacity-60">{count}</span></button>)}
+          ] as Array<[ResultType, string, number]>).map(([id, label, count]) => <button key={id} type="button" onClick={() => setResultType(id)} aria-pressed={resultType === id} className={`shrink-0 inline-flex min-h-11 items-center rounded-full border px-3.5 py-2 text-xs font-bold transition ${resultType === id ? "border-orange-400 bg-orange-400/15 text-orange-200" : "border-white/10 text-white/55 hover:border-white/25 hover:text-white"}`}>{label} <span className="ml-1 text-[10px] opacity-60">{count}</span></button>)}
           {hasFilters ? <button type="button" onClick={clearFilters} className="ml-auto flex shrink-0 items-center gap-1.5 px-2 py-2 text-xs font-bold text-white/45 hover:text-white"><X className="h-3.5 w-3.5" /> {t("publicDiscover.reset")}</button> : null}
         </div>
       </section>
-
-      {(resultType === "all" || resultType === "questions") && <section className="border-b border-white/10 bg-black px-5 py-14 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="marketing-section-head">
-            <div>
-              <p className="marketing-kicker">{t("findOrAsk.questionsKicker")}</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("findOrAsk.questionsTitle")}</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("findOrAsk.questionsCopy")}</p>
-            </div>
-          </div>
-          <FindOrAskQuestionRail city={city.name} query={normalizedQuery} />
-        </div>
-      </section>}
-
-      {(resultType === "all" || resultType === "wants") && <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="marketing-section-head">
-            <div>
-              <p className="marketing-kicker">{t("publicDiscover.wantsKicker", { city: demand.inbox.city })}</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicDiscover.wantsTitle")}</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("publicDiscover.wantsCopy")}</p>
-            </div>
-            <Link to="/#ask" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{t("publicDiscover.putSomethingElse")} <ArrowRight className="h-4 w-4" /></Link>
-          </div>
-
-          {(demand.isLoading || findOrAskQuery.isLoading) && !liveSignals.length && !explicitDemands.length ? <p className="text-sm text-white/45">{t("publicDiscover.loadingWants")}</p> : null}
-          <FindOrAskDemandRail city={city.name} query={normalizedQuery} />
-          {liveSignals.length ? (
-            <div className="marketing-demand-rail">
-              {liveSignals.map((signal) => {
-                const response = demand.responsesByDemand.get(signal.poll.id);
-                return (
-                  <DemandSignalObject
-                    key={signal.poll.id}
-                    city={demand.inbox.city}
-                    title={signal.poll.question}
-                    leadingOption={signal.leading?.text}
-                    demandCount={signal.poll.totalVotes || 0}
-                    threshold={signal.poll.thresholdForMoment}
-                    responseLabel={response?.response_summary || signal.poll.targetUnlockPerk}
-                    answered={Boolean(response)}
-                    href={response?.route || `/auth?mode=login&role=participant&next=${encodeURIComponent(discoverPathHref(signal.poll.question))}`}
-                    shareHref={discoverPathHref(signal.poll.question)}
-                    state={signalState(signal.votesRemaining, signal.closeness)}
-                    actionLabel={response ? t("clarity.openResponse") : t("clarity.wantAction")}
-                  />
-                );
-              })}
-            </div>
-          ) : !demand.isLoading && !findOrAskQuery.isLoading && !explicitDemands.length ? (
-            <div className="marketing-compact-empty">
-              <Users className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">{t("publicDiscover.noWantsTitle")}</p><p className="mt-1 text-xs leading-5 text-white/45">{t("publicDiscover.noWantsCopy")}</p></div>
-            </div>
-          ) : null}
-        </div>
-      </section>}
-
-      {!hasFilters && <TasteCalibration marketLabel={city.name} />}
-
-      {!hasFilters && <section className="px-5 py-14 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-[1440px]">
-          <EditorialWorldRail />
-        </div>
-      </section>}
 
       {(resultType === "all" || resultType === "discoveries") && <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">Worth knowing now</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Discoveries worth a look.</h2>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.forYou")}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Places, people, ideas and possibilities worth knowing about right now.</p>
             </div>
           </div>
@@ -306,7 +246,7 @@ export function PublicDiscoverExperience() {
           ) : (
             <div className="marketing-compact-empty">
               <Compass className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">Nothing matches this view yet.</p><p className="mt-1 text-xs leading-5 text-white/45">Try another filter or come back as new Discoveries appear.</p></div>
+              <div><p className="text-sm font-black">{t("compression.noMatches")}</p><p className="mt-1 text-xs leading-5 text-white/45">{t("compression.interestsCopy")}</p></div>
             </div>
           )}
         </div>
@@ -317,10 +257,10 @@ export function PublicDiscoverExperience() {
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">Happening now & next</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">Moments you can actually enter.</h2>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.happening")}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">Plans, rooms and experiences happening now or coming up.</p>
             </div>
-            <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">See all Moments <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{t("publicHome.browseMoments")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
 
           {momentsQuery.isLoading ? (
@@ -382,7 +322,7 @@ export function PublicDiscoverExperience() {
           ) : (
             <div className="marketing-compact-empty">
               <Gift className="h-5 w-5 text-orange-400" />
-              <div><p className="text-sm font-black">No direct offers right now.</p><p className="mt-1 text-xs leading-5 text-white/45">Check Moments or come back as new perks open up.</p></div>
+              <div><p className="text-sm font-black">No direct offers right now.</p><p className="mt-1 text-xs leading-5 text-white/45">{t("compression.interestsCopy")}</p></div>
             </div>
           )}
         </div>
@@ -390,13 +330,78 @@ export function PublicDiscoverExperience() {
 
       
 
+      {(resultType === "all" || resultType === "questions") && <section className="border-b border-white/10 bg-black px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="marketing-section-head">
+            <div>
+              <p className="marketing-kicker">{t("findOrAsk.questionsKicker")}</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("findOrAsk.questionsTitle")}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("findOrAsk.questionsCopy")}</p>
+            </div>
+          </div>
+          <FindOrAskQuestionRail city={city.name} query={normalizedQuery} />
+        </div>
+      </section>}
+
+      {(resultType === "all" || resultType === "wants") && <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="marketing-section-head">
+            <div>
+              <p className="marketing-kicker">{t("publicDiscover.wantsKicker", { city: demand.inbox.city })}</p>
+              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicDiscover.wantsTitle", { city: city.name })}</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("publicDiscover.wantsCopy")}</p>
+            </div>
+            <div className="w-full max-w-xl"><p className="mb-2 text-sm font-bold">{t("compression.newRequest")}</p><FindOrAskEntry source="discover" city={city.name} compact /><p className="mt-2 text-xs text-white/55">{t("compression.newRequestCopy")}</p></div>
+          </div>
+
+          {(demand.isLoading || findOrAskQuery.isLoading) && !liveSignals.length && !explicitDemands.length ? <p className="text-sm text-white/45">{t("publicDiscover.loadingWants")}</p> : null}
+          <FindOrAskDemandRail city={city.name} query={normalizedQuery} />
+          {liveSignals.length ? (
+            <div className="marketing-demand-rail">
+              {liveSignals.map((signal) => {
+                const response = demand.responsesByDemand.get(signal.poll.id);
+                return (
+                  <DemandSignalObject
+                    key={signal.poll.id}
+                    city={demand.inbox.city}
+                    title={signal.poll.question}
+                    leadingOption={signal.leading?.text}
+                    demandCount={signal.poll.totalVotes || 0}
+                    threshold={signal.poll.thresholdForMoment}
+                    responseLabel={response?.response_summary || signal.poll.targetUnlockPerk}
+                    answered={Boolean(response)}
+                    href={response?.route || (user ? discoverPathHref(signal.poll.question) : `/auth?mode=login&role=participant&next=${encodeURIComponent(discoverPathHref(signal.poll.question))}`)}
+                    shareHref={discoverPathHref(signal.poll.question)}
+                    state={signalState(signal.votesRemaining, signal.closeness)}
+                    actionLabel={response ? t("clarity.openResponse") : t("clarity.wantAction")}
+                  />
+                );
+              })}
+            </div>
+          ) : !demand.isLoading && !findOrAskQuery.isLoading && !explicitDemands.length ? (
+            <div className="marketing-compact-empty">
+              <Users className="h-5 w-5 text-orange-400" />
+              <div><p className="text-sm font-black">{t("publicDiscover.noWantsTitle")}</p><p className="mt-1 text-xs leading-5 text-white/45">{t("publicDiscover.noWantsCopy")}</p></div>
+            </div>
+          ) : null}
+        </div>
+      </section>}
+
+      {!hasFilters && <TasteCalibration marketLabel={city.name} />}
+
+      {!hasFilters && <section className="px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <EditorialWorldRail />
+        </div>
+      </section>}
+
       <section className="public-discover-promocard px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
           <div>
             <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> Keep your place</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">Discovery gets more useful when PROMORANG can remember what matters to you.</h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">Watch something, come back when it changes, keep access that opens, and remember what you were part of.</p>
-            <Link to="/auth?mode=signup&role=participant&next=/card" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">Get my PromoCard <ArrowRight className="h-4 w-4" /></Link>
+            <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.cardTitle")}</h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">{t("publicHome.cardCopy")}</p>
+            <Link to="/auth?mode=signup&role=participant&next=/card" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">{t("clarity.getMyCard")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
           <div className="marketing-promocard-stage">
             <PromoCardFace

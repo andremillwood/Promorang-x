@@ -172,16 +172,29 @@ async function createConnectedCheckoutSession({
     if (!stripe) throw new Error('Stripe is not configured.');
     if (!connectedAccountId) throw new Error('Merchant Stripe account is required.');
 
+    const discount = Number(order.metadata?.discount_amount || 0);
+    const discountProductIds = new Set(order.metadata?.discount_product_ids || []);
+    const eligibleStripeProducts = new Map();
+    if (discount > 0) {
+        await Promise.all(items.filter(item => discountProductIds.has(item.product_id)).map(async item => {
+            const product = await stripe.products.create({
+                name: item.product_name, metadata: { product_id: item.product_id },
+                ...(item.tax_code ? { tax_code: item.tax_code } : {}),
+            }, { stripeAccount: connectedAccountId, idempotencyKey: `checkout-product:${order.id}:${item.product_id}` });
+            eligibleStripeProducts.set(item.product_id, product.id);
+        }));
+        if (!eligibleStripeProducts.size) throw new Error('The reserved benefit has no eligible checkout products');
+    }
     const lineItems = items.map((item) => ({
         quantity: item.quantity,
         price_data: {
             currency: order.currency.toLowerCase(),
             unit_amount: Math.round(Number(item.unit_price) * 100),
-            product_data: {
+            ...(eligibleStripeProducts.has(item.product_id) ? { product: eligibleStripeProducts.get(item.product_id) } : { product_data: {
                 name: item.product_name,
                 metadata: { product_id: item.product_id },
                 ...(item.tax_code ? { tax_code: item.tax_code } : {}),
-            },
+            } }),
         },
     }));
     const requiresShipping = items.some((item) => item.requires_shipping);
@@ -206,8 +219,16 @@ async function createConnectedCheckoutSession({
         },
     }));
 
+    const coupon = discount > 0 ? await stripe.coupons.create({
+        amount_off: Math.round(discount * 100), currency: order.currency.toLowerCase(),
+        duration: 'once', max_redemptions: 1, name: 'PromoCard benefit',
+        applies_to: { products: [...eligibleStripeProducts.values()] },
+        metadata: { commerce_order_id: order.id },
+    }, { stripeAccount: connectedAccountId, idempotencyKey: `promocard-discount:${order.id}` }) : null;
     const session = await stripe.checkout.sessions.create({
         mode: 'payment',
+        ...(coupon ? { discounts: [{ coupon: coupon.id }] } : {}),
+        expires_at: Math.floor(Date.now() / 1000) + 1800,
         line_items: lineItems,
         automatic_tax: { enabled: true },
         billing_address_collection: 'auto',

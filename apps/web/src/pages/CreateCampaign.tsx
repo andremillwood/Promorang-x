@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -22,6 +23,8 @@ import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { StakeholderHowLead } from "@/components/people/StakeholderLoop";
 import { buildBusinessOutcomePrompt, getProgramme, readBusinessOutcomeBrief } from "@/lib/business-outcomes";
+import { readSponsorBrief } from "@/lib/commercial-intent";
+import { funnelRequest, type CampaignOutcomeReport } from "@/lib/platform-funnels";
 
 type ActivationPlan = CompiledCampaign & { metadata: CompilerMetadata };
 
@@ -38,6 +41,20 @@ const CreateCampaign = () => {
   const [sourceBrief] = useState(() => params.get("from") === "business-outcome" ? readBusinessOutcomeBrief() : null);
   const [prompt, setPrompt] = useState(() => sourceBrief ? buildBusinessOutcomePrompt(sourceBrief) : "");
   const [plan, setPlan] = useState<ActivationPlan | null>(null);
+  const renewalId = params.get("renew");
+  const renewalQuery = useQuery({ queryKey: ["campaign-funnel-report", renewalId], queryFn: () => funnelRequest<CampaignOutcomeReport>(`/funnels/campaigns/${renewalId}/report`), enabled: Boolean(renewalId) });
+  useEffect(() => {
+    if (renewalId) {
+      const report = renewalQuery.data;
+      if (!report?.canRenew) return;
+      setPrompt(current => current || `Plan the next pilot after ${report.campaign.title}.\nPrevious direction: ${report.campaign.description || ""}\nVerified results: ${report.metrics.attendance} attendees, ${report.metrics.redemptions} redeemers, ${report.metrics.purchases} purchasers, ${report.metrics.acceptedProofs} people with accepted proof.\nGems secured: ${report.funding.securedGems}; Gems released: ${report.funding.releasedGems}.\nRecommend what to keep and change. Define a fresh measurable target and participant reason to act. The new pilot is a draft with no funding or promises copied from the previous campaign.`);
+      return;
+    }
+    if (params.get("from") === "sponsor") {
+      const brief = readSponsorBrief();
+      if (brief) setPrompt(current => current || [brief.insight, `Desired action: ${brief.action || "To be agreed"}`, `Brand role: ${brief.role || "To be agreed"}`, `Proof to collect: ${brief.proof || "To be agreed"}`].join("\n"));
+    }
+  }, [params, renewalId, renewalQuery.data]);
 
   const proofLanguage = {
     LINK: t("createCampaign.proofLink"),
@@ -47,12 +64,14 @@ const CreateCampaign = () => {
 
   const handleCompile = async () => {
     if (!prompt.trim()) return;
+    if (renewalId && !renewalQuery.data?.canRenew) return;
     const { campaign, metadata } = await compile(prompt);
     setPlan({ ...campaign, metadata });
   };
 
   const handleSave = async () => {
     if (!plan) return;
+    if (renewalId && !renewalQuery.data?.canRenew) return;
 
     const demandPlan = plan.metadata.demandPlan;
     const gemValue = demandPlan?.sharedValue.find((value) => value.type === "gems" && value.enabled !== false)?.amount || plan.reward.baseGems;
@@ -85,6 +104,7 @@ const CreateCampaign = () => {
         funding_status: "unfunded",
         activation_status: "draft",
         business_outcome_brief: sourceBrief || undefined,
+        renewal_of: renewalId || undefined,
         participation_kind: participationKind || plan.metadata?.participation_kind || null,
       },
     });
@@ -111,6 +131,7 @@ const CreateCampaign = () => {
 
   return (
     <main className="min-h-screen bg-[#f2eee5] text-[#191816]">
+      {renewalId && <div className="mx-auto max-w-5xl px-5 py-5" role="status">{renewalQuery.isLoading ? t("funnel.loading") : renewalQuery.isError ? t("funnel.unavailable") : !renewalQuery.data?.canRenew ? t("funnel.noOutcomes") : t("funnel.renewalCopy")}{renewalQuery.isError && <button type="button" className="ml-3 min-h-11 underline" onClick={() => void renewalQuery.refetch()}>{t("funnel.retry")}</button>}</div>}
       <AnimatePresence mode="wait">
         {!plan ? (
           <motion.section
@@ -207,7 +228,7 @@ const CreateCampaign = () => {
                 <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
                   <Button
                     onClick={handleCompile}
-                    disabled={!prompt.trim() || isCompiling}
+                    disabled={!prompt.trim() || isCompiling || Boolean(renewalId && !renewalQuery.data?.canRenew)}
                     className="h-14 rounded-full bg-[#191816] px-7 text-base font-black text-white hover:bg-[#d85b24]"
                   >
                     <Sparkles className={`mr-2 h-5 w-5 ${isCompiling ? "animate-spin" : ""}`} />

@@ -1,8 +1,9 @@
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
-import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
+import { TicketPass } from "@/components/promorang/SignatureObjects";
 import { useMarket } from "@/contexts/MarketContext";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { discoverPathHref } from "@/lib/discovery-path";
@@ -34,6 +35,7 @@ function signalState(votesRemaining: number, closeness: "unlocking" | "warming" 
 }
 
 export default function MarketRoleLanding(props: RoleLandingProps) {
+  const { t } = useI18n();
   const { city, country } = useMarket();
   const { inbox, isLoading } = useDiscoveryDemand(
     city.name,
@@ -50,7 +52,7 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_5%,rgba(249,115,22,.18),transparent_35%),radial-gradient(circle_at_85%_20%,rgba(255,255,255,.05),transparent_30%)]" />
         <div className="relative mx-auto grid max-w-[1380px] gap-12 lg:grid-cols-[minmax(0,.92fr)_minmax(480px,1.08fr)] lg:items-center">
           <div className="max-w-3xl">
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">{props.eyebrow}</p>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">{props.eyebrow} · {t("compression.businessTitle")}</p>
             <h1 className="mt-5 font-serif text-5xl font-bold leading-[.92] tracking-[-0.055em] sm:text-6xl lg:text-7xl">{props.title}</h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">{props.intro}</p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -66,115 +68,37 @@ export default function MarketRoleLanding(props: RoleLandingProps) {
             <p className="mt-6 max-w-2xl border-l border-orange-400/40 pl-4 text-sm leading-6 text-white/45">{props.roleJob}</p>
           </div>
 
-          <div className="relative">
-            <div className="pointer-events-none absolute -inset-8 rounded-full bg-orange-500/10 blur-3xl" />
-            {leadSignal ? (
-              <DemandSignalObject
-                city={inbox.city}
-                title={leadSignal.poll.question}
-                leadingOption={leadSignal.leading?.text}
-                demandCount={leadSignal.poll.totalVotes || 0}
-                threshold={leadSignal.poll.thresholdForMoment}
-                responseLabel={leadSignal.poll.targetUnlockPerk}
-                href={discoverPathHref(leadSignal.poll.question)}
-                actionLabel="See what people want"
-                state={signalState(leadSignal.votesRemaining, leadSignal.closeness)}
-              />
-            ) : (
-              <TicketPass
-                kicker={isLoading ? "Reading the market" : "Quiet here right now"}
-                title={isLoading ? "Checking this market…" : "No strong signal yet."}
-                detail={isLoading ? "Looking for live demand in this market." : "There isn’t a live demand signal here right now. Explore what people are discovering, or come back as the market moves."}
-                stub="NOW"
-                stubLabel="Market"
-              />
-            )}
+          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-6">
+            <p className="text-xs font-bold text-orange-300">{t("compression.howWorks")}</p>
+            <h2 className="mt-4 text-2xl font-bold">{props.responseTitle}</h2>
+            <p className="mt-3 text-sm leading-7 text-white/60">{props.responseDetail}</p>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="border-b border-white/10 px-5 py-12 sm:px-6">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">PROMORANG around PromoCard · your role</p>
-          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">People carry PromoCard. Your role is to help something worthwhile happen around it.</h2>
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            <TicketPass
-              kicker="Discovery"
-              title="Know what already exists"
-              detail={props.discoveryUse}
-              stub="SEE"
-              stubLabel="Knowledge"
-            />
-            <TicketPass
-              kicker="Want"
-              title="See what people want"
-              detail={props.demandUse}
-              stub="HEAR"
-              stubLabel="Want"
-            />
-            <TicketPass
-              kicker="Response"
-              title={props.responseTitle}
-              detail={props.responseDetail}
-              stub={props.responseStub}
-              stubLabel="Your move"
-            />
-          </div>
+          <p className="text-xs font-bold text-orange-300">{t("compression.results")}</p>
+          <h2 className="mt-3 text-3xl font-bold">{props.proofTitle}</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/60">{props.proofDetail}</p>
+          <details className="mt-6 rounded-xl border border-white/10 p-4">
+            <summary className="min-h-11 cursor-pointer text-sm font-bold">{t("compression.details")}</summary>
+            <p className="mt-2 text-sm leading-6 text-white/60">{t("compression.distinctions")}</p>
+            <ul className="mt-4 space-y-2 text-sm text-white/55">{props.truthGates.map(gate => <li key={gate}>{gate}</li>)}</ul>
+          </details>
         </div>
       </section>
-
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          <NightTrail
-            eyebrow="A simple way to work"
-            title="Listen → decide → open → learn"
-            steps={[
-              { label: "Listen", title: "Start with what people are noticing and asking for.", text: "Use what people want as context, then decide whether it matters to your role." },
-              { label: "Decide", title: "Choose whether it deserves your move.", text: "You can watch, research, respond or do nothing. A signal is a reason to look closer, not a promise of results." },
-              { label: "Open", title: props.responseTitle, text: props.responseDetail },
-              { label: "Learn", title: props.proofTitle, text: props.proofDetail },
-            ]}
-          />
-          <PaperReceipt
-            heading="Keep these distinctions clear"
-            lines={props.truthGates.map((gate, index) => ({ label: "Keep clear", value: gate, strong: index === 0 }))}
-            footer="Interest, availability and outcomes tell you different things. Keeping them separate makes better decisions possible."
-          />
+      <section className="border-b border-white/10 px-5 py-12 sm:px-6">
+        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
+          <div><h2 className="text-3xl font-bold">{t("compression.marketTitle")}</h2><p className="mt-4 text-sm leading-7 text-white/60">{t("compression.marketCopy")}</p><Link to="/discover?tab=wants" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-orange-300">{t("compression.seeDemand")}<ArrowRight className="h-4 w-4" /></Link></div>
+          {leadSignal ? <DemandSignalObject city={inbox.city} title={leadSignal.poll.question} leadingOption={leadSignal.leading?.text} demandCount={leadSignal.poll.totalVotes || 0} threshold={leadSignal.poll.thresholdForMoment} responseLabel={leadSignal.poll.targetUnlockPerk} href={discoverPathHref(leadSignal.poll.question)} actionLabel={t("compression.seeDemand")} state={signalState(leadSignal.votesRemaining, leadSignal.closeness)} /> : !isLoading ? <TicketPass kicker={t("compression.seeDemand")} title={t("compression.quiet")} detail={t("compression.quietCopy")} stub="—" stubLabel={city.name} /> : <p role="status" className="text-sm text-white/60">{t("people.homeLoad")}</p>}
         </div>
       </section>
-
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-          <div>
-            <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300"><ShieldCheck className="h-4 w-4" /> Where your move meets the participant</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.04em] sm:text-5xl">PromoCard is the participant product. PROMORANG is the network around it.</h2>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/55">{props.promoCardDetail} Your response should give a participant something real to want, open, act on or keep, not another dashboard to understand.</p>
-            <Link to="/what-is-promorang" className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-orange-100">
-              See the PromoCard side <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <PromoCardFace
-            holder="Participant PromoCard"
-            available="What your move makes possible"
-            limit="Want · Open · Active · Kept"
-            places="The participant sees the relationship in one place while PROMORANG keeps the underlying market states distinct."
-            action="See what changed"
-            variant="membership"
-            interactive={false}
-          />
-        </div>
+      <section className="border-b border-white/10 px-5 py-12 sm:px-6">
+        <div className="mx-auto max-w-6xl"><h2 className="text-3xl font-bold">{t("compression.keepTitle")}</h2><p className="mt-4 max-w-3xl text-sm leading-7 text-white/60">{props.promoCardDetail}</p><Link to="/what-is-promorang" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-orange-300">{t("compression.cardMore")}<ArrowRight className="h-4 w-4" /></Link></div>
       </section>
-
-      <section className="px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 border-t border-white/10 pt-10 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="font-serif text-2xl font-bold">Ready to make your move?</p>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">Start with the outcome you need. PROMORANG can reveal the next useful step without asking you to learn the whole platform first.</p>
-          </div>
-          <Link to={props.primaryCta.href} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black transition hover:bg-orange-400">
-            {props.primaryCta.label} <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+      <section className="px-5 py-12 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 md:flex-row md:items-center md:justify-between"><div><h2 className="text-2xl font-bold">{t("compression.ready")}</h2><p className="mt-3 text-sm text-white/60">{t("compression.readyCopy")}</p></div><Link to={props.primaryCta.href} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black">{props.primaryCta.label}<ArrowRight className="h-4 w-4" /></Link></div>
       </section>
     </main>
   );

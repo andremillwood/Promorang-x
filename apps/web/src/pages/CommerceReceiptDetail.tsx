@@ -41,6 +41,7 @@ type ReceiptTimelineItem = {
 };
 
 type ReceiptPayload = {
+  order_items?: { product_id: string; product_name: string; quantity: number; line_total: number }[];
   receipt: CommerceReceipt;
   timeline: ReceiptTimelineItem[];
   permissions?: {
@@ -172,6 +173,7 @@ export default function CommerceReceiptDetail() {
                 <div className="mt-5 flex items-center gap-2 border-t border-dashed border-black/20 pt-4 text-[10px] font-black uppercase tracking-[.2em]"><BadgeCheck className="h-4 w-4 text-primary" />{t("receipt.saved")}</div>
               </div>
 
+              {query.data?.order_items?.length ? <section className="mt-6 border-y border-white/10 py-5"><h2 className="text-lg font-bold">{t("release.48")}</h2><ul className="mt-3 space-y-3">{query.data.order_items.map(item => <li className="flex justify-between gap-4 text-sm" key={item.product_id}><span>{item.quantity} × {item.product_name}</span><span>{Number(item.line_total).toFixed(2)} {receipt.currency}</span></li>)}</ul>{Number(receipt.attribution?.discount_amount || 0)>0 ? <p className="mt-4 text-sm text-orange-300">PromoCard · {receipt.attribution?.promocard_title}: −{Number(receipt.attribution?.discount_amount).toFixed(2)} {receipt.currency}</p> : null}<Link className="mt-4 inline-flex min-h-11 items-center text-orange-300" to="/card">{t("release.49")}</Link></section> : null}
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
                   <p className="text-[10px] uppercase tracking-widest text-white/45">{t("receipt.value")}</p>

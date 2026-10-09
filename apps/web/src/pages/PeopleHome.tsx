@@ -1,3 +1,5 @@
+import { useState } from "react";
+import type { TranslationKey } from "@/i18n/translations";
 import { Archive, ArrowRight, CalendarDays, Dumbbell, MapPin, MoonStar, Music2, Palette, Radio, ShieldCheck, UtensilsCrossed, Users } from "lucide-react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
@@ -48,12 +50,12 @@ const operatorGuideStartsOpen = () => {
 };
 const PREVIEW_ROLES = ["participant", "creator", "host", "merchant", "brand"] as const;
 const vibeTracks = [
-  { label: "Music", icon: Music2, image: jazzNight, href: "/discover?tab=moments&category=music" },
-  { label: "Nightlife", icon: MoonStar, image: heroMoments, href: "/discover?tab=moments&category=nightlife" },
-  { label: "Food", icon: UtensilsCrossed, image: cookingClass, href: "/discover?tab=moments&category=food" },
-  { label: "Creative", icon: Palette, image: streetArt, href: "/discover?tab=content" },
-  { label: "Fitness", icon: Dumbbell, image: hiking, href: "/discover?tab=moments&category=wellness" },
-  { label: "Social", icon: Users, image: boardGames, href: "/discover?tab=moments&category=social" },
+  { key: "music", label: "Music", icon: Music2, image: jazzNight, href: "/discover?tab=moments&category=music" },
+  { key: "nightlife", label: "Nightlife", icon: MoonStar, image: heroMoments, href: "/discover?tab=moments&category=nightlife" },
+  { key: "food", label: "Food", icon: UtensilsCrossed, image: cookingClass, href: "/discover?tab=moments&category=food" },
+  { key: "creative", label: "Creative", icon: Palette, image: streetArt, href: "/discover?tab=content" },
+  { key: "wellness", label: "Fitness", icon: Dumbbell, image: hiking, href: "/discover?tab=moments&category=wellness" },
+  { key: "social", label: "Social", icon: Users, image: boardGames, href: "/discover?tab=moments&category=social" },
 ];
 const editorialBackdrops = [jazzNight, streetArt];
 
@@ -87,7 +89,8 @@ const stakeholderStages: Record<string, { kicker: string; title: string; cardLin
 const imageForMoment = (moment: { image_url?: string | null; image?: string | null; banner_image_url?: string | null } | null) => moment?.image_url || moment?.image || moment?.banner_image_url || null;
 
 export default function PeopleHome() {
-  const { t } = useI18n();
+  const [operatorGuideOpen, setOperatorGuideOpen] = useState(operatorGuideStartsOpen);
+  const { t, locale } = useI18n();
   const { user, profile, activeRole, roles } = useAuth();
   const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
   const home = useExperienceHome();
@@ -189,8 +192,8 @@ export default function PeopleHome() {
     ) || null;
     const currentMoveIsRemoteMoment = moveHref.includes("/moments/") && !matchedMoment;
     const heroImage = imageForMoment(matchedMoment) || heroMoments;
-    const moveTitle = currentMoveIsRemoteMoment ? "Find something worth showing up for." : world?.currentMove?.title || matchedMoment?.title || "Find something worth showing up for.";
-    const moveCopy = currentMoveIsRemoteMoment ? `See what is moving in ${localCity}, choose what matters, and make one useful move.` : world?.currentMove?.why || matchedMoment?.description || world?.slice?.currentLine || invitation.why;
+    const moveTitle = currentMoveIsRemoteMoment ? t("publicHome.title") : world?.currentMove?.title || matchedMoment?.title || t("publicHome.title");
+    const moveCopy = currentMoveIsRemoteMoment ? t("publicHome.copy", { market: localCity }) : world?.currentMove?.why || matchedMoment?.description || world?.slice?.currentLine || invitation.why;
     const moveTarget = to(currentMoveIsRemoteMoment ? "/discover" : world?.currentMove?.href || (matchedMoment ? `/moments/${matchedMoment.slug || matchedMoment.id}` : invitation.nextHref || "/discover"));
 
     return (
@@ -203,19 +206,19 @@ export default function PeopleHome() {
             <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] lg:block"><img src={heroImage} alt="" className="h-full w-full object-cover opacity-45" /><div className="absolute inset-0 bg-gradient-to-r from-[#0c0c0d] via-[#0c0c0d]/75 to-black/15" /></div>
             <div className="relative z-10 max-w-3xl">
               <div className="flex items-center justify-between gap-3">
-                <div><p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500]" />{localCity} · Today</p><p className="mt-1 text-xs font-semibold text-white/48">{greeting}</p></div>
-                <Link to={to("/card")} aria-label={t("people.openCardAria")} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[#d8ad54]/45 bg-[#d8ad54]/10 px-4 text-xs font-black text-[#f2c761] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]"><span className="grid h-6 w-6 place-items-center rounded-md border border-[#d8ad54]/45 font-['Anton'] text-sm">P</span>{hasCardValue ? "My card" : "PromoCard"}</Link>
+                <div><p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500]" />{t("publicHome.rightNow", { market: localCity })}</p><p className="mt-1 text-xs font-semibold text-white/48">{greeting}</p></div>
+                <Link to={to("/card")} aria-label={t("people.openCardAria")} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[#d8ad54]/45 bg-[#d8ad54]/10 px-4 text-xs font-black text-[#f2c761] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]"><span className="grid h-6 w-6 place-items-center rounded-md border border-[#d8ad54]/45 font-['Anton'] text-sm">P</span>{t("publicHome.navCard")}</Link>
               </div>
-              <h1 className="mt-6 font-['Anton'] text-[clamp(2.45rem,11vw,4.2rem)] font-normal uppercase leading-[.9] tracking-[-.03em] text-white">Find something <span className="text-[#ff6500]">worth doing.</span></h1>
+              <h1 className="mt-6 font-['Anton'] text-[clamp(2.45rem,11vw,4.2rem)] font-normal uppercase leading-[.9] tracking-[-.03em] text-white">{t("publicHome.title")}</h1>
               <FindOrAskEntry source="home" city={localCity} compact className="mt-5 max-w-2xl" />
               <Link to={moveTarget} className="group mt-4 flex min-h-16 items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[.045] p-3 transition hover:border-[#ff6500]/45 hover:bg-white/[.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6500]">
-                <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.16em] text-[#ff8a45]">A useful move now</p><p className="mt-1 truncate text-sm font-black text-white">{moveTitle}</p><p className="mt-1 line-clamp-1 text-[11px] text-white/45">{moveCopy}</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#ff6500] text-black"><ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
+                <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.16em] text-[#ff8a45]">{t("compression.usefulNow")}</p><p className="mt-1 truncate text-sm font-black text-white">{moveTitle}</p><p className="mt-1 line-clamp-1 text-[11px] text-white/45">{moveCopy}</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#ff6500] text-black"><ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
               </Link>
             </div>
           </section>
         )}
       >
-        {home.isError ? <p role="status" className="text-sm text-amber-200">We couldn’t refresh Today. Showing your last loaded details.</p> : null}
+        {home.isError ? <p role="status" className="text-sm text-amber-200">{t("compression.refreshError")}</p> : null}
         {isPreview ? (
           <nav aria-label={t("people.previewRoles")} className="pr-world-strip">
             {PREVIEW_ROLES.map((item) => <Link key={item} to={`/app-preview?role=${item}`} data-active={lens.role === item} className="pr-world-chip">{item}</Link>)}
@@ -226,15 +229,15 @@ export default function PeopleHome() {
 
         <section aria-labelledby="vibe-title">
           <div className="flex items-end justify-between gap-4">
-            <div><p className="pr-world-kicker">Find your vibe</p><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">What moves you?</h2></div>
-            <p className="hidden max-w-[250px] text-xs leading-5 text-white/42 sm:block">Choose a lane. PROMORANG will surface the Moments, Scenes and access around it.</p>
+            <div><p className="pr-world-kicker">{t("publicHome.categoryNavigation")}</p><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">{t("compression.interests")}</h2></div>
+            <p className="hidden max-w-[250px] text-xs leading-5 text-white/42 sm:block">{t("compression.interestsCopy")}</p>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {vibeTracks.map(({ label, icon: Icon, image, href }) => (
+            {vibeTracks.map(({ key, label, icon: Icon, image, href }) => (
               <Link key={label} to={href} className="group relative min-h-[150px] overflow-hidden rounded-xl border border-white/10 bg-white/[.03]">
                 <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition duration-500 group-hover:scale-105 group-hover:opacity-75" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{label}</p></div>
+                <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{t(`publicHome.category.${key}` as TranslationKey)}</p></div>
               </Link>
             ))}
           </div>
@@ -242,8 +245,8 @@ export default function PeopleHome() {
 
         <section aria-labelledby="now-next-title">
           <div className="flex items-end justify-between gap-4">
-            <div><p className="pr-world-kicker">Coming up</p><h2 id="now-next-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Now & next.</h2></div>
-            <Link to="/discover?tab=moments" className="pr-world-link">Full calendar</Link>
+            <div><p className="pr-world-kicker">{t("publicHome.lifecycleSoon")}</p><h2 id="now-next-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">{t("publicHome.happening")}</h2></div>
+            <Link to="/discover?tab=moments" className="pr-world-link">{t("publicHome.browseMoments")}</Link>
           </div>
           <div className="mt-5">
             {momentFeed.isLoading ? <div className="h-48 animate-pulse rounded-[1.8rem] border border-white/10 bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title="Live timing unavailable" copy="We couldn’t load the calendar. Try again shortly." /> : liveMoments.length ? (
@@ -252,35 +255,36 @@ export default function PeopleHome() {
                   <div className="relative h-full min-h-[260px]">
                     <img src={moment.image_url || editorialBackdrops[index % editorialBackdrops.length]} alt={moment.image_url ? moment.title : ""} className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-[1.035]" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString("en-JM", { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div></div>
+                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString(locale, { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div></div>
                   </div>
                 </Link>
               ))}</div>
-            ) : <QuietEmpty title="Nothing confirmed right now" copy="Check Discover for places and ideas while the next Moment takes shape." />}
+            ) : <QuietEmpty title={t("release.82")} copy={t("compression.interestsCopy")} />}
           </div>
         </section>
 
         <section>
-          <p className="pr-world-kicker">Your world</p>
+          <p className="pr-world-kicker">{t("compression.saved")}</p>
           <div className="pr-world-object-grid mt-4">
             {firstScene ? (
               <Link to={`/scenes/${firstScene.slug}`} className="pr-world-panel pr-world-panel--signal pr-world-object--wide group p-6 sm:p-8">
-                <Radio className="h-5 w-5 text-[#ff5a1f]" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">Scene</p><h3 className="mt-2 max-w-lg font-serif text-4xl font-bold leading-[.92] tracking-[-.04em]">{firstScene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/45">Follow the people, places and Moments that bring this Scene together.</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">Enter Scene <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
+                <Radio className="h-5 w-5 text-[#ff5a1f]" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">{t("publicHome.scene")}</p><h3 className="mt-2 max-w-lg font-serif text-4xl font-bold leading-[.92] tracking-[-.04em]">{firstScene.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-white/45">{t("compression.followCopy")}</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">{t("publicHome.enterScene")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
               </Link>
-            ) : (
-              <Link to="/discover" className="pr-world-panel pr-world-object--wide p-6 sm:p-8"><Radio className="h-5 w-5 text-[#ff5a1f]" /><p className="mt-8 pr-world-kicker">Scene</p><h3 className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Find a context worth returning to.</h3><p className="mt-3 text-sm leading-6 text-white/45">Scenes will appear here when you actually belong to one.</p></Link>
-            )}
+            ) : null}
 
             <Link to="/vault" className="pr-world-panel pr-world-object--narrow group p-6">
-              <Archive className="h-5 w-5 text-purple-300" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">Vault</p><h3 className="mt-2 font-serif text-3xl font-bold leading-none tracking-[-.04em]">What stayed.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your access, draw entries and memories, ready to revisit.</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">Open Vault <ArrowRight className="h-4 w-4" /></span>
+              <Archive className="h-5 w-5 text-purple-300" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">{t("compression.saved")}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-none tracking-[-.04em]">{t("compression.saved")}</h3><p className="mt-3 text-sm leading-6 text-white/45">{t("compression.savedCopy")}</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">{t("compression.openSaved")} <ArrowRight className="h-4 w-4" /></span>
             </Link>
           </div>
         </section>
 
-        {world?.latestReturn ? <section><p className="pr-world-kicker">Latest consequence</p><div className="mt-4"><ConsequenceReceipt receipt={world.latestReturn} /></div></section> : null}
+        {world?.latestReturn ? <section><p className="pr-world-kicker">{t("compression.latest")}</p><div className="mt-4"><ConsequenceReceipt receipt={world.latestReturn} /></div></section> : null}
 
-        <LiveReleaseSignal drops={releaseDrops} />
-        {!world?.identity?.line ? <WorldInvitationCard invitation={invitation} /> : null}
+        <details className="rounded-2xl border border-white/10 p-5">
+          <summary className="min-h-11 cursor-pointer text-sm font-bold">{t("compression.optional")}</summary>
+          <LiveReleaseSignal drops={releaseDrops} />
+          {!world?.identity?.line ? <WorldInvitationCard invitation={invitation} /> : null}
+        </details>
 
         {workspaceRoles.length ? (
           <section className="border-t border-white/10 pt-6">
@@ -353,8 +357,9 @@ export default function PeopleHome() {
       {data?.perks?.length ? <section className="space-y-3"><p className="pr-world-kicker">Live inventory</p><h2 className="font-serif text-3xl font-bold">{t("people.perksYouCanGive")}</h2><div className="grid gap-3 md:grid-cols-2">{data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => <Link key={perk.id} to={to("/give")}><TicketPass kicker={perk.source === "yours" ? t("people.yours") : t("people.available")} title={perk.title} detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")} stub="DROP" stubLabel="Perk" /></Link>)}</div></section> : null}
 
       <details
-        defaultOpen={operatorGuideStartsOpen()}
+        open={operatorGuideOpen}
         onToggle={(event) => {
+          setOperatorGuideOpen(event.currentTarget.open);
           try {
             window.localStorage.setItem(OPERATOR_GUIDE_OPEN_KEY, event.currentTarget.open ? "1" : "0");
           } catch {

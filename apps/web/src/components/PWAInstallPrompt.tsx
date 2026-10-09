@@ -18,7 +18,7 @@ export function PWAInstallPrompt() {
   const { t } = useI18n();
   const location = useLocation();
   const { activeRole } = useAuth();
-  const suppressedForParticipantWorld = isParticipantWorldRoute(
+  const suppressedForParticipantWorld = location.pathname === "/" || isParticipantWorldRoute(
     location.pathname,
     location.search,
     activeRole,

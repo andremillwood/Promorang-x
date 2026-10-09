@@ -175,7 +175,9 @@ const SignedInDiscover = () => {
     if (aim) writePromoCardAim(aim);
   }, [aim]);
 
-  const [activeCategory, setActiveCategory] = useState("all");
+  const requestedCategory = searchParams.get("category") || "all";
+  const [activeCategory, setActiveCategory] = useState(requestedCategory);
+  useEffect(() => setActiveCategory(requestedCategory), [requestedCategory]);
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") || "");
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   const [livePolls, setLivePolls] = useState<DiscoveryPoll[]>([]);

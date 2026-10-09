@@ -1,0 +1,23 @@
+.discovery-headline { display: grid; overflow: hidden; }
+.discovery-headline__original,
+.discovery-headline__phrase { grid-area: 1 / 1; align-self: end; }
+.discovery-headline__original { animation: discovery-original 13s both; }
+.discovery-headline__phrase { opacity: 0; animation: discovery-phrase 2.5s both; }
+.discovery-headline-wrapper[data-paused="true"] .discovery-headline > span,
+.discovery-headline-wrapper[data-paused="true"] .discovery-headline__control { animation-play-state: paused; }
+.discovery-headline__control { animation: discovery-control 13s forwards; }
+@keyframes discovery-control { 0%, 99.9% { visibility: visible; } 100% { visibility: hidden; } }
+@keyframes discovery-original {
+  0%, 20% { opacity: 1; transform: translateY(0); }
+  23%, 97% { opacity: 0; transform: translateY(-.15em); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes discovery-phrase {
+  0% { opacity: 0; transform: translateY(.2em); }
+  12%, 85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-.15em); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .discovery-headline__original { animation: none; }
+  .discovery-headline__phrase, .discovery-headline__control { display: none; }
+}

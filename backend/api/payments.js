@@ -415,6 +415,7 @@ async function stripeWebhook(req, res) {
 
   try {
     switch (event.type) {
+      case 'checkout.session.async_payment_succeeded':
       case 'checkout.session.completed': {
         const session = event.data.object;
         if (session.metadata?.commerce_flow === 'merchant_direct_order') {
@@ -601,9 +602,20 @@ async function stripeWebhook(req, res) {
         break;
       }
 
+      case 'checkout.session.async_payment_failed':
       case 'checkout.session.expired':
       case 'payment_intent.payment_failed': {
         const object = event.data.object;
+        if (object.metadata?.commerce_flow === 'merchant_direct_order') {
+          // A failed attempt can be retried in the same Checkout session. Only terminal sessions release stock.
+          if (event.type === 'checkout.session.expired' || event.type === 'checkout.session.async_payment_failed') {
+            const { data: order, error } = await supabaseAdmin.from('commerce_orders').select('id,stripe_connected_account_id,stripe_checkout_session_id').eq('id', object.metadata.commerce_order_id).single();
+            if (error || order.stripe_connected_account_id !== event.account || (order.stripe_checkout_session_id && order.stripe_checkout_session_id !== object.id)) throw new Error('Checkout cancellation does not match order');
+            await require('../services/marketplaceService').cancelStripeOrder(order.id, event.type);
+          }
+          break;
+        }
+
         if (event.type === 'payment_intent.payment_failed' && object.metadata?.commerce_order_id && supabaseAdmin) {
           await supabaseAdmin.from('commerce_orders').update({
             payment_status: 'failed',

@@ -184,6 +184,7 @@ app.use('/api/relays', require('./api/relays'));
 app.use('/api/growth', require('./api/growth'));
 app.use('/api/growth-ops', require('./api/growth-ops'));
 app.use('/api/leads', require('./api/leads'));
+app.use('/api/funnels', require('./api/funnels'));
 app.use('/api/presents', require('./api/presents'));
 // app.use('/api/portfolio', require('./api/portfolio'));
 app.use('/api/platform-drops', require('./api/platform-drops'));

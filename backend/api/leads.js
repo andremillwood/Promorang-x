@@ -1,6 +1,7 @@
 const express = require('express');
 const { supabase } = require('../lib/supabase');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin, optionalAuth } = require('../middleware/auth');
+const { validateBusinessBrief } = require('../services/businessBrief');
 
 const router = express.Router();
 const FUNNELS = {
@@ -93,6 +94,49 @@ router.post('/capture', captureRateLimit, async (req, res) => {
   } catch (error) {
     console.error('[Leads] capture failed:', error);
     res.status(500).json({ success: false, error: 'We could not save the report. Please try again.' });
+  }
+});
+
+router.post('/brief', captureRateLimit, optionalAuth, async (req, res) => {
+  try {
+    if (!supabase) return res.status(503).json({ success: false, error: 'Lead service unavailable' });
+    const input = req.body || {};
+    if (input.website) return res.status(202).json({ success: true, data: { accepted: true } });
+    const email = normalEmail(input.email);
+    if (!validEmail(email) || !clean(input.fullName, 160)) return res.status(400).json({ success: false, error: 'Your name and a valid email are required' });
+    let context;
+    try { context = validateBusinessBrief(input.brief); }
+    catch (error) { return res.status(400).json({ success: false, error: error.message }); }
+    const { role, funnelKey, brief } = context;
+    const { data: existing, error: lookupError } = await supabase.from('crm_leads')
+      .select('id,capture_count,lifecycle_stage,user_id').eq('email', email).eq('funnel_key', funnelKey).maybeSingle();
+    if (lookupError) throw lookupError;
+    const attribution = input.attribution || {};
+    const now = new Date().toISOString();
+    const payload = {
+      email, full_name: clean(input.fullName, 160), organization_name: clean(input.organizationName, 200), phone: clean(input.phone, 60),
+      stakeholder_type: role, funnel_key: funnelKey,
+      // A captured planning brief is not a proven demand score or a qualified sale.
+      diagnostic_score: null, qualification_score: 0,
+      lifecycle_stage: existing?.lifecycle_stage || 'new',
+      answers: { business_outcome_brief: brief }, result_name: 'Business outcome brief',
+      result_insight: `${brief.outcomeId}: ${brief.successAction}${brief.target ? `, target ${brief.target}` : ''}`,
+      source: clean(attribution.utm_source, 160), medium: clean(attribution.utm_medium, 160), campaign: clean(attribution.utm_campaign, 200),
+      landing_path: clean(input.landingPath, 500), anonymous_id: clean(input.anonymousId, 160),
+      user_id: existing?.user_id || (req.user?.is_verified && normalEmail(req.user.email) === email ? req.user.id : null),
+      marketing_consent: input.marketingConsent === true,
+      consent_text: input.marketingConsent === true ? 'Send me relevant Promorang opportunities. I can unsubscribe at any time.' : null,
+      consent_at: input.marketingConsent === true ? now : null,
+      last_captured_at: now, capture_count: Number(existing?.capture_count || 0) + 1,
+      next_follow_up_at: existing ? undefined : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    };
+    const { data: lead, error } = await supabase.from('crm_leads').upsert(payload, { onConflict: 'email,funnel_key' }).select('id').single();
+    if (error) throw error;
+    await activity(lead.id, 'captured', 'Business outcome brief captured', `${brief.outcomeId}: ${brief.successAction}`, { brief, role });
+    res.status(201).json({ success: true, data: { leadId: lead.id, saved: true, role } });
+  } catch (error) {
+    console.error('[Leads] brief capture failed:', error.message);
+    res.status(500).json({ success: false, error: 'We could not save your brief. Please try again.' });
   }
 });
 

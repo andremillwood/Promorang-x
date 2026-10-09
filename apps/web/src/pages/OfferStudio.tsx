@@ -1,3 +1,4 @@
+import { useMerchantProducts } from "@/hooks/useMerchantProducts";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,8 @@ import { toast } from "sonner";
 import { cultureImages } from "@/data/culture-demo";
 import { useI18n } from "@/i18n/I18nContext";
 import { TranslationKey } from "@/i18n/translations";
+import { buildBusinessOutcomePrompt, getProgramme, readBusinessOutcomeBrief } from "@/lib/business-outcomes";
+import { FunnelProgressCard } from "@/components/funnels/FunnelProgressCard";
 
 const channelDefinitions = {
   direct: { labelKey: "offerStudio.channel.direct" as TranslationKey, event: "claim", icon: Ticket, helpKey: "offerStudio.channel.directHelp" as TranslationKey },
@@ -190,12 +193,18 @@ const initialForm = {
 };
 
 const OfferStudio = () => {
+  const merchantProducts = useMerchantProducts();
+  const [checkoutKind, setCheckoutKind] = useState('');
+  const [checkoutCategory, setCheckoutCategory] = useState('');
+  const [checkoutProduct, setCheckoutProduct] = useState('');
+  const [checkoutMinimum, setCheckoutMinimum] = useState('0');
   const { t } = useI18n();
   const { city } = useMarket();
   const { activeRole, activeOrgId } = useAuth();
   const [searchParams] = useSearchParams();
   const canManage = ["brand", "merchant", "host", "creator", "admin"].includes(activeRole || "");
-  const [form, setForm] = useState({ ...initialForm, city_slug: city.id });
+  const [businessBrief] = useState(() => searchParams.get("from") === "business-outcome" ? readBusinessOutcomeBrief() : null);
+  const [form, setForm] = useState({ ...initialForm, city_slug: city.id, title: businessBrief ? getProgramme(businessBrief.programmeId)?.title || "" : "", description: businessBrief ? buildBusinessOutcomePrompt(businessBrief) : "" });
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [redemptionCode, setRedemptionCode] = useState("");
   const ownerOffers = useOwnerOffers();
@@ -283,15 +292,18 @@ const OfferStudio = () => {
         title: form.title,
         description: form.description,
         terms: form.terms,
-        reward_type: form.reward_type,
-        fulfillment_type: form.fulfillment_type,
+        reward_type: checkoutKind ? "coupon" : form.reward_type,
+        fulfillment_type: checkoutKind ? "code" : form.fulfillment_type,
+        merchant_product_id: checkoutKind && checkoutProduct ? checkoutProduct : null,
         value_amount: form.value_amount ? Number(form.value_amount) : null,
-        value_currency: form.value_currency,
+        value_currency: checkoutKind === "percentage" ? "%" : form.value_currency,
         quantity_total: form.quantity_total ? Number(form.quantity_total) : null,
         per_user_limit: Number(form.per_user_limit || 1),
         ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
         status: "draft",
         metadata: {
+          business_outcome_brief: businessBrief || undefined,
+          ...(checkoutKind ? { checkout_discount: { kind: checkoutKind, category: checkoutCategory || null, minimum_spend: Number(checkoutMinimum) } } : {}),
           availability: form.availability,
           surface: form.surface,
           city: ALL_CITY_HUBS.find((hub) => hub.id === form.city_slug)?.name || city.name,
@@ -373,6 +385,7 @@ const OfferStudio = () => {
         {canManage && <div className="grid grid-cols-2 gap-3"><Card><CardContent className="p-4"><p className="text-2xl font-bold">{totals.issued}</p><p className="text-xs text-muted-foreground">{t("offerStudio.statIssued")}</p></CardContent></Card><Card><CardContent className="p-4"><p className="text-2xl font-bold">{totals.redeemed}</p><p className="text-xs text-muted-foreground">{t("offerStudio.statRedeemed")}</p></CardContent></Card></div>}
       </div></section>
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
+      {canManage && <div className="rounded-2xl bg-[#0b0b0a] px-5"><FunnelProgressCard funnel="operator" /></div>}
 
       {canManage && (
         <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_0.72fr]">
@@ -471,6 +484,24 @@ const OfferStudio = () => {
           </Card>
 
           <Card><CardHeader><CardTitle>{t("offerStudio.launchDetails")}</CardTitle></CardHeader><CardContent className="grid gap-5">
+            <fieldset className="rounded-2xl border border-border p-5">
+              <legend className="px-2 font-bold">{t("release.66")}</legend>
+              <label className="block text-sm">{t("release.67")}<select className="mt-2 min-h-11 w-full rounded border border-border bg-background px-3" value={checkoutKind} onChange={e => setCheckoutKind(e.target.value)}><option value="">{t("release.68")}</option><option value="fixed">{t("release.69")}</option><option value="percentage">{t("release.70")}</option></select></label>
+              {checkoutKind ? <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="text-sm">{t("release.71")}<select className="mt-2 min-h-11 w-full rounded border border-border bg-background px-3" value={checkoutProduct} onChange={e => setCheckoutProduct(e.target.value)}><option value="">{t("release.72")}</option>{merchantProducts.data?.map(product => <option key={product.id} value={product.id}>{product.name}</option>)}</select></label>
+                <label className="text-sm">{t("release.73")}<Input className="mt-2" value={checkoutCategory} onChange={e => setCheckoutCategory(e.target.value)} placeholder={t("release.74")} /></label>
+                <label className="text-sm">{t("release.75")}<Input className="mt-2" type="number" min="0" step="0.01" value={checkoutMinimum} onChange={e => setCheckoutMinimum(e.target.value)} /></label>
+                <p className="text-sm leading-6 text-muted-foreground">{t("offer.discountInstructions", { value: t(checkoutKind === "percentage" ? "offer.percentage" : "offer.amount") })}</p>
+              </div> : null}
+            </fieldset>
+            <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5" aria-label="PromoCard benefit preview">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">{t("release.76")}</p>
+              <h2 className="mt-2 font-serif text-2xl font-bold">{form.title.trim() || t("release.77")}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{form.description.trim() || t("release.78")}</p>
+              <p className="mt-3 text-sm font-semibold">{valueAmount > 0 ? `${valueAmount} ${checkoutKind === "percentage" ? "%" : form.value_currency} · ` : ""}{quantityTotal > 0 ? t("offer.planned", { count: quantityTotal }) : t("release.79")}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{form.terms.trim() || t("release.80")}</p>
+              <p className="mt-3 text-xs text-muted-foreground">{t("release.81")}</p>
+            </section>
             <div><Label htmlFor="offer-title">{t("offerStudio.titleLabel")}</Label><Input id="offer-title" value={form.title} onChange={(e) => update("title", e.target.value)} placeholder={t("offerStudio.titlePlaceholder")} required /></div>
             <div><Label htmlFor="offer-description">{t("offerStudio.descLabel")}</Label><Textarea id="offer-description" value={form.description} onChange={(e) => update("description", e.target.value)} placeholder={t("offerStudio.descPlaceholder")} /></div>
             <div className="grid gap-4 sm:grid-cols-3"><div><Label>{t("offerStudio.rewardValueLabel")}</Label><Input type="number" min="0" value={form.value_amount} onChange={(e) => update("value_amount", e.target.value)} placeholder="20" /></div><div><Label>{t("offerStudio.unitLabel")}</Label><Input value={form.value_currency} onChange={(e) => update("value_currency", e.target.value)} /></div><div><Label>{t("offerStudio.claimsLabel")}</Label><Input type="number" min="1" value={form.quantity_total} onChange={(e) => update("quantity_total", e.target.value)} /></div></div>

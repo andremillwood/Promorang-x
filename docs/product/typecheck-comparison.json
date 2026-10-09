@@ -1,0 +1,10 @@
+{
+  "baseline_errors": 560,
+  "current_errors": 558,
+  "new_file_code_counts": {},
+  "removed_file_code_counts": {
+    "('apps/web/src/components/discovery/PublicDiscoverExperience.tsx', 'TS2339')": 1,
+    "('apps/web/src/pages/PeopleHome.tsx', 'TS2322')": 1
+  },
+  "comparison": "Counts by file and diagnostic code; avoids union-order and concurrent line-offset differences."
+}

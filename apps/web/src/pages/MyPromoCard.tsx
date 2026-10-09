@@ -17,6 +17,7 @@ import {
   type PromoCardPerk,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
+import { FunnelProgressCard } from "@/components/funnels/FunnelProgressCard";
 import { useApplyPromoCardAim } from "@/hooks/usePromoCardAim";
 import { useExperienceHome, useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { resolveStoredPromoCardAim } from "@/lib/promocard-aim";
@@ -151,9 +152,9 @@ export default function MyPromoCard() {
   return (
     <ExperienceShell
       className="promocard-page [&_.pr-world-header]:pb-5 [&_.pr-world-header]:pt-5 sm:[&_.pr-world-header]:pb-8 sm:[&_.pr-world-header]:pt-8 [&_.pr-world-display]:text-[clamp(2.35rem,12vw,4.5rem)] [&_.pr-world-display]:leading-[.92]"
-      eyebrow="YOUR CREDENTIAL"
+      eyebrow="YOUR PROMOCARD"
       title={copy.title}
-      description="What is open for you, what you can use, and what stayed with you."
+      description="Unlock value from participating businesses, sponsors and creators. Keep what you claim here, ready for your next move."
       backTo="/dashboard"
       actions={data ? (
         <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
@@ -166,6 +167,7 @@ export default function MyPromoCard() {
       ) : (
         <>
           {card.isError ? <p role="status" className="border-y border-amber-200/20 py-3 text-sm text-amber-100">We couldn’t refresh your card. These are your last loaded details.</p> : null}
+          <FunnelProgressCard funnel="participant" />
 
           <section className="grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,.75fr)] lg:items-center">
             <PromoCardFace
@@ -192,9 +194,9 @@ export default function MyPromoCard() {
                 <OfferIssuancePass issuance={qrPass as OfferIssuance} />
               ) : (
                 <>
-                  <h2 className="mt-3 font-serif text-3xl font-bold leading-[0.94] tracking-[-0.045em] text-white sm:text-4xl">Nothing open right now.</h2>
-                  <p className="mt-4 text-sm leading-6 text-white/50">Nothing new is ready to use right now. Keep watching what matters and new access can appear here when it opens.</p>
-                  <Link to={discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{aim ? `Browse ${aim.label}` : "Find something worth watching"}<ArrowRight className="h-4 w-4" /></Link>
+                  <h2 className="mt-3 font-serif text-3xl font-bold leading-[0.94] tracking-[-0.045em] text-white sm:text-4xl">{nextBenefit ? "Your next unlock." : "Your first unlock starts here."}</h2>
+                  <p className="mt-4 text-sm leading-6 text-white/50">{nextBenefit ? `${nextBenefit.title} is available to explore. See the terms and what it takes to unlock it.` : "Explore offers and access from participating partners. When you claim a benefit, it lands on your PromoCard."}</p>
+                  <Link to={nextBenefit ? (nextBenefit.dropSlug ? `/drop/${nextBenefit.dropSlug}` : nextBenefit.href || discoverHrefForAim(aim)) : discoverHrefForAim(aim)} className={`${actionClass} mt-6`}>{nextBenefit ? "See how to unlock" : aim ? `Browse ${aim.label}` : "Find my first unlock"}<ArrowRight className="h-4 w-4" /></Link>
                 </>
               )}
             </div>
@@ -213,10 +215,11 @@ export default function MyPromoCard() {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Open</p>
-                <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">Access around you.</h2>
+                <h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em] text-white">Value waiting to unlock.</h2>
               </div>
               <Link to={discoverHrefForAim(aim)} className="text-sm font-bold text-primary">Discover more →</Link>
             </div>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/50">Choose a benefit to see its value, who provides it, and the conditions. Claimed benefits appear above when ready to use.</p>
             {nearby.length ? (
               <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
                 {nearby.slice(0, 4).map((perk: CardPerk) => (

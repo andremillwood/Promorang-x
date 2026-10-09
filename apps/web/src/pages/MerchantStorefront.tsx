@@ -1,16 +1,23 @@
-import { useMemo } from "react";
+import { StoreBenefits } from "@/components/commerce/StoreBenefits";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { ArrowRight, CalendarClock, Globe2, MapPin, Package, Sparkles, Store, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+
+import { rememberCommerceReferral } from '@/lib/commerce-cart';
+import { CommerceShareLink } from '@/components/commerce/CommerceShareLink';
 
 const kindIcon = (item: any) => item.discount_value ? Tag : item.fulfillment_mode === "booking" ? CalendarClock : Package;
 
 export default function MerchantStorefront() {
   const { t, locale } = useI18n();
   const { merchantId } = useParams();
+  const location = useLocation();
+  const [category, setCategory] = useState('');
+  useEffect(() => rememberCommerceReferral(location.search), [location.search]);
   const q = useQuery({
     queryKey: ["storefront", merchantId],
     queryFn: async () => {
@@ -28,6 +35,8 @@ export default function MerchantStorefront() {
   const offers=items.filter((x:any)=>x.discount_value);
   const services=items.filter((x:any)=>x.fulfillment_mode==="booking"||x.listing_kind==="service");
   const products=items.filter((x:any)=>!offers.includes(x)&&!services.includes(x));
+  const categories = Array.from(new Set(products.map(x => String(x.category || 'Other'))));
+  const filteredProducts = category ? products.filter(x => (x.category || 'Other') === category) : products;
   const hero=offers[0]||services[0]||items[0];
   const places=Array.from(new Map(items.filter((x:any)=>x.venue_slug).map((x:any)=>[x.venue_slug,x])).values()).slice(0,4) as any[];
   const linkedMoments=Array.from(new Map(items.filter((x:any)=>x.linked_moment_slug).map((x:any)=>[x.linked_moment_slug,x])).values()).slice(0,4) as any[];
@@ -57,9 +66,10 @@ export default function MerchantStorefront() {
 
     {hero ? <section id="available" className="px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto grid max-w-[1120px] overflow-hidden border border-white/10 bg-[#090909] md:grid-cols-[1.1fr_.9fr]"><div className="aspect-[16/10] overflow-hidden bg-white/[.04]">{hero.image_url?<img src={hero.image_url} alt="" className="h-full w-full object-cover"/>:null}</div><div className="flex flex-col justify-center p-7"><p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.15em] text-orange-300"><Sparkles className="h-3.5 w-3.5"/>Featured now</p><h2 className="mt-3 text-3xl font-black">{hero.name}</h2><p className="mt-3 text-sm leading-7 text-white/48">{hero.description}</p><Link to={hero.discount_value&&hero.offer_id?`/offers/${hero.offer_id}`:`/shop/${encodeURIComponent(hero.listing_id)}`} className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.08em] text-orange-300">Open <ArrowRight className="h-4 w-4"/></Link></div></div></section>:null}
 
+    <StoreBenefits merchantId={merchantId || ""} />
     <div id="offers"><Rail eyebrow="Perks & offers" title="A reason to come in." data={offers}/></div>
     <div id="services"><Rail eyebrow="Book / reserve" title="Things you can arrange here." data={services}/></div>
-    <div id="products"><Rail eyebrow="Shop" title="Available from this merchant." data={products}/></div>
+    <div id="products"><div className="mx-auto max-w-[1320px] px-5 pt-8"><div className="flex flex-wrap items-center justify-between gap-4"><label className="text-sm">{t("release.60")} <select className="ml-3 min-h-11 rounded border border-white/20 bg-black px-3" value={category} onChange={e => setCategory(e.target.value)}><option value="">{t("store.all")}</option>{categories.map(value => <option key={value}>{value}</option>)}</select></label><Link to="/shop/cart" className="inline-flex min-h-11 items-center font-bold text-orange-300">{t("store.bag")}</Link></div><CommerceShareLink path={`/storefront/${merchantId}`} /></div><Rail eyebrow="Shop" title="Available from this merchant." data={filteredProducts}/>{category && !filteredProducts.length ? <p className="p-8">{t("store.noCategory")}</p> : null}</div>
 
     {hasAround?<section id="around" className="border-t border-white/10 px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto max-w-[1120px]"><div className="marketing-section-head"><div><p className="marketing-kicker">Around this merchant</p><h2 className="mt-3 text-4xl font-black">See what’s happening around this merchant.</h2></div></div><div className="grid gap-3 md:grid-cols-2">{places.map((x:any)=><Link key={`place-${x.venue_slug}`} to={`/venues/${x.venue_slug}`} className="group border border-white/10 p-5 transition hover:border-orange-400/35"><p className="text-[9px] font-black uppercase tracking-[.14em] text-orange-300">Around this place</p><h3 className="mt-3 text-xl font-black">{x.venue_name||x.location||"Open place"}</h3><div className="mt-5 flex items-center justify-between text-xs text-white/42"><span>{x.city||"Place"}</span><ArrowRight className="h-4 w-4 transition group-hover:text-orange-300"/></div></Link>)}{linkedMoments.map((x:any)=><Link key={`moment-${x.linked_moment_slug}`} to={`/moments/${x.linked_moment_slug}`} className="group border border-white/10 p-5 transition hover:border-orange-400/35"><p className="text-[9px] font-black uppercase tracking-[.14em] text-orange-300">Happening around this</p><h3 className="mt-3 text-xl font-black">{x.linked_moment_title||"Open Moment"}</h3><div className="mt-5 flex items-center justify-between text-xs text-white/42"><span>Moment</span><ArrowRight className="h-4 w-4 transition group-hover:text-orange-300"/></div></Link>)}</div></div></section>:null}
 

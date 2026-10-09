@@ -26,6 +26,7 @@ import { ProofOutcomeRail } from "@/components/proof/ProofOutcomeRail";
 import { PromoPilotExecutionPanel } from "@/components/campaigns/PromoPilotExecutionPanel";
 import { DemandFlightPath } from "@/components/campaigns/DemandFlightPath";
 import { useI18n } from "@/i18n/I18nContext";
+import { CampaignOutcomeReport } from "@/components/funnels/CampaignOutcomeReport";
 
 type CampaignPlanMetadata = {
   original_prompt?: string;
@@ -188,6 +189,7 @@ const CampaignDetail = () => {
         )}
 
         <DemandFlightPath campaignId={campaign.id} />
+        <CampaignOutcomeReport campaignId={campaign.id} />
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-black/15 pt-7">
           <p className="text-sm text-black/45">Want to shape a different outcome?</p>

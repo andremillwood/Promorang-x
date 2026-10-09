@@ -88,8 +88,8 @@ describe("PromoCardGateway", () => {
   it("leads with customer value and a real featured benefit", async () => {
     nearbyQuery.data = [liveBenefit];
     await renderGateway();
-    expect(container).toHaveTextContent("There’s something");
-    expect(container).toHaveTextContent("for you.");
+    expect(container).toHaveTextContent("Value waiting");
+    expect(container).toHaveTextContent("to unlock.");
     expect(container).toHaveTextContent("$500 OFF");
     expect(container).toHaveTextContent("Sea Deck");
     expect(container).toHaveTextContent("Barbican");
@@ -118,7 +118,7 @@ describe("PromoCardGateway", () => {
     nearbyQuery.data = [liveBenefit];
     await renderGateway();
     expect(container).toHaveTextContent("How PromoCard works");
-    expect(container.querySelector("details")).toHaveTextContent("The business confirms the redemption");
+    expect(container.querySelector("details")).toHaveTextContent("Meet the conditions and claim your benefit");
     expect(container.querySelector("h1")).not.toHaveTextContent("recorded redemption");
   });
 
