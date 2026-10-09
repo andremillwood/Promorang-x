@@ -1,34 +1,31 @@
-# Event retirement handoff — 9 October 2026
+# Confirmed event retirement — 9 October 2026
 
-The three mobile fixes shipped in PR157, merge eda6f9a8f5252c044e40328a3b7c4ac570ff6aa7. Vercel production deployment dpl_AzF6JqcuMvdazj1DpotvtM5qopwR is READY with promorang.co and www.promorang.co aliases. GET /auth returned HTTP200. Homepage redesign remains excluded.
+## Final scope
 
-Event changes are prepared locally on fix/retire-aftrhrs in /workspace/promorang-mobile-release. Do not deploy them until the database retirement has been approved and verified. The approval request for retire_discontinued_event_series returned Invalid or expired requestState; a subsequent read confirmed all three event records remain active. No retry or approval bypass was attempted.
+Andre confirmed Encore: Ladies Throwback Playground at Footprints Cafe. Only this exact Andre-owned series and AftrHrs at Sea Deck are retired. Capleton's separate concert at Plantation Cove is unchanged. I Luv Hip Hop remains active weekly on Thursdays in America/Jamaica. Homepage proposal and recurring discovery publication are excluded.
 
-**Scope correction: commit 716770ede and its SQL are unsuitable for deployment.** They incorrectly included the unrelated Capleton concert. This revision restores its curated entry unchanged and excludes it from executable SQL. Weekly Encore's curated entry is also restored pending Andre's identity confirmation.
+Production database approval succeeded for retire_confirmed_aftrhrs_encore_series. Verification confirms both target moments inactive/closed/nonrecurring, five AftrHrs editions retained with publication/claims closed, one digital release closed, and the exact-ID retirement trigger installed. Complete Capleton and I Luv Hip Hop rows match the before-state exactly. No events, passes, tickets or participation history were deleted.
 
-Revised SQL is an unapplied AftrHrs-only draft. It targets exact moment `00000000-0000-0000-0002-000000000080`, slug aftrhrs, venue `00000000-0000-0000-0003-000000000080`; five editions linked to that moment; and the one captured open release `0ffcf3d9-3864-4a25-a6e1-80a716dce6c8` (2026-09 batch1). The guard explicitly checks that exact AftrHrs moment ID. It affects no other event's editions. No deletions; I Luv Hip Hop and historical passes/tickets/participation are untouched.
+Private complete before-state is /workspace/promorang-event-retirement-final-before.json, captured 2026-10-09T17:24:29.803154Z, owner-only permissions, outside Git. Earlier attempts expired/aborted without changing records. The SQL from 716770ede was superseded; only the corrected SQL in this release was approved/applied.
 
-Before-state was captured at 2026-10-09 16:38:07 UTC in private `/workspace/promorang-event-retirement-before.json`, outside the repository. It contains complete rows for the three compared events, five AftrHrs editions and one digital release. No existing event_editions user trigger or guard function was found. Refresh counts and snapshot before renewed approval. Rollback removes only the new trigger/function and conditionally restores changed columns from the snapshot, preserving intervening writes; never blindly reopen historical claims.
+## Code
 
-Encore candidate `58fa8801-6f83-40e3-a80b-86d6a67fc1a7` has host and organizer `349e4f8f-f2f1-4a7f-9ad2-9327c8bea1ec`, whose profile display name is andremillwood. Its title is Ladies Throwback Playground, but stored venue is Footprints Cafe and its dates are inconsistent. A previous migration reassigned non-Capleton Encore records to Footprints. Parent has asked Andre to confirm this is the Oasis/11 Oxford Road series. Until confirmed, no executable Encore update is included; conditional notes identify the exact row only. The Capleton concert at Plantation Cove is distinct (Midas description, different host, nonrecurring August date) and remains excluded.
+Remove retired AftrHrs promotions from card/wallet/home/auth/scene/venue surfaces and the global claim-resume redirect. Existing landing URLs show a past-event notice with no RSVP/claim action; historical ticket routes remain. SEO no longer advertises Friday recurrence. Preserve Capleton's curated entry unchanged; remove only the two confirmed series' curated promotions. Generic Encore detail supports the existing Moment ended state after recurrence is disabled.
 
-Prepared UI removes AftrHrs homepage/card/wallet promotions, global claim-resume redirect, auth hint and scene badge, and the curated AftrHrs listing. Existing AftrHrs landing URLs become a past-event page; historical ticket routes remain. SEO no longer advertises recurring Friday claims. Generic Encore detail already supports Moment ended once recurrence is disabled. Backend refuses to regenerate inactive/disabled AftrHrs editions. Canonical feed projects recurring moments with the same timezone logic as the web so I Luv Hip Hop remains visible on Thursdays, including an ongoing occurrence. backend/lib/momentRecurrence.js is generated from the existing web recurrence utility and needs regeneration if that source changes.
+Backend refuses to regenerate inactive AftrHrs editions. The canonical feed resolves current/next recurring occurrences, keeping Thursday I Luv Hip Hop visible while preserving Jamaica wall time. backend/lib/momentRecurrence.js is generated from the existing web utility; regenerate if that source changes.
 
-Verification: 26 focused web tests pass; 19 backend tests pass (feed + AftrHrs service); production build passes. Physical iPhone/Safari is untested. Production retirement was not verified because approval did not complete. Original homepage proposal remains only in /workspace/Promorang-x and was not included.
+## Validation
 
-Recurring discovery is NOT enabled. User still needs to choose markets, cadence and review-versus-auto-publication. Existing infrastructure includes inventory_sources, inventory_candidates, event_candidate_evidence, verification missions, and publish_approved_event_candidate. Existing scripts/events/jamaica-events.mjs is a static list, not a safe scheduled crawler. Recommended first run: weekly market-specific research, current organizer/venue source URLs, duplicate checks, explicit date/time/venue confidence, candidate review, then unclaimed public listings using existing claim infrastructure. Never auto-mark sourced entries as organizer-verified or invent offers/rewards. No automation has been created.
+- 28 focused web tests pass.
+- 19 backend tests pass (canonical feed and AftrHrs service).
+- PGlite SQL test passes: exact two targets retired; Capleton unchanged; five editions retained/closed; new/reopened AftrHrs editions blocked; unrelated editions allowed; repeated execution idempotent.
+- Production build passes; lint zero errors/117 existing warnings; diff check passes.
+- No real claims, messages, charges, redemptions or payouts were tested. Physical iPhone/Safari remains unverified.
 
+## Rollback
 
-This revision is local preparation only: no SQL execution, push, PR, merge or deployment.
+Do not revert the database blindly. Restoring promotions without deliberately reactivating series would advertise closed events. If authorized, remove only the new exact-ID trigger/function and restore changed fields conditionally from the private snapshot, preserving intervening writes. Do not reopen old claim windows indiscriminately. Normal code rollback can leave database retirement intact.
 
-Scope-correction checks: both restored Encore objects match the pre-retirement source exactly; 3 focused tests pass (Capleton preservation, pending weekly Encore/AftrHrs exclusion, past-event page); production build passes; git diff --check passes. Revised SQL has not been executed or database-tested. Before-state snapshot remains outside Git with owner-only file permissions.
+## Discovery automation
 
-## Confirmed scope and renewed approval outcome
-
-Andre confirmed that `Encore: Ladies Throwback Playground` is the correct series and Footprints Cafe is the correct venue. The latest SQL includes that exact moment ID plus title, venue and owner predicates; it preserves venue/dates. Its curated promotion is now removed. Capleton remains unchanged.
-
-Fresh complete before-state: `/workspace/promorang-event-retirement-confirmed-before.json` (owner-only permissions, outside Git), captured 2026-10-09T16:44:25.891519Z. Includes both targets, Capleton and I Luv Hip Hop controls, five editions and one release. No prior user triggers were present.
-
-Corrected SQL passed PGlite: two targets deactivated/closed, Capleton unchanged, all five editions retained/closed, AftrHrs new/reopened editions rejected, unrelated editions allowed, repeated execution idempotent. Final focused verification: 28 web tests, 19 backend tests, production build pass.
-
-The renewed `retire_confirmed_aftrhrs_encore_series` approval request was aborted. A fresh read afterward confirmed BOTH targets remain active/joinable/recurring; Capleton and I Luv Hip Hop unchanged. No retry, push, PR, merge or event deployment followed. Further action-time approval is required before execution; refresh snapshot again then.
+Not enabled. Market, cadence and review-versus-auto-publication are still undefined. Existing inventory candidates/evidence/publishing infrastructure is available, but scripts/events/jamaica-events.mjs is a static list and must not be scheduled unchanged.
