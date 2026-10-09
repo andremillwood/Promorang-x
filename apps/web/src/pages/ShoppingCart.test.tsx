@@ -20,7 +20,7 @@ describe('checkout journey', () => {
     show("/shop/cart?order=order1");
     expect(await screen.findByText(translations[locale]["cart.order"].replace("{{status}}", translations[locale]["cart.status.processing"]))).toBeInTheDocument();
     expect(screen.getByRole("button", { name: translations[locale]["release.29"] })).toBeInTheDocument();
-    expect(screen.getAllByText(new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(40)).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(40).replace(/\s/g, " ")).length).toBeGreaterThan(0);
   });
   it('sends only item identity, quantity, claimed benefit and referral, retaining the bag on rejection', async () => {
     const fetcher = vi.fn(async (_url: string, options?: RequestInit) => ({ ok: !options?.body, json: async () => options?.body ? { error: 'Minimum spend not reached' } : { benefits: [{ id: 'benefit1', offers: { title: 'Coffee credit', terms: 'USD 50 minimum', metadata: { checkout_discount: { kind: 'fixed' } } } }] } }));

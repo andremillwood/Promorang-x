@@ -14,7 +14,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, MapPin, ShoppingBag, Star, Telesco
 import { useClaimVenueEnrichment, useVenueEnrichment } from "@/hooks/useVenueEnrichment";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
-import { AFTRHRS_COPY, AFTRHRS_MOMENT_ID, AFTRHRS_RECURRENCE, AFTRHRS_START_ISO, SEA_DECK_VENUE_ID } from "@promorang/shared";
+import { AFTRHRS_COPY, SEA_DECK_VENUE_ID } from "@promorang/shared";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 const ALLOW_STATIC_VENUE_FIXTURES = import.meta.env.DEV;
@@ -40,26 +40,6 @@ const SEA_DECK_FALLBACK: PublicVenueRow = {
     { url: "/campaigns/aftrhrs/flyer.jpg", alt: "AftrHrs at Sea Deck" },
     { url: "/campaigns/aftrhrs/invite.jpg", alt: "AftrHrs invitation" },
   ],
-};
-
-const SEA_DECK_MOMENT_FALLBACK: PublicMomentDirectoryRow = {
-  id: AFTRHRS_MOMENT_ID,
-  slug: "aftrhrs",
-  title: "AftrHrs",
-  description: AFTRHRS_COPY.supporting,
-  category: "nightlife",
-  city: "Kingston",
-  country: "Jamaica",
-  location: "Orchid Village, 20 Barbican Road, Kingston",
-  venue_name: "Sea Deck",
-  image_url: "/campaigns/aftrhrs/flyer.jpg",
-  starts_at: AFTRHRS_START_ISO,
-  ends_at: null,
-  reward: "Digital Free Pass or Ambassador invitation",
-  host_id: null,
-  is_active: true,
-  participant_count: 0,
-  ...AFTRHRS_RECURRENCE,
 };
 
 type CommerceListing = Tables<"view_public_commerce_directory">;
@@ -140,7 +120,6 @@ export default function VenueProfile() {
   const momentsQuery = useQuery({
     queryKey: ["venue-moments", slug],
     queryFn: async () => {
-      try {
         const { data, error } = await supabase
           .from("view_public_moment_directory")
           .select("*")
@@ -150,11 +129,7 @@ export default function VenueProfile() {
 
         if (error) throw error;
         const rows = (data || []) as PublicMomentDirectoryRow[];
-        return rows.length > 0 ? rows : ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? [SEA_DECK_MOMENT_FALLBACK] : rows;
-      } catch (error) {
-        if (ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck") return [SEA_DECK_MOMENT_FALLBACK];
-        throw error;
-      }
+        return rows;
     },
     enabled: Boolean(slug),
     retry: ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? 0 : 3,
@@ -315,19 +290,7 @@ export default function VenueProfile() {
                   </span>
                   {venue.address && <span>{venue.address}</span>}
                 </div>
-                {ALLOW_STATIC_VENUE_FIXTURES && slug === "sea-deck" ? (
-                  <div className="rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">Active Moment</p>
-                    <p className="mt-2 text-lg font-black">AftrHrs · {AFTRHRS_COPY.whenLine}</p>
-                    <p className="mt-1 text-sm text-white/65">Limited Digital Free Passes and Ambassador invitations on Promorang.</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <Button asChild size="sm"><Link to="/moments/aftrhrs">Join AftrHrs</Link></Button>
-                      <Button asChild size="sm" variant="outline">
-                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.address || "Sea Deck Orchid Village Kingston")}`}>Directions</a>
-                      </Button>
-                    </div>
-                  </div>
-                ) : null}
+
               </div>
               <aside className="border-t border-white/15 pt-5 lg:border-l lg:border-t-0 lg:pl-7">
                 <p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">At this place</p>

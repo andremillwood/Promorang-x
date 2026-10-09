@@ -6,6 +6,7 @@ import { translations, type Locale } from "@/i18n/translations";
 import { BUSINESS_OUTCOME_BRIEF_KEY } from "@/lib/business-outcomes";
 import { BusinessOutcomeNavigator } from "./BusinessOutcomeNavigator";
 
+vi.mock("@/lib/marketing-attribution", () => ({ trackGrowthEvent: vi.fn() }));
 vi.mock("@/lib/platform-funnels", () => ({ captureBusinessBrief: vi.fn().mockResolvedValue({ saved: true, leadId: "saved-lead" }), funnelRequest: vi.fn().mockResolvedValue(null) }));
 const state = vi.hoisted(() => ({ locale: "es-419" as Locale }));
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: null }) }));

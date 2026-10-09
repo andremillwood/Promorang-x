@@ -16,7 +16,6 @@ import AppLayout from "@/components/layouts/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import GrowthTracker from "@/components/GrowthTracker";
 import MetaPixel from "@/components/MetaPixel";
-import { AftrHrsClaimResume } from "@/components/aftrhrs/AftrHrsClaimResume";
 import { MarketProvider } from "@/contexts/MarketContext";
 
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
@@ -53,7 +52,6 @@ const Communities = lazy(() => import("./pages/Communities"));
 const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
 const Creators = lazy(() => import("./pages/Creators"));
 const CreatorDetail = lazy(() => import("./pages/CreatorDetail"));
-const EventExperienceDetail = lazy(() => import("./pages/EventExperienceDetail"));
 const GrowthHub = lazy(() => import("./pages/GrowthHub"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const PioneerPoints = lazy(() => import("./pages/PioneerPoints"));
@@ -183,6 +181,12 @@ const PromorangPresents = lazy(() => import("./pages/PromorangPresents"));
 const PromorangAccess = lazy(() => import("./pages/PromorangAccess"));
 const PromorangCrew = lazy(() => import("./pages/PromorangCrew"));
 
+const CanonicalEventRedirect = () => {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/moments/${encodeURIComponent(slug || "")}`} replace />;
+};
+
+
 // Campaign Expansion Pages
 const ReferralSprintPage = lazy(() => import("./pages/ReferralSprintPage"));
 const SeasonShowdownPage = lazy(() => import("./pages/SeasonShowdownPage"));
@@ -202,8 +206,7 @@ const StewardDashboard = lazy(() => import("./pages/StewardDashboard"));
 const MerchantActionStudio = lazy(() => import("./pages/MerchantActionStudio"));
 const ActivatedReferralsDashboard = lazy(() => import("./pages/ActivatedReferralsDashboard"));
 const StaffScanner = lazy(() => import("./pages/StaffScanner"));
-const AftrHrsExperience = lazy(() => import("./pages/AftrHrsExperience"));
-const AftrHrsGuestLanding = lazy(() => import("./pages/AftrHrsGuestLanding"));
+const PastAftrHrs = lazy(() => import("./pages/PastAftrHrs"));
 const AftrHrsGuestTicket = lazy(() => import("./pages/AftrHrsGuestTicket"));
 const AftrHrsPass = lazy(() => import("./pages/AftrHrsPass"));
 const AftrHrsAmbassador = lazy(() => import("./pages/AftrHrsAmbassador"));
@@ -225,7 +228,7 @@ const App = () => (
               <MarketProvider>
               <DemoExperienceProvider>
                 <MetaPixel />
-                <AftrHrsClaimResume />
+
                 <GrowthTracker />
                 <ScrollToHash />
                 <RouteScrollManager />
@@ -388,7 +391,7 @@ const App = () => (
                     <Route path="/rewards" element={<Navigate to="/discover/rewards" replace />} />
                     <Route path="/explore/content" element={<Navigate to="/discover/content" replace />} />
                     <Route path="/events" element={<Navigate to="/discover/moments" replace />} />
-                    <Route path="/events/:slug" element={<EventExperienceDetail />} />
+                    <Route path="/events/:slug" element={<CanonicalEventRedirect />} />
                     <Route path="/momentum" element={<Momentum />} />
                     <Route path="/pulse" element={<Pulse />} />
                     <Route path="/pulse-feed" element={<Navigate to="/live" replace />} />
@@ -428,11 +431,11 @@ const App = () => (
                     <Route path="/venues/:slug" element={<VenueProfile />} />
                     <Route path="/scout/enrichment" element={<ProtectedRoute><ScoutEnrichment /></ProtectedRoute>} />
                     <Route path="/scout/events" element={<ProtectedRoute><EventScout /></ProtectedRoute>} />
-                    <Route path="/aftrhrs" element={<AftrHrsGuestLanding />} />
+                    <Route path="/aftrhrs" element={<PastAftrHrs />} />
                     <Route path="/aftrhrs/ticket/:code" element={<AftrHrsGuestTicket />} />
                     <Route path="/aftrhrs/pass" element={<AftrHrsPass />} />
                     <Route path="/campaigns/aftrhrs" element={<Navigate to="/aftrhrs" replace />} />
-                    <Route path="/moments/aftrhrs" element={<AftrHrsExperience />} />
+                    <Route path="/moments/aftrhrs" element={<PastAftrHrs />} />
                     <Route path="/moments/aftrhrs/pass" element={<AftrHrsPass />} />
                     <Route path="/moments/aftrhrs/ambassador" element={<ProtectedRoute><AftrHrsAmbassador /></ProtectedRoute>} />
                     <Route path="/moments/aftrhrs/door" element={<ProtectedRoute><AftrHrsDoor /></ProtectedRoute>} />

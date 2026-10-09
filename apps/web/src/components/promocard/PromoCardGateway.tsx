@@ -21,7 +21,6 @@ import { useMyPromoCard, useNearbyBenefits } from "@/hooks/usePeopleExperience";
 import { useVisitorLocation } from "@/hooks/useVisitorLocation";
 import { ALL_CITY_HUBS } from "@/lib/city-hubs";
 import { resolveStoredPromoCardAim, writePromoCardAim } from "@/lib/promocard-aim";
-import { AftrHrsPublicDoorCard } from "@/components/aftrhrs/AftrHrsPublicDoorCard";
 import { PromoBenefitCard } from "@/components/promocard/PromoBenefitCard";
 
 function nearbyMarketLabel(visitorCity?: string | null) {
@@ -104,7 +103,7 @@ export function PromoCardGateway() {
     <section className="relative overflow-hidden border-b border-white/10 bg-[#070707] text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(255,85,0,0.2),transparent_30%),radial-gradient(circle_at_18%_82%,rgba(214,178,90,0.12),transparent_32%)]" />
       <div className={`container relative px-5 pt-[5.25rem] sm:px-6 sm:pb-20 sm:pt-28 lg:pt-32 ${user ? "pb-10" : "pb-24"}`}>
-        <AftrHrsPublicDoorCard />
+
         <div className="grid items-center gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">PromoCard</p>

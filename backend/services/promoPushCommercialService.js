@@ -29,8 +29,6 @@ function normalizePromoPushCommercialInput(body = {}) {
     evidence_config: body.evidence_config && typeof body.evidence_config === 'object'
       ? body.evidence_config
       : {},
-    pricing: body.pricing && typeof body.pricing === 'object' ? body.pricing : {},
-    proposal_id: body.proposal_id || null,
   };
 }
 

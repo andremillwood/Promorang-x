@@ -65,6 +65,9 @@ export type PromoPushCampaign = {
   push_mode?: string | null;
   reward_type?: string;
   fulfillment_kit?: Record<string, unknown>;
+  funding_available_gems?: number;
+  proposal_id?: string | null;
+  pricing?: { quote_id?: string; total_gems?: number; expires_at?: string; cancelled?: boolean };
   funding_status?: "unfunded" | "secured" | "partially_released" | "released" | "refunded";
   status: "draft" | "active" | "completed" | "paused";
   moment?: PromoPushMomentOption | null;

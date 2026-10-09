@@ -1,3 +1,4 @@
+import { PromoPushQuoteForm } from "./PromoPushQuoteForm";
 import { useMemo, useState } from "react";
 import { Copy, Loader2, Megaphone, Palette, QrCode, RefreshCcw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export function AdminPromoPushTab() {
 
   return (
     <div className="space-y-6">
+      <PromoPushQuoteForm campaigns={data?.campaigns || []} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold">PromoPush Operations</h2>

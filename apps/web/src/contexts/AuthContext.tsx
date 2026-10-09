@@ -66,7 +66,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
-  const [activeRole, setActiveRoleState] = useState<UserRole | null>(null);
+  const [activeRole, setActiveRoleState] = useState<UserRole | null>(() => {
+    if (typeof window === "undefined") return null;
+    const savedRole = localStorage.getItem("promorang_active_role");
+    return savedRole ? mapWorkspaceRole(savedRole) : null;
+  });
   const [organizations, setOrganizations] = useState<any[]>([]);
   const [activeOrgId, setActiveOrgIdState] = useState<string | null>(null);
   const [agencyClients, setAgencyClients] = useState<any[]>([]);
@@ -375,10 +379,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sessionStorage.getItem("promorang_post_auth_next") || localStorage.getItem("promorang_post_auth_next"),
       );
       const savedRole = localStorage.getItem("promorang_active_role");
+      const validSavedRole = savedRole ? mapWorkspaceRole(savedRole) : null;
       const preferredRole =
-        event === "SIGNED_IN" && fetchedRoles.includes("admin") && !consumerNext && !savedRole
-          ? "admin"
-          : resolvePreferredRole(fetchedRoles);
+        validSavedRole && fetchedRoles.includes(validSavedRole)
+          ? validSavedRole
+          : event === "SIGNED_IN" && fetchedRoles.includes("admin") && !consumerNext
+            ? "admin"
+            : resolvePreferredRole(fetchedRoles);
       if (preferredRole) {
         setActiveRoleState(preferredRole);
         localStorage.setItem("promorang_active_role", preferredRole);

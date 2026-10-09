@@ -38,19 +38,16 @@ describe("AftrHrs landing states", () => {
     expect(AFTRHRS_COPY.sceneAsideBody).toMatch(/This is Kingston After Dark/);
   });
 
-  it("keeps AftrHrs inside the Kingston After Dark scene page", () => {
+  it("does not promote the retired event inside a scene", () => {
     const scenePage = readFileSync(resolve(__dirname, "./CommunityDetail.tsx"), "utf8");
     expect(scenePage).not.toContain("AftrHrsPublicDoorCard");
-    expect(scenePage).toContain("sceneMomentsWithAftrHrs");
-    expect(scenePage).toContain("sceneFeaturedLine");
-    expect(scenePage).toContain("isAftrHrsMoment");
-    expect(scenePage).toContain("AFTRHRS_PATHS.landing");
+    expect(scenePage).not.toContain("sceneFeaturedLabel");
   });
 
   it("registers the landing snapshot so crawlers receive AftrHrs artwork", () => {
     const source = readFileSync(resolve(__dirname, "../../scripts/generate-public-seo.mjs"), "utf8");
     const app = readFileSync(resolve(__dirname, "../App.tsx"), "utf8");
-    expect(app).toContain("AftrHrsGuestLanding");
+    expect(app).toContain("PastAftrHrs");
     expect(app).toContain('path="/aftrhrs/ticket/:code"');
     expect(app).toContain('path="/moments/aftrhrs"');
     expect(source).toContain('path: "/aftrhrs"');
@@ -58,9 +55,9 @@ describe("AftrHrs landing states", () => {
     expect(source).toContain('path: "/campaigns/aftrhrs"');
     expect(source).toContain(AFTRHRS_OG_IMAGE.path);
     expect(source).toContain(`imageWidth: ${AFTRHRS_OG_IMAGE.width}`);
-    expect(source).toContain("every Friday");
-    expect(source).toContain("https://schema.org/Friday");
-    expect(source).toContain("repeatFrequency");
+    expect(source).toContain("no longer running");
+    expect(source).not.toContain("https://schema.org/Friday");
+    expect(source).toContain("https://schema.org/EventCancelled");
     expect(source).not.toContain("September 11");
   });
 });

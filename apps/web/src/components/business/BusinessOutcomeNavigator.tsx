@@ -1,3 +1,4 @@
+import { trackBusinessStep } from "@/lib/business-growth";
 import { commercialText } from "@/i18n/commercial-presentation";
 import { useI18n } from "@/i18n/I18nContext";
 import { useEffect, useMemo, useState } from "react";
@@ -33,7 +34,7 @@ export function BusinessOutcomeNavigator() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { city } = useMarket();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const stored = useMemo(() => params.get("resume") === "1" ? readBusinessOutcomeBrief() : null, [params]);
 
   const queryOutcome = getOutcome(params.get("outcome"))?.id || null;
@@ -61,6 +62,20 @@ export function BusinessOutcomeNavigator() {
     setAvailableValue(recovered.availableValue); setStep("recommendation");
   }, [remoteBrief.data]);
 
+  const [attempt] = useState(() => {
+    try {
+      const key = "business-navigator-attempt";
+      const id = stored?.id || sessionStorage.getItem(key) || crypto.randomUUID();
+      sessionStorage.setItem(key, id);
+      return id;
+    } catch { return crypto.randomUUID(); }
+  });
+  useEffect(() => {
+    trackBusinessStep(attempt, "started", "outcome");
+    trackBusinessStep(attempt, "progress", step);
+    if (stored && user) trackBusinessStep(attempt, "auth_resumed", "recommendation");
+  }, [attempt, step, stored, user]);
+
   const outcome = getOutcome(outcomeId);
   const programme = getProgramme(brief?.programmeId);
   const selectedSuccess = getSuccessAction(successAction);
@@ -79,7 +94,10 @@ export function BusinessOutcomeNavigator() {
       audience: audience.trim(),
       availableValue: availableValue.trim(),
     });
+    next.id = attempt;
     saveBusinessOutcomeBrief(next);
+    trackBusinessStep(attempt, "completed", "recommendation");
+    setParams({ resume: "1" }, { replace: true });
     setBrief(next);
     setStep("recommendation");
   }
@@ -196,9 +214,9 @@ export function BusinessOutcomeNavigator() {
                 setBrief(captured);
               }} />
               {brief.leadId && (user ? (
-                <Link to={continuePath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">{t("commercial.customize.this.programme.221")}<ArrowRight className="h-4 w-4" /></Link>
+                <Link onClick={() => trackBusinessStep(attempt, "continued", "recommendation")} to={continuePath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">{t("commercial.customize.this.programme.221")}<ArrowRight className="h-4 w-4" /></Link>
               ) : (
-                <Link to={authPath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">{t("commercial.save.and.continue.222")}<ArrowRight className="h-4 w-4" /></Link>
+                <Link onClick={() => trackBusinessStep(attempt, "auth_started", "recommendation")} to={authPath} className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-400 px-5 text-sm font-black text-black">{t("commercial.save.and.continue.222")}<ArrowRight className="h-4 w-4" /></Link>
               ))}
               <div className="mt-4 grid gap-2 text-center">
                 <Link to="/discover?tab=wants" className="text-xs font-bold text-white/55 hover:text-white">{t("commercial.show.me.what.people.want.instead.223")}</Link>

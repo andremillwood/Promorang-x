@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { PromoPushActivation } from "@/components/campaigns/PromoPushActivation";
+import { useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import {
   BadgeDollarSign,
@@ -84,10 +86,19 @@ const metricCards = [
 
 export default function PromoPush() {
   const { t } = useI18n();
+  const [params, setParams] = useSearchParams();
   const campaignsQuery = usePromoPushCampaigns();
   const momentsQuery = usePromoPushMoments();
   const createCampaign = useCreatePromoPushCampaign();
-  const [form, setForm] = useState(defaultForm);
+  const { user } = useAuth();
+  const storageKey = `promopush-pending:${user?.id || "signed-out"}`;
+  const [pendingDraft] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(storageKey) || "null") as { key: string; form: typeof defaultForm } | null; }
+    catch { return null; }
+  });
+  const requestKey = useRef(pendingDraft?.key || crypto.randomUUID());
+  const submitting = useRef(false);
+  const [form, setForm] = useState(pendingDraft?.form || defaultForm);
 
   const campaigns = useMemo(() => campaignsQuery.data || [], [campaignsQuery.data]);
   const selectedMoment = momentsQuery.data?.find((moment) => moment.id === form.linked_moment_id);
@@ -107,7 +118,12 @@ export default function PromoPush() {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
+    try { sessionStorage.setItem(storageKey, JSON.stringify({ key: requestKey.current, form })); } catch { /* In-memory retries still use the same key. */ }
+    try {
     await createCampaign.mutateAsync({
+      idempotency_key: requestKey.current,
       title: form.title,
       linked_moment_id: form.linked_moment_id,
       objective_type: form.objective_type,
@@ -134,7 +150,11 @@ export default function PromoPush() {
       },
       status: form.push_mode === "organic" ? "active" : "draft",
     });
+    try { sessionStorage.removeItem(storageKey); } catch { /* Saved campaign remains authoritative. */ }
+    requestKey.current = crypto.randomUUID();
     setForm(defaultForm);
+    setParams({ tab: "track" });
+    } catch { /* Mutation reports failure; retain the draft and retry key. */ } finally { submitting.current = false; }
   };
 
   return (
@@ -178,7 +198,7 @@ export default function PromoPush() {
           </Card>
         </div>
 
-        <Tabs defaultValue="create" className="mt-8">
+        <Tabs value={params.get("tab") === "track" ? "track" : "create"} onValueChange={tab => setParams({ tab })} className="mt-8">
           <TabsList className="grid w-full grid-cols-2 bg-white/10 sm:w-[420px]">
             <TabsTrigger value="create">{t("promoPush.tabCreate")}</TabsTrigger>
             <TabsTrigger value="track">{t("promoPush.tabTrack")}</TabsTrigger>
@@ -392,6 +412,7 @@ export default function PromoPush() {
                     </div>
                   </CardHeader>
                   <CardContent>
+                    <PromoPushActivation campaign={campaign} />
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                       {(campaign.channels || []).map((channel) => (
                         <div key={channel.id} className="rounded-lg border border-white/10 bg-black/35 p-3">
