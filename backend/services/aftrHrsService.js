@@ -106,6 +106,15 @@ async function expireUnusedPriorPasses(friday) {
 }
 
 async function ensureAftrHrsWeeklyEdition(now = new Date()) {
+  const { data: series, error: seriesError } = await supabase.from('moments')
+    .select('is_active,recurrence_enabled').eq('id', AFTRHRS_MOMENT_ID).maybeSingle();
+  if (seriesError) throw seriesError;
+  if (!series?.is_active || !series?.recurrence_enabled) {
+    const error = new Error('AftrHrs is a past event. New claims are closed.');
+    error.status = 410;
+    error.code = 'series_retired';
+    throw error;
+  }
   const friday = aftrHrsClaimFriday(now);
   const rpcResult = await Promise.resolve(supabase.rpc('ensure_aftrhrs_weekly_edition', {
     p_now: now instanceof Date ? now.toISOString() : new Date(now).toISOString(),

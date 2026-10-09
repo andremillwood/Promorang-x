@@ -22,7 +22,6 @@ import {
   clearIntendedStakeholder,
   getStakeholderLens,
   isAftrHrsAuthIntent,
-  isAftrHrsDoorNight,
   rememberIntendedStakeholder,
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
@@ -104,9 +103,6 @@ const AuthPage = () => {
   });
   const aftrHrsAuth = isAftrHrsAuthIntent(commercialIntent, nextPath);
   const unlockAim = aftrHrsAuth ? null : promoCardAimFromNext(nextPath);
-  const showAftrHrsDoorHint = !aftrHrsAuth && !unlockAim && (
-    isAftrHrsDoorNight() && selectedRole === "participant" && !hostReturn && !commercialIntent
-  );
   const localizedRoleInfo: Record<UserRole, { title: string; description: string }> = {
     participant: { title: t("auth.participant"), description: t("persona.explorerDesc") },
     creator: { title: t("auth.creator"), description: t("persona.creatorDesc") },
@@ -361,18 +357,6 @@ const AuthPage = () => {
                 {t("auth.intendedCopy", { role: intendedLens.workspaceLabel, detail: intendedLens.putIn.detail })}
               </p>
             </div>
-          ) : null}
-          {showAftrHrsDoorHint ? (
-            <Link
-              to={AFTRHRS_PATHS.landing}
-              className="mb-6 block rounded-xl border border-fuchsia-300/40 bg-fuchsia-400/10 p-4"
-            >
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-fuchsia-700">AftrHrs</p>
-              <p className="mt-2 text-sm leading-6 text-[#4a433c]">{AFTRHRS_COPY.authSceneHint}</p>
-              <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-[#171512]">
-                {AFTRHRS_COPY.claimGuestCta} →
-              </p>
-            </Link>
           ) : null}
           {unlockAim && (
             <div className="mb-6 rounded-xl border border-primary/25 bg-primary/[0.07] p-4">

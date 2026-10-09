@@ -5,8 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoLandingPath, readDemoSession } from "@/lib/demo-session";
 import { flushMarketingIntent } from "@/lib/marketing-attribution";
-import { AFTRHRS_PATHS } from "@promorang/shared";
-import { hasAftrHrsClaimPending } from "@/lib/aftrhrs-claim";
 import { consumePostAuthNext, peekPostAuthNext, persistPostAuthNext, resolvePostAuthPath, roleFromNext } from "@/lib/post-auth-next";
 import { promoCardAimFromNext, writePromoCardAim } from "@/lib/promocard-aim";
 import { resolveSavedLandingPreference } from "@/lib/landing-page-preference";
@@ -37,8 +35,7 @@ export function PostLoginRouter() {
 
     const determineLandingPage = async () => {
       await flushMarketingIntent().catch(() => undefined);
-      const requestedNext = consumePostAuthNext()
-        || (hasAftrHrsClaimPending() ? AFTRHRS_PATHS.claimReturn : null);
+      const requestedNext = consumePostAuthNext();
       const intendedRole =
         readIntendedStakeholderRole(sessionStorage) ||
         roleFromNext(requestedNext);

@@ -93,7 +93,7 @@ test('QR redemption cannot be applied twice', async () => {
   }));
 });
 
-test('public read enables weekly Friday recurrence and keeps claims open', async () => {
+test('public read does not reactivate a disabled series', async () => {
   const editionRow = {
     id: 'ed-1',
     slug: 'aftrhrs',
@@ -147,22 +147,8 @@ test('public read enables weekly Friday recurrence and keeps claims open', async
     return chain;
   });
 
-  const snap = await service.publicSnapshot(null);
-  const momentPatch = updates.find((item) => item.name === 'moments')?.patch;
-  const editionPatch = updates.find((item) => item.name === 'event_editions')?.patch;
-  expect(momentPatch).toMatchObject({
-    recurrence_enabled: true,
-    recurrence_frequency: 'weekly',
-    recurrence_by_weekday: [5],
-    recurrence_timezone: 'America/Jamaica',
-  });
-  expect(editionPatch.claim_closes_at).toBeNull();
-  expect(editionPatch.faqs.some((faq) => /every friday/i.test(`${faq.question} ${faq.answer}`))).toBe(true);
-  expect(snap.edition.claim_closes_at).toBeNull();
-  expect(snap.edition).not.toHaveProperty('remainingPercent');
-  expect(snap).not.toHaveProperty('communityCount');
-  expect(snap.guest.rsvp).not.toHaveProperty('remainingPercent');
-  expect(snap.guest.digitalPass).not.toHaveProperty('remainingPercent');
+  await expect(service.publicSnapshot(null)).rejects.toMatchObject({status:410,code:'series_retired'});
+  expect(updates).toHaveLength(0);
 });
 
 test('guest RSVP is captured without a Promorang account', async () => {
@@ -271,5 +257,12 @@ test('moment going count includes guest RSVPs when the RPC is missing', async ()
 test('unauthenticated claimers are rejected before any write', async () => {
   await expect(service.claimDigitalPass(null, { termsAccepted: true }))
     .rejects.toMatchObject({ status: 401, code: 'unauthenticated' });
+  expect(mockRpc).not.toHaveBeenCalled();
+});
+
+
+test('retired AftrHrs rejects claims before creating an edition or invoking an RPC', async () => {
+  mockFrom.mockImplementation(() => table({data:{is_active:false,recurrence_enabled:false},error:null}));
+  await expect(service.publicSnapshot()).rejects.toMatchObject({status:410,code:'series_retired'});
   expect(mockRpc).not.toHaveBeenCalled();
 });
