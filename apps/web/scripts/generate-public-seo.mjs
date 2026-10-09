@@ -107,8 +107,8 @@ async function emit(page, locale) {
 
 const AFTRHRS_OG = "/og/aftrhrs.jpg";
 const aftrHrsShare = {
-  title: "AftrHrs at Sea Deck",
-  description: "Join AftrHrs every Friday at Sea Deck, powered by Origin: Alric & Boyd and PROMORANG. Claim a limited Digital Free Pass or connect with an AftrHrs Ambassador for a physical invitation.",
+  title: "AftrHrs — Past event",
+  description: "AftrHrs is no longer running. New RSVPs and pass claims are closed.",
   image: AFTRHRS_OG,
   imageAlt: "AftrHrs at Sea Deck",
   imageType: "image/jpeg",
@@ -124,14 +124,7 @@ const aftrHrsSchema = (path) => ({
   description: aftrHrsShare.description,
   image: [absolute(AFTRHRS_OG)],
   startDate: "2026-09-11T22:00:00-05:00",
-  eventSchedule: {
-    "@type": "Schedule",
-    repeatFrequency: "P1W",
-    byDay: "https://schema.org/Friday",
-    startTime: "22:00",
-    scheduleTimezone: "America/Jamaica",
-  },
-  eventStatus: "https://schema.org/EventScheduled",
+  eventStatus: "https://schema.org/EventCancelled",
   eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
   location: {
     "@type": "Place",

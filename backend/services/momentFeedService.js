@@ -1,3 +1,4 @@
+const { resolveMomentOccurrence } = require('../lib/momentRecurrence');
 const DEFAULT_DURATION_MS = 4 * 60 * 60 * 1000;
 const STARTING_SOON_MS = 3 * 60 * 60 * 1000;
 const RECENT_WINDOW_MS = 36 * 60 * 60 * 1000;
@@ -87,7 +88,19 @@ function normalizeMoment(moment, brands = [], referenceDate = new Date(), offers
 }
 
 function buildMomentFeed(moments, brandNamesByMoment = {}, referenceDate = new Date(), offersByMoment = {}) {
-  const assessed = (moments || []).map((moment) => ({
+  const projected = (moments || []).map((moment) => {
+    if (!moment.recurrence_enabled || moment.is_active === false) return moment;
+    const start = asDate(moment.starts_at);
+    const end = asDate(moment.ends_at);
+    if (!start || (end && end < start)) return moment;
+    const duration = end ? end.getTime() - start.getTime() : DEFAULT_DURATION_MS;
+    // Include an occurrence that has already started but has not yet ended.
+    const occurrence = resolveMomentOccurrence(moment, new Date(referenceDate.getTime() - duration + 1));
+    return occurrence.hasFutureOccurrence
+      ? { ...moment, starts_at: occurrence.startsAt, ends_at: occurrence.endsAt }
+      : moment;
+  });
+  const assessed = projected.map((moment) => ({
     source: moment,
     state: classifyMomentLifecycle(moment, referenceDate),
   }));

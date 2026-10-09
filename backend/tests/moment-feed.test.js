@@ -60,3 +60,13 @@ describe('canonical moment lifecycle', () => {
     ]);
   });
 });
+
+test('keeps I Luv Hip Hop on Thursdays in Jamaica and includes the current occurrence', () => {
+  const recurring = { ...base, id: 'weekly', title: 'I Luv Hip Hop', starts_at: '2026-07-10T02:00:00Z', ends_at: '2026-07-10T07:59:00Z', recurrence_enabled: true, recurrence_frequency: 'weekly', recurrence_interval: 1, recurrence_by_weekday: [4], recurrence_timezone: 'America/Jamaica' };
+  const current = buildMomentFeed([recurring], {}, new Date('2026-10-09T03:00:00Z'));
+  expect(current.moments[0].starts_at).toBe('2026-10-09T02:00:00.000Z');
+  expect(current.moments[0].lifecycle).toBe('live');
+  const next = buildMomentFeed([recurring], {}, new Date('2026-10-09T12:00:00Z'));
+  expect(next.moments[0].starts_at).toBe('2026-10-16T02:00:00.000Z');
+  expect(buildMomentFeed([{...recurring,is_active:false}],{},new Date('2026-10-09T12:00:00Z')).moments).toHaveLength(0);
+});

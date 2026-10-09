@@ -47,7 +47,6 @@ import { useMarket } from "@/contexts/MarketContext";
 import { useI18n } from "@/i18n/I18nContext";
 import { ValueInstrumentCard } from "@/components/value/ValueInstrumentCard";
 import { GemSpendBenefits } from "@/components/economy/WhatIsWhatMap";
-import { AftrHrsWalletPass } from "@/components/aftrhrs/AftrHrsWalletPass";
 
 type GemsTransaction = {
   id: string;
@@ -321,7 +320,7 @@ const Wallet = () => {
           </div>
 
           <div className="flex flex-col items-center gap-4">
-            <AftrHrsWalletPass />
+
             {walletUnavailable || gemsUnavailable ? <div role="alert" className="w-full max-w-[420px] rounded-2xl border border-amber-500/25 bg-black/70 p-5 text-sm text-amber-100">Wallet balances are unavailable. No zero balance is being substituted.</div> : <DigitalWalletPass3D
               displayName={user.user_metadata?.full_name || user.user_metadata?.name}
               userEmail={user.email}
