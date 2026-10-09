@@ -1,3 +1,4 @@
+import { activationValueLabel } from "@/i18n/activation-values";
 import { BarChart3, CircleDollarSign, Radio, ReceiptText, ShieldCheck } from "lucide-react";
 
 import type {
@@ -64,7 +65,7 @@ export function ActivationCommercialEvidence({ evidence, rules = [], allocations
           <div className="flex items-center gap-3"><Radio className="h-4 w-4 text-primary" /><h3 className="font-serif text-xl font-bold">{t("activationCommerce.distribution")}</h3></div>
           {distributionEvents.length ? (
             <div className="mt-5 flex flex-wrap gap-2">
-              {Object.entries(eventCounts).map(([event, count]) => <span key={event} className="rounded-full border border-white/10 bg-black/30 px-3 py-2 text-[10px] font-bold text-white/65">{formatNumber(count)} {event.replaceAll("_", " ")}</span>)}
+              {Object.entries(eventCounts).map(([event, count]) => <span key={event} className="rounded-full border border-white/10 bg-black/30 px-3 py-2 text-[10px] font-bold text-white/65">{formatNumber(count)} {activationValueLabel(t, event)}</span>)}
             </div>
           ) : <p className="mt-4 text-sm leading-6 text-white/40">{t("activationCommerce.distributionEmpty")}</p>}
         </div>
