@@ -1,3 +1,4 @@
+import { ENCORE_CADENCE, ENCORE_DOORS, ENCORE_MOMENT_ID, ENCORE_TITLE, ENCORE_VENUE_NAME } from '@promorang/shared';
 import type { MomentProps } from '@/components/radar/MomentCard';
 import type { SceneProps } from '@/components/radar/SceneCard';
 
@@ -73,6 +74,22 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     location: 'Plantation Cove, Priory, St. Ann, Jamaica',
     dateDisplay: 'Saturday, August 29, 2026 • 4:00 PM – 10:00 PM',
     image: '/events/sophisticated-flyer.jpg',
+    promoKeysAvailable: 50,
+    subMomentsCount: 4,
+    attendeesCount: 0,
+    pointsReward: 200,
+    isClaimed: false
+  },
+  {
+    id: '00000000-0000-0000-0002-000000000052',
+    title: 'Capleton Encore Live — Culture Rising',
+    description: "Presented by Midas Entertainment & 8Rivaz Ultra Lounge. The high-energy live reggae concert at Plantation Cove, St. Ann headlined by Capleton ('The Fireman' / King Shango), featuring Nesbeth and Dean Fraser, with entertainment by DJ Delano (Renaissance), Bass Odyssey, and DJ Rors. Admission: J$5,000 Pre-sold | J$7,000 at Gate.",
+    intentType: 'ATTEND',
+    ownership: 'PROMORANG PRESENTS',
+    venueName: 'Plantation Cove',
+    location: 'Plantation Cove, Priory, St. Ann, Jamaica',
+    dateDisplay: 'Sunday, August 30, 2026 • 4:00 PM – 10:00 PM',
+    image: '/events/encore-live-capleton-flyer.jpg',
     promoKeysAvailable: 50,
     subMomentsCount: 4,
     attendeesCount: 0,
@@ -265,6 +282,22 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     subMomentsCount: 3,
     attendeesCount: 142,
     pointsReward: 120,
+    isClaimed: false
+  },
+  {
+    id: ENCORE_MOMENT_ID,
+    title: ENCORE_TITLE,
+    description: 'Encore 90s Fridays is the biweekly 90s night at Fiction. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing.',
+    intentType: 'ATTEND',
+    ownership: 'PROMORANG PRESENTS',
+    venueName: ENCORE_VENUE_NAME,
+    location: 'Marketplace, Constant Spring Rd, Kingston',
+    dateDisplay: `${ENCORE_CADENCE} from ${ENCORE_DOORS}`,
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
+    promoKeysAvailable: 5,
+    subMomentsCount: 2,
+    attendeesCount: 220,
+    pointsReward: 150,
     isClaimed: false
   },
   {

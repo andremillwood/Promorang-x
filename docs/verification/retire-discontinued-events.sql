@@ -1,13 +1,17 @@
+-- REVISED DRAFT: supersedes the unsafe SQL in commit 716770ede. NOT APPLIED.
+-- AftrHrs only. Encore remains pending identity confirmation; Capleton is excluded.
 begin;
 update public.moments set is_active=false, status='closed', recurrence_enabled=false, recurrence_frequency=null, recurrence_by_weekday='{}', updated_at=now()
-where slug='aftrhrs' or title in ('Encore: Ladies Throwback Playground','Encore Live featuring Capleton');
+where id='00000000-0000-0000-0002-000000000080' and slug='aftrhrs'
+  and venue_id='00000000-0000-0000-0003-000000000080';
 update public.event_editions set published=false, claims_open=false, updated_at=now()
-where moment_id in (select id from public.moments where slug='aftrhrs');
-update public.aftrhrs_digital_releases set claims_open=false, closed_at=coalesce(closed_at,now()), updated_at=now() where claims_open=true;
+where moment_id='00000000-0000-0000-0002-000000000080';
+update public.aftrhrs_digital_releases set claims_open=false, closed_at=coalesce(closed_at,now()), updated_at=now() where id='0ffcf3d9-3864-4a25-a6e1-80a716dce6c8' and month_key='2026-09' and batch_index=1 and claims_open=true;
 create or replace function public.prevent_retired_aftrhrs_edition()
 returns trigger language plpgsql set search_path='' as $$
 begin
- if exists(select 1 from public.moments where id=new.moment_id and slug='aftrhrs' and is_active=false)
+ if new.moment_id='00000000-0000-0000-0002-000000000080'::uuid
+    and exists(select 1 from public.moments where id=new.moment_id and is_active=false)
     and (TG_OP='INSERT' or new.published or new.claims_open) then
    raise exception 'AftrHrs is retired; new editions and claims are closed' using errcode='23514';
  end if;
@@ -18,3 +22,10 @@ revoke all on function public.prevent_retired_aftrhrs_edition() from public;
 drop trigger if exists prevent_retired_aftrhrs_edition on public.event_editions;
 create trigger prevent_retired_aftrhrs_edition before insert or update on public.event_editions for each row execute function public.prevent_retired_aftrhrs_edition();
 commit;
+
+-- CONDITIONAL ONLY: do not execute without Andre's confirmation of the
+-- andremillwood-owned Ladies Throwback Playground record despite venue mismatch.
+-- If confirmed, add a separately reviewed update for exact moment ID
+-- 58fa8801-6f83-40e3-a80b-86d6a67fc1a7 and host/organizer
+-- 349e4f8f-f2f1-4a7f-9ad2-9327c8bea1ec; preserve historical dates and venue.
+-- Never include 00000000-0000-0000-0002-000000000052 (Capleton).
