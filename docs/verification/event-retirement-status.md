@@ -22,3 +22,13 @@ Recurring discovery is NOT enabled. User still needs to choose markets, cadence 
 This revision is local preparation only: no SQL execution, push, PR, merge or deployment.
 
 Scope-correction checks: both restored Encore objects match the pre-retirement source exactly; 3 focused tests pass (Capleton preservation, pending weekly Encore/AftrHrs exclusion, past-event page); production build passes; git diff --check passes. Revised SQL has not been executed or database-tested. Before-state snapshot remains outside Git with owner-only file permissions.
+
+## Confirmed scope and renewed approval outcome
+
+Andre confirmed that `Encore: Ladies Throwback Playground` is the correct series and Footprints Cafe is the correct venue. The latest SQL includes that exact moment ID plus title, venue and owner predicates; it preserves venue/dates. Its curated promotion is now removed. Capleton remains unchanged.
+
+Fresh complete before-state: `/workspace/promorang-event-retirement-confirmed-before.json` (owner-only permissions, outside Git), captured 2026-10-09T16:44:25.891519Z. Includes both targets, Capleton and I Luv Hip Hop controls, five editions and one release. No prior user triggers were present.
+
+Corrected SQL passed PGlite: two targets deactivated/closed, Capleton unchanged, all five editions retained/closed, AftrHrs new/reopened editions rejected, unrelated editions allowed, repeated execution idempotent. Final focused verification: 28 web tests, 19 backend tests, production build pass.
+
+The renewed `retire_confirmed_aftrhrs_encore_series` approval request was aborted. A fresh read afterward confirmed BOTH targets remain active/joinable/recurring; Capleton and I Luv Hip Hop unchanged. No retry, push, PR, merge or event deployment followed. Further action-time approval is required before execution; refresh snapshot again then.

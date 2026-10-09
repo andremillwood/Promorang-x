@@ -1,4 +1,3 @@
-import { ENCORE_CADENCE, ENCORE_DOORS, ENCORE_MOMENT_ID, ENCORE_TITLE, ENCORE_VENUE_NAME } from '@promorang/shared';
 import type { MomentProps } from '@/components/radar/MomentCard';
 import type { SceneProps } from '@/components/radar/SceneCard';
 
@@ -282,22 +281,6 @@ export const CURATED_KINGSTON_MOMENTS: MomentProps[] = [
     subMomentsCount: 3,
     attendeesCount: 142,
     pointsReward: 120,
-    isClaimed: false
-  },
-  {
-    id: ENCORE_MOMENT_ID,
-    title: ENCORE_TITLE,
-    description: 'Encore 90s Fridays is the biweekly 90s night at Fiction. Unlock priority entry, secret table dividends, signature bottle service perks, and meet the people worth knowing.',
-    intentType: 'ATTEND',
-    ownership: 'PROMORANG PRESENTS',
-    venueName: ENCORE_VENUE_NAME,
-    location: 'Marketplace, Constant Spring Rd, Kingston',
-    dateDisplay: `${ENCORE_CADENCE} from ${ENCORE_DOORS}`,
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
-    promoKeysAvailable: 5,
-    subMomentsCount: 2,
-    attendeesCount: 220,
-    pointsReward: 150,
     isClaimed: false
   },
   {

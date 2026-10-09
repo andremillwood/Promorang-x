@@ -9,8 +9,8 @@ describe('retired event promotion scope', () => {
     expect(concert?.venueName).toBe('Plantation Cove');
     expect(concert?.description).toContain('Midas Entertainment');
   });
-  it('keeps weekly Encore pending confirmation and removes only the AftrHrs promotion', () => {
-    expect(CURATED_KINGSTON_MOMENTS.some(moment => moment.id === ENCORE_MOMENT_ID)).toBe(true);
+  it('removes the two confirmed discontinued series promotions', () => {
+    expect(CURATED_KINGSTON_MOMENTS.some(moment => moment.id === ENCORE_MOMENT_ID)).toBe(false);
     expect(CURATED_KINGSTON_MOMENTS.some(moment => moment.id === '00000000-0000-0000-0002-000000000080')).toBe(false);
   });
 });
