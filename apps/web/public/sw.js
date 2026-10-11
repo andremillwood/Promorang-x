@@ -1,6 +1,6 @@
 // Only public, versioned assets belong in this cache. Auth and live data stay online.
-const CACHE_NAME = 'promorang-pwa-shell-v2026-10-10';
-const STATIC_ASSETS = ['/offline.html', '/manifest.webmanifest', '/pwa-192.png', '/pwa-512.png', '/pwa-maskable-512.png', '/pwa-apple-touch-icon.png'];
+const CACHE_NAME = 'promorang-pwa-shell-v2026-10-11-icons';
+const STATIC_ASSETS = ['/offline.html', '/manifest.webmanifest', '/pwa-192-v2.png', '/pwa-512-v2.png', '/pwa-maskable-512-v2.png', '/pwa-apple-touch-icon-v2.png'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => self.skipWaiting()));
 });
@@ -40,7 +40,7 @@ self.addEventListener('push', (event) => {
   let data = { title: 'Promorang', body: '', data: {} };
   try { data = { ...data, ...event.data?.json() }; } catch { data.body = event.data?.text() || ''; }
   event.waitUntil(self.registration.showNotification(data.title, {
-    body: data.body, icon: '/pwa-192.png', badge: '/pwa-192.png', data: data.data || {},
+    body: data.body, icon: '/pwa-192-v2.png', badge: '/pwa-192-v2.png', data: data.data || {},
   }));
 });
 self.addEventListener('notificationclick', (event) => {
