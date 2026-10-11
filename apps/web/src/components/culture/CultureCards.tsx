@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { MobileNavigationOwner } from "@/components/navigation/MobileNavigationOwner";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useLocation } from "react-router-dom";
 import { Bookmark, Archive, Home, MapPin, Search, WalletCards } from "lucide-react";
@@ -150,12 +152,15 @@ export function CreatorCard({ creator }: { creator: Creator }) {
 export function MobileBottomNav() {
   const { t: webT } = useWebI18n();
   const location = useLocation();
+  const hasShellNavigation = useContext(MobileNavigationOwner);
   const items = [
     { label: webT("lens.today"), icon: Home, href: "/today" },
     { label: webT("publicNav.discover"), icon: Search, href: "/discover" },
     { label: webT("lens.card"), icon: WalletCards, href: "/card" },
     { label: webT("how.layer3Link3"), icon: Archive, href: "/vault" },
   ];
+
+  if (hasShellNavigation) return null;
 
   return (
     <nav aria-label="Primary mobile navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/95 px-safe pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl md:hidden">

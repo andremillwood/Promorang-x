@@ -1,0 +1,36 @@
+.public-mobile-navigation { display: none; }
+
+@media (max-width: 767px) {
+  .public-navigation-shell {
+    min-height: 100dvh;
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .public-mobile-navigation {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    border-top: 1px solid rgb(255 255 255 / 12%);
+    background: #0a0a09;
+    padding: 0.5rem max(0.25rem, env(safe-area-inset-right, 0px)) max(0.5rem, env(safe-area-inset-bottom, 0px)) max(0.25rem, env(safe-area-inset-left, 0px));
+  }
+  .public-mobile-navigation a {
+    min-height: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0 0.125rem;
+    color: #b7b7b4;
+    font-size: 0.625rem;
+    line-height: 1.2;
+    text-align: center;
+    font-weight: 600;
+  }
+  .public-mobile-navigation a[aria-current="page"] { color: #fb923c; }
+  .public-mobile-navigation a:focus-visible { outline: 2px solid #fb923c; outline-offset: -2px; border-radius: 0.5rem; }
+  /* Leave the keyboard and search overlay room while a form is being edited. */
+  .public-navigation-shell:has(input:focus, textarea:focus, [contenteditable="true"]:focus) .public-mobile-navigation { display: none; }
+}
