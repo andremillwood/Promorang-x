@@ -59,7 +59,7 @@ export function PublicHomeBar() {
             </Link>
           </div>
         </div>
-        <nav aria-label={t("publicHome.mobileNavigation")} className="flex gap-5 overflow-x-auto border-t border-white/10 lg:hidden">
+        <nav aria-label={t("publicHome.mobileNavigation")} className="hidden gap-5 overflow-x-auto border-t border-white/10 md:flex lg:hidden">
           {[[t("publicNav.discover"), "/discover"], [t("publicNav.shop"), "/shop"], [t("publicNav.perks"), "/discover?tab=perks"], [t("publicNav.business"), "/solutions"]].map(([label, href]) => (
             <Link key={href} to={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-white/85 hover:text-orange-300 focus-visible:outline-orange-300">{label}</Link>
           ))}
