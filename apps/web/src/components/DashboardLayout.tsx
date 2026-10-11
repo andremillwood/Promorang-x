@@ -1,8 +1,10 @@
+import { isNavigationItemActive as isNavItemActive } from "@/lib/navigation-active";
+import { useMobileNavigation } from "@/hooks/useMobileNavigation";
 import { localizeLens } from "@/i18n/localize";
 import type { TranslationKey } from "@/i18n/translations";
 type WebTranslator = (key: TranslationKey, variables?: Record<string, string | number>) => string;
 import { currentUiLocale } from "@/i18n/geo-locale";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -119,16 +121,7 @@ const getPageLabels = (webT: WebTranslator): Array<{ match: string; label: strin
   { match: "/admin", label: webT("web.admin"), description: webT("web.navAdminCopy") },
 ];
 
-const isNavItemActive = (pathname: string, href: string, search: string) => {
-  const [itemPath, itemQuery] = href.split("?");
-  if (itemQuery) {
-    return pathname === itemPath && search.includes(itemQuery);
-  }
-  if (itemPath === "/dashboard") {
-    return (pathname === "/dashboard" || pathname === "/home") && !search.includes("view=studio");
-  }
-  return pathname === itemPath || pathname.startsWith(itemPath + "/");
-};
+
 
 const getPageMeta = (pathname: string, search: string, role: UserRole, webT: WebTranslator) => {
   const pageLabels = getPageLabels(webT);
@@ -215,6 +208,8 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const closeMobileNavigation = useCallback(() => setSidebarOpen(false), []);
+  const { panelRef, triggerRef, mobile } = useMobileNavigation(sidebarOpen, closeMobileNavigation, location.key);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem("promorang_sidebar_collapsed") === "true"
   );
@@ -283,7 +278,14 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 border-r border-border/80 bg-card/95 text-card-foreground shadow-[24px_0_80px_rgba(0,0,0,0.1)] dark:shadow-[24px_0_80px_rgba(0,0,0,0.45)] backdrop-blur-xl transform transition-[width,transform] duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] ${sidebarCollapsed ? "lg:w-24" : "lg:w-72"} ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        ref={panelRef}
+        id="dashboard-navigation"
+        tabIndex={-1}
+        role={mobile && sidebarOpen ? "dialog" : undefined}
+        aria-modal={mobile && sidebarOpen ? true : undefined}
+        aria-label={webT("publicHome.mobileNavigation")}
+        {...(mobile && !sidebarOpen ? { inert: "" } : {})}
+        className={`fixed inset-y-0 left-0 z-50 w-[min(18rem,100vw)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] border-r border-border/80 bg-card/95 text-card-foreground shadow-[24px_0_80px_rgba(0,0,0,0.1)] dark:shadow-[24px_0_80px_rgba(0,0,0,0.45)] backdrop-blur-xl transform transition-[width,transform] duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] ${sidebarCollapsed ? "lg:w-24" : "lg:w-72"} ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0`}
       >
         <div className="flex flex-col h-full relative z-10">
@@ -636,6 +638,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
             </Link>
           </div>
         </div>
+        <button type="button" onClick={closeMobileNavigation} aria-label={webT("nav.closeMenu")} className="absolute z-20 right-2 top-[max(0.5rem,env(safe-area-inset-top))] grid h-11 w-11 place-items-center rounded-xl bg-card shadow-soft lg:hidden"><X className="h-5 w-5" /></button>
       </aside>
 
       {/* Mobile Overlay */}
@@ -649,6 +652,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
       {/* Main Content */}
       <main
         id="main-content"
+        {...(mobile && sidebarOpen ? { inert: "" } : {})}
         className={cn(
           "relative flex min-h-screen min-h-dvh min-w-0 flex-1 flex-col overflow-x-clip transition-[padding] duration-200",
           sidebarCollapsed ? "lg:pl-24" : "lg:pl-72",
@@ -660,6 +664,9 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
           <div className="flex items-center justify-between">
             <button
               type="button"
+              ref={triggerRef}
+              aria-controls="dashboard-navigation"
+              aria-expanded={sidebarOpen}
               aria-label={webT("web.openDashboardNavigation")}
               onClick={() => setSidebarOpen(true)}
               className="h-10 w-10 rounded-xl bg-muted/60 border border-border/70 flex items-center justify-center text-foreground shadow-soft active:scale-95 transition-transform"
@@ -903,7 +910,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
         {/* Page Content */}
         <div className={cn(
-          "relative z-10 flex flex-1 flex-col w-full min-w-0 pb-28 lg:pb-12",
+          "relative z-10 flex flex-1 flex-col w-full min-w-0 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-12",
           (isCinematicCultureRoute || isDashboardHome) && "bg-black"
         )}>
           {!hidePageHeader && (
@@ -943,7 +950,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
 
       <DemoCoachmark />
 
-      <nav aria-label={webT("publicHome.mobileNavigation")} className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 text-foreground backdrop-blur-xl lg:hidden">
+      <nav aria-label={webT("publicHome.mobileNavigation")} {...(mobile && sidebarOpen ? { inert: "" } : {})} className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 text-foreground backdrop-blur-xl lg:hidden">
         <div className="mx-auto grid max-w-xl grid-cols-5 gap-0.5 px-1.5 pb-1.5 pt-1.5">
           {currentMobileNav.map((item) => {
             const isActive = isNavItemActive(location.pathname, item.href, location.search);
@@ -970,15 +977,7 @@ const DashboardLayout = ({ children, currentRole }: DashboardLayoutProps) => {
       </nav>
 
 
-      {/* Mobile Close Button */}
-      {sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(false)}
-          className="fixed right-4 top-4 z-50 rounded-xl bg-card/90 p-2 shadow-soft lg:hidden"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      )}
+
     </div>
   );
 };

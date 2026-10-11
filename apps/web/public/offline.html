@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080808"><title>Promorang</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#080808;color:#fafaf9;font:16px/1.6 system-ui;padding:max(24px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left))}main{max-width:420px}img{border-radius:24px}h1{font-size:32px;line-height:1.15}p{color:#a8a29e}button{min-height:48px;border:0;border-radius:12px;padding:12px 24px;background:#ff6a00;color:#080808;font:700 16px system-ui;cursor:pointer}button:focus-visible{outline:3px solid white;outline-offset:4px}
+  </style>
+</head>
+<body><main><img src="/pwa-192.png" width="72" height="72" alt="Promorang"><h1 id="title">You’re offline</h1><p id="detail">Reconnect to load your current access, rewards, and activity.</p><button id="retry" type="button">Try again</button></main>
+<script>
+  const copy = {
+    en: ['You’re offline', 'Reconnect to load your current access, rewards, and activity.', 'Try again'],
+    es: ['Sin conexión', 'Vuelve a conectarte para cargar tus accesos, recompensas y actividad actuales.', 'Intentar de nuevo'],
+    pt: ['Você está offline', 'Conecte-se novamente para carregar seus acessos, recompensas e atividades atuais.', 'Tentar novamente']
+  };
+  let saved = '';
+  try { saved = localStorage.getItem('promorang:locale') || ''; } catch {}
+  if (!saved) { try { saved = decodeURIComponent(document.cookie.split('; ').find(c => c.startsWith('promorang_locale='))?.split('=')[1] || ''); } catch {} }
+  const prefix = location.pathname.split('/')[1];
+  const requested = /^(es|es-419|pt|pt-br)$/i.test(prefix) ? prefix : saved || navigator.language;
+  const language = /^es/i.test(requested) ? 'es' : /^pt/i.test(requested) ? 'pt' : 'en';
+  document.documentElement.lang = language === 'pt' ? 'pt-BR' : language === 'es' ? 'es-419' : 'en';
+  ['title', 'detail', 'retry'].forEach((id, i) => { document.getElementById(id).textContent = copy[language][i]; });
+  document.getElementById('retry').addEventListener('click', () => location.reload());
+  window.addEventListener('online', () => location.reload(), { once: true });
+</script></body></html>

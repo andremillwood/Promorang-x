@@ -1,108 +1,58 @@
-// Promorang Production PWA Service Worker
-const CACHE_NAME = 'promorang-pwa-shell-v2026-09-26';
-const STATIC_ASSETS = [
-  '/manifest.webmanifest',
-  '/pwa-192.png',
-  '/pwa-512.png',
-  '/pwa-apple-touch-icon.png',
-];
-
-// Install Event: Pre-cache core app shell
+// Only public, versioned assets belong in this cache. Auth and live data stay online.
+const CACHE_NAME = 'promorang-pwa-shell-v2026-10-10';
+const STATIC_ASSETS = ['/offline.html', '/manifest.webmanifest', '/pwa-192.png', '/pwa-512.png', '/pwa-maskable-512.png', '/pwa-apple-touch-icon.png'];
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => self.skipWaiting()));
 });
-
-// Activate Event: Clean old caches
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
+  event.waitUntil(caches.keys().then((keys) => Promise.all(
+    keys.filter((key) => key.startsWith('promorang-pwa-shell-') && key !== CACHE_NAME).map((key) => caches.delete(key)),
+  )).then(() => self.clients.claim()));
 });
-
-// Fetch Event: Network-First for HTML & API, fallback to cache
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-
-  // Ignore non-GET requests or backend API calls
-  if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+  if (event.request.mode === 'navigate') {
+    // Never cache personalized HTML, auth callbacks, or stale app entry points.
+    event.respondWith(fetch(event.request).catch(async () =>
+      (await caches.match('/offline.html').catch(() => undefined)) || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } }),
+    ));
     return;
   }
-
-  // Network-First for Navigation / HTML requests
-  if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-          }
-          return networkResponse;
-        })
-        .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/index.html')))
-    );
-    return;
-  }
-
-  // Keep live product data and third-party assets out of the app-shell cache.
-  // Only same-origin static GET assets are eligible for runtime caching.
-  if (url.origin !== self.location.origin) return;
-
-  // Network-First for same-origin static assets with cache fallback
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-        } else if (networkResponse && networkResponse.status === 404) {
-          // If asset is 404 (chunk hash changed), purge cached HTML to force update
-          caches.open(CACHE_NAME).then((cache) => cache.delete('/index.html'));
-        }
-        return networkResponse;
-      })
-      .catch(() => caches.match(event.request))
-  );
+  if (!STATIC_ASSETS.includes(url.pathname) && !url.pathname.startsWith('/assets/')) return;
+  event.respondWith((async () => {
+    let cache;
+    try {
+      cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(event.request);
+      if (cached) return cached;
+    } catch { /* Storage can be unavailable even while the network is healthy. */ }
+    try {
+      const response = await fetch(event.request);
+      if (cache && response.ok && response.type !== 'opaque') {
+        try { await cache.put(event.request, response.clone()); } catch { /* A full cache must not break a successful fetch. */ }
+      }
+      return response;
+    } catch { return Response.error(); }
+  })());
 });
-
-// Web Push Event Handler for Mobile Browser Push Notifications
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : { title: 'Promorang Update', body: 'You have a new update!' };
-  const options = {
-    body: data.body,
-    icon: '/apple-touch-icon.png',
-    badge: '/favicon.png',
-    data: data.data || {},
-  };
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  let data = { title: 'Promorang', body: '', data: {} };
+  try { data = { ...data, ...event.data?.json() }; } catch { data.body = event.data?.text() || ''; }
+  event.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body, icon: '/pwa-192.png', badge: '/pwa-192.png', data: data.data || {},
+  }));
 });
-
-// Notification Click Handler
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || '/';
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url === targetUrl && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
-    })
-  );
+  let target = new URL('/today', self.location.origin);
+  try {
+    const requested = new URL(event.notification.data?.url || '/today', self.location.origin);
+    if (requested.origin === self.location.origin) target = requested;
+  } catch { /* Fall back to the app for malformed links. */ }
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (windows) => {
+    const existing = windows.find((client) => client.url === target.href);
+    if (existing) return existing.focus();
+    return self.clients.openWindow(target.href);
+  }));
 });

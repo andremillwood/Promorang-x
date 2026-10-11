@@ -24,12 +24,7 @@ type ParticipantWorldLayoutProps = {
   children: ReactNode;
 };
 
-const navItems = [
-  { label: "Today", to: "/today", icon: Home },
-  { label: "Discover", to: "/discover", icon: Compass },
-  { label: "Card", to: "/card", icon: CreditCard },
-  { label: "Vault", to: "/vault", icon: Vault },
-];
+
 
 const discoveryRoots = ["/discover", "/discovery", "/discoveries", "/scenes", "/moments", "/venues"];
 
@@ -47,6 +42,12 @@ const roleLabels: Partial<Record<WorkspaceRole, { label: string; icon: typeof Us
 
 export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps) {
   const { t: webT } = useWebI18n();
+  const navItems = [
+    { label: webT("hostDash.today"), to: "/today", icon: Home },
+    { label: webT("drops.discover"), to: "/discover", icon: Compass },
+    { label: webT("publicHome.navCard"), to: "/card", icon: CreditCard },
+    { label: webT("how.layer3Link3"), to: "/vault", icon: Vault },
+  ];
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { activeRole, roles, setActiveRole, signOut, profile, user } = useAuth();
@@ -98,7 +99,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
             <span className="hidden text-lg font-bold tracking-tight sm:inline">Promorang</span>
           </NavLink>
 
-          <nav className="hidden min-w-0 items-center gap-0.5 md:flex lg:gap-1" aria-label="Participant navigation">
+          <nav className="hidden min-w-0 items-center gap-0.5 md:flex lg:gap-1" aria-label={webT("publicHome.mobileNavigation")}>
             {navItems.map(({ label, to, icon: Icon }) => (
               <NavLink
                 key={to}
@@ -210,7 +211,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                 <DropdownMenuItem asChild><NavLink to="/vault" className="flex items-center gap-2.5"><Archive className="h-4 w-4" />{webT("how.layer3Link3")}</NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/dashboard/settings" className="flex items-center gap-2.5"><Settings className="h-4 w-4" />{webT("lens.settings")}</NavLink></DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2.5 text-rose-400 focus:text-rose-300"><LogOut className="h-4 w-4" />Sign out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2.5 text-rose-400 focus:text-rose-300"><LogOut className="h-4 w-4" />{webT("nav.signOut")}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -221,7 +222,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
 
       <nav
         className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-white/10 bg-[#0a0a09]/95 px-[max(0.5rem,env(safe-area-inset-left))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_36px_rgba(0,0,0,.42)] backdrop-blur-xl md:hidden"
-        aria-label="Participant navigation"
+        aria-label={webT("publicHome.mobileNavigation")}
       >
         {navItems.map(({ label, to, icon: Icon }) => (
           <NavLink

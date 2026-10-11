@@ -16,7 +16,8 @@
     "i18n:audit": "node scripts/audit-i18n.mjs",
     "i18n:check": "node scripts/audit-i18n.mjs --strict",
     "i18n:report": "node scripts/audit-i18n.mjs --report",
-    "test:i18n": "node --test scripts/audit-i18n.test.mjs && vitest run --pool=threads --maxWorkers=1 --minWorkers=1 src/i18n"
+    "test:i18n": "node --test scripts/audit-i18n.test.mjs && vitest run --pool=threads --maxWorkers=1 --minWorkers=1 src/i18n",
+    "test:pwa": "node --test scripts/pwa.test.mjs && vitest run --pool=threads --maxWorkers=1 --minWorkers=1 src/components/PWAInstallPrompt.test.tsx src/hooks/useMobileNavigation.test.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -29,6 +29,9 @@ jobs:
       - name: Prevent new untranslated web copy
         run: npm run i18n:audit --workspace apps/web
 
+      - name: Test mobile navigation and PWA
+        run: npm run test:pwa --workspace apps/web
+
       - name: Test localization
         run: npm run test:i18n --workspace apps/web
 

@@ -3,7 +3,7 @@
   "name": "Promorang",
   "short_name": "Promorang",
   "description": "Find what moves you, signal what you want, keep access on PromoCard, and return when something changes.",
-  "start_url": "/?source=pwa",
+  "start_url": "/today?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": [
@@ -13,7 +13,6 @@
   ],
   "background_color": "#080808",
   "theme_color": "#ff6a00",
-  "orientation": "portrait-primary",
   "categories": [
     "lifestyle",
     "social",
