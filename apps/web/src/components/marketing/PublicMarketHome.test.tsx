@@ -63,9 +63,8 @@ describe("public entrance", () => {
     expect(screen.getByText("Find your next thing in Kingston & St. Andrew.")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /start.*scene/i })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Make your next plan worth it." })).toBeInTheDocument();
-    const mobile = screen.getByRole("navigation", { name: "Primary navigation" });
-    expect(mobile.querySelector('a[href="/live"]')).toHaveTextContent("Events");
-    expect(mobile.querySelector('a[href="/discover?tab=wants"]')).toHaveTextContent("Ask");
+    // AppLayout owns public navigation; this page must not add a second bar.
+    expect(screen.queryByRole("navigation", { name: "Primary navigation" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create my account" })).toHaveAttribute("href", "/auth?mode=signup&role=participant&next=/card");
   });
 });

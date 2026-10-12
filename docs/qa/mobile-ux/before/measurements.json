@@ -1,0 +1,86 @@
+[
+  {
+    "name": "home",
+    "width": 320,
+    "searchY": 3358.734375,
+    "headingSize": "43px",
+    "scrollWidth": 320
+  },
+  {
+    "name": "home",
+    "width": 390,
+    "searchY": 2719.78125,
+    "headingSize": "43px",
+    "scrollWidth": 390
+  },
+  {
+    "name": "discover",
+    "width": 320,
+    "searchY": 459.0625,
+    "heroHeight": 573.5625,
+    "headingSize": "44px",
+    "scrollWidth": 320
+  },
+  {
+    "name": "discover",
+    "width": 390,
+    "searchY": 474.8125,
+    "heroHeight": 589.3125,
+    "headingSize": "52.65px",
+    "scrollWidth": 390
+  },
+  {
+    "name": "shop",
+    "width": 320,
+    "searchY": 600.421875,
+    "headingSize": "29.6px",
+    "scrollWidth": 320
+  },
+  {
+    "name": "shop",
+    "width": 390,
+    "searchY": 523.28125,
+    "headingSize": "29.6px",
+    "scrollWidth": 390
+  },
+  {
+    "name": "offers",
+    "width": 320,
+    "searchY": 459.0625,
+    "heroHeight": 573.5625,
+    "headingSize": "44px",
+    "scrollWidth": 320
+  },
+  {
+    "name": "offers",
+    "width": 390,
+    "searchY": 474.8125,
+    "heroHeight": 589.3125,
+    "headingSize": "52.65px",
+    "scrollWidth": 390
+  },
+  {
+    "name": "business",
+    "width": 320,
+    "headingSize": "48px",
+    "scrollWidth": 320
+  },
+  {
+    "name": "business",
+    "width": 390,
+    "headingSize": "48px",
+    "scrollWidth": 390
+  },
+  {
+    "name": "promocard",
+    "width": 320,
+    "headingSize": "28.8px",
+    "scrollWidth": 320
+  },
+  {
+    "name": "promocard",
+    "width": 390,
+    "headingSize": "35.1px",
+    "scrollWidth": 390
+  }
+]

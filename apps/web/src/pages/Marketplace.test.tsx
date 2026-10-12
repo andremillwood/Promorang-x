@@ -17,13 +17,13 @@ const shopCopyKeys = [
 
 describe("Marketplace mobile copy", () => {
   it("keeps shop headline and body words separated", () => {
-    expect(translations.en["market.title"]).toBe("Curated Passes. Guaranteed Value.");
-    expect(translations.en["market.copy"]).toContain("Promorang curates experience packages with local partners.");
+    expect(translations.en["market.title"]).toBe("Shop");
+    expect(translations.en["market.copy"]).toContain("Browse products, services and experiences.");
     expect(translations.en["market.buy"]).toBe("Buy or book");
     expect(translations.en["market.earn"]).toBe("Earn signal");
     expect(translations.en["market.unlock"]).toBe("Unlock more");
 
-    for (const key of shopCopyKeys) {
+    for (const key of shopCopyKeys.filter((key) => key !== "market.title")) {
       expect(translations.en[key]).toMatch(/ /);
       expect(translations.en[key].replace(/\s+/g, "")).not.toBe(translations.en[key]);
     }

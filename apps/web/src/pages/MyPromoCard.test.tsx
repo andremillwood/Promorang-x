@@ -186,7 +186,7 @@ describe("PromoCard journey", () => {
     await renderCard();
     await click("Show code for Coffee on us");
     await click("Copy code");
-    expect(document.querySelector('[role="status"]')).toHaveTextContent(
+    expect(document.querySelector('[role="dialog"] [role="status"]')).toHaveTextContent(
       "Couldn’t copy",
     );
     expect(document.querySelector('[role="dialog"]')).toHaveTextContent(

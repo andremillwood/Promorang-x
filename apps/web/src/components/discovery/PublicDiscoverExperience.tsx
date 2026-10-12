@@ -167,34 +167,36 @@ export function PublicDiscoverExperience() {
       />
 
       <section
-        className="marketing-cinematic-hero public-discover-hero border-b border-white/10 px-5 pb-16 pt-12 sm:px-6 md:pb-20 md:pt-20"
+        className="marketing-cinematic-hero public-discover-hero border-b border-white/10 px-4 py-6 sm:px-6 md:py-12"
         style={{ backgroundImage: `url("${heroImage}")` }}
       >
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="relative mx-auto flex min-h-[18rem] max-w-[1440px] items-end">
-          <div className="max-w-4xl pb-4 md:pb-8">
+        <div className="relative mx-auto flex min-w-0 max-w-[1440px] items-end">
+          <div className="w-full min-w-0 max-w-4xl">
             <p className="marketing-kicker"><Compass className="h-3.5 w-3.5" /> {t("publicNav.discover")} · {city.name}</p>
-            <h1 className="mt-6 max-w-[9ch] text-5xl font-black sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
-              {t("publicHome.title")}
+            <h1 className="mt-3 max-w-[18ch] text-[clamp(1.75rem,7vw,2.25rem)] font-black sm:text-6xl lg:text-7xl xl:text-[5.8rem]">
+              {resultType === "offers" ? t("publicNav.perks") : t("publicHome.title")}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">
-              {t("publicHome.copy", { market: city.name })}
+            <p className="mt-3 max-w-2xl text-base leading-6 text-white/70 sm:text-lg">
+              {resultType === "offers" ? webT("web.openOfferTerms") : t("publicHome.copy", { market: city.name })}
             </p>
 
-            <div className="mt-8 max-w-3xl rounded-2xl border border-white/15 bg-black/65 p-2 shadow-2xl shadow-black/30 backdrop-blur-xl">
+            <div className="mt-5 w-full min-w-0 max-w-3xl rounded-2xl border border-white/15 bg-black/65 p-2 shadow-2xl shadow-black/30 backdrop-blur-xl">
               <label htmlFor="public-discover-search" className="sr-only">{webT("web.searchPromorang")}</label>
               <div className="flex min-h-14 items-center gap-3 px-3">
                 <Search className="h-4 w-4 text-orange-400" />
                 <input
                   id="public-discover-search"
+                  type="search"
+                  enterKeyHint="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder={t("publicDiscover.searchPlaceholder")}
-                  className="min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/35"
+                  className="min-w-0 flex-1 bg-transparent text-base text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-300 placeholder:text-white/60"
                 />
-                {query ? <button type="button" onClick={() => setQuery("")} aria-label={t("publicDiscover.clearSearch")} className="grid h-9 w-9 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
+                {query ? <button type="button" onClick={() => setQuery("")} aria-label={t("publicDiscover.clearSearch")} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button> : null}
               </div>
-              <div className="flex gap-2 overflow-x-auto border-t border-white/10 px-2 pb-1 pt-2 scrollbar-none" aria-label={t("publicDiscover.interestFilterLabel")}>
+              <div className="flex gap-2 overflow-x-auto border-t border-white/10 px-2 pb-1 pt-2 " aria-label={t("publicDiscover.interestFilterLabel")}>
                 {interestFilters.map((item) => <button key={item.id} type="button" onClick={() => setInterest(item.id)} aria-pressed={interest === item.id} className={`shrink-0 rounded-full min-h-11 px-3 py-2 text-[11px] font-bold transition ${interest === item.id ? "bg-orange-500 text-black" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"}`}>{t(item.labelKey as any)}</button>)}
               </div>
             </div>
@@ -207,7 +209,7 @@ export function PublicDiscoverExperience() {
         </div>
       </section>
 
-      <section className="sticky top-14 md:top-[4.25rem] z-30 border-b border-white/10 bg-[#080808]/95 px-5 py-3 backdrop-blur-xl sm:px-6" aria-label={t("publicDiscover.filtersLabel")}>
+      <section className="relative z-30 border-b border-white/10 bg-[#080808]/95 px-5 py-3 backdrop-blur-xl sm:px-6" aria-label={t("publicDiscover.filtersLabel")}>
         <div className="mx-auto flex max-w-[1440px] items-center gap-3 overflow-x-auto scrollbar-none">
           <span className="flex shrink-0 items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/40"><Filter className="h-3.5 w-3.5" /> {t("publicDiscover.show")}</span>
           {([
@@ -217,18 +219,20 @@ export function PublicDiscoverExperience() {
         </div>
       </section>
 
-      {(resultType === "all" || resultType === "discoveries") && <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "discoveries") && <section className="border-b border-white/10 px-4 py-8 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">{webT("web.worthKnowing")}</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.forYou")}</h2>
+              <h2 className="mt-3 text-2xl font-black sm:text-5xl">{t("publicHome.forYou")}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{webT("web.worthKnowingCopy")}</p>
             </div>
           </div>
 
           {discoveriesQuery.isLoading ? (
             <div className="marketing-discovery-rail">{[0,1,2,3,4,5].map((item) => <div key={item} className="marketing-discovery-card animate-pulse bg-white/[0.04]" />)}</div>
+          ) : discoveriesQuery.isError ? (
+            <div role="status" className="marketing-compact-empty"><p>{t("release.58")}</p><button type="button" onClick={() => discoveriesQuery.refetch()} className="min-h-11 px-3 text-orange-300 underline">{t("release.18")}</button></div>
           ) : filteredDiscoveries.length ? (
             <div className="marketing-discovery-rail">
               {filteredDiscoveries.slice(0, 6).map((item) => (
@@ -253,12 +257,12 @@ export function PublicDiscoverExperience() {
         </div>
       </section>}
 
-      {(resultType === "all" || resultType === "moments") && <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "moments") && <section className="border-b border-white/10 bg-[#080808] px-4 py-8 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">{webT("web.happeningNowNext")}</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.happening")}</h2>
+              <h2 className="mt-3 text-2xl font-black sm:text-5xl">{t("publicHome.happening")}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{webT("web.plansNowNext")}</p>
             </div>
             <Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{t("publicHome.browseMoments")} <ArrowRight className="h-4 w-4" /></Link>
@@ -266,6 +270,8 @@ export function PublicDiscoverExperience() {
 
           {momentsQuery.isLoading ? (
             <div className="marketing-live-rail">{[0,1,2,3].map((item) => <div key={item} className="marketing-live-card animate-pulse bg-white/[0.04]" />)}</div>
+          ) : momentsQuery.isError ? (
+            <div role="status" className="marketing-compact-empty"><p>{t("release.58")}</p><button type="button" onClick={() => momentsQuery.refetch()} className="min-h-11 px-3 text-orange-300 underline">{t("release.18")}</button></div>
           ) : filteredMoments.length ? (
             <div className="marketing-live-rail">
               {filteredMoments.slice(0,4).map((moment) => (
@@ -293,12 +299,12 @@ export function PublicDiscoverExperience() {
         </div>
       </section>}
 
-      {(resultType === "all" || resultType === "offers") && <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "offers") && <section className="border-b border-white/10 px-4 py-8 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">{webT("web.perksAccess")}</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{webT("web.thingsToClaim")}</h2>
+              <h2 className="mt-3 text-2xl font-black sm:text-5xl">{webT("web.thingsToClaim")}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{webT("web.openOfferTerms")}</p>
             </div>
             <Link to="/discover/rewards#offers" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{webT("web.explorePerks")} <ArrowRight className="h-4 w-4" /></Link>
@@ -307,7 +313,7 @@ export function PublicDiscoverExperience() {
           {offersQuery.isLoading ? (
             <div className="marketing-offer-rail">{[0,1,2,3].map((item) => <div key={item} className="marketing-offer-card animate-pulse bg-white/[0.04]" />)}</div>
           ) : offersQuery.isError ? (
-            <div className="marketing-compact-empty"><Gift className="h-5 w-5 text-orange-400" /><div><p className="text-sm font-black">{webT("web.loadPerksError")}</p><p className="mt-1 text-xs leading-5 text-white/45">{webT("release.58")}</p></div></div>
+            <div role="status" className="marketing-compact-empty"><Gift className="h-5 w-5 text-orange-400" /><div><p className="text-sm font-black">{webT("web.loadPerksError")}</p><p className="mt-1 text-xs leading-5 text-white/70">{webT("release.58")}</p><button type="button" onClick={() => offersQuery.refetch()} className="min-h-11 text-orange-300 underline">{t("release.18")}</button></div></div>
           ) : filteredOffers.length ? (
             <div className="marketing-offer-rail">
               {filteredOffers.slice(0,4).map((offer) => (
@@ -331,12 +337,12 @@ export function PublicDiscoverExperience() {
 
       
 
-      {(resultType === "all" || resultType === "questions") && <section className="border-b border-white/10 bg-black px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "questions") && <section className="border-b border-white/10 bg-black px-4 py-8 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">{t("findOrAsk.questionsKicker")}</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("findOrAsk.questionsTitle")}</h2>
+              <h2 className="mt-3 text-2xl font-black sm:text-5xl">{t("findOrAsk.questionsTitle")}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("findOrAsk.questionsCopy")}</p>
             </div>
           </div>
@@ -344,12 +350,12 @@ export function PublicDiscoverExperience() {
         </div>
       </section>}
 
-      {(resultType === "all" || resultType === "wants") && <section className="border-b border-white/10 bg-[#080808] px-5 py-14 sm:px-6 md:py-20">
+      {(resultType === "all" || resultType === "wants") && <section className="border-b border-white/10 bg-[#080808] px-4 py-8 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
               <p className="marketing-kicker">{t("publicDiscover.wantsKicker", { city: demand.inbox.city })}</p>
-              <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicDiscover.wantsTitle", { city: city.name })}</h2>
+              <h2 className="mt-3 text-2xl font-black sm:text-5xl">{t("publicDiscover.wantsTitle", { city: city.name })}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">{t("publicDiscover.wantsCopy")}</p>
             </div>
             <div className="w-full max-w-xl"><p className="mb-2 text-sm font-bold">{t("compression.newRequest")}</p><FindOrAskEntry source="discover" city={city.name} compact /><p className="mt-2 text-xs text-white/55">{t("compression.newRequestCopy")}</p></div>
@@ -390,7 +396,7 @@ export function PublicDiscoverExperience() {
 
       {!hasFilters && <TasteCalibration marketLabel={city.name} />}
 
-      {!hasFilters && <section className="px-5 py-14 sm:px-6 md:py-20">
+      {!hasFilters && <section className="px-4 py-8 sm:px-6 md:py-16">
         <div className="mx-auto max-w-[1440px]">
           <EditorialWorldRail />
         </div>
@@ -400,9 +406,9 @@ export function PublicDiscoverExperience() {
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.78fr_1.22fr] lg:items-center">
           <div>
             <p className="marketing-kicker"><WalletCards className="h-3.5 w-3.5" /> {webT("web.keepYourPlace")}</p>
-            <h2 className="mt-3 text-4xl font-black sm:text-5xl">{t("publicHome.cardTitle")}</h2>
+            <h2 className="mt-3 text-2xl font-black sm:text-5xl">{t("publicHome.cardTitle")}</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">{t("publicHome.cardCopy")}</p>
-            <Link to="/auth?mode=signup&role=participant&next=/card" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">{t("clarity.getMyCard")} <ArrowRight className="h-4 w-4" /></Link>
+            <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-md bg-orange-500 px-5 text-xs font-black uppercase tracking-[0.08em] text-black">{t("clarity.getMyCard")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
           <div className="marketing-promocard-stage">
             <PromoCardFace

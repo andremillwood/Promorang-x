@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Store, ShoppingBag, MapPin, Search, Filter, ArrowRight, Sparkles, Eye, RefreshCw } from "lucide-react";
+import { Store, ShoppingBag, MapPin, Search, ArrowRight, Sparkles, Eye, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -203,7 +203,7 @@ const Marketplace = () => {
         <main className="dark min-h-screen bg-[#080808] text-white">
           <div className="mx-auto max-w-[1440px] space-y-6 px-4 pb-16 pt-6 sm:space-y-8 sm:px-6 lg:px-8">
             {/* Search & Filter Header */}
-            <div className="overflow-x-clip rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-4 shadow-2xl sm:rounded-[2rem] sm:p-5 md:p-8">
+            <div className="min-w-0 rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.2),transparent_32%),linear-gradient(135deg,rgba(10,10,10,0.98),rgba(20,20,20,0.94))] p-4 shadow-2xl sm:rounded-[2rem] sm:p-5 md:p-8">
                 <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-5">
                     <div className="min-w-0">
                         <p className="mb-3 max-w-full text-xs font-bold uppercase leading-5 tracking-wide text-orange-300">
@@ -219,20 +219,15 @@ const Marketplace = () => {
                         </p>
                     </div>
 
-                    <div className="flex min-w-0 flex-wrap gap-2 text-white/70 md:w-[34rem]">
-                        {[[t("market.buy"), t("market.buyCopy")], [t("market.earn"), t("market.earnCopy")], [t("market.unlock"), t("market.unlockCopy")]].map(([label, copy]) => (
-                            <div key={label} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 sm:min-w-[9rem] sm:flex-1 sm:rounded-2xl sm:p-3">
-                                <div className="text-xs font-bold uppercase leading-tight tracking-wide text-orange-300">{label}</div>
-                                <p className="mt-1 hidden text-xs leading-5 sm:block">{copy}</p>
-                            </div>
-                        ))}
-                    </div>
+
                 </div>
 
                 <div className="mt-5 flex w-full min-w-0 gap-3 sm:mt-6 md:max-w-xl">
                     <div className="relative min-w-0 flex-1 md:w-80">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                         <Input
+                            type="search"
+                            enterKeyHint="search"
                             placeholder={t("market.search")}
                             aria-label={t("market.search")}
                             className="min-h-12 rounded-xl border-white/25 bg-[#181818] pl-10 text-base text-white placeholder:text-slate-400 focus-visible:ring-orange-300"
@@ -240,9 +235,7 @@ const Marketplace = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button variant="outline" size="icon" aria-label={t("release.57")} className="h-12 w-12 shrink-0 rounded-xl border-white/25 bg-[#181818] text-white hover:bg-white/10 hover:text-white">
-                        <Filter className="w-4 h-4" />
-                    </Button>
+
                 </div>
             </div>
 
@@ -253,8 +246,9 @@ const Marketplace = () => {
                 {categories.map((cat) => (
                     <Link
                         key={cat}
+                        aria-current={activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "page" : undefined}
                         to={cat === "All" ? "/shop" : `/shop/category/${commerceCategorySlug(cat)}`}
-                        className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold transition ${activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "border-orange-300 bg-orange-300 text-black" : "border-white/25 bg-[#181818] text-slate-200 hover:border-orange-300 hover:text-white"}`}
+                        className={`inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold transition ${activeCategory === commerceCategorySlug(cat) || (cat === "All" && activeCategory === "all") ? "border-orange-300 bg-orange-300 text-black" : "border-white/25 bg-[#181818] text-slate-200 hover:border-orange-300 hover:text-white"}`}
                     >
                         {cat === "All" ? t("market.all") : cat === "Products" ? t("market.products") : cat === "Services" ? t("market.services") : cat}
                     </Link>

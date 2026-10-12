@@ -93,22 +93,22 @@ export function PromoCardFace({
   };
 
   return (
-    <div className={cn("pr-card-stage min-w-0 w-full max-w-xl overflow-hidden sm:overflow-visible", className)}>
+    <div style={{ containerType: "inline-size" }} className={cn("pr-card-stage min-w-0 w-full max-w-xl overflow-hidden sm:overflow-visible", className)}>
       <div className={cn("pr-card-flip", isFlipped && "is-flipped")}>
         <article
           className={cn(
-            "pr-plastic-card pr-card-side overflow-hidden",
+            "pr-plastic-card pr-card-side !aspect-auto overflow-hidden",
             compact
               ? "!aspect-auto min-h-[190px] p-4 sm:min-h-[230px] sm:p-5"
-              : "min-h-[250px] p-4 sm:min-h-[360px] sm:p-7",
+              : "min-h-[max(250px,63cqw)] p-4 sm:p-7",
             `pr-plastic-card--${face.state}`,
           )}
           aria-label={webT("card.eyebrow")}
         >
           <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: "linear-gradient(120deg, transparent 0 42%, rgba(244,198,108,.08) 42.2% 42.8%, transparent 43% 100%)" }} />
-          <div className="relative z-10 flex h-full flex-col justify-between">
+          <div className="relative z-10 flex flex-col justify-between">
             <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
+              <div className="flex min-w-0 items-start gap-2 sm:gap-3">
                 <span className={cn("grid shrink-0 place-items-center rounded-2xl border border-[#f4c66c]/30 bg-black/70 shadow-inner", compact ? "h-9 w-9 sm:h-10 sm:w-10" : "h-12 w-12")}>
                   <PromorangMark size={compact ? 30 : 40} className={compact ? "h-7 w-7 sm:h-8 sm:w-8" : "h-10 w-10"} />
                 </span>
@@ -126,7 +126,7 @@ export function PromoCardFace({
 
             <div className={compact ? "py-3 sm:py-4" : "py-5 sm:py-9"}>
               <p className="text-[9px] font-black uppercase tracking-[.2em] text-white/38 sm:text-[10px]">{face.action}</p>
-              <p className={cn("mt-1.5 max-w-[92%] font-serif font-bold leading-[.94] tracking-[-.05em] text-[#f4c66c]", compact ? "text-[1.55rem] sm:text-[1.9rem]" : "break-words text-[clamp(1.85rem,9.5vw,2.45rem)] sm:text-[3.25rem]")}>{face.headline}</p>
+              <p className={cn("mt-1.5 max-w-full break-words font-serif font-bold leading-[.94] tracking-[-.05em] text-[#f4c66c]", compact ? "text-[1.55rem] sm:text-[1.9rem]" : "break-words text-[clamp(1.5rem,7vw,2.1rem)] sm:text-[3.25rem]")}>{face.headline}</p>
               <p className={cn("mt-2 text-white/56", compact ? "line-clamp-2 max-w-[92%] text-[11px] leading-4 sm:text-xs sm:leading-5" : "max-w-full text-xs leading-5 sm:max-w-[82%] sm:text-sm sm:leading-6")}>{face.detail}</p>
               {face.places ? <p className={cn("mt-1 max-w-[82%] text-white/34", compact ? "hidden sm:block sm:text-[11px] sm:leading-4" : "max-w-full text-[11px] leading-4 sm:max-w-[82%] sm:text-xs sm:leading-5")}>{face.places}</p> : null}
               {stamps(face).length || face.returnStamp ? (
@@ -138,7 +138,7 @@ export function PromoCardFace({
             </div>
 
             <div className={cn("flex min-w-0 items-end justify-between gap-3 border-t border-white/10 text-white/42", compact ? "pt-2 text-[9px]" : "pt-3 text-[9px] sm:pt-4 sm:text-[10px]")}>
-              <span className="font-black uppercase tracking-[.13em]">{face.holder}</span>
+              <span className="min-w-0 break-words font-black uppercase tracking-[.13em]">{face.holder}</span>
               <span className={cn("min-w-0 max-w-[58%] break-words text-right", compact ? "line-clamp-1 leading-3" : "leading-4")}>{face.footerCue}</span>
             </div>
           </div>
@@ -157,7 +157,7 @@ export function PromoCardFace({
                 <div className="mx-auto mt-3 w-fit rounded-2xl bg-white p-3 shadow-[0_12px_30px_rgba(0,0,0,.25)]" aria-label={webT("web.scanMark")}>
                   <QRCodeSVG value={encodeOfferRedeemPayload(face.credential || "")} size={132} level="M" />
                 </div>
-                <code className="mt-3 block select-all font-mono text-2xl font-black tracking-[0.16em] text-[#f4c66c]">{face.credential}</code>
+                <code className="mt-3 block select-all max-w-full break-all font-mono text-lg sm:text-2xl font-black tracking-[0.16em] text-[#f4c66c]">{face.credential}</code>
                 {lastLoaded ? <p className="mt-2 text-[11px] text-[#f4c66c]">{webT("web.lastLoadedCard")}</p> : null}
               </div>
               <div className="w-full">

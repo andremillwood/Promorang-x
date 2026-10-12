@@ -1311,13 +1311,13 @@ img.promorang-satellite-tiles {
       linear-gradient(90deg, rgba(0,0,0,.58), transparent);
   }
 
-  .marketing-cinematic h1 {
+  .marketing-cinematic:not(.public-discover-world) h1 {
     max-width: 100%;
     font-size: clamp(2.75rem, 13.5vw, 4.25rem) !important;
     line-height: .91;
   }
 
-  .marketing-cinematic h2 {
+  .marketing-cinematic:not(.public-discover-world) h2 {
     font-size: clamp(2.2rem, 10vw, 3.2rem);
   }
 
@@ -2369,4 +2369,21 @@ html[data-pwa] body {
     width: 100%;
     justify-content: space-between;
   }
+}
+
+/* Discovery uses its content height; the cinematic minimum belongs to marketing heroes. */
+.marketing-cinematic-hero.public-discover-hero { min-height: 0; }
+.public-discover-hero::before { background: linear-gradient(90deg, #050505f5, #050505d9); }
+.public-discover-world :is(input, button, a):focus-visible { outline: 2px solid #fdba74; outline-offset: 3px; }
+
+.public-discover-world h1 { line-height: 1.1; }
+.public-discover-world h2 { line-height: 1.15; }
+.public-discover-promocard > div { grid-template-columns: minmax(0, 1fr); }
+.public-discover-promocard > div > * { min-width: 0; }
+.public-discover-promocard .marketing-promocard-stage { margin-inline: 0; }
+@media (min-width: 1024px) {
+ .public-discover-promocard > div { grid-template-columns: minmax(0,.78fr) minmax(0,1.22fr); }
+}
+@media (max-width: 1023px) {
+ .public-discover-world :is(.marketing-live-rail, .marketing-offer-rail) { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; }
 }

@@ -82,11 +82,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     if (isMarketingRoute) {
         return (
             <MobileNavigationOwner.Provider value={true}>
-                <div className={`flex min-h-screen flex-col overflow-x-clip ${!isCleanPage ? "public-navigation-shell" : ""}`}>
+                <div className={`flex min-h-screen min-w-0 flex-col ${!isCleanPage ? "public-navigation-shell" : ""}`}>
                     {!isCleanPage && <PublicHomeBar />}
-                    <main className="flex-1 overflow-x-clip">
+                    <div className="min-w-0 flex-1">
                         {children || <Outlet />}
-                    </main>
+                    </div>
                     {!isCleanPage && <Footer showCta={showFooterCta} />}
                     {!isCleanPage && <PublicMobileNavigation />}
                 </div>
