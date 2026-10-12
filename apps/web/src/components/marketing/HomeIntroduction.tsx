@@ -37,7 +37,6 @@ export function HomeIntroduction({ opportunities }: { opportunities: ReactNode }
         <p className="home-intro-description">{t("homeIntro.intro")}</p>
         <div className="home-intro-actions">
           <Link to="/discover" className="home-primary-link">{t("homeIntro.explore")}<ArrowRight size={18} aria-hidden="true" /></Link>
-          <Link to="/solutions" className="home-text-link">{t("homeIntro.business")}<ArrowRight size={16} aria-hidden="true" /></Link>
         </div>
         <nav className="home-scene-ribbon" aria-label={t("homeValue.scenes")}>
           {scenes.map(scene => <Link key={scene.key} to={`/discover?category=${scene.key}`}>
@@ -61,6 +60,7 @@ export function HomeIntroduction({ opportunities }: { opportunities: ReactNode }
         </Link>)}
       </div>
       <div className="home-extra-paths">
+        <Link to="/solutions">{t("homeIntro.business")}<ArrowRight size={16} aria-hidden="true" /></Link>
         {[["/hosting", "hosts"], ["/for-communities", "communities"], ["/for-agencies", "agencies"]].map(([href, key]) => <Link key={href} to={href}>{t(`homeIntro.${key}` as TranslationKey)}<ArrowRight size={15} aria-hidden="true" /></Link>)}
       </div>
     </section>

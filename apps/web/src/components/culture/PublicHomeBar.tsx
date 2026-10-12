@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import "./PublicHomeBar.css";
 import logo from "@/assets/promorang-logo-full.png";
 import { ArrowRight, WalletCards } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -21,10 +22,10 @@ export function PublicHomeBar() {
   const { t } = useI18n();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 px-4 pt-[max(0.25rem,env(safe-area-inset-top))] text-white backdrop-blur-xl md:px-6">
+    <header className="public-home-bar sticky top-0 z-50 border-b border-white/10 bg-black/95 px-4 pt-[max(0.25rem,env(safe-area-inset-top))] text-white backdrop-blur-xl md:px-6">
       <div className="mx-auto max-w-[1440px]">
-        <div className="flex min-h-14 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-1 md:h-[4.25rem] md:flex-nowrap md:py-0">
-          <Link to="/" className="flex shrink-0 items-center" aria-label={webT("web.homeAlt")}>
+        <div className="public-home-bar-row flex min-h-14 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-1 md:h-[4.25rem] md:flex-nowrap md:py-0">
+          <Link to="/" className="public-home-brand flex shrink-0 items-center" aria-label={webT("web.homeAlt")}>
             <img src={logo} alt="Promorang" className="h-6 w-auto max-w-[132px] md:h-7 md:max-w-none" />
           </Link>
 
@@ -47,8 +48,8 @@ export function PublicHomeBar() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 md:flex">
+          <div className="public-home-controls flex items-center gap-2">
+            <div className="public-home-settings flex min-w-0 items-center gap-2">
               <CityQuickSwitcher className="min-h-11 max-w-[190px]" />
               <LanguageSelector tone="marketing" className="min-h-11" />
             </div>
@@ -62,10 +63,6 @@ export function PublicHomeBar() {
               <ArrowRight className="hidden h-3.5 w-3.5 sm:block" />
             </Link>
           </div>
-        </div>
-        <div className="flex min-w-0 items-center gap-2 pb-1 md:hidden">
-          <CityQuickSwitcher className="min-h-11 min-w-0 flex-1 justify-between [&>span]:max-w-none [&>span]:whitespace-normal [&>span]:text-left" />
-          <LanguageSelector tone="marketing" className="min-h-11 shrink-0" />
         </div>
         <nav aria-label={t("publicHome.mobileNavigation")} className="hidden gap-5 overflow-x-auto border-t border-white/10 md:flex lg:hidden">
           {[[t("publicNav.discover"), "/discover"], [t("publicNav.shop"), "/shop"], [t("publicNav.perks"), "/discover?tab=perks"], [t("publicNav.business"), "/solutions"]].map(([label, href]) => (

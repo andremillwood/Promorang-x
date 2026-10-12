@@ -55,11 +55,11 @@ export function HomeOpportunities({ market, moments, momentsLoading, momentsErro
       <div className="home-opportunity-body">
         <p className="home-opportunity-kicker">{t(`homeOpportunity.${item.kind}`)}</p>
         <h2>{item.title}</h2>
+        {item.date ? <p className="home-opportunity-date">{item.kind === "offers" ? t("homeValue.ends", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.date)) }) : new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.date))}</p> : null}
         {item.location ? <p className="home-opportunity-location"><MapPin size={14} aria-hidden="true" />{item.location}</p> : null}
+        <Link className="home-opportunity-details" to={item.href}>{t("homeOpportunity.details")}<ArrowRight size={16} /></Link>
         <p className="home-opportunity-benefit-label">{t("homeOpportunity.benefit")}</p>
         <p className="home-opportunity-summary">{item.benefit || t(item.kind === "missions" ? "homeOpportunity.missionTerms" : "homeOpportunity.eventBenefit")}</p>
-        {item.date ? <p className="home-opportunity-date">{item.kind === "offers" ? t("homeValue.ends", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.date)) }) : new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.date))}</p> : null}
-        <Link className="home-opportunity-details" to={item.href}>{t("homeOpportunity.details")}<ArrowRight size={16} /></Link>
         <Link className="home-primary-link" to={user ? item.href : `/auth?mode=signup&role=participant&next=${encodeURIComponent(item.href)}`}>{t(user ? "homeOpportunity.continue" : "homeOpportunity.activate")}<ArrowRight size={16} /></Link>
         <p className="home-opportunity-account">{t("homeOpportunity.account")}</p>
       </div>
