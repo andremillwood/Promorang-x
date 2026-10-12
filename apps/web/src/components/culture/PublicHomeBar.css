@@ -1,0 +1,15 @@
+/* Keep all three utilities reachable in one mobile row. */
+@media (max-width: 767px) {
+ .public-home-bar { padding-inline: max(8px, env(safe-area-inset-left, 0px)) max(8px, env(safe-area-inset-right, 0px)); }
+ .public-home-bar-row { flex-wrap: nowrap; gap: 6px; min-height: 52px; }
+ .public-home-brand { min-width: 28px; min-height: 44px; }
+ .public-home-brand img { max-width: 34px; object-fit: contain; }
+ .public-home-controls { flex: 1; min-width: 0; gap: 6px; }
+ .public-home-settings { flex: 1; gap: 6px; }
+ .public-home-settings > button:first-child { flex: 1; min-width: 0; padding-inline: 7px; gap: 4px; }
+ .public-home-settings > button:first-child span { max-width: none; white-space: normal; text-align: left; font-size: 11px; line-height: 1.2; }
+ .public-home-settings > button:last-child { flex-shrink: 0; width: 44px; padding-inline: 0; justify-content: center; }
+ .public-home-settings > button:last-child svg { display: none; }
+ .public-home-controls > a { flex-shrink: 0; padding-inline: 9px; letter-spacing: .025em; }
+ .public-home-controls > a svg { display: none; }
+}

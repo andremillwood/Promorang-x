@@ -192,10 +192,31 @@
 /* Compact mobile introduction, retaining the desktop composition. */
 @media (max-width: 639px) {
  .home-hero-dark h1 { font-size: clamp(28px, 8vw, 36px); line-height: 1.1; }
- .home-hero-dark .home-intro-hero { padding-top: 20px; grid-template-areas: "kicker" "title" "description" "actions" "opportunity" "scenes"; }
+ .home-hero-dark .home-intro-hero { padding: 12px 16px 24px; gap: 8px; grid-template-areas: "kicker" "title" "description" "opportunity" "actions" "scenes"; }
  .home-intro-actions { margin-top: 0; gap: 8px 16px; }
  .home-intro-actions .home-text-link { font-size: 12px; }
  .home-opportunity-tabs button { white-space: normal; min-width: 0; }
  .home-demand-choices { grid-template-columns: repeat(2,minmax(0,1fr)); }
  .home-demand-choice { overflow-wrap: anywhere; }
+}
+
+/* Discovery comes first; supporting images and account benefits follow the facts. */
+@media (max-width: 639px) {
+ .home-hero-dark .home-intro-description { font-size: 14px; line-height: 1.45; }
+ .home-hero-dark .home-kicker { font-size: 10px; letter-spacing: .1em; }
+ .home-opportunities { margin-top: 4px; padding: 8px; }
+ .home-opportunity-tabs { margin-bottom: 8px; padding: 0; }
+ .home-opportunity-card { display: flex; flex-direction: column; }
+ .home-opportunity-body { order: -1; padding: 12px; }
+ .home-opportunity-body h2 { font-size: 21px; line-height: 1.2; margin: 4px 0 8px; overflow-wrap: anywhere; }
+ .home-opportunity-body > p { font-size: 13px; line-height: 1.4; }
+ .home-opportunity-body .home-opportunity-kicker { font-size: 10px; }
+ .home-opportunity-date { margin-top: 0; }
+ .home-opportunity-location { margin-top: 4px; align-items: flex-start; }
+ .home-opportunity-location svg { flex-shrink: 0; margin-top: 2px; }
+ .home-opportunity-details { margin: 8px 0 0; padding: 8px 14px; min-height: 44px; border-radius: 999px; background: #ff741d; color: #140c06; justify-content: space-between; }
+ .home-opportunity-body .home-opportunity-benefit-label { margin-top: 12px; }
+ .home-opportunity-body > .home-primary-link { background: transparent; box-shadow: none; color: #ffb67d; min-height: 44px; padding: 8px 0; }
+ .home-opportunity-body .home-opportunity-account { margin-top: 0; }
+ .home-intro-actions { margin-top: 4px; }
 }

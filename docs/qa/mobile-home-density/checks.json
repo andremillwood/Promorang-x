@@ -1,0 +1,42 @@
+[
+  {
+    "width": 320,
+    "safe": {
+      "actionBottom": 488.75,
+      "navTop": 477,
+      "visible": false
+    }
+  },
+  {
+    "width": 375,
+    "safe": {
+      "actionBottom": 493.15625,
+      "navTop": 753,
+      "visible": true
+    }
+  },
+  {
+    "width": 390,
+    "safe": {
+      "actionBottom": 495.78125,
+      "navTop": 753,
+      "visible": true
+    }
+  },
+  {
+    "width": 430,
+    "safe": {
+      "actionBottom": 497.84375,
+      "navTop": 753,
+      "visible": true
+    }
+  },
+  {
+    "width": 768,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "overflow": false
+  }
+]
