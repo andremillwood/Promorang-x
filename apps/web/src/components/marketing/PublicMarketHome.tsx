@@ -88,7 +88,7 @@ export default function PublicMarketHome() {
   const loginHref = (next: string) => user ? next : `/auth?mode=login&role=participant&next=${encodeURIComponent(next)}`;
 
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#111511] pb-0 text-white selection:bg-orange-500 selection:text-black md:pb-0">
+    <main className="min-h-screen min-w-0 bg-[#111511] pb-0 text-white selection:bg-orange-500 selection:text-black md:pb-0">
       <HomeIntroduction opportunities={<HomeOpportunities market={marketName} moments={moments} momentsLoading={momentsLoading} momentsError={momentsError} retryMoments={retryMoments} />} />
       <section id="ask" className="scroll-mt-32 border-b border-white/15 bg-[#171d18] px-5 py-10 sm:px-8 sm:py-14">
         <div className="mx-auto max-w-[1360px]">

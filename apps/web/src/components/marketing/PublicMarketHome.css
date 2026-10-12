@@ -188,3 +188,14 @@
 .home-demand-choice[aria-pressed="true"]::before { background: linear-gradient(180deg,#e9731610,#000000e8); }
 @media(max-width:639px) { .home-demand-choice { min-height: 112px; padding: 12px 10px; } .home-demand-choice:last-child { min-height: 68px; } }
 @media(prefers-reduced-motion:reduce) { .home-demand-choice-photo { transition: none; } .home-demand-choice:hover .home-demand-choice-photo,.home-demand-choice:focus-visible .home-demand-choice-photo { transform: none; } }
+
+/* Compact mobile introduction, retaining the desktop composition. */
+@media (max-width: 639px) {
+ .home-hero-dark h1 { font-size: clamp(28px, 8vw, 36px); line-height: 1.1; }
+ .home-hero-dark .home-intro-hero { padding-top: 20px; grid-template-areas: "kicker" "title" "description" "actions" "opportunity" "scenes"; }
+ .home-intro-actions { margin-top: 0; gap: 8px 16px; }
+ .home-intro-actions .home-text-link { font-size: 12px; }
+ .home-opportunity-tabs button { white-space: normal; min-width: 0; }
+ .home-demand-choices { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .home-demand-choice { overflow-wrap: anywhere; }
+}

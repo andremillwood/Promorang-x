@@ -27,7 +27,7 @@ export const LanguageSelector = ({
         aria-label={t("language.label")}
         onPointerDown={(event) => event.stopPropagation()}
         className={cn(
-          "flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-xs font-bold outline-none transition",
+          "flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-xs font-bold outline-none focus-visible:ring-2 focus-visible:ring-orange-300 transition",
           tone === "marketing"
             ? "border-white/10 bg-white/[0.05] text-white/80 hover:bg-white/[0.1] hover:text-white"
             : "border-border bg-muted/50 text-foreground hover:bg-muted",
@@ -64,7 +64,7 @@ export const LanguageSelector = ({
               setLocale(option);
             }}
             className={cn(
-              "flex cursor-pointer items-center justify-between rounded-lg text-xs",
+              "flex min-h-11 cursor-pointer items-center justify-between rounded-lg text-sm",
               tone === "marketing"
                 ? "focus:bg-white/10 focus:text-white"
                 : "focus:bg-muted focus:text-foreground",

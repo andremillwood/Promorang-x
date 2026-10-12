@@ -34,11 +34,11 @@ export default function SolutionsHub() {
     <main className="min-h-screen bg-[#070707] text-white">
       <SEO title={t("commercial.promorang.for.business.start.with.the.outcome.147")} description={t("commercial.tell.promorang.what.needs.to.change.choose.an.148")} />
 
-      <section className="border-b border-white/10 px-5 pb-16 pt-24 sm:px-6 md:pb-24 md:pt-32">
-        <div className="mx-auto grid max-w-[1380px] gap-12 lg:grid-cols-[1.04fr_.96fr] lg:items-center">
+      <section className="border-b border-white/10 px-5 pb-8 pt-8 sm:px-6 md:pb-24 md:pt-32">
+        <div className="mx-auto grid max-w-[1380px] gap-6 lg:gap-12 lg:grid-cols-[1.04fr_.96fr] lg:items-center">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">{t("commercial.promorang.for.business.149")}</p>
-            <h1 className="mt-5 max-w-5xl font-serif text-5xl font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">{t("compression.businessTitle")}</h1>
+            <h1 className="mt-5 max-w-5xl font-serif text-[clamp(1.75rem,8vw,2.25rem)] font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">{t("compression.businessTitle")}</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/60">{t("compression.businessCopy")}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">{t("commercial.choose.an.outcome.150")}<ArrowRight className="h-4 w-4" /></Link>

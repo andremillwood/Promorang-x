@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/promorang-logo-full.png";
-import mark from "@/assets/promorang-mark.png";
 import { ArrowRight, WalletCards } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { CityQuickSwitcher } from "@/components/location/CityQuickSwitcher";
@@ -10,15 +9,23 @@ import { useI18n } from "@/i18n/I18nContext";
 export function PublicHomeBar() {
   const { t: webT } = useI18n();
   const { user } = useAuth();
+  const location = useLocation();
+  const isActive = (href: string) => {
+    const [pathname, search = ""] = href.split("?");
+    if (pathname === "/discover") {
+      return location.pathname === pathname &&
+        new URLSearchParams(location.search).get("tab") === new URLSearchParams(search).get("tab");
+    }
+    return location.pathname === pathname || location.pathname.startsWith(`${pathname}/`);
+  };
   const { t } = useI18n();
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 px-4 pt-[max(0.25rem,env(safe-area-inset-top))] text-white backdrop-blur-xl md:px-6">
       <div className="mx-auto max-w-[1440px]">
-        <div className="flex h-14 items-center justify-between gap-3 md:h-[4.25rem]">
+        <div className="flex min-h-14 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-1 md:h-[4.25rem] md:flex-nowrap md:py-0">
           <Link to="/" className="flex shrink-0 items-center" aria-label={webT("web.homeAlt")}>
-            <img src={mark} alt="" className="h-7 w-7 object-contain md:hidden" />
-            <img src={logo} alt="Promorang" className="hidden h-7 w-auto md:block" />
+            <img src={logo} alt="Promorang" className="h-6 w-auto max-w-[132px] md:h-7 md:max-w-none" />
           </Link>
 
           <nav aria-label={t("publicHome.mobileNavigation")} className="hidden h-full items-center lg:flex">
@@ -31,8 +38,9 @@ export function PublicHomeBar() {
             ].map(([label, href]) => (
               <Link
                 key={href}
+                aria-current={isActive(href) ? "page" : undefined}
                 to={href}
-                className="inline-flex h-full items-center border-b-2 border-transparent px-3 text-[11px] font-black uppercase tracking-[0.11em] text-white/58 transition hover:border-orange-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary xl:px-4"
+                className="inline-flex h-full items-center border-b-2 border-transparent aria-[current=page]:border-orange-400 aria-[current=page]:text-orange-300 px-3 text-[11px] font-black uppercase tracking-[0.11em] text-white/58 transition hover:border-orange-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary xl:px-4"
               >
                 {label}
               </Link>
@@ -40,13 +48,9 @@ export function PublicHomeBar() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <div className="flex min-w-0 items-center gap-1.5 md:hidden">
-              <CityQuickSwitcher className="h-9 min-w-0 max-w-[7rem] justify-between px-2" />
-              <LanguageSelector tone="marketing" className="h-9 shrink-0 px-2" />
-            </div>
             <div className="hidden items-center gap-2 md:flex">
-              <CityQuickSwitcher className="h-9 max-w-[190px]" />
-              <LanguageSelector tone="marketing" className="h-9" />
+              <CityQuickSwitcher className="min-h-11 max-w-[190px]" />
+              <LanguageSelector tone="marketing" className="min-h-11" />
             </div>
             <Link
               to={user ? "/card" : "/auth?mode=login&role=participant"}
@@ -59,9 +63,13 @@ export function PublicHomeBar() {
             </Link>
           </div>
         </div>
+        <div className="flex min-w-0 items-center gap-2 pb-1 md:hidden">
+          <CityQuickSwitcher className="min-h-11 min-w-0 flex-1 justify-between [&>span]:max-w-none [&>span]:whitespace-normal [&>span]:text-left" />
+          <LanguageSelector tone="marketing" className="min-h-11 shrink-0" />
+        </div>
         <nav aria-label={t("publicHome.mobileNavigation")} className="flex gap-5 overflow-x-auto border-t border-white/10 lg:hidden">
           {[[t("publicNav.discover"), "/discover"], [t("publicNav.shop"), "/shop"], [t("publicNav.perks"), "/discover?tab=perks"], [t("publicNav.business"), "/solutions"]].map(([label, href]) => (
-            <Link key={href} to={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-white/85 hover:text-orange-300 focus-visible:outline-orange-300">{label}</Link>
+            <Link key={href} to={href} aria-current={isActive(href) ? "page" : undefined} className="aria-[current=page]:text-orange-300 aria-[current=page]:underline underline-offset-8 inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-white/85 hover:text-orange-300 focus-visible:outline-orange-300">{label}</Link>
           ))}
         </nav>
       </div>

@@ -88,11 +88,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     if (isMarketingRoute) {
         return (
-            <div className="flex min-h-screen flex-col overflow-x-clip">
+            <div className="flex min-h-screen min-w-0 flex-col">
                 {!isCleanPage && <PublicHomeBar />}
-                <main className="flex-1 overflow-x-clip">
+                <div className="min-w-0 flex-1">
                     {children || <Outlet />}
-                </main>
+                </div>
                 {!isCleanPage && <Footer showCta={showFooterCta} />}
             </div>
         );

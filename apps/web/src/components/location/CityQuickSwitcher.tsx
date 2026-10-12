@@ -70,7 +70,7 @@ export function CityQuickSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "inline-flex min-w-0 items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all outline-none cursor-pointer shadow-sm",
+          "inline-flex min-w-0 items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-orange-300 cursor-pointer shadow-sm",
           tone === "marketing"
             ? "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white"
             : "border-border bg-muted/50 hover:bg-muted text-foreground",
@@ -83,7 +83,7 @@ export function CityQuickSwitcher({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-80 p-2.5 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-2xl text-white space-y-2 animate-in fade-in-50 zoom-in-95 duration-150"
+        className="w-80 max-w-[calc(100vw-1rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto p-2.5 rounded-2xl shadow-2xl border-white/10 bg-[#0e0e11]/98 backdrop-blur-2xl text-white space-y-2 animate-in fade-in-50 zoom-in-95 duration-150"
       >
         <div className="px-1 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10 pb-1.5 flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-white/70">
@@ -97,7 +97,8 @@ export function CityQuickSwitcher({
         <div className="relative">
           <Search className="w-3.5 h-3.5 text-white/40 absolute left-2.5 top-1/2 -translate-y-1/2" />
           <input
-            type="text"
+            type="search"
+            aria-label={t("citySwitcher.search")}
             placeholder={t("citySwitcher.search")}
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}

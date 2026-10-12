@@ -1,0 +1,572 @@
+{
+  "rows": [
+    {
+      "name": "home",
+      "width": 320,
+      "scrollWidth": 320,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 360,
+      "scrollWidth": 360,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 375,
+      "scrollWidth": 375,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 390,
+      "scrollWidth": 390,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 414,
+      "scrollWidth": 414,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 430,
+      "scrollWidth": 430,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 768,
+      "scrollWidth": 768,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "discover",
+      "width": 320,
+      "scrollWidth": 320,
+      "outside": [],
+      "cards": [
+        {
+          "width": 286,
+          "scrollWidth": 286,
+          "height": 328,
+          "scrollHeight": 328
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 360,
+      "scrollWidth": 360,
+      "outside": [],
+      "cards": [
+        {
+          "width": 326,
+          "scrollWidth": 326,
+          "height": 318,
+          "scrollHeight": 318
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 375,
+      "scrollWidth": 375,
+      "outside": [],
+      "cards": [
+        {
+          "width": 341,
+          "scrollWidth": 341,
+          "height": 318,
+          "scrollHeight": 318
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 390,
+      "scrollWidth": 390,
+      "outside": [],
+      "cards": [
+        {
+          "width": 356,
+          "scrollWidth": 356,
+          "height": 318,
+          "scrollHeight": 318
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 414,
+      "scrollWidth": 414,
+      "outside": [],
+      "cards": [
+        {
+          "width": 380,
+          "scrollWidth": 380,
+          "height": 328,
+          "scrollHeight": 328
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 430,
+      "scrollWidth": 430,
+      "outside": [],
+      "cards": [
+        {
+          "width": 396,
+          "scrollWidth": 396,
+          "height": 328,
+          "scrollHeight": 328
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 768,
+      "scrollWidth": 768,
+      "outside": [],
+      "cards": [
+        {
+          "width": 574,
+          "scrollWidth": 574,
+          "height": 271,
+          "scrollHeight": 271
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "outside": [],
+      "cards": [
+        {
+          "width": 517,
+          "scrollWidth": 517,
+          "height": 271,
+          "scrollHeight": 271
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "outside": [],
+      "cards": [
+        {
+          "width": 574,
+          "scrollWidth": 574,
+          "height": 457,
+          "scrollHeight": 457
+        }
+      ]
+    },
+    {
+      "name": "shop",
+      "width": 320,
+      "scrollWidth": 320,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 360,
+      "scrollWidth": 360,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 375,
+      "scrollWidth": 375,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 390,
+      "scrollWidth": 390,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 414,
+      "scrollWidth": 414,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 430,
+      "scrollWidth": 430,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 768,
+      "scrollWidth": 768,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "shop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "offers",
+      "width": 320,
+      "scrollWidth": 320,
+      "outside": [],
+      "cards": [
+        {
+          "width": 286,
+          "scrollWidth": 286,
+          "height": 328,
+          "scrollHeight": 328
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 360,
+      "scrollWidth": 360,
+      "outside": [],
+      "cards": [
+        {
+          "width": 326,
+          "scrollWidth": 326,
+          "height": 318,
+          "scrollHeight": 318
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 375,
+      "scrollWidth": 375,
+      "outside": [],
+      "cards": [
+        {
+          "width": 341,
+          "scrollWidth": 341,
+          "height": 318,
+          "scrollHeight": 318
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 390,
+      "scrollWidth": 390,
+      "outside": [],
+      "cards": [
+        {
+          "width": 356,
+          "scrollWidth": 356,
+          "height": 318,
+          "scrollHeight": 318
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 414,
+      "scrollWidth": 414,
+      "outside": [],
+      "cards": [
+        {
+          "width": 380,
+          "scrollWidth": 380,
+          "height": 328,
+          "scrollHeight": 328
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 430,
+      "scrollWidth": 430,
+      "outside": [],
+      "cards": [
+        {
+          "width": 396,
+          "scrollWidth": 396,
+          "height": 328,
+          "scrollHeight": 328
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 768,
+      "scrollWidth": 768,
+      "outside": [],
+      "cards": [
+        {
+          "width": 574,
+          "scrollWidth": 574,
+          "height": 271,
+          "scrollHeight": 271
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "outside": [],
+      "cards": [
+        {
+          "width": 508,
+          "scrollWidth": 508,
+          "height": 477,
+          "scrollHeight": 477
+        }
+      ]
+    },
+    {
+      "name": "offers",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "outside": [],
+      "cards": [
+        {
+          "width": 574,
+          "scrollWidth": 574,
+          "height": 457,
+          "scrollHeight": 457
+        }
+      ]
+    },
+    {
+      "name": "business",
+      "width": 320,
+      "scrollWidth": 320,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 360,
+      "scrollWidth": 360,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 375,
+      "scrollWidth": 375,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 390,
+      "scrollWidth": 390,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 414,
+      "scrollWidth": 414,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 430,
+      "scrollWidth": 430,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 768,
+      "scrollWidth": 768,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "business",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "outside": [],
+      "cards": []
+    },
+    {
+      "name": "promocard",
+      "width": 320,
+      "scrollWidth": 320,
+      "outside": [],
+      "cards": [
+        {
+          "width": 286,
+          "scrollWidth": 286,
+          "height": 372,
+          "scrollHeight": 372
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 360,
+      "scrollWidth": 360,
+      "outside": [],
+      "cards": [
+        {
+          "width": 326,
+          "scrollWidth": 326,
+          "height": 307,
+          "scrollHeight": 307
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 375,
+      "scrollWidth": 375,
+      "outside": [],
+      "cards": [
+        {
+          "width": 341,
+          "scrollWidth": 341,
+          "height": 307,
+          "scrollHeight": 307
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 390,
+      "scrollWidth": 390,
+      "outside": [],
+      "cards": [
+        {
+          "width": 356,
+          "scrollWidth": 356,
+          "height": 307,
+          "scrollHeight": 307
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 414,
+      "scrollWidth": 414,
+      "outside": [],
+      "cards": [
+        {
+          "width": 380,
+          "scrollWidth": 380,
+          "height": 311,
+          "scrollHeight": 311
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 430,
+      "scrollWidth": 430,
+      "outside": [],
+      "cards": [
+        {
+          "width": 396,
+          "scrollWidth": 396,
+          "height": 311,
+          "scrollHeight": 311
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 768,
+      "scrollWidth": 768,
+      "outside": [],
+      "cards": [
+        {
+          "width": 705,
+          "scrollWidth": 705,
+          "height": 462,
+          "scrollHeight": 462
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 1024,
+      "scrollWidth": 1024,
+      "outside": [],
+      "cards": [
+        {
+          "width": 529,
+          "scrollWidth": 529,
+          "height": 505,
+          "scrollHeight": 505
+        }
+      ]
+    },
+    {
+      "name": "promocard",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "outside": [],
+      "cards": [
+        {
+          "width": 693,
+          "scrollWidth": 693,
+          "height": 441,
+          "scrollHeight": 441
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
