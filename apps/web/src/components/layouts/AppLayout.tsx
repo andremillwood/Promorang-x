@@ -5,6 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
 import { PublicHomeBar } from "@/components/culture/PublicHomeBar";
+import { PublicMobileNavigation } from "@/components/navigation/PublicMobileNavigation";
+import { MobileNavigationOwner } from "@/components/navigation/MobileNavigationOwner";
+import "@/components/navigation/public-mobile-navigation.css";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
 import { useState, useEffect } from "react";
@@ -46,20 +49,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         "/help", "/learn", "/faq", "/terms", "/privacy", "/account-deletion", "/contact", "/activate", "/search",
         "/economy", "/promopush/info", "/careers", "/go", "/free", "/campaigns"
     ];
-    const isPublicDiscoveryRoute = !loading && !user && (
-        location.pathname === "/discover" ||
-        location.pathname.startsWith("/discover/") ||
-        location.pathname.startsWith("/discoveries/") ||
-        location.pathname.startsWith("/moments/") ||
-        location.pathname.startsWith("/scenes/") ||
-        location.pathname.startsWith("/venues/") ||
-        location.pathname.startsWith("/creators/") ||
-        location.pathname.startsWith("/offers/") ||
-        location.pathname.startsWith("/storefront/") ||
-        location.pathname.startsWith("/profile/") ||
-        location.pathname === "/shop" ||
-        location.pathname.startsWith("/shop/")
-    );
+    const isPublicDiscoveryRoute = !loading && !user && [
+        "/live", "/discover", "/discoveries", "/moments", "/scenes", "/venues",
+        "/creators", "/offers", "/storefront", "/profile", "/shop",
+    ].some(path => location.pathname === path || location.pathname.startsWith(path + "/"));
     const isMarketingRoute = marketingRoutes.some(path =>
         location.pathname === path || location.pathname.startsWith(path + "/")
     ) || ["/growth", "/organizer"].includes(location.pathname) || isPublicDiscoveryRoute;
@@ -88,13 +81,16 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     if (isMarketingRoute) {
         return (
-            <div className="flex min-h-screen min-w-0 flex-col">
-                {!isCleanPage && <PublicHomeBar />}
-                <div className="min-w-0 flex-1">
-                    {children || <Outlet />}
+            <MobileNavigationOwner.Provider value={true}>
+                <div className={`flex min-h-screen min-w-0 flex-col ${!isCleanPage ? "public-navigation-shell" : ""}`}>
+                    {!isCleanPage && <PublicHomeBar />}
+                    <div className="min-w-0 flex-1">
+                        {children || <Outlet />}
+                    </div>
+                    {!isCleanPage && <Footer showCta={showFooterCta} />}
+                    {!isCleanPage && <PublicMobileNavigation />}
                 </div>
-                {!isCleanPage && <Footer showCta={showFooterCta} />}
-            </div>
+            </MobileNavigationOwner.Provider>
         );
     }
 
@@ -114,20 +110,24 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     if (user && isParticipantWorld) {
         return (
-            <ParticipantWorldLayout>
-                {children || <Outlet />}
-            </ParticipantWorldLayout>
+            <MobileNavigationOwner.Provider value={true}>
+                <ParticipantWorldLayout>
+                    {children || <Outlet />}
+                </ParticipantWorldLayout>
+            </MobileNavigationOwner.Provider>
         );
     }
 
     if (user && !isCleanPage) {
         const stakeholderRole = activeRole || "participant";
         return (
-            <div data-stakeholder-world data-stakeholder-role={stakeholderRole}>
-                <DashboardLayout currentRole={stakeholderRole as any}>
-                    {children || <Outlet />}
-                </DashboardLayout>
-            </div>
+            <MobileNavigationOwner.Provider value={true}>
+                <div data-stakeholder-world data-stakeholder-role={stakeholderRole}>
+                    <DashboardLayout currentRole={stakeholderRole as any}>
+                        {children || <Outlet />}
+                    </DashboardLayout>
+                </div>
+            </MobileNavigationOwner.Provider>
         );
     }
 

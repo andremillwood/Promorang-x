@@ -6,14 +6,9 @@ import { useMemo } from "react";
 import {
   ArrowRight,
   CalendarDays,
-  Clock3,
-  Home,
   MapPin,
-  Plus,
-  ShoppingBag,
   Sparkles,
   Users,
-  WalletCards,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
@@ -146,13 +141,7 @@ export default function PublicMarketHome() {
         </section>
       </div>
 
-      <nav aria-label={t("publicHome.mobileNavigation")} className="mx-auto flex max-w-[1360px] justify-around gap-2 border-t border-white/15 px-5 py-5 md:hidden">
-        <Link to="/" className="flex flex-col items-center gap-1 text-[10px] font-bold text-orange-400"><Home className="h-5 w-5" />{t("publicHome.navHome")}</Link>
-        <Link to="/shop" className="flex flex-col items-center gap-1 text-[10px] font-bold text-white/85"><ShoppingBag className="h-5 w-5" />{t("publicNav.shop")}</Link>
-        <Link to="/discover?tab=wants" className="flex flex-col items-center gap-1 text-[10px] font-bold text-white"><span className="grid h-5 w-5 place-items-center text-orange-300"><Plus className="h-5 w-5" /></span>{t("publicHome.navAsk")}</Link>
-        <Link to="/live" className="flex flex-col items-center gap-1 text-[10px] font-bold text-white/65"><Clock3 className="h-5 w-5" />{t("publicHome.navMoving")}</Link>
-        <Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="flex flex-col items-center gap-1 text-[10px] font-bold text-white/65"><WalletCards className="h-5 w-5" />{t("publicHome.navCard")}</Link>
-      </nav>
+
     </main>
   );
 }
