@@ -1,6 +1,6 @@
 # Promorang mobile UX audit and verification
 
-Baseline: `5485d7342` (`main`). Branch: `codex/mobile-ux-consolidation`.
+Visual/typecheck baseline: `5485d7342`. Integrated the subsequent main navigation fix `7125bc8c7` before final verification. Branch: `codex/mobile-ux-consolidation`.
 
 This is an incremental public-web pass. The original checkout's uncommitted material/design work was preserved in its own checkout and is not included here.
 
@@ -41,7 +41,7 @@ Implemented in phases: fix intrinsic sizing/header/card; compact home/discovery;
 
 `PublicHomeBar` serves marketing/public discovery pages; `Header`, `DashboardLayout` and `ParticipantWorldLayout` serve other contexts. These are role-dependent shells, not duplicates that can safely be deleted. Location and language continue using their existing contexts and Radix menus. Home's category links, Discover's interest/result filters and Shop's category routes remain operational.
 
-Navigation recommendation: retain Discover, Shop, Offers and For business for this pass. Keep Home reachable via the logo and account/card via the account control. Do not introduce generic Saved or Take Part tabs: their relevant functions are distributed across authenticated card/moment workflows, and replacing routes would need a separate role-aware information architecture test. Business remains accessible in the current nav pending that test.
+Navigation recommendation: retain Discover, Shop, Offers and For business for this pass. Keep Home reachable via the logo and the fixed mobile bar, and account/card via the account control. Do not introduce generic Saved or Take Part tabs: their relevant functions are distributed across authenticated card/moment workflows, and replacing routes would need a separate role-aware information architecture test. Business remains accessible in the current nav pending that test. The navigation fix merged on main during implementation is retained: one fixed mobile bar, safe-area padding, footer clearance and hiding while an input has focus. The header navigation is tablet/desktop only, avoiding duplicate mobile navigation.
 
 ## Implementation inventory
 
@@ -49,7 +49,7 @@ Navigation recommendation: retain Discover, Shop, Offers and For business for th
 - Discovery and card: `PublicDiscoverExperience.tsx`, `PromoCardObject.tsx`, scoped rules in `index.css`.
 - Home: `PublicMarketHome.tsx`, `PublicMarketHome.css`, localized shorter copy in `catalog-more.ts`.
 - Commerce/business: `Marketplace.tsx`, `SolutionsHub.tsx`, English/Spanish/Portuguese Shop copy in `translations.ts`.
-- Tests: new `PublicHomeBar.test.tsx`; revised Shop copy expectations; scoped clipboard-error assertion in `MyPromoCard.test.tsx` to its dialog rather than an unrelated background progress status.
+- Tests: new `PublicHomeBar.test.tsx`; revised Shop copy expectations and the Home assertion for shell-owned navigation; scoped clipboard-error assertion in `MyPromoCard.test.tsx` to its dialog rather than an unrelated background progress status.
 - Reusable browser verification: `apps/web/scripts/verify-mobile-ux.cjs`.
 
 No database, auth, payment, deployment configuration, or package dependencies changed. No inventory, rewards or engagement metrics were added.
@@ -58,14 +58,15 @@ No database, auth, payment, deployment configuration, or package dependencies ch
 
 - Production build: **passed**, including localized SEO snapshots; existing large chunk warning remains (largest reported chunk approximately 1.66 MB before gzip).
 - ESLint: **passed with 118 warnings, zero errors**.
-- TypeScript: **fails with 547 diagnostics**. An untouched archive of the baseline commit reports the same 547 diagnostics; normalized diagnostic comparison found no additions or removals. Existing failures include generated data-model mismatches and shared types.
-- Targeted Vitest suite: **49/49 passed across seven files**; covers public home, navigation, marketplace copy, PromoCard face/gateway/journey and auth roles/locales.
+- TypeScript: **fails with 547 diagnostics**. An untouched archive of the baseline commit reports the same 547 diagnostics; normalized diagnostic comparison found no additions or removals, including after integrating main. The first post-merge compiler process crashed; the bundled Node runtime retry completed with the same diagnostics. Existing failures include generated data-model mismatches and shared types.
+- Targeted Vitest verification: **78 tests covered across nine files**. The original seven-file suite passed 49/49. After integrating main, the expanded run passed 77/78 with one 20-second timeout in MyPromoCard; its isolated rerun passed all 10 tests in 1.2 seconds of test time. No assertion failures remain. The expanded run uses one worker, the threads pool and a 20-second timeout. Coverage includes public home, shell/navigation ownership, marketplace copy, PromoCard face/gateway/journey and auth roles/locales.
 - Chrome responsive matrix: **54/54 passed** across six surfaces × 320, 360, 375, 390, 414, 430, 768, 1024 and 1440px. Checks page width, content bounds and card internal dimensions. Intentional scroll containers and decorative SVG artwork are excluded from content-bounds assertions.
 - Public interactions: **passed** for Discover category selection/clear search, location search/menu fit, language menu, Shop search/category, bag destination, business outcome CTA and PromoCard signup return destination.
+- Main navigation regression script: **passed** browser/standalone emulation, fixed footer clearance, Back/Forward/reload, focused-input dismissal, Escape, auth and desktop checks.
 - JavaScript page errors during the final browser run: **none**. Expected missing-backend/network diagnostics are not treated as a successful data-loading test.
 - `git diff --check`: passed.
 
-At 390px, measured Discover hero height changed from approximately 589px to 384px, and search moved from y≈475px to y≈374px. Home's mobile headline changed from 43px to 31px. These are layout measurements, not performance or comprehension claims.
+At 390px, measured Discover hero height changed from approximately 589px to 384px. Home's mobile headline changed from 43px to 31px. These are layout measurements, not performance or comprehension claims.
 
 ### Reproduce browser checks
 
