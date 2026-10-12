@@ -66,23 +66,13 @@
 .home-opportunity-tabs button { min-height: 44px; padding: 8px 12px; border-bottom: 2px solid transparent; color: #bdc2ba; font-size: 13px; font-weight: 600; }
 .home-opportunity-tabs button[aria-pressed="true"] { color: #ffb67d; border-color: #ff9b55; }
 .home-opportunities button:focus-visible { outline: 2px solid #ffb67d; outline-offset: 3px; }
-.home-opportunity-card { overflow: hidden; border: 1px solid #45483e; background: #171c17; border-radius: 12px; }
-.home-opportunity-image { width: 100%; height: 175px; object-fit: cover; }
-.home-opportunity-body { padding: 24px; }
-.home-opportunity-kicker { color: #ffb67d; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
-.home-opportunity-body h2 { font-family: inherit; font-size: 27px; line-height: 1.2; margin: 12px 0; }
-.home-opportunity-body > p { font-size: 14px; line-height: 1.7; color: #d1d5cd; }
-.home-opportunity-body .home-opportunity-benefit-label { margin-top: 18px; font-size: 12px; font-weight: 700; color: #ffb67d; }
-.home-opportunity-location { display: flex; align-items: center; gap: 7px; }
-.home-opportunity-date { margin-top: 12px; }
-.home-opportunity-details { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 12px 0; font-size: 14px; font-weight: 600; }
-.home-opportunity-body .home-opportunity-account { font-size: 12px; margin-top: 15px; color: #b5bdb0; }
+
 .home-opportunity-controls { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-top: 12px; font-size: 12px; }
 .home-opportunity-controls button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #515649; border-radius: 50%; }
 .home-opportunity-empty,.home-opportunity-notice { padding: 18px; font-size: 14px; line-height: 1.7; color: #d1d5cd; }
 .home-opportunity-notice button { display: inline-block; min-height: 44px; margin-left: 10px; color: #ffb67d; text-decoration: underline; }
 .home-opportunities #request-offer { border-radius: 12px; }
-@media(max-width:639px) { .home-hero-dark .home-intro-copy { padding-top: 0; } .home-opportunity-body { padding: 20px; } .home-opportunity-tabs button { padding-inline: 9px; font-size: 12px; } }
+@media(max-width:639px) { .home-hero-dark .home-intro-copy { padding-top: 0; } .home-opportunity-tabs button { padding-inline: 9px; font-size: 12px; } }
 /* Promorang's current: warm colour, human scenes and a visible sense of movement. */
 .home-hero-dark { isolation: isolate; overflow: hidden; background: radial-gradient(ellipse at 98% 10%,#4b251a 0,transparent 43%),radial-gradient(ellipse at 10% 100%,#452014 0,transparent 48%),#090b0b; --home-accent: #ff9652; }
 .home-hero-dark .home-intro-hero { position: relative; z-index: 1; gap: clamp(28px,4vw,64px); padding-top: 48px; padding-bottom: 52px; }
@@ -147,12 +137,6 @@
  .home-scene-ribbon { grid-area: scenes; margin-top: 4px; }
 }
 
-.home-opportunity-summary { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
-@media (max-width: 639px) {
- .home-opportunity-image { max-height: 144px; }
- .home-opportunity-body { padding: 16px; }
- .home-opportunity-summary { -webkit-line-clamp: 2; }
-}
 .home-demand-card { position: relative; padding: 24px; border: 1px solid #fa944842; border-radius: 18px; background: radial-gradient(ellipse at 100% 0%,#ff86201a,transparent 60%),#171a16; color: #faf8f2; }
 .home-demand-eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; color: #ffb36e; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
 .home-demand-card h2 { max-width: 360px; font-size: clamp(26px,3vw,36px); line-height: 1.1; }
@@ -200,23 +184,12 @@
  .home-demand-choice { overflow-wrap: anywhere; }
 }
 
-/* Discovery comes first; supporting images and account benefits follow the facts. */
+/* Compact introduction spacing; discovery cards own their media and typography. */
 @media (max-width: 639px) {
  .home-hero-dark .home-intro-description { font-size: 14px; line-height: 1.45; }
  .home-hero-dark .home-kicker { font-size: 10px; letter-spacing: .1em; }
  .home-opportunities { margin-top: 4px; padding: 8px; }
  .home-opportunity-tabs { margin-bottom: 8px; padding: 0; }
- .home-opportunity-card { display: flex; flex-direction: column; }
- .home-opportunity-body { order: -1; padding: 12px; }
- .home-opportunity-body h2 { font-size: 21px; line-height: 1.2; margin: 4px 0 8px; overflow-wrap: anywhere; }
- .home-opportunity-body > p { font-size: 13px; line-height: 1.4; }
- .home-opportunity-body .home-opportunity-kicker { font-size: 10px; }
- .home-opportunity-date { margin-top: 0; }
- .home-opportunity-location { margin-top: 4px; align-items: flex-start; }
- .home-opportunity-location svg { flex-shrink: 0; margin-top: 2px; }
- .home-opportunity-details { margin: 8px 0 0; padding: 8px 14px; min-height: 44px; border-radius: 999px; background: #ff741d; color: #140c06; justify-content: space-between; }
- .home-opportunity-body .home-opportunity-benefit-label { margin-top: 12px; }
- .home-opportunity-body > .home-primary-link { background: transparent; box-shadow: none; color: #ffb67d; min-height: 44px; padding: 8px 0; }
- .home-opportunity-body .home-opportunity-account { margin-top: 0; }
+
  .home-intro-actions { margin-top: 4px; }
 }
