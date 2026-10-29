@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowRight, Check, Clock3, ExternalLink, Gift, Loader2, LockKeyhole, ShieldCheck, Target, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,10 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
   const [selected, setSelected] = useState<ContentMission | null>(null);
   const [proofUrl, setProofUrl] = useState("");
   const [note, setNote] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const submitting = useRef(false);
+  const validProof = (() => { try { const url = new URL(proofUrl.trim()); return ["http:", "https:"].includes(url.protocol) && Boolean(url.hostname); } catch { return false; } })();
   const participationFor = (id: string) => progress.data?.find((item) => item.mission_id === id);
 
   const joinMission = async (mission: ContentMission) => {
@@ -44,22 +48,27 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
   };
 
   const submitProof = async () => {
-    if (!selected) return;
+    if (!selected || !validProof || submitting.current) return;
+    submitting.current = true;
+    setSubmitError("");
     try {
-      await submit.mutateAsync({ missionId: selected.id, proofUrl, note });
+      await submit.mutateAsync({ missionId: selected.id, proofUrl: proofUrl.trim(), note: note.trim() });
+      setConfirmation("Contribution received. It is now awaiting review.");
       setSelected(null);
       setProofUrl("");
       setNote("");
       toast({ title: "Contribution received", description: "It is now in review. We will update the mission when it has counted." });
     } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Your contribution was not sent. Try again.");
       toast({ title: "Could not submit proof", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
-    }
+    } finally { submitting.current = false; }
   };
 
   if (missions.isLoading) {
     return <div className="flex gap-3 overflow-hidden"><Skeleton className="h-72 min-w-[82%] rounded-3xl sm:min-w-[390px]" /><Skeleton className="hidden h-72 min-w-[390px] rounded-3xl sm:block" /></div>;
   }
-  if (missions.isError || !missions.data?.length) return null;
+  if (missions.isError) return <div role="alert" className="rounded-xl border border-destructive/30 p-4 text-sm"><p>Missions could not be loaded.</p><Button variant="outline" className="mt-3" disabled={missions.isFetching} onClick={() => void missions.refetch()}>Try again</Button></div>;
+  if (!missions.data?.length) return null;
 
   return (
     <section aria-labelledby="content-missions-title" className="overflow-hidden rounded-[2rem] border border-white/10 bg-black text-white">
@@ -71,6 +80,8 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
         <p className="hidden max-w-xs text-right text-xs leading-5 text-white/45 sm:block">Simple actions. Visible contribution. Value you can keep.</p>
       </div>
 
+      {confirmation ? <p role="status" className="px-5 pb-4 text-sm text-emerald-300">{confirmation}</p> : null}
+      {signedIn && progress.isError ? <div role="alert" className="mx-5 mb-4 rounded-xl border border-destructive/30 p-4 text-sm"><p>Your mission progress could not be loaded.</p><Button variant="outline" className="mt-3" disabled={progress.isFetching} onClick={() => void progress.refetch()}>Try again</Button></div> : null}
       <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-6 sm:px-7">
         {missions.data.map((mission, index) => {
           const participation = participationFor(mission.id);
@@ -115,19 +126,19 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
                   ))}
                 </div>
 
-                <div className="mt-4 flex items-center justify-between gap-3">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white/35"><Gift className="h-3 w-3" /> Reward</p>
                     <p className="mt-1 truncate text-sm font-bold">{mission.reward_value}</p>
                   </div>
                   {participation?.status === "joined" ? (
-                    <Button onClick={() => setSelected(mission)} size="sm"><Upload className="mr-2 h-4 w-4" />Submit contribution</Button>
-                  ) : submitted ? (
+                    <Button onClick={() => { setSelected(mission); setSubmitError(""); }} disabled={progress.isError} size="sm"><Upload className="mr-2 h-4 w-4" />Submit contribution</Button>
+                  ) : participation?.status === "rejected" ? <span className="text-sm text-amber-300">Contribution needs review. Contact the host.</span> : submitted ? (
                     <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black text-emerald-300">
                       <Check className="h-3.5 w-3.5" />{statusCopy[participation.status]}
                     </span>
                   ) : (
-                    <Button onClick={() => joinMission(mission)} size="sm" disabled={join.isPending}>
+                    <Button onClick={() => joinMission(mission)} size="sm" disabled={join.isPending || (signedIn && (progress.isLoading || progress.isError))}>
                       {join.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LockKeyhole className="mr-2 h-4 w-4" />}Join mission
                     </Button>
                   )}
@@ -149,26 +160,27 @@ export function MissionRail({ momentId, signedIn, onSignIn }: Props) {
         })}
       </div>
 
-      <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="border-white/10 bg-zinc-950 text-white sm:max-w-lg">
+      <Dialog open={Boolean(selected)} onOpenChange={(open) => { if (!open && !submitting.current) setSelected(null); }}>
+        <DialogContent className="border-white/10 bg-zinc-950 text-white overscroll-contain sm:max-w-lg" onEscapeKeyDown={(event) => { if (submitting.current) event.preventDefault(); }} onPointerDownOutside={(event) => { if (submitting.current) event.preventDefault(); }}>
           <DialogHeader>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Contribution, not polish</p>
-            <DialogTitle className="text-2xl font-black">{selected?.title}</DialogTitle>
-            <DialogDescription className="text-white/50">Paste the public link to what you made. The host reviews it against the mission—not follower count or production quality.</DialogDescription>
+
+            <DialogTitle className="break-words pr-8 font-sans text-xl font-semibold">{selected?.title}</DialogTitle>
+            <DialogDescription className="text-white/50">Paste your public post link. The host will review it against the mission requirements.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 pt-2">
+          <form onSubmit={(event) => { event.preventDefault(); void submitProof(); }} className="space-y-4 pt-2">
             <div className="space-y-2">
               <Label htmlFor="mission-proof-url">Public post link</Label>
-              <Input id="mission-proof-url" type="url" value={proofUrl} onChange={(event) => setProofUrl(event.target.value)} placeholder="https://instagram.com/..." className="border-white/10 bg-white/5" />
+              <Input id="mission-proof-url" disabled={submit.isPending} type="url" value={proofUrl} onChange={(event) => setProofUrl(event.target.value)} placeholder="https://instagram.com/..." className="min-h-11 border-white/10 bg-white/5 text-base" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="mission-proof-note">Short note <span className="text-white/35">(optional)</span></Label>
-              <Textarea id="mission-proof-note" value={note} onChange={(event) => setNote(event.target.value)} maxLength={500} placeholder="Anything the reviewer should know?" className="border-white/10 bg-white/5" />
+              <Textarea id="mission-proof-note" disabled={submit.isPending} value={note} onChange={(event) => setNote(event.target.value)} maxLength={500} placeholder="Anything the reviewer should know?" className="min-h-11 border-white/10 bg-white/5 text-base" />
             </div>
-            <Button className="w-full" onClick={submitProof} disabled={!/^https?:\/\/\S+$/i.test(proofUrl) || submit.isPending}>
+            {submitError ? <p role="alert" className="text-sm text-red-200">{submitError}</p> : null}
+            <Button type="submit" className="min-h-11 w-full" disabled={!validProof || submit.isPending}>
               {submit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}Send contribution for review
             </Button>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </section>

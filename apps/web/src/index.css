@@ -17,7 +17,8 @@
 html,
 body,
 #root {
-  min-width: 320px;
+  /* Let narrow viewports include their scrollbar without forcing horizontal overflow. */
+  min-width: 0;
   min-height: 100%;
 }
 
@@ -600,8 +601,8 @@ body {
       scroll-behavior: auto !important;
     }
 
-    [class*="slide-in-"],
-    [class*="slide-out-"],
+    [class*="slide-in-"]:not([role="dialog"]):not([role="alertdialog"]),
+    [class*="slide-out-"]:not([role="dialog"]):not([role="alertdialog"]),
     [class*="animate-bounce"],
     [class*="animate-pulse"],
     [class*="animate-float"],

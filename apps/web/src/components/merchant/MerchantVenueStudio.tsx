@@ -11,25 +11,24 @@ export function MerchantVenueStudio({
   onOpenMoments?: () => void;
 }) {
   const { t: webT } = useWebI18n();
-  const { data: venues = [], isLoading, error } = useMerchantVenues();
+  const { data: venues = [], isLoading, error, isFetching, refetch } = useMerchantVenues();
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-emerald-500/25 bg-[linear-gradient(135deg,rgba(16,185,129,.10),rgba(0,0,0,.86))] p-5 sm:p-7">
+      <section className="rounded-2xl border border-border bg-card p-5 sm:p-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-emerald-300">
               <Store className="h-4 w-4" />
               Merchant · Places
             </div>
-            <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">Operate the places you actually own or manage.</h2>
+            <h2 className="font-sans mt-3 text-2xl font-black text-white sm:text-3xl">Your locations</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
-              Venue identity, operating status and capacity come from recorded place data. PROMORANG does not invent occupancy,
-              ratings or live Moment counts when those records do not exist.
+              Manage locations and create events at your venues.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild className="rounded-xl bg-emerald-500 font-black text-black hover:bg-emerald-400">
+            <Button asChild className="rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
               <Link to="/dashboard/venues/add"><Plus className="mr-2 h-4 w-4" />Add location</Link>
             </Button>
             <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">
@@ -40,26 +39,26 @@ export function MerchantVenueStudio({
       </section>
 
       {isLoading ? (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
           {[0, 1].map((item) => <div key={item} className="h-56 animate-pulse rounded-3xl border border-white/10 bg-white/[.025]" />)}
         </div>
       ) : error ? (
-        <div className="rounded-3xl border border-red-500/20 bg-red-500/[.05] p-6 text-sm text-red-200">
-          Places could not be loaded. No sample venues have been substituted.
+        <div role="alert" className="rounded-3xl border border-red-500/20 bg-red-500/[.05] p-6 text-sm text-red-200">
+          <p>Locations could not be loaded.</p><Button variant="outline" className="mt-3" disabled={isFetching} onClick={() => void refetch()}>Try again</Button>
         </div>
       ) : venues.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-white/12 bg-white/[.02] p-9 text-center">
           <Building className="mx-auto h-9 w-9 text-white/25" />
-          <h3 className="mt-4 text-xl font-black text-white">No managed places recorded yet.</h3>
+          <h3 className="font-sans mt-4 text-xl font-black text-white">No managed places recorded yet.</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/45">
-            Add the first real location before PROMORANG can attach offers, Moments or on-site operations to it.
+            Add a location to attach offers and events to your venue.
           </p>
-          <Button asChild className="mt-5 rounded-xl bg-emerald-500 font-black text-black hover:bg-emerald-400">
+          <Button asChild className="mt-5 rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
             <Link to="/dashboard/venues/add">Add your first location</Link>
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
           {venues.map((venue: any) => {
             const capacity = Number(venue.capacity);
             const hasCapacity = Number.isFinite(capacity) && capacity > 0;
@@ -68,7 +67,7 @@ export function MerchantVenueStudio({
             const location = venue.address || venue.location || venue.city || "Location not recorded";
 
             return (
-              <article key={venue.id} className="overflow-hidden rounded-3xl border border-white/10 bg-[#0e1015]">
+              <article key={venue.id} className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#0e1015]">
                 {venue.image_url ? (
                   <div className="h-44 overflow-hidden bg-black">
                     <img src={venue.image_url} alt={venue.name || "Merchant venue"} className="h-full w-full object-cover opacity-70" />
@@ -87,7 +86,7 @@ export function MerchantVenueStudio({
                           {venue.is_active ? webT("commercial.active") : "Inactive"}
                         </span>
                       </div>
-                      <h3 className="mt-3 text-xl font-black text-white">{venue.name || "Unnamed place"}</h3>
+                      <h3 className="font-sans mt-3 break-words text-xl font-semibold text-white">{venue.name || "Unnamed place"}</h3>
                       <p className="mt-2 flex items-start gap-2 text-xs leading-5 text-white/45">
                         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
                         {location}
@@ -109,7 +108,7 @@ export function MerchantVenueStudio({
                   <div className="flex flex-wrap gap-2 border-t border-white/8 pt-4">
                     {onOpenMoments ? (
                       <Button type="button" variant="outline" onClick={onOpenMoments} className="rounded-xl border-white/10 bg-white/[.03] text-white">
-                        Open Moment tools
+                        Create an event
                       </Button>
                     ) : null}
                     <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">

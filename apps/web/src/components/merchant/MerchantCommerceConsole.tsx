@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { commerceStatus, commerceReceiptType } from "@/i18n/commerce-status";
 import type { TranslationKey } from "@/i18n/translations";
 import { currentUiLocale } from "@/i18n/geo-locale";
@@ -89,6 +93,9 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
   const { session } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [receiptDecision, setReceiptDecision] = useState<{receipt:ReceiptRow;status:"cancelled" | "refunded"} | null>(null);
+  const [paymentOrder, setPaymentOrder] = useState<MerchantPaymentOrder | null>(null);
+  const [paymentReference, setPaymentReference] = useState("");
 
   const salesQuery = useQuery({
     queryKey: ["merchant-sales-console"],
@@ -179,6 +186,8 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
       return data;
     },
     onSuccess: () => {
+      setPaymentOrder(null);
+      setPaymentReference("");
       toast({ title: webT("web.paymentConfirmed"), description: webT("web.paidReceiptIssued") });
       queryClient.invalidateQueries({ queryKey: ["merchant-payment-orders"] });
       queryClient.invalidateQueries({ queryKey: ["merchant-commerce-receipts"] });
@@ -218,6 +227,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
       return data.receipt as ReceiptRow;
     },
     onSuccess: (_receipt, variables) => {
+      setReceiptDecision(null);
       toast({
         title: variables.status === "fulfilled" ? webT("web.receiptFulfilled") : variables.status === "cancelled" ? webT("web.receiptCancelled") : webT("web.receiptRefunded"),
         description: webT("web.queueUpdated"),
@@ -237,7 +247,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
 
   const changeReceiptStatus = (receipt: ReceiptRow, status: "fulfilled" | "cancelled" | "refunded") => {
     const action = status === "fulfilled" ? "mark this receipt fulfilled" : status === "cancelled" ? "cancel this receipt" : "mark this receipt refunded";
-    if (status !== "fulfilled" && !window.confirm(webT(status === "cancelled" ? "web.confirmCancelReceipt" : "web.confirmRefundReceipt"))) return;
+    if (status !== "fulfilled") { updateReceiptStatus.reset(); setReceiptDecision({receipt,status}); return; }
     updateReceiptStatus.mutate({ id: receipt.id, status, note: `Merchant chose to ${action} from Commerce Console.` });
   };
 
@@ -263,12 +273,32 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
 
   const isLoading = salesQuery.isLoading || receiptsQuery.isLoading;
 
+  const reads = [salesQuery, receiptsQuery, liveOpsQuery, merchantPaymentOrders, directMethods, casesQuery];
+  if (reads.some((query) => query.isError)) return <section role="alert" className="rounded-xl border border-destructive/30 p-5"><h2 className="text-xl font-semibold">Orders could not be loaded.</h2><p className="mt-2 text-sm text-muted-foreground">Refresh the order queue before confirming payments or fulfillment.</p><Button variant="outline" className="mt-3" disabled={reads.some((query) => query.isFetching)} onClick={() => void Promise.allSettled(reads.map((query) => query.refetch()))}>Try again</Button></section>;
+
   return (
     <section className="space-y-4">
+      <Dialog open={Boolean(receiptDecision)} onOpenChange={(open) => { if (!open && !updateReceiptStatus.isPending) setReceiptDecision(null); }}>
+        <DialogContent onEscapeKeyDown={(event) => { if (updateReceiptStatus.isPending) event.preventDefault(); }} onPointerDownOutside={(event) => { if (updateReceiptStatus.isPending) event.preventDefault(); }}>
+          <DialogHeader><DialogTitle className="pr-8 font-sans">{receiptDecision?.status === "refunded" ? "Record refund" : "Cancel receipt"}</DialogTitle><DialogDescription>This changes the receipt status for {receiptDecision ? receiptLabel(receiptDecision.receipt, webT) : "this order"}. Confirm only when this reflects what happened.</DialogDescription></DialogHeader>
+          {updateReceiptStatus.isError ? <p role="alert" className="text-sm text-destructive">The receipt was not updated. Try again.</p> : null}
+          <DialogFooter><Button variant="outline" disabled={updateReceiptStatus.isPending} onClick={() => setReceiptDecision(null)}>Keep receipt</Button><Button variant="destructive" disabled={updateReceiptStatus.isPending} onClick={() => { if (receiptDecision) updateReceiptStatus.mutate({id:receiptDecision.receipt.id,status:receiptDecision.status,note:"Merchant confirmed the receipt status change."}); }}>{updateReceiptStatus.isPending ? "Saving…" : "Confirm status change"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={Boolean(paymentOrder)} onOpenChange={(open) => { if (!open && !confirmMerchantPayment.isPending) setPaymentOrder(null); }}>
+        <DialogContent onEscapeKeyDown={(event) => { if (confirmMerchantPayment.isPending) event.preventDefault(); }} onPointerDownOutside={(event) => { if (confirmMerchantPayment.isPending) event.preventDefault(); }}>
+          <DialogHeader><DialogTitle className="pr-8 font-sans">Confirm payment received</DialogTitle><DialogDescription>Check your own payment records before confirming {paymentOrder ? money(paymentOrder.total_amount,paymentOrder.currency) : "this payment"}. This records the payment; it does not collect money.</DialogDescription></DialogHeader>
+          <form onSubmit={(event) => { event.preventDefault(); if (paymentOrder && paymentReference.trim() && !confirmMerchantPayment.isPending) confirmMerchantPayment.mutate({orderId:paymentOrder.id,reference:paymentReference.trim()}); }} className="space-y-4">
+            <div className="space-y-2"><Label htmlFor="merchant-payment-reference">Payment reference</Label><Input id="merchant-payment-reference" value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} required disabled={confirmMerchantPayment.isPending} className="min-h-11 text-base" /></div>
+            {confirmMerchantPayment.isError ? <p role="alert" className="text-sm text-destructive">Payment was not confirmed. Your reference is still here. Try again.</p> : null}
+            <DialogFooter><Button type="button" variant="outline" disabled={confirmMerchantPayment.isPending} onClick={() => setPaymentOrder(null)}>Cancel</Button><Button type="submit" disabled={!paymentReference.trim() || confirmMerchantPayment.isPending}>{confirmMerchantPayment.isPending ? "Confirming…" : "Confirm payment"}</Button></DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       <Card className="overflow-hidden border-orange-500/25 bg-[#11100e] text-white">
         <CardContent className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div><p className="text-[10px] font-black uppercase tracking-[.28em] text-orange-400">{webT("web.liveOperations")}</p><h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight">{liveMomentNames.length ? liveMomentNames.join(" · ") : webT("web.counterNow")}</h2><p className="mt-2 max-w-xl text-sm text-white/55">{webT("web.staffAttention")}</p></div>
+            <div><p className="text-[10px] font-black uppercase tracking-[.28em] text-orange-400">{webT("web.liveOperations")}</p><h2 className="mt-2 font-sans text-2xl font-semibold tracking-tight">{liveMomentNames.length ? liveMomentNames.join(" · ") : webT("web.counterNow")}</h2><p className="mt-2 max-w-xl text-sm text-white/55">{webT("web.staffAttention")}</p></div>
             <Button onClick={onOpenValidation} className="bg-orange-500 text-black hover:bg-orange-400"><QrCode className="mr-2 h-4 w-4" />{webT("web.openScannerCount")} {liveOps.needsAction} {webT("web.waiting")}</Button>
           </div>
           <div className="mt-5 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -278,13 +308,13 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
         </CardContent>
       </Card>
       {openCases.length ? <Card className="border-red-500/25 bg-red-500/[.04]"><CardContent className="p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-red-500">{webT("web.customerCases")}</p><h3 className="mt-1 text-xl font-black">{openCases.length} {webT("web.needResponse")}</h3></div><Badge variant="destructive">{webT("web.responseClock")}</Badge></div><div className="mt-4 space-y-2">{openCases.slice(0,4).map((item)=><div key={item.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold">{item.receipt?.merchant_products?.name || item.subject}</p><p className="mt-1 text-xs text-muted-foreground">{webT("web.commerceIssue")} {webT("web.due")} {item.merchant_response_due_at ? new Date(item.merchant_response_due_at).toLocaleString(currentUiLocale()) : webT("web.soon")}</p></div><Button size="sm" onClick={()=>respondToCase(item.id)}>{webT("commercial.respond.122")}</Button></div>)}</div></CardContent></Card> : null}
-      {awaitingMerchantPayments.length ? <Card className="border-amber-500/25 bg-amber-500/[.05]"><CardContent className="p-5"><p className="text-[10px] font-black uppercase tracking-[.22em] text-amber-600">{webT("web.paidDirectly")}</p><h3 className="mt-1 text-xl font-black">{awaitingMerchantPayments.length} {webT("web.awaitingConfirmation")}</h3><p className="mt-2 text-sm text-muted-foreground">{webT("web.verifyMoney")}</p><div className="mt-4 space-y-2">{awaitingMerchantPayments.map((order)=><div key={order.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{order.commerce_order_items?.map((item)=>`${item.quantity}× ${item.product_name}`).join(", ") || webT("web.merchantOrder")}</p><p className="mt-1 text-xs text-muted-foreground">{order.metadata?.merchant_payment_display_name || webT("web.directMerchantPayment")} {webT("web.expires")} {new Date(order.reservation_expires_at).toLocaleTimeString(currentUiLocale())}</p></div><div className="flex items-center gap-3"><strong>{money(order.total_amount, order.currency)}</strong><Button size="sm" disabled={confirmMerchantPayment.isPending} onClick={()=>{const reference=window.prompt(webT("web.paymentReferencePrompt")); if(reference?.trim()) confirmMerchantPayment.mutate({orderId:order.id,reference:reference.trim()});}}>{webT("web.confirmMoney")}</Button></div></div>)}</div></CardContent></Card> : null}
-      <Card className="overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-primary/5">
+      {awaitingMerchantPayments.length ? <Card className="border-amber-500/25 bg-amber-500/[.05]"><CardContent className="p-5"><p className="text-[10px] font-black uppercase tracking-[.22em] text-amber-600">{webT("web.paidDirectly")}</p><h3 className="mt-1 text-xl font-black">{awaitingMerchantPayments.length} {webT("web.awaitingConfirmation")}</h3><p className="mt-2 text-sm text-muted-foreground">{webT("web.verifyMoney")}</p><div className="mt-4 space-y-2">{awaitingMerchantPayments.map((order)=><div key={order.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{order.commerce_order_items?.map((item)=>`${item.quantity}× ${item.product_name}`).join(", ") || webT("web.merchantOrder")}</p><p className="mt-1 text-xs text-muted-foreground">{order.metadata?.merchant_payment_display_name || webT("web.directMerchantPayment")} {webT("web.expires")} {new Date(order.reservation_expires_at).toLocaleTimeString(currentUiLocale())}</p></div><div className="flex items-center gap-3"><strong>{money(order.total_amount, order.currency)}</strong><Button size="sm" disabled={confirmMerchantPayment.isPending} onClick={() => { confirmMerchantPayment.reset(); setPaymentReference(""); setPaymentOrder(order); }}>{webT("web.confirmMoney")}</Button></div></div>)}</div></CardContent></Card> : null}
+      <Card className="overflow-hidden border-border bg-card">
         <CardContent className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-emerald-600">{webT("web.commerceConsole")}</p>
-              <h2 className="mt-2 text-3xl font-black uppercase leading-[0.9] tracking-[-0.055em]">{webT("web.runOrders")}</h2>
+              <h2 className="mt-2 font-sans text-2xl font-semibold tracking-tight">{webT("web.runOrders")}</h2>
               <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
                 {webT("web.counterExplanation")}
               </p>
@@ -306,9 +336,9 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
               <div key={stat.label} className="rounded-2xl border border-white/10 bg-background/70 p-4">
                 <div className="flex items-center justify-between">
                   <stat.icon className="h-5 w-5 text-emerald-600" />
-                  <Badge variant="outline" className="text-[10px]">{webT("common.live")}</Badge>
+
                 </div>
-                <p className="mt-4 text-2xl font-black">{stat.value}</p>
+                <p className="mt-4 text-2xl font-semibold tabular-nums">{stat.value}</p>
                 <p className="text-xs font-semibold">{stat.label}</p>
                 <p className="mt-1 text-[11px] text-muted-foreground">{stat.helper}</p>
               </div>
@@ -329,7 +359,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <Card>
           <CardContent className="p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="font-black">{webT("web.actionQueue")}</h3>
                 <p className="text-sm text-muted-foreground">{webT("web.pendingReceipts")}</p>
@@ -349,13 +379,13 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
             ) : (
               <div className="space-y-2">
                 {pendingSales.map((sale) => (
-                  <div key={`sale-${sale.id}`} className="flex items-center justify-between gap-3 rounded-2xl border bg-card p-4">
+                  <div key={`sale-${sale.id}`} className="flex min-w-0 flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <Badge variant="secondary" className="mb-2 capitalize">{commerceReceiptType(webT, sale.sale_type || "reservation")}</Badge>
                       <p className="truncate font-bold">{sale.merchant_products?.name || webT("web.reservedListing")}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{new Date(sale.created_at).toLocaleString(currentUiLocale())} · {commerceStatus(webT, sale.status)}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="min-w-0 break-words sm:text-right">
                       <p className="font-mono text-xs font-black">{sale.redemption_code || webT("web.noCode")}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{money(sale.amount_paid || 0)}</p>
                     </div>
@@ -402,7 +432,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
 
         <Card>
           <CardContent className="p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="font-black">{webT("web.recentCommerce")}</h3>
                 <p className="text-sm text-muted-foreground">{webT("web.purchasesList")}</p>
@@ -432,7 +462,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
                         <p className="truncate text-sm font-bold capitalize">{receiptLabel(receipt, webT)}</p>
                         <p className="text-xs text-muted-foreground">{commerceReceiptType(webT, receipt.receipt_type)} · {commerceStatus(webT, receipt.status)}</p>
                       </div>
-                      <div className="text-right">
+                      <div className="min-w-0 break-words sm:text-right">
                         <p className="text-xs font-black">{Number(receipt.amount || 0) > 0 ? money(receipt.amount, receipt.currency) : receipt.redemption_code || "—"}</p>
                         <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 opacity-0 transition group-hover:opacity-100">{webT("web.view")}</p>
                       </div>

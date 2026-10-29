@@ -114,8 +114,7 @@ export function QuietEmpty({ title, copy, action }: { title: string; copy: strin
   return (
     <div className="pr-world-empty px-6 py-10">
       <div>
-        <p className="pr-world-kicker">Nothing invented</p>
-        <h3 className="mt-3 font-serif text-3xl font-bold tracking-tight">{title}</h3>
+        <h3 className="font-sans text-2xl font-semibold tracking-tight">{title}</h3>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-white/50">{copy}</p>
         {action ? <div className="mt-6">{action}</div> : null}
       </div>

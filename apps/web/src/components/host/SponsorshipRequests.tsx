@@ -31,19 +31,17 @@ const statusColors: Record<string, string> = {
 
 export function HostSponsorshipRequests() {
   const { t: webT } = useWebI18n();
-  const { data: requests, isLoading } = useHostSponsorshipRequests();
+  const { data: requests, isLoading, isError, isFetching, refetch } = useHostSponsorshipRequests();
   const respond = useRespondToSponsorship();
   const [responseMessage, setResponseMessage] = useState("");
   const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
 
-  const pendingRequests = requests?.filter(r => 
+  const pendingRequests = requests?.filter(r =>
     r.status === "pending" || r.status === "viewed" || r.status === "negotiating"
   ) || [];
 
   const handleRespond = (requestId: string, status: "accepted" | "declined", message?: string) => {
-    respond.mutate({ requestId, status, response: message });
-    setActiveRequestId(null);
-    setResponseMessage("");
+    respond.mutate({ requestId, status, response: message }, { onSuccess: () => { setActiveRequestId(null); setResponseMessage(""); } });
   };
 
   if (isLoading) {
@@ -56,13 +54,15 @@ export function HostSponsorshipRequests() {
     );
   }
 
+  if (isError) return <div role="alert" className="rounded-xl border border-destructive/30 p-5"><p>Sponsorship requests could not be loaded.</p><Button variant="outline" className="mt-3" disabled={isFetching} onClick={() => void refetch()}>Try again</Button></div>;
+
   if (!requests || requests.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-white/12 bg-white/[.02] p-8 text-center">
         <DollarSign className="mx-auto h-10 w-10 text-white/25" />
         <h3 className="mt-4 text-lg font-black text-white">No sponsorship requests yet.</h3>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/45">
-          When a real brand request is recorded for one of your Moments, it will appear here with its actual review and funding state.
+          Brand offers for your events will appear here with their review and funding status.
         </p>
       </div>
     );
@@ -72,10 +72,10 @@ export function HostSponsorshipRequests() {
     <div className="space-y-10">
       {/* Active Funded Partnerships */}
       {requests.filter(r => r.status === "funded").length > 0 && (
-        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <section className="min-w-0">
           <div className="flex items-center gap-2 mb-4">
               <ShieldCheck className="w-5 h-5 text-emerald-500" />
-              <h3 className="font-serif text-xl font-bold text-foreground">Active Partnerships</h3>
+              <h3 className="font-sans text-xl font-bold text-foreground">Funded requests</h3>
           </div>
           <div className="grid gap-4">
             {requests.filter(r => r.status === "funded").map(request => (
@@ -87,10 +87,10 @@ export function HostSponsorshipRequests() {
                      <div className="min-w-0 space-y-4">
                         <div>
                            <Badge className="bg-emerald-500 text-white mb-2 shadow-glow-emerald">Funded request</Badge>
-                           <h4 className="text-2xl font-black italic font-serif">
-                              {request.moment?.title || webT("rewardsPage.communityMoment")}
+                           <h4 className="break-words font-sans text-xl font-semibold">
+                              {request.moment?.title || "Event details unavailable"}
                            </h4>
-                           <p className="text-sm text-foreground/60 font-medium">Sponsored by Brand Partner</p>
+                           <p className="text-sm text-foreground/60 font-medium">{request.brand_profile?.full_name || `Brand ${request.brand_id.slice(0, 8)}`}</p>
                         </div>
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                            <div>
@@ -104,9 +104,7 @@ export function HostSponsorshipRequests() {
                            </div>
                         </div>
                      </div>
-                     <Button variant="outline" className="border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-600">
-                        Manage Niche
-                     </Button>
+
                   </div>
                </div>
             ))}
@@ -117,8 +115,8 @@ export function HostSponsorshipRequests() {
       {/* Pending Requests */}
       {pendingRequests.length > 0 && (
         <div>
-          <h3 className="font-semibold text-foreground mb-4">
-            Pending Requests ({pendingRequests.length})
+          <h3 className="font-sans font-semibold text-foreground mb-4">
+            Pending requests ({pendingRequests.length})
           </h3>
           <div className="space-y-4">
             {pendingRequests.map((request) => (
@@ -128,11 +126,11 @@ export function HostSponsorshipRequests() {
               >
                 <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
-                    <p className="font-medium text-foreground">
-                      {webT("rewards.brand")} {request.brand_id.slice(0, 8)}...
+                    <p className="break-words font-medium text-foreground">
+                      {request.brand_profile?.full_name || `${webT("rewards.brand")} ${request.brand_id.slice(0, 8)}`}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      For moment: {request.moment_id.slice(0, 8)}...
+                      {request.moment?.title || `Event ${request.moment_id.slice(0, 8)}`}
                     </p>
                   </div>
                   <div className="text-left sm:text-right">
@@ -175,37 +173,39 @@ export function HostSponsorshipRequests() {
                     size="sm"
                     onClick={() => handleRespond(request.id, "accepted")}
                     disabled={respond.isPending}
-                    className="flex-1"
+                    className="h-auto min-h-11 flex-1 whitespace-normal"
                   >
                     <Check className="w-4 h-4 mr-1" />
-                    Accept
+                    {respond.isPending ? "Saving…" : "Accept"}
                   </Button>
-                  
-                  <Dialog>
+
+                  <Dialog open={activeRequestId === request.id} onOpenChange={(open) => { setActiveRequestId(open ? request.id : null); if (!open) setResponseMessage(""); }}>
                     <DialogTrigger asChild>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => setActiveRequestId(request.id)}
-                        className="flex-1"
+                        className="h-auto min-h-11 flex-1 whitespace-normal"
                       >
                         <MessageSquare className="w-4 h-4 mr-1" />
-                        Negotiate
+                        Accept with message
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Respond to Sponsorship</DialogTitle>
+                        <DialogTitle>Accept sponsorship</DialogTitle>
                         <DialogDescription>
-                          Send a message to negotiate terms or provide feedback
+                          Add a message to your acceptance. This accepts the offer; it does not send a counteroffer.
                         </DialogDescription>
                       </DialogHeader>
                       <Textarea
-                        placeholder="Enter your response..."
+                        aria-label="Message to sponsor"
+                        placeholder="Add a message…"
                         value={responseMessage}
                         onChange={(e) => setResponseMessage(e.target.value)}
                         className="min-h-[100px]"
                       />
+                      {respond.isError ? <p role="alert" className="text-sm text-destructive">Your response was not saved. Try again.</p> : null}
                       <DialogFooter>
                         <Button
                           variant="outline"
@@ -220,7 +220,7 @@ export function HostSponsorshipRequests() {
                           onClick={() => handleRespond(request.id, "accepted", responseMessage)}
                           disabled={respond.isPending}
                         >
-                          Accept with Message
+                          {respond.isPending ? "Accepting…" : "Accept with message"}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -231,7 +231,8 @@ export function HostSponsorshipRequests() {
                     variant="outline"
                     onClick={() => handleRespond(request.id, "declined")}
                     disabled={respond.isPending}
-                    className="text-destructive hover:text-destructive"
+                    aria-label="Decline sponsorship"
+                    className="min-h-11 text-destructive hover:text-destructive"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -244,7 +245,7 @@ export function HostSponsorshipRequests() {
 
       {/* All Requests History */}
       <div>
-        <h3 className="font-semibold text-foreground mb-4">Request History</h3>
+        <h3 className="font-sans font-semibold text-foreground mb-4">Request history</h3>
         <div className="space-y-3">
           {requests.map((request) => (
             <div

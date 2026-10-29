@@ -1,0 +1,13 @@
+/* Participant dashboard: readable next steps and flexible content. */
+.dashboard-home .dashboard-section-heading > div { flex: 1 1 220px; min-width: 0; }
+.dashboard-home .dashboard-section-heading > a { min-height: 44px; display: inline-flex; align-items: center; }
+.dashboard-home .dashboard-moment h3 { font-family: "Promorang Space", "DM Sans", sans-serif; font-size: clamp(1.4rem, 3vw, 1.8rem); line-height: 1.2; letter-spacing: -.025em; }
+.dashboard-home .dashboard-moment { overflow-wrap: anywhere; }
+.dashboard-home .dashboard-image { -webkit-user-drag: none; }
+.dashboard-home .pr-mobile-feed-stream > * { min-width: 0; }
+.dashboard-home .pr-feed-card { overflow-wrap: anywhere; }
+.dashboard-home .pr-feed-actions { flex-wrap: wrap; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+ .dashboard-home .dashboard-image { transition: transform 200ms ease-out, opacity 150ms ease-out; }
+ .dashboard-home .group:hover .dashboard-image { transform: scale(1.025); opacity: .8; }
+}

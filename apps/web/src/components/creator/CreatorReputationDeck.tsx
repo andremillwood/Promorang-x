@@ -1,126 +1,43 @@
 import { currentUiLocale } from "@/i18n/geo-locale";
-import { useI18n as useWebI18n } from "@/i18n/I18nContext";
-import { ArrowRight, Award, BadgeCheck, Circle, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Circle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useRoleSuccessProgress } from "@/hooks/useRoleSuccessProgress";
 import { useCreatorEconomicProfile } from "@/hooks/useCreatorEconomics";
 
-const tierLabels: Record<string, string> = {
-  starter: "Starter",
-  rising: "Rising",
-  signature: "Signature",
-  icon: "Icon",
-};
+const tierLabels: Record<string, string> = { starter: "Starter", rising: "Rising", signature: "Signature", icon: "Icon" };
 
 export function CreatorReputationDeck() {
-  const { t: webT } = useWebI18n();
   const progressQuery = useRoleSuccessProgress("creator");
   const profileQuery = useCreatorEconomicProfile();
-
   const progress = progressQuery.data;
   const profile = profileQuery.data;
+  const loading = progressQuery.isLoading || profileQuery.isLoading;
   const current = Number(progress?.current || 0);
   const target = Number(progress?.target || 25);
-  const completion = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
-  const nextAction = progress?.nextAction;
-  const recordedTier = profile?.tier ? (tierLabels[profile.tier] || profile.tier) : null;
+  const completion = target > 0 ? Math.max(0, Math.min(100, Math.round(current / target * 100))) : 0;
 
-  if (progressQuery.isError || profileQuery.isError) {
-    return (
-      <section className="rounded-3xl border border-red-500/20 bg-red-500/[.05] p-6 text-white">
-        <p className="text-[10px] font-black uppercase tracking-[.2em] text-red-300">Creator standing unavailable</p>
-        <h2 className="mt-2 text-xl font-black">PROMORANG could not load the recorded creator state.</h2>
-        <p className="mt-2 text-sm leading-6 text-white/50">
-          No fallback score, tier or reputation level is being substituted.
-        </p>
-      </section>
-    );
-  }
+  if (progressQuery.isError || profileQuery.isError) return <section role="alert" className="rounded-xl border border-destructive/30 p-5"><h2 className="text-xl font-semibold">Creator standing could not be loaded.</h2><Button variant="outline" className="mt-3" disabled={progressQuery.isFetching || profileQuery.isFetching} onClick={() => void Promise.allSettled([progressQuery.refetch(), profileQuery.refetch()])}>Try again</Button></section>;
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-3xl border border-purple-500/25 bg-[linear-gradient(135deg,rgba(168,85,247,.12),rgba(0,0,0,.88))] p-5 sm:p-7">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-purple-300">
-              <Award className="h-4 w-4" />
-              Creator · Proven standing
-            </div>
-            <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">What your verified work is building.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
-              PROMORANG bases creator standing on recorded releases, linked work and attributable verified outcomes.
-              It does not invent a hidden reputation score from views, likes or unverified activity.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-black/30 px-5 py-4">
-            <p className="text-[9px] font-black uppercase tracking-[.16em] text-white/30">Recorded economic tier</p>
-            <p className="mt-2 text-lg font-black text-white">
-              {profileQuery.isLoading ? webT("aftrhrs.doorChecking") : recordedTier || "No tier recorded"}
-            </p>
-            <p className="mt-1 text-xs text-white/35">
-              A tier appears only when the creator economic profile records one.
-            </p>
-          </div>
+    <section className="min-w-0 space-y-5" aria-busy={loading}>
+      <header><h2 className="font-sans text-2xl font-semibold tracking-tight">Creator standing</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Track milestones from your published work and verified supporter activity.</p></header>
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+        <div className="min-w-0 rounded-xl border border-border bg-card p-5">
+          <p className="text-sm text-muted-foreground">Recorded tier</p>
+          <p className="mt-2 text-lg font-semibold">{loading ? "Loading…" : profile?.tier ? tierLabels[profile.tier] || profile.tier : "No tier recorded"}</p>
+          <p className="mt-6 text-sm text-muted-foreground">{progress?.unit || "Verified supporter actions"}</p>
+          <p className="mt-2 break-words text-3xl font-semibold tabular-nums">{loading ? "—" : `${current.toLocaleString(currentUiLocale())} / ${target.toLocaleString(currentUiLocale())}`}</p>
+          <div role="progressbar" aria-label="Creator milestone progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={loading ? undefined : completion} className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary" style={{ width: `${loading ? 0 : completion}%` }} /></div>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{progress?.sourceLabel || "Attributed joins and verified unlocks linked to your work."}</p>
+          {progress?.nextAction ? <Button asChild className="mt-4 h-auto min-h-11 whitespace-normal"><Link to={progress.nextAction.href}>{progress.nextAction.label}</Link></Button> : null}
         </div>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[.85fr_1.15fr]">
-        <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
-          <p className="text-[9px] font-black uppercase tracking-[.18em] text-purple-300">{webT("pioneersPage.leadersEyebrow")}</p>
-          <div className="mt-5 flex items-end gap-3">
-            <span className="text-5xl font-black text-white">{progressQuery.isLoading ? "—" : current.toLocaleString(currentUiLocale())}</span>
-            <span className="pb-1 text-sm font-bold text-white/35">/ {target.toLocaleString(currentUiLocale())} {progress?.unit || "verified supporter actions"}</span>
-          </div>
-          <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/8">
-            <div className="h-full rounded-full bg-purple-400 transition-[width]" style={{ width: `${completion}%` }} />
-          </div>
-          <p className="mt-4 text-xs leading-5 text-white/42">
-            {progress?.sourceLabel || "Attributed joins and verified unlocks generated by recorded creator work."}
-          </p>
-          {nextAction ? (
-            <Button asChild className="mt-5 rounded-xl bg-purple-500 font-black text-white hover:bg-purple-400">
-              <Link to={nextAction.href}>{nextAction.label}<ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-          ) : null}
+        <div className="min-w-0 rounded-xl border border-border bg-card p-5">
+          <h3 className="font-semibold">Milestones</h3>
+          <div className="mt-4 space-y-4">{loading ? <p role="status" className="text-sm text-muted-foreground">Loading milestones…</p> : progress?.milestones?.length ? progress.milestones.map((milestone) => <div key={milestone.label} className="flex items-start gap-3">{milestone.complete ? <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /> : <Circle className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />}<div className="min-w-0"><p className="break-words text-sm font-medium">{milestone.label}</p><p className="mt-1 text-xs text-muted-foreground">{milestone.complete ? "Completed" : "In progress"}</p></div></div>) : <p className="text-sm leading-6 text-muted-foreground">No milestones recorded yet. Publish work and link it to an event to start tracking progress.</p>}</div>
         </div>
-
-        <div className="rounded-3xl border border-white/10 bg-white/[.025] p-5 sm:p-6">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-purple-300" />
-            <p className="text-[9px] font-black uppercase tracking-[.18em] text-white/35">Recorded milestones</p>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {(progress?.milestones || []).length ? (
-              progress!.milestones.map((milestone) => (
-                <div key={milestone.label} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
-                  {milestone.complete
-                    ? <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
-                    : <Circle className="mt-0.5 h-5 w-5 shrink-0 text-white/25" />}
-                  <div>
-                    <p className="text-sm font-black text-white">{milestone.label}</p>
-                    <p className="mt-1 text-xs leading-5 text-white/38">
-                      {milestone.complete ? "Backed by recorded creator activity." : "Not yet supported by the current recorded state."}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="rounded-2xl border border-dashed border-white/12 p-5 text-sm leading-6 text-white/40">
-                No creator milestones are recorded yet. Publish and link real work before PROMORANG claims progress.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-dashed border-white/12 p-5 text-sm leading-6 text-white/45">
-        <strong className="text-white">Not inferred:</strong> popularity, cultural authority, brand affinity, trust multiplier or a universal reputation score.
-        Those require explicit source contracts before they belong on this surface.
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }
 

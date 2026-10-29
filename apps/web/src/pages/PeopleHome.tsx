@@ -12,6 +12,9 @@ import {
 } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
 import { localizeLens, localizedGreeting } from "@/i18n/localize";
+import { useMarket } from "@/contexts/MarketContext";
+import { matchesCityHub } from "@/lib/city-hubs";
+import "./PeopleHome.css";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperienceHome } from "@/hooks/usePeopleExperience";
 import { useExperiencePath } from "@/hooks/useExperiencePath";
@@ -95,6 +98,7 @@ export default function PeopleHome() {
   const { t, locale } = useI18n();
   const { user, profile, activeRole, roles } = useAuth();
   const workspaceRoles = (roles || []).filter((role) => ["host", "creator", "merchant", "brand", "agency", "admin"].includes(role));
+  const { city } = useMarket();
   const home = useExperienceHome();
   const momentFeed = useCanonicalMomentFeed();
   const contentDrops = useContentDrops("active");
@@ -169,21 +173,13 @@ export default function PeopleHome() {
     crewMark: world?.promoCard?.crewMark,
     recordedUse: Boolean(data?.card?.useThis?.redemption?.recorded),
   });
-  const hasCardValue = Boolean(
-    data?.card?.useThis
-    || data?.card?.nextBenefit
-    || data?.card?.perks?.length
-    || world?.latestReturn,
-  );
+
 
   if (isMemberWorkspace) {
-    const localCity = String(data?.city?.name || data?.market?.city || "Kingston");
-    const cityNeedle = localCity.toLowerCase();
-    const localMoments = momentFeed.data?.moments?.filter((moment) => {
-      if (moment.lifecycle === "recently_ended") return false;
-      const place = `${("city" in moment ? moment.city : "") || ""} ${moment.venue_name || ""} ${moment.location || ""}`.toLowerCase();
-      return !place.trim() || place.includes(cityNeedle);
-    }) || [];
+    const localCity = city.name;
+    const localMoments = momentFeed.data?.moments?.filter((moment) =>
+      moment.lifecycle !== "recently_ended" && matchesCityHub(moment, city)
+    ) || [];
     const liveMoments = localMoments.slice(0, 2);
     const firstScene = data?.communities?.[0];
     const moveHref = String(world?.currentMove?.href || "");
@@ -200,6 +196,7 @@ export default function PeopleHome() {
 
     return (
       <ExperienceShell
+        className="dashboard-home"
         title={greeting}
         seoTitle={t("people.homeSeo")}
         description={description}
@@ -211,10 +208,10 @@ export default function PeopleHome() {
                 <div><p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500]" />{t("publicHome.rightNow", { market: localCity })}</p><p className="mt-1 text-xs font-semibold text-white/48">{greeting}</p></div>
                 <Link to={to("/card")} aria-label={t("people.openCardAria")} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[#d8ad54]/45 bg-[#d8ad54]/10 px-4 text-xs font-black text-[#f2c761] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]"><span className="grid h-6 w-6 place-items-center rounded-md border border-[#d8ad54]/45 font-['Anton'] text-sm">P</span>{t("publicHome.navCard")}</Link>
               </div>
-              <h1 className="mt-6 font-['Anton'] text-[clamp(2.45rem,11vw,4.2rem)] font-normal uppercase leading-[.9] tracking-[-.03em] text-white">{t("publicHome.title")}</h1>
+              <h1 className="mt-6 font-sans text-[clamp(1.9rem,5vw,3rem)] font-semibold leading-[1.1] tracking-[-.035em] text-white">{t("publicHome.title")}</h1>
               <FindOrAskEntry source="home" city={localCity} compact className="mt-5 max-w-2xl" />
               <Link to={moveTarget} className="group mt-4 flex min-h-16 items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[.045] p-3 transition hover:border-[#ff6500]/45 hover:bg-white/[.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6500]">
-                <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.16em] text-[#ff8a45]">{t("compression.usefulNow")}</p><p className="mt-1 truncate text-sm font-black text-white">{moveTitle}</p><p className="mt-1 line-clamp-1 text-[11px] text-white/45">{moveCopy}</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#ff6500] text-black"><ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
+                <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.16em] text-[#ff8a45]">{t("compression.usefulNow")}</p><p className="mt-1 text-sm font-bold leading-6 text-white">{moveTitle}</p><p className="mt-1 text-xs leading-5 text-white/65">{moveCopy}</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#ff6500] text-black"><ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
               </Link>
             </div>
           </section>
@@ -230,14 +227,14 @@ export default function PeopleHome() {
         <ParticipationFeed />
 
         <section aria-labelledby="vibe-title">
-          <div className="flex items-end justify-between gap-4">
+          <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
             <div><p className="pr-world-kicker">{t("publicHome.categoryNavigation")}</p><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">{t("compression.interests")}</h2></div>
             <p className="hidden max-w-[250px] text-xs leading-5 text-white/42 sm:block">{t("compression.interestsCopy")}</p>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {vibeTracks.map(({ key, label, icon: Icon, image, href }) => (
               <Link key={label} to={href} className="group relative min-h-[150px] overflow-hidden rounded-xl border border-white/10 bg-white/[.03]">
-                <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition duration-500 group-hover:scale-105 group-hover:opacity-75" />
+                <img src={image} alt="" loading="lazy" decoding="async" className="dashboard-image absolute inset-0 h-full w-full object-cover opacity-55" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{t(`publicHome.category.${key}` as TranslationKey)}</p></div>
               </Link>
@@ -246,18 +243,18 @@ export default function PeopleHome() {
         </section>
 
         <section aria-labelledby="now-next-title">
-          <div className="flex items-end justify-between gap-4">
+          <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
             <div><p className="pr-world-kicker">{t("publicHome.lifecycleSoon")}</p><h2 id="now-next-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">{t("publicHome.happening")}</h2></div>
             <Link to="/discover?tab=moments" className="pr-world-link">{t("publicHome.browseMoments")}</Link>
           </div>
           <div className="mt-5">
-            {momentFeed.isLoading ? <div className="h-48 animate-pulse rounded-[1.8rem] border border-white/10 bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title="Live timing unavailable" copy="We couldn’t load the calendar. Try again shortly." /> : liveMoments.length ? (
+            {momentFeed.isLoading ? <div role="status" aria-label={t("people.homeLoad")} className="h-48 motion-safe:animate-pulse rounded-[1.8rem] border border-white/10 bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title={t("people.homeErrorTitle")} copy={t("people.homeErrorCopy")} action={<button type="button" disabled={momentFeed.isFetching} onClick={() => void momentFeed.refetch()} className="pr-world-primary disabled:opacity-50">{momentFeed.isFetching ? t("common.tryingAgain") : t("common.tryAgain")}</button>} /> : liveMoments.length ? (
               <div className="grid gap-4 sm:grid-cols-2">{liveMoments.map((moment, index) => (
-                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="pr-world-object group block min-h-[300px] overflow-hidden rounded-xl">
-                  <div className="relative h-full min-h-[260px]">
-                    <img src={moment.image_url || editorialBackdrops[index % editorialBackdrops.length]} alt={moment.image_url ? moment.title : ""} className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-[1.035]" />
+                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="dashboard-moment pr-world-object group flex flex-col overflow-hidden rounded-xl">
+                  <div className="relative flex flex-1 flex-col justify-end pt-36">
+                    <img loading="lazy" decoding="async" src={moment.image_url || editorialBackdrops[index % editorialBackdrops.length]} alt={moment.image_url ? moment.title : ""} className="dashboard-image absolute inset-0 h-full w-full object-cover opacity-70" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString(locale, { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div></div>
+                    <div className="relative p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString(locale, { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div></div>
                   </div>
                 </Link>
               ))}</div>
@@ -343,7 +340,7 @@ export default function PeopleHome() {
       </details>
 
       <section aria-labelledby="objects-in-play">
-        <div className="flex items-end justify-between gap-4"><div><p className="pr-world-kicker">Working context</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Your work right now.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">What you can put in, what has been recorded, and where your work can create movement.</p></div>
+        <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3"><div><p className="pr-world-kicker">Working context</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Your work right now.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">What you can put in, what has been recorded, and where your work can create movement.</p></div>
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_.8fr_.8fr]">
           <StakeholderPutInPass role={lensRole} />
           {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(claimed), strong: true }]} footer={ticker} /> : <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.025] p-6"><ShieldCheck className="h-5 w-5 text-white/35" /><p className="mt-8 pr-world-kicker">{webT("commercial.evidence.78")}</p><h3 className="mt-2 font-serif text-2xl font-bold">Nothing verified yet.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your receipt appears only after recorded activity. Empty remains empty.</p></div>}

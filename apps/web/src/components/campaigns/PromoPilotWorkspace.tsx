@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 type Props = {
   plan: DemandPlan;
   saving?: boolean;
+  error?: string;
   onBack: () => void;
   onChange: (plan: DemandPlan) => void;
   onSave: () => void;
@@ -52,7 +53,7 @@ const channelNames: Record<DistributionChannel, string> = {
 
 const stages = ["Outcome", "People", "Experience", "Shared value", "Reach", "Impact"];
 
-export function PromoPilotWorkspace({ plan, saving, onBack, onChange, onSave }: Props) {
+export function PromoPilotWorkspace({ plan, saving, error, onBack, onChange, onSave }: Props) {
   const { t: webT } = useWebI18n();
   const [openSection, setOpenSection] = useState("outcome");
 
@@ -157,6 +158,7 @@ export function PromoPilotWorkspace({ plan, saving, onBack, onChange, onSave }: 
 
               <div className="mt-5 grid grid-cols-2 gap-3 text-center"><div className="bg-black/[.04] p-3"><p className="text-2xl font-black">{plan.people.participantLimit || "—"}</p><p className="text-[9px] font-black uppercase tracking-wider text-black/40">{webT("lens.participant.workspace")}</p></div><div className="bg-black/[.04] p-3"><p className="text-2xl font-black">{enabledChannels.length}</p><p className="text-[9px] font-black uppercase tracking-wider text-black/40">Channels</p></div></div>
 
+              {error ? <p role="alert" className="mt-4 text-sm text-red-700">{error}</p> : null}
               <Button onClick={onSave} disabled={saving} className="mt-6 h-14 w-full rounded-full bg-[#d85b24] text-base font-black text-white hover:bg-[#ba4618]">{saving ? "Saving PromoPilot plan…" : "Save campaign plan"}<ArrowRight className="ml-2 h-4 w-4" /></Button>
               <p aria-live="polite" className="mt-4 text-center text-xs leading-5 text-black/42">{webT("createCampaign.noChargeNotice")}</p>
             </div>

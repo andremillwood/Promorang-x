@@ -67,9 +67,9 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
             <div className="flex items-start gap-3">
               <PromorangSemanticMark kind="proof" size={42} />
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Merchant · validation boundary</p>
-                <h2 className="mt-1 font-serif text-3xl font-semibold tracking-[-0.03em]">Confirm one legitimate use.</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">Scan or enter the code. A successful validation writes one entitlement use at this merchant station. Purchase, revenue and fulfillment remain separate facts.</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Redemptions</p>
+                <h2 className="mt-1 font-sans text-2xl font-semibold tracking-tight">Validate a redemption</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">Scan a PromoCard QR or enter its code to record a use. Validation does not confirm a purchase or fulfillment.</p>
               </div>
             </div>
             <span className={`inline-flex min-h-9 items-center gap-2 self-start border px-3 text-[10px] font-black uppercase tracking-[0.14em] ${online ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300" : "border-amber-500/25 bg-amber-500/10 text-amber-300"}`}>
@@ -79,14 +79,14 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
           </div>
         </div>
 
-        <div className="grid gap-0 lg:grid-cols-[20rem_1fr]">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-0 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
           <div className="border-b border-white/10 bg-black/25 p-5 lg:border-b-0 lg:border-r sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">Counter station</p>
-                <h3 className="mt-1 text-lg font-black">{venueName}</h3>
+                <h3 className="mt-1 break-words font-sans text-lg font-semibold">{venueName}</h3>
               </div>
-              <span className="border border-white/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-white/45">Write action</span>
+
             </div>
             <div className="mt-5">
               <OfferQrScanner disabled={redeem.isPending || !online} onCode={(value) => void redeemCode(value)} />
@@ -108,7 +108,7 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
                 className="h-14 border-zinc-700 bg-zinc-950 font-mono text-lg uppercase tracking-[0.12em]"
                 aria-label="PromoCard redemption code"
               />
-              <Button type="submit" disabled={!code.trim() || redeem.isPending || !online} className="h-12 w-full bg-emerald-500 font-black text-zinc-950 hover:bg-emerald-400">
+              <Button type="submit" disabled={!code.trim() || redeem.isPending || !online} className="h-12 w-full bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
                 <KeyRound className="mr-2 h-4 w-4" />
                 {redeem.isPending ? webT("aftrhrs.doorChecking") : online ? "Validate use" : "Offline · unavailable"}
               </Button>
@@ -162,7 +162,7 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
           <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-300" />
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Fulfillment queue</p>
-            <p className="mt-1 text-sm text-white/50">Operational follow-up stays separate from the validation write. A validated entitlement is not automatically fulfilled.</p>
+            <p className="mt-1 text-sm text-white/50">Review validated offers that still need fulfillment.</p>
           </div>
         </div>
         <OfferFulfillmentQueue />

@@ -131,15 +131,15 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
     <section className="space-y-8">
       <div className="max-w-3xl">
         <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Choose where the story leads</p>
-        <h3 className="mt-3 font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-5xl">Turn attention into a meaningful next move.</h3>
+        <h3 className="mt-2 font-sans text-2xl font-semibold tracking-tight text-foreground">Link a story to an event</h3>
         <p className="mt-4 text-sm leading-7 text-muted-foreground">
-          Pair a story with an existing moment when the next step should be watch, join, visit, redeem, or prove. Stories can still stand alone or launch new moments.
+          Choose a published story, its event and the actions you want to track.
         </p>
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,.9fr)_minmax(24rem,1.1fr)]">
-        <div className="rounded-[2rem] border border-border/60 bg-card/55 p-6 sm:p-8">
-          {optionsQuery.isLoading ? (
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 xl:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
+        <div className="min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-6">
+          {optionsQuery.isError ? <div role="alert" className="text-sm"><p>Stories and events could not be loaded.</p><Button variant="outline" className="mt-3" disabled={optionsQuery.isFetching} onClick={() => void optionsQuery.refetch()}>Try again</Button></div> : optionsQuery.isLoading ? (
             <div className="space-y-6">
               <Skeleton className="h-10 w-full rounded-xl" />
               <Skeleton className="h-10 w-full rounded-xl" />
@@ -148,9 +148,9 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Which story are people coming from?</Label>
+                <Label htmlFor="o2o-story">Published story</Label>
                 <Select value={contentId} onValueChange={setContentId}>
-                  <SelectTrigger className="h-12 rounded-xl">
+                  <SelectTrigger id="o2o-story" className="h-12 rounded-xl">
                     <SelectValue placeholder="Choose a published story" />
                   </SelectTrigger>
                   <SelectContent>
@@ -164,9 +164,9 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               </div>
 
               <div className="space-y-2">
-                <Label>Which real Moment should it open into?</Label>
+                <Label htmlFor="o2o-moment">Event</Label>
                 <Select value={momentId} onValueChange={setMomentId}>
-                  <SelectTrigger className="h-12 rounded-xl">
+                  <SelectTrigger id="o2o-moment" className="h-12 rounded-xl">
                     <SelectValue placeholder="Choose a Moment" />
                   </SelectTrigger>
                   <SelectContent>
@@ -194,24 +194,24 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               </div>
 
               <div className="space-y-2">
-                <Label>What becomes available after proof?</Label>
-                <Input className="h-12 rounded-xl" value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder="Founder access, a return invitation, status, or a saved memory..." />
+                <Label htmlFor="o2o-unlock">Benefit after verification</Label>
+                <Input id="o2o-unlock" className="h-12 rounded-xl" value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder="Founder access, a return invitation, status, or a saved memory..." />
               </div>
 
               <Button
                 className="h-12 w-full rounded-full font-black"
                 onClick={() => createLink.mutate()}
-                disabled={!contentId || !momentId || createLink.isPending}
+                disabled={!contentId || !momentId || !selectedActions.length || createLink.isPending || optionsQuery.isError}
               >
                 <Link2 className="mr-2 h-4 w-4" />
-                Connect story to Moment <ArrowRight className="ml-2 h-4 w-4" />
+                {createLink.isPending ? "Connecting…" : "Connect story"} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           )}
         </div>
 
-        <div className="space-y-5">
-          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 text-white shadow-[0_30px_90px_rgba(0,0,0,.24)] sm:p-7">
+        <div className="min-w-0 space-y-5">
+          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 text-white sm:p-7">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">The path people will experience</p>
             <div className="mt-5 space-y-3">
               {[
@@ -234,7 +234,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Stories already in motion</p>
           </div>
           <div className="mt-5 space-y-3">
-            {linksQuery.isLoading ? (
+            {linksQuery.isError ? <div role="alert" className="text-sm"><p>Linked stories could not be loaded.</p><Button variant="outline" className="mt-3" disabled={linksQuery.isFetching} onClick={() => void linksQuery.refetch()}>Try again</Button></div> : linksQuery.isLoading ? (
               Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-2xl" />)
             ) : (linkedItems.length ? (
               linkedItems.map((item) => (
@@ -252,7 +252,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                No mission links yet. Pair a story with an active moment when you want O2O tracking, or launch a new moment from the story first.
+                No linked stories yet. Choose a story and event to start tracking activity.
               </div>
             ))}
           </div>
