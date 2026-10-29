@@ -12,3 +12,6 @@ The header and its critical gradient detail are unchanged. Tangible PromoCards, 
 
 ## Verification
 Public homepage rendered at desktop 1440px and phone 390px; no page overflow at 390px. Final production build passed, including 30 localized SEO snapshots and 54 sitemap URLs. Lint passed with no errors and the existing button export fast-refresh warning. DeepRolePanels (8 tests) and PublicMarketHome (5 tests) passed. Broader regression checks were still running at release preparation; no incomplete suite is counted as a pass. Local Chrome encountered launch timeouts and graphics initialization errors during role verification; homepage browser checks succeeded before this runner failure. Temporary fixture files are excluded from production.
+
+## Completed verification
+All 51 regression tests across 8 suites passed. Using an isolated compatible Chromium runtime, actual Participant, Creator, Host, Merchant, Brand and Agency components rendered at 390px and 1440px without page overflow or runtime errors. Empty fixture data exercised first-run/empty panels; this does not validate live authorization or real transactions. The participant preview initially lacked HelmetProvider; adding that provider to the temporary fixture resolved its render error. Visual review found and removed a remaining rounded/dashed feed empty-state frame and sharpened search controls.

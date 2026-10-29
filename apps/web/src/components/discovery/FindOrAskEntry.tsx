@@ -113,8 +113,8 @@ export function FindOrAskEntry({
         role="search"
         aria-label={t("findOrAsk.searchLabel")}
         className={cn(
-          "group flex items-center rounded-2xl border border-white/15 bg-black/65 p-1.5 shadow-[0_24px_70px_rgba(0,0,0,.35)] backdrop-blur-xl transition focus-within:border-orange-400/70 focus-within:ring-2 focus-within:ring-orange-400/20",
-          compact ? "min-h-11 rounded-xl" : "min-h-16 sm:min-h-[4.5rem]",
+          "group flex items-center rounded-sm border border-white/15 bg-black/65 p-1.5 shadow-none backdrop-blur-xl transition focus-within:border-orange-400/70 focus-within:ring-2 focus-within:ring-orange-400/20",
+          compact ? "min-h-11 rounded-sm" : "min-h-16 sm:min-h-[4.5rem]",
         )}
       >
         <Search className={cn("ml-3 shrink-0 text-orange-400", compact ? "h-4 w-4" : "h-5 w-5 sm:ml-4")} aria-hidden="true" />
@@ -148,7 +148,7 @@ export function FindOrAskEntry({
           type="submit"
           disabled={!query.trim()}
           className={cn(
-            "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-orange-500 font-black text-black transition hover:bg-orange-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 disabled:cursor-not-allowed disabled:opacity-45",
+            "inline-flex shrink-0 items-center justify-center gap-2 rounded-sm bg-orange-500 font-black text-black transition hover:bg-orange-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 disabled:cursor-not-allowed disabled:opacity-45",
             compact ? "min-h-11 px-3 text-[10px] uppercase tracking-[0.08em]" : "min-h-12 px-4 text-xs uppercase tracking-[0.08em] sm:px-6",
           )}
         >
@@ -157,9 +157,9 @@ export function FindOrAskEntry({
         </button>
       </form>
       {isOpen ? createPortal(
-        <div ref={listRef} id={listId} role="listbox" aria-label={t("findOrAsk.searchLabel")} style={{ ...bounds, WebkitOverflowScrolling: "touch" }} className="fixed z-[100] overflow-y-auto overscroll-contain rounded-2xl border border-white/15 bg-[#0b0b0b] p-2 text-left shadow-[0_28px_80px_rgba(0,0,0,.72)] backdrop-blur-xl">
-          {instant.isSearching && !results.length ? <div className="flex items-center gap-2 px-4 py-5 text-xs text-white/55"><Loader2 className="h-4 w-4 animate-spin text-orange-400" />{t("search.searching")}</div> : results.length ? results.map((result, index) => <button key={`${result.result_type}-${result.id}`} id={`${listId}-${index}`} type="button" role="option" aria-selected={index === activeIndex} onMouseDown={(event) => event.preventDefault()} onClick={() => openResult(index)} className={cn("grid w-full grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-2 py-2 text-left transition", index === activeIndex ? "bg-orange-500/12" : "hover:bg-white/[.05]")}><span className="grid h-10 w-10 place-items-center overflow-hidden rounded-lg bg-white/[.06] text-orange-300">{result.image_url ? <img src={result.image_url} alt="" className="h-full w-full object-cover" /> : <Search className="h-4 w-4" />}</span><span className="min-w-0"><span className="block truncate text-sm font-bold text-white">{result.title}</span><span className="block truncate text-[11px] text-white/45">{result.subtitle}</span></span><span className="pr-2 text-[9px] font-black uppercase tracking-[.08em] text-white/35">{result.result_type}</span></button>) : null}
-          {results.length ? <button type="submit" form={`find-or-ask-form-${source}`} className="mt-1 flex w-full items-center justify-between rounded-xl border-t border-white/10 px-3 py-3 text-xs font-black text-orange-300">{t("search.button")} “{query.trim()}”<ArrowRight className="h-4 w-4" /></button> : null}
+        <div ref={listRef} id={listId} role="listbox" aria-label={t("findOrAsk.searchLabel")} style={{ ...bounds, WebkitOverflowScrolling: "touch" }} className="fixed z-[100] overflow-y-auto overscroll-contain rounded-sm border border-white/15 bg-[#0b0b0b] p-2 text-left shadow-[0_28px_80px_rgba(0,0,0,.72)] backdrop-blur-xl">
+          {instant.isSearching && !results.length ? <div className="flex items-center gap-2 px-4 py-5 text-xs text-white/55"><Loader2 className="h-4 w-4 animate-spin text-orange-400" />{t("search.searching")}</div> : results.length ? results.map((result, index) => <button key={`${result.result_type}-${result.id}`} id={`${listId}-${index}`} type="button" role="option" aria-selected={index === activeIndex} onMouseDown={(event) => event.preventDefault()} onClick={() => openResult(index)} className={cn("grid w-full grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-sm px-2 py-2 text-left transition", index === activeIndex ? "bg-orange-500/12" : "hover:bg-white/[.05]")}><span className="grid h-10 w-10 place-items-center overflow-hidden rounded-sm bg-white/[.06] text-orange-300">{result.image_url ? <img src={result.image_url} alt="" className="h-full w-full object-cover" /> : <Search className="h-4 w-4" />}</span><span className="min-w-0"><span className="block truncate text-sm font-bold text-white">{result.title}</span><span className="block truncate text-[11px] text-white/45">{result.subtitle}</span></span><span className="pr-2 text-[9px] font-black uppercase tracking-[.08em] text-white/35">{result.result_type}</span></button>) : null}
+          {results.length ? <button type="submit" form={`find-or-ask-form-${source}`} className="mt-1 flex w-full items-center justify-between rounded-sm border-t border-white/10 px-3 py-3 text-xs font-black text-orange-300">{t("search.button")} “{query.trim()}”<ArrowRight className="h-4 w-4" /></button> : null}
         </div>, document.body
       ) : null}
       {!compact ? (
