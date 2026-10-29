@@ -3,7 +3,7 @@ import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { CheckCircle2, Gift, History, Scale, Sparkles, Stamp, XCircle } from "lucide-react";
+import { CheckCircle2, Gift, History, Scale, Sparkles, XCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -108,26 +108,26 @@ export const HostProofReviewPanel = () => {
 
   return (
     <div className="space-y-6" data-proof-family="host-proof-close">
-      <section className="relative overflow-hidden bg-[#efe1c8] p-5 text-[#1b160f] shadow-[0_24px_70px_rgba(0,0,0,.18)] sm:p-7">
-        <div className="absolute right-0 top-0 h-full w-2 bg-[repeating-linear-gradient(180deg,#ff6a00_0_7px,transparent_7px_15px)] opacity-25" />
-        <div className="flex flex-col gap-6 border-b border-dashed border-black/20 pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+
+        <div className="flex flex-col gap-6 border-b border-dashed border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-3"><Stamp className="h-5 w-5 text-[#8b5427]" /><p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#8b5427]">Host · Proof Close</p></div>
-            <h3 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Resolve what is real before the Moment closes.</h3>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-black/55">Submission is a claim. Approval is a recorded verification decision. Rejection requires a reason and remains part of the history.</p>
+
+            <h3 className="font-sans text-2xl font-semibold tracking-tight">Review participation proof</h3>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Submission is a claim. Approval is a recorded verification decision. Rejection requires a reason and remains part of the history.</p>
           </div>
-          <div className="flex gap-7 border-l border-black/15 pl-5">
-            <div><p className="font-serif text-3xl font-semibold">{pendingQuery.isLoading ? "…" : pending.length}</p><p className="text-[9px] font-black uppercase tracking-[0.16em] text-[#8b5427]">{webT("common.waiting")}</p></div>
-            <div><p className="font-serif text-3xl font-semibold text-black/55">{historyQuery.isLoading ? "…" : history.length}</p><p className="text-[9px] font-black uppercase tracking-[0.16em] text-black/40">Recent decisions</p></div>
+          <div className="flex gap-7 border-l border-border pl-5">
+            <div><p className="font-sans text-3xl font-semibold tabular-nums">{pendingQuery.isLoading || pendingQuery.isError ? "—" : pending.length}</p><p className="text-[9px] font-black uppercase tracking-[0.16em] text-muted-foreground">{webT("common.waiting")}</p></div>
+            <div><p className="font-sans text-3xl font-semibold tabular-nums text-muted-foreground">{historyQuery.isLoading || historyQuery.isError ? "—" : history.length}</p><p className="text-[9px] font-black uppercase tracking-[0.16em] text-muted-foreground">Recent decisions</p></div>
           </div>
         </div>
-        <GuidanceDisclosure id="host-proof-review:decision-context" eyebrow="Decision consequence" title="What approval changes" summary="Approval can release downstream memory, reward, payout, Piece or other value." className="mt-5 max-w-3xl" tone="light">
+        <GuidanceDisclosure id="host-proof-review:decision-context" eyebrow="Decision consequence" title="What approval changes" summary="Approval can release downstream memory, reward, payout, Piece or other value." className="mt-5 max-w-3xl">
           <p className="text-sm leading-6 text-muted-foreground">Approval can trigger downstream records. A queued payout remains queued; approval alone must never be presented as paid.</p>
         </GuidanceDisclosure>
       </section>
 
       {loadError ? (
-        <div className="border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">{(loadError as Error).message}</div>
+        <div role="alert" className="rounded-xl border border-destructive/30 p-4 text-sm"><p>Proof submissions could not be loaded.</p><Button variant="outline" className="mt-3" disabled={pendingQuery.isFetching || historyQuery.isFetching} onClick={() => void Promise.allSettled([pendingQuery.refetch(), historyQuery.refetch()])}>Try again</Button></div>
       ) : loading ? (
         <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-44 rounded-none" />)}</div>
       ) : (
@@ -137,12 +137,12 @@ export const HostProofReviewPanel = () => {
               <div className="border border-dashed border-border bg-card/50 p-8 text-center"><Sparkles className="mx-auto h-8 w-8 text-primary" /><p className="mt-4 text-sm text-muted-foreground">No proof submissions are waiting for review.</p></div>
             ) : pending.map((proof: MomentumProofSubmission) => (
               <Card key={proof.id} className="overflow-hidden rounded-none border-border/50">
-                <div className="grid lg:grid-cols-[13rem_1fr_22rem]">
-                  <div className="border-b border-border/60 bg-muted/25 p-5 lg:border-b-0 lg:border-r">
+                <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] xl:grid-cols-[minmax(0,.75fr)_minmax(0,1.25fr)_minmax(0,1fr)]">
+                  <div className="border-b border-border/60 bg-muted/25 p-5 xl:border-b-0 xl:border-r">
                     <p className="text-[9px] font-black uppercase tracking-[0.18em] text-primary">{webT("dropClaim.claim")}</p>
-                    <h4 className="mt-3 font-serif text-2xl font-semibold tracking-[-0.03em] text-foreground">{proof.moment?.title || webT("web.untitledMoment")}</h4>
+                    <h4 className="mt-3 break-words font-sans text-xl font-semibold tracking-[-0.03em] text-foreground">{proof.moment?.title || webT("web.untitledMoment")}</h4>
                     <p className="mt-2 text-xs leading-5 text-muted-foreground">{proof.moment?.venue_name || "Venue pending"}</p>
-                    <p className="mt-4 font-mono text-[10px] text-muted-foreground">{proof.id}</p>
+                    <p className="mt-4 break-all font-mono text-[10px] text-muted-foreground">{proof.id}</p>
                   </div>
 
                   <div className="space-y-4 p-5 sm:p-6">
@@ -150,7 +150,7 @@ export const HostProofReviewPanel = () => {
                       <Badge className="border border-primary/20 bg-primary/10 text-primary">{proof.moment?.memory_rarity || "common"} memory</Badge>
                       {proof.moment?.reward ? <Badge variant="outline">{webT("contentMission.rewardLabel")} {proof.moment.reward}</Badge> : null}
                     </div>
-                    <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="grid min-w-0 gap-3">
                       <div className="border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("receipt.source")}</p><p className="mt-2"><strong className="text-foreground">Code:</strong> {proof.proof_bundle?.code || "None"}</p></div>
                       <div className="border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("promoPushCareersPage.labelLocation")}</p><p className="mt-2">{proof.proof_bundle?.location_verified ? webT("kyc.badgeVerified") : "Not verified"}</p></div>
                       <div className="border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("kyc.submittedLabel")}</p><p className="mt-2">{format(new Date(proof.proof_bundle?.submitted_at || proof.created_at), "MMM d, h:mm a")}</p></div>
@@ -159,7 +159,7 @@ export const HostProofReviewPanel = () => {
                     <div className="border-l-2 border-primary/35 bg-primary/5 p-3 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Decision boundary:</strong> verify only if the submitted source supports the participation claim. Existing arrival truth is not erased by a later proof rejection.</div>
                   </div>
 
-                  <div className="space-y-3 border-t border-border/60 bg-background/65 p-5 lg:border-l lg:border-t-0">
+                  <div className="space-y-3 border-t border-border/60 bg-background/65 p-5 xl:border-l xl:border-t-0">
                     <p className="text-[9px] font-black uppercase tracking-[0.16em] text-muted-foreground">{webT("commercial.decision.182")}</p>
                     {proof.proof_bundle?.evidence_url ? <a href={proof.proof_bundle.evidence_url} target="_blank" rel="noopener noreferrer" className="block h-32 overflow-hidden border border-border bg-muted"><img src={proof.proof_bundle.evidence_url} alt="Submitted proof evidence" className="h-full w-full object-cover" /></a> : null}
                     <ProofSubmissionAuditDialog submissionId={proof.id} triggerLabel="Open audit trail" />
@@ -167,10 +167,10 @@ export const HostProofReviewPanel = () => {
                       <div className="border border-destructive/20 bg-destructive/5 p-3">
                         <label htmlFor={`reject-${proof.id}`} className="text-[10px] font-black uppercase tracking-[0.16em] text-destructive">Rejection reason</label>
                         <Textarea id={`reject-${proof.id}`} value={rejectionReason} onChange={(e) => setRejectionReason(e.target.value)} className="mt-2 min-h-24" placeholder="Explain what did not verify…" />
-                        <div className="mt-3 flex gap-2"><Button variant="outline" className="flex-1" onClick={() => { setRejectingId(null); setRejectionReason(""); }}>{webT("findOrAsk.cancel")}</Button><Button variant="destructive" className="flex-1" disabled={!rejectionReason.trim() || writingId === proof.id} onClick={() => void review(proof.id, "reject", rejectionReason.trim())}>{writingId === proof.id ? webT("web.recording") : "Record rejection"}</Button></div>
+                        <div className="mt-3 flex flex-wrap gap-2"><Button variant="outline" className="h-auto min-h-11 flex-1 whitespace-normal" onClick={() => { setRejectingId(null); setRejectionReason(""); }}>{webT("findOrAsk.cancel")}</Button><Button variant="destructive" className="h-auto min-h-11 flex-1 whitespace-normal" disabled={!rejectionReason.trim() || writingId === proof.id} onClick={() => void review(proof.id, "reject", rejectionReason.trim())}>{writingId === proof.id ? webT("web.recording") : "Record rejection"}</Button></div>
                       </div>
                     ) : (
-                      <div className="flex gap-2"><Button className="flex-1 bg-emerald-500 text-white hover:bg-emerald-600" disabled={writingId === proof.id} onClick={() => void review(proof.id, "approve")}><CheckCircle2 className="mr-1.5 h-4 w-4" />{writingId === proof.id ? webT("web.recording") : webT("commercial.verify.125")}</Button><Button variant="ghost" className="flex-1 text-destructive hover:bg-destructive/10" disabled={writingId === proof.id} onClick={() => { setRejectingId(proof.id); setRejectionReason(""); }}><XCircle className="mr-1.5 h-4 w-4" />{webT("web.reject")}</Button></div>
+                      <div className="flex flex-wrap gap-2"><Button className="flex-1 bg-emerald-500 text-white hover:bg-emerald-600" disabled={writingId === proof.id} onClick={() => void review(proof.id, "approve")}><CheckCircle2 className="mr-1.5 h-4 w-4" />{writingId === proof.id ? webT("web.recording") : webT("commercial.verify.125")}</Button><Button variant="ghost" className="flex-1 text-destructive hover:bg-destructive/10" disabled={writingId === proof.id} onClick={() => { setRejectingId(proof.id); setRejectionReason(""); }}><XCircle className="mr-1.5 h-4 w-4" />{webT("web.reject")}</Button></div>
                     )}
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export const HostProofReviewPanel = () => {
           </div>
 
           <section className="border border-border bg-card p-5 sm:p-6">
-            <div className="flex items-center gap-2"><History className="h-5 w-5 text-primary" /><h4 className="font-serif text-xl font-semibold">Decision archive</h4></div>
+            <div className="flex items-center gap-2"><History className="h-5 w-5 text-primary" /><h4 className="font-sans text-xl font-semibold">Decision archive</h4></div>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">Original submissions, decisions and rejection reasons remain inspectable after close.</p>
             <div className="mt-5 divide-y divide-border/60 border-y border-border/60">
               {history.length === 0 ? <p className="py-5 text-sm text-muted-foreground">No reviewed proof yet.</p> : history.map((proof: MomentumProofSubmission) => (

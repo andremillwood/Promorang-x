@@ -1,11 +1,11 @@
+import { RoleWorkspaceTabs } from "@/components/dashboard/RoleWorkspaceTabs";
+import { DashboardHero } from "@/components/dashboard/DashboardSurface";
+import { useRoleWorkspaceTab } from "@/hooks/useRoleWorkspaceTab";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { Calendar, Handshake, Radio, ShieldCheck, BarChart3, Vote, Plus } from "lucide-react";
+import { Calendar, Handshake, Radio, ShieldCheck, BarChart3, Vote } from "lucide-react";
 import { DiscoveryDemandInbox } from "@/components/discovery/DiscoveryDemandInbox";
 import { useHostedMoments } from "@/hooks/useMoments";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 import HostMomentsStagingConsole from "@/components/host/HostMomentsStagingConsole";
 import HostDoorBoardLauncher from "@/components/host/HostDoorBoardLauncher";
@@ -15,24 +15,9 @@ import HostImpactYieldConsole from "@/components/host/HostImpactYieldConsole";
 
 export function HostDashboardV2() {
   const { t: webT } = useWebI18n();
-  const { data: hostedMoments, isLoading: momentsLoading } = useHostedMoments();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "moments";
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  const { data: hostedMoments, isLoading: momentsLoading, isError: momentsError } = useHostedMoments();
+  const { activeTab, setActiveTab: handleTabChange } = useRoleWorkspaceTab("moments", ["demand", "moments", "pulse", "review", "sponsorships", "impact"]);
 
-  useEffect(() => {
-    const requestedTab = searchParams.get("tab");
-    if (requestedTab) setActiveTab(requestedTab);
-  }, [searchParams]);
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-      next.set("tab", value);
-      return next;
-    });
-  };
 
   const momentCount = hostedMoments?.length || 0;
   const tabs = [
@@ -51,64 +36,12 @@ export function HostDashboardV2() {
   ];
 
   return (
-    <div className="space-y-6 pb-16 text-white animate-in fade-in-50 duration-300">
-      <section className="rounded-3xl border border-amber-500/20 bg-amber-950/15 p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">Host tools</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Fill it. Run it. Prove who came.</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-              Build a Moment, bring the right people in, operate arrivals from the real Door Board, verify participation, then use the evidence to improve the next one.
-            </p>
-          </div>
-          <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
-            <Link to="/create/moment">
-              <Plus className="mr-2 h-4 w-4" />
-              {webT("how.creatorStep1Cta")}
-            </Link>
-          </Button>
-        </div>
-      </section>
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => handleTabChange(tab.id)}
-              className={`flex min-h-[112px] flex-col justify-between rounded-3xl border p-4 text-left transition ${
-                isActive
-                  ? "border-amber-400 bg-amber-950/35 ring-1 ring-amber-400/40"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05]"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className={`rounded-2xl p-2 ${isActive ? "bg-amber-400 text-black" : "bg-white/5 text-amber-400"}`}>
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/50">{tab.count}</span>
-              </div>
-              <div>
-                <h3 className="text-xs font-black text-white">{tab.label}</h3>
-                <p className="mt-0.5 text-[10px] text-white/50">{tab.hint}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+    <div data-role-workspace="host" className="dark min-w-0 space-y-6 pb-16 text-white">
+      <DashboardHero badge="Host workspace" title="Manage your next event." description="Create experiences, operate arrivals and review participation." actions={[]} />
+      <p className="text-sm text-white/65" role="status">{momentsLoading ? webT("common.loading") : momentsError ? "Event count unavailable" : `${momentCount} ${momentCount === 1 ? "Moment" : "Moments"}`}</p>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="sr-only">
-          <TabsTrigger value="demand">{webT("lens.demand")}</TabsTrigger>
-          <TabsTrigger value="moments">{webT("findOrAsk.moments")}</TabsTrigger>
-          <TabsTrigger value="pulse">Live arrivals</TabsTrigger>
-          <TabsTrigger value="review">{webT("hostDash.proofReview")}</TabsTrigger>
-          <TabsTrigger value="sponsorships">{webT("pricing.lineSponsorsPayer")}</TabsTrigger>
-          <TabsTrigger value="impact">{webT("lens.agency.activity")}</TabsTrigger>
-        </TabsList>
+        <RoleWorkspaceTabs label="Host workspace" items={tabs} />
         <TabsContent value="demand" className="mt-0"><DiscoveryDemandInbox role="host" /></TabsContent>
         <TabsContent value="moments" className="mt-0"><HostMomentsStagingConsole /></TabsContent>
         <TabsContent value="pulse" className="mt-0"><HostDoorBoardLauncher /></TabsContent>

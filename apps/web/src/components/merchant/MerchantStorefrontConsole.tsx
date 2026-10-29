@@ -63,10 +63,9 @@ export function MerchantStorefrontConsole({
               <Store className="h-4 w-4" />
               Merchant · Supply
             </div>
-            <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">Put up supply that actually exists.</h2>
+            <h2 className="mt-3 font-sans text-2xl font-semibold tracking-tight text-white sm:text-3xl">Products and offers</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
-              Products, offers and inventory stay source-backed. A draft here is not a live perk, a claim is not a redemption,
-              and a validation is not a purchase or fulfillment record.
+              Manage your published inventory, prepare an offer and share your storefront.
             </p>
           </div>
 
@@ -93,13 +92,13 @@ export function MerchantStorefrontConsole({
         </div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[minmax(0,.75fr)_minmax(0,1.25fr)]">
-        <div className="space-y-5 rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
+      <section className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,.75fr)_minmax(0,1.25fr)]">
+        <div className="min-w-0 space-y-5 rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
           <div>
             <p className="text-[9px] font-black uppercase tracking-[.18em] text-amber-300">Draft an offer</p>
             <h3 className="mt-2 text-xl font-black text-white">Describe the customer reason to act.</h3>
             <p className="mt-2 text-sm leading-6 text-white/45">
-              This form only prepares the next supply step. Nothing becomes public until the authoritative inventory/offer flow records it.
+              Continue to inventory to review and publish your draft.
             </p>
           </div>
 
@@ -114,7 +113,7 @@ export function MerchantStorefrontConsole({
           </label>
 
           <label className="block space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-[.14em] text-white/35">Discount, if this offer truly uses one</span>
+            <span className="text-[10px] font-black uppercase tracking-[.14em] text-white/35">Discount, if applicable</span>
             <div className="flex items-center gap-2">
               <Input
                 type="number"
@@ -122,7 +121,7 @@ export function MerchantStorefrontConsole({
                 max="100"
                 value={discount}
                 onChange={(event) => setDiscount(event.target.value)}
-                placeholder={webT("discover.pathBrowseEyebrow")}
+                placeholder="0"
                 className="h-11 rounded-xl border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
               />
               <span className="text-sm font-black text-white/45">%</span>
@@ -136,7 +135,7 @@ export function MerchantStorefrontConsole({
 
           <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4 text-xs leading-5 text-white/40">
             <TrendingUp className="mb-2 h-4 w-4 text-emerald-300" />
-            Publishing supply creates an offer/inventory record. It does not create a sale, redemption, fulfillment or repeat customer by itself.
+            Sales, redemptions and fulfillment are tracked separately from published offers.
           </div>
 
           {onOpenScanner ? (
@@ -146,7 +145,7 @@ export function MerchantStorefrontConsole({
           ) : null}
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
+        <div className="min-w-0 rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[9px] font-black uppercase tracking-[.18em] text-emerald-300">Recorded catalog</p>

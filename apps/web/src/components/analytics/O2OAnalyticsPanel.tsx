@@ -2,6 +2,7 @@ import { currentUiLocale } from "@/i18n/geo-locale";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -44,8 +45,8 @@ export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
 
   if (query.error) {
     return (
-      <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
-        {(query.error as Error).message}
+      <div role="alert" className="rounded-xl border border-destructive/30 p-4 text-sm">
+        <p>Attribution activity could not be loaded.</p><Button variant="outline" className="mt-3" disabled={query.isFetching} onClick={() => void query.refetch()}>Try again</Button>
       </div>
     );
   }
@@ -57,7 +58,7 @@ export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
     <div className="space-y-6">
       <div>
         <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">{webT("forCreators.attributionBadge")}</p>
-        <h3 className="mt-2 font-serif text-2xl font-bold text-foreground">Digital to Physical Performance</h3>
+        <h3 className="mt-2 font-sans text-xl font-bold text-foreground">Linked activity</h3>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -69,12 +70,12 @@ export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
         ].map((item) => (
           <div key={item.label} className="rounded-2xl border border-border/60 bg-card p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">{item.label}</p>
-            <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{Number(item.value).toLocaleString(currentUiLocale())}</p>
+            <p className="mt-3 text-3xl font-bold tabular-nums tracking-tight text-foreground">{Number(item.value).toLocaleString(currentUiLocale())}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[0.72fr_1.28fr]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,.72fr)_minmax(0,1.28fr)]">
         <div className="rounded-2xl border border-primary/15 bg-primary/5 p-5">
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary/80">Conversion Rates</p>
           <div className="mt-4 space-y-4">
@@ -90,7 +91,7 @@ export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-muted-foreground">Mission Breakdown</p>
             <Badge className="bg-primary/10 text-primary border border-primary/20">
               {audience === "host" ? "Creator / Host View" : "Brand View"}
@@ -99,14 +100,14 @@ export function O2OAnalyticsPanel({ audience }: O2OAnalyticsPanelProps) {
           <div className="mt-4 space-y-3">
             {breakdown.length ? breakdown.slice(0, 5).map((item: any) => (
               <div key={item.id} className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-foreground">{item.content_title}</p>
+                    <p className="break-words font-semibold text-foreground">{item.content_title}</p>
                     <p className="mt-1 text-sm text-muted-foreground">Linked to {item.moment_title}</p>
                   </div>
                   <span className="text-xs font-bold text-primary">{item.o2o_conversion_rate}%</span>
                 </div>
-                <div className="mt-3 grid gap-2 sm:grid-cols-4 text-sm">
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4 text-sm">
                   <p className="text-muted-foreground">Engagements: <span className="font-medium text-foreground">{item.digital_engagements}</span></p>
                   <p className="text-muted-foreground">Joins: <span className="font-medium text-foreground">{item.attributed_joins}</span></p>
                   <p className="text-muted-foreground">Check-ins: <span className="font-medium text-foreground">{item.attributed_checkins}</span></p>

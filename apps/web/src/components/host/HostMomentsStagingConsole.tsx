@@ -15,7 +15,7 @@ function formatDate(value?: string | null) {
 
 export function HostMomentsStagingConsole() {
   const { t: webT } = useWebI18n();
-  const { data: moments = [], isLoading, isError } = useHostedMoments();
+  const { data: moments = [], isLoading, isError, isFetching, refetch } = useHostedMoments();
 
   return (
     <div className="space-y-6">
@@ -26,10 +26,9 @@ export function HostMomentsStagingConsole() {
               <Calendar className="h-4 w-4" />
               Host · Moments
             </div>
-            <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">Operate the Moments you actually host.</h2>
+            <h2 className="mt-3 font-sans text-2xl font-semibold tracking-tight text-white sm:text-3xl">Your events</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
-              RSVP intent, verified arrival, capacity and reward configuration remain separate. PROMORANG does not substitute curated
-              Moments or invent attendance when your hosted inventory is empty.
+              Manage event details, capacity and guest check-in. Attendance appears after a recorded arrival.
             </p>
           </div>
           <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
@@ -44,18 +43,17 @@ export function HostMomentsStagingConsole() {
         </div>
       ) : isError ? (
         <div className="rounded-3xl border border-red-500/20 bg-red-500/[.05] p-6 text-sm text-red-200">
-          Hosted Moments could not be loaded. No curated or demo Moment has been substituted.
+          Your events could not be loaded.
+          <Button type="button" variant="outline" disabled={isFetching} onClick={() => void refetch()} className="mt-3 block">{webT(isFetching ? "common.tryingAgain" : "common.tryAgain")}</Button>
         </div>
       ) : moments.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-white/12 bg-white/[.02] p-9 text-center">
           <Calendar className="mx-auto h-9 w-9 text-amber-300/35" />
-          <h3 className="mt-4 text-xl font-black text-white">No hosted Moments recorded yet.</h3>
+          <h3 className="mt-4 text-xl font-black text-white">No events yet.</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/45">
-            Create the first real Moment before PROMORANG shows stage operations, arrivals, proof or results.
+            Create an event to start managing guests and check-in.
           </p>
-          <Button asChild className="mt-5 rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
-            <Link to="/create/moment">{webT("hostDash.first")}</Link>
-          </Button>
+
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">

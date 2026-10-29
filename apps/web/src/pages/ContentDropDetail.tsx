@@ -70,6 +70,7 @@ export default function ContentDropDetail() {
   }), [leaderboard]);
 
   const record = (actionType: string) => {
+    if (recordAction.isPending) return;
     recordAction.mutate({
       action_type: actionType,
       asset_id: primary?.id,
@@ -265,6 +266,8 @@ export default function ContentDropDetail() {
                     </div>
                   ))}
                 </div>
+                {recordAction.isError ? <p role="alert" className="text-sm text-red-200">The original opened, but your contribution could not be recorded. Open it again to retry.</p> : null}
+                {recordAction.isPending ? <p role="status" className="text-sm text-white/60">Recording contribution…</p> : null}
                 {primary?.target_url && (
                   <Button asChild className="justify-between">
                     <a href={primary.target_url} target="_blank" rel="noreferrer" onClick={() => session?.access_token && record("click")}>

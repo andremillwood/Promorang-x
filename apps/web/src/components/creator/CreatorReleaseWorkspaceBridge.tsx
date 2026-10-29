@@ -33,22 +33,23 @@ export default function CreatorReleaseWorkspaceBridge({ mode }: CreatorReleaseWo
     return (
       <section className="rounded-3xl border border-red-500/20 bg-red-500/5 p-6 text-white">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300">Release workspace unavailable</p>
-        <h3 className="mt-2 text-xl font-black">PROMORANG could not load the real creator release state.</h3>
-        <p className="mt-2 text-sm text-white/55">The dashboard will not substitute demo opportunities while the live source is unavailable.</p>
+        <h3 className="mt-2 text-xl font-black">Releases could not be loaded.</h3>
+        <p className="mt-2 text-sm text-white/55">Try loading your release workspace again.</p>
+        <Button type="button" variant="outline" disabled={opportunitiesQuery.isFetching || mineQuery.isFetching} onClick={() => { void Promise.allSettled([opportunitiesQuery.refetch(), mineQuery.refetch()]); }} className="mt-4">{webT("common.tryAgain")}</Button>
       </section>
     );
   }
 
   if (mode === "work") {
     return (
-      <section className="space-y-5 rounded-3xl border border-purple-500/20 bg-purple-950/10 p-5 sm:p-6">
+      <section className="space-y-5 rounded-3xl border border-white/10 bg-white/[.025] p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300">Creator Next · Opportunity Desk</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Take work that actually exists.</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">Live release opportunities come from the real content-distribution workspace. If nothing is published, PROMORANG stays honestly empty instead of showing sample bounties.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300">Release opportunities</p>
+            <h2 className="mt-2 font-sans text-2xl font-semibold tracking-tight text-white">Find your next release.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">Choose a published release, review its requirements and submit your work.</p>
           </div>
-          <Button asChild className="rounded-xl bg-purple-500 font-black text-white hover:bg-purple-400"><Link to="/content-drops?role=creator">Open full opportunity desk <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+          <Button asChild variant="outline" className="rounded-lg border-white/20 text-white hover:bg-white/10"><Link to="/content-drops?role=creator">Open full opportunity desk <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
         </div>
 
         {opportunities.length ? (
@@ -79,8 +80,8 @@ export default function CreatorReleaseWorkspaceBridge({ mode }: CreatorReleaseWo
         ) : (
           <div className="rounded-[1.35rem] border border-dashed border-white/15 p-7 text-center text-white">
             <FileText className="mx-auto h-6 w-6 text-purple-300" />
-            <h3 className="mt-3 text-xl font-black">No live creator opportunities right now.</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/50">That is a valid product state. No demo bounty is substituted into the live workspace.</p>
+            <h3 className="mt-3 text-xl font-black">No release opportunities yet.</h3>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/50">Published release opportunities will appear here. You can also create your own release.</p>
           </div>
         )}
       </section>
@@ -92,7 +93,7 @@ export default function CreatorReleaseWorkspaceBridge({ mode }: CreatorReleaseWo
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-300">Creator Next · Production Room</p>
-          <h2 className="mt-2 text-2xl font-black text-white">Publish through the real release workspace.</h2>
+          <h2 className="mt-2 font-sans text-2xl font-semibold tracking-tight text-white">Publish through the real release workspace.</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">The current live path already creates distribution campaigns and release assets, links Moments/offers, and keeps your releases together. The mock portfolio grid is no longer the primary Create experience.</p>
         </div>
         <Button asChild className="rounded-xl bg-purple-500 font-black text-white hover:bg-purple-400"><Link to="/content-drops?role=creator"><WandSparkles className="mr-2 h-4 w-4" />Open Production Room</Link></Button>

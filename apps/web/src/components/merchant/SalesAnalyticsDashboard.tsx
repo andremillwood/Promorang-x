@@ -1,8 +1,9 @@
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
     Select,
@@ -39,7 +40,7 @@ interface CustomerInsights {
 
 const SalesAnalyticsDashboard = () => {
   const { t: webT } = useWebI18n();
-    const { user, session } = useAuth();
+    const { session } = useAuth();
     const [timeRange, setTimeRange] = useState("30");
     const [summary, setSummary] = useState<SalesSummary | null>(null);
     const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -48,13 +49,7 @@ const SalesAnalyticsDashboard = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (session?.access_token) {
-            fetchAnalytics();
-        }
-    }, [timeRange, session]);
-
-    const fetchAnalytics = async () => {
+    const fetchAnalytics = useCallback(async () => {
         setIsLoading(true);
         setLoadError(null);
         try {
@@ -109,7 +104,11 @@ const SalesAnalyticsDashboard = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [timeRange, session?.access_token]);
+
+    useEffect(() => {
+        if (session?.access_token) void fetchAnalytics();
+    }, [session?.access_token, fetchAnalytics]);
 
     if (isLoading) {
         return (
@@ -123,10 +122,7 @@ const SalesAnalyticsDashboard = () => {
         return (
             <div role="alert" className="rounded-2xl border border-red-500/25 bg-red-500/[.06] p-6">
                 <p className="text-sm font-black text-red-200">Sales analytics could not be loaded.</p>
-                <p className="mt-2 text-xs leading-5 text-red-100/60">{loadError}</p>
-                <p className="mt-3 text-xs leading-5 text-white/40">
-                    PROMORANG is not substituting zero revenue, zero sales or zero customers for an unavailable source.
-                </p>
+                <Button variant="outline" className="mt-3" onClick={() => void fetchAnalytics()}>Try again</Button>
             </div>
         );
     }
@@ -135,12 +131,12 @@ const SalesAnalyticsDashboard = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                    <h2 className="text-2xl font-bold text-foreground">Sales Analytics</h2>
-                    <p className="text-muted-foreground">Track your performance and insights</p>
+                    <h2 className="font-sans break-words text-2xl font-bold tabular-nums text-foreground">Sales analytics</h2>
+                    <p className="text-muted-foreground">Sales and customer activity for the selected period.</p>
                 </div>
 
                 <Select value={timeRange} onValueChange={setTimeRange}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectTrigger aria-label="Sales reporting period" className="min-h-11 w-full sm:w-[180px]">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -156,11 +152,11 @@ const SalesAnalyticsDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">{webT("web.totalRevenue")}</CardTitle>
+                        <CardTitle className="font-sans text-sm font-medium">{webT("web.totalRevenue")}</CardTitle>
                         <DollarSign className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
+                        <div className="break-words text-2xl font-bold tabular-nums">
                             ${summary?.totalRevenue?.toFixed(2) || '0.00'}
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -171,11 +167,11 @@ const SalesAnalyticsDashboard = () => {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+                        <CardTitle className="font-sans text-sm font-medium">Total Sales</CardTitle>
                         <ShoppingCart className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{summary?.totalSales || 0}</div>
+                        <div className="break-words text-2xl font-bold tabular-nums">{summary?.totalSales || 0}</div>
                         <p className="text-xs text-muted-foreground">
                             {summary?.validatedRedemptions || 0} validated
                         </p>
@@ -184,11 +180,11 @@ const SalesAnalyticsDashboard = () => {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Unique Customers</CardTitle>
+                        <CardTitle className="font-sans text-sm font-medium">Unique Customers</CardTitle>
                         <Users className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{customerInsights?.uniqueCustomers || 0}</div>
+                        <div className="break-words text-2xl font-bold tabular-nums">{customerInsights?.uniqueCustomers || 0}</div>
                         <p className="text-xs text-muted-foreground">
                             {customerInsights?.repeatCustomerRate?.toFixed(1) || 0}% repeat rate
                         </p>
@@ -197,12 +193,12 @@ const SalesAnalyticsDashboard = () => {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Points Redeemed</CardTitle>
+                        <CardTitle className="font-sans text-sm font-medium">Points Redeemed</CardTitle>
                         <TrendingUp className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {summary?.totalPointsRedeemed.toLocaleString(currentUiLocale()) || 0}
+                        <div className="break-words text-2xl font-bold tabular-nums">
+                            {summary?.totalPointsRedeemed?.toLocaleString(currentUiLocale()) || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">Platform points</p>
                     </CardContent>
@@ -212,7 +208,7 @@ const SalesAnalyticsDashboard = () => {
             {/* Sales Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Sales Over Time</CardTitle>
+                    <CardTitle className="font-sans">Sales over time</CardTitle>
                     <CardDescription>Daily sales and revenue trends</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -225,17 +221,19 @@ const SalesAnalyticsDashboard = () => {
                                 <YAxis yAxisId="right" orientation="right" />
                                 <Tooltip />
                                 <Line
+                                    isAnimationActive={false}
                                     yAxisId="left"
                                     type="monotone"
                                     dataKey="salesCount"
-                                    stroke="#8884d8"
+                                    stroke="hsl(var(--primary))"
                                     name="Sales"
                                 />
                                 <Line
+                                    isAnimationActive={false}
                                     yAxisId="right"
                                     type="monotone"
                                     dataKey="revenue"
-                                    stroke="#82ca9d"
+                                    stroke="hsl(var(--muted-foreground))"
                                     name="Revenue ($)"
                                 />
                             </LineChart>
@@ -249,7 +247,7 @@ const SalesAnalyticsDashboard = () => {
             {/* Top Products */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Top Selling Products</CardTitle>
+                    <CardTitle className="font-sans">Top-selling products</CardTitle>
                     <CardDescription>Your best performers</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -262,7 +260,7 @@ const SalesAnalyticsDashboard = () => {
                                             {index + 1}
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="font-medium">{product.name}</p>
+                                            <p className="break-words font-medium">{product.name}</p>
                                             <p className="text-sm text-muted-foreground">{product.category}</p>
                                         </div>
                                     </div>
@@ -283,7 +281,7 @@ const SalesAnalyticsDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Customer Behavior</CardTitle>
+                        <CardTitle className="font-sans">Customer activity</CardTitle>
                         <CardDescription>Understanding your customers</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -304,7 +302,7 @@ const SalesAnalyticsDashboard = () => {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Redemption Status</CardTitle>
+                        <CardTitle className="font-sans">Redemption status</CardTitle>
                         <CardDescription>Track redemption activity</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">

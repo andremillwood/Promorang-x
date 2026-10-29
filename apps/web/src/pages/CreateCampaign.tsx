@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,6 +40,8 @@ const CreateCampaign = () => {
   const { compile, isCompiling } = useCampaignCompiler();
   const [sourceBrief] = useState(() => params.get("from") === "business-outcome" ? readBusinessOutcomeBrief() : null);
   const [prompt, setPrompt] = useState(() => sourceBrief ? buildBusinessOutcomePrompt(sourceBrief) : "");
+  const saveInFlight = useRef(false);
+  const [flowError, setFlowError] = useState("");
   const [plan, setPlan] = useState<ActivationPlan | null>(null);
   const renewalId = params.get("renew");
   const renewalQuery = useQuery({ queryKey: ["campaign-funnel-report", renewalId], queryFn: () => funnelRequest<CampaignOutcomeReport>(`/funnels/campaigns/${renewalId}/report`), enabled: Boolean(renewalId) });
@@ -65,12 +67,16 @@ const CreateCampaign = () => {
   const handleCompile = async () => {
     if (!prompt.trim()) return;
     if (renewalId && !renewalQuery.data?.canRenew) return;
-    const { campaign, metadata } = await compile(prompt);
-    setPlan({ ...campaign, metadata });
+    setFlowError("");
+    try {
+      const { campaign, metadata } = await compile(prompt);
+      setPlan({ ...campaign, metadata });
+    } catch { setFlowError("Your plan could not be prepared. Your brief is saved here; try again."); }
   };
 
   const handleSave = async () => {
-    if (!plan) return;
+    if (!plan || createCampaign.isPending || saveInFlight.current) return;
+    setFlowError("");
     if (renewalId && !renewalQuery.data?.canRenew) return;
 
     const demandPlan = plan.metadata.demandPlan;
@@ -83,6 +89,8 @@ const CreateCampaign = () => {
       `Expected movement: ${demandPlan?.measurement.primaryOutcome || plan.outcome.volume}`,
     ].join("\n");
 
+    saveInFlight.current = true;
+    try {
     const campaign = await createCampaign.mutateAsync({
       title: demandPlan?.title || plan.moment.name,
       description,
@@ -110,10 +118,12 @@ const CreateCampaign = () => {
     });
 
     navigate(`/dashboard/campaigns/${campaign.id}`);
+    } catch { setFlowError("Your campaign plan could not be saved. Your edits are still here. Try saving again."); } finally { saveInFlight.current = false; }
   };
 
   const handleDemandPlanChange = (demandPlan: DemandPlan) => {
-    if (!plan) return;
+    if (!plan || createCampaign.isPending || saveInFlight.current) return;
+    setFlowError("");
     setPlan({ ...plan, moment: { ...plan.moment, name: demandPlan.title, description: demandPlan.promise }, metadata: { ...plan.metadata, demandPlan } });
   };
 
@@ -122,7 +132,8 @@ const CreateCampaign = () => {
       <PromoPilotWorkspace
         plan={plan.metadata.demandPlan}
         saving={createCampaign.isPending}
-        onBack={() => setPlan(null)}
+        error={flowError}
+        onBack={() => { if (!saveInFlight.current) setPlan(null); }}
         onChange={handleDemandPlanChange}
         onSave={handleSave}
       />
@@ -188,15 +199,15 @@ const CreateCampaign = () => {
                   <div className="mt-3 flex flex-wrap gap-2">
                     {[
                       {
-                        label: "🛒 Retail receipt proposal",
+                        label: "Retail receipt proposal",
                         promptText: "Propose a retail activation where eligible receipt evidence can be reviewed for entry into a monthly draw. Funding, eligibility, draw operations, and fulfillment still require approval.",
                       },
                       {
-                        label: "📸 Event proof proposal",
+                        label: "Event proof proposal",
                         promptText: "Propose an event activation where a branded photo and signup can be reviewed for eligibility. Any prize, draw, and fulfillment terms still require approval and funding.",
                       },
                       {
-                        label: "🎪 Venue demand proposal",
+                        label: "Venue demand proposal",
                         promptText: "Propose a weeknight venue activation with a limited pass and perk concept. Capacity, inventory, funding, eligibility, and fulfillment still require operator approval.",
                       },
                     ].map((bp, i) => (
@@ -204,7 +215,7 @@ const CreateCampaign = () => {
                         key={i}
                         type="button"
                         onClick={() => setPrompt(bp.promptText)}
-                        className="text-left rounded-xl border border-black/10 bg-white/60 px-3 py-1.5 text-xs font-semibold text-black/75 hover:border-[#d85b24] hover:bg-white transition-all shadow-sm"
+                        className="text-left rounded-xl border border-black/10 bg-white/60 px-3 py-1.5 text-xs font-semibold text-black/75 hover:border-[#d85b24] hover:bg-white transition-colors shadow-sm"
                       >
                         {bp.label}
                       </button>
@@ -225,6 +236,7 @@ const CreateCampaign = () => {
                   />
                 </div>
 
+                {flowError ? <p role="alert" className="mt-4 text-sm text-red-700">{flowError}</p> : null}
                 <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
                   <Button
                     onClick={handleCompile}
@@ -253,7 +265,7 @@ const CreateCampaign = () => {
         ) : (
           <motion.section key="plan" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-[1480px] px-5 py-7 sm:px-10 lg:px-16 lg:py-12 xl:px-24">
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <button onClick={() => setPlan(null)} className="flex items-center gap-2 text-sm font-semibold text-black/55 transition hover:text-black">
+              <button onClick={() => { if (!saveInFlight.current) setPlan(null); }} className="flex items-center gap-2 text-sm font-semibold text-black/55 transition hover:text-black">
                 <ArrowLeft className="h-4 w-4" /> {t("createCampaign.changeOutcome")}
               </button>
               <p className="rounded-full border border-black/15 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-black/55">{t("createCampaign.draftBadge")}</p>
@@ -318,6 +330,7 @@ const CreateCampaign = () => {
                   <p className="flex items-center gap-3 text-black/45"><span className="h-4 w-4 rounded-full border border-black/25" /> {t("createCampaign.checklist3")}</p>
                   <p className="flex items-center gap-3 text-black/45"><span className="h-4 w-4 rounded-full border border-black/25" /> {t("createCampaign.checklist4")}</p>
                 </div>
+                {flowError ? <p role="alert" className="mt-4 text-sm text-red-700">{flowError}</p> : null}
                 <Button onClick={handleSave} disabled={createCampaign.isPending} className="mt-6 h-14 w-full rounded-full bg-[#d85b24] text-base font-black text-white hover:bg-[#ba4618]">
                   {createCampaign.isPending ? t("createCampaign.savingButton") : t("createCampaign.saveButton")}
                 </Button>

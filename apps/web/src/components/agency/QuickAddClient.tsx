@@ -1,5 +1,5 @@
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Building2,
@@ -8,9 +8,7 @@ import {
   Loader2,
   Plus,
   Search,
-  Sparkles,
   Store,
-  Users2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +23,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -51,6 +48,7 @@ export function QuickAddClient({
   const { toast } = useToast();
   const { activeOrgId, refreshWorkspaceContext } = useAuth();
   const scopedOrganizationId = organizationId || activeOrgId;
+  const inFlight = useRef(false);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [workflow, setWorkflow] = useState<"existing" | "create">("existing");
@@ -59,7 +57,7 @@ export function QuickAddClient({
   const [clientName, setClientName] = useState("");
   const [clientType, setClientType] = useState<"brand" | "merchant">("brand");
   const [website, setWebsite] = useState("");
-  const [notes, setNotes] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const relationshipQuery = useAgencyRelationships({
     agencyId: mode === "agency" ? scopedOrganizationId : undefined,
@@ -82,12 +80,15 @@ export function QuickAddClient({
     { value: "activation", label: "Activation ops" },
   ];
 
-  const canSubmitExisting = !!scopedOrganizationId && !!selectedOrganizationId;
+  const selectedAccount = availableOrganizations.find((organization) => organization.id === selectedOrganizationId);
+  const canSubmitExisting = !!scopedOrganizationId && !!selectedAccount && !selectedAccount.isConnected && !relationshipQuery.isLoading && !relationshipQuery.isError;
   const canSubmitCreate = !!scopedOrganizationId && !!clientName.trim();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!scopedOrganizationId) return;
+    if (!scopedOrganizationId || inFlight.current || createRelationship.isPending || (workflow === "existing" ? !canSubmitExisting : !canSubmitCreate)) return;
+    inFlight.current = true;
+    setSubmitError("");
 
     try {
       const payload =
@@ -112,7 +113,8 @@ export function QuickAddClient({
             };
 
       const result = await createRelationship.mutateAsync(payload);
-      await refreshWorkspaceContext();
+      // A failed refresh must not turn a saved relationship into a retryable create.
+      await refreshWorkspaceContext().catch(() => undefined);
 
       toast({
         title: mode === "agency" ? "Client relationship updated" : "Agency relationship updated",
@@ -126,16 +128,17 @@ export function QuickAddClient({
       setSelectedOrganizationId("");
       setClientName("");
       setWebsite("");
-      setNotes("");
+      setSearch("");
       setWorkflow("existing");
       onSuccess?.(result.relationship);
     } catch (error: unknown) {
+      setSubmitError(error instanceof Error ? error.message : "The connection could not be saved. Try again.");
       toast({
         title: "Relationship update failed",
         description: error instanceof Error ? error.message : webT("web.tryAgainShort"),
         variant: "destructive",
       });
-    }
+    } finally { inFlight.current = false; }
   };
 
   const title = mode === "agency" ? "Connect client account" : "Connect agency partner";
@@ -145,35 +148,29 @@ export function QuickAddClient({
       : "See which agency is managing this brand and attach a new agency relationship when needed.";
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(value) => { if (!createRelationship.isPending) { setOpen(value); setSubmitError(""); } }}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" className="gap-2 border-primary/20 bg-primary/5 hover:border-primary/50">
             <Plus className="h-4 w-4" />
-            {mode === "agency" ? "Add Agency Client" : "Connect Agency"}
+            {mode === "agency" ? "Add client" : "Connect agency"}
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="overflow-hidden border-border p-0 sm:max-w-2xl">
-        <div className="relative overflow-hidden bg-charcoal px-8 py-8 text-center text-cream">
-          <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-primary/20 blur-[40px]" />
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/10 shadow-xl backdrop-blur-sm">
-            {mode === "agency" ? <Building2 className="h-8 w-8 text-primary" /> : <Users2 className="h-8 w-8 text-primary" />}
-          </div>
-          <DialogHeader>
-            <DialogTitle className="font-serif text-2xl font-bold italic text-cream">{title}</DialogTitle>
-            <DialogDescription className="mx-auto mt-2 max-w-xl text-xs text-white/60">{subtitle}</DialogDescription>
-          </DialogHeader>
-        </div>
+      <DialogContent className="overscroll-contain overflow-y-auto border-border p-0 sm:max-w-2xl" onEscapeKeyDown={(event) => { if (createRelationship.isPending) event.preventDefault(); }} onPointerDownOutside={(event) => { if (createRelationship.isPending) event.preventDefault(); }}>
+        <DialogHeader className="px-5 pt-6 sm:px-6">
+          <DialogTitle className="pr-10 font-sans text-xl font-semibold">{title}</DialogTitle>
+          <DialogDescription className="mt-2 text-sm">{subtitle}</DialogDescription>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-8">
+        <form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-6">
           <div className="grid gap-3 sm:grid-cols-2">
             <Button
               type="button"
-              variant={workflow === "existing" ? "hero" : "outline"}
-              className="justify-start gap-2"
-              onClick={() => setWorkflow("existing")}
+              aria-pressed={workflow === "existing"} variant={workflow === "existing" ? "default" : "outline"}
+              className="h-auto min-h-11 justify-start gap-2 whitespace-normal"
+              disabled={createRelationship.isPending} onClick={() => { setWorkflow("existing"); setSubmitError(""); }}
             >
               <Search className="h-4 w-4" />
               Connect existing
@@ -181,9 +178,9 @@ export function QuickAddClient({
             {mode === "agency" && (
               <Button
                 type="button"
-                variant={workflow === "create" ? "hero" : "outline"}
-                className="justify-start gap-2"
-                onClick={() => setWorkflow("create")}
+                aria-pressed={workflow === "create"} variant={workflow === "create" ? "default" : "outline"}
+                className="h-auto min-h-11 justify-start gap-2 whitespace-normal"
+                disabled={createRelationship.isPending} onClick={() => { setWorkflow("create"); setSubmitError(""); }}
               >
                 <Plus className="h-4 w-4" />
                 Create managed account
@@ -194,25 +191,26 @@ export function QuickAddClient({
           {workflow === "existing" ? (
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Search account</Label>
+                <Label htmlFor="client-search">Search account</Label>
                 <Input
+                  id="client-search"
                   value={search}
-                  onChange={(event) => setSearch(event.target.value)}
+                  onChange={(event) => { setSearch(event.target.value); setSelectedOrganizationId(""); }}
                   placeholder={mode === "agency" ? "Search brands or venues" : "Search agencies"}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                <Label htmlFor="client-account">
                   {mode === "agency" ? "Select client account" : "Select agency account"}
                 </Label>
                 <Select value={selectedOrganizationId} onValueChange={setSelectedOrganizationId}>
-                  <SelectTrigger>
+                  <SelectTrigger id="client-account" className="min-h-11">
                     <SelectValue placeholder="Choose an account" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableOrganizations.map((organization) => (
-                      <SelectItem key={organization.id} value={organization.id}>
+                      <SelectItem key={organization.id} value={organization.id} disabled={organization.isConnected}>
                         <div className="flex items-center gap-2">
                           {organization.type === "merchant" ? <Store className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
                           <span>{organization.name}</span>
@@ -240,9 +238,9 @@ export function QuickAddClient({
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Workspace type</Label>
+                  <Label htmlFor="client-type">Workspace type</Label>
                   <Select value={clientType} onValueChange={(value: "brand" | "merchant") => setClientType(value)}>
-                    <SelectTrigger>
+                    <SelectTrigger id="client-type" className="min-h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -257,6 +255,7 @@ export function QuickAddClient({
                   </Label>
                   <Input
                     id="website"
+                    type="url"
                     value={website}
                     onChange={(event) => setWebsite(event.target.value)}
                     placeholder="https://example.com"
@@ -266,11 +265,11 @@ export function QuickAddClient({
             </div>
           )}
 
-          <div className="grid gap-5 sm:grid-cols-[1fr_1.3fr]">
+          <div className="grid gap-5">
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Relationship type</Label>
+              <Label htmlFor="client-relationship">Relationship type</Label>
               <Select value={relationshipType} onValueChange={setRelationshipType}>
-                <SelectTrigger>
+                <SelectTrigger id="client-relationship" className="min-h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -283,18 +282,7 @@ export function QuickAddClient({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Why this connection matters
-              </Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(event) => setNotes(event.target.value)}
-                placeholder="Optional internal note for the operator."
-                rows={3}
-              />
-            </div>
+
           </div>
 
           <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
@@ -308,8 +296,9 @@ export function QuickAddClient({
             </p>
           </div>
 
+          {submitError ? <p role="alert" className="text-sm text-destructive">{submitError}</p> : null}
           <DialogFooter className="gap-3 sm:gap-3">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+            <Button type="button" variant="ghost" disabled={createRelationship.isPending} onClick={() => setOpen(false)}>
               {webT("findOrAsk.cancel")}
             </Button>
             <Button
@@ -318,7 +307,7 @@ export function QuickAddClient({
               disabled={createRelationship.isPending || (workflow === "existing" ? !canSubmitExisting : !canSubmitCreate)}
             >
               {createRelationship.isPending ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Saving connection…</span>
               ) : (
                 <span className="flex items-center gap-2">
                   {mode === "agency" ? "Save client connection" : "Save agency connection"}
@@ -335,7 +324,7 @@ export function QuickAddClient({
             </div>
           ) : null}
 
-          {!relationshipQuery.isLoading && availableOrganizations.length === 0 && workflow === "existing" ? (
+          {!relationshipQuery.isLoading && !relationshipQuery.isError && availableOrganizations.length === 0 && workflow === "existing" ? (
             <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
               <div className="mb-2 flex items-center gap-2 text-primary">
                 <CheckCircle2 className="h-4 w-4" />
@@ -347,12 +336,8 @@ export function QuickAddClient({
             </div>
           ) : null}
 
-          <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-3 py-1 text-[10px] font-bold uppercase text-muted-foreground">
-              <Sparkles className="h-3 w-3 text-primary animate-pulse" />
-              Workspace relationship layer
-            </span>
-          </div>
+          {relationshipQuery.isError && workflow === "existing" ? <div role="alert" className="rounded-xl border border-destructive/30 p-4 text-sm"><p>Accounts could not be loaded.</p><Button type="button" variant="outline" className="mt-3" disabled={relationshipQuery.isFetching} onClick={() => void relationshipQuery.refetch()}>Try again</Button></div> : null}
+
         </form>
       </DialogContent>
     </Dialog>
