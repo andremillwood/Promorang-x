@@ -18,7 +18,7 @@ export function BrandOpportunityRadar() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 rounded-sm  bg-card p-5 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
 
           <div>
@@ -29,27 +29,27 @@ export function BrandOpportunityRadar() {
             <p className="mt-1 text-xs text-white/60">Browse events ready for sponsorship and build a linked activation.</p>
           </div>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-right">
+        <div className="rounded-sm  bg-white/[0.04] px-4 py-3 text-right">
           <p className="text-2xl font-black text-white">{feed.isLoading || feed.isError ? "—" : opportunities.length}</p>
           <p className="text-[10px] font-black uppercase tracking-wider text-white/45">Ready to review</p>
         </div>
       </div>
 
       {categories.length > 1 ? <div className="flex flex-wrap gap-2">
-        <button type="button" aria-pressed={activeCategory === "all"} onClick={() => setActiveCategory("all")} className={`min-h-11 max-w-full break-words rounded-lg px-4 py-2 text-xs font-bold ${activeCategory === "all" ? "bg-primary text-black" : "border border-white/10 bg-white/5 text-white/70"}`}>{webT("citySwitcher.all")}</button>
-        {categories.map((category) => <button type="button" aria-pressed={activeCategory === category.toLowerCase()} key={category} onClick={() => setActiveCategory(category.toLowerCase())} className={`min-h-11 max-w-full break-words rounded-lg px-4 py-2 text-xs font-bold ${activeCategory === category.toLowerCase() ? "bg-primary text-black" : "border border-white/10 bg-white/5 text-white/70"}`}>{category}</button>)}
+        <button type="button" aria-pressed={activeCategory === "all"} onClick={() => setActiveCategory("all")} className={`min-h-11 max-w-full break-words rounded-sm px-4 py-2 text-xs font-bold ${activeCategory === "all" ? "bg-primary text-black" : " bg-white/5 text-white/70"}`}>{webT("citySwitcher.all")}</button>
+        {categories.map((category) => <button type="button" aria-pressed={activeCategory === category.toLowerCase()} key={category} onClick={() => setActiveCategory(category.toLowerCase())} className={`min-h-11 max-w-full break-words rounded-sm px-4 py-2 text-xs font-bold ${activeCategory === category.toLowerCase() ? "bg-primary text-black" : " bg-white/5 text-white/70"}`}>{category}</button>)}
       </div> : null}
 
       {feed.isLoading ? (
-        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="h-80 animate-pulse rounded-3xl border border-white/10 bg-white/[0.03]" />)}</div>
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="h-80 animate-pulse rounded-sm  bg-white/[0.03]" />)}</div>
       ) : feed.isError ? (
-        <div role="alert" className="rounded-3xl border border-amber-500/25 bg-amber-500/5 p-8 text-center">
+        <div role="alert" className="rounded-sm border border-amber-500/25 bg-amber-500/5 p-8 text-center">
           <h3 className="font-sans text-lg font-black text-white">Current inventory could not be verified</h3>
           <p className="mt-2 text-sm text-white/55">Try loading the event list again.</p>
           <Button variant="outline" className="mt-5" disabled={feed.isFetching} onClick={() => feed.refetch()}>{webT("release.18")}</Button>
         </div>
       ) : opportunities.length === 0 ? (
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center">
+        <div className="rounded-sm  bg-white/[0.03] p-8 text-center">
           <Calendar className="mx-auto h-8 w-8 text-primary" />
           <h3 className="font-sans mt-4 text-lg font-black text-white">No events match this filter</h3>
           <p className="mx-auto mt-2 max-w-lg text-sm text-white/55">Choose another category or check the public calendar for upcoming events.</p>
@@ -58,7 +58,7 @@ export function BrandOpportunityRadar() {
       ) : (
         <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-2 xl:grid-cols-3">
           {opportunities.map((moment) => (
-            <article key={moment.id} className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-card transition-colors hover:border-primary/40">
+            <article key={moment.id} className="min-w-0 overflow-hidden rounded-sm  bg-card transition-colors hover:border-primary/40">
               <div className="relative h-44 bg-black">
                 {moment.image_url ? <img src={moment.image_url} alt={moment.title} className="h-full w-full object-cover opacity-65" /> : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0e1015] via-transparent to-black/20" />

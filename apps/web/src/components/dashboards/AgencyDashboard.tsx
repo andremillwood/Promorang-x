@@ -90,7 +90,7 @@ const AgencyDashboard = () => {
 
   return (
     <div data-role-workspace="agency" className="dark min-w-0 space-y-6">
-      {relationshipQuery.isError || clientCampaignQuery.isError ? <div role="alert" className="rounded-xl border border-amber-300/25 p-4 text-sm"><p>Some client activity could not be loaded. Available accounts remain visible.</p><button type="button" disabled={relationshipQuery.isFetching || clientCampaignQuery.isFetching} onClick={() => { void Promise.allSettled([relationshipQuery.refetch(), clientCampaignQuery.refetch()]); }} className="mt-2 min-h-11 underline disabled:opacity-50">{webT("common.tryAgain")}</button></div> : null}
+      {relationshipQuery.isError || clientCampaignQuery.isError ? <div role="alert" className="rounded-sm border border-amber-300/25 p-4 text-sm"><p>Some client activity could not be loaded. Available accounts remain visible.</p><button type="button" disabled={relationshipQuery.isFetching || clientCampaignQuery.isFetching} onClick={() => { void Promise.allSettled([relationshipQuery.refetch(), clientCampaignQuery.refetch()]); }} className="mt-2 min-h-11 underline disabled:opacity-50">{webT("common.tryAgain")}</button></div> : null}
       <DashboardHero
         badge={t("agencyDash.badge")}
         title={t("agencyDash.title")}
@@ -111,15 +111,15 @@ const AgencyDashboard = () => {
         isLoading={clientCampaignQuery.isLoading}
       />
 
-      <nav aria-label={t("agencyDash.workspaceTitle")} className="flex flex-wrap gap-2 rounded-xl border border-white/10 p-2">
+      <nav aria-label={t("agencyDash.workspaceTitle")} className="flex flex-wrap gap-2 rounded-sm  p-2">
         {[
           {value: "clients", label: t("agencyDash.tabClients")},
           {value: "activations", label: t("agencyDash.tabActivations")},
           {value: "impact", label: t("agencyDash.tabImpact")},
-        ].map((item) => <button key={item.value} type="button" aria-pressed={activeTab === item.value} onClick={() => setActiveTab(item.value)} className={`min-h-11 rounded-lg px-4 py-2 text-sm font-medium ${activeTab === item.value ? "bg-orange-500/10 text-orange-300" : "text-white/70 hover:bg-white/5"}`}>{item.label}</button>)}
+        ].map((item) => <button key={item.value} type="button" aria-pressed={activeTab === item.value} onClick={() => setActiveTab(item.value)} className={`min-h-11 rounded-none border-b-[3px] px-4 py-2 text-sm font-medium ${activeTab === item.value ? "border-orange-400 text-orange-300" : "border-transparent text-white/70 hover:bg-white/5"}`}>{item.label}</button>)}
       </nav>
 
-      <section aria-labelledby="agency-attention-heading" className="grid gap-3 rounded-3xl border border-border/70 bg-card/55 p-5 sm:grid-cols-3 sm:p-6">
+      <section aria-labelledby="agency-attention-heading" className="grid gap-3 rounded-sm  bg-card/55 p-5 sm:grid-cols-3 sm:p-6">
         <div className="sm:col-span-3">
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">{t("agencyDash.portfolioAttention")}</p>
           <h2 id="agency-attention-heading" className="mt-2 font-sans text-2xl font-semibold tracking-tight">{t("agencyDash.attentionHeading")}</h2>
@@ -129,7 +129,7 @@ const AgencyDashboard = () => {
           { label: "Activations in motion", value: clientCampaignQuery.isError ? "—" : activeClientCampaigns.length, detail: clientCampaignQuery.isError ? "Client activity is unavailable." : activeClientCampaigns.length ? "Check execution and unblock delivery." : "No client activations are live.", action: "activations" },
           { label: "Results ready", value: clientCampaignQuery.isError ? "—" : provenClientCampaigns.length, detail: clientCampaignQuery.isError ? "Client results are unavailable." : provenClientCampaigns.length ? "Turn verified outcomes into a client decision." : "No proven result is ready yet.", action: "impact" },
         ].map((item) => (
-          <button key={item.label} type="button" onClick={() => setActiveTab(item.action)} className="group rounded-2xl border border-border/60 bg-background/60 p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <button key={item.label} type="button" onClick={() => setActiveTab(item.action)} className="group rounded-sm  bg-background/60 p-4 text-left transition hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <div className="flex flex-wrap items-start justify-between gap-3"><p className="text-sm font-bold">{item.label}</p><span className="font-sans text-3xl font-semibold tabular-nums text-foreground">{item.value}</span></div>
             <p className="mt-3 text-xs leading-5 text-muted-foreground">{item.detail}</p>
             <span className="mt-4 inline-flex items-center text-xs font-bold text-primary">Open workspace <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition group-hover:translate-x-1" /></span>
@@ -137,7 +137,7 @@ const AgencyDashboard = () => {
         ))}
       </section>
 
-      <div data-agency-section="clients" tabIndex={-1} id="agency-workspace" className={`${activeTab === "clients" ? "scroll-mt-28" : "hidden"} rounded-3xl border border-border bg-card p-5 sm:p-6`}>
+      <div data-agency-section="clients" tabIndex={-1} id="agency-workspace" className={`${activeTab === "clients" ? "scroll-mt-28" : "hidden"} rounded-sm  bg-card p-5 sm:p-6`}>
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Current Account</p>
@@ -184,7 +184,7 @@ const AgencyDashboard = () => {
       </div>
 
       <div className={`${activeTab === "clients" ? "" : "hidden"} grid gap-6`}>
-        <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
+        <div className="rounded-sm  bg-card p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary/80">Client Portfolio</p>
@@ -206,10 +206,10 @@ const AgencyDashboard = () => {
                 const ClientIcon = tone.icon;
 
                 return (
-                  <div key={relationship.id} className="rounded-2xl border border-border/60 bg-background/60 p-4">
+                  <div key={relationship.id} className="rounded-sm  bg-background/60 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex min-w-0 items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary/10 text-primary">
                           <ClientIcon className="h-5 w-5" />
                         </div>
                         <div>
@@ -268,7 +268,7 @@ const AgencyDashboard = () => {
                 );
               })
             ) : (
-              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+              <div className="rounded-sm border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
                 No agency clients connected yet. Add a client account to start operating campaigns across brands and venues.
               </div>
             )}

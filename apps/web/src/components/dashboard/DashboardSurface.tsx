@@ -71,7 +71,7 @@ export const DashboardHero = ({
   const ActionsHeading = Heading === "h1" ? "h2" : "h3";
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#080808] text-white">
+    <section className="relative overflow-hidden rounded-sm  bg-[#080808] text-white">
       {imageSrc ? (
         <img src={imageSrc} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
       ) : null}
@@ -93,11 +93,11 @@ export const DashboardHero = ({
           {primaryAction ? (
             <div>
               {primaryAction.href ? (
-                <Button asChild size="lg" className="h-auto min-h-12 rounded-lg bg-orange-500 px-5 py-3 font-semibold text-black shadow-none hover:bg-orange-400 sm:whitespace-normal">
+                <Button asChild size="lg" className="h-auto min-h-12 rounded-sm bg-orange-500 px-5 py-3 font-semibold text-black shadow-none hover:bg-orange-400 sm:whitespace-normal">
                   <Link to={primaryAction.href}>{primaryAction.label}<ArrowRight className="ml-2 h-4 w-4" /></Link>
                 </Button>
               ) : (
-                <Button size="lg" onClick={primaryAction.onClick} className="h-auto min-h-12 rounded-lg bg-orange-500 px-5 py-3 font-semibold text-black shadow-none hover:bg-orange-400 sm:whitespace-normal">
+                <Button size="lg" onClick={primaryAction.onClick} className="h-auto min-h-12 rounded-sm bg-orange-500 px-5 py-3 font-semibold text-black shadow-none hover:bg-orange-400 sm:whitespace-normal">
                   {primaryAction.label}<ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
@@ -110,7 +110,7 @@ export const DashboardHero = ({
             <ActionsHeading className="font-sans text-base font-semibold">{t("dashboard.quickActions")}</ActionsHeading>
             <nav className="mt-4 space-y-1" aria-label={`${badge}: ${t("dashboard.quickActions")}`}>
               {secondaryActions.map((action) => {
-                const classes = "group flex min-h-12 w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400";
+                const classes = "group flex min-h-12 w-full items-center gap-3 rounded-sm px-3 py-3 text-left text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400";
                 const content = <><action.icon className="h-4 w-4 shrink-0 text-white/50" aria-hidden="true" /><span className="min-w-0 flex-1 break-words">{action.label}</span><ArrowRight className="h-4 w-4 shrink-0 text-white/40" aria-hidden="true" /></>;
                 return action.href ? <Link key={action.label} to={action.href} className={classes}>{content}</Link> : <button key={action.label} type="button" onClick={action.onClick} className={classes}>{content}</button>;
               })}
@@ -160,7 +160,7 @@ export const DashboardQuickRoutesCard = ({
   routes,
 }: DashboardQuickRoutesCardProps) => {
   return (
-    <aside className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0b] text-white">
+    <aside className="overflow-hidden rounded-sm  bg-[#0b0b0b] text-white">
       <div className="p-5 sm:p-6">
         <h3 className="font-sans text-xl font-semibold tracking-tight">{title}</h3>
         <p className="mt-2 text-sm leading-6 text-white/50">{description}</p>
@@ -224,7 +224,7 @@ export const DashboardNextStepsSection = ({
   items,
 }: DashboardNextStepsSectionProps) => {
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55">
+    <section className="overflow-hidden rounded-sm  bg-card/55">
       <div className="p-6 sm:p-8">
         <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
           <div className="min-w-0 flex-1 basis-64">
@@ -234,14 +234,14 @@ export const DashboardNextStepsSection = ({
           </div>
           {ctaLabel ? (
             ctaHref ? (
-              <Button variant="outline" size="sm" className="rounded-full" asChild>
+              <Button variant="outline" size="sm" className="rounded-sm" asChild>
                 <Link to={ctaHref}>
                   {ctaLabel}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             ) : (
-              <Button variant="outline" size="sm" className="rounded-full" onClick={ctaOnClick}>
+              <Button variant="outline" size="sm" className="rounded-sm" onClick={ctaOnClick}>
                 {ctaLabel}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

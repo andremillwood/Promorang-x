@@ -43,7 +43,7 @@ export function MerchantDashboardV2() {
         <TabsContent value="venues" className="mt-0"><MerchantVenueStudio onOpenMoments={() => navigate("/create/moment")} /></TabsContent>
         <TabsContent value="analytics" className="mt-0"><MerchantYieldAnalytics /></TabsContent>
       </Tabs>
-      <details className="rounded-xl border border-white/10 p-4"><summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Plan a business outcome</summary><div className="mt-4"><BusinessOutcomeEntry role="merchant" /></div></details>
+      <details className="rounded-sm  p-4"><summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Plan a business outcome</summary><div className="mt-4"><BusinessOutcomeEntry role="merchant" /></div></details>
     </div>
   );
 }

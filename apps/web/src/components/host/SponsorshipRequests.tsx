@@ -48,17 +48,17 @@ export function HostSponsorshipRequests() {
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 rounded-xl" />
+          <Skeleton key={i} className="h-32 rounded-sm" />
         ))}
       </div>
     );
   }
 
-  if (isError) return <div role="alert" className="rounded-xl border border-destructive/30 p-5"><p>Sponsorship requests could not be loaded.</p><Button variant="outline" className="mt-3" disabled={isFetching} onClick={() => void refetch()}>Try again</Button></div>;
+  if (isError) return <div role="alert" className="rounded-sm border border-destructive/30 p-5"><p>Sponsorship requests could not be loaded.</p><Button variant="outline" className="mt-3" disabled={isFetching} onClick={() => void refetch()}>Try again</Button></div>;
 
   if (!requests || requests.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/12 bg-white/[.02] p-8 text-center">
+      <div className="rounded-sm  bg-white/[.02] p-8 text-center">
         <DollarSign className="mx-auto h-10 w-10 text-white/25" />
         <h3 className="mt-4 text-lg font-black text-white">No sponsorship requests yet.</h3>
         <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/45">
@@ -79,7 +79,7 @@ export function HostSponsorshipRequests() {
           </div>
           <div className="grid gap-4">
             {requests.filter(r => r.status === "funded").map(request => (
-               <div key={request.id} className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-6 relative overflow-hidden group">
+               <div key={request.id} className="bg-emerald-500/5 border border-emerald-500/20 rounded-sm p-6 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                       <DollarSign className="w-20 h-20 text-emerald-500" />
                   </div>
@@ -122,7 +122,7 @@ export function HostSponsorshipRequests() {
             {pendingRequests.map((request) => (
               <div
                 key={request.id}
-                className="bg-card rounded-xl p-5 border border-yellow-500/50"
+                className="bg-card rounded-sm p-5 border border-yellow-500/50"
               >
                 <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
@@ -144,7 +144,7 @@ export function HostSponsorshipRequests() {
                 </div>
 
                 {request.message && (
-                  <div className="bg-muted/30 rounded-lg p-3 mb-3">
+                  <div className="bg-muted/30 rounded-sm p-3 mb-3">
                     <p className="text-sm text-muted-foreground italic">
                       "{request.message}"
                     </p>
@@ -250,7 +250,7 @@ export function HostSponsorshipRequests() {
           {requests.map((request) => (
             <div
               key={request.id}
-              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-sm  bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <p className="font-medium text-foreground">

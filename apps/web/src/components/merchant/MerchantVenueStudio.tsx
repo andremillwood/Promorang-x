@@ -15,7 +15,7 @@ export function MerchantVenueStudio({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+      <section className="rounded-sm  bg-card p-5 sm:p-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-emerald-300">
@@ -28,10 +28,10 @@ export function MerchantVenueStudio({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild className="rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
+            <Button asChild className="rounded-sm bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
               <Link to="/dashboard/venues/add"><Plus className="mr-2 h-4 w-4" />Add location</Link>
             </Button>
-            <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">
+            <Button asChild variant="outline" className="rounded-sm border-white/10 bg-white/[.03] text-white">
               <Link to="/create/moment"><Sparkles className="mr-2 h-4 w-4 text-amber-300" />Create on-site Moment</Link>
             </Button>
           </div>
@@ -40,20 +40,20 @@ export function MerchantVenueStudio({
 
       {isLoading ? (
         <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
-          {[0, 1].map((item) => <div key={item} className="h-56 animate-pulse rounded-3xl border border-white/10 bg-white/[.025]" />)}
+          {[0, 1].map((item) => <div key={item} className="h-56 animate-pulse rounded-sm  bg-white/[.025]" />)}
         </div>
       ) : error ? (
-        <div role="alert" className="rounded-3xl border border-red-500/20 bg-red-500/[.05] p-6 text-sm text-red-200">
+        <div role="alert" className="rounded-sm border border-red-500/20 bg-red-500/[.05] p-6 text-sm text-red-200">
           <p>Locations could not be loaded.</p><Button variant="outline" className="mt-3" disabled={isFetching} onClick={() => void refetch()}>Try again</Button>
         </div>
       ) : venues.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/12 bg-white/[.02] p-9 text-center">
+        <div className="rounded-sm  bg-white/[.02] p-9 text-center">
           <Building className="mx-auto h-9 w-9 text-white/25" />
           <h3 className="font-sans mt-4 text-xl font-black text-white">No managed places recorded yet.</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/45">
             Add a location to attach offers and events to your venue.
           </p>
-          <Button asChild className="mt-5 rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
+          <Button asChild className="mt-5 rounded-sm bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
             <Link to="/dashboard/venues/add">Add your first location</Link>
           </Button>
         </div>
@@ -67,7 +67,7 @@ export function MerchantVenueStudio({
             const location = venue.address || venue.location || venue.city || "Location not recorded";
 
             return (
-              <article key={venue.id} className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#0e1015]">
+              <article key={venue.id} className="min-w-0 overflow-hidden rounded-sm  bg-[#0e1015]">
                 {venue.image_url ? (
                   <div className="h-44 overflow-hidden bg-black">
                     <img src={venue.image_url} alt={venue.name || "Merchant venue"} className="h-full w-full object-cover opacity-70" />
@@ -95,11 +95,11 @@ export function MerchantVenueStudio({
                   </div>
 
                   <dl className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
+                    <div className="rounded-sm  bg-white/[.025] p-4">
                       <dt className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">{webT("momentDetail.capacity")}</dt>
                       <dd className="mt-2 text-lg font-black text-white">{hasCapacity ? capacity.toLocaleString(currentUiLocale()) : webT("activationCommerce.notRecorded")}</dd>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
+                    <div className="rounded-sm  bg-white/[.025] p-4">
                       <dt className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">Rating</dt>
                       <dd className="mt-2 text-lg font-black text-white">{hasRating ? rating.toFixed(1) : webT("activationCommerce.notRecorded")}</dd>
                     </div>
@@ -107,11 +107,11 @@ export function MerchantVenueStudio({
 
                   <div className="flex flex-wrap gap-2 border-t border-white/8 pt-4">
                     {onOpenMoments ? (
-                      <Button type="button" variant="outline" onClick={onOpenMoments} className="rounded-xl border-white/10 bg-white/[.03] text-white">
+                      <Button type="button" variant="outline" onClick={onOpenMoments} className="rounded-sm border-white/10 bg-white/[.03] text-white">
                         Create an event
                       </Button>
                     ) : null}
-                    <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">
+                    <Button asChild variant="outline" className="rounded-sm border-white/10 bg-white/[.03] text-white">
                       <Link to="/discover/venues"><ExternalLink className="mr-2 h-4 w-4" />Browse public places</Link>
                     </Button>
                   </div>

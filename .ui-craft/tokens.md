@@ -12,7 +12,7 @@ DM Sans body; Fraunces and Anton are existing display options. Promorang Space c
 Tailwind 4px scale. Homepage rail gap 12px; controls at least 44px tall.
 
 ## Radius
-Root --radius: .75rem. Homepage cards use existing 1.2–1.35rem radii; action pills use fully rounded corners.
+Root --radius: .125rem (2px). Shared panels and actions use restrained 2px corners; navigation uses flat selection rules. Tangible PromoCards, avatars and intentional brand elements retain their own shapes. Generic content panels have no default border or shadow. Critical header gradient borders remain unchanged.
 
 ## Shadows
 Existing --shadow-soft, --shadow-card, --shadow-elevated and --shadow-glow in index.css. Do not add decorative elevation to content rails.

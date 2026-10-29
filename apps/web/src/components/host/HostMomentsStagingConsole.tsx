@@ -19,7 +19,7 @@ export function HostMomentsStagingConsole() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-amber-500/25 bg-[linear-gradient(135deg,rgba(245,158,11,.10),rgba(0,0,0,.88))] p-5 sm:p-7">
+      <section className="rounded-sm border border-amber-500/25 bg-[linear-gradient(135deg,rgba(245,158,11,.10),rgba(0,0,0,.88))] p-5 sm:p-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-amber-300">
@@ -31,7 +31,7 @@ export function HostMomentsStagingConsole() {
               Manage event details, capacity and guest check-in. Attendance appears after a recorded arrival.
             </p>
           </div>
-          <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
+          <Button asChild className="rounded-sm bg-amber-400 font-black text-black hover:bg-amber-300">
             <Link to="/create/moment"><Plus className="mr-2 h-4 w-4" />{webT("how.creatorStep1Cta")}</Link>
           </Button>
         </div>
@@ -39,15 +39,15 @@ export function HostMomentsStagingConsole() {
 
       {isLoading ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          {[0, 1].map((item) => <div key={item} className="h-64 animate-pulse rounded-3xl border border-white/10 bg-white/[.025]" />)}
+          {[0, 1].map((item) => <div key={item} className="h-64 animate-pulse rounded-sm  bg-white/[.025]" />)}
         </div>
       ) : isError ? (
-        <div className="rounded-3xl border border-red-500/20 bg-red-500/[.05] p-6 text-sm text-red-200">
+        <div className="rounded-sm border border-red-500/20 bg-red-500/[.05] p-6 text-sm text-red-200">
           Your events could not be loaded.
           <Button type="button" variant="outline" disabled={isFetching} onClick={() => void refetch()} className="mt-3 block">{webT(isFetching ? "common.tryingAgain" : "common.tryAgain")}</Button>
         </div>
       ) : moments.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/12 bg-white/[.02] p-9 text-center">
+        <div className="rounded-sm  bg-white/[.02] p-9 text-center">
           <Calendar className="mx-auto h-9 w-9 text-amber-300/35" />
           <h3 className="mt-4 text-xl font-black text-white">No events yet.</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/45">
@@ -68,7 +68,7 @@ export function HostMomentsStagingConsole() {
             const hasReward = typeof moment.reward === "string" && moment.reward.trim().length > 0;
 
             return (
-              <article key={moment.id} className="overflow-hidden rounded-3xl border border-white/10 bg-[#0e1015]">
+              <article key={moment.id} className="overflow-hidden rounded-sm  bg-[#0e1015]">
                 {moment.image_url ? (
                   <div className="relative h-44 overflow-hidden bg-black">
                     <img src={moment.image_url} alt={moment.title || "Hosted Moment"} className="h-full w-full object-cover opacity-70" />
@@ -93,29 +93,29 @@ export function HostMomentsStagingConsole() {
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
+                    <div className="rounded-sm  bg-white/[.025] p-4">
                       <p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">RSVP / participant record</p>
                       <p className="mt-2 text-lg font-black text-white">{hasParticipantCount ? participantCount.toLocaleString(currentUiLocale()) : webT("activationCommerce.notRecorded")}</p>
                       <p className="mt-1 text-[10px] leading-4 text-white/30">Not the same as verified attendance.</p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4">
+                    <div className="rounded-sm  bg-white/[.025] p-4">
                       <p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">{webT("momentDetail.capacity")}</p>
                       <p className="mt-2 text-lg font-black text-white">{hasCapacity ? capacity.toLocaleString(currentUiLocale()) : webT("activationCommerce.notRecorded")}</p>
                       {occupancy !== null ? <p className="mt-1 text-[10px] leading-4 text-white/30">{occupancy}% of recorded capacity by participant count.</p> : null}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                  <div className="rounded-sm  bg-black/20 p-4">
                     <p className="text-[9px] font-black uppercase tracking-[.14em] text-white/30">Configured participant value</p>
                     <p className="mt-2 text-sm font-black text-white">{hasReward ? moment.reward : webT("web.noRewardRecorded")}</p>
                     <p className="mt-1 text-[10px] leading-4 text-white/30">Configured value does not imply issuance or settlement.</p>
                   </div>
 
                   <div className="flex flex-wrap gap-2 border-t border-white/8 pt-4">
-                    <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">
+                    <Button asChild variant="outline" className="rounded-sm border-white/10 bg-white/[.03] text-white">
                       <Link to={`/moments/${moment.id}`}><ExternalLink className="mr-2 h-4 w-4" />Public record</Link>
                     </Button>
-                    <Button asChild className="rounded-xl bg-amber-400 font-black text-black hover:bg-amber-300">
+                    <Button asChild className="rounded-sm bg-amber-400 font-black text-black hover:bg-amber-300">
                       <Link to={`/dashboard/moments/${moment.id}`}>Moment controls<ArrowRight className="ml-2 h-4 w-4" /></Link>
                     </Button>
                     <Button asChild variant="ghost" className="text-white/55 hover:text-white">

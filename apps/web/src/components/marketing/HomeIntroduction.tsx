@@ -25,11 +25,6 @@ export function HomeIntroduction({ opportunities }: { opportunities: ReactNode }
   const { t } = useI18n();
   return <div className="home-introduction">
     <div className="home-hero-dark">
-    <svg className="home-brand-current" viewBox="0 0 1400 760" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id="home-current-gradient"><stop stopColor="#ff5500" /><stop offset=".55" stopColor="#ffb638" /><stop offset="1" stopColor="#fb6585" /></linearGradient></defs>
-      <path className="home-current-track" d="M-100 580C210 850 500 530 780 580S1160 850 1470 470" />
-      <path className="home-current-signal" d="M-100 580C210 850 500 530 780 580S1160 850 1470 470" />
-    </svg>
     <section className="home-intro-hero" aria-labelledby="home-intro-title">
       <div className="home-intro-copy">
         <p className="home-kicker">{t("homeIntro.eyebrow")}</p>
@@ -47,7 +42,6 @@ export function HomeIntroduction({ opportunities }: { opportunities: ReactNode }
       </div>
       {opportunities}
     </section>
-    <span className="home-hero-current" aria-hidden="true" />
     </div>
     <section className="home-paths" aria-labelledby="home-paths-title">
       <header><h2 id="home-paths-title">{t("homeIntro.paths")}</h2><p>{t("homeIntro.pathsCopy")}</p></header>

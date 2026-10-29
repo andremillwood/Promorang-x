@@ -274,7 +274,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
   const isLoading = salesQuery.isLoading || receiptsQuery.isLoading;
 
   const reads = [salesQuery, receiptsQuery, liveOpsQuery, merchantPaymentOrders, directMethods, casesQuery];
-  if (reads.some((query) => query.isError)) return <section role="alert" className="rounded-xl border border-destructive/30 p-5"><h2 className="text-xl font-semibold">Orders could not be loaded.</h2><p className="mt-2 text-sm text-muted-foreground">Refresh the order queue before confirming payments or fulfillment.</p><Button variant="outline" className="mt-3" disabled={reads.some((query) => query.isFetching)} onClick={() => void Promise.allSettled(reads.map((query) => query.refetch()))}>Try again</Button></section>;
+  if (reads.some((query) => query.isError)) return <section role="alert" className="rounded-sm border border-destructive/30 p-5"><h2 className="text-xl font-semibold">Orders could not be loaded.</h2><p className="mt-2 text-sm text-muted-foreground">Refresh the order queue before confirming payments or fulfillment.</p><Button variant="outline" className="mt-3" disabled={reads.some((query) => query.isFetching)} onClick={() => void Promise.allSettled(reads.map((query) => query.refetch()))}>Try again</Button></section>;
 
   return (
     <section className="space-y-4">
@@ -302,13 +302,13 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
             <Button onClick={onOpenValidation} className="bg-orange-500 text-black hover:bg-orange-400"><QrCode className="mr-2 h-4 w-4" />{webT("web.openScannerCount")} {liveOps.needsAction} {webT("web.waiting")}</Button>
           </div>
           <div className="mt-5 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            {[[webT("web.available"),liveOps.activeListings],[webT("web.lowStock"),liveOps.lowStock],[webT("web.soldOut"),liveOps.soldOut],[webT("web.needsAction"),liveOps.needsAction],[webT("web.fulfilled"),liveOps.fulfilled],[webT("web.attributed"),money(liveOps.attributedRevenue)]].map(([label,value])=><div key={label} className="rounded-2xl border border-white/10 bg-white/[.04] p-3"><p className="text-xl font-black">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-white/45">{label}</p></div>)}
+            {[[webT("web.available"),liveOps.activeListings],[webT("web.lowStock"),liveOps.lowStock],[webT("web.soldOut"),liveOps.soldOut],[webT("web.needsAction"),liveOps.needsAction],[webT("web.fulfilled"),liveOps.fulfilled],[webT("web.attributed"),money(liveOps.attributedRevenue)]].map(([label,value])=><div key={label} className="rounded-sm  bg-white/[.04] p-3"><p className="text-xl font-black">{value}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-white/45">{label}</p></div>)}
           </div>
           {pressuredListings.length ? <div className="mt-4 flex flex-wrap gap-2" aria-label={webT("web.stockAttention")}>{pressuredListings.map((item)=><button key={item.id} type="button" onClick={onOpenProducts} className={`rounded-full border px-3 py-2 text-xs font-bold ${Number(item.inventory_quantity) === 0 ? "border-red-400/30 bg-red-400/10 text-red-300" : "border-amber-400/30 bg-amber-400/10 text-amber-200"}`}>{item.name} · {Number(item.inventory_quantity) === 0 ? webT("web.soldOut") : webT("web.leftCount", { count: formatNumber(Number(item.inventory_quantity)) })}</button>)}</div> : null}
         </CardContent>
       </Card>
-      {openCases.length ? <Card className="border-red-500/25 bg-red-500/[.04]"><CardContent className="p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-red-500">{webT("web.customerCases")}</p><h3 className="mt-1 text-xl font-black">{openCases.length} {webT("web.needResponse")}</h3></div><Badge variant="destructive">{webT("web.responseClock")}</Badge></div><div className="mt-4 space-y-2">{openCases.slice(0,4).map((item)=><div key={item.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold">{item.receipt?.merchant_products?.name || item.subject}</p><p className="mt-1 text-xs text-muted-foreground">{webT("web.commerceIssue")} {webT("web.due")} {item.merchant_response_due_at ? new Date(item.merchant_response_due_at).toLocaleString(currentUiLocale()) : webT("web.soon")}</p></div><Button size="sm" onClick={()=>respondToCase(item.id)}>{webT("commercial.respond.122")}</Button></div>)}</div></CardContent></Card> : null}
-      {awaitingMerchantPayments.length ? <Card className="border-amber-500/25 bg-amber-500/[.05]"><CardContent className="p-5"><p className="text-[10px] font-black uppercase tracking-[.22em] text-amber-600">{webT("web.paidDirectly")}</p><h3 className="mt-1 text-xl font-black">{awaitingMerchantPayments.length} {webT("web.awaitingConfirmation")}</h3><p className="mt-2 text-sm text-muted-foreground">{webT("web.verifyMoney")}</p><div className="mt-4 space-y-2">{awaitingMerchantPayments.map((order)=><div key={order.id} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{order.commerce_order_items?.map((item)=>`${item.quantity}× ${item.product_name}`).join(", ") || webT("web.merchantOrder")}</p><p className="mt-1 text-xs text-muted-foreground">{order.metadata?.merchant_payment_display_name || webT("web.directMerchantPayment")} {webT("web.expires")} {new Date(order.reservation_expires_at).toLocaleTimeString(currentUiLocale())}</p></div><div className="flex items-center gap-3"><strong>{money(order.total_amount, order.currency)}</strong><Button size="sm" disabled={confirmMerchantPayment.isPending} onClick={() => { confirmMerchantPayment.reset(); setPaymentReference(""); setPaymentOrder(order); }}>{webT("web.confirmMoney")}</Button></div></div>)}</div></CardContent></Card> : null}
+      {openCases.length ? <Card className="border border-red-500/25 bg-red-500/[.04]"><CardContent className="p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-red-500">{webT("web.customerCases")}</p><h3 className="mt-1 text-xl font-black">{openCases.length} {webT("web.needResponse")}</h3></div><Badge variant="destructive">{webT("web.responseClock")}</Badge></div><div className="mt-4 space-y-2">{openCases.slice(0,4).map((item)=><div key={item.id} className="flex flex-col gap-3 rounded-sm border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold">{item.receipt?.merchant_products?.name || item.subject}</p><p className="mt-1 text-xs text-muted-foreground">{webT("web.commerceIssue")} {webT("web.due")} {item.merchant_response_due_at ? new Date(item.merchant_response_due_at).toLocaleString(currentUiLocale()) : webT("web.soon")}</p></div><Button size="sm" onClick={()=>respondToCase(item.id)}>{webT("commercial.respond.122")}</Button></div>)}</div></CardContent></Card> : null}
+      {awaitingMerchantPayments.length ? <Card className="border border-amber-500/25 bg-amber-500/[.05]"><CardContent className="p-5"><p className="text-[10px] font-black uppercase tracking-[.22em] text-amber-600">{webT("web.paidDirectly")}</p><h3 className="mt-1 text-xl font-black">{awaitingMerchantPayments.length} {webT("web.awaitingConfirmation")}</h3><p className="mt-2 text-sm text-muted-foreground">{webT("web.verifyMoney")}</p><div className="mt-4 space-y-2">{awaitingMerchantPayments.map((order)=><div key={order.id} className="flex flex-col gap-3 rounded-sm border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold">{order.commerce_order_items?.map((item)=>`${item.quantity}× ${item.product_name}`).join(", ") || webT("web.merchantOrder")}</p><p className="mt-1 text-xs text-muted-foreground">{order.metadata?.merchant_payment_display_name || webT("web.directMerchantPayment")} {webT("web.expires")} {new Date(order.reservation_expires_at).toLocaleTimeString(currentUiLocale())}</p></div><div className="flex items-center gap-3"><strong>{money(order.total_amount, order.currency)}</strong><Button size="sm" disabled={confirmMerchantPayment.isPending} onClick={() => { confirmMerchantPayment.reset(); setPaymentReference(""); setPaymentOrder(order); }}>{webT("web.confirmMoney")}</Button></div></div>)}</div></CardContent></Card> : null}
       <Card className="overflow-hidden border-border bg-card">
         <CardContent className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -333,7 +333,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-white/10 bg-background/70 p-4">
+              <div key={stat.label} className="rounded-sm  bg-background/70 p-4">
                 <div className="flex items-center justify-between">
                   <stat.icon className="h-5 w-5 text-emerald-600" />
 
@@ -351,7 +351,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
           <h3 className="font-black">{webT("web.paymentByYou")}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{webT("web.paymentMethodsExplanation")}</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {DIRECT_METHODS.map(([type,labelKey])=>{const label = webT(labelKey); const enabled=Boolean(directMethods.data?.find((method)=>method.method_type===type)?.active);return <button key={type} type="button" disabled={saveDirectMethod.isPending} onClick={()=>saveDirectMethod.mutate({type,label,active:!enabled})} className={`rounded-2xl border p-4 text-left ${enabled?"border-emerald-500/30 bg-emerald-500/10":"bg-card"}`}><p className="font-bold">{label}</p><p className="mt-1 text-xs text-muted-foreground">{enabled?webT("web.enabledDisable"):webT("web.clickConfigure")}</p></button>})}
+            {DIRECT_METHODS.map(([type,labelKey])=>{const label = webT(labelKey); const enabled=Boolean(directMethods.data?.find((method)=>method.method_type===type)?.active);return <button key={type} type="button" disabled={saveDirectMethod.isPending} onClick={()=>saveDirectMethod.mutate({type,label,active:!enabled})} className={`rounded-sm border p-4 text-left ${enabled?"border-emerald-500/30 bg-emerald-500/10":"bg-card"}`}><p className="font-bold">{label}</p><p className="mt-1 text-xs text-muted-foreground">{enabled?webT("web.enabledDisable"):webT("web.clickConfigure")}</p></button>})}
           </div>
         </CardContent>
       </Card>
@@ -371,15 +371,15 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
             </div>
 
             {isLoading ? (
-              <div className="space-y-2">{[0, 1, 2].map((item) => <Skeleton key={item} className="h-20 rounded-xl" />)}</div>
+              <div className="space-y-2">{[0, 1, 2].map((item) => <Skeleton key={item} className="h-20 rounded-sm" />)}</div>
             ) : pendingSales.length === 0 && pendingReceipts.length === 0 ? (
-              <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+              <div className="rounded-sm border border-dashed p-6 text-center text-sm text-muted-foreground">
                 {webT("web.nothingWaiting")}
               </div>
             ) : (
               <div className="space-y-2">
                 {pendingSales.map((sale) => (
-                  <div key={`sale-${sale.id}`} className="flex min-w-0 flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div key={`sale-${sale.id}`} className="flex min-w-0 flex-col gap-3 rounded-sm border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <Badge variant="secondary" className="mb-2 capitalize">{commerceReceiptType(webT, sale.sale_type || "reservation")}</Badge>
                       <p className="truncate font-bold">{sale.merchant_products?.name || webT("web.reservedListing")}</p>
@@ -392,7 +392,7 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
                   </div>
                 ))}
                 {pendingReceipts.map((receipt) => (
-                  <div key={`receipt-${receipt.id}`} className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div key={`receipt-${receipt.id}`} className="flex flex-col gap-3 rounded-sm border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
                       <Badge variant="outline" className="mb-2 capitalize">{commerceReceiptType(webT, receipt.receipt_type)}</Badge>
                       <p className="truncate font-bold">{receiptLabel(receipt, webT)}</p>
@@ -444,9 +444,9 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
             </div>
 
             {isLoading ? (
-              <div className="space-y-2">{[0, 1, 2, 3].map((item) => <Skeleton key={item} className="h-16 rounded-xl" />)}</div>
+              <div className="space-y-2">{[0, 1, 2, 3].map((item) => <Skeleton key={item} className="h-16 rounded-sm" />)}</div>
             ) : recentActivity.length === 0 ? (
-              <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+              <div className="rounded-sm border border-dashed p-6 text-center text-sm text-muted-foreground">
                 {webT("web.noCommerce")}
               </div>
             ) : (
@@ -454,8 +454,8 @@ export function MerchantCommerceConsole({ onOpenProducts, onOpenValidation }: { 
                 {recentActivity.map((receipt) => {
                   const Icon = receipt.receipt_type === "claim" ? Gift : receipt.receipt_type === "purchase" ? ShoppingBag : Receipt;
                   return (
-                    <Link key={receipt.id} to={`/receipts/${receipt.id}`} className="group flex items-center gap-3 rounded-2xl border bg-card p-3 transition hover:border-emerald-500/30 hover:bg-emerald-500/5">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                    <Link key={receipt.id} to={`/receipts/${receipt.id}`} className="group flex items-center gap-3 rounded-sm border bg-card p-3 transition hover:border-emerald-500/30 hover:bg-emerald-500/5">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-emerald-500/10 text-emerald-600">
                         <Icon className="h-4 w-4" />
                       </div>
                       <div className="min-w-0 flex-1">

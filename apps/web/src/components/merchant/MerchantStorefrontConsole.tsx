@@ -56,7 +56,7 @@ export function MerchantStorefrontConsole({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-emerald-500/25 bg-[linear-gradient(135deg,rgba(16,185,129,.10),rgba(0,0,0,.86))] p-5 sm:p-7">
+      <section className="rounded-sm border border-emerald-500/25 bg-[linear-gradient(135deg,rgba(16,185,129,.10),rgba(0,0,0,.86))] p-5 sm:p-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-emerald-300">
@@ -71,7 +71,7 @@ export function MerchantStorefrontConsole({
 
           <div className="flex flex-wrap gap-2">
             {storefrontUrl ? (
-              <Button asChild variant="outline" className="rounded-xl border-white/10 bg-white/[.03] text-white">
+              <Button asChild variant="outline" className="rounded-sm border-white/10 bg-white/[.03] text-white">
                 <Link to={`/storefront/${user?.id}`} target="_blank">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   {webT("merchantDash.viewStorefront")}
@@ -83,7 +83,7 @@ export function MerchantStorefrontConsole({
               variant="outline"
               onClick={copyStorefrontLink}
               disabled={!storefrontUrl}
-              className="rounded-xl border-white/10 bg-white/[.03] text-white"
+              className="rounded-sm border-white/10 bg-white/[.03] text-white"
             >
               {copied ? <Check className="mr-2 h-4 w-4 text-emerald-300" /> : <Copy className="mr-2 h-4 w-4" />}
               {copied ? webT("card.copied") : "Copy storefront link"}
@@ -93,7 +93,7 @@ export function MerchantStorefrontConsole({
       </section>
 
       <section className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,.75fr)_minmax(0,1.25fr)]">
-        <div className="min-w-0 space-y-5 rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
+        <div className="min-w-0 space-y-5 rounded-sm  bg-[#0e1015] p-5 sm:p-6">
           <div>
             <p className="text-[9px] font-black uppercase tracking-[.18em] text-amber-300">Draft an offer</p>
             <h3 className="mt-2 text-xl font-black text-white">Describe the customer reason to act.</h3>
@@ -108,7 +108,7 @@ export function MerchantStorefrontConsole({
               value={offerTitle}
               onChange={(event) => setOfferTitle(event.target.value)}
               placeholder="e.g. 20% off brunch before 4 PM"
-              className="h-11 rounded-xl border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
+              className="h-11 rounded-sm border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
             />
           </label>
 
@@ -122,30 +122,30 @@ export function MerchantStorefrontConsole({
                 value={discount}
                 onChange={(event) => setDiscount(event.target.value)}
                 placeholder="0"
-                className="h-11 rounded-xl border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
+                className="h-11 rounded-sm border-white/10 bg-white/[.04] text-white placeholder:text-white/25"
               />
               <span className="text-sm font-black text-white/45">%</span>
             </div>
           </label>
 
-          <Button onClick={handleContinueOffer} className="w-full rounded-xl bg-[#ff6500] font-black text-black hover:bg-[#ff7a20]">
+          <Button onClick={handleContinueOffer} className="w-full rounded-sm bg-[#ff6500] font-black text-black hover:bg-[#ff7a20]">
             <Flame className="mr-2 h-4 w-4" />
             Continue to inventory
           </Button>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4 text-xs leading-5 text-white/40">
+          <div className="rounded-sm  bg-white/[.025] p-4 text-xs leading-5 text-white/40">
             <TrendingUp className="mb-2 h-4 w-4 text-emerald-300" />
             Sales, redemptions and fulfillment are tracked separately from published offers.
           </div>
 
           {onOpenScanner ? (
-            <Button type="button" variant="outline" onClick={onOpenScanner} className="w-full rounded-xl border-white/10 bg-white/[.03] text-white">
+            <Button type="button" variant="outline" onClick={onOpenScanner} className="w-full rounded-sm border-white/10 bg-white/[.03] text-white">
               Open validation station
             </Button>
           ) : null}
         </div>
 
-        <div className="min-w-0 rounded-3xl border border-white/10 bg-[#0e1015] p-5 sm:p-6">
+        <div className="min-w-0 rounded-sm  bg-[#0e1015] p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[9px] font-black uppercase tracking-[.18em] text-emerald-300">Recorded catalog</p>
@@ -155,7 +155,7 @@ export function MerchantStorefrontConsole({
               </p>
             </div>
             {onOpenProducts ? (
-              <Button type="button" variant="outline" onClick={onOpenProducts} className="rounded-xl border-white/10 bg-white/[.03] text-white">
+              <Button type="button" variant="outline" onClick={onOpenProducts} className="rounded-sm border-white/10 bg-white/[.03] text-white">
                 <Package className="mr-2 h-4 w-4" />
                 Product tools
               </Button>

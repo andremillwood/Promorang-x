@@ -35,7 +35,7 @@
 }
 
 [data-stakeholder-world] .app-shell-mobile > aside nav a {
-  border-radius: 10px !important;
+  border-radius: 2px !important;
 }
 
 [data-stakeholder-world] .app-shell-mobile > aside nav a:hover {

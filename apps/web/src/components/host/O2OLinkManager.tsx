@@ -138,19 +138,19 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
       </div>
 
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5 xl:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
-        <div className="min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-6">
+        <div className="min-w-0 rounded-sm  bg-card p-4 sm:p-6">
           {optionsQuery.isError ? <div role="alert" className="text-sm"><p>Stories and events could not be loaded.</p><Button variant="outline" className="mt-3" disabled={optionsQuery.isFetching} onClick={() => void optionsQuery.refetch()}>Try again</Button></div> : optionsQuery.isLoading ? (
             <div className="space-y-6">
-              <Skeleton className="h-10 w-full rounded-xl" />
-              <Skeleton className="h-10 w-full rounded-xl" />
-              <Skeleton className="h-10 w-full rounded-xl" />
+              <Skeleton className="h-10 w-full rounded-sm" />
+              <Skeleton className="h-10 w-full rounded-sm" />
+              <Skeleton className="h-10 w-full rounded-sm" />
             </div>
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="o2o-story">Published story</Label>
                 <Select value={contentId} onValueChange={setContentId}>
-                  <SelectTrigger id="o2o-story" className="h-12 rounded-xl">
+                  <SelectTrigger id="o2o-story" className="h-12 rounded-sm">
                     <SelectValue placeholder="Choose a published story" />
                   </SelectTrigger>
                   <SelectContent>
@@ -166,7 +166,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               <div className="space-y-2">
                 <Label htmlFor="o2o-moment">Event</Label>
                 <Select value={momentId} onValueChange={setMomentId}>
-                  <SelectTrigger id="o2o-moment" className="h-12 rounded-xl">
+                  <SelectTrigger id="o2o-moment" className="h-12 rounded-sm">
                     <SelectValue placeholder="Choose a Moment" />
                   </SelectTrigger>
                   <SelectContent>
@@ -185,7 +185,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
                   {actionOptions.map((action) => {
                     const active = selectedActions.includes(action.id);
                     return (
-                      <button key={action.id} type="button" aria-pressed={active} onClick={() => toggleAction(action.id)} className={`flex items-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
+                      <button key={action.id} type="button" aria-pressed={active} onClick={() => toggleAction(action.id)} className={`flex items-center gap-2 rounded-sm border px-3 py-3 text-sm font-semibold transition ${active ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
                         <action.icon className="h-4 w-4" /> {action.label}
                       </button>
                     );
@@ -195,7 +195,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
 
               <div className="space-y-2">
                 <Label htmlFor="o2o-unlock">Benefit after verification</Label>
-                <Input id="o2o-unlock" className="h-12 rounded-xl" value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder="Founder access, a return invitation, status, or a saved memory..." />
+                <Input id="o2o-unlock" className="h-12 rounded-sm" value={unlockSummary} onChange={(e) => setUnlockSummary(e.target.value)} placeholder="Founder access, a return invitation, status, or a saved memory..." />
               </div>
 
               <Button
@@ -211,7 +211,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
         </div>
 
         <div className="min-w-0 space-y-5">
-          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 text-white sm:p-7">
+          <div className="overflow-hidden rounded-sm  bg-[#0b0b0b] p-6 text-white sm:p-7">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">The path people will experience</p>
             <div className="mt-5 space-y-3">
               {[
@@ -228,14 +228,14 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
               ))}
             </div>
           </div>
-        <div className="rounded-[2rem] border border-border/60 bg-card/55 p-5 sm:p-7">
+        <div className="rounded-sm  bg-card/55 p-5 sm:p-7">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Stories already in motion</p>
           </div>
           <div className="mt-5 space-y-3">
             {linksQuery.isError ? <div role="alert" className="text-sm"><p>Linked stories could not be loaded.</p><Button variant="outline" className="mt-3" disabled={linksQuery.isFetching} onClick={() => void linksQuery.refetch()}>Try again</Button></div> : linksQuery.isLoading ? (
-              Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-2xl" />)
+              Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-sm" />)
             ) : (linkedItems.length ? (
               linkedItems.map((item) => (
                 <div key={item.id} className="border-b border-border/60 py-4 last:border-b-0">
@@ -251,7 +251,7 @@ export function O2OLinkManager({ initialContentId, onLinkCreated }: O2OLinkManag
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+              <div className="rounded-sm  p-4 text-sm text-muted-foreground">
                 No linked stories yet. Choose a story and event to start tracking activity.
               </div>
             ))}

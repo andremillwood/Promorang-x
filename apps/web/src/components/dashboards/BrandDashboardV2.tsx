@@ -49,7 +49,7 @@ export function BrandDashboardV2() {
   const isNewBrandWorkspace = !campaignsLoading && (campaigns?.length || 0) === 0;
 
   if (campaignsError && !campaigns) {
-    return <section className="rounded-2xl border border-white/10 p-6" role="status"><h1 className="font-sans text-2xl font-semibold">{activeBrandName}</h1><p className="mt-3 text-sm text-white/70">Campaigns are unavailable. Try loading this workspace again.</p><Button className="mt-4" disabled={campaignsFetching} onClick={() => void retryCampaigns()}>{webT(campaignsFetching ? "common.tryingAgain" : "common.tryAgain")}</Button></section>;
+    return <section className="rounded-sm  p-6" role="status"><h1 className="font-sans text-2xl font-semibold">{activeBrandName}</h1><p className="mt-3 text-sm text-white/70">Campaigns are unavailable. Try loading this workspace again.</p><Button className="mt-4" disabled={campaignsFetching} onClick={() => void retryCampaigns()}>{webT(campaignsFetching ? "common.tryingAgain" : "common.tryAgain")}</Button></section>;
   }
 
   let starterGuide: ReactNode = null;
@@ -61,9 +61,9 @@ export function BrandDashboardV2() {
       <div className="min-w-0 space-y-6 pb-16 text-white">
         <p className="text-sm text-white/65">Suggested pilot target: 50 attributable customer actions.</p>
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-          <div className="rounded-3xl border border-border bg-card/70 p-5 sm:p-6">
+          <div className="rounded-sm  bg-card/70 p-5 sm:p-6">
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-primary/15 text-primary">
                 <Target className="h-5 w-5" />
               </div>
               <div>
@@ -91,7 +91,7 @@ export function BrandDashboardV2() {
                   copy: "Track attributable claims, visits, redemptions, purchases, reviews, or referrals so the client can see what happened.",
                 },
               ].map((item) => (
-                <div key={item.step} className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                <div key={item.step} className="rounded-sm  bg-black/25 p-4">
                   <span className="text-[10px] font-black text-primary">{item.step}</span>
                   <h3 className="mt-2 text-sm font-black">{item.title}</h3>
                   <p className="mt-2 text-xs leading-5 text-white/50">{item.copy}</p>
@@ -100,19 +100,19 @@ export function BrandDashboardV2() {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild className="rounded-xl font-black">
+              <Button asChild className="rounded-sm font-black">
                 <Link to="/create/campaign">
                   Create the pilot
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="outline" className="rounded-xl" onClick={() => handleTabChange("demand")}>
+              <Button variant="outline" className="rounded-sm" onClick={() => handleTabChange("demand")}>
                 See what people are asking for
               </Button>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border bg-card/70 p-5 sm:p-6">
+          <div className="rounded-sm  bg-card/70 p-5 sm:p-6">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Before launch</p>
             <h2 className="mt-2 text-xl font-black">What needs to be confirmed before launch</h2>
             <div className="mt-5 space-y-3">
@@ -123,7 +123,7 @@ export function BrandDashboardV2() {
                 "The incentive or customer reason to act",
                 "Where the customer action happens: online, retail, event, QR, WhatsApp, or another channel",
               ].map((item) => (
-                <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+                <div key={item} className="flex items-start gap-3 rounded-sm  bg-black/20 p-3">
                   <Circle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <p className="text-xs leading-5 text-white/65">{item}</p>
                 </div>
@@ -133,7 +133,7 @@ export function BrandDashboardV2() {
           </div>
         </section>
 
-        <details className="rounded-2xl border border-border bg-card/70 p-5 sm:p-6">
+        <details className="rounded-sm  bg-card/70 p-5 sm:p-6">
           <summary className="min-h-11 cursor-pointer text-sm font-semibold">How to review your first result</summary>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -150,7 +150,7 @@ export function BrandDashboardV2() {
               { icon: PackageCheck, title: webT("activity.prove"), copy: "Show what people actually did, not only what they saw." },
               { icon: TrendingUp, title: webT("how.memberStep1Badge"), copy: "Use the result to stop, adjust, or scale the next activation." },
             ].map(({ icon: Icon, title, copy }) => (
-              <div key={title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div key={title} className="rounded-sm  bg-black/20 p-4">
                 <Icon className="h-5 w-5 text-primary" />
                 <h3 className="mt-3 text-sm font-black">{title}</h3>
                 <p className="mt-1 text-xs leading-5 text-white/50">{copy}</p>
@@ -186,7 +186,7 @@ export function BrandDashboardV2() {
           </Tabs>
         </div>
       </div>
-      <details className="rounded-xl border border-white/10 p-4"><summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Plan a business outcome</summary><div className="mt-4"><BusinessOutcomeEntry role="brand" /></div></details>
+      <details className="rounded-sm  p-4"><summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Plan a business outcome</summary><div className="mt-4"><BusinessOutcomeEntry role="brand" /></div></details>
     </div>
   );
 }

@@ -151,7 +151,7 @@ export function MerchantScannerStation({ venueName = "Merchant station" }: { ven
                 </div>
               </div>
             ) : (
-              <div className="mt-5 border border-dashed border-white/10 p-4 text-sm text-white/40">No validation has been confirmed in this session yet.</div>
+              <div className="mt-5  p-4 text-sm text-white/40">No validation has been confirmed in this session yet.</div>
             )}
           </div>
         </div>

@@ -40,11 +40,11 @@ export function AgencyManagedResultPack() {
   });
 
   if (campaignsQuery.isLoading) {
-    return <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-3xl" />)}</div>;
+    return <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-sm" />)}</div>;
   }
 
   if (campaignsQuery.error) {
-    return <div role="alert" className="rounded-xl border border-destructive/30 p-5 text-sm"><p>Client results could not be loaded.</p><Button variant="outline" className="mt-3" disabled={campaignsQuery.isFetching} onClick={() => void campaignsQuery.refetch()}>Try again</Button></div>;
+    return <div role="alert" className="rounded-sm border border-destructive/30 p-5 text-sm"><p>Client results could not be loaded.</p><Button variant="outline" className="mt-3" disabled={campaignsQuery.isFetching} onClick={() => void campaignsQuery.refetch()}>Try again</Button></div>;
   }
 
   const campaigns = campaignsQuery.data || [];
@@ -54,7 +54,7 @@ export function AgencyManagedResultPack() {
 
   return (
     <section className="space-y-5">
-      <div className="rounded-[2rem] border border-border/70 bg-card p-5 sm:p-7">
+      <div className="rounded-sm  bg-card p-5 sm:p-7">
         <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Managed result pack</p>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -73,13 +73,13 @@ export function AgencyManagedResultPack() {
             ["Recorded brand redemptions", totalRedemptions, TrendingUp],
           ].map(([label, value, Icon]) => {
             const MetricIcon = Icon as typeof Layers3;
-            return <div key={String(label)} className="rounded-2xl border border-border/60 bg-background/60 p-4"><MetricIcon className="h-4 w-4 text-primary" /><p className="mt-3 text-3xl font-semibold tabular-nums">{Number(value).toLocaleString(currentUiLocale())}</p><p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{String(label)}</p></div>;
+            return <div key={String(label)} className="rounded-sm  bg-background/60 p-4"><MetricIcon className="h-4 w-4 text-primary" /><p className="mt-3 text-3xl font-semibold tabular-nums">{Number(value).toLocaleString(currentUiLocale())}</p><p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{String(label)}</p></div>;
           })}
         </div>
       </div>
 
       {agencyClients.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Connect a client to review their campaign results here.</div>
+        <div className="rounded-sm  p-8 text-center text-sm text-muted-foreground">Connect a client to review their campaign results here.</div>
       ) : (
         <div className="space-y-3">
           {agencyClients.map((client) => {
@@ -88,10 +88,10 @@ export function AgencyManagedResultPack() {
             const clientRedemptions = clientCampaigns.reduce((sum, campaign) => sum + Number(campaign.redemptions || 0), 0);
             const ClientIcon = isVenue ? Store : Building2;
             return (
-              <article key={client.id} className="rounded-3xl border border-border/70 bg-card p-5 sm:p-6">
+              <article key={client.id} className="rounded-sm  bg-card p-5 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><ClientIcon className="h-5 w-5" /></div>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-primary/10 text-primary"><ClientIcon className="h-5 w-5" /></div>
                     <div className="min-w-0">
                       <p className="break-words font-sans text-lg font-semibold">{client.name}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{isVenue ? "Venue client · venue evidence remains in the Merchant workspace" : `Brand client · ${clientCampaigns.length} recorded campaign${clientCampaigns.length === 1 ? "" : "s"}`}</p>
@@ -101,12 +101,12 @@ export function AgencyManagedResultPack() {
                 </div>
 
                 {isVenue ? (
-                  <div className="mt-5 rounded-2xl border border-dashed border-border/70 bg-muted/20 p-4 text-sm leading-6 text-muted-foreground">Venue results are available in the client’s Merchant workspace. Open it to review validations, orders and receipts.</div>
+                  <div className="mt-5 rounded-sm  bg-muted/20 p-4 text-sm leading-6 text-muted-foreground">Venue results are available in the client’s Merchant workspace. Open it to review validations, orders and receipts.</div>
                 ) : (
                   <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold tabular-nums">{clientCampaigns.filter((c) => c.is_active).length}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{webT("commercial.active")}</p></div>
-                    <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold tabular-nums">{clientCampaigns.filter((c) => Number(c.redemptions || 0) > 0).length}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">With recorded action</p></div>
-                    <div className="rounded-2xl bg-muted/30 p-4"><p className="text-2xl font-semibold tabular-nums">{clientRedemptions.toLocaleString(currentUiLocale())}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{webT("merchantDash.redemptions")}</p></div>
+                    <div className="rounded-sm bg-muted/30 p-4"><p className="text-2xl font-semibold tabular-nums">{clientCampaigns.filter((c) => c.is_active).length}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{webT("commercial.active")}</p></div>
+                    <div className="rounded-sm bg-muted/30 p-4"><p className="text-2xl font-semibold tabular-nums">{clientCampaigns.filter((c) => Number(c.redemptions || 0) > 0).length}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">With recorded action</p></div>
+                    <div className="rounded-sm bg-muted/30 p-4"><p className="text-2xl font-semibold tabular-nums">{clientRedemptions.toLocaleString(currentUiLocale())}</p><p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{webT("merchantDash.redemptions")}</p></div>
                   </div>
                 )}
               </article>

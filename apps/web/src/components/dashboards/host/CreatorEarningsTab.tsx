@@ -46,11 +46,11 @@ export function CreatorEarningsTab() {
   const { data: recentEarnings, isLoading: recentLoading } = recentQuery;
 
   const queries = [profileQuery, summaryQuery, sourceQuery, recentQuery];
-  if (queries.some((query) => query.isError)) return <div role="alert" className="rounded-xl border border-destructive/30 p-5"><p>Earnings could not be loaded.</p><Button variant="outline" className="mt-3" disabled={queries.some((query) => query.isFetching)} onClick={() => void Promise.allSettled(queries.map((query) => query.refetch()))}>Try again</Button></div>;
+  if (queries.some((query) => query.isError)) return <div role="alert" className="rounded-sm border border-destructive/30 p-5"><p>Earnings could not be loaded.</p><Button variant="outline" className="mt-3" disabled={queries.some((query) => query.isFetching)} onClick={() => void Promise.allSettled(queries.map((query) => query.refetch()))}>Try again</Button></div>;
 
   const isLoading = profileLoading || summaryLoading || sourceLoading || recentLoading;
   if (isLoading) {
-    return <div className="space-y-4"><div className="grid gap-4 md:grid-cols-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-2xl" />)}</div><Skeleton className="h-72 rounded-2xl" /></div>;
+    return <div className="space-y-4"><div className="grid gap-4 md:grid-cols-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-sm" />)}</div><Skeleton className="h-72 rounded-sm" /></div>;
   }
 
   const tierInfo = profile ? TIER_INFO[profile.tier] : null;
@@ -88,11 +88,11 @@ export function CreatorEarningsTab() {
           <CardHeader><CardTitle className="font-sans flex items-center gap-2"><Clock className="h-4 w-4 text-primary" />Recent value events</CardTitle><CardDescription>What was attributed, approved, settled or reversed.</CardDescription></CardHeader>
           <CardContent>
             {recent.length ? <div className="space-y-3">{recent.map((earning: any) => (
-              <div key={earning.id} className="flex flex-col gap-2 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div key={earning.id} className="flex flex-col gap-2 rounded-sm border p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div><p className="font-medium">{SOURCE_LABELS[earning.source_type] || earning.source_type}</p><p className="mt-1 text-xs text-muted-foreground">{statusLabel(earning.status)} · {new Date(earning.created_at).toLocaleDateString(currentUiLocale())}</p></div>
                 <div className="text-left sm:text-right"><p className="font-bold">{formatCurrency(earning.creator_share_amount)}</p><p className="text-xs text-muted-foreground">{formatNumber(earning.unit_count || 0)} unit{earning.unit_count === 1 ? "" : "s"}</p></div>
               </div>
-            ))}</div> : <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">No creator value events yet.</div>}
+            ))}</div> : <div className="rounded-sm border border-dashed p-6 text-sm text-muted-foreground">No creator value events yet.</div>}
           </CardContent>
         </Card>
 
@@ -100,8 +100,8 @@ export function CreatorEarningsTab() {
           <CardHeader><CardTitle className="font-sans flex items-center gap-2"><PieChart className="h-4 w-4 text-primary" />Settled value by source</CardTitle><CardDescription>Only ledger rows currently marked settled.</CardDescription></CardHeader>
           <CardContent>
             {sources.length ? <div className="space-y-4">{sources.map((source) => (
-              <div key={source.source_type} className="rounded-xl border p-4"><div className="flex items-center justify-between gap-3"><span className="font-medium">{SOURCE_LABELS[source.source_type] || source.source_type}</span><span className="font-bold">{formatCurrency(source.creator_share_amount)}</span></div><p className="mt-1 text-xs text-muted-foreground">{source.count} settled ledger entr{source.count === 1 ? "y" : "ies"}</p></div>
-            ))}</div> : <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">No settled creator value by source yet.</div>}
+              <div key={source.source_type} className="rounded-sm border p-4"><div className="flex items-center justify-between gap-3"><span className="font-medium">{SOURCE_LABELS[source.source_type] || source.source_type}</span><span className="font-bold">{formatCurrency(source.creator_share_amount)}</span></div><p className="mt-1 text-xs text-muted-foreground">{source.count} settled ledger entr{source.count === 1 ? "y" : "ies"}</p></div>
+            ))}</div> : <div className="rounded-sm border border-dashed p-6 text-sm text-muted-foreground">No settled creator value by source yet.</div>}
           </CardContent>
         </Card>
       </div>

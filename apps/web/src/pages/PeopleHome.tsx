@@ -201,17 +201,17 @@ export default function PeopleHome() {
         seoTitle={t("people.homeSeo")}
         description={description}
         hero={(
-          <section className="relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0c0c0d] p-4 sm:rounded-[1.6rem] sm:p-7 lg:p-9">
+          <section className="relative overflow-hidden rounded-sm  bg-[#0c0c0d] p-4 sm:rounded-sm sm:p-7 lg:p-9">
             <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] lg:block"><img src={heroImage} alt="" className="h-full w-full object-cover opacity-45" /><div className="absolute inset-0 bg-gradient-to-r from-[#0c0c0d] via-[#0c0c0d]/75 to-black/15" /></div>
             <div className="relative z-10 max-w-3xl">
               <div className="flex items-center justify-between gap-3">
-                <div><p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#ff6500]" />{t("publicHome.rightNow", { market: localCity })}</p><p className="mt-1 text-xs font-semibold text-white/48">{greeting}</p></div>
-                <Link to={to("/card")} aria-label={t("people.openCardAria")} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[#d8ad54]/45 bg-[#d8ad54]/10 px-4 text-xs font-black text-[#f2c761] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]"><span className="grid h-6 w-6 place-items-center rounded-md border border-[#d8ad54]/45 font-['Anton'] text-sm">P</span>{t("publicHome.navCard")}</Link>
+                <div><p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-sm bg-[#ff6500]" />{t("publicHome.rightNow", { market: localCity })}</p><p className="mt-1 text-xs font-semibold text-white/48">{greeting}</p></div>
+                <Link to={to("/card")} aria-label={t("people.openCardAria")} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm border border-[#d8ad54]/45 bg-[#d8ad54]/10 px-4 text-xs font-black text-[#f2c761] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]"><span className="grid h-6 w-6 place-items-center rounded-sm border border-[#d8ad54]/45 font-['Anton'] text-sm">P</span>{t("publicHome.navCard")}</Link>
               </div>
               <h1 className="mt-6 font-sans text-[clamp(1.9rem,5vw,3rem)] font-semibold leading-[1.1] tracking-[-.035em] text-white">{t("publicHome.title")}</h1>
               <FindOrAskEntry source="home" city={localCity} compact className="mt-5 max-w-2xl" />
-              <Link to={moveTarget} className="group mt-4 flex min-h-16 items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[.045] p-3 transition hover:border-[#ff6500]/45 hover:bg-white/[.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6500]">
-                <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.16em] text-[#ff8a45]">{t("compression.usefulNow")}</p><p className="mt-1 text-sm font-bold leading-6 text-white">{moveTitle}</p><p className="mt-1 text-xs leading-5 text-white/65">{moveCopy}</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#ff6500] text-black"><ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
+              <Link to={moveTarget} className="group mt-4 flex min-h-16 items-center justify-between gap-4 rounded-sm  bg-white/[.045] p-3 transition hover:border-[#ff6500]/45 hover:bg-white/[.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6500]">
+                <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.16em] text-[#ff8a45]">{t("compression.usefulNow")}</p><p className="mt-1 text-sm font-bold leading-6 text-white">{moveTitle}</p><p className="mt-1 text-xs leading-5 text-white/65">{moveCopy}</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-sm bg-[#ff6500] text-black"><ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
               </Link>
             </div>
           </section>
@@ -233,7 +233,7 @@ export default function PeopleHome() {
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {vibeTracks.map(({ key, label, icon: Icon, image, href }) => (
-              <Link key={label} to={href} className="group relative min-h-[150px] overflow-hidden rounded-xl border border-white/10 bg-white/[.03]">
+              <Link key={label} to={href} className="group relative min-h-[150px] overflow-hidden rounded-sm  bg-white/[.03]">
                 <img src={image} alt="" loading="lazy" decoding="async" className="dashboard-image absolute inset-0 h-full w-full object-cover opacity-55" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{t(`publicHome.category.${key}` as TranslationKey)}</p></div>
@@ -248,9 +248,9 @@ export default function PeopleHome() {
             <Link to="/discover?tab=moments" className="pr-world-link">{t("publicHome.browseMoments")}</Link>
           </div>
           <div className="mt-5">
-            {momentFeed.isLoading ? <div role="status" aria-label={t("people.homeLoad")} className="h-48 motion-safe:animate-pulse rounded-[1.8rem] border border-white/10 bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title={t("people.homeErrorTitle")} copy={t("people.homeErrorCopy")} action={<button type="button" disabled={momentFeed.isFetching} onClick={() => void momentFeed.refetch()} className="pr-world-primary disabled:opacity-50">{momentFeed.isFetching ? t("common.tryingAgain") : t("common.tryAgain")}</button>} /> : liveMoments.length ? (
+            {momentFeed.isLoading ? <div role="status" aria-label={t("people.homeLoad")} className="h-48 motion-safe:animate-pulse rounded-sm  bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title={t("people.homeErrorTitle")} copy={t("people.homeErrorCopy")} action={<button type="button" disabled={momentFeed.isFetching} onClick={() => void momentFeed.refetch()} className="pr-world-primary disabled:opacity-50">{momentFeed.isFetching ? t("common.tryingAgain") : t("common.tryAgain")}</button>} /> : liveMoments.length ? (
               <div className="grid gap-4 sm:grid-cols-2">{liveMoments.map((moment, index) => (
-                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="dashboard-moment pr-world-object group flex flex-col overflow-hidden rounded-xl">
+                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="dashboard-moment pr-world-object group flex flex-col overflow-hidden rounded-sm">
                   <div className="relative flex flex-1 flex-col justify-end pt-36">
                     <img loading="lazy" decoding="async" src={moment.image_url || editorialBackdrops[index % editorialBackdrops.length]} alt={moment.image_url ? moment.title : ""} className="dashboard-image absolute inset-0 h-full w-full object-cover opacity-70" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
@@ -279,7 +279,7 @@ export default function PeopleHome() {
 
         {world?.latestReturn ? <section><p className="pr-world-kicker">{t("compression.latest")}</p><div className="mt-4"><ConsequenceReceipt receipt={world.latestReturn} /></div></section> : null}
 
-        <details className="rounded-2xl border border-white/10 p-5">
+        <details className="rounded-sm  p-5">
           <summary className="min-h-11 cursor-pointer text-sm font-bold">{t("compression.optional")}</summary>
           <LiveReleaseSignal drops={releaseDrops} />
           {!world?.identity?.line ? <WorldInvitationCard invitation={invitation} /> : null}
@@ -305,7 +305,7 @@ export default function PeopleHome() {
       seoTitle={t("people.homeSeo")}
       description={description}
       hero={(
-        <section className="group relative min-h-[600px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-black">
+        <section className="group relative min-h-[600px] overflow-hidden rounded-sm  bg-black">
           <img src={stage.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-65 transition duration-1000 group-hover:scale-[1.015]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.80)_48%,rgba(0,0,0,.30)_78%),linear-gradient(0deg,rgba(0,0,0,.94),transparent_62%)]" />
           <div className="relative z-10 flex min-h-[600px] max-w-[760px] flex-col justify-between p-6 pb-[285px] sm:p-10 sm:pb-[300px] lg:max-w-[64%] lg:p-12">
@@ -318,8 +318,8 @@ export default function PeopleHome() {
               <h1 className="mt-3 font-['Anton'] text-[3.45rem] font-normal uppercase leading-[.88] tracking-[-.035em] text-white sm:text-[4.7rem] lg:text-[5.1rem]">{stage.title}</h1>
               <p className="mt-5 max-w-xl text-sm leading-6 text-white/68 sm:text-base"><strong className="font-black text-white">{nextMove.label}</strong><br />{lens.promise}</p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <Link to={to(nextMove.href)} className="inline-flex min-h-12 items-center gap-8 rounded-md bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20]">{nextMove.label} <ArrowRight className="h-4 w-4" /></Link>
-                <Link to={to("/card")} className="inline-flex min-h-12 items-center gap-8 rounded-md border border-[#d8ad54]/60 bg-black/35 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10">{webT("web.openPromoCard")} <ArrowRight className="h-4 w-4" /></Link>
+                <Link to={to(nextMove.href)} className="inline-flex min-h-12 items-center gap-8 rounded-sm bg-[#ff6500] px-5 text-sm font-black text-black transition hover:bg-[#ff7a20]">{nextMove.label} <ArrowRight className="h-4 w-4" /></Link>
+                <Link to={to("/card")} className="inline-flex min-h-12 items-center gap-8 rounded-sm border border-[#d8ad54]/60 bg-black/35 px-5 text-sm font-black text-[#f2c761] backdrop-blur transition hover:bg-[#d8ad54]/10">{webT("web.openPromoCard")} <ArrowRight className="h-4 w-4" /></Link>
               </div>
             </div>
           </div>
@@ -334,7 +334,7 @@ export default function PeopleHome() {
 
       <LiveLoopActions role={lensRole} title="What to do next" completedActionIds={evidencedActionIds} />
 
-      <details className="rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
+      <details className="rounded-sm  bg-white/[.02] p-5 sm:p-6">
         <summary className="cursor-pointer list-none text-sm font-black text-white/70">Need a walkthrough for this role?</summary>
         <div className="mt-6"><StakeholderSetupPlaybook role={lensRole} /></div>
       </details>
@@ -343,14 +343,14 @@ export default function PeopleHome() {
         <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3"><div><p className="pr-world-kicker">Working context</p><h2 id="objects-in-play" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">Your work right now.</h2></div><p className="hidden max-w-xs text-xs leading-5 text-white/40 sm:block">What you can put in, what has been recorded, and where your work can create movement.</p></div>
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_.8fr_.8fr]">
           <StakeholderPutInPass role={lensRole} />
-          {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(claimed), strong: true }]} footer={ticker} /> : <div className="rounded-2xl border border-dashed border-white/15 bg-white/[.025] p-6"><ShieldCheck className="h-5 w-5 text-white/35" /><p className="mt-8 pr-world-kicker">{webT("commercial.evidence.78")}</p><h3 className="mt-2 font-serif text-2xl font-bold">Nothing verified yet.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your receipt appears only after recorded activity. Empty remains empty.</p></div>}
-          <Link to={primaryScene ? `/scenes/${primaryScene.slug}` : "/discover"} className="group relative min-h-[245px] overflow-hidden rounded-2xl border border-white/10 bg-black">
+          {hasMovement ? <PaperReceipt heading={t("people.inPlay")} lines={[{ label: t("people.people"), value: String(data?.people || 0) }, { label: t("people.verifiedActivity"), value: money(Number(data?.earned || 0)) }, { label: t("people.given"), value: String(perksGiven) }, { label: t("people.onCardsNow"), value: String(claimed), strong: true }]} footer={ticker} /> : <div className="rounded-sm border border-dashed border-white/15 bg-white/[.025] p-6"><ShieldCheck className="h-5 w-5 text-white/35" /><p className="mt-8 pr-world-kicker">{webT("commercial.evidence.78")}</p><h3 className="mt-2 font-serif text-2xl font-bold">Nothing verified yet.</h3><p className="mt-3 text-sm leading-6 text-white/45">Your receipt appears only after recorded activity. Empty remains empty.</p></div>}
+          <Link to={primaryScene ? `/scenes/${primaryScene.slug}` : "/discover"} className="group relative min-h-[245px] overflow-hidden rounded-sm  bg-black">
             <img src={streetArt} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-5"><p className="pr-world-kicker">World context</p><h3 className="mt-2 font-serif text-2xl font-bold">{primaryScene?.title || "Find the Scene this work should move."}</h3><p className="mt-2 text-xs leading-5 text-white/45">{lens.world.meaning}</p></div>
           </Link>
         </div>
       </section>
 
-      <section aria-labelledby="live-signals"><p className="pr-world-kicker">Results so far</p><h2 id="live-signals" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What your work has moved.</h2><div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">{[["People reached", Number(data?.people || 0)], ["On PromoCards", claimed], ["Verified actions", verified]].map(([label, value]) => <div key={String(label)} className="bg-[#0d0d0e] p-6"><p className="font-['Anton'] text-5xl text-white">{value}</p><p className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff7a35]">{label}</p></div>)}</div></section>
+      <section aria-labelledby="live-signals"><p className="pr-world-kicker">Results so far</p><h2 id="live-signals" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">What your work has moved.</h2><div className="mt-5 grid gap-px overflow-hidden rounded-sm  bg-white/10 sm:grid-cols-3">{[["People reached", Number(data?.people || 0)], ["On PromoCards", claimed], ["Verified actions", verified]].map(([label, value]) => <div key={String(label)} className="bg-[#0d0d0e] p-6"><p className="font-['Anton'] text-5xl text-white">{value}</p><p className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-[#ff7a35]">{label}</p></div>)}</div></section>
       <section className="space-y-4"><div className="flex items-center justify-between"><div><p className="pr-world-kicker">{webT("lens.demand")}</p><h2 className="mt-2 font-serif text-3xl font-bold">{t("people.whatTheyAsked")}</h2></div><Users className="h-5 w-5 text-[#ff5a1f]" /></div><DiscoveryDemandInbox role={resolveDemandRole(activeRole)} variant="peek" /></section>
 
       {data?.perks?.length ? <section className="space-y-3"><p className="pr-world-kicker">Live inventory</p><h2 className="font-serif text-3xl font-bold">{t("people.perksYouCanGive")}</h2><div className="grid gap-3 md:grid-cols-2">{data.perks.slice(0, 3).map((perk: { id: string; source?: string; title: string; remaining?: number }) => <Link key={perk.id} to={to("/give")}><TicketPass kicker={perk.source === "yours" ? t("people.yours") : t("people.available")} title={perk.title} detail={perk.remaining != null ? t("people.remainingCount", { count: perk.remaining }) : t("people.readyToDrop")} stub="DROP" stubLabel="Perk" /></Link>)}</div></section> : null}
@@ -365,7 +365,7 @@ export default function PeopleHome() {
             /* Preference persistence is optional. */
           }
         }}
-        className="group rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:p-6"
+        className="group rounded-sm  bg-white/[.02] p-5 sm:p-6"
       >
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-sm font-black text-white/70 marker:content-none">
           <span><span className="block text-[10px] uppercase tracking-[.18em] text-[#ff7a35]">Optional guide</span><span className="mt-1 block">How PROMORANG turns this work into value</span></span>

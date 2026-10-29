@@ -17,7 +17,7 @@ export function MerchantYieldAnalytics() {
   return (
     <div className="space-y-6">
       {/* 1. Recorded-results orientation */}
-      <div className="p-5 rounded-2xl border border-border bg-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-5 rounded-sm  bg-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="hidden">
             <Activity className="h-7 w-7 text-black" />
@@ -35,14 +35,14 @@ export function MerchantYieldAnalytics() {
         <p className="max-w-sm text-xs leading-5 text-white/45">Claims, arrivals and purchases are counted separately.</p>
       </div>
 
-      {isError ? <div role="alert" className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-100"><p>Customer activity could not be loaded.</p><Button variant="outline" className="mt-3" disabled={isFetching} onClick={() => void refetch()}>Try again</Button></div> : null}
+      {isError ? <div role="alert" className="rounded-sm border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-100"><p>Customer activity could not be loaded.</p><Button variant="outline" className="mt-3" disabled={isFetching} onClick={() => void refetch()}>Try again</Button></div> : null}
 
       {/* 2. Evidence-backed metric cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-busy={isLoading}>
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
+        <div className="p-5 rounded-sm  bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase font-bold text-white/50">Recorded points</span>
-            <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <span className="p-2 rounded-sm bg-emerald-500/10 text-emerald-400">
               <Activity className="h-4 w-4" />
             </span>
           </div>
@@ -52,10 +52,10 @@ export function MerchantYieldAnalytics() {
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
+        <div className="p-5 rounded-sm  bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase font-bold text-white/50">Recorded actions</span>
-            <span className="p-2 rounded-xl bg-primary/10 text-primary">
+            <span className="p-2 rounded-sm bg-primary/10 text-primary">
               <Users className="h-4 w-4" />
             </span>
           </div>
@@ -65,10 +65,10 @@ export function MerchantYieldAnalytics() {
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1015] flex flex-col justify-between space-y-3">
+        <div className="p-5 rounded-sm  bg-[#0e1015] flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase font-bold text-white/50">Points per recorded action</span>
-            <span className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+            <span className="p-2 rounded-sm bg-cyan-500/10 text-cyan-400">
               <Gauge className="h-4 w-4" />
             </span>
           </div>
@@ -80,7 +80,7 @@ export function MerchantYieldAnalytics() {
       </div>
 
       {/* 3. Deep Sales & Revenue Graph Sub-Engine */}
-      <div className="rounded-3xl border border-white/10 bg-[#0e1015] min-w-0 p-4 sm:p-6 space-y-4">
+      <div className="rounded-sm  bg-[#0e1015] min-w-0 p-4 sm:p-6 space-y-4">
         <SalesAnalyticsDashboard />
       </div>
     </div>

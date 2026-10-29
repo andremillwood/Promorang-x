@@ -37,3 +37,6 @@ Role-workspace rollout and verification: `surfaces/role-dashboards.md` (Creator,
 Deeper role-panel cleanup and state verification: `surfaces/deep-role-panels.md`.
 
 Role task-flow recovery, dialog and mobile/desktop checks: `surfaces/role-task-flows.md`.
+
+## Learned constraint — 2026-10-28
+Use NCB Jamaica, Sagicor Jamaica and Conlive as directional references for strong page hierarchy, direct task routes, photography and confident typography. Preserve Promorang identity. Prefer open sections, spacing and tonal surfaces to nested rounded cards. Actions use 2px corners; reserve curves for tangible PromoCards, avatars and intentional brand elements. Ordinary panels do not receive an outline by default. Keep 1px gradient treatments for critical brand elements such as the existing header; do not distribute decorative gradient frames across content. Preserve accessible focus outlines, meaningful selection indicators and form/error affordances.

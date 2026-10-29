@@ -108,7 +108,7 @@ export const HostProofReviewPanel = () => {
 
   return (
     <div className="space-y-6" data-proof-family="host-proof-close">
-      <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+      <section className="rounded-sm  bg-card p-5 sm:p-6">
 
         <div className="flex flex-col gap-6 border-b border-dashed border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-3xl">
@@ -127,14 +127,14 @@ export const HostProofReviewPanel = () => {
       </section>
 
       {loadError ? (
-        <div role="alert" className="rounded-xl border border-destructive/30 p-4 text-sm"><p>Proof submissions could not be loaded.</p><Button variant="outline" className="mt-3" disabled={pendingQuery.isFetching || historyQuery.isFetching} onClick={() => void Promise.allSettled([pendingQuery.refetch(), historyQuery.refetch()])}>Try again</Button></div>
+        <div role="alert" className="rounded-sm border border-destructive/30 p-4 text-sm"><p>Proof submissions could not be loaded.</p><Button variant="outline" className="mt-3" disabled={pendingQuery.isFetching || historyQuery.isFetching} onClick={() => void Promise.allSettled([pendingQuery.refetch(), historyQuery.refetch()])}>Try again</Button></div>
       ) : loading ? (
         <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-44 rounded-none" />)}</div>
       ) : (
         <>
           <div className="space-y-4">
             {pending.length === 0 ? (
-              <div className="border border-dashed border-border bg-card/50 p-8 text-center"><Sparkles className="mx-auto h-8 w-8 text-primary" /><p className="mt-4 text-sm text-muted-foreground">No proof submissions are waiting for review.</p></div>
+              <div className=" bg-card/50 p-8 text-center"><Sparkles className="mx-auto h-8 w-8 text-primary" /><p className="mt-4 text-sm text-muted-foreground">No proof submissions are waiting for review.</p></div>
             ) : pending.map((proof: MomentumProofSubmission) => (
               <Card key={proof.id} className="overflow-hidden rounded-none border-border/50">
                 <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] xl:grid-cols-[minmax(0,.75fr)_minmax(0,1.25fr)_minmax(0,1fr)]">
@@ -151,17 +151,17 @@ export const HostProofReviewPanel = () => {
                       {proof.moment?.reward ? <Badge variant="outline">{webT("contentMission.rewardLabel")} {proof.moment.reward}</Badge> : null}
                     </div>
                     <div className="grid min-w-0 gap-3">
-                      <div className="border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("receipt.source")}</p><p className="mt-2"><strong className="text-foreground">Code:</strong> {proof.proof_bundle?.code || "None"}</p></div>
-                      <div className="border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("promoPushCareersPage.labelLocation")}</p><p className="mt-2">{proof.proof_bundle?.location_verified ? webT("kyc.badgeVerified") : "Not verified"}</p></div>
-                      <div className="border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("kyc.submittedLabel")}</p><p className="mt-2">{format(new Date(proof.proof_bundle?.submitted_at || proof.created_at), "MMM d, h:mm a")}</p></div>
+                      <div className=" bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("receipt.source")}</p><p className="mt-2"><strong className="text-foreground">Code:</strong> {proof.proof_bundle?.code || "None"}</p></div>
+                      <div className=" bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("promoPushCareersPage.labelLocation")}</p><p className="mt-2">{proof.proof_bundle?.location_verified ? webT("kyc.badgeVerified") : "Not verified"}</p></div>
+                      <div className=" bg-muted/20 p-3 text-xs text-muted-foreground"><p className="text-[9px] font-black uppercase tracking-[0.14em] text-foreground/55">{webT("kyc.submittedLabel")}</p><p className="mt-2">{format(new Date(proof.proof_bundle?.submitted_at || proof.created_at), "MMM d, h:mm a")}</p></div>
                     </div>
-                    {proof.mission_attribution ? <div className="border border-border/60 p-3 text-xs text-muted-foreground"><strong className="text-foreground">Mission context:</strong> {proof.mission_attribution.status || "engaged"} · {proof.mission_attribution.engagement_events_count || 0} digital events · verified {proof.mission_attribution.verified_at ? format(new Date(proof.mission_attribution.verified_at), "MMM d, h:mm a") : webT("cart.status.pending")}</div> : null}
+                    {proof.mission_attribution ? <div className=" p-3 text-xs text-muted-foreground"><strong className="text-foreground">Mission context:</strong> {proof.mission_attribution.status || "engaged"} · {proof.mission_attribution.engagement_events_count || 0} digital events · verified {proof.mission_attribution.verified_at ? format(new Date(proof.mission_attribution.verified_at), "MMM d, h:mm a") : webT("cart.status.pending")}</div> : null}
                     <div className="border-l-2 border-primary/35 bg-primary/5 p-3 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Decision boundary:</strong> verify only if the submitted source supports the participation claim. Existing arrival truth is not erased by a later proof rejection.</div>
                   </div>
 
                   <div className="space-y-3 border-t border-border/60 bg-background/65 p-5 xl:border-l xl:border-t-0">
                     <p className="text-[9px] font-black uppercase tracking-[0.16em] text-muted-foreground">{webT("commercial.decision.182")}</p>
-                    {proof.proof_bundle?.evidence_url ? <a href={proof.proof_bundle.evidence_url} target="_blank" rel="noopener noreferrer" className="block h-32 overflow-hidden border border-border bg-muted"><img src={proof.proof_bundle.evidence_url} alt="Submitted proof evidence" className="h-full w-full object-cover" /></a> : null}
+                    {proof.proof_bundle?.evidence_url ? <a href={proof.proof_bundle.evidence_url} target="_blank" rel="noopener noreferrer" className="block h-32 overflow-hidden  bg-muted"><img src={proof.proof_bundle.evidence_url} alt="Submitted proof evidence" className="h-full w-full object-cover" /></a> : null}
                     <ProofSubmissionAuditDialog submissionId={proof.id} triggerLabel="Open audit trail" />
                     {rejectingId === proof.id ? (
                       <div className="border border-destructive/20 bg-destructive/5 p-3">
@@ -178,7 +178,7 @@ export const HostProofReviewPanel = () => {
             ))}
           </div>
 
-          <section className="border border-border bg-card p-5 sm:p-6">
+          <section className=" bg-card p-5 sm:p-6">
             <div className="flex items-center gap-2"><History className="h-5 w-5 text-primary" /><h4 className="font-sans text-xl font-semibold">Decision archive</h4></div>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">Original submissions, decisions and rejection reasons remain inspectable after close.</p>
             <div className="mt-5 divide-y divide-border/60 border-y border-border/60">
