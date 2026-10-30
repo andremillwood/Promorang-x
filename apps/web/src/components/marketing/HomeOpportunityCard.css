@@ -21,3 +21,20 @@
 .home-opportunities .home-opportunity-controls button:hover::before { border-color: #ffb67d; }
 .home-opportunities .home-opportunity-controls > span { min-width: 38px; text-align: center; }
 @media (max-width: 639px) { .home-discovery-body { padding: 16px 0; gap: 7px; } .home-discovery-body h2 { font-size: 20px; } }
+
+.home-discovery-card { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:stretch; background:#e9dfcc; border-radius:3px; }
+.home-discovery-media { aspect-ratio:auto; min-height:285px; background:#171715; padding:12px; }
+.home-discovery-media img { max-height:340px; object-fit:contain; }
+.home-discovery-body { display:flex; flex-direction:column; gap:10px; padding:26px; }
+.home-discovery-category { color:#9b4118; }
+.home-discovery-body h2 { font-family:"Promorang Space","Fraunces",serif; color:#24251e; font-size:30px; line-height:1.1; font-weight:600; }
+.home-discovery-meta { color:#625745; }
+.home-discovery-description { color:#6c614f; line-height:1.6; -webkit-line-clamp:3; }
+.home-discovery-action { margin-top:auto; background:#25251f; color:#fff5e4; border-radius:3px; }
+.home-discovery-action:hover { background:#b44918; }
+.home-opportunities .home-opportunity-controls { color:#655943; justify-content:flex-end; gap:8px; margin-top:10px; }
+.home-opportunities .home-opportunity-controls button { background:#e6dece; }
+.home-opportunities .home-opportunity-controls button::before { display:none; }
+@media(max-width:767px) { .home-discovery-card { grid-template-columns:1fr; } .home-discovery-media { min-height:0; aspect-ratio:1.65; } .home-discovery-media img { max-height:240px; } .home-discovery-body { padding:20px; } .home-discovery-body h2 { font-size:26px; } .home-discovery-action { margin-top:12px; } }
+
+.home-opportunity-carousel:focus-visible { outline:3px solid #a34515; outline-offset:4px; }

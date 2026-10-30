@@ -190,8 +190,8 @@ export default function PeopleHome() {
     ) || null;
     const currentMoveIsRemoteMoment = moveHref.includes("/moments/") && !matchedMoment;
     const heroImage = imageForMoment(matchedMoment) || heroMoments;
-    const moveTitle = currentMoveIsRemoteMoment ? t("publicHome.title") : world?.currentMove?.title || matchedMoment?.title || t("publicHome.title");
-    const moveCopy = currentMoveIsRemoteMoment ? t("publicHome.copy", { market: localCity }) : world?.currentMove?.why || matchedMoment?.description || world?.slice?.currentLine || invitation.why;
+    const moveTitle = currentMoveIsRemoteMoment ? t("publicHome.browseDiscoveries") : world?.currentMove?.title || matchedMoment?.title || t("publicHome.browseDiscoveries");
+    const moveCopy = currentMoveIsRemoteMoment ? t("publicHome.copy", { market: localCity }) : world?.currentMove?.why || matchedMoment?.description || world?.slice?.currentLine || t("compression.interestsCopy");
     const moveTarget = to(currentMoveIsRemoteMoment ? "/discover" : world?.currentMove?.href || (matchedMoment ? `/moments/${matchedMoment.slug || matchedMoment.id}` : invitation.nextHref || "/discover"));
 
     return (
@@ -201,20 +201,22 @@ export default function PeopleHome() {
         seoTitle={t("people.homeSeo")}
         description={description}
         hero={(
-          <section className="relative overflow-hidden rounded-sm  bg-[#0c0c0d] p-4 sm:rounded-sm sm:p-7 lg:p-9">
-            <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] lg:block"><img src={heroImage} alt="" className="h-full w-full object-cover opacity-45" /><div className="absolute inset-0 bg-gradient-to-r from-[#0c0c0d] via-[#0c0c0d]/75 to-black/15" /></div>
-            <div className="relative z-10 max-w-3xl">
-              <div className="flex items-center justify-between gap-3">
-                <div><p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/70"><span className="h-1.5 w-1.5 rounded-sm bg-[#ff6500]" />{t("publicHome.rightNow", { market: localCity })}</p><p className="mt-1 text-xs font-semibold text-white/48">{greeting}</p></div>
-                <Link to={to("/card")} aria-label={t("people.openCardAria")} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm border border-[#d8ad54]/45 bg-[#d8ad54]/10 px-4 text-xs font-black text-[#f2c761] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2c761]"><span className="grid h-6 w-6 place-items-center rounded-sm border border-[#d8ad54]/45 font-['Anton'] text-sm">P</span>{t("publicHome.navCard")}</Link>
+          <div className="member-arrival">
+            <section className="member-welcome">
+              <img src={heroImage} alt="" className="member-welcome-photo" loading="eager" />
+              <div className="member-welcome-copy">
+                <p className="member-market">{t("publicHome.rightNow", { market: localCity })}</p>
+                <p className="member-greeting">{greeting}</p>
+                <h1>{t("publicHome.title")}</h1>
+                <FindOrAskEntry source="home" city={localCity} compact className="member-search" />
               </div>
-              <h1 className="mt-6 font-sans text-[clamp(1.9rem,5vw,3rem)] font-semibold leading-[1.1] tracking-[-.035em] text-white">{t("publicHome.title")}</h1>
-              <FindOrAskEntry source="home" city={localCity} compact className="mt-5 max-w-2xl" />
-              <Link to={moveTarget} className="group mt-4 flex min-h-16 items-center justify-between gap-4 rounded-sm  bg-white/[.045] p-3 transition hover:border-[#ff6500]/45 hover:bg-white/[.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6500]">
-                <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.16em] text-[#ff8a45]">{t("compression.usefulNow")}</p><p className="mt-1 text-sm font-bold leading-6 text-white">{moveTitle}</p><p className="mt-1 text-xs leading-5 text-white/65">{moveCopy}</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-sm bg-[#ff6500] text-black"><ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
-              </Link>
-            </div>
-          </section>
+            </section>
+            <aside className="member-card-pocket">
+              <div className="member-pocket-heading"><h2>{t("people.yourCard")}</h2><Link to={to("/card")} aria-label={t("people.openCardAria")}><ArrowRight size={20} aria-hidden="true" /></Link></div>
+              <Link to={to("/card")} className="member-card-link" aria-label={t("people.openCardAria")}><PromoCardFace model={cardFace} interactive={false} compact /></Link>
+              <Link to={moveTarget} className="member-next-move"><span><span className="member-next-label">{t("compression.usefulNow")}</span><strong>{moveTitle}</strong><span className="member-next-copy">{moveCopy}</span></span><ArrowRight size={20} aria-hidden="true" /></Link>
+            </aside>
+          </div>
         )}
       >
         {home.isError ? <p role="status" className="text-sm text-amber-200">{t("compression.refreshError")}</p> : null}
@@ -224,25 +226,7 @@ export default function PeopleHome() {
           </nav>
         ) : null}
 
-        <ParticipationFeed />
-
-        <section aria-labelledby="vibe-title">
-          <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
-            <div><p className="pr-world-kicker">{t("publicHome.categoryNavigation")}</p><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">{t("compression.interests")}</h2></div>
-            <p className="hidden max-w-[250px] text-xs leading-5 text-white/42 sm:block">{t("compression.interestsCopy")}</p>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {vibeTracks.map(({ key, label, icon: Icon, image, href }) => (
-              <Link key={label} to={href} className="group relative min-h-[150px] overflow-hidden rounded-sm  bg-white/[.03]">
-                <img src={image} alt="" loading="lazy" decoding="async" className="dashboard-image absolute inset-0 h-full w-full object-cover opacity-55" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{t(`publicHome.category.${key}` as TranslationKey)}</p></div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="now-next-title">
+        {(liveMoments.length > 0 || momentFeed.isLoading || momentFeed.isError) ? <section aria-labelledby="now-next-title" className="member-calendar">
           <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
             <div><p className="pr-world-kicker">{t("publicHome.lifecycleSoon")}</p><h2 id="now-next-title" className="mt-2 font-serif text-4xl font-bold tracking-[-.04em]">{t("publicHome.happening")}</h2></div>
             <Link to="/discover?tab=moments" className="pr-world-link">{t("publicHome.browseMoments")}</Link>
@@ -260,10 +244,29 @@ export default function PeopleHome() {
               ))}</div>
             ) : <QuietEmpty title={t("release.82")} copy={t("compression.interestsCopy")} />}
           </div>
+        </section> : null}
+
+        <div className="member-movement"><ParticipationFeed searchAbove omitMoments showEmpty={liveMoments.length === 0} /></div>
+
+        <section aria-labelledby="vibe-title" className="member-scene-guide">
+          <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+            <div><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">{t("compression.interests")}</h2></div>
+            <p className="hidden max-w-[250px] text-xs leading-5 text-white/42 sm:block">{t("compression.interestsCopy")}</p>
+          </div>
+          <div className="member-scene-grid">
+            {vibeTracks.map(({ key, label, icon: Icon, image, href }) => (
+              <Link key={label} to={href} className="member-scene-link group">
+                <img src={image} alt="" loading="lazy" decoding="async" className="dashboard-image absolute inset-0 h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{t(`publicHome.category.${key}` as TranslationKey)}</p></div>
+              </Link>
+            ))}
+          </div>
         </section>
 
-        <section>
-          <p className="pr-world-kicker">{t("compression.saved")}</p>
+
+
+        <section className="member-kept">
           <div className="pr-world-object-grid mt-4">
             {firstScene ? (
               <Link to={`/scenes/${firstScene.slug}`} className="pr-world-panel pr-world-panel--signal pr-world-object--wide group p-6 sm:p-8">
@@ -271,7 +274,7 @@ export default function PeopleHome() {
               </Link>
             ) : null}
 
-            <Link to="/vault" className="pr-world-panel pr-world-object--narrow group p-6">
+            <Link to="/vault" className="member-saved-route group">
               <Archive className="h-5 w-5 text-purple-300" /><p className="mt-8 text-[10px] font-black uppercase tracking-[.18em] text-white/35">{t("compression.saved")}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-none tracking-[-.04em]">{t("compression.saved")}</h3><p className="mt-3 text-sm leading-6 text-white/45">{t("compression.savedCopy")}</p><span className="pr-world-link mt-6 inline-flex items-center gap-1">{t("compression.openSaved")} <ArrowRight className="h-4 w-4" /></span>
             </Link>
           </div>

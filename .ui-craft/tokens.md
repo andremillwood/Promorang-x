@@ -19,3 +19,6 @@ Existing --shadow-soft, --shadow-card, --shadow-elevated and --shadow-glow in in
 
 ## Gaps
 Homepage uses local raw colors alongside global semantic tokens. Consolidation needs a separate theme review to preserve intentional dark surfaces.
+
+## Consumer surface roles — 2026-10-29
+Consumer photographic heroes: existing brand imagery at full opacity with local text scrims. Display: existing Anton for the hero, DM Sans for actions/copy, Fraunces for editorial section titles. Warm board: #f4eee2; inset paper: #e9dfcc; participant canvas: #151512; primary orange: #ff7c32. These are scoped consumer surface tokens, not global operator changes. Tangible PromoCard keeps its physical radius; content uses open composition, controls 3px corners.
