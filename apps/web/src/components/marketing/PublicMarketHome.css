@@ -196,3 +196,9 @@
 .home-guide-search input::placeholder { color:#776a58; }
 .home-guide-search form>svg { color:#a34518; }
 .home-opportunity-controls>span { font-variant-numeric:tabular-nums; }
+@media(min-width:768px) and (max-width:1023px) {
+ .home-moment-posters { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:16px; }
+ .home-moment-poster { flex:0 0 62vw; }
+ .home-moment-poster:first-child>div { height:auto; min-height:0; }
+ .home-moment-poster:first-child h3 { font-size:26px; }
+}
