@@ -1,3 +1,8 @@
+import foodPhoto from "@/assets/moments/cooking-class.jpg";
+import musicPhoto from "@/assets/moments/jazz-night.jpg";
+import wellnessPhoto from "@/assets/moments/yoga-park.jpg";
+import culturePhoto from "@/assets/moments/pottery.jpg";
+import { PromoCardFace } from "@/components/promorang/SignatureObjects";
 import { matchesCityHub } from "@/lib/city-hubs";
 import { HomeIntroduction } from "./HomeIntroduction";
 import { HomeOpportunities } from "./HomeOpportunities";
@@ -24,13 +29,13 @@ import { discoverPathHref } from "@/lib/discovery-path";
 import type { CanonicalMoment } from "@/services/moment-feed";
 
 const categories = [
-  { key: "nightlife" },
-  { key: "food" },
-  { key: "wellness" },
-  { key: "cars" },
-  { key: "culture" },
-  { key: "outdoor" },
-  { key: "social", icon: Users },
+  { key: "nightlife", image: musicPhoto },
+  { key: "food", image: foodPhoto },
+  { key: "wellness", image: wellnessPhoto },
+
+  { key: "culture", image: culturePhoto },
+
+
 ];
 
 function momentHref(moment: CanonicalMoment) {
@@ -45,7 +50,7 @@ function momentDate(moment: CanonicalMoment, locale: string) {
 function MomentTile({ moment, locale, labels }: { moment: CanonicalMoment; locale: string; labels: { live: string; soon: string; upcoming: string; moment: string; going: string; open: string } }) {
   const lifecycle = moment.lifecycle === "live" ? labels.live : moment.lifecycle === "upcoming" ? labels.upcoming : labels.soon;
   return (
-    <Link to={momentHref(moment)} className="group relative block min-w-[82vw] snap-start overflow-hidden rounded-sm  bg-[#121212] sm:min-w-[23rem]">
+    <Link to={momentHref(moment)} className="home-moment-poster group relative block snap-start overflow-hidden bg-[#121212]">
       <div className="relative aspect-[1.45/1] overflow-hidden">
         {moment.image_url ? <img src={moment.image_url} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full bg-[radial-gradient(circle_at_25%_20%,rgba(249,115,22,.45),transparent_42%),linear-gradient(140deg,#23150d,#080808)]" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
@@ -84,15 +89,15 @@ export default function PublicMarketHome() {
 
   return (
     <main className="promorang-discovery-home min-h-screen min-w-0 bg-[#111511] pb-0 text-white selection:bg-orange-500 selection:text-black md:pb-0">
-      <HomeIntroduction market={marketName} opportunities={<HomeOpportunities market={marketName} moments={moments} momentsLoading={momentsLoading} momentsError={momentsError} retryMoments={retryMoments} />} />
-      <section id="ask" className="scroll-mt-32 border-b border-white/15 bg-[#171d18] px-5 py-10 sm:px-8 sm:py-14">
+      <HomeIntroduction market={marketName} opportunities={<HomeOpportunities market={marketName} moments={moments} momentsLoading={momentsLoading} momentsError={momentsError} retryMoments={retryMoments} />}>
+      <section id="ask" className="home-category-guide scroll-mt-32">
         <div className="mx-auto max-w-[1360px]">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-sans text-2xl font-semibold">{t("homeIntro.local")}</h2><p className="mt-2 text-sm leading-6 text-white/70">{t("homeIntro.localCopy", { market: marketName })}</p></div><Link to="/scenes" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-orange-300">{t("homeValue.allScenes")}<ArrowRight className="h-4 w-4" /></Link></div>
-            <nav aria-label={t("publicHome.categoryNavigation")} className="mt-3 flex flex-wrap gap-2">
-              {categories.map(({ key }) => <Link key={key} to={`/discover?category=${key}`} className="inline-flex min-h-11 items-center rounded-sm  bg-black/40 px-4 text-sm font-semibold text-white hover:bg-white/10">{t(`publicHome.category.${key}` as TranslationKey)}</Link>)}
+            <nav aria-label={t("publicHome.categoryNavigation")} className="home-category-gallery">
+              {categories.map(({ key, image }) => <Link key={key} to={`/discover?category=${key}`}><img src={image} alt="" loading="lazy" /><span>{t(`publicHome.category.${key}` as TranslationKey)}<ArrowRight size={20} aria-hidden="true" /></span></Link>)}
             </nav>
-            <FindOrAskEntry source="home" city={marketName} compact className="mt-5 max-w-3xl" />
+            <FindOrAskEntry source="home" city={marketName} compact className="home-guide-search mt-5" />
           </div>
 
         </div>
@@ -102,7 +107,7 @@ export default function PublicMarketHome() {
         {inventoryLoading && !hasInventory ? <p role="status" className="text-sm text-white/60">{t("people.homeLoad")}</p> : null}
         {moments.length ? <section id="moments" className="scroll-mt-40">
           <header className="mb-5 flex items-end justify-between gap-4"><div><h2 className="font-sans text-2xl font-semibold tracking-[-.025em] sm:text-3xl">{t("publicHome.happening")}</h2><p className="mt-1 text-sm text-white/50">{t("publicHome.happeningCopy", { market: marketName })}</p></div><Link to="/live" className="shrink-0 text-xs font-black uppercase tracking-[.08em] text-orange-400">{t("publicHome.seeAll")} <ArrowRight className="ml-1 inline h-4 w-4" /></Link></header>
-          <div className="flex snap-x gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{moments.slice(0, 7).map((moment) => <MomentTile key={moment.id} moment={moment} locale={locale} labels={{ live: t("publicHome.lifecycleLive"), soon: t("publicHome.lifecycleSoon"), upcoming: t("publicHome.lifecycleUpcoming"), moment: t("publicHome.moment"), going: t("publicHome.going"), open: t("publicHome.openMoment") }} />)}</div>
+          <div className="home-moment-posters">{moments.slice(0, 7).map((moment) => <MomentTile key={moment.id} moment={moment} locale={locale} labels={{ live: t("publicHome.lifecycleLive"), soon: t("publicHome.lifecycleSoon"), upcoming: t("publicHome.lifecycleUpcoming"), moment: t("publicHome.moment"), going: t("publicHome.going"), open: t("publicHome.openMoment") }} />)}</div>
         </section> : null}
 
         {discoveries.length ? <section id="discoveries" className="scroll-mt-40">
@@ -111,7 +116,7 @@ export default function PublicMarketHome() {
         </section> : null}
 
         {inventoryError ? <div role="status" className="rounded-sm border border-orange-300/20 p-4"><p className="text-sm text-white/65">{t("compression.inventoryError")}</p><button type="button" onClick={() => { void Promise.allSettled([retryMoments(), retryDiscoveries()]); }} className="mt-3 inline-flex min-h-11 items-center rounded-sm  px-4 text-sm font-bold">{t("compression.retry")}</button></div> : null}
-        {!hasInventory && !inventoryLoading && !inventoryError ? <section className="rounded-sm  bg-white/[.035] px-5 py-9 text-left"><p className="text-[10px] font-black uppercase tracking-[.16em] text-orange-300">{t("publicHome.noLiveListings")}</p><h2 className="mt-3 font-sans text-2xl font-black">{t("publicHome.sparseTitle", { market: marketName })}</h2><p className="mt-2 max-w-lg text-sm leading-6 text-white/50">{t("publicHome.sparseCopy")}</p><div className="mt-5 flex flex-wrap gap-2"><Link to="/live" className="rounded-sm  px-4 py-2 text-[10px] font-black uppercase tracking-[.08em]">{t("publicHome.browseMoments")}</Link><Link to="/discover" className="rounded-sm bg-orange-500 px-4 py-2 text-[10px] font-black uppercase tracking-[.08em] text-black">{t("publicHome.browseDiscoveries")}</Link></div></section> : null}
+        {!hasInventory && !inventoryLoading && !inventoryError ? <section className="home-market-note px-5 py-9 text-left"><p className="text-[10px] font-black uppercase tracking-[.16em] text-orange-300">{t("publicHome.noLiveListings")}</p><h2 className="mt-3 font-sans text-2xl font-black">{t("publicHome.sparseTitle", { market: marketName })}</h2><p className="mt-2 max-w-lg text-sm leading-6 text-white/50">{t("publicHome.sparseCopy")}</p><div className="mt-5 flex flex-wrap gap-2"><Link to="/live" className="rounded-sm  px-4 py-2 text-[10px] font-black uppercase tracking-[.08em]">{t("publicHome.browseMoments")}</Link><Link to="/discover" className="rounded-sm bg-orange-500 px-4 py-2 text-[10px] font-black uppercase tracking-[.08em] text-black">{t("publicHome.browseDiscoveries")}</Link></div></section> : null}
 
         {wants.length ? <section id="wanted" className="scroll-mt-40">
           <header className="mb-5 flex items-end justify-between gap-4"><div><h2 className="font-sans text-2xl font-semibold tracking-[-.025em] sm:text-3xl">{t("publicHome.peopleWant", { market: marketName })}</h2><p className="mt-1 text-sm text-white/50">{t("publicHome.peopleWantCopy")}</p></div><Link to="/discover?tab=wants" className="shrink-0 text-xs font-black uppercase tracking-[.08em] text-orange-400">{t("publicHome.seeAll")} <ArrowRight className="ml-1 inline h-4 w-4" /></Link></header>
@@ -125,8 +130,8 @@ export default function PublicMarketHome() {
 
 
 
-      <section aria-labelledby="public-shop-title" className="scroll-mt-40">
-        <div className="rounded-sm bg-orange-500/[.06] p-5 sm:p-8">
+      <section aria-labelledby="public-shop-title" className="home-shop-feature scroll-mt-40">
+        <div className="home-shop-image"><img src={culturePhoto} alt="" loading="lazy" /></div><div className="home-shop-copy">
           <h2 id="public-shop-title" className="font-sans text-2xl font-semibold tracking-tight sm:text-3xl">{t("shopEntry.title")}</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-white/80">{t("shopEntry.copy")}</p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -136,12 +141,12 @@ export default function PublicMarketHome() {
         </div>
       </section>
 
-        <section className="relative overflow-hidden rounded-sm  bg-[radial-gradient(circle_at_85%_10%,rgba(249,115,22,.22),transparent_35%),#0c0c0c] p-5 sm:p-8">
+        <section className="home-card-invitation">
+          <div className="home-card-object"><PromoCardFace interactive={false} compact /></div>
           <div className="max-w-3xl"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-orange-300">{t("publicHome.keepIt")}</p><h2 className="mt-3 max-w-xl font-sans text-2xl font-semibold tracking-[-.025em] sm:text-3xl">{t("homeValue.accountTitle")}</h2><p className="mt-3 max-w-xl text-sm leading-7 text-white/55">{t("homeValue.accountCopy")}</p><Link to={user ? "/card" : "/auth?mode=signup&role=participant&next=/card"} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-sm bg-orange-500 px-5 text-xs font-black uppercase tracking-[.08em] text-black">{user ? t("homeValue.open") : t("homeValue.join")}<ArrowRight className="h-4 w-4" /></Link></div></div>
         </section>
       </div>
-
-
+      </HomeIntroduction>
     </main>
   );
 }

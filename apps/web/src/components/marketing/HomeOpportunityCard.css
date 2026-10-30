@@ -14,7 +14,7 @@
 .home-discovery-action:hover { background: #ff9a51; }
 .home-opportunity-carousel { touch-action: pan-y pinch-zoom; border-radius: 2px; }
 .home-opportunity-carousel:focus-visible { outline: 2px solid #ffb67d; outline-offset: 3px; }
-/* 32px visual arrows retain 44px touch targets. No auto-rotation. */
+/* 32px visual arrows retain 44px touch targets. Rotation controls are managed by the parent showcase. */
 .home-opportunities .home-opportunity-controls { justify-content: center; gap: 4px; margin-top: 4px; font-size: 11px; color: #c4c8c1; }
 .home-opportunities .home-opportunity-controls button { position: relative; width: 44px; height: 44px; border: 0; background: transparent; }
 .home-opportunities .home-opportunity-controls button::before { content: ""; position: absolute; inset: 6px; border: 0; background: #ffffff0b; border-radius: 2px; }

@@ -37,3 +37,16 @@ Below-fold listing images load lazily with asynchronous decoding. Existing data,
 ## Limits
 
 Only the public homepage and its tested interactions were verified. No logged-in dashboards, native app, checkout, real-device Safari or Firefox checks were run. Existing materials and other in-progress changes were preserved.
+
+## Integrated hero showcase and full-page composition — 2026-10-29
+
+| Before | After | Why |
+| --- | --- | --- |
+| Approved photo hero separated from inventory | Offers, events, missions and request tabs inside the hero | Connect the brand opening to an immediate action |
+| Static inventory preview | Eight-second rotation through real available entries, pause/resume, hover/focus hold, manual-selection pause | Restore requested showcase behavior without disrupting reading or request editing |
+| Partner routes before browsing | Photographic category gallery before partner information | Let visitors discover something first |
+| Repeated small event cards | Leading poster with supporting events; swipe rail on phones | Give actual artwork and event hierarchy room |
+| Plain shop and account panels | Photographic shop feature and real noninteractive PromoCard | Carry product identity through the page without fabricated benefits |
+| Low contrast warm-surface inputs | Scoped input, placeholder and request-option contrast | Keep browsing and request creation legible |
+
+Verification: 21 targeted tests pass (public entrance, inventory card truth boundaries, rotation and interaction safeguards). Changed React components pass ESLint. Production build passes. Browser fixture checks at 320, 390, 768 and 1440 pixels show no horizontal overflow or page errors; request text remains editable and its recovery URL retains query, city, language and source. Event fixtures are local verification only, never published. Existing imagery is reused for illustrative category/partner/shop navigation; actual inventory artwork remains sourced from its record. Reduced motion disables automatic rotation. Empty, loading and failed-inventory paths retain truthful messaging and recovery. Shared footer and operator dashboards are outside this change. Existing large-bundle build warning remains.

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Compass, Store, Megaphone, Camera } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import type { ReactNode } from "react";
+import partnerPhoto from "@/assets/hero-moments.jpg";
 import nightlifeHero from "@/assets/public-home-nightlife-hero.jpg";
 import type { TranslationKey } from "@/i18n/translations";
 import "./PublicMarketHome.css";
@@ -19,7 +20,7 @@ const paths = [
   { key: "brands", href: "/for-brands", icon: Megaphone },
 ] as const;
 
-export function HomeIntroduction({ opportunities, market }: { opportunities: ReactNode; market?: string }) {
+export function HomeIntroduction({ opportunities, market, children }: { opportunities: ReactNode; market?: string; children?: ReactNode }) {
   const { t } = useI18n();
   return <div className="home-introduction">
     <div className="home-hero-dark">
@@ -38,21 +39,20 @@ export function HomeIntroduction({ opportunities, market }: { opportunities: Rea
           </Link>)}
         </nav>
       </div>
+      <aside className="home-hero-showcase" aria-label={t("homeIntro.boardTitle")}><p className="home-showcase-title">{t("homeIntro.boardTitle")}</p>{opportunities}</aside>
     </section>
     </div>
-    <section className="home-live-board" aria-labelledby="home-board-title">
-      <header><h2 id="home-board-title">{t("homeIntro.boardTitle")}</h2><p>{t("homeIntro.caption")}</p></header>
-      {opportunities}
-    </section>
+    {children}
     <section className="home-paths" aria-labelledby="home-paths-title">
       <header><h2 id="home-paths-title">{t("homeIntro.paths")}</h2><p>{t("homeIntro.pathsCopy")}</p></header>
-      <div className="home-path-grid">
+      <div className="home-path-layout"><img className="home-partner-photo" src={partnerPhoto} alt="" loading="lazy" /><div className="home-path-grid">
         {paths.map(({ key, href, icon: Icon }) => <Link key={key} to={href} className="home-path">
           <div className="home-path-label"><Icon size={19} aria-hidden="true" /><span>{t(`homeIntro.${key}` as TranslationKey)}</span></div>
           <h3>{t(`homeIntro.${key}Title` as TranslationKey)}</h3>
           <p>{t(`homeIntro.${key}Copy` as TranslationKey)}</p>
           <span className="home-path-action">{t(`homeIntro.${key}Cta` as TranslationKey)}<ArrowRight size={17} aria-hidden="true" /></span>
         </Link>)}
+      </div>
       </div>
       <div className="home-extra-paths">
         <Link to="/solutions">{t("homeIntro.business")}<ArrowRight size={16} aria-hidden="true" /></Link>
