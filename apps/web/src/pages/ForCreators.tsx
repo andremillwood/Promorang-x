@@ -6,11 +6,12 @@ export default function ForCreators() {
   const { t } = useI18n();
   return (
     <MarketRoleLanding
+      role="creator"
       seoTitle={t("commercial.promorang.for.creators.turn.attention.into.movement.people.12")}
       seoDescription={t("commercial.find.what.your.audience.cares.about.share.what.13")}
       eyebrow={t("commercial.for.creators.tastemakers.14")}
-      title={t("compression.role.ForCreators")}
-      intro={t("compression.creatorIntro")}
+      title={t("marketing.creatorTitle")}
+      intro={t("marketing.creatorIntro")}
       primaryCta={{ label: t("compression.creatorCta"), href: authPathForReturn("/dashboard?view=studio", { mode: "signup", role: "creator" }) }}
       secondaryCta={{ label: t("commercial.explore.what.is.moving.15"), href: "/discover" }}
       roleJob={t("commercial.help.the.right.people.notice.something.worth.caring.16")}
@@ -21,7 +22,7 @@ export default function ForCreators() {
       responseStub="MOVE"
       proofTitle={t("commercial.see.what.moved.after.you.shared.it.19")}
       proofDetail={t("commercial.shares.and.clicks.show.reach.check.ins.claims.20")}
-      promoCardDetail="When someone keeps following, claims access or joins something you helped move, PromoCard gives that relationship somewhere to continue."
+      promoCardDetail={t("marketing.cardCopy")}
       truthGates={[
         t("commercial.views.are.not.participation.21"),
         t("commercial.sharing.is.not.the.same.as.showing.up.22"),

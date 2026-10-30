@@ -1,32 +1,28 @@
+import { MarketingNote as TicketPass } from "@/components/marketing/MarketingNote";
+import "@/components/marketing/MarketingStory.css";
+import marketingPhoto from "@/assets/moments/street-art.jpg";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, Search, ShieldCheck, Sparkles, Store, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { NightTrail, PaperReceipt, PromoCardFace, TicketPass } from "@/components/promorang/SignatureObjects";
-import { CurrentArc } from "@/components/marketing/MarketingPhysics";
-import { ParticipationEconomy } from "@/components/promorang/ParticipationEconomy";
+import { NightTrail, PaperReceipt, PromoCardFace } from "@/components/promorang/SignatureObjects";
 
 export default function HowItWorks() {
   const { t: webT } = useWebI18n();
   return (
-    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-story min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title="How PROMORANG works — Start with PromoCard"
         description="Get a PromoCard, show PROMORANG what you want, see what opens, act when it makes sense, and keep the parts of your participation worth carrying forward."
       />
 
-      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
-        <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_0%,rgba(249,115,22,.2),transparent_38%),radial-gradient(circle_at_82%_52%,rgba(255,255,255,.05),transparent_34%)]" />
+      <section className="marketing-legacy-hero marketing-legacy-hero--product relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <img className="marketing-legacy-photo" src={marketingPhoto} alt="" loading="eager" />
         <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.95fr_1.05fr] lg:items-center">
           <div>
             <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300"><Sparkles className="h-4 w-4" /> How PROMORANG works</p>
-            <h1 className="mt-6 max-w-5xl font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
-              Start with
-              <span className="text-orange-400"> PromoCard. </span>
-              Let the network do the rest.
-            </h1>
-            <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">Tell PROMORANG what you want and what would actually move you. Then see Offers, Moments, Challenges, Gigs and Content Drops as they become real—and carry the useful parts of participation on PromoCard.</p>
+            <h1 className="mt-6 max-w-5xl font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-6xl lg:text-7xl">{webT("marketing.howTitle")}</h1>
+            <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">{webT("marketing.howIntro")}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black">{webT("clarity.getMyCard")} <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/#ask" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-black text-white"><Search className="h-4 w-4" /> Tell PROMORANG what I want</Link>
@@ -36,7 +32,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <NightTrail eyebrow="Your PromoCard journey" title="Want → watch → open → act → keep → return" steps={[
             { label: webT("commercial.want.114"), title: "Tell PROMORANG what matters to you.", text: "Add your voice to something people want, ask for something missing, or discover something you decide is worth keeping close." },
@@ -51,12 +47,11 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <ParticipationEconomy variant="public" />
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.92fr_1.08fr] lg:items-center">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">What makes the card useful</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">PromoCard is personal. PROMORANG is the market around it.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">The card becomes more useful when the network knows what you care about, can connect you to real responses, and remembers what happened without collapsing interest, access and completed actions into one number.</p>
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
@@ -73,14 +68,13 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-4xl">
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">What if nothing is open yet?</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">PromoCard should still be useful before the market is full.</h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-white/55">You can discover things, put a Want into the market, join something other people want, keep it close and invite others. Early participation helps PROMORANG learn what should exist next without inventing fake supply.</p>
           </div>
-          <div className="mt-9 grid gap-4 md:grid-cols-3">
+          <div className="marketing-note-list">
             <TicketPass kicker="Discover" title="Find what deserves a place on your radar" detail="Discovery can create a preference before you knew exactly what to ask for." stub="SEE" stubLabel="Find" />
             <TicketPass kicker="Want" title="Put the missing thing on the table" detail="A first Want can start small and become clearer as other people add their voices." stub="1" stubLabel="Start" />
             <TicketPass kicker="Keep" title="Stay connected while the market catches up" detail="PromoCard keeps the relationship alive without pretending anything is available before it is." stub="KEEP" stubLabel="Return" />
@@ -88,7 +82,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_360px] lg:items-start">
           <NightTrail eyebrow="For the people who can respond" title="Listen → qualify → open → learn" steps={[
             { label: "Listen", title: "See what people are showing you.", text: "Discoveries and Wants reveal where attention is forming without being treated as guaranteed sales." },
@@ -100,9 +94,8 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center md:p-12">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Choose your next move</p>
+      <section className="marketing-content-section marketing-content-section--ink px-5 py-16 sm:px-6 md:py-24">
+        <div className="marketing-story-closing-inner">
           <h2 className="mx-auto mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Get the card—or choose the side of the network you operate.</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/auth?mode=signup&role=participant&next=/card" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black"><Users className="h-4 w-4" /> {webT("clarity.getMyCard")}</Link>

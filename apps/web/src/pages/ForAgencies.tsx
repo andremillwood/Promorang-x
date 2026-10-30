@@ -5,11 +5,12 @@ export default function ForAgencies() {
   const { t } = useI18n();
   return (
     <MarketRoleLanding
+      role="agency"
       seoTitle={t("commercial.promorang.for.agencies.turn.market.signals.into.clearer.25")}
       seoDescription={t("commercial.see.what.people.want.coordinate.the.right.client.26")}
       eyebrow={t("commercial.for.agencies.client.operators.27")}
-      title={t("compression.role.ForAgencies")}
-      intro={t("compression.agencyIntro")}
+      title={t("marketing.agencyTitle")}
+      intro={t("marketing.agencyIntro")}
       primaryCta={{ label: t("compression.agencyCta"), href: "/auth?mode=signup&role=brand&next=/dashboard" }}
       secondaryCta={{ label: t("commercial.see.the.brand.lens.28"), href: "/for-brands" }}
       roleJob={t("commercial.read.the.market.shape.the.response.coordinate.the.29")}
@@ -20,7 +21,7 @@ export default function ForAgencies() {
       responseStub="ORCH"
       proofTitle={t("commercial.show.the.client.what.happened.next.32")}
       proofDetail={t("commercial.separate.reach.attributed.actions.and.confirmed.outcomes.so.33")}
-      promoCardDetail="PromoCard gives the participant something to carry forward after the activation, so the relationship can continue beyond the agency report."
+      promoCardDetail={t("marketing.cardCopy")}
       truthGates={[
         t("commercial.reach.is.not.conversion.34"),
         t("commercial.results.need.context.before.they.become.roi.35"),

@@ -46,3 +46,6 @@ Removing rounded cards and arbitrary borders is not the design concept. Do not f
 
 ## Hero and homepage correction — 2026-10-29
 Preserve the approved photographic banner and integrate its tabbed offers/events/missions showcase within the hero. Real inventory rotates with pause, interaction and reduced-motion safeguards; request forms never rotate away. Carry the same visual care below the fold through photographic category browsing, poster-led events, open partner routes and the actual PromoCard. A good hero above bland panels is unfinished.
+
+## Marketing convergence — 2026-10-29
+Carry the consumer identity across public role, business and product explanation pages: role-specific existing photography, Anton opening headlines, Fraunces editorial sections, open outcome navigation and actual PromoCard materials. Do not replace generic rounded cards with equally generic dark rectangles. Every page owns its next step; avoid a competing scene-discovery footer CTA on partner entry pages. Verify complete pages and interactive entry states, not only hero screenshots. Five-iteration review and verification evidence: `surfaces/marketing-pages.md`.

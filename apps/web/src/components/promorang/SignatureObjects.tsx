@@ -1,5 +1,5 @@
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
-import { useRef, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { TactileButton } from "@/components/ui/TactileButton";
@@ -196,10 +196,11 @@ export function NightTrail({
   title: string;
   steps: TrailStep[];
 }) {
+  const headingId = useId();
   return (
-    <section aria-labelledby="night-trail-heading">
+    <section aria-labelledby={headingId}>
       <p className="text-xs font-bold tracking-[0.2em] text-primary">{eyebrow}</p>
-      <h2 id="night-trail-heading" className="mt-2 font-serif text-3xl font-bold text-white md:text-4xl">
+      <h2 id={headingId} className="mt-2 font-serif text-3xl font-bold text-white md:text-4xl">
         {title}
       </h2>
       <ol className="mt-8 grid gap-0 md:grid-cols-4">

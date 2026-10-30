@@ -1,7 +1,9 @@
+import "@/components/marketing/MarketingStory.css";
+import marketingPhoto from "@/assets/hero-moments.jpg";
 import { commercialText } from "@/i18n/commercial-presentation";
 import { useI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
-import { ArrowRight, Building2, Compass, Megaphone, Sparkles, Store, Ticket, Users } from "lucide-react";
+import { ArrowRight, Building2, Compass, Sparkles, Store, Ticket, Users } from "lucide-react";
 import SEO from "@/components/SEO";
 import { DemandSignalObject } from "@/components/promorang/DemandSignalObject";
 import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
@@ -31,41 +33,31 @@ export default function SolutionsHub() {
   const signal = inbox.questions[0];
 
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
+    <main className="marketing-story min-h-screen bg-[#070707] text-white">
       <SEO title={t("commercial.promorang.for.business.start.with.the.outcome.147")} description={t("commercial.tell.promorang.what.needs.to.change.choose.an.148")} />
 
-      <section className="border-b border-white/10 px-5 pb-8 pt-8 sm:px-6 md:pb-24 md:pt-32">
+      <section className="marketing-legacy-hero marketing-legacy-hero--panorama border-b border-white/10 px-5 pb-8 pt-8 sm:px-6 md:pb-24 md:pt-32">
+        <img className="marketing-legacy-photo" src={marketingPhoto} alt="" loading="eager" />
         <div className="mx-auto grid max-w-[1380px] gap-6 lg:gap-12 lg:grid-cols-[1.04fr_.96fr] lg:items-center">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">{t("commercial.promorang.for.business.149")}</p>
             <h1 className="mt-5 max-w-5xl font-serif text-[clamp(1.75rem,8vw,2.25rem)] font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">{t("compression.businessTitle")}</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/60">{t("compression.businessCopy")}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">{t("commercial.choose.an.outcome.150")}<ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">{t("compression.chooseOutcome")}<ArrowRight className="h-4 w-4" /></Link>
               <Link to="/discover?tab=wants" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black"><Compass className="h-4 w-4" /> {t("commercial.show.me.what.people.want.151")}</Link>
             </div>
           </div>
-          <div className="rounded-[2rem] border border-orange-300/15 bg-orange-300/[0.05] p-6 sm:p-7">
-            <details><summary className="min-h-11 cursor-pointer text-sm font-bold">{t("compression.optional")}</summary>
-            <div className="mt-5 space-y-4">
-              {[
-                ["01", t("commercial.outcome.led.152"), t("commercial.tell.us.what.needs.to.change.promorang.recommends.153")],
-                ["02", t("commercial.intent.led.154"), t("commercial.already.know.the.activation.describe.it.and.build.155")],
-                ["03", t("commercial.market.led.156"), t("commercial.see.what.people.want.and.decide.whether.your.157")],
-              ].map(([n,title,copy]) => <div key={title} className="grid grid-cols-[42px_1fr] gap-4 border-t border-white/10 pt-4"><span className="font-mono text-xs font-black text-orange-300">{n}</span><div><h2 className="font-serif text-xl font-bold">{title}</h2><p className="mt-1 text-sm leading-6 text-white/45">{copy}</p></div></div>)}
-            </div>
-            </details>
-          </div>
+
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("createProposal.chooseChange")}</p>
           <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-5xl">{t("commercial.you.buy.the.outcome.promorang.helps.shape.the.159")}</h2>
-          <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="marketing-outcome-list">
             {BUSINESS_OUTCOMES.map((item) => (
-              <Link key={item.id} to={`/business/start?outcome=${item.id}`} className="group rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 transition hover:border-orange-300/35">
+              <Link key={item.id} to={`/business/start?outcome=${item.id}`} className="marketing-outcome-row group">
                 <p className="text-[9px] font-black uppercase tracking-[0.16em] text-orange-300">{commercialText(item.short, t)}</p>
                 <h3 className="mt-3 font-serif text-2xl font-bold">{commercialText(item.title, t)}</h3>
                 <p className="mt-3 text-sm leading-6 text-white/45">{commercialText(item.description, t)}</p>
@@ -78,13 +70,12 @@ export default function SolutionsHub() {
 
       <details className="border-b border-white/10 px-5 py-6 sm:px-6">
         <summary className="mx-auto min-h-11 max-w-6xl cursor-pointer text-sm font-bold">{t("compression.plan")}</summary>
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("commercial.starting.programmes.160")}</p>
           <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.04em] sm:text-5xl">{t("commercial.a.considered.route.not.a.pile.of.features.161")}</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">{t("commercial.programmes.are.configurable.recipes.they.help.translate.a.162")}</p>
-          <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {PROGRAMMES.map((programme) => <article key={programme.id} className="rounded-[1.5rem] border border-white/10 bg-black/25 p-5"><Sparkles className="h-5 w-5 text-orange-300" /><h3 className="mt-4 font-serif text-2xl font-bold">{commercialText(programme.title, t)}</h3><p className="mt-3 text-sm leading-6 text-white/45">{commercialText(programme.promise, t)}</p><p className="mt-4 text-[10px] font-black uppercase tracking-[0.12em] text-white/25">{commercialText(programme.designedFor, t)}</p></article>)}
+          <div className="marketing-programme-list">
+            {PROGRAMMES.map((programme) => <article key={programme.id} className="marketing-programme"><Sparkles className="h-5 w-5 text-orange-300" /><h3 className="mt-4 font-serif text-2xl font-bold">{commercialText(programme.title, t)}</h3><p className="mt-3 text-sm leading-6 text-white/45">{commercialText(programme.promise, t)}</p><p className="mt-4 text-[10px] font-black uppercase tracking-[0.12em] text-white/25">{commercialText(programme.designedFor, t)}</p></article>)}
           </div>
         </div>
       </section>
@@ -93,7 +84,6 @@ export default function SolutionsHub() {
       <section id="market" className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-9 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("commercial.or.start.from.the.market.163")}</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">{t("commercial.people.may.already.be.telling.you.where.to.164")}</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/50">{t("commercial.a.want.is.not.a.sale.and.a.165")}</p>
             <Link to="/discover?tab=wants" className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-orange-300">{t("commercial.open.market.pulse.166")}<ArrowRight className="h-4 w-4" /></Link>
@@ -102,9 +92,8 @@ export default function SolutionsHub() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("commercial.business.context.comes.second.168")}</p>
           <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">{t("commercial.the.same.outcome.means.different.things.for.different.169")}</h2>
           <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
             {sectors.map(({icon:Icon,title,copy,href}) => <Link key={title} to={href} className="group grid gap-4 py-6 sm:grid-cols-[auto_1fr_auto] sm:items-center"><div className="grid h-11 w-11 place-items-center rounded-full border border-white/10"><Icon className="h-5 w-5 text-orange-300" /></div><div><h3 className="font-serif text-2xl font-bold group-hover:text-orange-300">{title}</h3><p className="mt-1 max-w-3xl text-sm leading-6 text-white/45">{copy}</p></div><ArrowRight className="h-5 w-5 text-white/25 group-hover:text-orange-300" /></Link>)}
@@ -112,13 +101,12 @@ export default function SolutionsHub() {
         </div>
       </section>
 
-      <section className="px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_360px]">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("commercial.zero.hero.170")}</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">{t("commercial.the.work.is.not.finished.when.the.campaign.171")}</h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">{t("commercial.promorang.is.designed.to.carry.the.business.from.172")}</p>
-            <div className="mt-7 flex flex-wrap gap-3"><Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">{t("commercial.start.with.my.outcome.173")}<ArrowRight className="h-4 w-4" /></Link><Link to="/pricing" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">{t("commercial.see.commercial.scope.174")}</Link></div>
+            <div className="mt-7 flex flex-wrap gap-3"><Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">{t("compression.chooseOutcome")}<ArrowRight className="h-4 w-4" /></Link><Link to="/pricing" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">{t("commercial.see.commercial.scope.174")}</Link></div>
           </div>
           <PaperReceipt heading={t("commercial.the.loop.175")} lines={[
             {label:t("commercial.need.176"),value:t("commercial.what.must.change.177")},

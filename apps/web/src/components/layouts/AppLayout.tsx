@@ -1,6 +1,7 @@
+import { MARKETING_STORY_ROUTES } from "@/components/marketing/marketing-story-routes";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useLocation, Outlet as RouterOutlet } from "react-router-dom";
-const Outlet = RouterOutlet as any;
+const Outlet = RouterOutlet;
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Header from "@/components/Header";
@@ -10,7 +11,7 @@ import { MobileNavigationOwner } from "@/components/navigation/MobileNavigationO
 import "@/components/navigation/public-mobile-navigation.css";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentProps } from "react";
 import { ParticipantWorldLayout } from "@/components/layouts/ParticipantWorldLayout";
 import { isParticipantWorldRoute } from "@/lib/participant-world-route";
 import "@/styles/stakeholder-production-world.css";
@@ -21,7 +22,7 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   const { t: webT } = useWebI18n();
-    const { user, roles, activeRole, loading, profile } = useAuth();
+    const { user, activeRole, loading, profile } = useAuth();
     const location = useLocation();
 
     const [showRankCelebration, setShowRankCelebration] = useState(false);
@@ -72,7 +73,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname === "/moments/aftrhrs" ||
         location.pathname.startsWith("/moments/aftrhrs/");
     const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding || isAftrHrsLanding;
-    const showFooterCta = !["/", "/live", "/pulse"].includes(location.pathname);
+    const showFooterCta = !["/", "/live", "/pulse"].includes(location.pathname) && !MARKETING_STORY_ROUTES.some(route => location.pathname === route || location.pathname.startsWith(`${route}/`));
 
     const isPrivateCommunity = location.pathname === "/community" || location.pathname.startsWith("/community/");
     if (isConsumerPreview || isDropLanding || isAftrHrsLanding || isPrivateCommunity) {
@@ -123,7 +124,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         return (
             <MobileNavigationOwner.Provider value={true}>
                 <div data-stakeholder-world data-stakeholder-role={stakeholderRole}>
-                    <DashboardLayout currentRole={stakeholderRole as any}>
+                    <DashboardLayout currentRole={stakeholderRole as ComponentProps<typeof DashboardLayout>["currentRole"]}>
                         {children || <Outlet />}
                     </DashboardLayout>
                 </div>

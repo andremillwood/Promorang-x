@@ -1,10 +1,10 @@
+import "@/components/marketing/MarketingStory.css";
+import marketingPhoto from "@/assets/hero-moments.jpg";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { useState } from "react";
 import { ArrowRight, Briefcase, Building2, CalendarDays, Megaphone, Sparkles, Store, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { CurrentArc } from "@/components/marketing/MarketingPhysics";
-import heroMoments from "@/assets/hero-moments.jpg";
 import participantImage from "@/assets/moments/sunset-photo.jpg";
 import creatorImage from "@/assets/moments/open-mic.jpg";
 import hostImage from "@/assets/moment-concert.jpg";
@@ -72,23 +72,21 @@ export default function Join() {
   const SelectedIcon = selected.icon;
 
   return (
-    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#050505] text-white">
+    <main className="marketing-story min-h-screen overflow-x-clip bg-[#050505] text-white">
       <SEO title="Join PROMORANG — Start from what you need to do" description="Participate in the market, start from a business outcome, or enter through a specialist role." />
 
-      <section className="marketing-join-hero relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
-        <CurrentArc variant="hero" className="marketing-hero-current" />
-        <img src={heroMoments} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-35" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
+      <section className="marketing-legacy-hero marketing-legacy-hero--panorama marketing-join-hero relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-16 sm:px-6 md:pb-20 md:pt-24">
+        <img className="marketing-legacy-photo" src={marketingPhoto} alt="" loading="eager" />
         <div className="relative mx-auto max-w-[1440px]">
           <p className="marketing-kicker">Enter PROMORANG</p>
           <h1 className="mt-5 max-w-[12ch] text-5xl font-black sm:text-6xl lg:text-7xl">{webT("homeIntro.paths")}</h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">You do not need to learn the product map first. Start as a person looking for something, a business trying to change something, or a specialist with a clear operating role.</p>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">{webT("marketing.joinIntro")}</p>
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-2">
-          <Link to="/auth?mode=signup&role=participant&next=/home" className="group relative min-h-[25rem] overflow-hidden rounded-[2rem] border border-white/10">
+          <Link to="/auth?mode=signup&role=participant&next=/home" className="marketing-entry-choice group relative min-h-[25rem] overflow-hidden rounded-[2rem] border border-white/10">
             <img src={participantImage} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20" />
             <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9">
@@ -99,7 +97,7 @@ export default function Join() {
             </div>
           </Link>
 
-          <Link to="/business/start" className="group relative min-h-[25rem] overflow-hidden rounded-[2rem] border border-orange-300/20 bg-[radial-gradient(circle_at_80%_15%,rgba(251,146,60,.22),transparent_30%),linear-gradient(145deg,#1b1712,#080808)]">
+          <Link to="/business/start" className="marketing-entry-choice group relative min-h-[25rem] overflow-hidden rounded-[2rem] border border-orange-300/20 bg-[radial-gradient(circle_at_80%_15%,rgba(251,146,60,.22),transparent_30%),linear-gradient(145deg,#1b1712,#080808)]">
             <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9">
               <p className="marketing-kicker"><Sparkles className="h-3.5 w-3.5" /> I need to accomplish something for a business</p>
               <h2 className="mt-3 max-w-xl text-4xl font-black">Start from the outcome.</h2>
@@ -111,7 +109,7 @@ export default function Join() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="marketing-section-head">
             <div>
@@ -126,7 +124,11 @@ export default function Join() {
               const Icon = path.icon;
               const active = index === selectedIndex;
               return (
-                <button key={path.title} type="button" role="tab" aria-selected={active} onClick={() => setSelectedIndex(index)} className={`marketing-role-card group ${active ? "is-active" : ""}`}>
+                <button key={path.title} type="button" role="tab" id={`marketing-role-tab-${index}`} aria-controls="marketing-role-panel" tabIndex={active ? 0 : -1} aria-selected={active} onClick={() => setSelectedIndex(index)} onKeyDown={event => {
+                  const next = event.key === "ArrowRight" ? (index + 1) % specialistPaths.length : event.key === "ArrowLeft" ? (index + specialistPaths.length - 1) % specialistPaths.length : event.key === "Home" ? 0 : event.key === "End" ? specialistPaths.length - 1 : null;
+                  if (next === null) return;
+                  event.preventDefault(); setSelectedIndex(next); document.getElementById(`marketing-role-tab-${next}`)?.focus();
+                }} className={`marketing-role-card group ${active ? "is-active" : ""}`}>
                   <img src={path.image} alt="" aria-hidden="true" />
                   <span className="marketing-role-card__veil" />
                   <span className="marketing-role-card__copy"><span className="marketing-role-card__icon"><Icon className="h-4 w-4" /></span><strong>{path.title}</strong><small>{path.eyebrow}</small></span>
@@ -135,7 +137,7 @@ export default function Join() {
             })}
           </div>
 
-          <div className="marketing-role-detail mt-8" role="tabpanel">
+          <div className="marketing-role-detail mt-8" role="tabpanel" id="marketing-role-panel" aria-labelledby={`marketing-role-tab-${selectedIndex}`} tabIndex={0}>
             <div>
               <p className="marketing-kicker"><SelectedIcon className="h-3.5 w-3.5" /> {selected.eyebrow}</p>
               <h3 className="mt-4 text-3xl font-black sm:text-4xl">{selected.title}</h3>
@@ -150,7 +152,7 @@ export default function Join() {
         </div>
       </section>
 
-      <section className="px-5 py-14 sm:px-6 md:py-20">
+      <section className="marketing-content-section marketing-content-section--paper px-5 py-14 sm:px-6 md:py-20">
         <div className="mx-auto grid max-w-6xl gap-8 border-y border-white/10 py-10 md:grid-cols-2">
           <div>
             <p className="marketing-kicker">Not sure?</p>

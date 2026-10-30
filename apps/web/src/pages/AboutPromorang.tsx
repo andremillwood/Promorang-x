@@ -1,8 +1,9 @@
+import "@/components/marketing/MarketingStory.css";
+import marketingPhoto from "@/assets/hero-moments.jpg";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
-import { ArrowRight, Building2, CheckCircle2, Compass, Handshake, MapPin, Network, Sparkles, Store, Users } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2, Compass, Network, Sparkles, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 
 const whatWeDo = [
   {
@@ -62,7 +63,6 @@ const audiences = [
 const facts = [
   ["Company Name", "PROMORANG"],
   ["Type", "Market participation and activation platform"],
-  ["Founded", "Not publicly stated"],
   ["Founder", "Andre Millwood"],
   ["Headquarters", "Jamaica"],
   ["Website", "https://promorang.co"],
@@ -71,10 +71,6 @@ const facts = [
   ["Contract Terms", "Not published as a universal standard"],
   ["Services", "Demand discovery, Offers, Moments, distribution, participation workflows, verification, reporting and stakeholder operations"],
   ["Communication", "Web-based product workflows and direct commercial contact"],
-  ["Notable Clients", "Not publicly listed"],
-  ["Customers Served", "Not publicly stated"],
-  ["Projects Delivered", "Not publicly stated"],
-  ["Competitors", "No official competitor list published"],
   ["Social", "X/Twitter: @promorang · Instagram: @promorang · LinkedIn: /company/promorang"],
 ];
 
@@ -134,26 +130,21 @@ const schema = {
 export default function AboutPromorang() {
   const { t: webT } = useWebI18n();
   return (
-    <main className="marketing-cinematic min-h-screen overflow-x-clip bg-[#070707] text-white">
+    <main className="marketing-story min-h-screen overflow-x-clip bg-[#070707] text-white">
       <SEO
         title="About PROMORANG — Market participation, activation and PromoCard"
         description="Learn what PROMORANG does, who it serves, how the platform works, the team behind it, key company facts and frequently asked questions."
         schema={schema}
       />
 
-      <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
-        <CurrentArc variant="hero" className="marketing-hero-current" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(249,115,22,.2),transparent_38%),radial-gradient(circle_at_80%_55%,rgba(147,51,234,.1),transparent_34%)]" />
+      <section className="marketing-legacy-hero marketing-legacy-hero--panorama relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-6 md:pb-24 md:pt-36">
+        <img className="marketing-legacy-photo" src={marketingPhoto} alt="" loading="eager" />
         <div className="relative mx-auto max-w-6xl">
           <p className="inline-flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
             <Sparkles className="h-4 w-4" /> About PROMORANG
           </p>
-          <h1 className="mt-6 max-w-5xl font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
-            PROMORANG is a market participation platform that helps people signal what they want and helps businesses, brands and communities turn that demand into real things people can discover, access, do and keep.
-          </h1>
-          <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">
-            The product connects demand, Offers, Moments, distribution, participation, proof and PromoCard continuity in one network. It is built to make the movement between people and the market more visible without pretending every signal means the same thing.
-          </p>
+          <h1 className="mt-6 max-w-5xl font-serif text-5xl font-bold leading-[.91] tracking-[-0.055em] sm:text-6xl lg:text-7xl">{webT("marketing.aboutTitle")}</h1>
+          <p className="mt-7 max-w-3xl text-base leading-8 text-white/65 sm:text-lg">{webT("marketing.aboutIntro")}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/what-is-promorang" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-500 px-6 text-sm font-black text-black transition hover:bg-orange-400">
               See the product <ArrowRight className="h-4 w-4" />
@@ -165,13 +156,12 @@ export default function AboutPromorang() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">What PROMORANG does</p>
           <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Make demand legible. Make the response real. Keep the outcome connected.</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <div className="marketing-explainer-rows">
             {whatWeDo.map(({ icon: Icon, title, copy }) => (
-              <article key={title} className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6">
+              <article key={title} className="marketing-explainer-row">
                 <Icon className="h-5 w-5 text-orange-300" />
                 <h3 className="mt-4 font-serif text-2xl font-bold">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-white/50">{copy}</p>
@@ -181,14 +171,12 @@ export default function AboutPromorang() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">What makes PROMORANG different</p>
           <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">The market starts before the campaign brief and continues after the click.</h2>
           <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
-            {differentiators.map((item, index) => (
-              <article key={item.title} className="grid gap-4 py-6 md:grid-cols-[70px_1fr]">
-                <span className="font-mono text-sm font-black text-orange-300">0{index + 1}</span>
+            {differentiators.map((item) => (
+              <article key={item.title} className="grid gap-4 py-6 ">
                 <div>
                   <h3 className="font-serif text-2xl font-bold">{item.title}</h3>
                   <p className="mt-3 max-w-4xl text-sm leading-7 text-white/50">{item.copy}</p>
@@ -196,15 +184,12 @@ export default function AboutPromorang() {
               </article>
             ))}
           </div>
-          <p className="mt-6 max-w-4xl text-xs leading-6 text-white/35">
-            PROMORANG does not currently publish an official competitor-by-competitor comparison. This page therefore states product differences directly rather than inventing unsupported claims about named alternatives.
-          </p>
+
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Who uses PROMORANG</p>
           <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Different roles. One market.</h2>
           <ul className="mt-8 grid gap-4 md:grid-cols-2">
             {audiences.map((audience) => (
@@ -217,10 +202,9 @@ export default function AboutPromorang() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.9fr_1.1fr]">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">The team behind PROMORANG</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Built in Jamaica around a simple market problem.</h2>
           </div>
           <div className="space-y-6 text-sm leading-7 text-white/55">
@@ -241,35 +225,10 @@ export default function AboutPromorang() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">How PROMORANG works</p>
-          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Start with the outcome. Build the response. Measure what actually happened.</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["01", "Brief", "A commercial customer starts with the outcome, market, audience and action that matter."],
-              ["02", "Configure", "PROMORANG defines the demand signal, Offer or Moment, participant value, distribution, operating roles and evidence required."],
-              ["03", "Launch & operate", "The programme is distributed and operated through the relevant participant, merchant, creator, host, brand or agency workflows."],
-              ["04", "Read the result", "The records are reviewed by lifecycle stage so interest, claims, attendance, purchase, fulfillment and verification remain distinct."],
-            ].map(([num, title, copy]) => (
-              <article key={title} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                <span className="font-mono text-xs font-black text-orange-300">{num}</span>
-                <h3 className="mt-4 font-serif text-2xl font-bold">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/45">{copy}</p>
-              </article>
-            ))}
-          </div>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <div className="rounded-[1.4rem] border border-white/10 p-5"><Handshake className="h-5 w-5 text-orange-300" /><h3 className="mt-3 font-bold">Commercial communication</h3><p className="mt-2 text-sm leading-6 text-white/45">Direct contact and programme scoping through the PROMORANG team and web-based workflows.</p></div>
-            <div className="rounded-[1.4rem] border border-white/10 p-5"><Users className="h-5 w-5 text-orange-300" /><h3 className="mt-3 font-bold">Who customers work with</h3><p className="mt-2 text-sm leading-6 text-white/45">The operating team and the stakeholder roles required by the programme. Named account structures depend on the scope.</p></div>
-            <div className="rounded-[1.4rem] border border-white/10 p-5"><MapPin className="h-5 w-5 text-orange-300" /><h3 className="mt-3 font-bold">Turnaround & response times</h3><p className="mt-2 text-sm leading-6 text-white/45">No universal turnaround or response-time SLA is publicly published. Timing is set by the actual programme and agreement.</p></div>
-          </div>
-        </div>
-      </section>
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Key facts</p>
           <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">PROMORANG at a glance.</h2>
           <div className="mt-8 overflow-hidden rounded-[1.5rem] border border-white/10">
             <table className="w-full border-collapse text-left text-sm">
@@ -287,20 +246,19 @@ export default function AboutPromorang() {
         </div>
       </section>
 
-      <section className="px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Frequently asked questions</p>
           <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-0.045em] sm:text-5xl">The short answers.</h2>
           <div className="mt-9 divide-y divide-white/10 border-y border-white/10">
             {faqs.map((faq) => (
-              <article key={faq.q} className="py-6">
-                <h3 className="font-serif text-2xl font-bold">{faq.q}</h3>
-                <p className="mt-3 max-w-4xl text-sm leading-7 text-white/50">{faq.a}</p>
-              </article>
+              <details key={faq.q} className="marketing-story-faq">
+                <summary>{faq.q}</summary>
+                <p>{faq.a}</p>
+              </details>
             ))}
           </div>
 
-          <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 md:p-10">
+          <div className="marketing-about-close">
             <Building2 className="h-6 w-6 text-orange-300" />
             <h2 className="mt-4 max-w-3xl font-serif text-3xl font-bold tracking-[-0.035em]">Want to understand the product, use the network, or scope a programme?</h2>
             <div className="mt-6 flex flex-wrap gap-3">

@@ -108,7 +108,7 @@ export function BusinessOutcomeNavigator() {
     : "/auth?mode=signup";
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="marketing-outcome-navigator mx-auto max-w-6xl">
       {remoteBrief.isFetching && <p role="status" className="mb-5 text-sm text-white/65">{t("funnel.loading")}</p>}
       {remoteBrief.isError && <p role="alert" className="mb-5 text-sm text-white/65">{t("funnel.unavailable")} <button type="button" onClick={() => void remoteBrief.refetch()} className="min-h-11 underline">{t("funnel.retry")}</button></p>}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
@@ -116,20 +116,20 @@ export function BusinessOutcomeNavigator() {
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">{t("commercial.business.outcome.navigator.190")}</p>
           <p className="mt-2 text-sm text-white/45">{t("commercial.start.with.the.change.promorang.will.help.shape.191")}</p>
         </div>
-        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-white/30">
+        <div className="marketing-business-progress flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-white/30">
           {[t("createProposal.step1Short"), t("commercial.context.192"), t("commercial.success.193"), t("commercial.route.194")].map((label, index) => <span key={label} className="flex items-center gap-2"><span className="grid h-6 w-6 place-items-center rounded-full border border-white/15">{index + 1}</span>{label}</span>)}
         </div>
       </div>
 
       {step === "outcome" && (
         <section>
-          <h1 className="max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-6xl">{t("commercial.what.do.you.need.to.make.happen.195")}</h1>
+          <h2 className="max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-6xl">{t("commercial.what.do.you.need.to.make.happen.195")}</h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-white/55">{t("commercial.choose.the.business.change.first.you.do.not.196")}</p>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="marketing-outcome-list">
             {BUSINESS_OUTCOMES.map((item) => (
-              <button key={item.id} type="button" onClick={() => { setOutcomeId(item.id); setStep("business"); }} className="group min-h-48 rounded-[1.5rem] border border-white/10 bg-white/[0.035] p-5 text-left transition hover:border-orange-400/45 hover:bg-orange-400/[0.06]">
+              <button key={item.id} type="button" onClick={() => { setOutcomeId(item.id); setStep("business"); }} className="marketing-outcome-row group text-left">
                 <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-300">{commercialText(item.short, t)}</p>
-                <h2 className="mt-4 font-serif text-2xl font-bold">{commercialText(item.title, t)}</h2>
+                <h3 className="mt-4 font-serif text-2xl font-bold">{commercialText(item.title, t)}</h3>
                 <p className="mt-3 text-sm leading-6 text-white/45">{commercialText(item.description, t)}</p>
                 <ArrowRight className="mt-6 h-4 w-4 text-white/20 transition group-hover:translate-x-1 group-hover:text-orange-300" />
               </button>
@@ -174,7 +174,7 @@ export function BusinessOutcomeNavigator() {
           <button onClick={() => setStep("success")} className="mb-6 inline-flex items-center gap-2 text-xs font-bold text-white/45 hover:text-white"><ArrowLeft className="h-4 w-4" /> {t("commercial.change.success.action.202")}</button>
           <h2 className="max-w-3xl font-serif text-4xl font-bold">{t("commercial.give.promorang.enough.context.to.shape.the.route.203")}</h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50">{t("commercial.these.are.planning.inputs.not.promises.you.can.204")}</p>
-          <div className="mt-8 grid gap-5 rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-6 md:grid-cols-2">
+          <div className="marketing-business-fields mt-8 grid gap-5 md:grid-cols-2">
             <label className="text-xs font-black uppercase tracking-[0.12em] text-white/45">{t("commercial.target.205")} {" "}<span className="font-normal normal-case tracking-normal text-white/30">{t("commercial.optional.206")}</span><input type="number" min="1" value={target} onChange={(e) => setTarget(e.target.value)} placeholder={selectedSuccess ? t("commercial.exampleTarget", { unit: commercialText(selectedSuccess.unit, t) }) : t("commercial.exampleNumber")} className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-orange-400/50" /></label>
             <label className="text-xs font-black uppercase tracking-[0.12em] text-white/45">{t("commercial.timeframe.207")}<input value={timeframe} onChange={(e) => setTimeframe(e.target.value)} placeholder={t("commercial.e.g.next.30.days.208")} className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-orange-400/50" /></label>
             <label className="text-xs font-black uppercase tracking-[0.12em] text-white/45">{t("askMarket.city")}<input value={geography} onChange={(e) => setGeography(e.target.value)} placeholder={t("commercial.city.area.store.or.online.210")} className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-black/35 px-4 text-sm font-medium normal-case tracking-normal text-white outline-none focus:border-orange-400/50" /></label>

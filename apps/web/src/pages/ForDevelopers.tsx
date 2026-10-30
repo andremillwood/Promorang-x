@@ -1,8 +1,11 @@
+import { MarketingNote as TicketPass } from "@/components/marketing/MarketingNote";
+import "@/components/marketing/MarketingStory.css";
+import marketingPhoto from "@/assets/moments/coffee-code.jpg";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, Braces, Code2, KeyRound, Network, ShieldCheck, Terminal } from "lucide-react";
 import SEO from "@/components/SEO";
-import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
+import { PaperReceipt } from "@/components/promorang/SignatureObjects";
 
 const surfaces = [
   {
@@ -24,22 +27,23 @@ const surfaces = [
     title: "Developer console",
     status: "Product surface",
     path: "/developers/keys",
-    copy: "Use the authenticated developer console to inspect key-management capability available to your account. A marketing page should not manufacture a key or successful API response.",
+    copy: "Use the authenticated developer console to inspect key-management capability available to your account. Your account’s permissions determine the available key-management actions.",
   },
 ];
 
 export default function ForDevelopers() {
   const { t: webT } = useWebI18n();
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
-      <SEO title="PROMORANG for Developers" description="Build against PROMORANG objects without collapsing Discovery, Demand, response, proof, and retained history into synthetic API success." />
+    <main className="marketing-story min-h-screen bg-[#070707] text-white">
+      <SEO title="PROMORANG for Developers" description="Explore the Promorang workspace SDK, MCP server and authenticated developer console." />
 
-      <section className="border-b border-white/10 px-5 pb-16 pt-24 sm:px-6 md:pb-24 md:pt-32">
+      <section className="marketing-legacy-hero marketing-legacy-hero--statement border-b border-white/10 px-5 pb-16 pt-24 sm:px-6 md:pb-24 md:pt-32">
+        <img className="marketing-legacy-photo" src={marketingPhoto} alt="" loading="eager" />
         <div className="mx-auto grid max-w-[1320px] gap-12 lg:grid-cols-[1fr_420px] lg:items-center">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-primary">Developer surface · capability before hype</p>
-            <h1 className="mt-5 max-w-5xl font-serif text-5xl font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">Build on the same object truth the product uses.</h1>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-white/60">PROMORANG has SDK and MCP code in the repository, plus authenticated developer surfaces. Integrations should preserve the same market-state boundaries as the web product rather than returning simulated success because a developer demo needs to look complete.</p>
+            <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-primary">For developers</p>
+            <h1 className="mt-5 max-w-5xl font-serif text-5xl font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">{webT("marketing.developerTitle")}</h1>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-white/60">{webT("marketing.developerIntro")}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/developers/keys" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-black text-black">Open Developer Console <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/what-is-promorang" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">Understand the object system</Link>
@@ -55,10 +59,9 @@ export default function ForDevelopers() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">What exists in the codebase</p>
-          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-5xl">Capability status, not a simulated playground.</h2>
+          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-5xl">Start with the tools available today.</h2>
           <div className="mt-9 divide-y divide-white/10 border-y border-white/10">
             {surfaces.map(({ icon: Icon, title, status, path, copy }) => (
               <article key={title} className="grid gap-5 py-6 sm:grid-cols-[auto_1fr_auto] sm:items-center">
@@ -75,11 +78,10 @@ export default function ForDevelopers() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Canonical API behavior</p>
-          <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">The integration should expose states, not erase them.</h2>
-          <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">Keep each step of participation clear.</h2>
+          <div className="marketing-note-list">
             <TicketPass kicker="Discovery" title="Approved knowledge" detail="A proposal or candidate does not become public Discovery until the review boundary is crossed." stub="READ" stubLabel="Truth" />
             <TicketPass kicker="Demand" title="Recorded signal" detail="Questions, votes and asks can inform a response. Threshold is not automatic inventory." stub="SIGNAL" stubLabel="Want" />
             <TicketPass kicker="Response" title="Distinct supply" detail="Moment, offer or inventory creation is a separate authoritative mutation, not a derived demand state." stub="WRITE" stubLabel="Respond" />
@@ -90,11 +92,10 @@ export default function ForDevelopers() {
         </div>
       </section>
 
-      <section className="px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary">Local development</p>
-            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">Build what is actually in the repository.</h2>
+            <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">Build from the workspace packages.</h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">The SDK and MCP packages are workspace code. Their package manifests define local build/test commands. Public registry installation, hosted MCP availability, rate limits and production scopes should be documented only after those deployment facts are verified.</p>
             <div className="mt-6 grid gap-3 font-mono text-xs text-white/60">
               <div className="rounded-[1.2rem] border border-white/10 bg-black/30 p-4"><Terminal className="mb-3 h-4 w-4 text-primary" />npm run build --workspace packages/sdk</div>
@@ -103,8 +104,8 @@ export default function ForDevelopers() {
           </div>
           <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-6">
             <ShieldCheck className="h-6 w-6 text-primary" />
-            <p className="mt-4 font-serif text-2xl font-bold">No fake API responses.</p>
-            <p className="mt-3 text-sm leading-6 text-white/45">The previous marketing playground used timers and hard-coded JSON to imitate feed, claim and operator responses. That presentation has been removed. Test real endpoints from an authenticated environment instead.</p>
+            <p className="mt-4 font-serif text-2xl font-bold">Test with your account’s permissions.</p>
+            <p className="mt-3 text-sm leading-6 text-white/45">Use the authenticated console for key management. Validate requests against your target environment and handle permission and network errors explicitly.</p>
             <Link to="/developers/keys" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-primary"><Code2 className="h-4 w-4" />{webT("merchantDash.openConsole")} <ArrowRight className="h-4 w-4" /></Link>
           </div>
         </div>

@@ -9,7 +9,7 @@ import AppLayout from "./AppLayout";
 const auth = vi.hoisted(() => ({ user: null as null | { id: string }, roles: [], activeRole: "participant", loading: false, profile: null }));
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => auth }));
 vi.mock("@/components/culture/PublicHomeBar", () => ({ PublicHomeBar: () => <header>Public header</header> }));
-vi.mock("@/components/Footer", () => ({ default: () => <footer>Public footer</footer> }));
+vi.mock("@/components/Footer", () => ({ default: ({ showCta }: { showCta: boolean }) => <footer data-show-cta={String(showCta)}>Public footer</footer> }));
 vi.mock("@/components/Header", () => ({ default: () => <header>Fallback header</header> }));
 vi.mock("@/components/RankCelebrationModal", () => ({ RankCelebrationModal: () => null }));
 vi.mock("@/components/DashboardLayout", () => ({ default: ({ children, currentRole }: { children: ReactNode; currentRole: string }) => <section aria-label={`Workspace ${currentRole}`}>{children}</section> }));
@@ -38,4 +38,9 @@ it.each(["merchant", "brand", "agency"])("preserves active %s role on a workspac
   expect(screen.getByRole("region", { name: `Workspace ${role}` })).toBeInTheDocument();
   expect(auth.activeRole).toBe(role);
   expect(screen.queryByRole("contentinfo")).toBeNull();
+});
+
+it.each(["/for-creators", "/for-merchants", "/solutions/hospitality", "/about", "/join", "/business/start"])("keeps the page-specific next step without an unrelated footer CTA on %s", path => {
+  mount(path);
+  expect(screen.getByRole("contentinfo")).toHaveAttribute("data-show-cta", "false");
 });

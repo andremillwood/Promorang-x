@@ -6,11 +6,12 @@ export default function Hosting() {
   const { t } = useI18n();
   return (
     <MarketRoleLanding
+      role="host"
       seoTitle={t("commercial.host.with.promorang.turn.demand.into.real.moments.0")}
       seoDescription={t("commercial.see.what.people.are.asking.for.decide.whether.1")}
       eyebrow={t("commercial.for.hosts.organizers.2")}
-      title={t("compression.role.Hosting")}
-      intro={t("compression.hostIntro")}
+      title={t("marketing.hostTitle")}
+      intro={t("marketing.hostIntro")}
       primaryCta={{ label: t("compression.hostCta"), href: authPathForReturn("/propose/new?from=hosting&role=host", { mode: "signup", role: "host" }) }}
       secondaryCta={{ label: t("compression.seeDemand"), href: "/discover?tab=wants" }}
       roleJob={t("commercial.decide.when.the.interest.is.strong.enough.to.3")}
@@ -21,7 +22,7 @@ export default function Hosting() {
       responseStub="HOST"
       proofTitle={t("commercial.know.who.actually.showed.up.6")}
       proofDetail={t("commercial.rsvps.show.intent.check.in.or.the.configured.7")}
-      promoCardDetail="PromoCard can carry access before the Moment and give participants a reason to return afterward."
+      promoCardDetail={t("marketing.cardCopy")}
       truthGates={[
         t("commercial.rsvp.is.not.attendance.8"),
         t("commercial.a.strong.signal.does.not.create.an.event.9"),

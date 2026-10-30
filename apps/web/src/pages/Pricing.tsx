@@ -1,8 +1,11 @@
+import { MarketingNote as TicketPass } from "@/components/marketing/MarketingNote";
+import "@/components/marketing/MarketingStory.css";
+import marketingPhoto from "@/assets/moments/pottery.jpg";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { ArrowRight, Building2, CreditCard, ShieldCheck, Sparkles, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { PaperReceipt, TicketPass } from "@/components/promorang/SignatureObjects";
+import { PaperReceipt } from "@/components/promorang/SignatureObjects";
 import { PROGRAMMES } from "@/lib/business-outcomes";
 
 const paidResponseTypes = [
@@ -15,15 +18,16 @@ const paidResponseTypes = [
 export default function PricingPage() {
   const { t: webT } = useWebI18n();
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
+    <main className="marketing-story min-h-screen bg-[#070707] text-white">
       <SEO title="PROMORANG Pricing — Scope the programme around the outcome" description="Start from the outcome, understand the programme scope, and keep PROMORANG fees, participant value and operator proceeds distinct." />
 
-      <section className="border-b border-white/10 px-5 pb-16 pt-24 sm:px-6 md:pb-24 md:pt-32">
+      <section className="marketing-legacy-hero marketing-legacy-hero--statement border-b border-white/10 px-5 pb-16 pt-24 sm:px-6 md:pb-24 md:pt-32">
+        <img className="marketing-legacy-photo" src={marketingPhoto} alt="" loading="eager" />
         <div className="mx-auto grid max-w-[1320px] gap-12 lg:grid-cols-[1fr_380px] lg:items-center">
           <div>
             <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">Commercial scope · outcome first</p>
-            <h1 className="mt-5 max-w-5xl font-serif text-5xl font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">Start with the outcome. Scope the programme around it.</h1>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-white/60">PROMORANG pricing depends on what needs to be configured, distributed, operated, verified and reported—not on pretending a fee can guarantee visits, sales or ROI.</p>
+            <h1 className="mt-5 max-w-5xl font-serif text-5xl font-bold leading-[.92] tracking-[-.055em] sm:text-7xl">{webT("marketing.pricingTitle")}</h1>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-white/60">{webT("marketing.pricingIntro")}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/business/start" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange-400 px-6 text-sm font-black text-black">Choose my outcome <ArrowRight className="h-4 w-4" /></Link>
               <Link to="/contact" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-6 text-sm font-black">Discuss commercial scope</Link>
@@ -39,14 +43,13 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Programme scopes</p>
           <h2 className="mt-3 max-w-4xl font-serif text-4xl font-bold tracking-[-.045em] sm:text-5xl">The recipe explains the work before the price explains the cost.</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/50">These programme names describe the commercial job. Final scope changes with geography, duration, audience, participant value, distribution, operating support and evidence requirements.</p>
-          <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="marketing-note-list">
             {PROGRAMMES.map((programme) => (
-              <article key={programme.id} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+              <article key={programme.id} className="marketing-programme">
                 <Sparkles className="h-5 w-5 text-orange-300" />
                 <h3 className="mt-4 font-serif text-2xl font-bold">{programme.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-white/45">{programme.promise}</p>
@@ -57,11 +60,10 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Keep the money buckets separate</p>
           <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">What PROMORANG earns is not automatically what participants receive or what the operator keeps.</h2>
-          <div className="mt-9 grid gap-5 lg:grid-cols-3">
+          <div className="marketing-note-list">
             <TicketPass kicker="PROMORANG revenue" title="Platform / service fee" detail="The disclosed platform, subscription, transaction or service fee actually charged under the order or agreement." stub="FEE" stubLabel="Revenue" />
             <TicketPass kicker="Committed participant value" title="What is reserved for the response" detail="Reward pool, perk, prize, credit or other participant value remains separate from platform revenue unless the governing record says otherwise." stub="POOL" stubLabel="Value" />
             <TicketPass kicker="Operator proceeds" title="What remains with the operator" detail="Merchant, host, creator or seller proceeds depend on the actual transaction, fees, refunds and settlement state." stub="NET" stubLabel="Proceeds" />
@@ -69,7 +71,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--paper border-b border-white/10 px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">What PROMORANG may charge around</p>
           <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
@@ -84,10 +86,9 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink border-b border-white/10 bg-[#0b0b0b] px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_360px]">
           <div>
-            <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">Commercial process</p>
             <h2 className="mt-3 font-serif text-4xl font-bold tracking-[-.04em]">Brief first. Scope second. Price third. Evidence afterward.</h2>
             <ol className="mt-7 divide-y divide-white/10 border-y border-white/10">
               {[
@@ -115,7 +116,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="px-5 py-16 sm:px-6 md:py-24">
+      <section className="marketing-content-section marketing-content-section--ink px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 border-t border-white/10 pt-10 md:flex-row md:items-center md:justify-between">
           <div><p className="font-serif text-2xl font-bold">Need an actual number?</p><p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">Start the outcome brief so the scope can be tied to a real audience, geography, duration, participant value and evidence requirement.</p></div>
           <div className="flex flex-wrap gap-3"><Link to="/business/start" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-orange-400 px-5 text-xs font-black text-black">{webT("leadMagnet.brand.cta")} <ArrowRight className="h-4 w-4" /></Link><Link to="/contact" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-5 text-xs font-black">Discuss commercial scope</Link></div>

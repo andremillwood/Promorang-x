@@ -5,11 +5,12 @@ export default function ForCauses() {
   const { t: webT } = useWebI18n();
   return (
     <MarketRoleLanding
+      role="cause"
       seoTitle="PROMORANG for Causes — Mobilize around real needs"
       seoDescription="See what communities care about, give people a meaningful way to respond, and understand what participation followed."
       eyebrow="FOR CAUSES + PUBLIC-INTEREST INITIATIVES"
-      title="Make the need visible. Then give people a real way to respond."
-      intro="A cause does not need another vanity campaign. PROMORANG can help you understand what a community cares about, give people a meaningful next move, and see what participation followed."
+      title={webT("marketing.causeTitle")}
+      intro={webT("marketing.causeIntro")}
       primaryCta={{ label: "Discuss a cause response", href: "/contact" }}
       secondaryCta={{ label: webT("compression.seeDemand"), href: "/demand" }}
       roleJob="Make the need clear, give people a useful way to respond, and report participation without turning every click into impact."
@@ -20,7 +21,7 @@ export default function ForCauses() {
       responseStub="ACT"
       proofTitle="See who actually took part"
       proofDetail="Use attendance, completed actions and other confirmed participation to understand what happened beyond reach and intent."
-      promoCardDetail="Participants can keep causes, access and completed activity on PromoCard so the relationship can continue after one campaign."
+      promoCardDetail={webT("marketing.cardCopy")}
       truthGates={[
         "Need should come before campaign language",
         "Interest is not participation",

@@ -5,11 +5,12 @@ export default function ForCommunities() {
   const { t } = useI18n();
   return (
     <MarketRoleLanding
+      role="community"
       seoTitle={t("commercial.promorang.for.communities.turn.shared.interest.into.a.38")}
       seoDescription={t("commercial.give.shared.interests.a.home.help.people.find.39")}
       eyebrow={t("commercial.for.communities.scene.leads.40")}
-      title={t("compression.role.ForCommunities")}
-      intro={t("compression.communityIntro")}
+      title={t("marketing.communityTitle")}
+      intro={t("marketing.communityIntro")}
       primaryCta={{ label: t("compression.communityCta"), href: "/propose" }}
       secondaryCta={{ label: t("compression.communityExplore"), href: "/scenes" }}
       roleJob={t("commercial.give.the.community.a.place.to.belong.a.41")}
@@ -20,7 +21,7 @@ export default function ForCommunities() {
       responseStub="GATHER"
       proofTitle={t("commercial.let.real.participation.become.community.history.44")}
       proofDetail={t("commercial.attendance.and.completed.actions.can.become.part.of.45")}
-      promoCardDetail="PromoCard lets each member keep their access, activity and return paths while still belonging to the larger Scene."
+      promoCardDetail={t("marketing.cardCopy")}
       truthGates={[
         t("commercial.a.scene.is.bigger.than.one.moment.46"),
         t("commercial.joining.a.scene.is.not.attendance.47"),
