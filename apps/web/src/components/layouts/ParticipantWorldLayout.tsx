@@ -2,7 +2,7 @@ import { currentUiLocale } from "@/i18n/geo-locale";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import type { ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Archive, BriefcaseBusiness, Check, ChevronDown, Coins, Compass, CreditCard, Gem, Home, KeyRound, LogOut, Settings, Store, Ticket, UserRound, UserRoundPlus, Vault, WandSparkles } from "lucide-react";
+import { Archive, Bell, Plus, MapPin, BriefcaseBusiness, Check, ChevronDown, Coins, Compass, CreditCard, Gem, Home, KeyRound, LogOut, Settings, Store, Ticket, UserRound, UserRoundPlus, Vault, WandSparkles } from "lucide-react";
 import { PromorangMark } from "@/components/promorang/PromorangMark";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 import type { WorkspaceRole } from "@/lib/auth-roles";
 import { firstGivenName } from "@promorang/shared";
+import "@/components/participant/ParticipantReference.css";
+import { useMarket } from "@/contexts/MarketContext";
 import { HeaderSearchPreview } from "@/components/HeaderSearchPreview";
 
 type ParticipantWorldLayoutProps = {
@@ -42,9 +44,11 @@ const roleLabels: Partial<Record<WorkspaceRole, { label: string; icon: typeof Us
 
 export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps) {
   const { t: webT } = useWebI18n();
+  const { city } = useMarket();
   const navItems = [
     { label: webT("hostDash.today"), to: "/today", icon: Home },
     { label: webT("drops.discover"), to: "/discover", icon: Compass },
+    { label: "Ask / Post", to: "/demand?ask=1", icon: Plus },
     { label: webT("publicHome.navCard"), to: "/card", icon: CreditCard },
     { label: webT("how.layer3Link3"), to: "/vault", icon: Vault },
   ];
@@ -80,6 +84,8 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
 
   const isActive = (to: string) => {
     if (to === "/today") return pathname === "/today" || pathname === "/dashboard" || pathname === "/home";
+    if (to.includes("?")) return false;
+    if (to === "/vault") return ["/vault", "/memories"].some((root) => pathname === root || pathname.startsWith(`${root}/`));
     if (to === "/discover") {
       return discoveryRoots.some((root) => pathname === root || pathname.startsWith(`${root}/`));
     }
@@ -87,7 +93,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
   };
 
   return (
-    <div className="min-h-[100dvh] overflow-x-clip bg-[#070706] text-stone-100">
+    <div className="participant-reference-shell min-h-[100dvh] overflow-x-clip bg-[#070706] text-stone-100">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a09]/90 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1480px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <NavLink
@@ -96,9 +102,10 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
             aria-label="Promorang Today"
           >
             <PromorangMark size={30} />
-            <span className="hidden text-lg font-bold tracking-tight sm:inline">Promorang</span>
+            <span className="participant-wordmark text-lg font-bold tracking-tight">PROMORANG</span>
           </NavLink>
 
+          <NavLink to="/discover" className="participant-city" aria-label={`Explore ${city.name}`}><MapPin size={16} aria-hidden="true" /><span title={city.name}>{city.name.split(" & ")[0]}</span></NavLink>
           <nav className="hidden min-w-0 items-center gap-0.5 md:flex lg:gap-1" aria-label={webT("publicHome.mobileNavigation")}>
             {navItems.map(({ label, to, icon: Icon }) => (
               <NavLink
@@ -172,7 +179,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button type="button" className="flex items-center gap-1 rounded-full p-1 transition-colors hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500" aria-label={`Open account menu for ${displayName}`}>
-                  <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-orange-500 to-amber-300 text-sm font-black text-black ring-1 ring-white/20">
+                  <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-orange-500 to-amber-300 text-sm font-black text-[#080808] ring-1 ring-white/20">
                     {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : (user?.email || "?").charAt(0).toUpperCase()}
                   </span>
                   <ChevronDown className="hidden h-3.5 w-3.5 text-stone-500 sm:block" aria-hidden="true" />
@@ -180,7 +187,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[calc(100vw-1rem)] max-w-sm max-h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1rem)] overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] border-white/10 bg-[#11110f] p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-stone-100 sm:w-80 sm:max-h-[min(78dvh,680px)]">
                 <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-orange-500 to-amber-300 font-black text-black">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-orange-500 to-amber-300 font-black text-[#080808]">
                     {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : (user?.email || "?").charAt(0).toUpperCase()}
                   </span>
                   <div className="min-w-0"><p className="truncate text-sm font-bold">{displayName}</p><p className="truncate text-xs text-stone-500">{user?.email}</p></div>
@@ -206,6 +213,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
 
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-stone-500">Your account</DropdownMenuLabel>
                 <DropdownMenuItem asChild><NavLink to="/profile" className="flex items-center gap-2.5"><UserRound className="h-4 w-4" />{webT("how.merchantStep1Badge")}</NavLink></DropdownMenuItem>
+                <DropdownMenuItem asChild><NavLink to="/activity" className="flex items-center gap-2.5"><Bell className="h-4 w-4" />Activity</NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/promoshare" className="flex items-center gap-2.5"><Ticket className="h-4 w-4 text-violet-400" /><span><strong className="block font-semibold">PromoShare entries</strong><span className="block text-[10px] text-stone-500">Draws, eligibility and activity</span></span></NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/growth/referrals" className="flex items-center gap-2.5"><UserRoundPlus className="h-4 w-4 text-orange-400" /><span><strong className="block font-semibold">Invite &amp; earn</strong><span className="block text-[10px] text-stone-500">Referral links and commissions</span></span></NavLink></DropdownMenuItem>
                 <DropdownMenuItem asChild><NavLink to="/vault" className="flex items-center gap-2.5"><Archive className="h-4 w-4" />{webT("how.layer3Link3")}</NavLink></DropdownMenuItem>
@@ -221,7 +229,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
       <main className="min-h-[calc(100dvh-4rem)] min-w-0 overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-white/10 bg-[#0a0a09]/95 px-[max(0.5rem,env(safe-area-inset-left))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_36px_rgba(0,0,0,.42)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-white/10 bg-[#0a0a09]/95 px-[max(0.5rem,env(safe-area-inset-left))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_36px_rgba(0,0,0,.42)] backdrop-blur-xl md:hidden"
         aria-label={webT("publicHome.mobileNavigation")}
       >
         {navItems.map(({ label, to, icon: Icon }) => (

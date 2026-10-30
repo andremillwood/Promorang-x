@@ -27,8 +27,8 @@ it.each(["/", "/shop", "/shop/item", "/discover?tab=wants", "/discoveries/local"
 it.each(["/auth", "/onboarding", "/drop/sample", "/aftrhrs"])("does not add navigation to focused flow %s", path => {
   mount(path); expect(screen.queryByRole("navigation")).toBeNull(); expect(screen.queryByRole("contentinfo")).toBeNull();
 });
-it("preserves the authenticated participant shell", () => {
-  auth.user = { id: "test-user" }; mount("/discover");
+it.each(["/discover", "/search?q=music", "/demand", "/memories/owned", "/offers/coffee"])("preserves the authenticated participant shell on %s", path => {
+  auth.user = { id: "test-user" }; mount(path);
   expect(screen.getByRole("region", { name: "Participant shell" })).toBeInTheDocument();
   expect(screen.getByText("Shell owns navigation")).toBeInTheDocument();
   expect(screen.queryByRole("contentinfo")).toBeNull();

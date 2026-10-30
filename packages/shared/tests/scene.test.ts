@@ -8,3 +8,9 @@ describe("Scene human state", () => {
   it("recognizes an active returning person", () => expect(getSceneHumanState(scene, { scene_id: scene.id, user_id: "user-1", relationship: "participant", membership_state: "active", moments_joined: 2, moments_returned: 1, people_brought: 0, stories_shared: 0, last_seen_at: null }).title).toContain("came back"));
   it("uses human location language", () => expect(sceneLocation(scene)).toBe("Kingston, Jamaica"));
 });
+
+it("handles a legacy Scene without metadata", () => {
+  const legacyScene = { ...scene, metadata: undefined } as unknown as Scene;
+  expect(() => getSceneHumanState(legacyScene)).not.toThrow();
+  expect(getSceneHumanState(legacyScene).title).toContain("Step into");
+});

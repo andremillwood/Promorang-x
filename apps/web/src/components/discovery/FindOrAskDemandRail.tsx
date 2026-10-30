@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, Loader2, MapPin, Radio, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useFindOrAskDiscoveries, useSupportFindOrAskDemand } from "@/hooks/useFindOrAsk";
+import { useFindOrAskDiscoveries, useSupportFindOrAskDemand, useFindOrAskOutcomes } from "@/hooks/useFindOrAsk";
 import { useI18n } from "@/i18n/I18nContext";
 import { FindOrAskStakeholderResponse } from "@/components/discovery/FindOrAskStakeholderResponse";
 import { trackGrowthEvent } from "@/lib/marketing-attribution";
@@ -11,7 +11,7 @@ function normalize(value: string) {
   return value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
 }
 
-export function FindOrAskDemandRail({ city, query }: { city?: string; query?: string }) {
+export function FindOrAskDemandRail({ city, query, showEmpty = false }: { city?: string; query?: string; showEmpty?: boolean }) {
   const { user } = useAuth();
   const { t, formatNumber, formatDate } = useI18n();
   const demand = useFindOrAskDiscoveries(city);
@@ -25,10 +25,14 @@ export function FindOrAskDemandRail({ city, query }: { city?: string; query?: st
       .slice(0, 6);
   }, [demand.data, query]);
 
-  if (!rows.length) return null;
+  if (!rows.length) {
+    if (!showEmpty) return null;
+    return <div className="participant-demand-empty" role="status">{demand.isLoading ? <p>Loading what your city wants…</p> : demand.isError ? <><p>Wants couldn’t load.</p><button type="button" disabled={demand.isFetching} onClick={() => void demand.refetch()}>Try again</button></> : <><p>No open Wants here yet. Search for what you have in mind, then ask your city if it’s missing.</p><Link to="/demand?ask=1">Ask {city || "your city"} <Radio size={16} /></Link></>}</div>;
+  }
 
   const addSupport = async (id: string) => {
-    const count = await support.mutateAsync(id);
+    let count: number;
+    try { count = await support.mutateAsync(id); } catch { return; }
     setSupportedId(id);
     void trackGrowthEvent({ eventName: "find_or_ask_demand_supported", journey: "participant", stage: "activated", entityType: "discovery_demand", entityId: id, value: count });
   };
@@ -52,22 +56,33 @@ export function FindOrAskDemandRail({ city, query }: { city?: string; query?: st
             <h3 className="mt-4 text-xl font-black leading-snug text-white">{row.question}</h3>
             {row.city ? <p className="mt-3 flex items-center gap-1 text-[11px] text-white/42"><MapPin className="h-3 w-3 text-orange-300" />{row.city}</p> : null}
             <div className="mt-5 flex items-center justify-between text-xs"><span className="inline-flex items-center gap-2 font-black text-white"><Users className="h-4 w-4 text-orange-300" />{t("findOrAsk.peopleWantCount", { count: formatNumber(count) })}</span>{target > 0 ? <span className="text-white/40">{t("findOrAsk.demandTarget", { count: formatNumber(target) })}</span> : null}</div>
-            {target > 0 ? <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-label={t("findOrAsk.demandProgressLabel")} aria-valuemin={0} aria-valuemax={target} aria-valuenow={count}><div className="h-full rounded-full bg-orange-400 transition-all" style={{ width: `${progress}%` }} /></div> : null}
+            {target > 0 ? <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-label={t("findOrAsk.demandProgressLabel")} aria-valuemin={0} aria-valuemax={target} aria-valuenow={Math.min(count, target)}><div className="h-full rounded-full bg-orange-400" style={{ width: `${progress}%` }} /></div> : null}
             <p className="mt-4 text-xs leading-5 text-white/45">{t("findOrAsk.demandSupportRule")}</p>
             {support.isError && support.variables === row.id ? <p role="alert" className="mt-4 text-xs text-red-200">{t("findOrAsk.supportError")}</p> : null}
             <div className="mt-5">
               {user ? (
-                <button type="button" onClick={() => void addSupport(row.id)} disabled={isSubmitting || added} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-black transition hover:bg-orange-400 disabled:opacity-60">
+                <button type="button" onClick={() => void addSupport(row.id)} disabled={isSubmitting || added} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-orange-500 px-5 text-xs font-black text-[#080808] transition-colors hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-300 disabled:opacity-60">
                   {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : added ? <Check className="h-4 w-4" /> : null}{added ? t("findOrAsk.supportAdded") : t("clarity.wantAction")}
                 </button>
               ) : (
-                <Link to={`/auth?mode=login&role=participant&next=${encodeURIComponent(next)}`} className="inline-flex min-h-11 items-center justify-center rounded-full bg-orange-500 px-5 text-xs font-black text-black transition hover:bg-orange-400">{t("clarity.wantAction")}</Link>
+                <Link to={`/auth?mode=login&role=participant&next=${encodeURIComponent(next)}`} className="inline-flex min-h-11 items-center justify-center rounded-full bg-orange-500 px-5 text-xs font-black text-[#080808] transition-colors hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-300">{t("clarity.wantAction")}</Link>
               )}
             </div>
+            <PublishedWantAnswer discoveryId={row.id} />
             <FindOrAskStakeholderResponse discoveryId={row.id} />
           </article>
         );
       })}
     </div>
   );
+}
+
+function PublishedWantAnswer({discoveryId}: {discoveryId: string}) {
+ const outcomes = useFindOrAskOutcomes(discoveryId);
+ const answers = (outcomes.data || []).filter((row) => row.verification_status === "verified");
+ const destinations: Record<string,string> = {moment:"/moments/",offer:"/offers/",place:"/venues/",content:"/content-drops/"};
+ return <>{answers.map((answer) => {
+  const href = answer.canonical_object_url && /^\/(moments|offers|venues|drop|content-drops)\/[^\s]+$/.test(answer.canonical_object_url) ? answer.canonical_object_url : destinations[answer.canonical_object_type] && answer.canonical_object_id ? `${destinations[answer.canonical_object_type]}${encodeURIComponent(answer.canonical_object_id)}` : null;
+  return href ? <Link key={answer.id} className="participant-want-answer" to={href}><Check size={17} aria-hidden="true" /><span><strong>It’s been answered</strong><span>{answer.source_label || "See the published response"}</span></span></Link> : null;
+ })}</>;
 }

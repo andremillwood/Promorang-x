@@ -10,6 +10,7 @@ describe("isParticipantWorldRoute", () => {
     expect(isParticipantWorldRoute("/venues/sea-deck", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/card", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/vault", "", "participant")).toBe(true);
+    for (const route of ["/memories/owned", "/demand", "/search", "/offers/offer", "/drop/access", "/content-drops/drop", "/portfolio", "/pieces/moment/one"]) expect(isParticipantWorldRoute(route, "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/profile", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/profile/person-123", "", "participant")).toBe(true);
     expect(isParticipantWorldRoute("/wallet", "", "participant")).toBe(true);

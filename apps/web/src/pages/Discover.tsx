@@ -1,3 +1,5 @@
+import { ParticipationFeed } from "@/components/feed/ParticipationFeed";
+import { FindOrAskEntry } from "@/components/discovery/FindOrAskEntry";
 import { DiscoveriesFeedSection } from "@/components/discovery/DiscoveriesFeedSection";
 import { Link, useSearchParams } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
@@ -435,34 +437,11 @@ const SignedInDiscover = () => {
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[46rem] bg-[radial-gradient(circle_at_12%_0%,rgba(255,106,0,.16),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(80,160,140,.08),transparent_34%)]" />
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
-          <header className="pb-5 pt-6 sm:pt-10">
-            <p className="pr-world-kicker">Discover · {city.name}</p>
-            <h1 className="mt-5 max-w-3xl font-serif text-5xl font-bold leading-[.95] tracking-[-.045em] sm:text-7xl">Something worth<br />knowing. Or doing.</h1>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-white/60">Follow what catches your eye. Explore local knowledge, see what people want, and find your next move.</p>
-          </header>
-          <div className="grid gap-5 border-y border-white/15 py-6 sm:grid-cols-2">
-            <a href="#discovery-signals" className="group min-h-16"><p className="pr-world-kicker">01 · Signal</p><p className="mt-2 font-serif text-2xl font-bold">What’s worth noticing ↓</p><p className="mt-2 text-sm text-white/55">Discoveries and questions from the community.</p></a>
-            <div><p className="pr-world-kicker">02 · Action</p><p className="mt-2 font-serif text-2xl font-bold">Find something to do</p><div className="mt-2 flex flex-wrap gap-5"><button type="button" onClick={() => handleTabChange("moments")} className="min-h-11 text-sm font-bold text-primary">Explore Moments →</button><button type="button" onClick={() => handleTabChange("perks")} className="min-h-11 text-sm text-white/70">Available offers →</button><Link to="/scenes" className="min-h-11 inline-flex items-center text-sm text-white/70">Enter a Scene →</Link></div></div>
-          </div>
-          <nav aria-label={t("discover.pathPageTitle")} className="mt-6 flex flex-wrap gap-2">
-            <p className="w-full text-[10px] font-black uppercase tracking-[0.18em] text-white/35">
-              {t("discover.pathAlsoInCity")} · {city.name}
-            </p>
-            <button type="button" onClick={() => handleTabChange("perks")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-emerald-400/50 hover:text-white">
-              {t("discover.tabPerks")}
-            </button>
-            <button type="button" onClick={() => handleTabChange("moments")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
-              {t("discover.tabMoments")}
-            </button>
-            <button type="button" onClick={() => handleTabChange("distribute")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-purple-400/50 hover:text-white">
-              {t("discover.tabShare")}
-            </button>
-            <button type="button" onClick={() => handleTabChange("places")} className="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/70 hover:border-primary/50 hover:text-white">
-              {t("discover.tabPlaces")}
-            </button>
-          </nav>
+          <header className="participant-explore-header"><h1>Find your next move.</h1><p>Experiences, food, offers and people in {city.name}.</p><FindOrAskEntry source="discover" city={city.name} className="mt-6" /></header>
+          <nav className="participant-explore-tabs" aria-label="Explore your city"><button type="button" aria-current="page">For you</button><button type="button" onClick={() => handleTabChange("moments")}>Moments</button><button type="button" onClick={() => handleTabChange("perks")}>Offers</button><Link to="/demand">Wants</Link><Link to="/scenes">Scenes</Link></nav>
+          <ParticipationFeed searchAbove />
           <div id="discovery-signals" className="mt-8 scroll-mt-8 sm:mt-10 space-y-6">
-            <DiscoveriesFeedSection />
+            <details className="participant-discovery-knowledge"><summary>Discover local knowledge</summary><DiscoveriesFeedSection /></details>
             {aim ? <details className="border-t border-white/10 py-4"><summary className="cursor-pointer min-h-11 py-3 text-sm">Explore your interests · {aim.label}</summary><AimedDiscoverLead aim={aim} authenticated={Boolean(user)} />{path}</details> : null}
             <div className="border-b border-white/10 pb-8">
           <TasteCalibration marketLabel={city.name} compact />

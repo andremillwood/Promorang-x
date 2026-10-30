@@ -314,3 +314,9 @@ export function firstCityHubForSlug(countrySlug?: string | null, citySlug?: stri
   if (normalized === "jamaica") return getDefaultCityHub();
   return ALL_CITY_HUBS.find((hub) => hub.countryName.toLowerCase().replace(/[^a-z]+/g, "-").includes(normalized) || hub.id === normalized) ?? null;
 }
+
+/** Display hubs can group places; records often retain the primary city name. */
+export function cityHubSearchPattern(label: string): string {
+  const primary = label.trim().split(" & ")[0].trim();
+  return `%${primary.replace(/[\\%_]/g, "\\$&")}%`;
+}

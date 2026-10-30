@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/lib/api";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMomentJourney } from "@/hooks/useMomentJourney";
 import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
@@ -19,7 +20,7 @@ import { ConsequenceReceipt } from "@/components/promorang/ConsequenceReceipt";
 import { demoMoments } from "@/data/demo-moments";
 import { useI18n } from "@/i18n/I18nContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 
 type ProofRequirement = {
   id: string;
@@ -98,7 +99,7 @@ const CheckIn = () => {
   const checkParticipation = async () => {
     if (!id || !session) return;
     try {
-      const response = await fetch(`${API_URL}/api/participation/moments/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/participation/moments/${id}/status`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const payload = await response.json();
@@ -139,7 +140,7 @@ const CheckIn = () => {
   const fetchProofRequirements = async () => {
     if (!id || !session) return;
     try {
-      const response = await fetch(`${API_URL}/api/proof/moments/${id}/requirements`, {
+      const response = await fetch(`${API_BASE_URL}/proof/moments/${id}/requirements`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const payload = await response.json();
@@ -252,7 +253,7 @@ const CheckIn = () => {
           ...(userCoords ? { latitude: userCoords.lat, longitude: userCoords.lng } : {}),
           client_geofence_inside: userCoords ? isWithinGeofence : null,
         };
-        const response = await fetch(`${API_URL}/api/participation/moments/${id}/complete`, {
+        const response = await fetch(`${API_BASE_URL}/participation/moments/${id}/complete`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -1,15 +1,14 @@
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Check, Copy, RefreshCw } from "lucide-react";
+import { ArrowRight, Check, Copy, RefreshCw, Radio } from "lucide-react";
 import {
   discoverHrefForAim,
   firstGivenName,
+  ownedCardCopy,
   getStakeholderLens,
   issuanceFromPromoCardPerk,
   isPresentablePass,
-  fillCardCopy,
-  ownedCardCopy,
   PROMOCARD_AIMS,
   resolvePromoCardAim,
   resolvePromoCardFace,
@@ -18,7 +17,6 @@ import {
   type PromoCardPerk,
 } from "@promorang/shared";
 import { useAuth } from "@/contexts/AuthContext";
-import { FunnelProgressCard } from "@/components/funnels/FunnelProgressCard";
 import { useApplyPromoCardAim } from "@/hooks/usePromoCardAim";
 import { useExperienceHome, useMyPromoCard } from "@/hooks/usePeopleExperience";
 import { resolveStoredPromoCardAim } from "@/lib/promocard-aim";
@@ -54,7 +52,7 @@ type CardPerk = {
   issuance?: PromoCardPerk["issuance"];
 };
 
-const actionClass = "experience-interactive inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-black disabled:opacity-50";
+const actionClass = "experience-interactive inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-[#080808] disabled:opacity-50";
 
 function perkCode(perk: CardPerk | null | undefined) {
   return perk?.redemptionCode || perk?.redemption?.code || null;
@@ -128,8 +126,8 @@ export default function MyPromoCard() {
     recordedUse: Boolean(useThis?.redemption?.recorded),
     expiredOnly: !useThis && livePerks.length === 0 && expiredPerks.length > 0,
   });
+
   const copy = ownedCardCopy({ aim, owned: Boolean(useThis), holder });
-  const empty = fillCardCopy(aim);
 
   useEffect(() => {
     if (face.credential) sessionStorage.setItem("promorang.promocard.lastCredential", face.credential);
@@ -155,8 +153,8 @@ export default function MyPromoCard() {
     <ExperienceShell
       className="promocard-page [&_.pr-world-header]:pb-5 [&_.pr-world-header]:pt-5 sm:[&_.pr-world-header]:pb-8 sm:[&_.pr-world-header]:pt-8 [&_.pr-world-display]:text-[clamp(2.35rem,12vw,4.5rem)] [&_.pr-world-display]:leading-[.92]"
       eyebrow="YOUR PROMOCARD"
-      title={copy.title}
-      description="Unlock value from participating businesses, sponsors and creators. Keep what you claim here, ready for your next move."
+      title="Your PromoCard"
+      description="Your access, ready for your next move."
       backTo="/dashboard"
       actions={data ? (
         <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
@@ -169,9 +167,16 @@ export default function MyPromoCard() {
       ) : (
         <>
           {card.isError ? <p role="status" className="border-y border-amber-200/20 py-3 text-sm text-amber-100">We couldn’t refresh your card. These are your last loaded details.</p> : null}
-          <FunnelProgressCard funnel="participant" />
+
 
           <section className="grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,.75fr)] lg:items-center">
+            <div className="min-w-0">
+              <section className="participant-identity" aria-label="Your participant identity">
+                <div className="participant-identity-top"><span>PROMORANG</span><Radio size={22} aria-hidden="true" /></div>
+                <div><h2>{holder === "there" ? "Your PromoCard" : holder}</h2>{aim ? <p>{copy.title}</p> : null}<p>{world?.identity?.line || data?.memberships?.[0]?.title || "Your participation. Your access."}</p></div>
+                {profile?.avatar_url || user?.user_metadata?.avatar_url || data?.memberships?.[0]?.imageUrl ? <img src={profile?.avatar_url || user?.user_metadata?.avatar_url || data?.memberships?.[0]?.imageUrl} alt="" /> : null}
+              </section>
+              <details className="participant-credential"><summary>Present your access card</summary>
             <PromoCardFace
               className="min-w-0 max-w-none"
               model={face}
@@ -184,6 +189,8 @@ export default function MyPromoCard() {
               copyState={copyState}
               lastLoaded={Boolean(card.isError && face.credential)}
             />
+              </details>
+            </div>
             <div id="use-this" className="scroll-mt-24">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Open for you</p>
               {useThis ? (
@@ -204,6 +211,13 @@ export default function MyPromoCard() {
             </div>
           </section>
 
+          <section className="participant-owned-access">
+                {livePerks.filter((perk) => perk.id !== useThis?.id).length ? <div className="mb-6 space-y-3"><h2 className="font-serif text-2xl text-white">Also open on your card</h2>{livePerks.filter((perk) => perk.id !== useThis?.id).map((perk) => {
+                  const issuance = issuanceForPerk(perk);
+                  return <article key={perk.id} className="border-b border-white/10 py-3"><h3 className="font-bold text-white">{perk.title}</h3>{issuance ? <OfferIssuancePass issuance={issuance as OfferIssuance} /> : canShowCode(perk) ? <button type="button" aria-label={`Show code for ${perk.title}`} onClick={(event) => openPerk(perk, event.currentTarget)} className="min-h-11 text-primary">Show code →</button> : <p className="mt-2 text-xs">{perk.redemption?.recorded ? webT("perk.alreadyUsed") : "No presentable code"}</p>}</article>;
+                })}</div> : null}
+          </section>
+          <details className="participant-economy-details"><summary>Points, Keys & participation</summary>
           <ParticipationEconomy
             variant="card"
             points={Number(data?.points || 0)}
@@ -211,6 +225,9 @@ export default function MyPromoCard() {
             className="border-y border-white/10 py-6 sm:py-8"
           />
 
+          </details>
+
+          <details className="participant-card-context"><summary>Watching & your Scene</summary>
           <PromoCardWatchShelf />
 
           <section className="border-t border-white/10 pt-9">
@@ -250,27 +267,19 @@ export default function MyPromoCard() {
             />
           </section>
 
+          </details>
+
           {stake.role !== "participant" ? <StakeholderPutInPass role={stake.role} /> : null}
 
-          <section className="grid gap-6 border-t border-white/10 pt-9 lg:grid-cols-[1fr_.7fr]">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f6d48a]">Return reason</p>
-              {nextBenefit ? <><h2 className="mt-2 font-serif text-4xl font-bold tracking-[-0.04em]">{nextBenefit.title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Something new is open for you. Check the details before you use it.</p></> : <><h2 className="mt-2 font-serif text-3xl font-bold">Nothing new yet.</h2><p className="mt-3 text-sm text-white/45">The things you’re watching are still here. Come back when something new opens up.</p></>}
-            </div>
-            <Link to={to("/vault")} className="group border-l border-white/10 pl-5"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/35">{webT("web.kept")}</p><p className="mt-2 font-serif text-3xl font-bold">Open your Vault</p><p className="mt-3 text-sm text-white/45">Your saved history, access and things you earned live there.</p><span className="mt-4 inline-flex text-sm font-bold text-primary group-hover:translate-x-1">Open Vault →</span></Link>
-          </section>
+          <Link to={to("/vault")} className="participant-open-vault"><span><strong>My Vault</strong><span>Your Pieces, participation and access history.</span></span><ArrowRight size={20} aria-hidden="true" /></Link>
 
           <details className="border-t border-white/10 pt-6 text-white/55">
             <summary className="cursor-pointer py-3 text-xs font-black uppercase tracking-[0.18em] text-white/40">Card controls & history</summary>
             <div className="grid gap-6 py-5 lg:grid-cols-2">
               <div>
-                {livePerks.filter((perk) => perk.id !== useThis?.id).length ? <div className="mb-6 space-y-3"><h2 className="font-serif text-2xl text-white">Also open on your card</h2>{livePerks.filter((perk) => perk.id !== useThis?.id).map((perk) => {
-                  const issuance = issuanceForPerk(perk);
-                  return <article key={perk.id} className="border-b border-white/10 py-3"><h3 className="font-bold text-white">{perk.title}</h3>{issuance ? <OfferIssuancePass issuance={issuance as OfferIssuance} /> : canShowCode(perk) ? <button type="button" aria-label={`Show code for ${perk.title}`} onClick={(event) => openPerk(perk, event.currentTarget)} className="min-h-11 text-primary">Show code →</button> : <p className="mt-2 text-xs">{perk.redemption?.recorded ? webT("perk.alreadyUsed") : "No presentable code"}</p>}</article>;
-                })}</div> : null}
                 <p className="text-sm font-bold text-white">Aim Discover</p>
                 <p className="mt-1 text-xs leading-5 text-white/40">Optional. Choose what you would like to see more of in Discover.</p>
-                <div className="mt-3 flex flex-wrap gap-2">{PROMOCARD_AIMS.map((item) => <button key={item.id} type="button" aria-pressed={aim?.id === item.id} onClick={() => applied.chooseAim(item)} className={`min-h-9 rounded-full border px-3 text-xs font-bold ${aim?.id === item.id ? "border-[#f6d48a] bg-[#f6d48a] text-black" : "border-white/15 text-white/60"}`}>{item.label}</button>)}</div>
+                <div className="mt-3 flex flex-wrap gap-2">{PROMOCARD_AIMS.map((item) => <button key={item.id} type="button" aria-pressed={aim?.id === item.id} onClick={() => applied.chooseAim(item)} className={`min-h-9 rounded-full border px-3 text-xs font-bold ${aim?.id === item.id ? "border-[#f6d48a] bg-[#f6d48a] text-[#080808]" : "border-white/15 text-white/60"}`}>{item.label}</button>)}</div>
                 {!useThis ? <div className="mt-5"><FillCardMoves aim={aim} authenticated={Boolean(user)} /></div> : null}
               </div>
               <div className="space-y-4 text-sm">

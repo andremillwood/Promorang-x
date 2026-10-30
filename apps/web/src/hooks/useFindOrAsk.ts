@@ -1,3 +1,4 @@
+import { cityHubSearchPattern } from "@/lib/city-hubs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { FindOrAskPostKind } from "@promorang/shared";
@@ -42,7 +43,7 @@ export function useFindOrAskDiscoveries(city?: string) {
     queryKey: ["find-or-ask-discoveries", city || "all"],
     queryFn: async () => {
       let query = db.from("view_public_find_or_ask_discoveries").select("*").order("created_at", { ascending: false }).limit(40);
-      if (city) query = query.ilike("city", city);
+      if (city) query = query.ilike("city", cityHubSearchPattern(city));
       const { data, error } = await query;
       if (error) throw error;
       return (data || []) as FindOrAskDiscoveryRow[];

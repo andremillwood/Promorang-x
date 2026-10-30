@@ -16,6 +16,8 @@ vi.mock("@/contexts/MarketContext", () => ({ useMarket: () => ({ city: state.cit
 vi.mock("@/hooks/usePeopleExperience", () => ({ useExperienceHome: () => ({ data: { communities: [], card: {} }, isLoading: false }) }));
 vi.mock("@/hooks/useCanonicalMomentFeed", () => ({ useCanonicalMomentFeed: () => ({ data: { moments: state.moments }, isLoading: false, isError: state.error, isFetching: state.fetching, refetch: state.retry }) }));
 vi.mock("@/hooks/useContentDistribution", () => ({ useContentDrops: () => ({ data: [] }) }));
+vi.mock("@/components/discovery/FindOrAskDemandRail", () => ({ FindOrAskDemandRail: () => null }));
+vi.mock("@/components/SaveButton", () => ({ SaveButton: () => null }));
 vi.mock("@/components/feed/ParticipationFeed", () => ({ ParticipationFeed: () => null }));
 vi.mock("@/components/discovery/FindOrAskEntry", () => ({ FindOrAskEntry: () => <input aria-label="Find or ask" /> }));
 vi.mock("@/i18n/I18nContext", () => {

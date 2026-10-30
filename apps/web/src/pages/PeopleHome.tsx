@@ -1,3 +1,5 @@
+import { SaveButton } from "@/components/SaveButton";
+import { ParticipantShare } from "@/components/participant/ParticipantShare";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useState } from "react";
 import type { TranslationKey } from "@/i18n/translations";
@@ -28,11 +30,13 @@ import { resolveDemandRole } from "@/lib/discovery-demand";
 import { LiveLoopActions } from "@/components/promocard/LiveLoopActions";
 import { LiveReleaseSignal } from "@/components/content/LiveReleaseSignal";
 import { ParticipationFeed } from "@/components/feed/ParticipationFeed";
+import { FindOrAskDemandRail } from "@/components/discovery/FindOrAskDemandRail";
 import { FindOrAskEntry } from "@/components/discovery/FindOrAskEntry";
 import { useContentDrops } from "@/hooks/useContentDistribution";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { momentLifecycleLabel } from "@/services/moment-feed";
 import { completedStakeholderActionIds } from "@/lib/stakeholder-action-progress";
+import participantCityHero from "@/assets/public-home-nightlife-hero.jpg";
 import heroMoments from "@/assets/hero-moments.jpg";
 import jazzNight from "@/assets/moments/jazz-night.jpg";
 import cookingClass from "@/assets/moments/cooking-class.jpg";
@@ -61,7 +65,6 @@ const vibeTracks = [
   { key: "wellness", label: "Fitness", icon: Dumbbell, image: hiking, href: "/discover?tab=moments&category=wellness" },
   { key: "social", label: "Social", icon: Users, image: boardGames, href: "/discover?tab=moments&category=social" },
 ];
-const editorialBackdrops = [jazzNight, streetArt];
 
 const stakeholderStages: Record<string, { kicker: string; title: string; cardLine: string; image: string }> = {
   creator: {
@@ -189,14 +192,14 @@ export default function PeopleHome() {
       || (moveTitleNeedle && String(moment.title || "").trim().toLowerCase() === moveTitleNeedle)
     ) || null;
     const currentMoveIsRemoteMoment = moveHref.includes("/moments/") && !matchedMoment;
-    const heroImage = imageForMoment(matchedMoment) || heroMoments;
+    const heroImage = imageForMoment(matchedMoment) || participantCityHero;
     const moveTitle = currentMoveIsRemoteMoment ? t("publicHome.browseDiscoveries") : world?.currentMove?.title || matchedMoment?.title || t("publicHome.browseDiscoveries");
     const moveCopy = currentMoveIsRemoteMoment ? t("publicHome.copy", { market: localCity }) : world?.currentMove?.why || matchedMoment?.description || world?.slice?.currentLine || t("compression.interestsCopy");
     const moveTarget = to(currentMoveIsRemoteMoment ? "/discover" : world?.currentMove?.href || (matchedMoment ? `/moments/${matchedMoment.slug || matchedMoment.id}` : invitation.nextHref || "/discover"));
 
     return (
       <ExperienceShell
-        className="dashboard-home"
+        className="dashboard-home reference-participant"
         title={greeting}
         seoTitle={t("people.homeSeo")}
         description={description}
@@ -211,14 +214,11 @@ export default function PeopleHome() {
                 <FindOrAskEntry source="home" city={localCity} compact className="member-search" />
               </div>
             </section>
-            <aside className="member-card-pocket">
-              <div className="member-pocket-heading"><h2>{t("people.yourCard")}</h2><Link to={to("/card")} aria-label={t("people.openCardAria")}><ArrowRight size={20} aria-hidden="true" /></Link></div>
-              <Link to={to("/card")} className="member-card-link" aria-label={t("people.openCardAria")}><PromoCardFace model={cardFace} interactive={false} compact /></Link>
-              <Link to={moveTarget} className="member-next-move"><span><span className="member-next-label">{t("compression.usefulNow")}</span><strong>{moveTitle}</strong><span className="member-next-copy">{moveCopy}</span></span><ArrowRight size={20} aria-hidden="true" /></Link>
-            </aside>
+            <Link to={moveTarget} className="member-next-move"><span><span className="member-next-label">{t("compression.usefulNow")}</span><strong>{moveTitle}</strong><span className="member-next-copy">{moveCopy}</span></span><ArrowRight size={20} aria-hidden="true" /></Link>
           </div>
         )}
       >
+        <nav className="participant-category-rail" aria-label="Explore by interest">{vibeTracks.map(({ key, label, icon: Icon, href }) => <Link key={key} to={href}><span><Icon size={24} aria-hidden="true" /></span>{t(`publicHome.category.${key}` as TranslationKey) || label}</Link>)}</nav>
         {home.isError ? <p role="status" className="text-sm text-amber-200">{t("compression.refreshError")}</p> : null}
         {isPreview ? (
           <nav aria-label={t("people.previewRoles")} className="pr-world-strip">
@@ -233,14 +233,14 @@ export default function PeopleHome() {
           </div>
           <div className="mt-5">
             {momentFeed.isLoading ? <div role="status" aria-label={t("people.homeLoad")} className="h-48 motion-safe:animate-pulse rounded-sm  bg-white/[.03]" /> : momentFeed.isError ? <QuietEmpty title={t("people.homeErrorTitle")} copy={t("people.homeErrorCopy")} action={<button type="button" disabled={momentFeed.isFetching} onClick={() => void momentFeed.refetch()} className="pr-world-primary disabled:opacity-50">{momentFeed.isFetching ? t("common.tryingAgain") : t("common.tryAgain")}</button>} /> : liveMoments.length ? (
-              <div className="grid gap-4 sm:grid-cols-2">{liveMoments.map((moment, index) => (
-                <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="dashboard-moment pr-world-object group flex flex-col overflow-hidden rounded-sm">
+              <div className="grid gap-4 sm:grid-cols-2">{liveMoments.map((moment) => (
+                <div key={moment.id} className="participant-moment-item"><Link to={`/moments/${moment.slug || moment.id}`} className="dashboard-moment pr-world-object group flex flex-col overflow-hidden rounded-sm">
                   <div className="relative flex flex-1 flex-col justify-end pt-36">
-                    <img loading="lazy" decoding="async" src={moment.image_url || editorialBackdrops[index % editorialBackdrops.length]} alt={moment.image_url ? moment.title : ""} className="dashboard-image absolute inset-0 h-full w-full object-cover opacity-70" />
+                    {moment.image_url ? <img loading="lazy" decoding="async" src={moment.image_url} alt="" className="dashboard-image absolute inset-0 h-full w-full object-cover" /> : <span className="participant-artwork-placeholder" aria-label="Artwork not supplied"><Music2 size={48} aria-hidden="true" /></span>}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-                    <div className="relative p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString(locale, { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div></div>
+                    <div className="relative p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString(locale, { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div><span className="participant-context-action">See Moment <ArrowRight size={16} aria-hidden="true" /></span></div>
                   </div>
-                </Link>
+                </Link><div className="participant-card-tools"><SaveButton momentId={moment.id} className="participant-save" /><ParticipantShare title={moment.title} href={`/moments/${moment.slug || moment.id}`} /></div></div>
               ))}</div>
             ) : <QuietEmpty title={t("release.82")} copy={t("compression.interestsCopy")} />}
           </div>
@@ -248,23 +248,7 @@ export default function PeopleHome() {
 
         <div className="member-movement"><ParticipationFeed searchAbove omitMoments showEmpty={liveMoments.length === 0} /></div>
 
-        <section aria-labelledby="vibe-title" className="member-scene-guide">
-          <div className="dashboard-section-heading flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
-            <div><h2 id="vibe-title" className="mt-1 text-3xl font-black tracking-[-.04em]">{t("compression.interests")}</h2></div>
-            <p className="hidden max-w-[250px] text-xs leading-5 text-white/42 sm:block">{t("compression.interestsCopy")}</p>
-          </div>
-          <div className="member-scene-grid">
-            {vibeTracks.map(({ key, label, icon: Icon, image, href }) => (
-              <Link key={label} to={href} className="member-scene-link group">
-                <img src={image} alt="" loading="lazy" decoding="async" className="dashboard-image absolute inset-0 h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-4"><Icon className="h-5 w-5 text-white" /><p className="mt-2 text-sm font-black text-white">{t(`publicHome.category.${key}` as TranslationKey)}</p></div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-
+        <section className="participant-wants" aria-labelledby="participant-wants-title"><div className="dashboard-section-heading flex items-center justify-between gap-4"><h2 id="participant-wants-title">{localCity} wants</h2><Link to="/demand" className="pr-world-link">See all <ArrowRight size={16} /></Link></div><p className="participant-section-copy">Help make it happen. Add your support to something you want in your city.</p><FindOrAskDemandRail city={localCity} showEmpty /></section>
 
         <section className="member-kept">
           <div className="pr-world-object-grid mt-4">

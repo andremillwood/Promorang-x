@@ -1,3 +1,4 @@
+import { cityHubSearchPattern } from "@/lib/city-hubs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Scene, SceneMembership } from "@promorang/shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,7 @@ export function useScenes(filters?: { city?: string; country?: string; limit?: n
     queryKey: ["scenes", "public", filters],
     queryFn: async () => {
       let query = db.from("scenes").select("*").eq("visibility", "public").eq("status", "active").order("updated_at", { ascending: false });
-      if (filters?.city) query = query.ilike("city", filters.city);
+      if (filters?.city) query = query.ilike("city", cityHubSearchPattern(filters.city));
       if (filters?.country) query = query.ilike("country", filters.country);
       if (filters?.limit) query = query.limit(filters.limit);
       const { data, error } = await query;

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/lib/api";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMomentJourney } from "@/hooks/useMomentJourney";
 import { PublicMomentDetail } from "@/components/moments/PublicMomentDetail";
@@ -81,12 +82,6 @@ import { resolveMomentOccurrence } from "@/lib/moment-recurrence";
 import type { Scene } from "@promorang/shared";
 import { buildHostProfileStats } from "@/lib/host-profile-stats";
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://api.promorang.co")
-  .replace(/\/api\/?$/, "")
-  .replace(/\/$/, "");
-const API_URL = (typeof window !== "undefined" && window.location.protocol === "https:" && API_BASE.startsWith("http://localhost"))
-  ? "https://api.promorang.co"
-  : API_BASE;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -323,7 +318,7 @@ const SignedInMomentDetail = () => {
       // 4. Try Backend API endpoint (uses service-role client, bypassing client RLS if newly created)
       if (!momentData) {
         try {
-          const apiRes = await fetch(`${API_URL}/api/moments/${encodeURIComponent(id.trim())}`);
+          const apiRes = await fetch(`${API_BASE_URL}/moments/${encodeURIComponent(id.trim())}`);
           if (apiRes.ok) {
             const apiMoment = await apiRes.json();
             if (apiMoment && apiMoment.id) {
@@ -423,7 +418,7 @@ const SignedInMomentDetail = () => {
             const accessToken = session.data.session?.access_token;
 
             if (accessToken) {
-              const statusResponse = await fetch(`${API_URL}/api/participation/moments/${momentData.id}/status`, {
+              const statusResponse = await fetch(`${API_BASE_URL}/participation/moments/${momentData.id}/status`, {
                 headers: {
                   Authorization: `Bearer ${accessToken}`,
                 },
@@ -527,7 +522,7 @@ const SignedInMomentDetail = () => {
     if (!resolvedMomentId || !accessToken) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/proof/moments/${resolvedMomentId}/requirements`, {
+      const response = await fetch(`${API_BASE_URL}/proof/moments/${resolvedMomentId}/requirements`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -546,7 +541,7 @@ const SignedInMomentDetail = () => {
     if (!resolvedMomentId) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/moment-economy/moments/${resolvedMomentId}`);
+      const response = await fetch(`${API_BASE_URL}/moment-economy/moments/${resolvedMomentId}`);
       const payload = await response.json();
       if (response.ok) {
         setEconomy({
@@ -581,7 +576,7 @@ const SignedInMomentDetail = () => {
 
     const session = await supabase.auth.getSession();
     const entryFee = Number(economy?.economics?.entry_fee_jmd || 0);
-    const response = await fetch(`${API_URL}/api/participation/moments/${moment.id}/join`, {
+    const response = await fetch(`${API_BASE_URL}/participation/moments/${moment.id}/join`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -636,7 +631,7 @@ const SignedInMomentDetail = () => {
     try {
       if (isJoined) {
         const session = await supabase.auth.getSession();
-        const response = await fetch(`${API_URL}/api/participation/moments/${moment.id}/join`, {
+        const response = await fetch(`${API_BASE_URL}/participation/moments/${moment.id}/join`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${session.data.session?.access_token}`,

@@ -55,12 +55,12 @@ export type SceneHumanState = {
 
 export function getSceneHumanState(scene: Scene, membership?: SceneMembership | null): SceneHumanState {
   if (scene.status === "paused") return { eyebrow: "Between gatherings", title: "This Scene is taking a breath.", body: "Keep it close. The next gathering will appear when the people shaping it are ready.", ctaLabel: "Keep this Scene" };
-  if (membership?.membership_state === "invited") return { eyebrow: "An invitation for you", title: "Someone thinks you belong in this room.", body: scene.metadata.welcome || "Look around, meet the people shaping it, and join when it feels like your world.", ctaLabel: "Accept invitation" };
+  if (membership?.membership_state === "invited") return { eyebrow: "An invitation for you", title: "Someone thinks you belong in this room.", body: scene.metadata?.welcome || "Look around, meet the people shaping it, and join when it feels like your world.", ctaLabel: "Accept invitation" };
   if (membership?.membership_state === "active") {
     const returning = membership.moments_returned > 0;
-    return { eyebrow: returning ? "A familiar place" : "You’re part of this", title: returning ? "The Scene knows you came back." : "Your place in the Scene has started.", body: scene.metadata.next_invitation || "Stay close to the people, places and Moments that keep this Scene alive.", ctaLabel: "See what’s next" };
+    return { eyebrow: returning ? "A familiar place" : "You’re part of this", title: returning ? "The Scene knows you came back." : "Your place in the Scene has started.", body: scene.metadata?.next_invitation || "Stay close to the people, places and Moments that keep this Scene alive.", ctaLabel: "See what’s next" };
   }
-  return { eyebrow: "Find your people", title: scene.metadata.tagline || `Step into ${scene.title}.`, body: scene.metadata.welcome || "See what it feels like, who makes it welcoming, and which Moment is the easiest way in.", ctaLabel: "Join through a Moment" };
+  return { eyebrow: "Find your people", title: scene.metadata?.tagline || `Step into ${scene.title}.`, body: scene.metadata?.welcome || "See what it feels like, who makes it welcoming, and which Moment is the easiest way in.", ctaLabel: "Join through a Moment" };
 }
 
 export function sceneLocation(scene: Pick<Scene, "city" | "country">) {

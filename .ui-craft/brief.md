@@ -49,3 +49,7 @@ Preserve the approved photographic banner and integrate its tabbed offers/events
 
 ## Marketing convergence — 2026-10-29
 Carry the consumer identity across public role, business and product explanation pages: role-specific existing photography, Anton opening headlines, Fraunces editorial sections, open outcome navigation and actual PromoCard materials. Do not replace generic rounded cards with equally generic dark rectangles. Every page owns its next step; avoid a competing scene-discovery footer CTA on partner entry pages. Verify complete pages and interactive entry states, not only hero screenshots. Five-iteration review and verification evidence: `surfaces/marketing-pages.md`.
+
+
+## Participant reference correction — October 30, 2026
+The supplied four mockups supersede the prior cream/serif participant composition. Use a black city-discovery product, photographic content, DM Sans bold headings, orange pill actions, intentional 18–22px photographic containers and circular category controls. Density 7, craft 9, motion 3, variance 7. The personal trail from Want to verified attendance to retained Piece is the signature. Keep the public marketing direction and operator workspaces. Never substitute invented social proof, artwork, identity traits, reward rules or financial promises for missing records.
