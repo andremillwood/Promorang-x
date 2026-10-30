@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import foodPhoto from "@/assets/moments/cooking-class.jpg";
 import musicPhoto from "@/assets/moments/jazz-night.jpg";
 import wellnessPhoto from "@/assets/moments/yoga-park.jpg";
@@ -52,7 +53,7 @@ function MomentTile({ moment, locale, labels }: { moment: CanonicalMoment; local
   return (
     <Link to={momentHref(moment)} className="home-moment-poster group relative block snap-start overflow-hidden bg-[#121212]">
       <div className="relative aspect-[1.45/1] overflow-hidden">
-        {moment.image_url ? <img src={moment.image_url} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-full w-full bg-[radial-gradient(circle_at_25%_20%,rgba(249,115,22,.45),transparent_42%),linear-gradient(140deg,#23150d,#080808)]" />}
+        <BrandImage src={moment.image_url} category={moment.category} title={moment.title} description={moment.description} kind="moment" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" labelClassName="brand-image-label--top" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
         <span className="absolute left-3 top-3 rounded-sm bg-orange-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.08em] text-black">{lifecycle}</span>
         <div className="absolute inset-x-0 bottom-0 p-4">
@@ -125,7 +126,7 @@ export default function PublicMarketHome() {
 
         {scenes.length ? <section id="scenes" className="scroll-mt-40">
           <header className="mb-5"><h2 className="font-sans text-2xl font-semibold tracking-[-.025em] sm:text-3xl">{t("publicHome.scenes")}</h2><p className="mt-1 text-sm text-white/50">{t("publicHome.scenesCopy", { market: marketName })}</p></header>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{scenes.slice(0, 8).map((scene) => <Link key={scene.id} to={`/scenes/${scene.slug}`} className="group relative min-h-56 overflow-hidden rounded-sm  bg-[#111]">{scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : null}<div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[9px] font-black uppercase tracking-[.12em] text-orange-300">{t("publicHome.scene")}</p><h3 className="mt-1 text-xl font-black">{scene.title}</h3><p className="mt-2 line-clamp-2 text-xs text-white/60">{scene.metadata?.tagline || scene.description}</p><span className="mt-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.08em]">{t("publicHome.enterScene")}<ArrowRight className="h-3.5 w-3.5 text-orange-400" /></span></div></Link>)}</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{scenes.slice(0, 8).map((scene) => <Link key={scene.id} to={`/scenes/${scene.slug}`} className="group relative min-h-56 overflow-hidden rounded-sm  bg-[#111]"><BrandImage src={scene.image_url} title={scene.title} description={scene.description} kind="scene" className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" labelClassName="brand-image-label--top" /><div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[9px] font-black uppercase tracking-[.12em] text-orange-300">{t("publicHome.scene")}</p><h3 className="mt-1 text-xl font-black">{scene.title}</h3><p className="mt-2 line-clamp-2 text-xs text-white/60">{scene.metadata?.tagline || scene.description}</p><span className="mt-3 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.08em]">{t("publicHome.enterScene")}<ArrowRight className="h-3.5 w-3.5 text-orange-400" /></span></div></Link>)}</div>
         </section> : null}
 
 

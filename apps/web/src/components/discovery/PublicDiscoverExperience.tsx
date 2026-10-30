@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { useAuth } from "@/contexts/AuthContext";
 import { FindOrAskEntry } from "@/components/discovery/FindOrAskEntry";
 import { useEffect, useMemo, useState } from "react";
@@ -277,7 +278,7 @@ export function PublicDiscoverExperience() {
               {filteredMoments.slice(0,4).map((moment) => (
                 <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="marketing-live-card group">
                   <div className="marketing-live-card__media">
-                    {moment.image_url ? <img src={moment.image_url} alt="" /> : <div className="grid h-full place-items-center bg-[#111]"><CalendarDays className="h-8 w-8 text-white/15" /></div>}
+                    <BrandImage src={moment.image_url} category={moment.category} title={moment.title} description={moment.description} kind="moment" />
                     <div className="marketing-live-card__scrim" />
                     <span className="marketing-live-card__state">{momentLifecycleLabel(moment.lifecycle)}</span>
                   </div>

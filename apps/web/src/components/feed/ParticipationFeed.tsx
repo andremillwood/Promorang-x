@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { ParticipantShare } from "@/components/participant/ParticipantShare";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
@@ -52,17 +53,16 @@ function FeedCard({ item }: { item: ParticipantFeedItem }) {
   const { t: webT } = useWebI18n();
   const ref = useCardImpression(item);
   const Icon = kindIcon[item.kind];
-  const hasImage = Boolean(item.imageUrl);
   return (
     <div className="participant-feed-item relative"><Link
       ref={ref}
       to={item.primaryAction.href}
       data-kind={item.kind}
       onClick={() => void trackGrowthEvent({ eventName: "participant_feed_card_open", journey: "participant", stage: "captured", entityType: item.kind, entityId: item.id, properties: { source: item.source, actionState: item.primaryAction.state, score: item.score } })}
-      className={`pr-feed-card group relative isolate flex snap-start flex-col overflow-hidden ${hasImage ? "pr-feed-card--photo" : "pr-feed-card--text"}`}
+      className="pr-feed-card pr-feed-card--photo group relative isolate flex snap-start flex-col overflow-hidden"
     >
-      {hasImage ? <img src={item.imageUrl || ""} alt="" loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover transition duration-700 group-hover:scale-[1.035] group-hover:opacity-85" /> : null}
-      {hasImage ? <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.35)_38%,rgba(0,0,0,.96)_100%)]" /> : null}
+      <BrandImage src={item.imageUrl} category={item.category} title={item.title} description={item.subtitle} kind={item.kind} className="absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.035]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.35)_38%,rgba(0,0,0,.96)_100%)]" />
       <div className="flex items-start justify-between gap-4 p-5 sm:p-6">
         <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ff8a45]"><Icon className="h-4 w-4" />{kindLabel[item.kind]}</span>
         {item.kind === "moment" && item.startsAt ? <span className="grid min-w-14 place-items-center rounded-sm  bg-black/55 px-2 py-2 text-center backdrop-blur-md"><strong className="font-['Anton'] text-2xl font-normal leading-none text-white">{new Date(item.startsAt).toLocaleDateString(currentUiLocale(), { day: "2-digit" })}</strong><span className="mt-1 text-[8px] font-black uppercase tracking-[.18em] text-[#ff9a62]">{new Date(item.startsAt).toLocaleDateString(currentUiLocale(), { month: "short" })}</span></span> : null}
@@ -111,7 +111,7 @@ export function ParticipationFeed({ searchAbove = false, omitMoments = false, sh
   const cityNeedle = city.name.toLowerCase();
 
   const feedItems = useMemo<ParticipantFeedItem[]>(() => {
-    const momentItems = (omitMoments ? [] : moments.data?.moments || []).filter((moment) => moment.lifecycle !== "recently_ended" && matchesCityHub(moment, city)).slice(0, 6).map((moment) => { const location = moment.venue_name || moment.location || null; const local = !location || location.toLowerCase().includes(cityNeedle); return { id: String(moment.id), kind: "moment" as const, source: "canonical_moment_feed", title: moment.title, subtitle: moment.description, imageUrl: moment.image_url, location, startsAt: moment.starts_at, primaryAction: { label: webT("auth.open"), href: `/moments/${moment.slug || moment.id}`, state: "available" as const }, signals: { local, joinedScene: joinedMomentIds.has(String(moment.id)), startsAt: moment.starts_at, available: true } }; });
+    const momentItems = (omitMoments ? [] : moments.data?.moments || []).filter((moment) => moment.lifecycle !== "recently_ended" && matchesCityHub(moment, city)).slice(0, 6).map((moment) => { const location = moment.venue_name || moment.location || null; const local = !location || location.toLowerCase().includes(cityNeedle); return { id: String(moment.id), kind: "moment" as const, source: "canonical_moment_feed", title: moment.title, category: moment.category, subtitle: moment.description, imageUrl: moment.image_url, location, startsAt: moment.starts_at, primaryAction: { label: webT("auth.open"), href: `/moments/${moment.slug || moment.id}`, state: "available" as const }, signals: { local, joinedScene: joinedMomentIds.has(String(moment.id)), startsAt: moment.starts_at, available: true } }; });
     const offerItems = (nearby.data || []).slice(0, 4).map((perk) => { const remaining = perk.availableQuantity ?? perk.remainingQuantity ?? null; const claimed = Boolean(perk.redemption?.code || perk.redemption?.recorded || perk.fulfillmentState === "redeemed"); return { id: String(perk.id), kind: "offer" as const, source: "promocard_nearby", title: perk.title, imageUrl: perk.imageUrl || perk.image_url || null, subtitle: perk.detail || perk.description, location: perk.locationLabel || perk.merchantName || perk.issuer?.name, availability: remaining === null ? null : `${remaining} left`, primaryAction: { label: claimed ? "Open card" : "See offer", href: livePerkHref(perk), state: claimed ? "claimed" as const : "available" as const }, signals: { local: perk.availability !== "anywhere", available: !claimed && (remaining === null || remaining > 0), freshAt: perk.expiresAt } }; });
     const wantItems = (discoveries.data || []).slice(0, 5).map((discovery) => ({ id: String(discovery.id), kind: "want" as const, source: "listing_discovery_poll", title: discovery.question, subtitle: discovery.description || "Add your voice to a real signal.", socialProof: `${discovery.totalVotes || 0} recorded response${discovery.totalVotes === 1 ? "" : "s"}`, optionPreview: (discovery.options || []).map((option) => option.text), primaryAction: { label: discovery.userVotedOptionId ? webT("web.view") : webT("findOrAsk.route.answer"), href: discovery.detailUrl || (discovery.slug ? `/discover/${discovery.slug}` : "/discover"), state: discovery.userVotedOptionId ? "completed" as const : "available" as const }, signals: { local: true, socialProof: discovery.totalVotes || 0, available: !discovery.userVotedOptionId } }));
     const dropItems = (drops.data || []).slice(0, 4).map((drop) => ({ id: String(drop.id), kind: "drop" as const, source: "content_distribution", title: drop.title, subtitle: drop.description, imageUrl: drop.content_distribution_assets?.find((asset) => asset.media_url)?.media_url || null, startsAt: drop.starts_at, primaryAction: { label: webT("auth.open"), href: `/content-drops/${drop.id}`, state: "available" as const }, signals: { startsAt: drop.starts_at, available: true, freshAt: drop.starts_at } }));

@@ -1,8 +1,9 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { API_BASE_URL } from "@/lib/api";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Archive, ArrowLeft, ArrowRight, Gift, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Gift, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRetainedMomentArtwork } from "@/hooks/useRetainedMomentArtwork";
 import { memoryArtwork, memoryProvenance, type RetainedMemory } from "@/lib/participant-memory";
@@ -47,8 +48,8 @@ export default function MemoryDetail() {
   : <div className="participant-memory-layout">
    <div>
     <section className="participant-memory-art">
-     {image ? <img src={image} alt="" /> : <Archive size={80} aria-hidden="true" className="absolute left-1/2 top-20 -translate-x-1/2 text-orange-300/30" />}
-     <div><p className="mb-3 text-sm text-orange-200">{memory.rarity || "Your Piece"}</p><h1>{memory.title || String(meta.moment_title || "A Piece of your story")}</h1>{meta.scene_title ? <p className="mt-3 text-sm">{String(meta.scene_title)}</p> : null}{!image ? <p className="mt-3 text-xs text-stone-400">Artwork not supplied</p> : null}</div>
+     <BrandImage src={image} category={String(meta.category || artwork.find(moment=>moment.id===memory.moment_id)?.category || memory.collection_key || "")} title={`${memory.title || ""} ${meta.moment_title || ""}`} description={String(meta.scene_title || "")} kind="piece" loading="eager" />
+     <div><p className="mb-3 text-sm text-orange-200">{memory.rarity || "Your Piece"}</p><h1>{memory.title || String(meta.moment_title || "A Piece of your story")}</h1>{meta.scene_title ? <p className="mt-3 text-sm">{String(meta.scene_title)}</p> : null}</div>
     </section>
     <dl className="participant-provenance">
      {memory.issued_at && Number.isFinite(Date.parse(memory.issued_at)) ? <><dt>Kept</dt><dd>{dateLabel(memory.issued_at)}</dd></> : null}

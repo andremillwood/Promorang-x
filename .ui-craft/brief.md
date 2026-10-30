@@ -53,3 +53,7 @@ Carry the consumer identity across public role, business and product explanation
 
 ## Participant reference correction — October 30, 2026
 The supplied four mockups supersede the prior cream/serif participant composition. Use a black city-discovery product, photographic content, DM Sans bold headings, orange pill actions, intentional 18–22px photographic containers and circular category controls. Density 7, craft 9, motion 3, variance 7. The personal trail from Want to verified attendance to retained Piece is the signature. Keep the public marketing direction and operator workspaces. Never substitute invented social proof, artwork, identity traits, reward rules or financial promises for missing records.
+
+
+## Category artwork — October 30, 2026
+User authorizes branded placeholder photography, replacing the previous blanket prohibition on illustrative missing-image fallbacks. Use a coherent generated Caribbean editorial library: warmth, belonging, discovery, appetite, calm and creative momentum, with rich shadows and amber/orange light. Select by actual category first, then specific title/description, then object kind. Uploaded/actual source art has priority. Missing or broken art uses a responsive local image and a discreet “Illustrative image” label. Do not change records, status, social proof, identities or entitlements.

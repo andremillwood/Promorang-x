@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePublicDrop, useExperienceActions } from "@/hooks/usePeopleExperience";
@@ -55,7 +56,7 @@ export default function DropClaim() {
         <p className="text-[10px] font-black uppercase tracking-[0.28em] text-primary">{data.creatorName}</p>
         <h1 className="mt-3 font-serif text-5xl font-bold leading-[0.9]">{t("dropClaim.hasSomething")}</h1>
         <article className="mt-8 overflow-hidden rounded-[2rem] border border-white/10">
-          {data.image_url ? <img src={data.image_url} alt="" className="h-52 w-full object-cover" /> : <div className="h-24 bg-gradient-to-r from-primary/40 to-transparent" />}
+          <div className="relative h-52"><BrandImage src={data.image_url} category={data.category} title={data.title} description={data.description} kind="offer" className="h-full w-full object-cover" loading="eager" /></div>
           <div className="p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/40">{data.perk_kind?.replace("_", " ")}</p>
             <h2 className="mt-2 font-serif text-3xl font-bold">{data.title}</h2>

@@ -22,6 +22,7 @@ export type ParticipantFeedItem = {
   title: string;
   subtitle?: string | null;
   imageUrl?: string | null;
+  category?: string | null;
   scene?: string | null;
   location?: string | null;
   startsAt?: string | null;

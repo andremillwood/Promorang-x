@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { useEffect, useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CalendarDays, Compass, Heart, MapPin, Share2, Sparkles, Users } from "lucide-react";
@@ -85,7 +86,7 @@ export default function CommunityDetail() {
       <SEO title={`${scene.title} — ${t("sceneDetail.seoSuffix")}`} description={scene.metadata?.tagline || scene.description || state.body} image={scene.image_url || undefined} url={getSiteUrl(`/scenes/${scene.slug}`)} schema={generateSceneSchema(scene, moments, discoveries)} />
       <section className="public-object-hero relative min-h-[640px] overflow-hidden border-b border-white/10 pt-24">
         <CurrentArc variant="hero" className="marketing-hero-current" />
-        {scene.image_url ? <img src={scene.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
+        <BrandImage src={scene.image_url} title={scene.title} description={scene.description} kind="scene" loading="eager" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.98)_0%,rgba(0,0,0,.76)_52%,rgba(0,0,0,.28)_100%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
         <div className="container relative flex min-h-[544px] items-end px-6 pb-12">

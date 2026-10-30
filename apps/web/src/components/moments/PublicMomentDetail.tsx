@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { translate, useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useParams } from "react-router-dom";
@@ -18,7 +19,7 @@ function formatDate(value?: string | null) {
 function MomentCard({ moment }: { moment: CanonicalMoment }) {
   const { t: webT, formatNumber } = useWebI18n();
   return <Link to={`/moments/${moment.slug || moment.id}`} className="public-object-related group">
-    <div className="public-object-related__media">{moment.image_url ? <img src={moment.image_url} alt="" /> : <div className="grid h-full place-items-center bg-white/[.04]"><CalendarDays className="h-7 w-7 text-white/20" /></div>}<span>{momentLifecycleLabel(moment.lifecycle)}</span></div>
+    <div className="public-object-related__media"><BrandImage src={moment.image_url} category={moment.category} title={moment.title} description={moment.description} kind="moment" /><span>{momentLifecycleLabel(moment.lifecycle)}</span></div>
     <div className="p-4"><p className="text-[9px] font-black uppercase tracking-[.14em] text-orange-300">{moment.category || webT("promoShare.typeMoment")}</p><h3 className="mt-2 text-xl font-black leading-tight">{moment.title}</h3><p className="mt-2 flex items-start gap-1.5 text-[11px] text-white/45"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-400" />{moment.venue_name || moment.location || webT("web.locationOnMoment")}</p></div>
   </Link>;
 }
@@ -52,7 +53,7 @@ export function PublicMomentDetail() {
       <div className="relative mx-auto max-w-[1440px]">
         <div className="mb-5 flex items-center justify-between"><Link to="/discover/moments" className="inline-flex items-center gap-2 text-xs font-bold text-white/50 hover:text-white"><ArrowLeft className="h-4 w-4" />{webT("web.allMoments")}</Link><button type="button" aria-label={webT("web.shareMoment")} onClick={share} className="grid h-10 w-10 place-items-center border border-white/15 bg-black/40"><Share2 className="h-4 w-4" /></button></div>
         <div className="grid overflow-hidden border border-white/10 bg-[#090909] lg:grid-cols-[1.08fr_.92fr_330px]">
-          <div className="public-object-hero__media">{moment.image_url ? <img src={moment.image_url} alt="" /> : <div className="grid h-full min-h-[420px] place-items-center bg-[radial-gradient(circle_at_50%_20%,rgba(255,90,0,.18),transparent_40%),#0a0a0a]"><CalendarDays className="h-12 w-12 text-orange-400/35" /></div>}<span className="public-object-hero__state">{momentLifecycleLabel(moment.lifecycle)}</span></div>
+          <div className="public-object-hero__media"><BrandImage src={moment.image_url} category={moment.category} title={moment.title} description={moment.description} kind="moment" loading="eager" /><span className="public-object-hero__state">{momentLifecycleLabel(moment.lifecycle)}</span></div>
           <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
             <p className="text-[9px] font-black uppercase tracking-[.16em] text-orange-300">{moment.category || webT("promoShare.typeMoment")}</p>
             <h1 className="mt-4 text-4xl font-black leading-[.9] tracking-[-.05em] sm:text-5xl xl:text-6xl">{moment.title}</h1>

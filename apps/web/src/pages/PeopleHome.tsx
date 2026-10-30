@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { SaveButton } from "@/components/SaveButton";
 import { ParticipantShare } from "@/components/participant/ParticipantShare";
 import { currentUiLocale } from "@/i18n/geo-locale";
@@ -236,7 +237,7 @@ export default function PeopleHome() {
               <div className="grid gap-4 sm:grid-cols-2">{liveMoments.map((moment) => (
                 <div key={moment.id} className="participant-moment-item"><Link to={`/moments/${moment.slug || moment.id}`} className="dashboard-moment pr-world-object group flex flex-col overflow-hidden rounded-sm">
                   <div className="relative flex flex-1 flex-col justify-end pt-36">
-                    {moment.image_url ? <img loading="lazy" decoding="async" src={moment.image_url} alt="" className="dashboard-image absolute inset-0 h-full w-full object-cover" /> : <span className="participant-artwork-placeholder" aria-label="Artwork not supplied"><Music2 size={48} aria-hidden="true" /></span>}
+                    <BrandImage src={moment.image_url} category={moment.category} title={moment.title} description={moment.description} kind="moment" className="dashboard-image absolute inset-0 h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
                     <div className="relative p-5 sm:p-6"><p className={`text-[9px] font-black uppercase tracking-[.18em] ${moment.lifecycle === "live" ? "text-emerald-300" : "text-[#ff8a57]"}`}>{momentLifecycleLabel(moment.lifecycle)}</p><h3 className="mt-2 font-serif text-3xl font-bold leading-[.95] tracking-[-.04em] text-white">{moment.title}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/45"><span className="inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{new Date(moment.starts_at).toLocaleString(locale, { timeZone: "America/Jamaica", weekday: "short", hour: "numeric", minute: "2-digit" })}</span><span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{moment.venue_name || moment.location}</span></div><span className="participant-context-action">See Moment <ArrowRight size={16} aria-hidden="true" /></span></div>
                   </div>

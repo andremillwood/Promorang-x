@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, Loader2, MapPin, Radio, Users } from "lucide-react";
@@ -49,6 +50,7 @@ export function FindOrAskDemandRail({ city, query, showEmpty = false }: { city?:
         const added = supportedId === row.id || Boolean(row.user_supported);
         return (
           <article key={row.id} className="rounded-[1.6rem] border border-orange-400/20 bg-orange-400/[0.045] p-5">
+            <div className="relative mb-5 h-36 overflow-hidden rounded-xl"><BrandImage title={row.question} kind="want" className="h-full w-full object-cover" /></div>
             <div className="flex items-center justify-between gap-3">
               <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-orange-300"><Radio className="h-3.5 w-3.5" />{t("findOrAsk.demandLabel")}</span>
               <span className="text-[10px] font-bold text-white/35">{t("findOrAsk.askedOn", { date: formatDate(row.created_at) })}</span>

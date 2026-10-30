@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import {
@@ -11,6 +12,9 @@ import { localizedBenefitCta, localizedBenefitScarcity } from "@/i18n/localize";
 export type LivePerkLike = {
   id: string;
   title: string;
+  imageUrl?: string | null;
+  image_url?: string | null;
+  category?: string | null;
   detail?: string | null;
   description?: string | null;
   issuer?: { name?: string | null } | null;
@@ -82,7 +86,8 @@ export function LivePerkCard({ perk, intent = "claim" }: { perk: LivePerkLike; i
   const place = perk.availability === "anywhere" ? perk.locationLabel || t("discover.anywhere") : perk.locationLabel || t("perk.nearYou");
 
   return (
-    <Link to={href} className="pr-world-object group block min-h-[260px] p-5 sm:p-6">
+    <Link to={href} className="pr-world-object group block min-h-[260px] overflow-hidden p-5 sm:p-6">
+      <div className="relative -mx-5 -mt-5 mb-5 h-40 overflow-hidden sm:-mx-6 sm:-mt-6"><BrandImage src={perk.imageUrl || perk.image_url} category={perk.category} title={perk.title} description={perk.detail || perk.description} kind="offer" className="h-full w-full object-cover" /></div>
       <div className="flex h-full flex-col justify-between">
         <div>
           <div className="flex items-start justify-between gap-4">
