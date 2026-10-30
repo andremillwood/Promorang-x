@@ -32,3 +32,6 @@ Local screenshots and machine-readable browser results: `/Users/bumblebeecreativ
 
 ## Release target
 Git origin: andremillwood/Promorang-x, production branch `main`. Vercel team `team_9ChwYlVHThc1yEj4aJunzMF6`, project `promorang-alt` (`prj_VwStO4il3hkGLJIDzqZ8HA67D8rV`). Push the reviewed commit through existing Git integration; verify READY, exact Git SHA and production aliases afterward.
+
+## Live smoke follow-up
+The first deployed commit passed public-page smoke checks but exposed an inherited route inconsistency: `/vault` rendered an anonymous empty shelf. The production Vault route now uses the same existing `ProtectedRoute` as Today and Card, preserving `/vault` as the post-login destination. Preview routes are unchanged. This closes the live sign-in-boundary finding; verify it after the follow-up deployment.

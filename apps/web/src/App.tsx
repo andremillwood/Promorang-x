@@ -507,7 +507,7 @@ const App = () => (
                     <Route path="/sponsor" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/sponsor/analytics" element={<Navigate to="/dashboard/analytics" replace />} />
                     <Route path="/featured" element={<FeaturedBooking />} />
-                    <Route path="/vault" element={<Vault />} />
+                    <Route path="/vault" element={<ProtectedRoute><Vault /></ProtectedRoute>} />
                     <Route path="/memories/:id" element={<MemoryDetail />} />
                     <Route path="/dashboard/analytics" element={<Analytics />} />
                     <Route path="/dashboard/campaigns/create" element={<Navigate to="/create/campaign" replace />} />
