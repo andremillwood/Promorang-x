@@ -1,3 +1,4 @@
+import { BrandImage } from "@/components/media/BrandImage";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -43,12 +44,6 @@ const categories = [
   "Community Gathering",
 ];
 
-const STOCK_COVERS = [
-  { label: "Nightlife", url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80" },
-  { label: "Food & dining", url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" },
-  { label: "Stage & culture", url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" },
-  { label: "Outdoor", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" },
-];
 
 export function CreateMoment() {
   const { t: webT } = useI18n();
@@ -74,7 +69,6 @@ export function CreateMoment() {
 
   // Optional visual treatment. Nothing is selected by default.
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [selectedStockUrl, setSelectedStockUrl] = useState("");
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
 
   const [startsAt, setStartsAt] = useState("");
@@ -148,13 +142,6 @@ export function CreateMoment() {
     if (!file) return;
     setImageFile(file);
     setImagePreviewUrl(URL.createObjectURL(file));
-    setSelectedStockUrl("");
-  };
-
-  const handleSelectStockCover = (url: string) => {
-    setSelectedStockUrl(url);
-    setImageFile(null);
-    setImagePreviewUrl(url);
   };
 
   const handlePresetDate = (daysAhead: number, defaultHour: number) => {
@@ -187,7 +174,7 @@ export function CreateMoment() {
     setSubmitting(true);
 
     try {
-      let finalImageUrl = selectedStockUrl || "";
+      let finalImageUrl = "";
       if (imageFile) {
         const uploaded = await uploadImage(imageFile, "moments");
         if (uploaded) finalImageUrl = uploaded;
@@ -426,20 +413,7 @@ export function CreateMoment() {
                 <div className="space-y-2 border-t border-white/10 pt-5">
                   <div className="flex items-center justify-between gap-3">
                     <Label className="text-xs font-bold text-white/80">Optional cover image</Label>
-                    <span className="text-[10px] text-white/35">Stock images are visual examples only.</span>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {STOCK_COVERS.map((stock) => (
-                      <button
-                        key={stock.label}
-                        type="button"
-                        onClick={() => handleSelectStockCover(stock.url)}
-                        className={`relative h-16 overflow-hidden rounded-xl border transition ${selectedStockUrl === stock.url && !imageFile ? "border-primary ring-2 ring-primary/30" : "border-white/10 opacity-60 hover:opacity-100"}`}
-                      >
-                        <img src={stock.url} alt="" className="h-full w-full object-cover" />
-                        <span className="absolute inset-x-0 bottom-0 bg-black/80 px-1 py-0.5 text-center text-[9px] font-bold">{stock.label}</span>
-                      </button>
-                    ))}
+                    <span className="text-[10px] text-white/45">No photo? We’ll match an illustrative category image.</span>
                   </div>
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-3 text-xs font-semibold text-white/65 hover:bg-white/5">
                     <Upload className="h-4 w-4 text-primary" /> Upload your own artwork
@@ -595,12 +569,8 @@ export function CreateMoment() {
 
             <div className="overflow-hidden rounded-3xl border border-white/15 bg-[#111216] shadow-2xl">
               <div className="relative flex h-48 w-full items-center justify-center overflow-hidden bg-black">
-                {imagePreviewUrl ? (
-                  <img src={imagePreviewUrl} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  <div className="text-center text-white/35"><Upload className="mx-auto h-7 w-7" /><p className="mt-2 text-xs">Optional cover preview</p></div>
-                )}
-                {imagePreviewUrl && <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />}
+                <BrandImage src={imagePreviewUrl} category={category} title={title} description={description} kind="moment" selectionKey="new-moment-preview" className="h-full w-full object-cover" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                 <Badge className="absolute left-3 top-3 border-white/10 bg-black/60 text-[10px] font-bold uppercase text-white">{category}</Badge>
               </div>
 

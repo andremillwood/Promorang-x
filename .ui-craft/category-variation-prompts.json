@@ -1,0 +1,546 @@
+{
+  "mode": "built-in image generation",
+  "commonPrompt": "Create ONE standalone premium editorial photograph for Promorang, Jamaican and Caribbean city discovery. Landscape 3:2. Authentic contemporary Caribbean people and settings, natural skin and tactile materials, candid unposed atmosphere, rich charcoal shadows, warm amber/orange highlights with varied natural daytime or evening colors. Emotion: belonging, curiosity, anticipation, a reason to participate. Main subject upper-middle, bottom quarter quieter for white interface copy; useful portrait center crop. No text, logos, brands, watermarks or collage. Generic illustrative category art, no named real venue. Scene: ",
+  "images": [
+    {
+      "category": "nightlife",
+      "variation": 4,
+      "scene": "Jazz trio in an intimate amber-lit lounge",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-1dece4e9-bc6f-483c-b3cc-624d904e0d5e.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 7,
+      "scene": "Rooftop sunset house-music gathering with palms",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-b05dbf7a-d5c7-413b-a4d4-a9ac4953533f.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 5,
+      "scene": "Friends dancing at a beach bonfire evening gathering",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-332ce21e-946b-416b-b2d0-a1c3a1a421fc.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 6,
+      "scene": "Singer performing under red stage lights with a candid audience",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-9198bb05-04f3-49eb-b1dc-7ed8f9aeafaa.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 10,
+      "scene": "Acoustic guitarist performing on a tropical veranda",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-b8217e24-bf57-4dfd-9877-8e58b0fc5a99.png"
+    },
+    {
+      "category": "dining",
+      "variation": 2,
+      "scene": "Grilled fish with bammy and fresh vegetables at seaside table",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-b047c4ac-2538-4ab3-88b2-271ca2e99225.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 3,
+      "scene": "Dancehall DJ viewed from behind decks with warm crowd lights",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-18bf5a04-3d43-4f39-ba86-60a0a039807d.png"
+    },
+    {
+      "category": "dining",
+      "variation": 3,
+      "scene": "Colorful vegetarian Caribbean grain bowl with avocado",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-37d58312-9ce9-49e7-9da0-f7fe187bf2e2.png"
+    },
+    {
+      "category": "dining",
+      "variation": 5,
+      "scene": "Friends sharing small plates on a restaurant patio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-b0a6c948-1821-40db-843c-4919aa04c9b4.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 2,
+      "scene": "Reggae band playing a small open-air courtyard stage at blue hour",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-56f4cbba-0677-4660-8e23-6730211fd744.png"
+    },
+    {
+      "category": "dining",
+      "variation": 6,
+      "scene": "Glossy Korean-style fried chicken with pickled vegetables",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-98b919c5-72db-4195-a31c-0b1d79b7d7d0.png"
+    },
+    {
+      "category": "dining",
+      "variation": 4,
+      "scene": "Steaming oxtail with rice and peas on rustic plate",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-f4993797-4edb-426d-9946-a6fc999696bc.png"
+    },
+    {
+      "category": "dining",
+      "variation": 7,
+      "scene": "Fresh seafood platter beside a softly lit coast",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-1fd7a93d-8d70-4b82-9add-9cb42b0b47d1.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 8,
+      "scene": "Vinyl selector and records in a cozy listening bar",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-d95985d4-5d5a-4960-8823-3f3b3a8953eb.png"
+    },
+    {
+      "category": "nightlife",
+      "variation": 9,
+      "scene": "Outdoor festival crowd beneath strings of warm lights",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-cb6a3948-c18e-40e9-95d8-8a6583b1f678.png"
+    },
+    {
+      "category": "dining",
+      "variation": 8,
+      "scene": "Chef plating a contemporary Caribbean dinner",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-90f91d48-443d-41fc-bbf4-eb94e8737024.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 4,
+      "scene": "Barista hands creating latte art",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-df808177-f951-4d61-93b6-03393d5d961c.png"
+    },
+    {
+      "category": "dining",
+      "variation": 9,
+      "scene": "Street-food stall serving patties and roasted corn",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-bd597ff0-135a-4511-a81b-c66fb75bc470.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 6,
+      "scene": "Coffee beans and hand grinder beside fresh brewed cup",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-f319485e-50a5-4796-ba32-f8748eea6f7e.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 5,
+      "scene": "Friends chatting over coffee on tropical veranda",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-d75e6cb7-538d-4cc3-bd77-cc6274aed587.png"
+    },
+    {
+      "category": "dining",
+      "variation": 10,
+      "scene": "Rum cocktail and elegant appetizer on moody bar counter",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-73c79e9c-3232-437e-9efd-cc484d849934.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 7,
+      "scene": "Breakfast toast and cappuccino in warm café interior",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-c3458950-96a5-412d-ab77-4684b9a17685.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 8,
+      "scene": "Pour-over coffee brewing at an artisan counter",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-da927697-df85-4562-b231-cb2cfa6997a0.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 2,
+      "scene": "Espresso being poured into a ceramic cup in a café",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-68204b66-63f8-4dc4-a76c-8fa28be81a7d.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 9,
+      "scene": "Takeaway coffee and banana bread on a wooden bench",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-b5b9f913-2b81-49a4-bdce-1332aa1b0e2e.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 3,
+      "scene": "Iced coffee and pastry on a sunlit garden table",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-1aac2cc4-6880-476a-b3e8-5b71119145bf.png"
+    },
+    {
+      "category": "coffee",
+      "variation": 10,
+      "scene": "Cozy rain-lit café window with steaming tea and coffee",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-d7949fb8-ad28-4a1a-9e47-a9a545db56f6.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 7,
+      "scene": "Friends enjoying a relaxed forest wellness walk",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-c900e4f9-6842-4779-8405-49cc7542c914.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 2,
+      "scene": "Small yoga group on a tropical garden lawn",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-aeff6e62-0b85-45e3-8609-391b244fcf22.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 8,
+      "scene": "Trainer guiding a strength workout in bright gym",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-6bab1acb-2c58-470b-a795-892071422089.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 3,
+      "scene": "Hands receiving a calming spa massage in warm light",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-245f095d-275a-4396-b88c-f4b6c0521dc7.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 4,
+      "scene": "Woman stretching on a beach at sunrise",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-e8b6fe53-4c08-490b-81f0-a2ad72a46a89.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 9,
+      "scene": "Fresh spa towels and botanical oils in tropical retreat",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-e653ee08-c4e8-406e-8a06-935e4c02111c.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 5,
+      "scene": "Pilates class in airy tropical studio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-29b09c5b-ab1b-4439-b22c-c234fac0269a.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 4,
+      "scene": "Beach picnic in a secluded Jamaican cove",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-9ada310f-d5e6-4a1c-92b2-7f26106755e7.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 6,
+      "scene": "Calm sound-bath session with singing bowls",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-5592b784-ce56-48b1-b34e-a625397d4b5a.png"
+    },
+    {
+      "category": "wellness",
+      "variation": 10,
+      "scene": "Woman meditating on a quiet shaded wooden deck",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-4abfc38f-e6f3-458b-aeca-ed01ea7d3b7d.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 5,
+      "scene": "Surfer walking along an amber-lit shore",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-ade143bd-fefe-45a3-8d7c-8aa24b6f4dfb.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 6,
+      "scene": "Camping tent on a misty mountain clearing",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-12964b77-bc7b-41b3-98d7-e059ea2fb79d.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 2,
+      "scene": "Kayakers on a clear tropical river",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-2e08afd4-5c42-4d39-a238-17de5f63cfb7.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 7,
+      "scene": "Cyclists riding a scenic tropical trail",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-c1f5a0f2-3c53-4e24-980d-8e49ca624b00.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 3,
+      "scene": "Friends hiking to a lush waterfall",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-1e6579af-252c-4267-ba41-4c1e0ba95090.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 8,
+      "scene": "Snorkel equipment and clear turquoise coastal water",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-f3716554-5197-4938-b775-8fd8ff52b1ae.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 9,
+      "scene": "Friends walking a green forest trail",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-074145dc-a15f-407a-8660-51339ca94913.png"
+    },
+    {
+      "category": "outdoors",
+      "variation": 10,
+      "scene": "Paddleboarder on calm Caribbean water at sunrise",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-8491aefd-0cb4-465c-88ac-1945496d44a0.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 6,
+      "scene": "Motorcyclist beside an unbranded bike on scenic road",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-fc354d9c-3add-412f-a7eb-1ae8f2a749b3.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 2,
+      "scene": "Classic unbranded car at a palm-lined morning meetup",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-7370ea65-8606-4cc3-9db2-cf4e13b85d5f.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 8,
+      "scene": "Vintage roadster parked outside tropical café",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-7a44e39a-00fd-42de-80be-79e70376f7e1.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 3,
+      "scene": "Unbranded sports coupe on a mountain road",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-db152d30-54a4-49d0-8f46-7d609d565557.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 7,
+      "scene": "Car detailing hands polishing a dark vehicle",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-2198b227-cecd-4a19-a8ec-5cf64c21785e.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 9,
+      "scene": "Two unbranded performance cars at a track paddock",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-e9da9755-c3ba-44b7-a5db-72f9d25c482e.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 4,
+      "scene": "Small automotive gathering at sunset waterfront",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-1ac780e3-5f4e-497c-8845-774df6110c89.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 10,
+      "scene": "Scenic drive viewed over unbranded dashboard toward coast",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-44c5a8dd-a102-46e8-8ff0-cf3fb18ef0ab.png"
+    },
+    {
+      "category": "automotive",
+      "variation": 5,
+      "scene": "Close detail of polished wheel and warm reflections",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-f5f13eea-022a-457c-a01f-5e43fd8d137a.png"
+    },
+    {
+      "category": "arts",
+      "variation": 2,
+      "scene": "Painter working on colorful canvas in an open studio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-84df99b6-692d-4c37-9a1e-eaf15a93b656.png"
+    },
+    {
+      "category": "arts",
+      "variation": 7,
+      "scene": "Outdoor mural artist working on nonverbal abstract art",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-22cd5292-9c1c-42ae-9ce4-751bf9c869c5.png"
+    },
+    {
+      "category": "arts",
+      "variation": 3,
+      "scene": "Small Caribbean gallery opening with visitors",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-b9b7c759-2342-41b0-a5bd-690a9a7b96af.png"
+    },
+    {
+      "category": "arts",
+      "variation": 8,
+      "scene": "Theater stage rehearsal under dramatic warm lights",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-9c753c9d-b641-47ff-90ef-4668bee691f1.png"
+    },
+    {
+      "category": "arts",
+      "variation": 4,
+      "scene": "Hands weaving a natural fiber basket",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-58bc3124-a52a-43d4-83ac-28dba15bea25.png"
+    },
+    {
+      "category": "arts",
+      "variation": 9,
+      "scene": "Friends attending a printmaking workshop",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-301f1c5b-f995-40a4-bf3d-14fdb4a5810a.png"
+    },
+    {
+      "category": "arts",
+      "variation": 5,
+      "scene": "Dancers rehearsing in a warm rehearsal studio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-26face91-2efc-4f79-82b8-14edf2a08290.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 2,
+      "scene": "Locally made bags on a sunny boutique shelf",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-60b20b0d-5311-4052-9421-15784034f6a1.png"
+    },
+    {
+      "category": "arts",
+      "variation": 6,
+      "scene": "Jewelry-making workshop with hands and materials",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-23129e82-40f6-441b-993e-1814e3334ae0.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 3,
+      "scene": "Hands browsing linen clothing in a tropical boutique",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-94d1959a-c293-43c3-b51c-9bdff64db42c.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 4,
+      "scene": "Natural skincare products and botanicals on warm stone",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-684c7bcb-c87b-452c-849c-424468cd77c5.png"
+    },
+    {
+      "category": "arts",
+      "variation": 10,
+      "scene": "Ceramic bowls drying in a sunlit artisan studio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-9b3212f6-644e-4a5e-a81e-3dee1e8b1249.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 5,
+      "scene": "Artisan jewelry on textured wood at a market",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-5b2fa76c-0cc3-496c-9243-f04481bf1cca.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 6,
+      "scene": "Friends browsing an outdoor craft market",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-1481f985-0c45-49cf-afbe-35e003a5bfef.png"
+    },
+    {
+      "category": "community",
+      "variation": 2,
+      "scene": "Friends playing dominoes on a warm veranda",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-c16ef7f8-120b-4298-94f2-e067144b96e0.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 7,
+      "scene": "Tasteful sneakers and casual apparel retail display",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-30220ed5-b573-40c1-8824-513125f098ee.png"
+    },
+    {
+      "category": "community",
+      "variation": 3,
+      "scene": "Community volunteers planting a garden",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-1974e624-7c36-4090-bb95-45daef2ac0f8.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 8,
+      "scene": "Candle and homeware shop with warm shelves",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-2aa3f18e-5b9e-4807-abfd-33d3a96c9747.png"
+    },
+    {
+      "category": "community",
+      "variation": 6,
+      "scene": "Friends enjoying board games in a lounge",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-91474695-ec6b-4a9a-975e-32fafe0540df.png"
+    },
+    {
+      "category": "community",
+      "variation": 4,
+      "scene": "Small book club at an open-air café",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-35822269-d277-4241-8698-04c485e6c8d9.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 9,
+      "scene": "Stylist helping customer choose clothing",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-6029e5bd-50bc-4c8c-8f72-2c50d803b817.png"
+    },
+    {
+      "category": "shopping",
+      "variation": 10,
+      "scene": "Small local gift shop with ceramics and woven goods",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-0af9af8b-b235-4c7a-b3d5-1fff9bbfa92e.png"
+    },
+    {
+      "category": "community",
+      "variation": 7,
+      "scene": "People exchanging ideas at a relaxed meetup",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-c4499f46-3a59-422c-a9d8-1290e35c30ee.png"
+    },
+    {
+      "category": "community",
+      "variation": 5,
+      "scene": "Neighbors sharing a communal outdoor meal",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-3290f42c-1923-49b0-acad-36c492f849e9.png"
+    },
+    {
+      "category": "community",
+      "variation": 8,
+      "scene": "Community beach cleanup in morning light",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-664da499-f188-4473-b402-9c5d58ce3928.png"
+    },
+    {
+      "category": "community",
+      "variation": 10,
+      "scene": "Small rooftop social group under warm string lights",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-85a55464-46f6-47a0-a298-4fc1a7288ab5.png"
+    },
+    {
+      "category": "community",
+      "variation": 9,
+      "scene": "Friends celebrating at a backyard gathering",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-9144fe8d-b3b0-4a7e-bc15-19874b6889b1.png"
+    },
+    {
+      "category": "creator",
+      "variation": 6,
+      "scene": "Small creative team brainstorming in a tropical studio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-7f085c88-e55b-4f91-a4db-bd3608848f53.png"
+    },
+    {
+      "category": "creator",
+      "variation": 7,
+      "scene": "Ceramic designer photographing finished work",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-d434d06b-f147-4842-97aa-b53dee2efd7b.png"
+    },
+    {
+      "category": "creator",
+      "variation": 2,
+      "scene": "Photographer composing a portrait in a warm studio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-a0181804-24a6-4066-8476-2dad78cf3c03.png"
+    },
+    {
+      "category": "creator",
+      "variation": 3,
+      "scene": "Musician working at a small recording desk",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-4e459f76-faaa-4711-b3b3-1596f6692c12.png"
+    },
+    {
+      "category": "creator",
+      "variation": 4,
+      "scene": "Hands editing video at a creative workstation",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-4de9deda-9ea1-4756-b003-5e8b86b8ed3b.png"
+    },
+    {
+      "category": "creator",
+      "variation": 9,
+      "scene": "Podcast guest speaking into microphone in cozy studio",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-25e6c5e8-63a3-4ac2-b00f-7c44ec989428.png"
+    },
+    {
+      "category": "creator",
+      "variation": 5,
+      "scene": "Content creator filming a cooking tutorial",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-f760d100-3138-4653-9292-8e4af377226e.png"
+    },
+    {
+      "category": "creator",
+      "variation": 10,
+      "scene": "Designer sketching at a sunny shared workspace",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-b7e32ce0-2d2d-499f-a08b-a8dfa686c294.png"
+    },
+    {
+      "category": "creator",
+      "variation": 8,
+      "scene": "Creative design workstation still life",
+      "source": "/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-f570c349-71e8-49f8-a384-3db1a0ab1a27.png"
+    }
+  ]
+}

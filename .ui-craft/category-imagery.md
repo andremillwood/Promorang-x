@@ -43,3 +43,8 @@ Shared component: `apps/web/src/components/media/BrandImage.tsx`. Selection rule
 - shopping: `/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-6dfe6724-f7aa-47e8-90a5-ec156e7b6143.png`
 - community: `/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-e3cf4944-419d-4f52-8168-8e7485b4eccd.png`
 - creator: `/Users/bumblebeecreative/.codex/generated_images/01a13fc2-dbbf-7102-bbbd-1000872b8cd7/exec-334ffba5-a413-41d8-8b72-1173614fcc24.png`
+
+## October 31 expansion
+The library now contains 100 distinct photographs (10 per supported category), each delivered in 1024px and 512px WebP variants, 200 files total. All 90 additional images used the built-in generator. Exact shared prompt, per-image scene prompts and original saved paths are in `category-variation-prompts.json`. File names: `{category}-02.webp` through `{category}-10.webp`, with matching `-small.webp` files. The original unsuffixed file is variation 1.
+
+A deterministic FNV-1a hash of the actual record ID assigns a pseudorandom variation. This distributes image-free existing and future records without changing their image on rerender, reorder, viewport change or page revisit. The same Moment ID follows into retained Pieces. Uploaded images continue to take priority and generated fallbacks are not persisted as uploaded photos. Creation previews show illustrative category artwork; published records are assigned by their new ID.

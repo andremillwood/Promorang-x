@@ -1,3 +1,4 @@
+import { PromoCardParticipationLink } from "@/components/promocard/PromoCardPresence";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import type { MomentJourneyState } from "@promorang/shared";
 import { Check, Clock3, RotateCcw } from "lucide-react";
@@ -24,6 +25,7 @@ export function ParticipantProofArtifact({ journey, showAction = true }: Props) 
       <h2 className="mt-4 font-serif text-3xl font-bold leading-tight">{title}</h2>
       <p className="mt-3 text-sm leading-6 opacity-75">{body}</p>
       <ParticipantJourney journey={journey} />
+      {verified ? <PromoCardParticipationLink /> : null}
       {journey.proof_submission_id ? <p className="mt-5 break-all border-t border-current/20 pt-3 font-mono text-xs">Reference · {journey.proof_submission_id}</p> : null}
       {showAction && !pending ? <Link to={rejected ? `/moments/${journey.moment_id}/checkin` : journey.action.href} className="mt-5 inline-flex min-h-12 items-center border-b border-current font-bold">{rejected ? "See what’s needed" : journey.action.label} →</Link> : null}
     </section>

@@ -15,6 +15,18 @@ describe("BrandImage fallbacks",()=>{
   fireEvent.error(view.container.querySelector("img")!);expect(view.container.querySelector("img")).toHaveAttribute("data-image-source","illustrative");expect(screen.getByText("Illustrative image")).toBeInTheDocument();
   view.rerender(<div><BrandImage src="/new-working.jpg" category="wellness" /></div>);expect(view.container.querySelector("img")).toHaveAttribute("src","/new-working.jpg");expect(screen.queryByText("Illustrative image")).toBeNull();
  });
+ it("keeps the assigned illustration on rerender and switches for another record",()=>{
+  const view=render(<div><BrandImage category="coffee" selectionKey="offer-1" /></div>);
+  const first=view.container.querySelector("img")!.getAttribute("src");
+  view.rerender(<div><BrandImage category="coffee" selectionKey="offer-1" title="Updated offer" /></div>);
+  expect(view.container.querySelector("img")).toHaveAttribute("src",first);
+  const sources=new Set([first]);
+  for(let i=2;i<30;i++){
+   view.rerender(<div><BrandImage category="coffee" selectionKey={`offer-${i}`} /></div>);
+   sources.add(view.container.querySelector("img")!.getAttribute("src"));
+  }
+  expect(sources.size).toBeGreaterThan(1);
+ });
  it("stops retrying and avoids a broken image icon if the local fallback also cannot load",()=>{
   const {container}=render(<div><BrandImage title="Coffee meetup" /></div>);fireEvent.error(container.querySelector("img")!);expect(container.querySelector("img")).toBeNull();expect(screen.getByText("Image unavailable")).toBeInTheDocument();
  });

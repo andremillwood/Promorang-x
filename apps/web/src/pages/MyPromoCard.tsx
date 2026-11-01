@@ -1,3 +1,4 @@
+import { PromoCardActivity } from "@/components/promocard/PromoCardPresence";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -169,6 +170,7 @@ export default function MyPromoCard() {
           {card.isError ? <p role="status" className="border-y border-amber-200/20 py-3 text-sm text-amber-100">We couldn’t refresh your card. These are your last loaded details.</p> : null}
 
 
+          <PromoCardActivity history />
           <section className="grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,.75fr)] lg:items-center">
             <div className="min-w-0">
               <section className="participant-identity" aria-label="Your participant identity">

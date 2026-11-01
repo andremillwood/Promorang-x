@@ -1,3 +1,4 @@
+import { PromoCardAccessMark, PromoCardNavCount } from "@/components/promocard/PromoCardPresence";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
 import type { ReactNode } from "react";
@@ -119,8 +120,8 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
                 )}
                 aria-current={isActive(to) ? "page" : undefined}
               >
-                <Icon className="h-4 w-4" aria-hidden="true" />
-                {label}
+                {to === "/card" ? <PromoCardAccessMark className="!h-4 !w-4"/> : <Icon className="h-4 w-4" aria-hidden="true" />}
+                {label}{to === "/card" ? <PromoCardNavCount/> : null}
               </NavLink>
             ))}
           </nav>
@@ -242,7 +243,7 @@ export function ParticipantWorldLayout({ children }: ParticipantWorldLayoutProps
             )}
             aria-current={isActive(to) ? "page" : undefined}
           >
-            <Icon className="h-5 w-5" aria-hidden="true" />
+            <span className="relative inline-flex">{to === "/card" ? <PromoCardAccessMark className="!h-5 !w-5"/> : <Icon className="h-5 w-5" aria-hidden="true" />}{to === "/card" ? <span className="absolute -right-3 -top-1"><PromoCardNavCount/></span> : null}</span>
             {label}
           </NavLink>
         ))}

@@ -1,7 +1,7 @@
 /** Promorang's own illustrative category library. Uploaded artwork always wins. */
 export const BRAND_IMAGE_CATEGORIES = ["nightlife","dining","coffee","wellness","outdoors","automotive","arts","shopping","community","creator"] as const;
 export type BrandImageCategory = typeof BRAND_IMAGE_CATEGORIES[number];
-export type BrandImageContext = {category?: string | null; title?: string | null; description?: string | null; kind?: string | null};
+export type BrandImageContext = {category?: string | null; title?: string | null; description?: string | null; kind?: string | null; selectionKey?: string | null};
 const assets = import.meta.glob("../assets/placeholders/*.webp", {eager:true,query:"?url",import:"default"}) as Record<string,string>;
 const rules: Array<[BrandImageCategory,RegExp]> = [
  ["coffee",/\b(coffee|cafe|café|espresso|latte|cappuccino|brunch|cafeteria)\b/],
@@ -20,6 +20,7 @@ export function pickBrandImageCategory(context: BrandImageContext = {}): BrandIm
  const category=(context.category || "").toLowerCase().replace(/[_-]/g," ");
  const exact=BRAND_IMAGE_CATEGORIES.find(key=>key===context.category?.toLowerCase());
  if(exact)return exact;
+ if (/workshops?\s*&\s*learning/.test(category)) return "creator";
  const explicit=rules.find(([,pattern])=>pattern.test(category));
  if(explicit)return explicit[0];
  const text=`${context.title || ""} ${context.description || ""}`.toLowerCase().replace(/[_-]/g," ");
@@ -27,11 +28,25 @@ export function pickBrandImageCategory(context: BrandImageContext = {}): BrandIm
  if(inferred)return inferred[0];
  return context.kind === "offer" ? "shopping" : context.kind === "drop" ? "creator" : "community";
 }
+/** All ten distinct scenes for a category; only selected image bytes are downloaded. */
+export function brandImageVariants(category: BrandImageCategory) {
+ return Array.from({length:10},(_,index)=>{
+  const suffix=index === 0 ? "" : `-${String(index+1).padStart(2,"0")}`;
+  const src=assets[`../assets/placeholders/${category}${suffix}.webp`];
+  const small=assets[`../assets/placeholders/${category}${suffix}-small.webp`];
+  return {category,variation:index+1,src,srcSet:`${small} 512w, ${src} 1024w`,objectPosition:category === "community" ? "50% center" : "62% center"};
+ });
+}
+/** Pseudorandom distribution from an immutable record ID: stable across visits and placements. */
+export function brandImageIndex(key: string, count=10) {
+ let hash=2166136261;
+ for(const character of key) hash=Math.imul(hash ^ character.charCodeAt(0),16777619);
+ return (hash>>>0)%count;
+}
 export function brandPlaceholder(context: BrandImageContext = {}) {
  const category=pickBrandImageCategory(context);
- const src=assets[`../assets/placeholders/${category}.webp`];
- const small=assets[`../assets/placeholders/${category}-small.webp`];
- return {category,src,srcSet:`${small} 512w, ${src} 1024w`,objectPosition:category === "community" ? "50% center" : "62% center"};
+ const key=context.selectionKey?.trim() || `${context.title || ""}|${context.description || ""}|${context.kind || ""}`;
+ return brandImageVariants(category)[brandImageIndex(key)];
 }
 export function usableArtwork(src?: string | null): string | null {
  const value=src?.trim();

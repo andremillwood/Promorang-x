@@ -1,3 +1,4 @@
+import { PromoCardBenefitSignal } from "@/components/promocard/PromoCardPresence";
 import { BrandImage } from "@/components/media/BrandImage";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
@@ -87,7 +88,8 @@ export function LivePerkCard({ perk, intent = "claim" }: { perk: LivePerkLike; i
 
   return (
     <Link to={href} className="pr-world-object group block min-h-[260px] overflow-hidden p-5 sm:p-6">
-      <div className="relative -mx-5 -mt-5 mb-5 h-40 overflow-hidden sm:-mx-6 sm:-mt-6"><BrandImage src={perk.imageUrl || perk.image_url} category={perk.category} title={perk.title} description={perk.detail || perk.description} kind="offer" className="h-full w-full object-cover" /></div>
+      <div className="relative -mx-5 -mt-5 mb-5 h-40 overflow-hidden sm:-mx-6 sm:-mt-6"><BrandImage selectionKey={perk.offerId || perk.id} src={perk.imageUrl || perk.image_url} category={perk.category} title={perk.title} description={perk.detail || perk.description} kind="offer" className="h-full w-full object-cover" /></div>
+      <PromoCardBenefitSignal perk={perk} />
       <div className="flex h-full flex-col justify-between">
         <div>
           <div className="flex items-start justify-between gap-4">

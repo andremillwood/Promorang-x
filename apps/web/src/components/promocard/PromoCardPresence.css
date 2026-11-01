@@ -1,0 +1,22 @@
+.promocard-access-mark{width:24px;height:24px;flex-shrink:0;color:#ff8a38}
+.promocard-benefit-signal{display:inline-flex;align-items:center;gap:7px;max-width:100%;font-size:11px;line-height:1.5;font-weight:700;color:#d5c7b8}
+.promocard-benefit-signal .promocard-access-mark{width:16px;height:16px}
+.promocard-benefit-signal[data-access-state=ready]{color:#ffad68}
+.promocard-benefit-signal[data-access-state=used],.promocard-benefit-signal[data-access-state=expired],.promocard-benefit-signal[data-access-state=unavailable]{color:#aaa6a0}
+.promocard-activity{display:flex;align-items:center;gap:20px;padding:24px 0;margin:12px 0 24px;border-top:1px solid #ffffff18;border-bottom:1px solid #ffffff18;color:#f6f3ee}
+.promocard-activity>.promocard-access-mark{width:36px;height:36px}
+.promocard-activity-copy{flex:1;min-width:0}
+.promocard-activity-copy>p{font-size:12px;line-height:1.6;color:#aaa6a0;overflow-wrap:anywhere;margin:5px 0 0}
+.promocard-activity-copy>p:first-child{font-weight:700;color:#ffad68;margin:0}
+.promocard-activity h2{font:700 clamp(20px,2.2vw,28px)/1.15 "DM Sans",sans-serif;letter-spacing:-.035em;margin:7px 0}
+.promocard-activity>a,.promocard-activity>button{min-height:44px;display:inline-flex;align-items:center;justify-content:space-between;gap:16px;font-size:12px;font-weight:700;flex-shrink:0;color:#ffad68}
+.promocard-use-history{display:flex;align-items:center;gap:5px}
+.promocard-access-ledger{display:flex;flex-wrap:wrap;gap:20px;margin-top:20px;padding:0;list-style:none}
+.promocard-access-ledger li{display:flex;flex-direction:column;gap:4px;color:#aaa6a0;font-size:11px}
+.promocard-access-ledger strong{font-size:24px;line-height:1.2;font-variant-numeric:tabular-nums;color:#f6f3ee}
+.promocard-nav-count{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 3px;border-radius:8px;background:#ff8a38;color:#080808;font-size:9px;font-weight:800;font-variant-numeric:tabular-nums}
+.promocard-participation-link{display:flex;align-items:center;gap:12px;margin-top:24px;padding:18px 0;border-top:1px solid #ffffff20;color:inherit;text-align:left}
+.promocard-participation-link>span{display:grid;gap:4px;flex:1;font-size:12px;line-height:1.6}
+.promocard-participation-link>span>span{opacity:.7}
+.promocard-activity a:focus-visible,.promocard-activity button:focus-visible,.promocard-participation-link:focus-visible{outline:2px solid #ff8a38;outline-offset:5px}
+@media(max-width:640px){.promocard-activity{gap:12px;align-items:flex-start;flex-wrap:wrap;padding:20px 0}.promocard-activity>.promocard-access-mark{width:26px;height:26px;margin-top:3px}.promocard-activity-copy{flex-basis:calc(100% - 38px)}.promocard-activity>a{margin-left:38px}.promocard-access-ledger{gap:14px}}

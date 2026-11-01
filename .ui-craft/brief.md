@@ -57,3 +57,6 @@ The supplied four mockups supersede the prior cream/serif participant compositio
 
 ## Category artwork — October 30, 2026
 User authorizes branded placeholder photography, replacing the previous blanket prohibition on illustrative missing-image fallbacks. Use a coherent generated Caribbean editorial library: warmth, belonging, discovery, appetite, calm and creative momentum, with rich shadows and amber/orange light. Select by actual category first, then specific title/description, then object kind. Uploaded/actual source art has priority. Missing or broken art uses a responsive local image and a discreet “Illustrative image” label. Do not change records, status, social proof, identities or entitlements.
+
+## Category variation — October 31, 2026
+At least ten distinct images per category. Assign with a deterministic pseudorandom hash of the event/offer ID: varied between records, stable across renders, placements and visits. Future image-free records automatically use the same library; preserve real uploads and the illustrative disclosure. Do not store generated fallback URLs as uploaded photography.

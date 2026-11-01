@@ -803,7 +803,7 @@ const SignedInMomentDetail = () => {
       <header className="relative w-full overflow-hidden bg-black pt-12 pb-8 border-b border-white/10">
         {/* Background Cover Image with Soft Vignette */}
         <div className="absolute inset-0 z-0">
-          <BrandImage src={galleryImages[0]?.url} category={moment.category} title={moment.title} description={moment.description} kind="moment" loading="eager" className="h-full w-full object-cover opacity-75" />
+          <BrandImage selectionKey={moment.id} src={galleryImages[0]?.url} category={moment.category} title={moment.title} description={moment.description} kind="moment" loading="eager" className="h-full w-full object-cover opacity-75" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/80 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/50 to-[#09090b]" />
         </div>

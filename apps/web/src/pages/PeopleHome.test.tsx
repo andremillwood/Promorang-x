@@ -13,7 +13,7 @@ const state = vi.hoisted(() => ({
 }));
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: { email: "alex@example.invalid" }, profile: { full_name: "Alex Morgan" }, activeRole: "participant", roles: ["participant"] }) }));
 vi.mock("@/contexts/MarketContext", () => ({ useMarket: () => ({ city: state.city }) }));
-vi.mock("@/hooks/usePeopleExperience", () => ({ useExperienceHome: () => ({ data: { communities: [], card: {} }, isLoading: false }) }));
+vi.mock("@/hooks/usePeopleExperience", () => ({ useMyPromoCard: () => ({data:{perks:[],benefits:[]},isLoading:false,isError:false}), useExperienceHome: () => ({ data: { communities: [], card: {} }, isLoading: false }) }));
 vi.mock("@/hooks/useCanonicalMomentFeed", () => ({ useCanonicalMomentFeed: () => ({ data: { moments: state.moments }, isLoading: false, isError: state.error, isFetching: state.fetching, refetch: state.retry }) }));
 vi.mock("@/hooks/useContentDistribution", () => ({ useContentDrops: () => ({ data: [] }) }));
 vi.mock("@/components/discovery/FindOrAskDemandRail", () => ({ FindOrAskDemandRail: () => null }));

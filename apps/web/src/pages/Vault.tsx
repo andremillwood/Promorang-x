@@ -1,3 +1,4 @@
+import { PromoCardActivity } from "@/components/promocard/PromoCardPresence";
 import { API_BASE_URL } from "@/lib/api";
 import type { PromoCardPerk } from "@promorang/shared";
 import { useI18n as useWebI18n } from "@/i18n/I18nContext";
@@ -109,6 +110,7 @@ const Vault = () => {
 
         {activeTab === "perks" ? (
           <section className="space-y-8 animate-in fade-in duration-300">
+            <PromoCardActivity history />
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div>
                 <p className="pr-world-kicker text-emerald-300">{webT("web.use")}</p>

@@ -278,7 +278,7 @@ export function PublicDiscoverExperience() {
               {filteredMoments.slice(0,4).map((moment) => (
                 <Link key={moment.id} to={`/moments/${moment.slug || moment.id}`} className="marketing-live-card group">
                   <div className="marketing-live-card__media">
-                    <BrandImage src={moment.image_url} category={moment.category} title={moment.title} description={moment.description} kind="moment" />
+                    <BrandImage selectionKey={moment.id} src={moment.image_url} category={moment.category} title={moment.title} description={moment.description} kind="moment" />
                     <div className="marketing-live-card__scrim" />
                     <span className="marketing-live-card__state">{momentLifecycleLabel(moment.lifecycle)}</span>
                   </div>

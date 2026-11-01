@@ -48,7 +48,7 @@ export default function MemoryDetail() {
   : <div className="participant-memory-layout">
    <div>
     <section className="participant-memory-art">
-     <BrandImage src={image} category={String(meta.category || artwork.find(moment=>moment.id===memory.moment_id)?.category || memory.collection_key || "")} title={`${memory.title || ""} ${meta.moment_title || ""}`} description={String(meta.scene_title || "")} kind="piece" loading="eager" />
+     <BrandImage selectionKey={memory.moment_id || memory.id} src={image} category={String(meta.category || artwork.find(moment=>moment.id===memory.moment_id)?.category || memory.collection_key || "")} title={`${memory.title || ""} ${meta.moment_title || ""}`} description={String(meta.scene_title || "")} kind="piece" loading="eager" />
      <div><p className="mb-3 text-sm text-orange-200">{memory.rarity || "Your Piece"}</p><h1>{memory.title || String(meta.moment_title || "A Piece of your story")}</h1>{meta.scene_title ? <p className="mt-3 text-sm">{String(meta.scene_title)}</p> : null}</div>
     </section>
     <dl className="participant-provenance">
