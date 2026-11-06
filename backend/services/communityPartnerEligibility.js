@@ -17,7 +17,7 @@ function quoteEligiblePartnerOrder({
   if (!attributionVerified || attributedPartnerId !== partnerId) reasons.push('unverified_attribution');
   if (!partnerApproved) reasons.push('partner_not_approved');
   if (paymentStatus !== 'paid') reasons.push('payment_not_settled');
-  if (fulfillmentStatus !== 'fulfilled') reasons.push('not_fulfilled');
+  if (!['delivered', 'redeemed'].includes(fulfillmentStatus)) reasons.push('not_fulfilled');
   if (currency !== 'JMD') reasons.push('unsupported_currency');
   if (!Number.isSafeInteger(refundedCents) || refundedCents < 0 || refundedCents > 0) reasons.push('refunded_or_invalid');
   if (reasons.length) return { eligible: false, reasons, quote: null };
