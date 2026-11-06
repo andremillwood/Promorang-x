@@ -5,7 +5,7 @@ const { quoteEligiblePartnerOrder } = require('../services/communityPartnerEligi
 const base = {
   orderId: 'order-1', buyerId: 'buyer-1', merchantId: 'merchant-1', partnerId: 'partner-1',
   attributedPartnerId: 'partner-1', attributionVerified: true, partnerApproved: true,
-  paymentStatus: 'paid', fulfillmentStatus: 'fulfilled', currency: 'JMD',
+  paymentStatus: 'paid', fulfillmentStatus: 'fulfilled', currency: 'JMD', campaignCurrency: 'JMD',
   eligibleOrderCents: 350000, contributionMarginCents: 100000, refundedCents: 0,
 };
 test('quotes a verified, fulfilled order only', () => {
