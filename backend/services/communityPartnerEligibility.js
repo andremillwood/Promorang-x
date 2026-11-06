@@ -9,6 +9,7 @@ function quoteEligiblePartnerOrder({
   paymentStatus, fulfillmentStatus, refundedCents = 0,
   eligibleOrderCents, contributionMarginCents, currency, campaignCurrency,
   attributionVerified = false, partnerApproved = false,
+  rateBps = 500, marginCapBps = 2500,
 }) {
   const reasons = [];
   if (![orderId, buyerId, merchantId, partnerId].every(v => typeof v === 'string' && v.trim())) reasons.push('missing_identity');
@@ -21,6 +22,6 @@ function quoteEligiblePartnerOrder({
   if (!currency || currency !== campaignCurrency) reasons.push('currency_mismatch');
   if (!Number.isSafeInteger(refundedCents) || refundedCents < 0 || refundedCents > 0) reasons.push('refunded_or_invalid');
   if (reasons.length) return { eligible: false, reasons, quote: null };
-  return { eligible: true, reasons: [], quote: calculateCommissionQuote({ eligibleOrderCents, contributionMarginCents }) };
+  return { eligible: true, reasons: [], quote: calculateCommissionQuote({ eligibleOrderCents, contributionMarginCents, currency, rateBps, marginCapBps }) };
 }
 module.exports = { quoteEligiblePartnerOrder };
