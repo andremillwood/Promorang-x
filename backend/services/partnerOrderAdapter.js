@@ -18,9 +18,9 @@ async function preparePartnerOrderOutcome({ db, campaignId, orderId, contributio
     .select('partner_id').eq('campaign_id', campaignId).eq('partner_id', partnerId || '00000000-0000-0000-0000-000000000000');
   if (membershipError) throw membershipError;
   const { data: codes, error: codesError } = await db.from('referral_codes')
-    .select('user_id,code').eq('user_id', partnerId || '00000000-0000-0000-0000-000000000000').eq('code', referralCode || '');
+     .select('user_id,code,is_active,expires_at').eq('user_id', partnerId || '00000000-0000-0000-0000-000000000000').eq('code', referralCode || '');
   if (codesError) throw codesError;
-  const verifiedCode = codes?.some(row => row.user_id === partnerId && row.code?.toUpperCase() === referralCode?.toUpperCase());
+  const verifiedCode = codes?.some(row => row.user_id === partnerId && row.is_active === true && (!row.expires_at || Date.parse(row.expires_at) > Date.now()) && row.code?.toUpperCase() === referralCode?.toUpperCase());
   const result = verifyOrderOutcome({
     order, campaign, partnerId, referralCode: verifiedCode ? referralCode : null,
     approvedPartnerIds: (memberships || []).map(row => row.partner_id), contributionMargin,
