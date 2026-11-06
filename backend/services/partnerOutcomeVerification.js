@@ -14,6 +14,7 @@ function verifyOrderOutcome({ order, campaign, partnerId, referralCode, approved
   if (order.merchant_id !== campaign.merchant_id) errors.push('merchant_mismatch');
   if (order.currency !== campaign.currency) errors.push('currency_mismatch');
   if (order.payment_status !== 'paid') errors.push('unpaid');
+  if (order.fulfillment_status === 'cancelled') errors.push('cancelled');
   if (!['delivered', 'redeemed'].includes(order.fulfillment_status)) errors.push('not_fulfilled');
   if (!['merchant', 'platform'].includes(order.payment_collection)) errors.push('unknown_payment_method');
   if (order.payment_collection === 'merchant' && (!order.merchant_payment_confirmed_at || !order.merchant_payment_reference)) errors.push('unconfirmed_direct_payment');
@@ -21,7 +22,7 @@ function verifyOrderOutcome({ order, campaign, partnerId, referralCode, approved
   if (!partnerId || partnerId === order.buyer_id || partnerId === order.merchant_id) errors.push('invalid_partner');
   if (!Array.isArray(approvedPartnerIds) || !approvedPartnerIds.includes(partnerId)) errors.push('unapproved_partner');
   if (order.metadata?.referrer_id !== partnerId || !referralCode || order.metadata?.referral_code?.toUpperCase() !== referralCode.toUpperCase()) errors.push('attribution_mismatch');
-  if (!Number.isFinite(Number(order.subtotal)) || Number(order.subtotal) <= 0) errors.push('invalid_order_value');
+  if (typeof order.subtotal !== 'number' && typeof order.subtotal !== 'string' || !Number.isFinite(Number(order.subtotal)) || Number(order.subtotal) <= 0) errors.push('invalid_order_value');
   if (typeof contributionMargin !== 'number' || !Number.isFinite(contributionMargin) || contributionMargin < 0 || contributionMargin > Number(order.subtotal)) errors.push('invalid_margin');
   if (errors.length) return { verified: false, errors };
   const amount = Number(order.subtotal);
