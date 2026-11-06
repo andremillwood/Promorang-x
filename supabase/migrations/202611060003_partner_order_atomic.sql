@@ -39,6 +39,7 @@ begin
     select 1 from public.referral_codes
     where user_id = v_partner and upper(code) = upper(o.metadata->>'referral_code')
       and is_active = true
+      and (expires_at is null or expires_at > now())
   ) then raise exception 'Invalid referral code'; end if;
   if o.subtotal <= 0 or p_margin is null or p_margin < 0 or p_margin > o.subtotal then
     raise exception 'Invalid verified margin';
