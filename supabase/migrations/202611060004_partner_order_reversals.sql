@@ -1,6 +1,6 @@
 -- Reversal of unpaid commissions when authoritative order state changes.
 create or replace function public.reverse_partner_order_rewards()
-returns trigger language plpgsql security invoker set search_path=public as $$
+returns trigger language plpgsql security definer set search_path=public as $$
 begin
   if new.payment_status in ('refunded','partially_refunded','disputed','cancelled')
      or new.fulfillment_status = 'cancelled' then
