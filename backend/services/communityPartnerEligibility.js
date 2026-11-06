@@ -7,7 +7,7 @@ const { calculateCommissionQuote } = require('./communityPartnerCommission');
 function quoteEligiblePartnerOrder({
   orderId, buyerId, merchantId, partnerId, attributedPartnerId,
   paymentStatus, fulfillmentStatus, refundedCents = 0,
-  eligibleOrderCents, contributionMarginCents, currency = 'JMD',
+  eligibleOrderCents, contributionMarginCents, currency, campaignCurrency,
   attributionVerified = false, partnerApproved = false,
 }) {
   const reasons = [];
@@ -18,7 +18,7 @@ function quoteEligiblePartnerOrder({
   if (!partnerApproved) reasons.push('partner_not_approved');
   if (paymentStatus !== 'paid') reasons.push('payment_not_settled');
   if (!['delivered', 'redeemed'].includes(fulfillmentStatus)) reasons.push('not_fulfilled');
-  if (currency !== 'JMD') reasons.push('unsupported_currency');
+  if (!currency || currency !== campaignCurrency) reasons.push('currency_mismatch');
   if (!Number.isSafeInteger(refundedCents) || refundedCents < 0 || refundedCents > 0) reasons.push('refunded_or_invalid');
   if (reasons.length) return { eligible: false, reasons, quote: null };
   return { eligible: true, reasons: [], quote: calculateCommissionQuote({ eligibleOrderCents, contributionMarginCents }) };
