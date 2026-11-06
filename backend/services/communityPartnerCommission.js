@@ -5,25 +5,26 @@
 // fulfillment, unique attribution, refund status, and operator approval.
 const DEFAULT_RATE_BPS = 500; // 5% of eligible net order value
 const MAX_RATE_BPS = 1000; // pilot hard ceiling, 10%
-function calculateCommissionQuote({ eligibleOrderCents, contributionMarginCents, rateBps = DEFAULT_RATE_BPS }) {
-  if (![eligibleOrderCents, contributionMarginCents, rateBps].every(Number.isSafeInteger)) {
+function calculateCommissionQuote({ eligibleOrderCents, contributionMarginCents, rateBps = DEFAULT_RATE_BPS, marginCapBps = 2500, currency = 'JMD' }) {
+  if (![eligibleOrderCents, contributionMarginCents, rateBps, marginCapBps].every(Number.isSafeInteger)) {
     throw new TypeError('Amounts and rate must be safe integers');
   }
-  if (eligibleOrderCents < 0 || contributionMarginCents < 0 || rateBps < 0 || rateBps > MAX_RATE_BPS) {
+  if (eligibleOrderCents < 0 || contributionMarginCents < 0 || rateBps < 0 || rateBps > MAX_RATE_BPS || marginCapBps < 0 || marginCapBps > 10000) {
     throw new RangeError('Invalid amount or pilot commission rate');
   }
   if (contributionMarginCents > eligibleOrderCents) throw new RangeError('Margin cannot exceed eligible order value');
   // Protect merchant unit economics: cap commission at 25% of verified
   // contribution margin. If margin is unknown, do not calculate a quote.
   const rateQuote = Math.floor(eligibleOrderCents * rateBps / 10000);
-  const marginCap = Math.floor(contributionMarginCents / 4);
+  if (!/^[A-Z]{3}$/.test(currency)) throw new TypeError('Invalid currency');
+  const marginCap = Math.floor(contributionMarginCents * marginCapBps / 10000);
   return {
     commissionCents: Math.min(rateQuote, marginCap),
     rateBps,
     eligibleOrderCents,
     contributionMarginCents,
     status: 'quote_only',
-    currency: 'JMD',
+    currency,
   };
 }
 module.exports = { calculateCommissionQuote, DEFAULT_RATE_BPS, MAX_RATE_BPS };
