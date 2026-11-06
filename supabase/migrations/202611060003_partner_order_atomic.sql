@@ -53,7 +53,10 @@ begin
   ) on conflict (source_system,source_id,outcome_type) do nothing;
   select * into v_outcome from public.partner_outcomes
     where source_system='commerce_orders' and source_id=o.id::text and outcome_type='order_fulfilled';
-  if v_outcome.campaign_id <> c.id or v_outcome.partner_id <> v_partner or v_outcome.status <> 'verified' then
+  if v_outcome.campaign_id <> c.id or v_outcome.partner_id <> v_partner or v_outcome.status <> 'verified'
+    or v_outcome.currency <> o.currency
+    or v_outcome.eligible_amount <> o.subtotal
+    or v_outcome.verified_margin <> p_margin then
     raise exception 'Existing outcome conflicts with attribution or status';
   end if;
   insert into public.partner_commissions(outcome_id,campaign_id,partner_id,currency,amount)
