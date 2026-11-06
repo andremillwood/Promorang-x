@@ -4,6 +4,8 @@ on:
     paths:
       - 'backend/services/partnerOutcomeVerification.js'
       - 'backend/__tests__/partnerOutcomeVerification.test.js'
+      - 'backend/services/partnerOrderAdapter.js'
+      - 'backend/__tests__/partnerOrderAdapter.test.js'
       - 'supabase/migrations/202611060002_partner_outcomes_foundation.sql'
       - '.github/workflows/community-partner-checks.yml'
   workflow_dispatch:
@@ -19,4 +21,4 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: node --test backend/__tests__/partnerOutcomeVerification.test.js
+      - run: node --test backend/__tests__/partnerOutcomeVerification.test.js backend/__tests__/partnerOrderAdapter.test.js
