@@ -22,7 +22,7 @@ function verifyOrderOutcome({ order, campaign, partnerId, referralCode, approved
   if (!Array.isArray(approvedPartnerIds) || !approvedPartnerIds.includes(partnerId)) errors.push('unapproved_partner');
   if (order.metadata?.referrer_id !== partnerId || !referralCode || order.metadata?.referral_code?.toUpperCase() !== referralCode.toUpperCase()) errors.push('attribution_mismatch');
   if (!Number.isFinite(Number(order.subtotal)) || Number(order.subtotal) <= 0) errors.push('invalid_order_value');
-  if (!Number.isFinite(contributionMargin) || contributionMargin < 0 || contributionMargin > Number(order.subtotal)) errors.push('invalid_margin');
+  if (typeof contributionMargin !== 'number' || !Number.isFinite(contributionMargin) || contributionMargin < 0 || contributionMargin > Number(order.subtotal)) errors.push('invalid_margin');
   if (errors.length) return { verified: false, errors };
   const amount = Number(order.subtotal);
   const rate = Number(campaign.rate_bps);
@@ -35,7 +35,7 @@ function verifyOrderOutcome({ order, campaign, partnerId, referralCode, approved
       type: 'order_fulfilled', sourceSystem: 'commerce_orders', sourceId: order.id,
       partnerId, campaignId: campaign.id, currency: order.currency, eligibleAmount: amount,
       verifiedMargin: contributionMargin,
-      commissionQuote: Math.min(Math.round(amount * rate) / 10000, Math.round(contributionMargin * cap) / 10000),
+      commissionQuote: Math.min(Math.round(amount * rate / 100) / 100, Math.round(contributionMargin * cap / 100) / 100),
       status: 'verified',
     },
   };
