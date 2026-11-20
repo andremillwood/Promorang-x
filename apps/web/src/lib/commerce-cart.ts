@@ -17,3 +17,16 @@ export function rememberCommerceReferral(search: string) {
   if (ref && /^[a-z0-9_-]{2,80}$/i.test(ref)) sessionStorage.setItem('promorang.commerce-referral.v1', ref);
 }
 export function commerceReferral() { try { return sessionStorage.getItem('promorang.commerce-referral.v1') || ''; } catch { return ''; } }
+const MOMENT_KEY = 'promorang.commerce-moment.v1';
+const MOMENT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export function rememberCommerceMoment(search: string) {
+  const params = new URLSearchParams(search);
+  const moment = params.get('moment_id') || params.get('moment');
+  if (moment && MOMENT_ID.test(moment)) sessionStorage.setItem(MOMENT_KEY, moment);
+}
+export function commerceMoment() {
+  try {
+    const value = sessionStorage.getItem(MOMENT_KEY) || '';
+    return MOMENT_ID.test(value) ? value : '';
+  } catch { return ''; }
+}

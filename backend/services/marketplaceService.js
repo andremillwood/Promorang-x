@@ -237,17 +237,21 @@ async function createStripeCommerceIntent({ userId, productId, quantity = 1, ite
     }
 }
 
-async function createStripeCommerceCheckout({ userId, productId, quantity = 1, items = null, successUrl, cancelUrl, issuanceId = null, referralCode = null }) {
+async function createStripeCommerceCheckout({ userId, productId, quantity = 1, items = null, successUrl, cancelUrl, issuanceId = null, referralCode = null, momentId = null }) {
     if (!supabase) throw new Error('Database not available');
     const stripeService = require('./stripeService');
     if (!stripeService.isStripeConfigured()) throw new Error('Stripe is not configured');
 
     const { normalizeCartItems } = require('./commerceCart');
     const requestedItems = normalizeCartItems(items || [{ product_id: productId, quantity }]);
-    const { data: order, error: reserveError } = await supabase.rpc('reserve_promocard_cart', {
+    const reservation = {
         p_buyer_id: userId, p_items: requestedItems,
         p_issuance_id: issuanceId, p_referral_code: referralCode,
-    });
+    };
+    // Omit the moment argument until checkout has one, so an unmigrated database
+    // still accepts the original reserve_promocard_cart signature.
+    if (momentId) reservation.p_moment_id = momentId;
+    const { data: order, error: reserveError } = await supabase.rpc('reserve_promocard_cart', reservation);
     if (reserveError || !order) throw reserveError || new Error('Could not reserve inventory');
 
     let checkoutAttempted = false;
@@ -703,6 +707,15 @@ async function refundCommerceReceipt({ receiptId, actorId = null, reason = 'Admi
             .update({ revenue_generated: Math.max(0, currentRevenue - refundAmount) })
             .eq('id', receipt.listing_id)
             .catch(() => undefined);
+    }
+
+    if (attribution.commerce_order_id && !stripePaymentIntentId) {
+        const promoCardLedger = require('./promoCardLedger');
+        await promoCardLedger.postPromoCardSpendReversal({
+            order: { id: attribution.commerce_order_id, total_amount: receipt.amount },
+            refundedAmount,
+            fullyRefunded: refundAmount >= Number(receipt.amount || 0),
+        });
     }
 
     if (attribution.commerce_order_id) {

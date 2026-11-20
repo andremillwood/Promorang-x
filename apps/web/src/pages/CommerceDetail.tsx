@@ -14,7 +14,7 @@ import { commerceCategorySlug, isSampleCommerceListing } from '@/lib/commerce-pr
 import { KINGSTON_EXPERIENCE_LISTINGS } from '@/pages/Marketplace';
 import { useI18n } from '@/i18n/I18nContext';
 
-import { addCartItem, rememberCommerceReferral } from '@/lib/commerce-cart';
+import { addCartItem, commerceMoment, rememberCommerceMoment, rememberCommerceReferral } from '@/lib/commerce-cart';
 import { CommerceShareLink } from '@/components/commerce/CommerceShareLink';
 
 export default function CommerceDetail() {
@@ -22,7 +22,7 @@ export default function CommerceDetail() {
   const { t, locale, formatNumber } = useI18n();
   const { listingId } = useParams();
   const location = useLocation();
-  useEffect(() => rememberCommerceReferral(location.search), [location.search]);
+  useEffect(() => { rememberCommerceReferral(location.search); rememberCommerceMoment(location.search); }, [location.search]);
   const actions = useCommerceActions();
   const queryClient = useQueryClient();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -113,6 +113,7 @@ export default function CommerceDetail() {
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token;
       if (!token) throw new Error('Please sign in again to continue');
+      const momentId = commerceMoment();
       const response = await fetch(`${API_BASE_URL}/stripe/commerce/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -121,6 +122,7 @@ export default function CommerceDetail() {
           quantity: 1,
           success_url: `${window.location.origin}/shop/${encodeURIComponent(sourceId)}?checkout=success`,
           cancel_url: `${window.location.origin}/shop/${encodeURIComponent(sourceId)}?checkout=cancelled`,
+          ...(momentId ? { moment_id: momentId } : {}),
         }),
       });
       const payload = await response.json();

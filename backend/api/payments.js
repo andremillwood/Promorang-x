@@ -563,6 +563,14 @@ async function stripeWebhook(req, res) {
             updated_at: new Date().toISOString(),
           }).eq('id', order.id);
 
+          const promoCardLedger = require('../services/promoCardLedger');
+          await promoCardLedger.postPromoCardSpendReversal({
+            db: supabaseAdmin,
+            order,
+            refundedAmount,
+            fullyRefunded,
+          });
+
           const { data: receipt } = await supabaseAdmin.from('commerce_receipts')
             .select('id,attribution').eq('sale_id', order.id).maybeSingle();
           if (receipt) {
@@ -588,16 +596,25 @@ async function stripeWebhook(req, res) {
       case 'charge.dispute.closed': {
         const dispute = event.data.object;
         if (supabaseAdmin && dispute.payment_intent) {
+          const { mergeCommerceOrderMetadata } = require('../lib/commerceOrderMetadata');
           const disputeLost = event.type === 'charge.dispute.created' || dispute.status === 'lost';
-          await supabaseAdmin.from('commerce_orders').update({
-            payment_status: disputeLost ? 'disputed' : 'paid',
-            metadata: {
-              stripe_dispute_id: dispute.id,
-              stripe_dispute_status: dispute.status,
-              stripe_dispute_reason: dispute.reason,
-            },
-            updated_at: new Date().toISOString(),
-          }).eq('stripe_payment_intent_id', dispute.payment_intent);
+          const { data: disputedOrder, error: disputedOrderError } = await supabaseAdmin
+            .from('commerce_orders')
+            .select('id,metadata')
+            .eq('stripe_payment_intent_id', dispute.payment_intent)
+            .maybeSingle();
+          if (disputedOrderError) throw disputedOrderError;
+          if (disputedOrder) {
+            await supabaseAdmin.from('commerce_orders').update({
+              payment_status: disputeLost ? 'disputed' : 'paid',
+              metadata: mergeCommerceOrderMetadata(disputedOrder.metadata, {
+                stripe_dispute_id: dispute.id,
+                stripe_dispute_status: dispute.status,
+                stripe_dispute_reason: dispute.reason,
+              }),
+              updated_at: new Date().toISOString(),
+            }).eq('id', disputedOrder.id);
+          }
         }
         break;
       }
@@ -617,14 +634,23 @@ async function stripeWebhook(req, res) {
         }
 
         if (event.type === 'payment_intent.payment_failed' && object.metadata?.commerce_order_id && supabaseAdmin) {
-          await supabaseAdmin.from('commerce_orders').update({
-            payment_status: 'failed',
-            metadata: {
-              payment_failure_code: object.last_payment_error?.code || null,
-              payment_failure_message: object.last_payment_error?.message || null,
-            },
-            updated_at: new Date().toISOString(),
-          }).eq('id', object.metadata.commerce_order_id).neq('payment_status', 'paid');
+          const { mergeCommerceOrderMetadata } = require('../lib/commerceOrderMetadata');
+          const { data: failedOrder, error: failedOrderError } = await supabaseAdmin
+            .from('commerce_orders')
+            .select('id,metadata,payment_status')
+            .eq('id', object.metadata.commerce_order_id)
+            .maybeSingle();
+          if (failedOrderError) throw failedOrderError;
+          if (failedOrder && failedOrder.payment_status !== 'paid') {
+            await supabaseAdmin.from('commerce_orders').update({
+              payment_status: 'failed',
+              metadata: mergeCommerceOrderMetadata(failedOrder.metadata, {
+                payment_failure_code: object.last_payment_error?.code || null,
+                payment_failure_message: object.last_payment_error?.message || null,
+              }),
+              updated_at: new Date().toISOString(),
+            }).eq('id', failedOrder.id).neq('payment_status', 'paid');
+          }
         }
         const funnel = object.metadata?.revenue_funnel;
         if (funnel) {

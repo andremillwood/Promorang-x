@@ -7,6 +7,7 @@ import type { DiscoveryObject, MomentObject, SceneObject } from "@/lib/consumer-
 import { supabase } from "@/integrations/supabase/client";
 import { useConsumerHomeLiveData } from "@/hooks/useConsumerHomeLiveData";
 import { useConsumerInteractions } from "@/hooks/useConsumerInteractions";
+import { PromoCardActivityFeed } from "@/components/promocard/PromoCardActivityFeed";
 import { usePromoCard } from "@/hooks/usePromoCard";
 import { resolvePromoCardFace } from "@promorang/shared";
 import { PromoCardFace } from "@/components/promorang/SignatureObjects";
@@ -193,6 +194,7 @@ const ConsumerHomePreview = () => {
             See where to use it
           </Link>
         </div>
+        {user?.id ? <div className="pt-6"><PromoCardActivityFeed userId={user.id} limit={3} /></div> : null}
       </section>
 
       <div className="mt-8">
