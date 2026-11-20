@@ -40,6 +40,15 @@ Allow: /
 User-agent: Amazonbot
 Allow: /
 
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: SERankingBacklinksBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
 User-agent: *
 Allow: /
 
