@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "entity_type": "moment",
+  "auto_publish_verified": true,
+  "cadence": "daily",
+  "lookahead_days": 60,
+  "scope_note": "These event discovery scopes supplement existing markets. State scopes retain each event's actual city. This policy does not enable blanket publication of venue inventory or change data/markets/pilot-cities.json rules.auto_publish.",
+  "verification": {
+    "required_facts": ["title", "source_url", "source_checked_at", "country_code", "city", "state_or_region", "venue_name", "starts_at", "timezone"],
+    "accepted_sources": ["official_organizer", "official_venue", "authorized_ticketing", "official_tourism", "municipal_calendar"],
+    "maximum_evidence_age_hours": 24,
+    "require_explicit_start_time": true,
+    "require_iana_timezone_at_venue": true,
+    "require_event_specific_source": true,
+    "unknown_end_time": "leave_null",
+    "unknown_price_or_inventory": "link_to_source_without_inventing_availability",
+    "conflicting_or_incomplete_facts": "hold_for_review",
+    "ambiguous_venue_match": "hold_for_review",
+    "undated_recurring_listings": "hold_until_occurrence_verified"
+  },
+  "publication": {
+    "visibility": "open",
+    "content_origin": "imported",
+    "ownership_status": "unclaimed",
+    "claim_status": "unclaimed",
+    "preserve_existing_owners": true,
+    "preserve_retired_and_cancelled_records": true,
+    "deduplicate_by": ["source_external_id", "source_url", "event_venue_start_identity"],
+    "match_or_create_venue": true,
+    "venue_ownership_status": "unclaimed",
+    "venue_identity": "one_stable_uuid_for_canonical_venue_and_public_listing",
+    "ownership_claims": "authenticated_request_with_evidence_and_admin_review",
+    "recrawl_cancelled_or_rescheduled_events": true
+  },
+  "markets": [
+    {
+      "key": "us-florida", "name": "Florida", "scope": "state", "country_code": "US", "country_slug": "united-states", "state_code": "US-FL", "state": "Florida", "currency": "USD", "timezone": "America/New_York",
+      "allowed_timezones": ["America/New_York", "America/Chicago"],
+      "timezone_rule": "Resolve from the venue's location. Western Florida uses Central time; Gulf County is split. Never use Miami's timezone as a statewide assumption.",
+      "city_hub": "miami", "state_hub": "us-florida"
+    },
+    {
+      "key": "us-georgia", "name": "Georgia", "scope": "state", "country_code": "US", "country_slug": "united-states", "state_code": "US-GA", "state": "Georgia", "currency": "USD", "timezone": "America/New_York",
+      "allowed_timezones": ["America/New_York"], "city_hub": "atlanta", "state_hub": "us-georgia"
+    },
+    {
+      "key": "us-new-york", "name": "New York State", "scope": "state", "country_code": "US", "country_slug": "united-states", "state_code": "US-NY", "state": "New York", "currency": "USD", "timezone": "America/New_York",
+      "allowed_timezones": ["America/New_York"], "city_hub": "new-york", "state_hub": "us-new-york"
+    },
+    {
+      "key": "us-michigan", "name": "Michigan", "scope": "state", "country_code": "US", "country_slug": "united-states", "state_code": "US-MI", "state": "Michigan", "currency": "USD", "timezone": "America/Detroit",
+      "allowed_timezones": ["America/Detroit", "America/Menominee"],
+      "timezone_rule": "Dickinson, Gogebic, Iron, and Menominee counties use America/Menominee. Resolve venue county before choosing the timezone.",
+      "city_hub": "detroit", "state_hub": "us-michigan"
+    },
+    {
+      "key": "gb-london", "name": "London", "scope": "metropolitan_area", "country_code": "GB", "country_slug": "united-kingdom", "state": "Greater London", "currency": "GBP", "timezone": "Europe/London",
+      "allowed_timezones": ["Europe/London"], "city_hub": "london"
+    }
+  ]
+}

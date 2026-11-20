@@ -9,12 +9,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nContext";
+import { importedListingCopy } from "@/i18n/imported-listing-copy";
+import { ImportedListingClaims } from "@/components/claims/ImportedListingClaims";
 
 type ClaimablePage = { claim_id: string; entity_type: "scene" | "moment" | "venue" | "brand"; entity_id: string; display_name: string; status: string; created_at: string; requested_at: string | null; review_note: string | null };
 const icons = { scene: Users, moment: CalendarDays, venue: MapPin, brand: Building2 };
 
 export default function ClaimPages() {
-  const { t, formatDate } = useI18n();
+  const { t, formatDate, locale } = useI18n();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState<string | null>(null);
@@ -50,10 +52,13 @@ export default function ClaimPages() {
   return (
     <main className="mx-auto min-h-[70vh] max-w-4xl px-4 py-10 sm:py-16">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">{t("claimPages.eyebrow")}</p>
-      <h1 className="mt-3 font-serif text-4xl font-bold sm:text-5xl">{t("claimPages.title")}</h1>
-      <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{t("claimPages.copy")}</p>
+      <h1 className="mt-3 font-serif text-4xl font-bold sm:text-5xl">{importedListingCopy[locale].pageTitle}</h1>
+      <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{importedListingCopy[locale].pageCopy}</p>
+
+      <ImportedListingClaims />
 
       <div className="mt-9 space-y-3" aria-live="polite">
+        <h2 className="text-xl font-bold">{importedListingCopy[locale].preparedClaims}</h2>
         {query.isLoading && <div className="flex items-center gap-2 py-10 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" />{t("claimPages.checking")}</div>}
         {query.data?.map((item) => {
           const Icon = icons[item.entity_type];

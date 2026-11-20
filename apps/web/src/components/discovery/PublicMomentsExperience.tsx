@@ -21,7 +21,7 @@ const lifecycleHeading: Record<MomentLifecycle, TranslationKey> = {
   recently_ended: "web.recentlyHappened",
 };
 
-function formatMomentDate(value?: string | null) {
+function formatMomentDate(value?: string | null, timezone?: string | null) {
   if (!value) return translate("web.timeOnMoment");
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return translate("web.timeOnMoment");
@@ -31,6 +31,8 @@ function formatMomentDate(value?: string | null) {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: timezone || undefined,
+    timeZoneName: "short",
   }).format(date);
 }
 
@@ -52,7 +54,7 @@ function PublicMomentPoster({ moment }: { moment: CanonicalMoment }) {
         <p className="text-[9px] font-black uppercase tracking-[0.15em] text-orange-300">{moment.category || webT("promoShare.typeMoment")}</p>
         <h3>{moment.title}</h3>
         <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-white/50"><MapPin className="mt-0.5 h-3 w-3 shrink-0 text-orange-400" />{moment.venue_name || moment.location || webT("web.locationOnMoment")}</p>
-        <p className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-white/62"><Clock className="h-3 w-3 text-orange-400" />{formatMomentDate(moment.starts_at)}</p>
+        <p className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-white/62"><Clock className="h-3 w-3 text-orange-400" />{formatMomentDate(moment.starts_at, moment.recurrence_timezone || moment.timezone)}</p>
         {moment.reward ? <p className="mt-3 border-l-2 border-orange-500 bg-orange-500/[0.07] px-3 py-2 text-[11px] leading-5 text-white/65">{moment.reward}</p> : null}
       </div>
     </Link>

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AdminImportedListingClaims } from "./AdminImportedListingClaims";
 
 const pageTypes = [
   { id: "scene", label: "Scene", icon: Users, hint: "A living community people can return to." },
@@ -139,6 +140,8 @@ export function AdminClaimablePagesTab() {
           </CardContent>
         </Card>
       </form>
+
+      <AdminImportedListingClaims />
 
       <section className="space-y-4">
         <div><p className="text-xs font-black uppercase tracking-[0.2em] text-primary">Ownership review</p><h2 className="mt-2 font-serif text-3xl font-bold">Claims awaiting a decision</h2></div>

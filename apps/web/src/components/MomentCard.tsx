@@ -21,6 +21,8 @@ type Moment = Tables<"moments"> & {
   recurrence_enabled?: boolean | null;
   recurrence_frequency?: "daily" | "weekly" | "monthly" | null;
   recurrence_interval?: number | null;
+  recurrence_timezone?: string | null;
+  timezone?: string | null;
   lifecycle?: "live" | "starting_soon" | "upcoming" | "recently_ended";
   effective_ends_at?: string | null;
   venue_category?: string | null;
@@ -140,6 +142,7 @@ export function MomentCard({
       weekday: "short",
       month: "short",
       day: "numeric",
+      timeZone: moment.recurrence_timezone || moment.timezone || undefined,
     });
   };
 
@@ -148,6 +151,8 @@ export function MomentCard({
     return date.toLocaleTimeString(currentUiLocale(), {
       hour: "numeric",
       minute: "2-digit",
+      timeZone: moment.recurrence_timezone || moment.timezone || undefined,
+      timeZoneName: "short",
     });
   };
 

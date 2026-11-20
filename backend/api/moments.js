@@ -23,7 +23,7 @@ router.get('/feed', async (req, res) => {
 
         const [{ data: venues }, { data: sceneLinks }] = await Promise.all([
             venueIds.length
-                ? supabase.from('view_public_venue_directory').select('id,slug,name').in('id', venueIds)
+                ? supabase.from('view_public_venue_directory').select('id,slug,name,state,market_key,timezone').in('id', venueIds)
                 : Promise.resolve({ data: [] }),
             momentIds.length
                 ? supabase.from('moment_scene_links').select('moment_id,scene_id').in('moment_id', momentIds)
@@ -51,6 +51,9 @@ router.get('/feed', async (req, res) => {
                 ...moment,
                 venue_name: moment.venue_name || venue?.name || null,
                 venue_slug: venue?.slug || null,
+                state: venue?.state || null,
+                market_key: venue?.market_key || null,
+                timezone: moment.recurrence_timezone || venue?.timezone || null,
                 scene_id: sceneId,
                 scene_slug: scene?.slug || null,
                 scene_title: scene?.title || null,

@@ -313,6 +313,21 @@ export const COUNTRY_MARKETS = [
     features: plannedFeatures,
     cities: [{ slug: "caracas", name: "Caracas", timezone: "America/Caracas", headline: "Caracas crea incluso cuando todo cambia.", description: "Encuentra las escenas, espacios, creadores y comunidades que mantienen la ciudad en movimiento." }],
   },
+  {
+    code: "US", slug: "united-states", name: "United States", currency: "USD", locale: "en", timezone: "America/New_York", launchStage: "pilot",
+    features: safePilotFeatures,
+    cities: [
+      { slug: "miami", name: "Miami", timezone: "America/New_York", headline: "Discover Miami through its communities.", description: "Find local music, culture, food, and gatherings in Miami and South Florida." },
+      { slug: "atlanta", name: "Atlanta", timezone: "America/New_York", headline: "Find what is happening in Atlanta.", description: "Discover local events, creative communities, and the places bringing people together." },
+      { slug: "new-york", name: "New York City", timezone: "America/New_York", headline: "Find your next New York gathering.", description: "Explore the events, venues, and communities across New York City's boroughs." },
+      { slug: "detroit", name: "Detroit", timezone: "America/Detroit", headline: "Discover Detroit through local events.", description: "Find music, culture, food, and community gatherings across Detroit." },
+    ],
+  },
+  {
+    code: "GB", slug: "united-kingdom", name: "United Kingdom", currency: "GBP", locale: "en", timezone: "Europe/London", launchStage: "pilot",
+    features: safePilotFeatures,
+    cities: [{ slug: "london", name: "London", timezone: "Europe/London", headline: "Discover London's local gatherings.", description: "Find music, culture, food, and community events across Greater London." }],
+  },
 ] as const satisfies readonly CountryMarket[];
 
 export const DEFAULT_COUNTRY_CODE = "JM";

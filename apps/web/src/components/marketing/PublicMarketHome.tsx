@@ -45,7 +45,7 @@ function momentHref(moment: CanonicalMoment) {
 
 function momentDate(moment: CanonicalMoment, locale: string) {
   if (!moment.starts_at) return null;
-  return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(moment.starts_at));
+  return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: moment.recurrence_timezone || moment.timezone || undefined, timeZoneName: "short" }).format(new Date(moment.starts_at));
 }
 
 function MomentTile({ moment, locale, labels }: { moment: CanonicalMoment; locale: string; labels: { live: string; soon: string; upcoming: string; moment: string; going: string; open: string } }) {
@@ -81,7 +81,7 @@ export default function PublicMarketHome() {
   const { data: discoveries = [], isLoading: discoveriesLoading, isError: discoveriesError, refetch: retryDiscoveries } = useDiscoveries({ city: cityFilter, limit: 12 });
   const { data: scenes = [] } = useScenes({ city: cityFilter, country: country.slug || "jamaica", limit: 8 });
   const { inbox } = useDiscoveryDemand(city.name, country.slug || "jamaica", city.id === "all-jamaica" ? undefined : city.id);
-  const moments = useMemo(() => (momentFeed?.moments || []).filter((moment) => moment.lifecycle !== "recently_ended").filter((moment) => matchesCityHub({ location: moment.location, venue_name: moment.venue_name }, city)).sort((a, b) => Number(b.lifecycle === "live") - Number(a.lifecycle === "live") || Date.parse(a.starts_at) - Date.parse(b.starts_at)).slice(0, 10), [momentFeed?.moments, city]);
+  const moments = useMemo(() => (momentFeed?.moments || []).filter((moment) => moment.lifecycle !== "recently_ended").filter((moment) => matchesCityHub(moment, city)).sort((a, b) => Number(b.lifecycle === "live") - Number(a.lifecycle === "live") || Date.parse(a.starts_at) - Date.parse(b.starts_at)).slice(0, 10), [momentFeed?.moments, city]);
   const wants = useMemo(() => inbox.questions.slice(0, 8), [inbox.questions]);
   const hasInventory = moments.length + discoveries.length > 0;
   const inventoryLoading = momentsLoading || discoveriesLoading;

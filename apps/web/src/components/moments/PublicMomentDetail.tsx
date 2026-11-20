@@ -2,18 +2,23 @@ import { BrandImage } from "@/components/media/BrandImage";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { translate, useI18n as useWebI18n } from "@/i18n/I18nContext";
 import { Link, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock, Gift, MapPin, Share2, Users, WalletCards } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
 import { momentLifecycleLabel, type CanonicalMoment } from "@/services/moment-feed";
 import { getSiteUrl } from "@/lib/discovery";
+import { ImportedMomentClaim } from "./ImportedMomentClaim";
+import { ImportedEventSource } from "./ImportedEventSource";
+import { importedListingCopy } from "@/i18n/imported-listing-copy";
+import { getPublicMomentDetail } from "@/services/public-moment-detail";
 
-function formatDate(value?: string | null) {
+function formatDate(value?: string | null, timezone?: string | null) {
   if (!value) return translate("web.timeOnMoment");
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return translate("web.timeOnMoment");
-  return new Intl.DateTimeFormat(currentUiLocale(), { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
+  return new Intl.DateTimeFormat(currentUiLocale(), { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: timezone || undefined, timeZoneName: "short" }).format(date);
 }
 
 function MomentCard({ moment }: { moment: CanonicalMoment }) {
@@ -25,20 +30,23 @@ function MomentCard({ moment }: { moment: CanonicalMoment }) {
 }
 
 export function PublicMomentDetail() {
-  const { t: webT, formatNumber } = useWebI18n();
+  const { t: webT, formatNumber, locale } = useWebI18n();
   const { id } = useParams<{ id: string }>();
   const query = useCanonicalMomentFeed();
   const moments = query.data?.moments || [];
-  const moment = moments.find((item) => item.id === id || item.slug === id) || null;
+  const feedMoment = moments.find((item) => item.id === id || item.slug === id) || null;
+  const detail = useQuery({ queryKey: ["public-moment-detail", id], queryFn: () => getPublicMomentDetail(id!), enabled: Boolean(id && !feedMoment && !query.isLoading), retry: 1 });
+  const moment = feedMoment || detail.data || null;
 
-  if (query.isLoading) return <main className="grid min-h-screen place-items-center bg-[#050505] text-white"><div className="h-9 w-9 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" /></main>;
-  if (query.isError || !moment) return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><CalendarDays className="mx-auto h-9 w-9 text-orange-400" /><h1 className="mt-5 text-4xl font-black">{query.isError ? webT("web.momentUnavailable") : webT("web.notCurrentMoment")}</h1><p className="mt-3 text-sm leading-6 text-white/50">{query.isError ? webT("web.momentLoadError") : webT("web.momentLinkError")}</p><Link to="/discover/moments" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4" />{webT("momentRecord.browseMoments")}</Link></div></main>;
+  if (query.isLoading || (!feedMoment && detail.isLoading)) return <main className="grid min-h-screen place-items-center bg-[#050505] text-white"><div className="h-9 w-9 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" /></main>;
+  if (!moment) return <main className="grid min-h-screen place-items-center bg-[#050505] px-6 text-center text-white"><div className="max-w-xl"><CalendarDays className="mx-auto h-9 w-9 text-orange-400" /><h1 className="mt-5 text-4xl font-black">{detail.isError ? webT("web.momentUnavailable") : webT("web.notCurrentMoment")}</h1><p className="mt-3 text-sm leading-6 text-white/50">{detail.isError ? webT("web.momentLoadError") : webT("web.momentLinkError")}</p><Link to="/discover/moments" className="mt-6 inline-flex items-center gap-2 font-black text-orange-300"><ArrowLeft className="h-4 w-4" />{webT("momentRecord.browseMoments")}</Link></div></main>;
 
   const href = `/moments/${moment.slug || moment.id}`;
   const authHref = `/auth?mode=signup&next=${encodeURIComponent(href)}`;
   const related = moments.filter((item) => item.id !== moment.id && (item.category === moment.category || (item.location && item.location === moment.location) || (item.venue_name && item.venue_name === moment.venue_name))).slice(0, 4);
   const more = moments.filter((item) => item.id !== moment.id && !related.some((r) => r.id === item.id)).slice(0, 4);
   const hostId = moment.host_id || moment.organizer_id || null;
+  const isImportedListing = moment.content_origin === "imported";
   const linkedBrands = (moment.associated_brands || []).filter((brand) => brand.slug);
   const linkedOffers = moment.associated_offers || [];
   const primaryOffer = linkedOffers[0] || null;
@@ -59,17 +67,20 @@ export function PublicMomentDetail() {
             <h1 className="mt-4 text-4xl font-black leading-[.9] tracking-[-.05em] sm:text-5xl xl:text-6xl">{moment.title}</h1>
             {moment.description ? <p className="mt-5 text-sm leading-7 text-white/58">{moment.description}</p> : null}
             <div className="mt-6 grid gap-3 border-t border-white/10 pt-5 text-xs font-bold text-white/65">
-              <span className="flex items-start gap-2"><CalendarDays className="mt-0.5 h-4 w-4 text-orange-400" />{formatDate(moment.starts_at)}</span>
+              <span className="flex items-start gap-2"><CalendarDays className="mt-0.5 h-4 w-4 text-orange-400" />{formatDate(moment.starts_at, moment.recurrence_timezone || moment.timezone)}</span>
               <span className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 text-orange-400" />{moment.venue_name || moment.location || webT("web.locationOnMoment")}</span>
               {moment.participant_count > 0 ? <span className="flex items-center gap-2"><Users className="h-4 w-4 text-orange-400" />{webT(moment.participant_count === 1 ? "web.participantOne" : "web.participantCount", { count: formatNumber(moment.participant_count) })}</span> : null}
             </div>
           </div>
           <aside className="border-t border-white/10 bg-black/35 p-6 lg:border-l lg:border-t-0">
+            {isImportedListing ? <><ImportedEventSource sourceUrl={moment.external_source_url} /><Link to={authHref} className="mt-4 inline-flex min-h-11 items-center text-xs font-bold text-orange-300 underline">{importedListingCopy[locale].signIn}</Link></> : <>
             <p className="text-[9px] font-black uppercase tracking-[.16em] text-orange-300">{webT("event.getIn")}</p>
             <h2 className="mt-3 text-2xl font-black">{webT("web.keepPlace")}</h2>
             {moment.reward ? <div className="mt-5 border border-orange-400/25 bg-orange-500/[.08] p-4"><p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.14em] text-orange-300"><Gift className="h-3.5 w-3.5" />{webT("web.accessPerk")}</p><p className="mt-2 text-sm font-bold text-white/78">{moment.reward}</p></div> : null}
             <Link to={authHref} className="mt-5 inline-flex min-h-12 w-full items-center justify-between bg-orange-500 px-5 text-xs font-black uppercase tracking-[.08em] text-black">{webT("web.keepOnCard")} <ArrowRight className="h-4 w-4" /></Link>
             <p className="mt-3 text-[10px] leading-5 text-white/35">{webT("web.keepExplanation")}</p>
+            </>}
+            <ImportedMomentClaim moment={moment} />
           </aside>
         </div>
       </div>
@@ -79,7 +90,7 @@ export function PublicMomentDetail() {
 
     <section id="about" className="px-5 py-14 sm:px-6 md:py-20"><div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[1fr_.75fr]">
       <div><p className="marketing-kicker">{webT("launch.about")}</p><h2 className="mt-3 text-4xl font-black">{webT("web.whatToKnow")}</h2><p className="mt-5 max-w-2xl text-base leading-8 text-white/58">{moment.description || webT("web.checkMomentDetails")}</p>{moment.associated_brand_names?.length ? <p className="mt-5 text-xs text-white/42">{webT("web.associated")} {moment.associated_brand_names.join(" · ")}</p> : null}</div>
-      {moment.venue_slug ? <Link id="place" to={`/venues/${moment.venue_slug}`} className="group border border-white/10 bg-white/[.025] p-6 transition hover:border-orange-400/35"><p className="text-[9px] font-black uppercase tracking-[.15em] text-orange-300">{webT("web.happeningHere")}</p><div className="mt-3 flex items-center justify-between gap-4"><h3 className="text-2xl font-black">{moment.venue_name || moment.location || webT("web.locationOnMoment")}</h3><ArrowRight className="h-5 w-5 text-white/30 transition group-hover:text-orange-300" /></div><p className="mt-4 flex items-center gap-2 text-sm text-white/55"><Clock className="h-4 w-4 text-orange-400" />{formatDate(moment.starts_at)}</p>{moment.ends_at ? <p className="mt-2 text-xs text-white/38">{webT("offerStudio.endsLabel")} {formatDate(moment.ends_at)}</p> : null}</Link> : <div id="place" className="border border-white/10 bg-white/[.025] p-6"><p className="text-[9px] font-black uppercase tracking-[.15em] text-orange-300">{webT("web.placeTime")}</p><h3 className="mt-3 text-2xl font-black">{moment.venue_name || moment.location || webT("web.locationOnMoment")}</h3><p className="mt-4 flex items-center gap-2 text-sm text-white/55"><Clock className="h-4 w-4 text-orange-400" />{formatDate(moment.starts_at)}</p>{moment.ends_at ? <p className="mt-2 text-xs text-white/38">{webT("offerStudio.endsLabel")} {formatDate(moment.ends_at)}</p> : null}</div>}
+      {moment.venue_slug ? <Link id="place" to={`/venues/${moment.venue_slug}`} className="group border border-white/10 bg-white/[.025] p-6 transition hover:border-orange-400/35"><p className="text-[9px] font-black uppercase tracking-[.15em] text-orange-300">{webT("web.happeningHere")}</p><div className="mt-3 flex items-center justify-between gap-4"><h3 className="text-2xl font-black">{moment.venue_name || moment.location || webT("web.locationOnMoment")}</h3><ArrowRight className="h-5 w-5 text-white/30 transition group-hover:text-orange-300" /></div><p className="mt-4 flex items-center gap-2 text-sm text-white/55"><Clock className="h-4 w-4 text-orange-400" />{formatDate(moment.starts_at, moment.recurrence_timezone || moment.timezone)}</p>{moment.ends_at ? <p className="mt-2 text-xs text-white/38">{webT("offerStudio.endsLabel")} {formatDate(moment.ends_at, moment.recurrence_timezone || moment.timezone)}</p> : null}</Link> : <div id="place" className="border border-white/10 bg-white/[.025] p-6"><p className="text-[9px] font-black uppercase tracking-[.15em] text-orange-300">{webT("web.placeTime")}</p><h3 className="mt-3 text-2xl font-black">{moment.venue_name || moment.location || webT("web.locationOnMoment")}</h3><p className="mt-4 flex items-center gap-2 text-sm text-white/55"><Clock className="h-4 w-4 text-orange-400" />{formatDate(moment.starts_at, moment.recurrence_timezone || moment.timezone)}</p>{moment.ends_at ? <p className="mt-2 text-xs text-white/38">{webT("offerStudio.endsLabel")} {formatDate(moment.ends_at, moment.recurrence_timezone || moment.timezone)}</p> : null}</div>}
     </div></section>
 
     {moment.reward || primaryOffer ? <section id="access" className="border-y border-white/10 bg-[#090909] px-5 py-14 sm:px-6"><div className="mx-auto max-w-[1180px]"><p className="marketing-kicker"><Gift className="h-3.5 w-3.5" /> {webT("web.access")}</p><div className="mt-5 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center"><div><h2 className="text-3xl font-black">{primaryOffer?.title || moment.reward}</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/48">{primaryOffer?.description || webT("web.openOfferDetails")}</p></div><Link to={primaryOffer ? `/offers/${primaryOffer.id}` : authHref} className="inline-flex min-h-12 items-center gap-2 bg-orange-500 px-5 text-xs font-black uppercase tracking-[.08em] text-black">{primaryOffer ? webT("web.openOffer") : webT("funnel.continue")} <ArrowRight className="h-4 w-4" /></Link></div></div></section> : null}

@@ -5,6 +5,7 @@ import {
   type CountryMarket,
   type MarketFeature,
   getCountryMarket,
+  getCityMarket,
   isMarketFeatureEnabled,
 } from "@promorang/shared";
 import { useI18n } from "@/i18n/I18nContext";
@@ -124,7 +125,7 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     setCity,
     isFeatureEnabled: (feature) => isMarketFeatureEnabled(country, feature),
     formatCurrency: (amount, options) => new Intl.NumberFormat(locale, { style: "currency", currency: country.currency, ...options }).format(amount),
-    formatLocalDate: (date, options, timezone = country.timezone) => new Intl.DateTimeFormat(locale, { timeZone: timezone, ...options }).format(new Date(date)),
+    formatLocalDate: (date, options, timezone = getCityMarket(country, city.id)?.timezone || country.timezone) => new Intl.DateTimeFormat(locale, { timeZone: timezone, ...options }).format(new Date(date)),
   }), [country, city, locale, setCountry, setCity]);
 
   return <MarketContext.Provider value={value}>{children}</MarketContext.Provider>;
