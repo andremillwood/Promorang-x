@@ -105,8 +105,9 @@ function InitialLayout() {
 
     const inAuthGroup = segments[0] === 'auth';
     const inOnboarding = segments[0] === 'onboarding';
+    const inCompleteProfile = segments[0] === 'complete-profile';
 
-    if (session && !onboardingCompleted && !inOnboarding) {
+    if (session && !onboardingCompleted && !inOnboarding && !inCompleteProfile) {
       router.replace('/onboarding');
     } else if (session && onboardingCompleted && (inAuthGroup || inOnboarding)) {
       router.replace('/(tabs)');
@@ -162,6 +163,7 @@ function RootLayoutNav() {
         <Stack.Screen name="create-proposal" options={{ presentation: 'modal', headerTitle: 'Activation Plan' }} />
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="complete-profile" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
         <Stack.Screen name="give" options={{ headerShown: false }} />
         <Stack.Screen name="stock" options={{ headerShown: false }} />

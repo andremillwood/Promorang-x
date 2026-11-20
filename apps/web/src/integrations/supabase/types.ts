@@ -1218,6 +1218,8 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          country_code: string | null
+          country_source: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -1228,6 +1230,8 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          country_code?: string | null
+          country_source?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -1238,6 +1242,8 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          country_code?: string | null
+          country_source?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -1815,6 +1821,14 @@ export type Database = {
       open_campaign_activation: {
         Args: { p_campaign_id: string }
         Returns: string
+      }
+      record_signup_eligibility: {
+        Args: { p_country_code: string; p_dob: string; p_source?: string }
+        Returns: Json
+      }
+      signup_eligibility_status: {
+        Args: Record<string, never>
+        Returns: Json
       }
       has_role: {
         Args: {

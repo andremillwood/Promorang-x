@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { isPlaceholderDisplayName, readIntendedStakeholderRole, rememberIntendedStakeholder } from "@promorang/shared";
+import { isPlaceholderDisplayName, readIntendedStakeholderRole, rememberIntendedStakeholder, validateSignupEligibility } from "@promorang/shared";
+import { recordSignupEligibility } from "@/lib/signup-eligibility";
 import { supabase } from "@/integrations/supabase/client";
 import { clearDemoSession, DemoRole, readDemoSession, writeDemoSession } from "@/lib/demo-session";
 import { getGrowthSignupMetadata } from "@/lib/marketing-attribution";
@@ -34,7 +35,13 @@ interface AuthContextType {
   activeRole: UserRole | null;
   setActiveRole: (role: UserRole) => void;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+    role: UserRole,
+    eligibility: { countryCode: string; dob: string },
+  ) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: (intent?: { role?: string | null; next?: string | null }) => Promise<{ error: Error | null }>;
   applyIntendedRole: (userId: string, role?: string | null) => Promise<UserRole | null>;
@@ -435,10 +442,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    fullName: string,
+    role: UserRole,
+    eligibility: { countryCode: string; dob: string },
+  ) => {
+    const gate = validateSignupEligibility({
+      countryCode: eligibility.countryCode,
+      dob: eligibility.dob,
+    });
+    if (gate) return { error: new Error(gate) };
+
     clearDemoSession();
     const redirectUrl = `${window.location.origin}/`;
     const growth = getGrowthSignupMetadata();
+    const countryCode = eligibility.countryCode.toUpperCase();
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -452,6 +472,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           referral_code: growth.referral_code,
           anonymous_id: growth.anonymous_id,
           acquisition: growth.first_touch,
+          country_code: countryCode,
+          dob: eligibility.dob,
         },
       },
     });
@@ -472,6 +494,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       localStorage.setItem("promorang_active_role", role);
       setActiveRoleState(role);
+
+      if (data.session) {
+        const saved = await recordSignupEligibility({
+          countryCode,
+          dob: eligibility.dob,
+          source: "signup",
+        });
+        if (saved.error) return { error: saved.error };
+      }
 
       fetch(`${import.meta.env.VITE_API_URL || "https://api.promorang.co"}/api/email/welcome`, {
         method: "POST",

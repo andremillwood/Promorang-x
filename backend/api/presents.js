@@ -43,21 +43,21 @@ router.get('/catalog', async (req, res) => {
 router.post('/redeem', optionalAuth, async (req, res) => {
   if (!requireDatabase(res)) return;
   const code = normalizeCode(req.body.code);
-  const anonymousId = String(req.body.anonymousId || '').trim().slice(0, 128);
-  if (!code || (!req.user?.id && !anonymousId)) return fail(res, 400, 'Code and visitor identity are required', 'INVALID_REQUEST');
+  if (!code) return fail(res, 400, 'An invitation code is required', 'INVALID_REQUEST');
+  if (!req.user?.id) return fail(res, 401, 'Sign in before using an invitation.', 'SIGN_IN_REQUIRED');
   try {
     const { data, error } = await supabase.rpc('redeem_presents_invite', {
       p_code: code,
-      p_user_id: req.user?.id || null,
-      p_anonymous_id: req.user?.id ? null : anonymousId,
+      p_user_id: req.user.id,
+      p_anonymous_id: null,
       p_ip_hash: hash(req.ip || req.headers['x-forwarded-for']),
       p_user_agent_hash: hash(req.headers['user-agent']),
       p_metadata: { source_path: req.body.sourcePath || '/presents', campaign: req.body.campaign || null },
     });
     if (error) {
-      const known = ['INVALID_CODE','CODE_UNAVAILABLE','CODE_EXPIRED','CODE_EXHAUSTED','PROGRAM_UNAVAILABLE','PROGRAM_FULL'];
+      const known = ['INVALID_CODE','CODE_UNAVAILABLE','CODE_EXPIRED','CODE_EXHAUSTED','PROGRAM_UNAVAILABLE','PROGRAM_FULL','ALREADY_REDEEMED','SIGN_IN_REQUIRED','COUNTRY_REQUIRED','DOB_REQUIRED','UNDERAGE'];
       const matched = known.find((item) => error.message.includes(item));
-      const messages = { INVALID_CODE: 'That invitation is not on the list.', CODE_UNAVAILABLE: 'That invitation is no longer active.', CODE_EXPIRED: 'That invitation has expired.', CODE_EXHAUSTED: 'That invitation has already been used.', PROGRAM_UNAVAILABLE: 'This private season is not currently open.', PROGRAM_FULL: 'The founding release is now full.' };
+      const messages = { INVALID_CODE: 'That invitation is not on the list.', CODE_UNAVAILABLE: 'That invitation is no longer active.', CODE_EXPIRED: 'That invitation has expired.', CODE_EXHAUSTED: 'That invitation has already been used.', PROGRAM_UNAVAILABLE: 'This private season is not currently open.', PROGRAM_FULL: 'The founding release is now full.', ALREADY_REDEEMED: 'You already joined with an invitation.', SIGN_IN_REQUIRED: 'Sign in before using an invitation.', COUNTRY_REQUIRED: 'Confirm your country before using an invitation.', DOB_REQUIRED: 'Add your date of birth before using an invitation.', UNDERAGE: 'You need to be 18 or older to use an invitation.' };
       return fail(res, matched ? 409 : 500, matched ? messages[matched] : 'Could not verify this invitation', matched || 'REDEEM_FAILED');
     }
     return ok(res, data);

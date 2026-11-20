@@ -25,6 +25,8 @@ import {
   rememberIntendedStakeholder,
   resolveIntendedStakeholderRole,
 } from "@promorang/shared";
+import { CountryPicker } from "@/components/auth/CountryPicker";
+import { clientEligibilityCode, eligibilityCodeFromMessage } from "@/lib/signup-eligibility";
 
 type UserRole = "participant" | "creator" | "host" | "brand" | "merchant" | "agency";
 
@@ -69,6 +71,8 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [countryCode, setCountryCode] = useState<string | null>(null);
+  const [dob, setDob] = useState("");
   const [demoEmail, setDemoEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
@@ -157,6 +161,11 @@ const AuthPage = () => {
     try {
       if (mode === "signup") {
         authSchema.parse({ email, password, fullName });
+        const eligibility = clientEligibilityCode({ countryCode, dob });
+        if (eligibility) {
+          setErrors({ eligibility });
+          return false;
+        }
       } else {
         authSchema.omit({ fullName: true }).parse({ email, password });
       }
@@ -216,11 +225,17 @@ const AuthPage = () => {
           stage: "captured",
           properties: { role: selectedRole },
         });
-        const { error } = await signUp(email, password, fullName, selectedRole);
+        const { error } = await signUp(email, password, fullName, selectedRole, {
+          countryCode: countryCode || "",
+          dob,
+        });
         if (error) {
+          const eligibility = eligibilityCodeFromMessage(error.message);
           toast({
             title: t("auth.signUpError"),
-            description: error.message.includes("already registered")
+            description: eligibility
+              ? t(eligibility === "UNDERAGE" ? "auth.underage" : eligibility === "DOB_REQUIRED" || eligibility === "INVALID_DOB" ? "auth.dobRequired" : "auth.countryRequired")
+              : error.message.includes("already registered")
               ? t("auth.alreadyRegistered")
               : error.message,
             variant: "destructive",
@@ -480,6 +495,47 @@ const AuthPage = () => {
                 <p className="text-destructive text-sm mt-1">{errors.password}</p>
               )}
             </div>
+
+            {mode === "signup" && (
+              <>
+                <div>
+                  <Label htmlFor="country">{t("auth.country")}</Label>
+                  <CountryPicker
+                    id="country"
+                    value={countryCode}
+                    onChange={(code) => {
+                      setCountryCode(code);
+                      setErrors((current) => ({ ...current, eligibility: "" }));
+                    }}
+                    placeholder={t("auth.countrySearch")}
+                    noMatchLabel={t("onboarding.noCountryMatch")}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">{t("onboarding.countryHelp")}</p>
+                </div>
+                <div>
+                  <Label htmlFor="dob">{t("auth.dob")}</Label>
+                  <Input
+                    id="dob"
+                    type="date"
+                    value={dob}
+                    onChange={(event) => {
+                      setDob(event.target.value);
+                      setErrors((current) => ({ ...current, eligibility: "" }));
+                    }}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">{t("onboarding.dobHelp")}</p>
+                </div>
+                {errors.eligibility && (
+                  <p className="text-destructive text-sm">
+                    {t(errors.eligibility === "UNDERAGE"
+                      ? "auth.underage"
+                      : errors.eligibility === "DOB_REQUIRED" || errors.eligibility === "INVALID_DOB"
+                        ? "auth.dobRequired"
+                        : "auth.countryRequired")}
+                  </p>
+                )}
+              </>
+            )}
 
             <Button type="submit" className="w-full" variant="hero" size="lg" disabled={isLoading}>
               {isLoading ? t("auth.wait") : mode === "login" ? t("auth.signIn") : t("auth.create")}

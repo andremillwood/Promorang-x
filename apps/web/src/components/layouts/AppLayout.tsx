@@ -11,6 +11,7 @@ import { MobileNavigationOwner } from "@/components/navigation/MobileNavigationO
 import "@/components/navigation/public-mobile-navigation.css";
 import Footer from "@/components/Footer";
 import { RankCelebrationModal } from "@/components/RankCelebrationModal";
+import { ConfirmCountryPrompt } from "@/components/auth/ConfirmCountryPrompt";
 import { useState, useEffect, type ComponentProps } from "react";
 import { ParticipantWorldLayout } from "@/components/layouts/ParticipantWorldLayout";
 import { isParticipantWorldRoute } from "@/lib/participant-world-route";
@@ -72,7 +73,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         location.pathname.startsWith("/aftrhrs/") ||
         location.pathname === "/moments/aftrhrs" ||
         location.pathname.startsWith("/moments/aftrhrs/");
-    const isCleanPage = ["/auth", "/onboarding"].includes(location.pathname) || isDropLanding || isAftrHrsLanding;
+    const isCleanPage = ["/auth", "/onboarding", "/complete-profile"].includes(location.pathname) || isDropLanding || isAftrHrsLanding;
     const showFooterCta = !["/", "/live", "/pulse"].includes(location.pathname) && !MARKETING_STORY_ROUTES.some(route => location.pathname === route || location.pathname.startsWith(`${route}/`));
 
     const isPrivateCommunity = location.pathname === "/community" || location.pathname.startsWith("/community/");
@@ -84,6 +85,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         return (
             <MobileNavigationOwner.Provider value={true}>
                 <div className={`flex min-h-screen min-w-0 flex-col ${!isCleanPage ? "public-navigation-shell" : ""}`}>
+                    {!isCleanPage && user && <ConfirmCountryPrompt />}
                     {!isCleanPage && <PublicHomeBar />}
                     <div className="min-w-0 flex-1">
                         {children || <Outlet />}
@@ -113,6 +115,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         return (
             <MobileNavigationOwner.Provider value={true}>
                 <ParticipantWorldLayout>
+                    <ConfirmCountryPrompt />
                     {children || <Outlet />}
                 </ParticipantWorldLayout>
             </MobileNavigationOwner.Provider>
@@ -125,6 +128,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <MobileNavigationOwner.Provider value={true}>
                 <div data-stakeholder-world data-stakeholder-role={stakeholderRole}>
                     <DashboardLayout currentRole={stakeholderRole as ComponentProps<typeof DashboardLayout>["currentRole"]}>
+                        <ConfirmCountryPrompt />
                         {children || <Outlet />}
                     </DashboardLayout>
                 </div>
@@ -134,6 +138,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
     return (
         <div className="min-h-screen flex flex-col bg-background overflow-x-clip">
+            {!isCleanPage && user && <ConfirmCountryPrompt />}
             {!isCleanPage && <Header />}
             <main className="flex-1 overflow-x-clip">
                 {children || <Outlet />}

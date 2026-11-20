@@ -11,6 +11,8 @@ import type { TranslationKey } from "@/i18n/translations";
 import { readPromoCardAim } from "@/lib/promocard-aim";
 import { MOTIVATION_TRIGGERS, readStoredMotivations, readStoredTasteCategories, TASTE_CATEGORIES } from "@/lib/taste-profile";
 import { useRecordPreferenceSignal } from "@/hooks/usePreferenceSignals";
+import { CountryPicker } from "@/components/auth/CountryPicker";
+import { clientEligibilityCode, eligibilityCodeFromMessage, recordSignupEligibility } from "@/lib/signup-eligibility";
 
 
 const LIFESTYLE_TAGS = [
@@ -59,6 +61,9 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
   }));
   const [persona, setPersona] = useState<"explorer" | "creator" | "mayor" | "merchant" | "brand" | "agency" | null>(null);
   const [locationMessage, setLocationMessage] = useState<string>("Location is optional. You can enter a city manually instead.");
+  const [countryCode, setCountryCode] = useState<string | null>(null);
+  const [dob, setDob] = useState("");
+  const [eligibilityError, setEligibilityError] = useState<string | null>(null);
 
   const { setActiveRole, activeRole } = useAuth();
   const createPreferences = useCreateUserPreferences();
@@ -157,13 +162,42 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
     }));
   };
 
+  const eligibilityMessage = (code: string) => {
+    if (code === "UNDERAGE") return t("onboarding.underage");
+    if (code === "DOB_REQUIRED" || code === "INVALID_DOB") return t("onboarding.dobRequired");
+    return t("onboarding.countryRequired");
+  };
+
+  const saveEligibility = async () => {
+    const code = clientEligibilityCode({ countryCode, dob });
+    if (code) {
+      setEligibilityError(eligibilityMessage(code));
+      setStep(4);
+      return false;
+    }
+    const saved = await recordSignupEligibility({
+      countryCode: countryCode || "",
+      dob,
+      source: "signup",
+    });
+    if (saved.error) {
+      const known = eligibilityCodeFromMessage(saved.error.message);
+      setEligibilityError(eligibilityMessage(known || "COUNTRY_REQUIRED"));
+      setStep(4);
+      return false;
+    }
+    setEligibilityError(null);
+    return true;
+  };
+
   const handleNext = async () => {
     if (step < steps.length - 1) {
       if (step === 0 && persona === "agency") {
           setStep(4); 
       } else if (step === 4) {
         try {
-          await createPreferences.mutateAsync(preferences);
+          if (!(await saveEligibility())) return;
+          await createPreferences.mutateAsync({ ...preferences, country: countryCode || undefined });
           await syncStoredMotivations();
         } catch {
           return;
@@ -174,7 +208,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       }
     } else {
       try {
-        await createPreferences.mutateAsync(preferences);
+        if (!(await saveEligibility())) return;
+        await createPreferences.mutateAsync({ ...preferences, country: countryCode || undefined });
         await syncStoredMotivations();
       } catch {
         return;
@@ -185,7 +220,8 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
   const handleSkip = async () => {
     try {
-      await createPreferences.mutateAsync(preferences);
+      if (!(await saveEligibility())) return;
+      await createPreferences.mutateAsync({ ...preferences, country: countryCode || undefined });
       await syncStoredMotivations();
     } catch {
       return;
@@ -210,7 +246,7 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
       case 3:
         return (preferences.preferred_times?.length ?? 0) > 0;
       case 4:
-        return true; // Location is optional
+        return clientEligibilityCode({ countryCode, dob }) === null;
       default:
         return false;
     }
@@ -531,6 +567,35 @@ const OnboardingSurvey = ({ onComplete }: OnboardingSurveyProps) => {
 
               {step === 4 && (
                 <div className="space-y-6">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block" htmlFor="onboarding-country">{t("onboarding.homeCountry")}</label>
+                    <CountryPicker
+                      id="onboarding-country"
+                      value={countryCode}
+                      onChange={(code) => {
+                        setCountryCode(code);
+                        setEligibilityError(null);
+                      }}
+                      placeholder={t("onboarding.countrySearch")}
+                      noMatchLabel={t("onboarding.noCountryMatch")}
+                    />
+                    <p className="mt-2 text-xs text-muted-foreground">{t("onboarding.countryHelp")}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block" htmlFor="onboarding-dob">{t("onboarding.dob")}</label>
+                    <input
+                      id="onboarding-dob"
+                      type="date"
+                      value={dob}
+                      onChange={(event) => {
+                        setDob(event.target.value);
+                        setEligibilityError(null);
+                      }}
+                      className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <p className="mt-2 text-xs text-muted-foreground">{t("onboarding.dobHelp")}</p>
+                  </div>
+                  {eligibilityError && <p className="text-sm text-destructive">{eligibilityError}</p>}
                   {/* Location sharing */}
                   <div className="text-center">
                     <Button
