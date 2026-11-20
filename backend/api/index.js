@@ -298,6 +298,7 @@ app.use('/api/support', require('./support'));
 app.use('/api/participation', require('./participation'));
 app.use('/api/pulse', require('./pulse'));
 app.use('/api/proof', require('./proof'));
+app.use('/api/capped-drops', require('./capped-drops'));
 app.use('/api/memories', require('./memories'));
 app.use('/api/vault', require('./memories'));
 app.use('/api/impact', require('./impact'));

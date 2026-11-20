@@ -235,6 +235,7 @@ app.use('/api/growth-programs', require('./api/growth-programs'));
 app.use('/api/participation', require('./api/participation'));
 app.use('/api/pulse', require('./api/pulse'));
 app.use('/api/proof', require('./api/proof'));
+app.use('/api/capped-drops', require('./api/capped-drops'));
 app.use('/api/memories', require('./api/memories'));
 app.use('/api/vault', require('./api/memories'));
 app.use('/api/impact', require('./api/impact'));
