@@ -7,6 +7,7 @@ const promoPushTrackingService = require('./promoPushTrackingService');
 const experienceAutomationService = require('./experienceAutomationService');
 const growthOperatingService = require('./growthOperatingService');
 const masterKeyService = require('./masterKeyService');
+const { evaluateProofSubmission, proofTypeError } = require('./proofTypePolicy');
 
 async function attachMissionAttribution(submissions = []) {
   if (!supabase || submissions.length === 0) return submissions;
@@ -391,10 +392,41 @@ async function getProofSubmissionAudit(submissionId) {
   };
 }
 
+async function assertProofSubmissionMatchesMoment({ momentId, proofBundle }) {
+  if (!supabase) throw new Error('Database not available');
+
+  const { data: moment, error: momentError } = await supabase
+    .from('moments')
+    .select('id, proof_type, proof_mode')
+    .eq('id', momentId)
+    .maybeSingle();
+  if (momentError) throw momentError;
+  if (!moment) {
+    const missing = new Error('Moment not found');
+    missing.statusCode = 404;
+    missing.code = 'MOMENT_NOT_FOUND';
+    throw missing;
+  }
+
+  const { data: requirements, error: requirementError } = await supabase
+    .from('proof_requirements')
+    .select('requirement_type, is_required')
+    .eq('moment_id', momentId);
+  if (requirementError) throw requirementError;
+
+  const decision = evaluateProofSubmission(moment, requirements || [], proofBundle || {});
+  if (!decision.ok) throw proofTypeError(decision);
+  return decision;
+}
+
 async function submitProofSubmission({ momentId, userId, proofBundle, momentMoveId = null }) {
   if (!supabase) throw new Error('Database not available');
 
-  const normalizedBundle = proofBundle || {};
+  const decision = await assertProofSubmissionMatchesMoment({ momentId, proofBundle });
+  const normalizedBundle = {
+    ...(proofBundle || {}),
+    ...(decision.matchedType ? { proof_type: decision.matchedType } : {}),
+  };
   const uniqueKey = await momentEconomyService.validateUniqueProof({
     momentId,
     userId,
@@ -758,6 +790,7 @@ module.exports = {
   getProofSubmissionHistory,
   getProofSubmissionById,
   getProofSubmissionAudit,
+  assertProofSubmissionMatchesMoment,
   submitProofSubmission,
   reviewProofSubmission,
 };

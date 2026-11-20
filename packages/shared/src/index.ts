@@ -35,6 +35,8 @@ export * from "./value-instruments";
 export * from "./aftrhrs";
 export * from "./aftrhrs-inventory";
 export * from "./encore";
+export * from "./launch-window";
+export * from "./profile-completion";
 
 
 export type PromorangJourneyStepId =

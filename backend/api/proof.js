@@ -44,7 +44,26 @@ router.get('/moments/:id/requirements', requireAuth, async (req, res) => {
 // proof requirement before a pending proof can be created. Keep this legacy route
 // fail-closed instead of maintaining a second, weaker write path.
 router.post('/moments/:id/submissions', requireAuth, async (req, res) => {
-  res.status(410).json({
+  const bundle = req.body?.proof_bundle && typeof req.body.proof_bundle === 'object'
+    ? req.body.proof_bundle
+    : (req.body || {});
+  try {
+    await proofService.assertProofSubmissionMatchesMoment({
+      momentId: req.params.id,
+      proofBundle: bundle,
+    });
+  } catch (error) {
+    if (error.code === 'PROOF_TYPE_MISMATCH' || error.code === 'PROOF_TYPE_REQUIRED') {
+      return res.status(error.statusCode || 422).json({
+        success: false,
+        error: error.message,
+        code: error.code,
+        ...(error.payload || {}),
+      });
+    }
+  }
+
+  return res.status(410).json({
     success: false,
     error: 'Use the canonical participant proof flow for this Moment',
     code: 'USE_CANONICAL_PROOF_FLOW',

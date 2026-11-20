@@ -141,7 +141,12 @@ router.post('/:id/submit', requireAuth, async (req, res) => {
     res.status(201).json({ success: true, participation: data, submission });
   } catch (error) {
     console.error('[Missions API] submit error:', error);
-    res.status(500).json({ success: false, error: error.message || 'Unable to submit proof' });
+    res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Unable to submit proof',
+      code: error.code || null,
+      ...(error.payload || {}),
+    });
   }
 });
 

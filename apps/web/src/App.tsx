@@ -127,6 +127,8 @@ const MyPromoCard = lazy(() => import("./pages/MyPromoCard"));
 const Crews = lazy(() => import("./pages/Crews"));
 const Guilds = lazy(() => import("./pages/Guilds"));
 const DropClaim = lazy(() => import("./pages/DropClaim"));
+const CappedDrop = lazy(() => import("./pages/CappedDrop"));
+const CreateCappedDrop = lazy(() => import("./pages/CreateCappedDrop"));
 const StartCommunity = lazy(() => import("./pages/StartCommunity"));
 const CommunityPortal = lazy(() => import("./pages/CommunityPortal"));
 const PutInventoryUp = lazy(() => import("./pages/PutInventoryUp"));
@@ -355,6 +357,8 @@ const App = () => (
                     <Route path="/home" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
                     <Route path="/today" element={<ProtectedRoute><PeopleHome /></ProtectedRoute>} />
                     <Route path="/drop/:slug" element={<DropClaim />} />
+                    <Route path="/capped-drop/new" element={<ProtectedRoute><CreateCappedDrop /></ProtectedRoute>} />
+                    <Route path="/capped-drop/:slug" element={<CappedDrop />} />
                     <Route path="/app-preview" element={<PeopleHome />} />
                     <Route path="/app-preview/people" element={<MyPeople />} />
                     <Route path="/app-preview/give" element={<GiveSomething />} />
