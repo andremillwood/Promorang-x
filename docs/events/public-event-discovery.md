@@ -14,6 +14,8 @@ The daily discovery task looks ahead 60 days and prioritizes the next 14. Public
 
 The migration `20261120113704_public_event_discovery_and_claims.sql` adds the service-only RPC `publish_discovered_event_candidate(p_candidate_id uuid)` and a private `event_publication_policies` table. Each enabled policy authorizes one source and market, with a country, optional state, timezone allowlist, confidence threshold, and maximum evidence age. Populate policies from the approved scopes, not arbitrary page instructions.
 
+After applying the migration, run `scripts/events/enable-approved-discovery-markets.sql` to enable the 35 registered source/market combinations with a 0.95 confidence threshold and 24-hour evidence limit. It resolves existing sources by stable keys and preserves existing policy rows, including any deliberately paused policy. It does not publish a candidate by itself. Then recheck the approved candidate evidence and call the publisher individually, verifying its public Moment, venue profile and claim-target results.
+
 The publisher requires an approved, current candidate with recent authoritative evidence, a verified start time and timezone, an actual venue name/address, and a matching enabled source policy. `normalized_data` must contain:
 
 - `title`, `description`, `category`, `city`, `state` where applicable, `country`, `country_code`, and `market_key`.

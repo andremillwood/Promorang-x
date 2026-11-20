@@ -17,10 +17,12 @@ Alternatively, keep the dependency outside the repository:
 
 ```sh
 npm install --prefix /tmp/promorang-event-sql-tests @electric-sql/pglite@0.5.17
-PGLITE_MODULE=file:///tmp/promorang-event-sql-tests/node_modules/@electric-sql/pglite/dist/index.js node --test scripts/tests/event-discovery/public-event-discovery.test.mjs
+PGLITE_MODULE=file:///tmp/promorang-event-sql-tests/node_modules/@electric-sql/pglite/dist/index.js node --test scripts/tests/event-discovery/*.test.mjs
 ```
 
-`EVENT_MIGRATION_PATH` optionally selects another local SQL draft. The default is `supabase/migrations/20261120113704_public_event_discovery_and_claims.sql`.
+`EVENT_MIGRATION_PATH` optionally selects another local SQL draft for the publication regression suite. The default is `supabase/migrations/20261120113704_public_event_discovery_and_claims.sql`; the policy-seed suite always tests that committed migration.
+
+The separate `enable-approved-discovery-markets.test.mjs` suite executes the post-migration policy seed against synthetic registered source IDs. It verifies all 35 source policies and 14 geographic scopes, cross-checks the five new scopes against `data/events/discovery-policy.json`, checks IANA timezone availability and summer/winter offsets, preserves manually paused/customized policies on rerun, and confirms that owner profiles, claims, cancelled records, and unrelated inventory settings do not change. Disabled or missing sources are skipped rather than enabled or fabricated. Its fixtures do not assert that a remote registry is complete; check the seed's returned counts after running it on the target database.
 
 The fixture retains the inspected live enums, relevant column defaults and constraints, `auth.users`/`public.users` ownership foreign keys, existing Moment owner policies, and the old insecure claim policy so the migration must actually remove it. The previous public directory views and candidate normalization trigger are copied from the inspected live definitions. Unrelated application tables/triggers are omitted. PGlite uses a single connection: simultaneous promise submissions verify queued retries and idempotency, while a production-equivalent multi-session lock/load test requires a PostgreSQL server. The publisher also takes transaction-scoped advisory locks before cross-candidate event and venue matching.
 

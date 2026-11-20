@@ -12,6 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Building2, ChevronLeft, ChevronRight, MapPin, Search, Star } from "lucide-react";
 import { getSiteUrl } from "@/lib/discovery";
 import { useI18n } from "@/i18n/I18nContext";
+import { useMarket } from "@/contexts/MarketContext";
+import { venueDirectoryMarket } from "@/lib/venue-directory-market";
+import { venueDirectoryCopy } from "@/i18n/venue-directory-copy";
 
 type PublicVenue = Tables<"view_public_venue_directory"> & {
   listing_status?: "claimed" | "unclaimed" | null;
@@ -20,7 +23,6 @@ type PublicVenue = Tables<"view_public_venue_directory"> & {
   parish_slug?: string | null;
 };
 
-const jamaicaParishes = ["Kingston", "Saint Andrew", "Saint Thomas", "Portland", "Saint Mary", "Saint Ann", "Trelawny", "Saint James", "Hanover", "Westmoreland", "Saint Elizabeth", "Manchester", "Clarendon", "Saint Catherine"];
 const pageSize = 48;
 
 const venueTypes = [
@@ -34,30 +36,43 @@ const venueTypes = [
 ];
 
 const ExploreVenues = () => {
+  const { country, city } = useMarket();
+  // A market change must never reuse the old market's page or parish filter.
+  return <MarketVenueDirectory key={`${country.code}:${city.id}`} country={country} city={city} />;
+};
+
+const MarketVenueDirectory = ({ country, city }: Pick<ReturnType<typeof useMarket>, "country" | "city">) => {
   const { t: webT } = useI18n();
-  const { t, formatNumber } = useI18n();
+  const { t, formatNumber, locale } = useI18n();
+  const copy = venueDirectoryCopy[locale];
+  const market = venueDirectoryMarket(country, city);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeVenueType, setActiveVenueType] = useState("all");
   const [activeParish, setActiveParish] = useState("all");
   const [page, setPage] = useState(0);
 
   const venuesQuery = useQuery({
-    queryKey: ["explore-venues", activeVenueType, activeParish, searchQuery, page],
+    queryKey: ["explore-venues", country.code, city.id, activeVenueType, activeParish, searchQuery, page],
     queryFn: async () => {
       let query = (supabase as any)
         .from("view_public_venue_directory")
         .select("*", { count: "exact" })
-        .order("popularity_score", { ascending: false, nullsFirst: false })
-        .range(page * pageSize, page * pageSize + pageSize - 1);
+        .in("country_slug", market.countrySlugs);
+
+      if (market.placeFilter) query = query.or(market.placeFilter);
 
       if (activeVenueType !== "all") {
         query = query.eq("venue_type", activeVenueType);
       }
-      if (activeParish !== "all") query = query.eq("parish", activeParish);
+      if (market.isJamaica && market.parishes.includes(activeParish)) query = query.eq("parish", activeParish);
       const search = searchQuery.trim().replace(/[,%()]/g, " ");
       if (search) query = query.or(`name.ilike.%${search}%,city.ilike.%${search}%,parish.ilike.%${search}%,venue_type.ilike.%${search}%`);
 
-      const { data, error, count } = await query;
+      // The exact count and page are both computed from the same market filters.
+      const { data, error, count } = await query
+        .order("popularity_score", { ascending: false, nullsFirst: false })
+        .order("id", { ascending: true })
+        .range(page * pageSize, page * pageSize + pageSize - 1);
       if (error) throw error;
       return { venues: (data || []) as PublicVenue[], count: count || 0 };
     },
@@ -96,7 +111,7 @@ const ExploreVenues = () => {
               <Input
                 value={searchQuery}
                 onChange={(event) => { setSearchQuery(event.target.value); setPage(0); }}
-                placeholder={t("venues.search")}
+                placeholder={market.isJamaica ? t("venues.search") : copy.search}
                 className="h-12 pl-11"
               />
             </div>
@@ -118,11 +133,15 @@ const ExploreVenues = () => {
             </div>
             <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
               <MapPin className="h-4 w-4 shrink-0 text-primary" />
-              <label htmlFor="parish-filter" className="sr-only">{t("venues.allParishes")}</label>
-              <select id="parish-filter" value={activeParish} onChange={(event) => { setActiveParish(event.target.value); setPage(0); }} className="h-10 w-full max-w-xs rounded-xl border border-border bg-background px-3 text-sm font-semibold">
-                <option value="all">{t("venues.allParishes")}</option>
-                {jamaicaParishes.map((parish) => <option key={parish} value={parish}>{parish}</option>)}
-              </select>
+              {market.isJamaica ? (
+                <>
+                  <label htmlFor="parish-filter" className="sr-only">{city.id === "all-jamaica" ? t("venues.allParishes") : copy.allAreaParishes}</label>
+                  <select id="parish-filter" value={activeParish} onChange={(event) => { setActiveParish(event.target.value); setPage(0); }} className="h-10 w-full max-w-xs rounded-xl border border-border bg-background px-3 text-sm font-semibold">
+                    <option value="all">{city.id === "all-jamaica" ? t("venues.allParishes") : copy.allAreaParishes}</option>
+                    {market.parishes.map((parish) => <option key={parish} value={parish}>{parish}</option>)}
+                  </select>
+                </>
+              ) : <span className="text-sm font-semibold">{city.name} · {city.countryName}</span>}
               <span className="hidden text-xs text-white/45 sm:inline">Places in this view</span>
             </div>
           </div>
@@ -132,7 +151,7 @@ const ExploreVenues = () => {
               <h2 className="font-serif text-2xl font-bold">{t("venues.browse")}</h2>
               <p className="text-sm text-white/45">{t("venues.browseCopy")}</p>
             </div>
-            {!venuesQuery.isLoading ? (
+            {!venuesQuery.isLoading && !venuesQuery.isError ? (
               <Badge variant="outline" className="">
                 {t("venues.count", { count: formatNumber(totalVenues) })}
               </Badge>
@@ -144,6 +163,11 @@ const ExploreVenues = () => {
               {Array.from({ length: 6 }).map((_, index) => (
                 <Skeleton key={index} className="h-72 rounded-3xl" />
               ))}
+            </div>
+          ) : venuesQuery.isError ? (
+            <div role="alert" className="mt-6 rounded-3xl border border-border px-6 py-12 text-center">
+              <p>{copy.loadError}</p>
+              <Button className="mt-4" variant="outline" onClick={() => void venuesQuery.refetch()}>{copy.retry}</Button>
             </div>
           ) : filteredVenues.length > 0 ? (
             <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -234,7 +258,7 @@ const ExploreVenues = () => {
             </div>
           )}
           <section className="mt-12 grid gap-px border-y border-white/10 bg-white/10 md:grid-cols-3"><Link to="/scenes" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("publicHome.filterScenes")}</p><p className="mt-2 font-serif text-2xl font-bold">Find the culture around a place.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/discover?tab=moments" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("findOrAsk.moments")}</p><p className="mt-2 font-serif text-2xl font-bold">See what is happening next.</p><ArrowRight className="mt-5 h-4 w-4"/></Link><Link to="/explore/rewards" className="group bg-black p-6"><p className="text-[10px] font-black uppercase tracking-[.18em] text-primary">{webT("people.available")}</p><p className="mt-2 font-serif text-2xl font-bold">Find something you can unlock.</p><ArrowRight className="mt-5 h-4 w-4"/></Link></section>
-          {totalPages > 1 ? (
+          {!venuesQuery.isError && totalPages > 1 ? (
             <nav aria-label="Venue pages" className="mt-8 flex items-center justify-center gap-3">
               <Button variant="outline" disabled={page === 0 || venuesQuery.isFetching} onClick={() => setPage((value) => Math.max(0, value - 1))}><ChevronLeft className="mr-1 h-4 w-4" />Previous</Button>
               <span className="text-sm font-semibold">Page {page + 1} {webT("web.of")} {totalPages}</span>
