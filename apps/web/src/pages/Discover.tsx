@@ -112,7 +112,7 @@ type PublicVenue = {
   listing_status?: string | null;
 };
 
-const formatMomentDate = (value: string | null | undefined, locale: string, tba: string) => {
+const formatMomentDate = (value: string | null | undefined, locale: string, tba: string, timezone?: string | null) => {
   if (!value) return tba;
   try {
     return new Intl.DateTimeFormat(locale === "es-419" ? "es-419" : locale === "pt-BR" ? "pt-BR" : "en-US", {
@@ -121,6 +121,8 @@ const formatMomentDate = (value: string | null | undefined, locale: string, tba:
       day: "numeric",
       hour: "numeric",
       minute: "2-digit",
+      timeZone: timezone || undefined,
+      timeZoneName: "short",
     }).format(new Date(value));
   } catch {
     return tba;
@@ -201,11 +203,12 @@ const SignedInDiscover = () => {
   };
 
   const discoveryQuery = useQuery({
-    queryKey: ["discover-public-feed-v3"],
+    queryKey: ["discover-public-feed-v4"],
     queryFn: async () => {
-      const { data: momentsData, error } = await supabase
-        .from("moments")
+      const { data: momentsData, error } = await (supabase as any)
+        .from("view_public_moment_directory")
         .select("*")
+        .eq("is_active", true)
         .order("starts_at", { ascending: true })
         .limit(100);
 
@@ -763,7 +766,7 @@ const SignedInDiscover = () => {
                   <div className="overflow-hidden rounded-3xl border border-white/10">
                     <PromorangMap
                       center={mapCenter}
-                      zoom={city.id === "all-jamaica" ? 8 : 12}
+                      zoom={city.scope === "state" ? 6 : city.id === "all-jamaica" ? 8 : 12}
                       markers={mapMarkers}
                       height="520px"
                     />
@@ -802,7 +805,7 @@ const SignedInDiscover = () => {
                           <div className="space-y-1.5">
                             <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
                               <Calendar className="h-3.5 w-3.5" />
-                              <span>{formatMomentDate(status.displayStartsAt, locale, t("discover.tba"))}</span>
+                              <span>{formatMomentDate(status.displayStartsAt, locale, t("discover.tba"), item.recurrence_timezone || item.timezone)}</span>
                             </div>
                             <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
                               {item.title}

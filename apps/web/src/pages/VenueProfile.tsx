@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { useI18n } from "@/i18n/I18nContext";
 import { AFTRHRS_COPY, SEA_DECK_VENUE_ID } from "@promorang/shared";
 import { CurrentArc } from "@/components/marketing/MarketingPhysics";
+import { importedListingClaimPath } from "@/lib/imported-listing-claims";
+import { ClaimedVenueEditor } from "@/components/venues/ClaimedVenueEditor";
 
 const ALLOW_STATIC_VENUE_FIXTURES = import.meta.env.DEV;
 
@@ -280,11 +282,12 @@ export default function VenueProfile() {
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/68">
                     <p>{t("venueProfile.unclaimedCopy")}</p>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <Button asChild size="sm" variant="secondary"><Link to="/join/venue">{t("venueProfile.claim")}</Link></Button>
+                      <Button asChild size="sm" variant="secondary"><Link to={importedListingClaimPath("venue", venue.id)}>{t("venueProfile.claim")}</Link></Button>
                       {venue.source_url ? <a href={venue.source_url} target="_blank" rel="noreferrer" className="text-xs underline">{venue.attribution_text || t("venueProfile.source")}</a> : null}
                     </div>
                   </div>
                 ) : null}
+                <ClaimedVenueEditor venueId={venue.id} />
                 <div className="flex flex-wrap gap-4 text-sm text-white/62">
                   <span className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />

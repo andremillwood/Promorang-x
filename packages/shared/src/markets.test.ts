@@ -35,4 +35,17 @@ describe("market configuration", () => {
     expect(getCountryMarket("peru").timezone).toBe("America/Lima");
     expect(getCountryMarket("venezuela").locale).toBe("es-419");
   });
+
+  it("resolves US and UK pilots without falling back to Jamaica", () => {
+    const us = getCountryMarket("US");
+    const uk = getCountryMarket("united-kingdom");
+    expect(us.slug).toBe("united-states");
+    expect(us.currency).toBe("USD");
+    expect(uk.code).toBe("GB");
+    expect(uk.currency).toBe("GBP");
+    expect(getCityMarket(us, "detroit")?.timezone).toBe("America/Detroit");
+    expect(getCityMarket(uk, "london")?.timezone).toBe("Europe/London");
+    expect(isMarketFeatureEnabled(us, "gemWithdrawals")).toBe(false);
+    expect(isMarketFeatureEnabled(uk, "pieces")).toBe(false);
+  });
 });

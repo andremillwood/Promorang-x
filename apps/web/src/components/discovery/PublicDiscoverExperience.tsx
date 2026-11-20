@@ -9,6 +9,7 @@ import { useMarket } from "@/contexts/MarketContext";
 import { useDiscoveries } from "@/hooks/useDiscoveries";
 import { useDiscoveryDemand } from "@/hooks/useDiscoveryDemand";
 import { useCanonicalMomentFeed } from "@/hooks/useCanonicalMomentFeed";
+import { matchesCityHub } from "@/lib/city-hubs";
 import { usePublicOffers } from "@/hooks/useOffers";
 import { discoveryLocation, formatDiscoveryCategory } from "@promorang/shared";
 import { discoverPathHref } from "@/lib/discovery-path";
@@ -96,8 +97,8 @@ export function PublicDiscoverExperience() {
 
   const discoveries = useMemo(() => discoveriesQuery.data || [], [discoveriesQuery.data]);
   const moments = useMemo(() => (momentsQuery.data?.moments || []).filter((moment) =>
-    ["live", "starting_soon", "upcoming"].includes(moment.lifecycle),
-  ), [momentsQuery.data?.moments]);
+    ["live", "starting_soon", "upcoming"].includes(moment.lifecycle) && matchesCityHub(moment, city),
+  ), [momentsQuery.data?.moments, city]);
   const offers = useMemo(() => (offersQuery.data || []).filter((offer) =>
     ["active", "published", "live"].includes(offer.status),
   ), [offersQuery.data]);

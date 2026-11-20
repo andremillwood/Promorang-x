@@ -1,5 +1,7 @@
 import { translate } from "@/i18n/I18nContext";
 import { API_BASE_URL } from "@/lib/api";
+import { currentUiLocale } from "@/i18n/geo-locale";
+import { importedListingCopy } from "@/i18n/imported-listing-copy";
 
 export type MomentLifecycle = "live" | "starting_soon" | "upcoming" | "recently_ended";
 
@@ -10,6 +12,14 @@ export interface CanonicalMoment {
   description?: string | null;
   category?: string | null;
   location?: string | null;
+  city?: string | null;
+  city_slug?: string | null;
+  country?: string | null;
+  country_code?: string | null;
+  country_slug?: string | null;
+  state?: string | null;
+  market_key?: string | null;
+  timezone?: string | null;
   venue_name?: string | null;
   venue_id?: string | null;
   venue_slug?: string | null;
@@ -19,7 +29,7 @@ export interface CanonicalMoment {
   starts_at: string;
   ends_at?: string | null;
   effective_ends_at: string;
-  lifecycle: MomentLifecycle;
+  lifecycle: MomentLifecycle | "completed";
   image_url?: string | null;
   reward?: string | null;
   host_id?: string | null;
@@ -42,6 +52,11 @@ export interface CanonicalMoment {
   end_time_inferred: boolean;
   sponsorship_ready: boolean;
   content_origin?: string | null;
+  ownership_status?: string | null;
+  claim_status?: string | null;
+  claimed_by?: string | null;
+  external_source_url?: string | null;
+  recurrence_timezone?: string | null;
   recurrence_enabled?: boolean | null;
   recurrence_frequency?: "daily" | "weekly" | "monthly" | null;
   recurrence_interval?: number | null;
@@ -65,7 +80,8 @@ export async function getCanonicalMomentFeed(): Promise<CanonicalMomentFeed> {
   return payload.data as CanonicalMomentFeed;
 }
 
-export function momentLifecycleLabel(lifecycle: MomentLifecycle) {
+export function momentLifecycleLabel(lifecycle: CanonicalMoment["lifecycle"]) {
+  if (lifecycle === "completed") return importedListingCopy[currentUiLocale()].ended;
   if (lifecycle === "live") return translate("web.liveNow");
   if (lifecycle === "starting_soon") return translate("web.startingSoon");
   if (lifecycle === "recently_ended") return translate("web.lastNight");

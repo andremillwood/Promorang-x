@@ -1,0 +1,58 @@
+import type { Locale } from "./translations";
+
+const english = {
+  title: "Manage this venue",
+  description: "Your ownership claim was approved. Update the name, description, website, and phone shown on this profile.",
+  name: "Venue name",
+  about: "Description",
+  website: "Website (optional)",
+  phone: "Phone (optional)",
+  save: "Save changes",
+  discard: "Discard changes",
+  saved: "Venue profile updated",
+  saveFailed: "Could not update this venue",
+  retry: "Try again",
+  loadFailed: "The latest venue details could not be loaded. Try again before saving.",
+  invalidName: "Enter a venue name between 2 and 200 characters.",
+  invalidWebsite: "Enter a full website address beginning with https:// or http://, without login details.",
+  failed: "The update could not be completed. Try again.",
+};
+type EditorCopy = { [K in keyof typeof english]: string };
+export const claimedVenueCopy: Record<Locale, EditorCopy> = {
+  en: english,
+  "es-419": {
+    title: "Administrar este lugar",
+    description: "Tu solicitud de control fue aprobada. Actualiza el nombre, la descripción, el sitio web y el teléfono de este perfil.",
+    name: "Nombre del lugar",
+    about: "Descripción",
+    website: "Sitio web (opcional)",
+    phone: "Teléfono (opcional)",
+    save: "Guardar cambios",
+    discard: "Descartar cambios",
+    saved: "Perfil del lugar actualizado",
+    saveFailed: "No se pudo actualizar este lugar",
+    retry: "Intentar de nuevo",
+    loadFailed: "No se pudieron cargar los datos actuales del lugar. Inténtalo de nuevo antes de guardar.",
+    invalidName: "Ingresa un nombre de entre 2 y 200 caracteres.",
+    invalidWebsite: "Ingresa una dirección completa que comience con https:// o http://, sin datos de acceso.",
+    failed: "No se pudo completar la actualización. Inténtalo de nuevo.",
+  },
+  "pt-BR": {
+    title: "Gerenciar este local",
+    description: "Sua solicitação de controle foi aprovada. Atualize o nome, a descrição, o site e o telefone deste perfil.",
+    name: "Nome do local",
+    about: "Descrição",
+    website: "Site (opcional)",
+    phone: "Telefone (opcional)",
+    save: "Salvar alterações",
+    discard: "Descartar alterações",
+    saved: "Perfil do local atualizado",
+    saveFailed: "Não foi possível atualizar este local",
+    retry: "Tentar novamente",
+    loadFailed: "Não foi possível carregar os dados atuais do local. Tente novamente antes de salvar.",
+    invalidName: "Informe um nome com 2 a 200 caracteres.",
+    invalidWebsite: "Informe um endereço completo que comece com https:// ou http://, sem dados de login.",
+    failed: "Não foi possível concluir a atualização. Tente novamente.",
+  },
+};
+

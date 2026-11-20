@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +42,9 @@ import {
   momentArchetypes,
   conversionTypes,
 } from "@/lib/moment-taxonomy";
-import { LOCAL_DROP_PROOF_OPTIONS, resolvePlaceGeo, toMomentProofEnum } from "@/lib/jamaica-geo";
+import { LOCAL_DROP_PROOF_OPTIONS, toMomentProofEnum } from "@/lib/jamaica-geo";
+import { eventDateTimeInput, eventDateTimeInstant, EventTimeError } from "@/lib/event-local-time";
+import { eventScheduleCopy } from "@/i18n/event-schedule-copy";
 import type { Tables } from "@/integrations/supabase/types";
 import { useI18n } from "@/i18n/I18nContext";
 
@@ -60,7 +62,8 @@ const recurrenceWeekdayOptions = [
 type RecurrenceFrequency = "daily" | "weekly" | "monthly";
 
 const EditMoment = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const scheduleCopy = eventScheduleCopy[locale];
   const [activeSection, setActiveSection] = useState("story");
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -90,6 +93,7 @@ const EditMoment = () => {
     gallery_images?: GalleryImage[] | null;
   };
 
+  const originalMoment = useRef<EditableMomentRecord | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
@@ -145,6 +149,8 @@ const EditMoment = () => {
       }
 
       const recurrenceData = data as EditableMomentRecord;
+      originalMoment.current = recurrenceData;
+      const eventTimezone = recurrenceData.recurrence_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
       setFormData({
         title: data.title,
@@ -156,8 +162,8 @@ const EditMoment = () => {
         proofType: recurrenceData.proof_type ? toMomentProofEnum(recurrenceData.proof_type) : "",
         location: data.location,
         venueName: data.venue_name || "",
-        startsAt: data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : "",
-        endsAt: data.ends_at ? new Date(data.ends_at).toISOString().slice(0, 16) : "",
+        startsAt: eventDateTimeInput(data.starts_at, eventTimezone),
+        endsAt: eventDateTimeInput(data.ends_at, eventTimezone),
         maxParticipants: data.max_participants?.toString() || "",
         reward: data.reward || "",
         imageUrl: data.image_url || "",
@@ -169,8 +175,8 @@ const EditMoment = () => {
         recurrenceInterval: String(recurrenceData.recurrence_interval || 1),
         recurrenceByWeekday: Array.isArray(recurrenceData.recurrence_by_weekday) ? recurrenceData.recurrence_by_weekday : [],
         recurrenceDayOfMonth: recurrenceData.recurrence_day_of_month?.toString() || "",
-        recurrenceTimezone: recurrenceData.recurrence_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-        recurrenceUntil: recurrenceData.recurrence_until ? new Date(recurrenceData.recurrence_until).toISOString().slice(0, 16) : "",
+        recurrenceTimezone: eventTimezone,
+        recurrenceUntil: eventDateTimeInput(recurrenceData.recurrence_until, eventTimezone),
         recurrenceCount: recurrenceData.recurrence_count?.toString() || "",
       });
 
@@ -182,6 +188,9 @@ const EditMoment = () => {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async () => {
+      const startsAt = eventDateTimeInstant(formData.startsAt, formData.recurrenceTimezone, originalMoment.current?.starts_at);
+      const endsAt = formData.endsAt ? eventDateTimeInstant(formData.endsAt, formData.recurrenceTimezone, originalMoment.current?.ends_at) : null;
+      if (endsAt && new Date(endsAt) <= new Date(startsAt)) throw new Error(scheduleCopy.end_before_start);
       let imageUrl = formData.imageUrl;
       let bannerImageUrl = formData.bannerImageUrl;
       let galleryImages = formData.galleryImages || [];
@@ -233,12 +242,12 @@ const EditMoment = () => {
           conversion_type: formData.conversionType || null,
           proof_type: formData.proofType ? toMomentProofEnum(formData.proofType) : null,
           location: formData.location,
-          city: resolvePlaceGeo({ location: formData.location }).city,
-          country: resolvePlaceGeo({ location: formData.location }).country,
-          country_code: resolvePlaceGeo({ location: formData.location }).country_code,
+          // This form has no structured geography fields. Preserve the stored
+          // city/country rather than replacing verified US/UK metadata with
+          // nulls from the Jamaica-only free-text resolver.
           venue_name: formData.venueName || null,
-          starts_at: new Date(formData.startsAt).toISOString(),
-          ends_at: formData.endsAt ? new Date(formData.endsAt).toISOString() : null,
+          starts_at: startsAt,
+          ends_at: endsAt,
           max_participants: formData.maxParticipants ? parseInt(formData.maxParticipants) : null,
           reward: formData.reward || null,
           image_url: imageUrl || null,
@@ -256,7 +265,7 @@ const EditMoment = () => {
           recurrence_timezone: formData.recurrenceTimezone,
           recurrence_until:
             formData.recurrenceEnabled && formData.recurrenceUntil
-              ? new Date(formData.recurrenceUntil).toISOString()
+              ? eventDateTimeInstant(formData.recurrenceUntil, formData.recurrenceTimezone, originalMoment.current?.recurrence_until)
               : null,
           recurrence_count:
             formData.recurrenceEnabled && formData.recurrenceCount
@@ -278,7 +287,7 @@ const EditMoment = () => {
       navigate(`/moments/${id}`);
     },
     onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : "Unknown error";
+      const message = error instanceof EventTimeError ? scheduleCopy[error.code] : error instanceof Error ? error.message : "Unknown error";
       toast({
         title: t("editMoment.toastUpdateFailed"),
         description: message,
@@ -570,6 +579,7 @@ const EditMoment = () => {
           {/* Date & Time */}
           <div className={`${activeSection === "place" ? "" : "hidden"} bg-card border border-border rounded-2xl p-6 space-y-4`}>
             <h2 className="text-2xl font-black tracking-[-0.04em] text-foreground">{t("editMoment.timingHeading")}</h2>
+            <p className="text-sm text-muted-foreground">{scheduleCopy.timezone}: {formData.recurrenceTimezone}</p>
 
             <div className="grid grid-cols-2 gap-4">
               <div>

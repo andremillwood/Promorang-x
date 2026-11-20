@@ -8,6 +8,8 @@ export interface CityOption {
   countryName: string;
   category: "jamaica" | "caribbean" | "latam" | "africa" | "diaspora";
   badge?: string;
+  scope?: "state";
+  stateCode?: string;
 }
 
 export type LocationLike = {
@@ -20,6 +22,10 @@ export type LocationLike = {
   country_code?: string | null;
   title?: string | null;
   description?: string | null;
+  state?: string | null;
+  state_code?: string | null;
+  region?: string | null;
+  market_key?: string | null;
 };
 
 export const CITY_STORAGE_KEY = "promorang:selected_city";
@@ -73,11 +79,16 @@ export const ALL_CITY_HUBS: CityOption[] = [
   { id: "cape-town", name: "Cape Town", region: "Western Cape", countryCode: "ZA", countryName: "South Africa", category: "africa", badge: "Beta" },
   { id: "dakar", name: "Dakar", region: "Dakar", countryCode: "SN", countryName: "Senegal", category: "africa", badge: "Beta" },
   { id: "kigali", name: "Kigali", region: "Kigali Province", countryCode: "RW", countryName: "Rwanda", category: "africa", badge: "Beta" },
-  { id: "miami", name: "Miami & South Florida", region: "Florida", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Beta" },
-  { id: "new-york", name: "New York (NYC)", region: "New York", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Beta" },
-  { id: "atlanta", name: "Atlanta", region: "Georgia", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Beta" },
+  { id: "miami", name: "Miami & South Florida", region: "Florida", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", stateCode: "US-FL" },
+  { id: "new-york", name: "New York (NYC)", region: "New York", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", stateCode: "US-NY" },
+  { id: "atlanta", name: "Atlanta", region: "Georgia", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", stateCode: "US-GA" },
+  { id: "detroit", name: "Detroit", region: "Michigan", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", stateCode: "US-MI" },
+  { id: "us-florida", name: "Florida (statewide)", region: "Florida", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", scope: "state", stateCode: "US-FL" },
+  { id: "us-georgia", name: "Georgia (statewide)", region: "Georgia", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", scope: "state", stateCode: "US-GA" },
+  { id: "us-new-york", name: "New York (statewide)", region: "New York", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", scope: "state", stateCode: "US-NY" },
+  { id: "us-michigan", name: "Michigan (statewide)", region: "Michigan", countryCode: "US", countryName: "United States", category: "diaspora", badge: "Pilot", scope: "state", stateCode: "US-MI" },
   { id: "toronto", name: "Toronto", region: "Ontario", countryCode: "CA", countryName: "Canada", category: "diaspora", badge: "Beta" },
-  { id: "london", name: "London", region: "Greater London", countryCode: "GB", countryName: "United Kingdom", category: "diaspora", badge: "Beta" },
+  { id: "london", name: "London", region: "Greater London", countryCode: "GB", countryName: "United Kingdom", category: "diaspora", badge: "Pilot" },
 ];
 
 export const POPULAR_CITIES = ALL_CITY_HUBS;
@@ -133,6 +144,11 @@ const CITY_HUB_CENTERS: Record<string, { lat: number; lng: number }> = {
   miami: { lat: 25.7617, lng: -80.1918 },
   "new-york": { lat: 40.7128, lng: -74.006 },
   atlanta: { lat: 33.749, lng: -84.388 },
+  detroit: { lat: 42.3314, lng: -83.0458 },
+  "us-florida": { lat: 28.5383, lng: -81.3792 },
+  "us-georgia": { lat: 32.8407, lng: -83.6324 },
+  "us-new-york": { lat: 42.6526, lng: -73.7562 },
+  "us-michigan": { lat: 44.3148, lng: -85.6024 },
   toronto: { lat: 43.6532, lng: -79.3832 },
   london: { lat: 51.5074, lng: -0.1278 },
 };
@@ -182,7 +198,8 @@ const EXTRA_TOKENS: Record<string, string[]> = {
   grenada: ["st. george's", "st george's", "grenada"],
   bermuda: ["hamilton", "bermuda"],
   miami: ["miami", "south florida"],
-  "new-york": ["new york", "nyc", "brooklyn"],
+  "new-york": ["new york city", "new york", "nyc", "brooklyn", "manhattan", "queens", "bronx", "staten island"],
+  detroit: ["detroit"],
 };
 
 const JAMAICA_CITY_IDS = ALL_CITY_HUBS
@@ -242,7 +259,8 @@ function normalizeText(value: string): string {
 
 function tokensFor(hub: CityOption): string[] {
   const extras = EXTRA_TOKENS[hub.id] ?? [];
-  const derived = [hub.name, hub.region, hub.id.replace(/-/g, " ")]
+  // US state names belong to statewide scopes, not every city in that state.
+  const derived = [hub.name, hub.stateCode && !hub.scope ? null : hub.region, hub.id.replace(/-/g, " ")]
     .filter(Boolean)
     .flatMap((part) => String(part).split(/[,&/]/))
     .map((part) => normalizeText(part).trim())
@@ -261,6 +279,10 @@ function haystack(record: LocationLike): string {
       record.country,
       record.country_slug,
       record.country_code,
+      record.state,
+      record.state_code,
+      record.region,
+      record.market_key,
       record.title,
       record.description,
     ]
@@ -278,12 +300,23 @@ function matchesAnyToken(text: string, tokens: string[]): boolean {
 }
 
 export function matchesCityHub(record: LocationLike, hub: CityOption): boolean {
+  if (record.country_code && record.country_code.toUpperCase() !== hub.countryCode) return false;
   if (isUntagged(record)) {
     return hub.id === DEFAULT_CITY_HUB_ID || isNationwideHub(hub);
   }
 
   const text = haystack(record);
   const slug = record.city_slug?.trim().toLowerCase() || "";
+
+  if (hub.scope === "state") {
+    if (record.market_key === hub.id) return true;
+    const state = normalizeText(record.state_code || record.state || record.region || "").trim();
+    if (state) return [hub.stateCode?.toLowerCase(), hub.stateCode?.slice(3).toLowerCase(), normalizeText(hub.region || "")].includes(state);
+    const cityHub = resolveCityHub(slug);
+    if (cityHub?.stateCode) return cityHub.stateCode === hub.stateCode;
+    const location = normalizeText([record.city, record.location].filter(Boolean).join(" | "));
+    return Boolean(hub.region && new RegExp(`\\b${normalizeText(hub.region)}\\b`).test(location));
+  }
 
   if (slug && slug === hub.id) return true;
 
@@ -297,6 +330,15 @@ export function matchesCityHub(record: LocationLike, hub: CityOption): boolean {
   if (slug) {
     const slugHub = resolveCityHub(slug);
     if (slugHub && slugHub.id !== hub.id) return false;
+    // Imported records retain their actual municipality, including cities that
+    // do not yet have a selector. A state name must not map them to its hub city.
+    if (hub.stateCode && !tokensFor(hub).includes(normalizeText(slug.replace(/-/g, " ")))) return false;
+  }
+
+  if (hub.stateCode) {
+    if (record.city && !matchesAnyToken(normalizeText(record.city), tokensFor(hub))) return false;
+    const placeText = normalizeText([record.city, record.location, record.venue_name].filter(Boolean).join(" | "));
+    return matchesAnyToken(placeText, tokensFor(hub));
   }
 
   return matchesAnyToken(text, tokensFor(hub));

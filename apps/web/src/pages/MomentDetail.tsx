@@ -3,6 +3,8 @@ import { API_BASE_URL } from "@/lib/api";
 import { currentUiLocale } from "@/i18n/geo-locale";
 import { useMomentJourney } from "@/hooks/useMomentJourney";
 import { PublicMomentDetail } from "@/components/moments/PublicMomentDetail";
+import { ImportedMomentClaim } from "@/components/moments/ImportedMomentClaim";
+import { ImportedEventSource } from "@/components/moments/ImportedEventSource";
 import { ParticipantProofArtifact } from "@/components/proof/ParticipantProofArtifact";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
@@ -87,6 +89,13 @@ const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 type Moment = Tables<"moments"> & {
+  content_origin?: string | null;
+  ownership_status?: string | null;
+  claim_status?: string | null;
+  organizer_id?: string | null;
+  claimed_by?: string | null;
+  external_source_url?: string | null;
+  recurrence_timezone?: string | null;
   slug?: string | null;
   city?: string | null;
   country?: string | null;
@@ -697,6 +706,7 @@ const SignedInMomentDetail = () => {
         month: "short",
         day: "numeric",
         year: "numeric",
+        timeZone: moment?.recurrence_timezone || undefined,
       });
     } catch {
       return "";
@@ -709,9 +719,13 @@ const SignedInMomentDetail = () => {
       return i18nFormatTime ? i18nFormatTime(dateString, {
         hour: "numeric",
         minute: "2-digit",
+        timeZone: moment?.recurrence_timezone || undefined,
+        timeZoneName: "short",
       }) : new Intl.DateTimeFormat(currentUiLocale(), {
         hour: "numeric",
         minute: "2-digit",
+        timeZone: moment?.recurrence_timezone || undefined,
+        timeZoneName: "short",
       }).format(new Date(dateString));
     } catch {
       return "";
@@ -721,6 +735,7 @@ const SignedInMomentDetail = () => {
   const isFull = moment?.max_participants ? participantCount >= moment.max_participants : false;
   const accessState = getAccessState(accessQuote);
   const entryFeeJmd = Number(economy?.economics?.entry_fee_jmd || 0);
+  const isImportedListing = moment?.content_origin === "imported";
   const rewardLabel = moment?.reward || null;
 
   const isPast = moment ? !occurrence?.hasFutureOccurrence && new Date(moment.starts_at) < new Date() : false;
@@ -895,6 +910,7 @@ const SignedInMomentDetail = () => {
 
             {/* High-Conversion Unified Action Box */}
             <div id="moment-primary-action" className="space-y-5 border-t border-white/25 pt-6 lg:border-l lg:border-t-0 lg:pl-7">
+              {isImportedListing ? <ImportedEventSource sourceUrl={moment.external_source_url} /> : <>
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">{t("momentDetail.admission")}</span>
@@ -971,6 +987,8 @@ const SignedInMomentDetail = () => {
                   <span className="mt-2 block text-xs text-white/55">See requirements and available actions</span>
                 </button> : null}
               </div>
+              </>}
+              <ImportedMomentClaim moment={moment} />
             </div>
           </div>
         </div>
@@ -1484,7 +1502,7 @@ const SignedInMomentDetail = () => {
                     <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
                       <div><dt className="text-white/35">Moment ID</dt><dd className="mt-1 break-all font-mono text-xs text-white/75">{moment.id}</dd></div>
                       <div><dt className="text-white/35">Host ID</dt><dd className="mt-1 break-all font-mono text-xs text-white/75">{moment.host_id || "No host recorded"}</dd></div>
-                      <div><dt className="text-white/35">Starts</dt><dd className="mt-1 text-white/75">{displayStartsAt ? new Date(displayStartsAt).toLocaleString(currentUiLocale(), { timeZone: "America/Jamaica" }) : webT("activationCommerce.notRecorded")}</dd></div>
+                      <div><dt className="text-white/35">Starts</dt><dd className="mt-1 text-white/75">{displayStartsAt ? new Date(displayStartsAt).toLocaleString(currentUiLocale(), { timeZone: moment.recurrence_timezone || undefined, timeZoneName: "short" }) : webT("activationCommerce.notRecorded")}</dd></div>
                       <div><dt className="text-white/35">{webT("aftrhrs.venue")}</dt><dd className="mt-1 text-white/75">{moment.venue_name || moment.location || webT("activationCommerce.notRecorded")}</dd></div>
                     </dl>
                   </div>
@@ -1603,7 +1621,7 @@ const SignedInMomentDetail = () => {
       </main>
 
       {/* Mobile Sticky Join Bar */}
-      {!isAdmin && !isJoined && !isHost && !isPast ? <StickyJoinBar
+      {!isImportedListing && !isAdmin && !isJoined && !isHost && !isPast ? <StickyJoinBar
         momentId={moment.id}
         title={moment.title}
         reward={moment.reward}

@@ -52,4 +52,30 @@ describe("city hub matching", () => {
     expect(matchesCityHub({}, montego)).toBe(false);
     expect(matchesCityHub({}, miami)).toBe(false);
   });
+
+  it("includes each actual city in its statewide scope without relabelling it as the hub city", () => {
+    const florida = resolveCityHub("us-florida")!;
+    const michigan = resolveCityHub("us-michigan")!;
+    const newYorkState = resolveCityHub("us-new-york")!;
+    const detroit = resolveCityHub("detroit")!;
+    const nyc = resolveCityHub("new-york")!;
+    const pensacola = { city: "Pensacola", city_slug: "pensacola", state: "Florida", country_code: "US" };
+    const grandRapids = { city: "Grand Rapids", state: "Michigan", country_code: "US" };
+    const buffalo = { city: "Buffalo", location: "Buffalo, New York", state: "New York", country_code: "US" };
+    expect(matchesCityHub(pensacola, florida)).toBe(true);
+    expect(matchesCityHub(pensacola, miami)).toBe(false);
+    expect(matchesCityHub(grandRapids, michigan)).toBe(true);
+    expect(matchesCityHub(grandRapids, detroit)).toBe(false);
+    expect(matchesCityHub(buffalo, newYorkState)).toBe(true);
+    expect(matchesCityHub(buffalo, nyc)).toBe(false);
+    expect(firstCityHubForPlace({ city: "Detroit", countryCode: "US" })?.id).toBe("detroit");
+  });
+
+  it("matches structured state codes and keeps country and event-title collisions out", () => {
+    expect(matchesCityHub({ state_code: "US-GA", country_code: "US" }, resolveCityHub("us-georgia")!)).toBe(true);
+    expect(matchesCityHub({ market_key: "us-michigan", country_code: "US" }, resolveCityHub("us-michigan")!)).toBe(true);
+    expect(matchesCityHub({ city: "Kingston", title: "Michigan music night" }, resolveCityHub("us-michigan")!)).toBe(false);
+    expect(matchesCityHub({ city: "London", country_code: "CA" }, resolveCityHub("london")!)).toBe(false);
+    expect(matchesCityHub({ city: "London", country_code: "GB" }, resolveCityHub("london")!)).toBe(true);
+  });
 });

@@ -46,6 +46,26 @@
     {
       "country_code": "PA", "country_slug": "panama", "country": "Panama", "city_slug": "panama-city", "city": "Panama City", "region": "Panamá", "currency": "PAB", "timezone": "America/Panama", "bbox": "8.9000,-79.6200,9.1000,-79.4000", "launch_stage": "pilot",
       "poll_templates": ["¿Qué barrio de Ciudad de Panamá tiene la escena más interesante?", "¿Qué espacio independiente merece más atención?", "¿Qué lugar debería organizar el próximo Momento?", "¿Qué debería activar Promorang primero en Ciudad de Panamá?"]
+    },
+    {
+      "country_code": "US", "country_slug": "united-states", "country": "United States", "city_slug": "miami", "city": "Miami", "region": "Florida", "currency": "USD", "timezone": "America/New_York", "bbox": "25.7000,-80.3200,25.8500,-80.1000", "event_discovery_scope": "us-florida", "launch_stage": "pilot",
+      "poll_templates": ["Which local Miami event should more people know?", "Which independent Miami venue deserves a spotlight?", "Which recurring gathering brings Miami together?", "What should Promorang activate in Miami next?"]
+    },
+    {
+      "country_code": "US", "country_slug": "united-states", "country": "United States", "city_slug": "atlanta", "city": "Atlanta", "region": "Georgia", "currency": "USD", "timezone": "America/New_York", "bbox": "33.6500,-84.5500,33.9000,-84.2500", "event_discovery_scope": "us-georgia", "launch_stage": "pilot",
+      "poll_templates": ["Which local Atlanta event should more people know?", "Which independent Atlanta venue deserves a spotlight?", "Which recurring gathering brings Atlanta together?", "What should Promorang activate in Atlanta next?"]
+    },
+    {
+      "country_code": "US", "country_slug": "united-states", "country": "United States", "city_slug": "new-york", "city": "New York City", "region": "New York", "currency": "USD", "timezone": "America/New_York", "bbox": "40.4800,-74.2700,40.9300,-73.6800", "event_discovery_scope": "us-new-york", "launch_stage": "pilot",
+      "poll_templates": ["Which local New York City event should more people know?", "Which independent New York City venue deserves a spotlight?", "Which recurring gathering brings New York City together?", "What should Promorang activate in New York City next?"]
+    },
+    {
+      "country_code": "US", "country_slug": "united-states", "country": "United States", "city_slug": "detroit", "city": "Detroit", "region": "Michigan", "currency": "USD", "timezone": "America/Detroit", "bbox": "42.2500,-83.3000,42.4500,-82.9000", "event_discovery_scope": "us-michigan", "launch_stage": "pilot",
+      "poll_templates": ["Which local Detroit event should more people know?", "Which independent Detroit venue deserves a spotlight?", "Which recurring gathering brings Detroit together?", "What should Promorang activate in Detroit next?"]
+    },
+    {
+      "country_code": "GB", "country_slug": "united-kingdom", "country": "United Kingdom", "city_slug": "london", "city": "London", "region": "Greater London", "currency": "GBP", "timezone": "Europe/London", "bbox": "51.2800,-0.5100,51.7000,0.3300", "event_discovery_scope": "gb-london", "launch_stage": "pilot",
+      "poll_templates": ["Which local London event should more people know?", "Which independent London venue deserves a spotlight?", "Which recurring gathering brings London together?", "What should Promorang activate in London next?"]
     }
   ]
 }
