@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BorderRadius, Colors, Spacing } from '@/constants/DesignTokens';
 import { useAuth, UserRole } from '@/context/AuthContext';
 import { useOnboarding } from '@/context/OnboardingContext';
+import { isoCountryByCode, searchIsoCountries, validateSignupEligibility } from '@promorang/shared';
 import { supabase } from '@/lib/supabase';
 
 const ROLES: Array<{ id: Exclude<UserRole, 'admin'>; title: string; detail: string; icon: React.ComponentProps<typeof Ionicons>['name'] }> = [
@@ -41,9 +42,19 @@ export default function OnboardingScreen() {
   const [city, setCity] = useState('');
   const [role, setRole] = useState<Exclude<UserRole, 'admin'>>('participant');
   const [interests, setInterests] = useState<string[]>([]);
+  const [countryQuery, setCountryQuery] = useState('');
+  const [countryCode, setCountryCode] = useState<string | null>(null);
+  const [dob, setDob] = useState('');
   const [saving, setSaving] = useState(false);
+  const countryMatches = useMemo(() => searchIsoCountries(countryQuery), [countryQuery]);
+  const selectedCountry = isoCountryByCode(countryCode);
 
-  const canContinue = useMemo(() => step === 0 ? name.trim().length >= 2 : step === 1 ? Boolean(role) : interests.length > 0, [step, name, role, interests]);
+  const canContinue = useMemo(() => {
+    if (step === 0) return name.trim().length >= 2;
+    if (step === 1) return Boolean(role);
+    if (step === 2) return interests.length > 0;
+    return validateSignupEligibility({ countryCode, dob }) === null;
+  }, [step, name, role, interests, countryCode, dob]);
 
   const toggleInterest = (id: string) => {
     setInterests((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
@@ -65,13 +76,34 @@ export default function OnboardingScreen() {
       }, { onConflict: 'user_id' });
       if (profileError) console.warn('[Onboarding] Profile save skipped:', profileError.message);
 
+      const eligibility = validateSignupEligibility({ countryCode, dob });
+      if (eligibility) {
+        const message = eligibility === 'UNDERAGE'
+          ? 'You need to be 18 or older to join PromoRang.'
+          : eligibility === 'DOB_REQUIRED' || eligibility === 'INVALID_DOB'
+            ? 'Enter your date of birth to continue.'
+            : 'Choose your country to continue.';
+        throw new Error(message);
+      }
+
+      const { error: eligibilityError } = await supabase.rpc('record_signup_eligibility', {
+        p_country_code: countryCode,
+        p_dob: dob,
+        p_source: 'signup',
+      });
+      if (eligibilityError && !/schema cache|could not find the function|PGRST202/i.test(eligibilityError.message)) {
+        const known = ['UNDERAGE', 'COUNTRY_REQUIRED', 'INVALID_COUNTRY', 'DOB_REQUIRED', 'INVALID_DOB'].find((code) => eligibilityError.message.includes(code));
+        if (known === 'UNDERAGE') throw new Error('You need to be 18 or older to join PromoRang.');
+        throw new Error(eligibilityError.message);
+      }
+
       const { error: preferencesError } = await supabase.rpc('upsert_user_preferences', {
         p_user_id: user.id,
         p_age_range: null,
         p_gender: null,
         p_city: city.trim() || null,
         p_state: null,
-        p_country: 'JM',
+        p_country: countryCode,
         p_latitude: null,
         p_longitude: null,
         p_location_radius_km: 25,
@@ -85,7 +117,9 @@ export default function OnboardingScreen() {
       if (preferencesError) console.warn('[Onboarding] Preferences save skipped:', preferencesError.message);
 
       try {
-        const { error: authError } = await supabase.auth.updateUser({ data: { full_name: cleanName, name: cleanName } });
+        const { error: authError } = await supabase.auth.updateUser({
+          data: { full_name: cleanName, name: cleanName, country_code: countryCode, dob },
+        });
         if (authError) console.warn('[Onboarding] Non-fatal auth metadata update error:', authError.message);
       } catch (e) {
         console.warn('[Onboarding] Non-fatal auth metadata update exception:', e);
@@ -104,9 +138,9 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.screen}>
       <View style={styles.topbar}>
         <View style={styles.brand}><View style={styles.brandMark}><Ionicons name="sparkles" size={17} color={Colors.black} /></View><Text style={styles.brandText}>PROMORANG</Text></View>
-        <Text style={styles.counter}>{step + 1} OF 3</Text>
+        <Text style={styles.counter}>{step + 1} OF 4</Text>
       </View>
-      <View style={styles.progress}><View style={[styles.progressFill, { width: `${((step + 1) / 3) * 100}%` }]} /></View>
+      <View style={styles.progress}><View style={[styles.progressFill, { width: `${((step + 1) / 4) * 100}%` }]} /></View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {step === 0 && <>
@@ -142,12 +176,50 @@ export default function OnboardingScreen() {
             return <Pressable key={id} onPress={() => toggleInterest(id)} style={[styles.interest, selected && styles.interestSelected]}><Text style={[styles.interestText, selected && styles.interestTextSelected]}>{label}</Text>{selected && <Ionicons name="checkmark" size={16} color={Colors.black} />}</Pressable>;
           })}</View>
         </>}
+
+        {step === 3 && <>
+          <Text style={styles.eyebrow}>WHERE YOU ARE FROM</Text>
+          <Text style={styles.title}>Country and birthday</Text>
+          <Text style={styles.subtitle}>Choose the country you call home. Nothing is selected for you. PromoRang is 18+.</Text>
+          <Text style={styles.label}>HOME COUNTRY</Text>
+          <TextInput
+            value={countryQuery}
+            onChangeText={(value) => {
+              setCountryQuery(value);
+              if (selectedCountry && value !== selectedCountry.name) setCountryCode(null);
+            }}
+            placeholder="Search countries"
+            placeholderTextColor={Colors.gray[600]}
+            style={styles.input}
+            autoCapitalize="words"
+          />
+          {selectedCountry ? <Text style={styles.selectedCountry}>{selectedCountry.name} · {selectedCountry.code}</Text> : null}
+          <View style={styles.countryList}>
+            {countryMatches.map((country) => {
+              const selected = country.code === countryCode;
+              return <Pressable key={country.code} onPress={() => { setCountryCode(country.code); setCountryQuery(country.name); }} style={[styles.countryRow, selected && styles.interestSelected]}>
+                <Text style={[styles.interestText, selected && styles.interestTextSelected]}>{country.name}</Text>
+                <Text style={[styles.countryCode, selected && styles.interestTextSelected]}>{country.code}</Text>
+              </Pressable>;
+            })}
+          </View>
+          <Text style={styles.label}>DATE OF BIRTH</Text>
+          <TextInput
+            value={dob}
+            onChangeText={setDob}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={Colors.gray[600]}
+            style={styles.input}
+            autoCapitalize="none"
+            keyboardType="numbers-and-punctuation"
+          />
+        </>}
       </ScrollView>
 
       <View style={styles.footer}>
         {step > 0 ? <Pressable accessibilityLabel="Previous onboarding step" onPress={() => setStep((value) => value - 1)} style={styles.back}><Ionicons name="arrow-back" size={21} color={Colors.white} /></Pressable> : <View style={styles.backPlaceholder} />}
-        <Pressable disabled={!canContinue || saving} onPress={() => step < 2 ? setStep((value) => value + 1) : void finish()} style={[styles.continue, (!canContinue || saving) && styles.disabled]}>
-          {saving ? <ActivityIndicator color={Colors.black} /> : <><Text style={styles.continueText}>{step === 2 ? 'Enter Promorang' : 'Continue'}</Text><Ionicons name="arrow-forward" size={19} color={Colors.black} /></>}
+        <Pressable disabled={!canContinue || saving} onPress={() => step < 3 ? setStep((value) => value + 1) : void finish()} style={[styles.continue, (!canContinue || saving) && styles.disabled]}>
+          {saving ? <ActivityIndicator color={Colors.black} /> : <><Text style={styles.continueText}>{step === 3 ? 'Enter Promorang' : 'Continue'}</Text><Ionicons name="arrow-forward" size={19} color={Colors.black} /></>}
         </Pressable>
         {__DEV__ ? (
           <Pressable
@@ -194,6 +266,10 @@ const styles = StyleSheet.create({
   interestSelected: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   interestText: { color: Colors.white, fontSize: 14, fontWeight: '700' },
   interestTextSelected: { color: Colors.black },
+  selectedCountry: { color: Colors.primary, fontSize: 13, fontWeight: '800', marginBottom: 8 },
+  countryList: { gap: 8, marginBottom: 8 },
+  countryRow: { minHeight: 48, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: BorderRadius.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.gray[900] },
+  countryCode: { color: Colors.gray[400], fontFamily: 'SpaceMono', fontSize: 12 },
   footer: { paddingHorizontal: Spacing.container, paddingVertical: 14, borderTopWidth: 1, borderTopColor: Colors.border, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.black },
   back: { width: 52, height: 52, alignItems: 'center', justifyContent: 'center', borderRadius: BorderRadius.md, borderWidth: 1, borderColor: Colors.border },
   backPlaceholder: { width: 52 },

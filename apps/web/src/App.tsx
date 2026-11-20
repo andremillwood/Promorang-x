@@ -31,6 +31,7 @@ const MechanicDetail = lazy(() => import("./pages/MechanicDetail"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const CompleteProfile = lazy(() => import("./pages/CompleteProfile"));
 const PostLoginRouter = lazy(() => import("@/components/onboarding/PostLoginRouter"));
 const BrandOnboarding = lazy(() => import("./pages/onboarding/BrandOnboarding"));
 const ForCommunities = lazy(() => import("./pages/ForCommunities"));
@@ -275,6 +276,7 @@ const App = () => (
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/onboarding" element={<Onboarding />} />
+                    <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
                     <Route path="/onboarding/brand" element={<BrandOnboarding />} />
                     <Route path="/post-login" element={<PostLoginRouter />} />
                     <Route path="/join" element={<Join />} />
