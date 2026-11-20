@@ -1761,6 +1761,9 @@ export const moreEn = {
   "cappedDrop.cap": "How many",
   "cappedDrop.create": "Open the drop",
   "cappedDrop.closes": "Closes {{date}}",
+  "cappedDrop.ageRequired": "You need to be 18 or older to claim this. Add your date of birth first.",
+  "cappedDrop.countryRequired": "Confirm your country to claim this.",
+  "cappedDrop.completeProfile": "Complete your profile",
 } as const;
 
 export type MoreTranslationKey = keyof typeof moreEn;
@@ -3526,6 +3529,9 @@ export const moreEs: Record<MoreTranslationKey, string> = {
   "cappedDrop.cap": "Cuántos",
   "cappedDrop.create": "Abrir el drop",
   "cappedDrop.closes": "Cierra {{date}}",
+  "cappedDrop.ageRequired": "Tienes que tener 18 años o más para reclamar esto. Agrega tu fecha de nacimiento primero.",
+  "cappedDrop.countryRequired": "Confirma tu país para reclamar esto.",
+  "cappedDrop.completeProfile": "Completa tu perfil",
 };
 
 export const morePtBR: Record<MoreTranslationKey, string> = {
@@ -5289,4 +5295,7 @@ export const morePtBR: Record<MoreTranslationKey, string> = {
   "cappedDrop.cap": "Quantos",
   "cappedDrop.create": "Abrir o drop",
   "cappedDrop.closes": "Fecha {{date}}",
+  "cappedDrop.ageRequired": "Você precisa ter 18 anos ou mais para reivindicar isto. Adicione sua data de nascimento primeiro.",
+  "cappedDrop.countryRequired": "Confirme seu país para reivindicar isto.",
+  "cappedDrop.completeProfile": "Complete seu perfil",
 };

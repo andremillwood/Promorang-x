@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { isProfileGateCode, profileCompletionHref, signInHref, type ProfileGateCode } from "@promorang/shared";
 import SEO from "@/components/SEO";
 import { CappedDropTicket } from "@/components/capped-drop/CappedDropTicket";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +20,8 @@ export default function CappedDrop() {
   const [visible, setVisible] = useState(() => typeof document === "undefined" || document.visibilityState !== "hidden");
   const [notified, setNotified] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [profileGate, setProfileGate] = useState<ProfileGateCode | null>(null);
+  const dropPath = `/capped-drop/${slug}`;
 
   useEffect(() => {
     const onChange = () => setVisible(document.visibilityState !== "hidden");
@@ -40,16 +43,22 @@ export default function CappedDrop() {
 
   const claim = async () => {
     if (!user || !session?.access_token) {
-      navigate(`/auth?next=${encodeURIComponent(`/capped-drop/${slug}`)}`);
+      navigate(signInHref(dropPath));
       return;
     }
     setClaiming(true);
     try {
       const result = await claimCappedDrop(slug, session.access_token);
+      setProfileGate(null);
       await queryClient.invalidateQueries({ queryKey: ["capped-drop", slug] });
       toast({ title: result?.already_claimed ? t("cappedDrop.alreadyYours") : t("cappedDrop.claimed") });
     } catch (error) {
-      const message = (error as Error).message || t("cappedDrop.couldNot");
+      const coded = error as Error & { code?: string };
+      if (isProfileGateCode(coded.code)) {
+        setProfileGate(coded.code);
+        return;
+      }
+      const message = coded.message || t("cappedDrop.couldNot");
       toast({ title: t("cappedDrop.couldNot"), description: message, variant: "destructive" });
       await queryClient.invalidateQueries({ queryKey: ["capped-drop", slug] });
     } finally {
@@ -59,7 +68,7 @@ export default function CappedDrop() {
 
   const notify = async () => {
     if (!user || !session?.access_token) {
-      navigate(`/auth?next=${encodeURIComponent(`/capped-drop/${slug}`)}`);
+      navigate(signInHref(dropPath));
       return;
     }
     try {
@@ -119,20 +128,34 @@ export default function CappedDrop() {
         {drop.status === "scheduled" && drop.opens_at ? (
           <p className="text-center text-sm text-white/60">{t("cappedDrop.scheduled", { time: formatDate(drop.opens_at, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) })}</p>
         ) : null}
-        <button
-          type="button"
-          disabled={claiming || full || drop.status === "scheduled" || drop.already_claimed}
-          onClick={claim}
-          className="min-h-14 rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
-        >
-          {drop.already_claimed
-            ? t("cappedDrop.alreadyYours")
-            : view.full
-              ? t("cappedDrop.soldOut", { cap: formatNumber(view.cap) })
-              : user
-                ? t("cappedDrop.claim")
-                : t("cappedDrop.signIn")}
-        </button>
+        {profileGate ? (
+          <div className="rounded-2xl border border-white/15 px-4 py-4 text-center" role="status">
+            <p className="text-sm text-white/80">
+              {profileGate === "AGE_REQUIRED" ? t("cappedDrop.ageRequired") : t("cappedDrop.countryRequired")}
+            </p>
+            <Link
+              to={profileCompletionHref(dropPath)}
+              className="mt-4 inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-black text-black"
+            >
+              {t("cappedDrop.completeProfile")}
+            </Link>
+          </div>
+        ) : (
+          <button
+            type="button"
+            disabled={claiming || full || drop.status === "scheduled" || drop.already_claimed}
+            onClick={claim}
+            className="min-h-14 rounded-full bg-primary text-sm font-black text-black disabled:opacity-60"
+          >
+            {drop.already_claimed
+              ? t("cappedDrop.alreadyYours")
+              : view.full
+                ? t("cappedDrop.soldOut", { cap: formatNumber(view.cap) })
+                : user
+                  ? t("cappedDrop.claim")
+                  : t("cappedDrop.signIn")}
+          </button>
+        )}
         {full ? (
           <div className="text-center">
             <p className="text-sm text-white/70">{t("cappedDrop.notifyPrompt")}</p>

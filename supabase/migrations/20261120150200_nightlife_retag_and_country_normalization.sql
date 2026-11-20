@@ -1,7 +1,8 @@
 -- Nightlife retag and country normalization.
--- Capleton: seed id 00000000-0000-0000-0002-000000000052,
--- slug encore-live-featuring-capleton
--- (supabase/migrations/202608180001_seed_midas_plantation_cove.sql).
+-- Capleton: id 00000000-0000-0000-0002-000000000052,
+-- slug encore-live-featuring-capleton.
+-- Live title is 'Encore Live featuring Capleton' (confirmed). Do not rewrite it.
+-- The seed title differs; the match is the id plus that slug or a Capleton title.
 -- Ladies Throwback: id 58fa8801-6f83-40e3-a80b-86d6a67fc1a7,
 -- title kept exactly. Category only. Stays closed. Does not touch
 -- event_editions, so prevent_retired_aftrhrs_edition is not tripped.
