@@ -34,6 +34,16 @@ describe('checkout journey', () => {
     expect(JSON.parse(String(call?.[1]?.body))).toEqual({ items: [{ product_id: 'product1', quantity: 2 }], issuance_id: 'benefit1', referral_code: 'FRIEND' });
     expect(readCart()).toEqual([product]);
   });
+  it('sends an optional moment with checkout when the night was carried in', async () => {
+    const moment = '11111111-1111-4111-8111-111111111111';
+    const fetcher = vi.fn(async () => ({ ok: true, json: async () => ({ checkoutUrl: 'https://checkout.stripe.test/session', benefits: [] }) }));
+    vi.stubGlobal('fetch', fetcher);
+    show(`/shop/cart?moment_id=${moment}`);
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue to checkout' }));
+    await waitFor(() => expect(fetcher.mock.calls.some(([, options]) => options?.body)).toBe(true));
+    const call = fetcher.mock.calls.find(([, options]) => options?.body);
+    expect(JSON.parse(String(call?.[1]?.body)).moment_id).toBe(moment);
+  });
   it('does not clear a cart on an unconfirmed return', async () => {
     vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, json: async () => url.includes('/cart-orders/') ? { order: { payment_status: 'processing' }, receipt_id: null } : { benefits: [] } })));
     show('/shop/cart?order=order1');

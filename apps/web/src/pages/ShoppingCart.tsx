@@ -7,7 +7,7 @@ import { ArrowRight, ShoppingBag, Ticket } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { API_BASE_URL } from '@/lib/api';
-import { commerceReferral, readCart, saveCart } from '@/lib/commerce-cart';
+import { commerceMoment, commerceReferral, readCart, rememberCommerceMoment, saveCart } from '@/lib/commerce-cart';
 
 type Benefit = { id: string; offers: { title: string; terms: string; value_amount: number; value_currency: string; metadata: { checkout_discount: { kind: string; category?: string; minimum_spend?: number } } } };
 async function request(path: string, body?: unknown) {
@@ -21,6 +21,7 @@ export default function ShoppingCart() {
   const { t, locale } = useI18n();
   const { user } = useAuth();
   const [params] = useSearchParams();
+  const search = params.toString();
   const orderId = params.get('order');
   const [items, setItems] = useState(readCart);
   const [issuanceId, setIssuanceId] = useState('');
@@ -30,6 +31,7 @@ export default function ShoppingCart() {
   const merchantId = items[0]?.merchant_id;
   const benefits = useQuery({ queryKey: ['cart-benefits', user?.id, merchantId], enabled: Boolean(user && merchantId), queryFn: () => request(`/commerce/cart-benefits/${merchantId}`) });
   const order = useQuery({ queryKey: ['cart-order', user?.id, orderId], enabled: Boolean(user && orderId), queryFn: () => request(`/commerce/cart-orders/${orderId}`), refetchInterval: query => query.state.data?.receipt_id || ['cancelled','failed','refunded'].includes(query.state.data?.order?.payment_status) ? false : 3000 });
+  useEffect(() => { rememberCommerceMoment(search ? `?${search}` : ''); }, [search]);
   useEffect(() => {
     if (!order.data?.receipt_id) return;
     // Remove only quantities bought in this order, and only once across refreshes.
@@ -47,7 +49,8 @@ export default function ShoppingCart() {
   async function checkout() {
     setBusy(true); setError('');
     try {
-      const result = await request('/stripe/commerce/checkout', { items: items.map(({ product_id, quantity }) => ({ product_id, quantity })), issuance_id: issuanceId || null, referral_code: referral || null });
+      const momentId = commerceMoment();
+      const result = await request('/stripe/commerce/checkout', { items: items.map(({ product_id, quantity }) => ({ product_id, quantity })), issuance_id: issuanceId || null, referral_code: referral || null, ...(momentId ? { moment_id: momentId } : {}) });
       window.location.assign(result.checkoutUrl);
     } catch { setError(t("release.31")); setBusy(false); }
   }

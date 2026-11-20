@@ -21,6 +21,10 @@ vi.mock("@/hooks/usePeopleExperience", () => ({
   useExperienceHome: () => ({ data: undefined, isLoading: false, isError: false, isFetching: false, refetch: vi.fn() }),
   useNearbyBenefits: () => ({ data: [], isLoading: false, isError: false }),
 }));
+vi.mock("@/hooks/usePromoCard", () => ({
+  promoCardLedgerQueryKey: (userId?: string) => ["promocard-ledger", userId],
+  usePromoCardLedger: () => ({ data: [], isLoading: false, isError: false, isFetching: false, refetch: vi.fn() }),
+}));
 vi.mock("@/hooks/usePromoCardAim", () => ({
   useApplyPromoCardAim: () => ({ aim: aimState.current, chooseAim: vi.fn() }),
 }));

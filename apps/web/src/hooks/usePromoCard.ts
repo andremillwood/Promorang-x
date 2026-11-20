@@ -16,6 +16,44 @@ type PromoCardRow = {
   created_at: string;
 };
 
+export type PromoCardLedgerEntryType =
+  | "spend"
+  | "payout_credit"
+  | "recharge"
+  | "cycle_reset"
+  | "reversal_refund"
+  | "admin_adjustment";
+
+export type PromoCardLedgerRow = {
+  id: string;
+  entry_type: PromoCardLedgerEntryType;
+  amount: number | string;
+  currency: string;
+  balance_after: number | string;
+  business_night: string | null;
+  cycle_id: string | null;
+  moment_id: string | null;
+  order_id: string | null;
+  created_at: string;
+  is_test: boolean;
+  metadata: { promocard_title?: string | null } | null;
+};
+
+export type PromoCardActivityEntry = {
+  id: string;
+  entryType: PromoCardLedgerEntryType;
+  amount: number;
+  currency: string;
+  balanceAfter: number;
+  businessNight: string | null;
+  cycleId: string | null;
+  momentId: string | null;
+  orderId: string | null;
+  createdAt: string;
+  isTest: boolean;
+  title: string | null;
+};
+
 type PromoCardDatabase = {
   public: {
     Tables: {
@@ -27,6 +65,12 @@ type PromoCardDatabase = {
       };
       merchant_margin_pools: {
         Row: { id: string; is_active: boolean };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      promocard_ledger: {
+        Row: PromoCardLedgerRow;
         Insert: never;
         Update: never;
         Relationships: [];
@@ -85,6 +129,59 @@ export function usePromoCard(userId?: string) {
       if (!cardResult.data) return null;
 
       return mapCard(cardResult.data, poolResult.count || 0);
+    },
+    staleTime: 30_000,
+    retry: 1,
+  });
+}
+
+export function promoCardLedgerQueryKey(userId?: string) {
+  return ["promocard-ledger", userId] as const;
+}
+
+export function isPromoCardLedgerUnavailable(error: { code?: string; message?: string } | null | undefined) {
+  const code = error?.code || "";
+  const message = error?.message || "";
+  return code === "PGRST205"
+    || code === "42P01"
+    || /schema cache/i.test(message)
+    || (/promocard_ledger/i.test(message) && /does not exist/i.test(message));
+}
+
+export function mapPromoCardLedgerRow(row: PromoCardLedgerRow): PromoCardActivityEntry {
+  const title = row.metadata?.promocard_title?.trim();
+  return {
+    id: row.id,
+    entryType: row.entry_type,
+    amount: Number(row.amount),
+    currency: row.currency || "USD",
+    balanceAfter: Number(row.balance_after),
+    businessNight: row.business_night,
+    cycleId: row.cycle_id,
+    momentId: row.moment_id,
+    orderId: row.order_id,
+    createdAt: row.created_at,
+    isTest: Boolean(row.is_test),
+    title: title || null,
+  };
+}
+
+export function usePromoCardLedger(userId?: string) {
+  return useQuery({
+    queryKey: promoCardLedgerQueryKey(userId),
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      const result = await promoClient
+        .from("promocard_ledger")
+        .select("id,entry_type,amount,currency,balance_after,business_night,cycle_id,moment_id,order_id,created_at,is_test,metadata")
+        .eq("user_id", userId!)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (result.error) {
+        if (isPromoCardLedgerUnavailable(result.error)) return [];
+        throw result.error;
+      }
+      return (result.data || []).map(mapPromoCardLedgerRow);
     },
     staleTime: 30_000,
     retry: 1,

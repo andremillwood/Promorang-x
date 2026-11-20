@@ -1,5 +1,8 @@
+import { PromoCardActivityFeed } from "@/components/promocard/PromoCardActivityFeed";
 import { PromoCardActivity } from "@/components/promocard/PromoCardPresence";
+import { promoCardLedgerQueryKey } from "@/hooks/usePromoCard";
 import { currentUiLocale } from "@/i18n/geo-locale";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, Check, Copy, RefreshCw, Radio } from "lucide-react";
@@ -79,6 +82,7 @@ function issuanceForPerk(perk: CardPerk) {
 export default function MyPromoCard() {
   const { t: webT } = useI18n();
   const { t } = useI18n();
+  const queryClient = useQueryClient();
   const { user, profile, activeRole } = useAuth();
   const [searchParams] = useSearchParams();
   const stake = localizeLens(getStakeholderLens(searchParams.get("role") || activeRole), t);
@@ -158,7 +162,7 @@ export default function MyPromoCard() {
       description="Your access, ready for your next move."
       backTo="/dashboard"
       actions={data ? (
-        <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => void card.refetch()} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
+        <button type="button" aria-label={t("card.refreshAria")} disabled={card.isFetching} onClick={() => { void card.refetch(); void queryClient.invalidateQueries({ queryKey: promoCardLedgerQueryKey(user?.id) }); }} className="inline-flex min-h-10 items-center gap-2 self-start text-xs font-bold uppercase tracking-[0.14em] text-white/40 disabled:opacity-50">
           <RefreshCw className={`h-3.5 w-3.5 ${card.isFetching ? "motion-safe:animate-spin" : ""}`} /> {webT("common.refresh")}
         </button>
       ) : undefined}
@@ -171,6 +175,7 @@ export default function MyPromoCard() {
 
 
           <PromoCardActivity history />
+          <PromoCardActivityFeed userId={user?.id} />
           <section className="grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,.75fr)] lg:items-center">
             <div className="min-w-0">
               <section className="participant-identity" aria-label="Your participant identity">

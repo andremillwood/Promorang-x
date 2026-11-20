@@ -74,9 +74,16 @@ router.post('/commerce/payment-intent', requireAuth, async (req, res) => {
 
 router.post('/commerce/checkout', requireAuth, async (req, res) => {
     try {
-        const { product_id, quantity = 1, items, success_url, cancel_url, issuance_id, referral_code } = req.body || {};
+        const { product_id, quantity = 1, items, success_url, cancel_url, issuance_id, referral_code, moment_id } = req.body || {};
         if (!product_id && (!Array.isArray(items) || !items.length)) {
             return res.status(422).json({ error: 'product_id or items is required' });
+        }
+        let momentId = null;
+        if (moment_id != null && String(moment_id).trim() !== '') {
+            momentId = String(moment_id).trim();
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(momentId)) {
+                return res.status(422).json({ error: 'moment_id must be a uuid' });
+            }
         }
         const marketplaceService = require('../services/marketplaceService');
         const checkout = await marketplaceService.createStripeCommerceCheckout({
@@ -86,6 +93,7 @@ router.post('/commerce/checkout', requireAuth, async (req, res) => {
             items,
             issuanceId: issuance_id || null,
             referralCode: referral_code || null,
+            momentId,
             successUrl: success_url,
             cancelUrl: cancel_url,
         });
